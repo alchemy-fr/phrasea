@@ -5,7 +5,7 @@ import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {createI18n} from '@/i18n';
 import {AttributeType} from '@/types/api';
-import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
+import {seedDefinitions} from '@/features/attributes/definitionsStore';
 import {SearchBar} from './SearchBar';
 
 const search = vi.hoisted(() => ({
@@ -22,6 +22,7 @@ const search = vi.hoisted(() => ({
 }));
 const api = vi.hoisted(() => ({
     getSearchSuggestions: vi.fn(async () => ({items: []})),
+    getAttributeDefinitionsPage: vi.fn(async () => ({items: [], total: 0})),
 }));
 
 vi.mock('./SearchProvider', () => ({useSearch: () => search}));
@@ -29,6 +30,10 @@ vi.mock('./ResultProvider', () => ({
     useResults: () => ({loading: false, facets: undefined}),
 }));
 vi.mock('@/lib/api/assets', () => api);
+vi.mock('@/lib/api/metadata', async importOriginal => ({
+    ...(await importOriginal<typeof import('@/lib/api/metadata')>()),
+    getAttributeDefinitionsPage: api.getAttributeDefinitionsPage,
+}));
 vi.mock('./SearchMoreMenu', () => ({SearchMoreMenu: () => null}));
 vi.mock('./sort/SortByButton', () => ({SortByButton: () => null}));
 vi.mock('@/hooks/useBrowserLocation', () => ({
@@ -71,8 +76,7 @@ describe('SearchBar filter suggestions', () => {
         search.upsertCondition.mockReset();
         search.setInputQuery.mockReset();
         search.setQuery.mockReset();
-        useDefinitionsStore.setState({
-            loaded: true,
+        seedDefinitions({
             builtIn: [
                 {
                     id: '@story',

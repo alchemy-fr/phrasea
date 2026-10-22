@@ -60,7 +60,7 @@ const {api} = vi.hoisted(() => ({
         getEntityList: vi.fn(),
         getAttributeEntities: vi.fn(),
         getAttributesOfDefinition: vi.fn(),
-        getWorkspaceAttributeDefinitions: vi.fn(),
+        getAttributeDefinitionsPage: vi.fn(),
         mergeAttributeEntities: vi.fn(),
         putAttributeEntity: vi.fn(),
         searchAssets: vi.fn(),
@@ -77,7 +77,7 @@ vi.mock('@/lib/api/metadata', async importOriginal => {
         getEntityList: api.getEntityList,
         getAttributeEntities: api.getAttributeEntities,
         getAttributesOfDefinition: api.getAttributesOfDefinition,
-        getWorkspaceAttributeDefinitions: api.getWorkspaceAttributeDefinitions,
+        getAttributeDefinitionsPage: api.getAttributeDefinitionsPage,
         mergeAttributeEntities: api.mergeAttributeEntities,
         putAttributeEntity: api.putAttributeEntity,
     };
@@ -207,7 +207,7 @@ describe('EntityListExploreScreen', () => {
             displayName: 'Workspace',
             capabilities: {edit: true},
         });
-        api.getWorkspaceAttributeDefinitions.mockResolvedValue({
+        api.getAttributeDefinitionsPage.mockResolvedValue({
             total: 1,
             items: [definition],
         });

@@ -1,6 +1,6 @@
 'use client';
 
-import {FormEvent, useEffect, useMemo, useState} from 'react';
+import {FormEvent, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {CheckIcon, ChevronDownIcon, XIcon} from 'lucide-react';
@@ -19,7 +19,6 @@ import {useProfileStore} from '@/features/profiles/profileStore';
 import {
     aqlKey,
     useDefinitionsById,
-    useDefinitionsStore,
 } from '@/features/attributes/definitionsStore';
 import {entityLabel} from '@/features/attributes/types/registry';
 import {getAttributeEntities} from '@/lib/api/metadata';
@@ -84,12 +83,19 @@ export type PinnedFilter = {
 /** The search filters pinned by the current display profile */
 export function usePinnedFilters(): PinnedFilter[] {
     const items = useProfileStore(s => s.current?.items);
-    const load = useDefinitionsStore(s => s.load);
-    const byId = useDefinitionsById();
-
-    useEffect(() => {
-        void load();
-    }, [load]);
+    const ids = useMemo(
+        () =>
+            (items ?? [])
+                .filter(
+                    i =>
+                        i.section === ProfileItemSection.Filters &&
+                        i.type === ProfileItemType.Definition
+                )
+                .map(i => i.definition)
+                .filter((id): id is string => !!id),
+        [items]
+    );
+    const byId = useDefinitionsById({ids});
 
     return useMemo(
         () =>

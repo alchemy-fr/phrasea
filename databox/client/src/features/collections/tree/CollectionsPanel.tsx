@@ -74,7 +74,12 @@ export function CollectionsPanel() {
     const {t} = useTranslation();
     const {isAuthenticated} = useAuth();
     const search = useOptionalSearch();
-    const {workspaces, workspacesLoaded, loadWorkspaces} = useCollectionStore();
+    const workspaces = useCollectionStore(s => s.workspaces);
+    const workspacesLoaded = useCollectionStore(s => s.workspacesLoaded);
+    const workspacesLoading = useCollectionStore(s => s.workspacesLoading);
+    const workspacesNext = useCollectionStore(s => s.workspacesNext);
+    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
+    const loadMoreWorkspaces = useCollectionStore(s => s.loadMoreWorkspaces);
     const [query, setQuery] = useState('');
     const debounced = useDebouncedValue(query, 250);
 
@@ -187,6 +192,18 @@ export function CollectionsPanel() {
                     {workspaces.map(ws => (
                         <WorkspaceItem key={ws.id} workspace={ws} />
                     ))}
+                    {workspacesNext ? (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="ml-2 h-7 text-xs"
+                            data-testid="workspaces-load-more"
+                            onClick={() => void loadMoreWorkspaces()}
+                            loading={workspacesLoaded && workspacesLoading}
+                        >
+                            {t('common.load_more', 'Load more')}
+                        </Button>
+                    ) : null}
                     {isAuthenticated ? (
                         <div className="mt-2 border-t pt-1">
                             <button

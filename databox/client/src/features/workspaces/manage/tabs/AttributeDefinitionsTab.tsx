@@ -63,13 +63,13 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
         queryFn: getAttributeFieldTypes,
         staleTime: Infinity,
     });
-    const reloadStore = useDefinitionsStore(s => s.loadWorkspace);
+    const invalidateStore = useDefinitionsStore(s => s.invalidateWorkspace);
 
     const changed = async () => {
+        invalidateStore(workspace.id);
         await queryClient.invalidateQueries({
             queryKey: ['attribute-definitions'],
         });
-        await reloadStore(workspace.id);
     };
 
     return (

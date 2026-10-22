@@ -1,7 +1,7 @@
 'use client';
 
 import {getUserDisplayName} from '@/lib/users';
-import {useCallback} from 'react';
+import {useCallback, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AsyncCombobox, ComboOption, ComboPage} from './AsyncCombobox';
 import {
@@ -31,10 +31,20 @@ import {
     type RenditionDefinition,
     type Tag,
     type User,
+    type Workspace,
 } from '@/types/api';
 import {TagChip, EntityChip} from '@/components/chips';
 import {entityLabel} from '@/features/attributes/types/registry';
 import {iri, idFromIri} from '@/lib/utils/iri';
+import {
+    normalizeDefinition,
+    useDefinitionsStore,
+    workspaceIdOf,
+} from '@/features/attributes/definitionsStore';
+import type {AttributeDefinitionFilters} from '@/features/attributes/useAttributeDefinitionList';
+import {WorkspaceName} from '@/features/collections/WorkspaceName';
+import {useCollectionStore} from '@/features/collections/collectionStore';
+import {getWorkspaces} from '@/lib/api/collections';
 
 function comboPage<T>(
     page: Page<T>,
@@ -574,23 +584,53 @@ export function RenditionDefinitionSelect(
 }
 
 function attributeDefinitionOption(
-    d: AttributeDefinition
+    d: AttributeDefinition,
+    valueKey: 'id' | 'slug',
+    showWorkspace: boolean
 ): ComboOption<AttributeDefinition> {
-    return {value: d.id, label: d.displayName ?? d.name, item: d};
+    const label = d.displayName ?? d.name;
+    const workspaceId = workspaceIdOf(d);
+
+    return {
+        value: valueKey === 'slug' ? d.slug : d.id,
+        label,
+        render:
+            showWorkspace && workspaceId ? (
+                <span className="flex items-center gap-1.5">
+                    <span className="truncate">{label}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                        <WorkspaceName id={workspaceId} />
+                    </span>
+                </span>
+            ) : undefined,
+        item: d,
+    };
 }
 
 /**
- * Attribute definition of a workspace, by id, searched by name or slug.
+ * Attribute definition, by id or slug, searched by name or slug: of a
+ * workspace, or of all of them (a slug shared by several workspaces is then
+ * listed once).
  */
 export function AttributeDefinitionSelect({
     workspaceId,
+    filters,
+    valueKey = 'id',
+    postFilter,
+    showWorkspace = false,
     value,
     onChange,
     placeholder,
     disabled,
     id,
 }: {
-    workspaceId: string;
+    workspaceId?: string;
+    filters?: AttributeDefinitionFilters;
+    valueKey?: 'id' | 'slug';
+    /** Leaves out definitions of the loaded pages */
+    postFilter?: (definition: AttributeDefinition) => boolean;
+    /** Names the workspace of each definition */
+    showWorkspace?: boolean;
     value: string | undefined;
     onChange: (
         value: string | undefined,
@@ -601,30 +641,70 @@ export function AttributeDefinitionSelect({
     id?: string;
 }) {
     const {t} = useTranslation();
+    const filterKey = JSON.stringify(filters ?? {});
+    const postFilterRef = useRef(postFilter);
+    postFilterRef.current = postFilter;
     const load = useCallback(
-        async (query: string, signal: AbortSignal, cursor?: string) =>
-            comboPage(
-                await getAttributeDefinitionsPage(
-                    {workspaceId, query: query || undefined, url: cursor},
-                    signal
-                ),
-                attributeDefinitionOption
-            ),
-        [workspaceId]
+        async (query: string, signal: AbortSignal, cursor?: string) => {
+            const page = await getAttributeDefinitionsPage(
+                {
+                    ...(JSON.parse(filterKey) as AttributeDefinitionFilters),
+                    workspaceId,
+                    query: query || undefined,
+                    url: cursor,
+                },
+                signal
+            );
+            const items = page.items.map(normalizeDefinition);
+            useDefinitionsStore.getState().ingest(items);
+
+            return comboPage(
+                {
+                    ...page,
+                    items: items.filter(
+                        d => !postFilterRef.current || postFilterRef.current(d)
+                    ),
+                },
+                d => attributeDefinitionOption(d, valueKey, showWorkspace)
+            );
+        },
+        [workspaceId, filterKey, valueKey, showWorkspace]
     );
     const resolve = useCallback(
-        async (ids: string[]) =>
-            (
-                await getAttributeDefinitionsPage({ids, limit: ids.length})
-            ).items.map(attributeDefinitionOption),
-        []
+        async (values: string[]) => {
+            const store = useDefinitionsStore.getState();
+            await store.ensure(
+                valueKey === 'slug' ? {slugs: values} : {ids: values}
+            );
+            const known = Object.values(useDefinitionsStore.getState().byId);
+
+            return values
+                .map(v =>
+                    known.find(
+                        d =>
+                            (valueKey === 'slug' ? d.slug : d.id) === v &&
+                            (!workspaceId || workspaceIdOf(d) === workspaceId)
+                    )
+                )
+                .filter((d): d is AttributeDefinition => !!d)
+                .map(d =>
+                    attributeDefinitionOption(d, valueKey, showWorkspace)
+                );
+        },
+        [valueKey, workspaceId, showWorkspace]
     );
 
     return (
         <AsyncCombobox<AttributeDefinition>
             id={id}
             disabled={disabled}
-            queryKey={['attribute-definitions', 'select', workspaceId]}
+            queryKey={[
+                'attribute-definitions',
+                'select',
+                workspaceId,
+                filterKey,
+                valueKey,
+            ]}
             loadPage={load}
             resolveValues={resolve}
             value={value}
@@ -633,6 +713,62 @@ export function AttributeDefinitionSelect({
                 placeholder ??
                 t('form.attribute.placeholder', 'Select an attribute…')
             }
+        />
+    );
+}
+
+function workspaceOption(w: Workspace): ComboOption<Workspace> {
+    return {value: w.id, label: w.displayName ?? w.name, item: w};
+}
+
+/** Workspace by id, searched by name */
+export function WorkspaceSelect({
+    value,
+    onChange,
+    placeholder,
+    disabled,
+    id,
+    className,
+}: {
+    value: string | undefined;
+    onChange: (value: string | undefined, workspace?: Workspace) => void;
+    placeholder?: string;
+    disabled?: boolean;
+    id?: string;
+    className?: string;
+}) {
+    const load = useCallback(
+        async (query: string, signal: AbortSignal, cursor?: string) =>
+            comboPage(
+                await getWorkspaces(
+                    {name: query || undefined, url: cursor},
+                    signal
+                ),
+                workspaceOption
+            ),
+        []
+    );
+    const resolve = useCallback(async (ids: string[]) => {
+        await useCollectionStore.getState().ensureWorkspaces(ids);
+        const byId = useCollectionStore.getState().workspacesById;
+
+        return ids
+            .map(i => byId[i])
+            .filter((w): w is Workspace => !!w)
+            .map(workspaceOption);
+    }, []);
+
+    return (
+        <AsyncCombobox<Workspace>
+            id={id}
+            disabled={disabled}
+            className={className}
+            queryKey={['workspaces', 'select']}
+            loadPage={load}
+            resolveValues={resolve}
+            value={value}
+            onChange={(v, opt) => onChange(v, opt?.item)}
+            placeholder={placeholder}
         />
     );
 }

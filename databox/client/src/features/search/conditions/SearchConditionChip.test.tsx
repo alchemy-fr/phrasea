@@ -3,7 +3,7 @@ import {cleanup, render, screen} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import {AttributeType, type BuiltInAttribute} from '@/types/api';
-import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
+import {seedDefinitions} from '@/features/attributes/definitionsStore';
 import {useEntitiesStore} from '../entitiesStore';
 import {parseAQL} from '../aql/parser';
 import {HumanizedExpression} from './SearchConditionChip';
@@ -22,11 +22,11 @@ describe('@similar condition', () => {
     afterEach(() => {
         cleanup();
         useEntitiesStore.setState({index: {}});
-        useDefinitionsStore.setState({builtIn: []});
+        seedDefinitions({builtIn: []});
     });
 
     it('shows the reference asset, its thumbnail and no operator', () => {
-        useDefinitionsStore.setState({
+        seedDefinitions({
             builtIn: [
                 {
                     id: '@similar',

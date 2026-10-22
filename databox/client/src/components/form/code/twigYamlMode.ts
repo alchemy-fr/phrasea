@@ -127,20 +127,14 @@ function addTwigRules(rules: any): void {
  * `attr.<slug>`), in the `twig_yaml` mode only.
  */
 export function twigCompleter(
-    getAttributeSlugs: () => string[]
+    getAttributeSlugs: (prefix: string) => Promise<string[]>
 ): Ace.Completer {
     return {
         id: 'twig',
-        getCompletions: (_editor, session, pos, _prefix, callback) => {
+        getCompletions: (_editor, session, pos, prefix, callback) => {
             if ((session.getMode() as any)?.$id !== TWIG_YAML_MODE) {
                 return callback(null, []);
             }
-            const props: Record<string, string[]> = {
-                file: ['getFilename()', 'getId()', 'getSize()'],
-                attr: ['name', ...getAttributeSlugs()],
-                asset: ['getId()', 'getSource()', 'getCollections()'],
-            };
-
             let token = session.getTokenAt(pos.row, pos.column);
             if (token?.type === 'identifier' && token.start !== undefined) {
                 token = session.getTokenAt(pos.row, token.start);
@@ -152,19 +146,37 @@ export function twigCompleter(
                 return callback(null, []);
             }
             const identifier = token.value;
+            const complete = (key: string, values: string[]) =>
+                values.map(value => ({
+                    value,
+                    meta: key,
+                    score: 1,
+                    completerId: 'twig',
+                }));
+            const props: Record<string, string[]> = {
+                file: ['getFilename()', 'getId()', 'getSize()'],
+                asset: ['getId()', 'getSource()', 'getCollections()'],
+            };
+            const completions = Object.entries(props).flatMap(
+                ([key, values]) =>
+                    identifier.endsWith(key) ? complete(key, values) : []
+            );
+            if (!identifier.endsWith('attr')) {
+                return callback(null, completions);
+            }
 
-            callback(
-                null,
-                Object.entries(props).flatMap(([key, values]) =>
-                    identifier.endsWith(key)
-                        ? values.map(value => ({
-                              value,
-                              meta: key,
-                              score: 1,
-                              completerId: 'twig',
-                          }))
-                        : []
-                )
+            // The attributes are searched by the API, from what is typed
+            getAttributeSlugs(prefix).then(
+                slugs =>
+                    callback(null, [
+                        ...completions,
+                        ...complete('attr', ['name', ...slugs]),
+                    ]),
+                () =>
+                    callback(null, [
+                        ...completions,
+                        ...complete('attr', ['name']),
+                    ])
             );
         },
     };

@@ -15,7 +15,7 @@ const {api, toast, store} = vi.hoisted(() => ({
         deleteEntityList: vi.fn(),
     },
     toast: {success: vi.fn(), error: vi.fn()},
-    store: {loadWorkspace: vi.fn()},
+    store: {ingest: vi.fn()},
 }));
 
 vi.mock('sonner', () => ({toast}));
@@ -24,7 +24,10 @@ vi.mock('@/lib/api/metadata', async importOriginal => {
 
     return {...actual, ...api};
 });
-vi.mock('@/features/attributes/definitionsStore', () => ({
+vi.mock('@/features/attributes/definitionsStore', async importOriginal => ({
+    ...(await importOriginal<
+        typeof import('@/features/attributes/definitionsStore')
+    >()),
     useDefinitionsStore: {getState: () => store},
 }));
 
@@ -127,7 +130,9 @@ describe('CreateAttributeDialog', () => {
             })
         );
         expect(resolve.mock.lastCall?.[0].slug).toBe('faces');
-        expect(store.loadWorkspace).toHaveBeenCalledWith('ws');
+        expect(store.ingest).toHaveBeenCalledWith([
+            expect.objectContaining({slug: 'faces'}),
+        ]);
         expect(api.deleteEntityList).not.toHaveBeenCalled();
     });
 

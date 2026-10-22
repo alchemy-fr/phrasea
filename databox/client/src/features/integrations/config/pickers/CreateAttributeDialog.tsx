@@ -148,7 +148,10 @@ export function CreateAttributeDialog({
         void queryClient.invalidateQueries({
             queryKey: ['attribute-definitions', 'picker', workspaceId],
         });
-        void useDefinitionsStore.getState().loadWorkspace(workspaceId);
+        useDefinitionsStore.getState().ingest([saved]);
+        void queryClient.invalidateQueries({
+            queryKey: ['attribute-definitions', 'list'],
+        });
         toast.success(
             t('integration.create_attribute.done', 'Attribute created')
         );

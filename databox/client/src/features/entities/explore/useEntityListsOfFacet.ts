@@ -1,7 +1,8 @@
 import {useMemo} from 'react';
 import {AttributeType, type AttributeDefinition} from '@/types/api';
 import {
-    useDefinitionsStore,
+    slugOfSearchSlug,
+    useDefinitionsWithSlug,
     workspaceIdOf,
 } from '@/features/attributes/definitionsStore';
 import {idFromIri} from '@/lib/utils/iri';
@@ -43,7 +44,8 @@ export function entityListsOfFacet(
 }
 
 export function useEntityListsOfFacet(name: string): EntityListRef[] {
-    const definitions = useDefinitionsStore(s => s.definitions);
+    // Every workspace sharing the slug shares the facet
+    const definitions = useDefinitionsWithSlug(slugOfSearchSlug(name));
 
     return useMemo(
         () => entityListsOfFacet(definitions, name),

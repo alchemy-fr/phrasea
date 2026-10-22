@@ -13,9 +13,11 @@ import type {Collection, Workspace} from '@/types/api';
 import {EntityName} from '@/types/api';
 import {
     useCollectionStore,
+    useWorkspace,
     pagerKey,
     CollectionNode,
 } from '@/features/collections/collectionStore';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Skeleton} from '@/components/ui/misc';
@@ -85,8 +87,24 @@ export function CollectionTreePicker({
     showSelection = false,
     className,
 }: Props) {
-    const {workspaces, workspacesLoaded, loadWorkspaces, collections} =
-        useCollectionStore();
+    const workspaces = useCollectionStore(s => s.workspaces);
+    const restrictedResolved = useCollectionStore(
+        s => !!workspaceId && !!s.workspacesResolved[workspaceId]
+    );
+    const workspacesLoaded = useCollectionStore(s => s.workspacesLoaded);
+    const workspacesLoading = useCollectionStore(s => s.workspacesLoading);
+    const workspacesNext = useCollectionStore(s => s.workspacesNext);
+    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
+    const loadMoreWorkspaces = useCollectionStore(s => s.loadMoreWorkspaces);
+    const collections = useCollectionStore(s => s.collections);
+    // The workspace the picker is restricted to may be beyond the pages
+    const restricted = useWorkspace(workspaceId);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const sentinelRef = useInfiniteScroll(
+        scrollRef,
+        () => void loadMoreWorkspaces(),
+        !workspaceId && !!workspacesNext && !workspacesLoading
+    );
     const loadAscendants = useCollectionStore(s => s.loadAscendants);
     // The collection selected when the picker opens is revealed: its
     // ancestors are expanded.
@@ -98,8 +116,10 @@ export function CollectionTreePicker({
     const revealIds = revealPath?.map(c => c.id) ?? [];
 
     useEffect(() => {
-        void loadWorkspaces();
-    }, [loadWorkspaces]);
+        if (!workspaceId) {
+            void loadWorkspaces();
+        }
+    }, [workspaceId, loadWorkspaces]);
 
     useEffect(() => {
         if (revealId && !revealKnown) {
@@ -107,26 +127,24 @@ export function CollectionTreePicker({
         }
     }, [revealId, revealKnown, loadAscendants]);
 
-    const list = workspaceId
-        ? workspaces.filter(w => w.id === workspaceId)
-        : workspaces;
+    const list = workspaceId ? (restricted ? [restricted] : []) : workspaces;
+    const loading = workspaceId
+        ? !restricted && !restrictedResolved
+        : !workspacesLoaded;
 
     return (
         <div>
             {showSelection ? (
-                <SelectionPath
-                    value={value}
-                    workspaces={workspaces}
-                    collections={collections}
-                />
+                <SelectionPath value={value} collections={collections} />
             ) : null}
             <div
+                ref={scrollRef}
                 className={cn(
                     'max-h-72 overflow-y-auto rounded-md border p-1',
                     className
                 )}
             >
-                {!workspacesLoaded ? (
+                {loading ? (
                     <div className="space-y-2 p-2">
                         <Skeleton className="h-5 w-1/2" />
                         <Skeleton className="h-5 w-2/3" />
@@ -150,6 +168,9 @@ export function CollectionTreePicker({
                         revealId={revealId}
                     />
                 ))}
+                {workspaceId ? null : (
+                    <div ref={sentinelRef} className="h-px" />
+                )}
             </div>
         </div>
     );
@@ -157,14 +178,13 @@ export function CollectionTreePicker({
 
 function SelectionPath({
     value,
-    workspaces,
     collections,
 }: {
     value: TreeSelection | undefined;
-    workspaces: Workspace[];
     collections: Record<string, CollectionNode>;
 }) {
     const {t} = useTranslation();
+    const workspace = useWorkspace(value?.workspaceId);
     if (!value) {
         return (
             <p
@@ -175,7 +195,6 @@ function SelectionPath({
             </p>
         );
     }
-    const workspace = workspaces.find(w => w.id === value.workspaceId);
     const names = value.collectionId
         ? (collectionPath(collections, value.collectionId)?.map(
               c => c.displayName ?? c.name

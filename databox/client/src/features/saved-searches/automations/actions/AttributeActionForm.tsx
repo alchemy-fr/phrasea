@@ -1,15 +1,15 @@
 'use client';
 
-import {useEffect, useMemo} from 'react';
+import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PencilLineIcon} from 'lucide-react';
 import type {AttributeDefinition} from '@/types/api';
 import {
-    useDefinitionsStore,
+    useDefinitionsById,
     workspaceIdOf,
 } from '@/features/attributes/definitionsStore';
-import {useCollectionStore} from '@/features/collections/collectionStore';
 import {AttributeWidget} from '@/features/attributes/widgets/AttributeWidget';
+import {AttributeDefinitionSelect} from '@/components/form/selects';
 import {SimpleSelect} from '@/components/ui/select';
 import {FormRow, Input} from '@/components/ui/input';
 import {LabeledControl, Switch} from '@/components/ui/controls';
@@ -17,22 +17,10 @@ import type {ActionDefinition, ActionFormProps} from './types';
 
 type AttributeActionType = 'set' | 'add' | 'delete' | 'replace';
 
-function useEditableDefinitions(): AttributeDefinition[] {
-    const definitions = useDefinitionsStore(s => s.definitions);
-    const load = useDefinitionsStore(s => s.load);
+const DEFINITION_FILTERS = {enabled: true};
 
-    useEffect(() => {
-        void load();
-    }, [load]);
-
-    return useMemo(
-        () =>
-            definitions.filter(
-                d => d.enabled && d.editable && d.canEdit !== false
-            ),
-        [definitions]
-    );
-}
+const isEditable = (d: AttributeDefinition) =>
+    !!d.editable && d.canEdit !== false;
 
 export function AttributeActionForm({
     value,
@@ -40,20 +28,15 @@ export function AttributeActionForm({
     errors,
 }: ActionFormProps) {
     const {t} = useTranslation();
-    const definitions = useEditableDefinitions();
-    const workspaces = useCollectionStore(s => s.workspaces);
-    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
-    useEffect(() => {
-        void loadWorkspaces();
-    }, [loadWorkspaces]);
-
-    const definition = definitions.find(d => d.id === value.definitionId);
+    const ids = useMemo(
+        () => (value.definitionId ? [value.definitionId] : []),
+        [value.definitionId]
+    );
+    const byId = useDefinitionsById({ids, includeBuiltIn: false});
+    const definition = value.definitionId
+        ? (byId[value.definitionId] as AttributeDefinition | undefined)
+        : undefined;
     const action: AttributeActionType = value.action ?? 'set';
-    const workspaceName = (d: AttributeDefinition) => {
-        const id = workspaceIdOf(d);
-
-        return workspaces.find(w => w.id === id)?.name ?? '';
-    };
 
     const set = (patch: Record<string, unknown>) =>
         onChange({...value, ...patch});
@@ -94,15 +77,14 @@ export function AttributeActionForm({
                     'Only the assets of the attribute workspace are changed.'
                 )}
             >
-                <SimpleSelect
+                <AttributeDefinitionSelect
+                    filters={DEFINITION_FILTERS}
+                    postFilter={isEditable}
+                    showWorkspace
                     value={value.definitionId}
-                    onValueChange={definitionId =>
+                    onChange={definitionId =>
                         set({definitionId, value: undefined})
                     }
-                    options={definitions.map(d => ({
-                        value: d.id,
-                        label: `${d.displayName ?? d.name} — ${workspaceName(d)}`,
-                    }))}
                     placeholder={t(
                         'automation.action.attribute.definition_placeholder',
                         'Choose an attribute…'

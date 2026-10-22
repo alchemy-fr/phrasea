@@ -1358,6 +1358,7 @@
     "search.pinned.from": "Du",
     "search.pinned.to": "Au",
     "search.placeholder": "Rechercher des assets…",
+    "search.sort.add": "Ajouter un tri…",
     "search.sort.button": "Trier",
     "search.sort.group": "Grouper par sections",
     "search.sort.group_disabled": "Indisponible lors du tri par pertinence",

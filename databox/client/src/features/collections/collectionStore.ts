@@ -1,4 +1,5 @@
 import {create} from 'zustand';
+import {useEffect} from 'react';
 import type {Collection, Workspace} from '@/types/api';
 import {
     collectionChildrenLimit,
@@ -7,6 +8,7 @@ import {
     getCollections,
     getWorkspaces,
 } from '@/lib/api/collections';
+import {fetchAllPages} from '@/lib/api/hydra';
 
 export type CollectionNode = Collection & {
     workspaceId: string;
@@ -22,13 +24,34 @@ export type Pager = {
 };
 
 type State = {
+    /** The pages of workspaces loaded, in the API order */
     workspaces: Workspace[];
+    /** Every workspace met, listed or resolved by id */
+    workspacesById: Record<string, Workspace>;
+    /** The next page of `workspaces`, none once all are loaded */
+    workspacesNext?: string;
+    workspacesTotal?: number;
+    /** The ids already asked for to `ensureWorkspaces` (found or not) */
+    workspacesResolved: Record<string, true>;
     workspacesLoaded: boolean;
     workspacesLoading: boolean;
     collections: Record<string, CollectionNode>;
     /** Children pagers keyed by parent collection id, or by workspace id for roots */
     pagers: Record<string, Pager>;
+    /** Loads the first page of workspaces (again when forced) */
     loadWorkspaces: (force?: boolean) => Promise<void>;
+    loadMoreWorkspaces: () => Promise<void>;
+    /**
+     * Loads the workspaces of these ids not resolved yet: the ids asked for
+     * during the same tick are loaded together.
+     */
+    ensureWorkspaces: (ids: string[]) => Promise<void>;
+    /** Loads these workspaces again (e.g. their terms were signed) */
+    refreshWorkspaces: (ids: string[]) => Promise<void>;
+    /**
+     * Updates a known workspace; an unknown one joins the list only when the
+     * list is complete (it would otherwise be out of the API order).
+     */
     upsertWorkspace: (workspace: Workspace) => void;
     loadChildren: (
         workspaceId: string,
@@ -80,8 +103,54 @@ function ingest(
     }
 }
 
+/** Workspaces of a page of the tree */
+const WORKSPACE_PAGE_SIZE = 50;
+/** The most ids sent in a request */
+const WORKSPACE_IDS_CHUNK = 50;
+
+type WorkspaceBatch = {ids: Set<string>; done: Promise<void>};
+let workspaceBatch: WorkspaceBatch | undefined;
+const workspacesInflight = new Map<string, Promise<void>>();
+
+function withWorkspaces(
+    s: Pick<State, 'workspaces' | 'workspacesById'>,
+    workspaces: Workspace[]
+): Pick<State, 'workspaces' | 'workspacesById'> {
+    const byId = {...s.workspacesById};
+    workspaces.forEach(w => {
+        byId[w.id] = w;
+    });
+    const fresh = new Map(workspaces.map(w => [w.id, w]));
+
+    return {
+        workspacesById: byId,
+        workspaces: s.workspaces.some(w => fresh.has(w.id))
+            ? s.workspaces.map(w => fresh.get(w.id) ?? w)
+            : s.workspaces,
+    };
+}
+
+async function fetchWorkspacesByIds(ids: string[]): Promise<Workspace[]> {
+    const chunks: string[][] = [];
+    for (let i = 0; i < ids.length; i += WORKSPACE_IDS_CHUNK) {
+        chunks.push(ids.slice(i, i + WORKSPACE_IDS_CHUNK));
+    }
+
+    return (
+        await Promise.all(
+            chunks.map(chunk =>
+                fetchAllPages(getWorkspaces({ids: chunk, limit: 100}), url =>
+                    getWorkspaces({url})
+                )
+            )
+        )
+    ).flat();
+}
+
 export const useCollectionStore = create<State>((set, get) => ({
     workspaces: [],
+    workspacesById: {},
+    workspacesResolved: {},
     workspacesLoaded: false,
     workspacesLoading: false,
     collections: {},
@@ -93,19 +162,117 @@ export const useCollectionStore = create<State>((set, get) => ({
         }
         set({workspacesLoading: true});
         try {
-            const page = await getWorkspaces();
-            set({workspaces: page.items, workspacesLoaded: true});
+            const page = await getWorkspaces({limit: WORKSPACE_PAGE_SIZE});
+            set(s => ({
+                ...withWorkspaces(s, page.items),
+                workspaces: page.items,
+                workspacesNext: page.next,
+                workspacesTotal: page.total,
+                workspacesLoaded: true,
+            }));
         } finally {
             set({workspacesLoading: false});
         }
     },
 
+    loadMoreWorkspaces: async () => {
+        const {workspacesNext, workspacesLoading} = get();
+        if (!workspacesNext || workspacesLoading) {
+            return;
+        }
+        set({workspacesLoading: true});
+        try {
+            const page = await getWorkspaces({url: workspacesNext});
+            set(s => {
+                const listed = new Set(s.workspaces.map(w => w.id));
+
+                return {
+                    ...withWorkspaces(s, page.items),
+                    workspaces: [
+                        ...s.workspaces.map(
+                            w => page.items.find(p => p.id === w.id) ?? w
+                        ),
+                        // The offsets move when a workspace is added between two pages
+                        ...page.items.filter(w => !listed.has(w.id)),
+                    ],
+                    workspacesNext: page.next,
+                    workspacesTotal: page.total,
+                };
+            });
+        } finally {
+            set({workspacesLoading: false});
+        }
+    },
+
+    ensureWorkspaces: ids => {
+        const s = get();
+        const waits = new Set<Promise<void>>();
+        ids.forEach(id => {
+            if (!id || s.workspacesById[id] || s.workspacesResolved[id]) {
+                return;
+            }
+            const pending = workspacesInflight.get(id);
+            if (pending) {
+                waits.add(pending);
+
+                return;
+            }
+            if (!workspaceBatch) {
+                const current = {ids: new Set<string>()} as WorkspaceBatch;
+                // Sent once the current tick is over
+                current.done = Promise.resolve().then(async () => {
+                    workspaceBatch = undefined;
+                    const asked = [...current.ids];
+                    try {
+                        const found = await fetchWorkspacesByIds(asked);
+                        set(st => {
+                            const resolved = {...st.workspacesResolved};
+                            asked.forEach(a => {
+                                resolved[a] = true;
+                            });
+
+                            return {
+                                ...withWorkspaces(st, found),
+                                workspacesResolved: resolved,
+                            };
+                        });
+                    } catch (e) {
+                        console.warn('Failed to load workspaces', e);
+                    } finally {
+                        asked.forEach(a => workspacesInflight.delete(a));
+                    }
+                });
+                workspaceBatch = current;
+            }
+            workspaceBatch.ids.add(id);
+            workspacesInflight.set(id, workspaceBatch.done);
+            waits.add(workspaceBatch.done);
+        });
+
+        return Promise.all(waits).then(() => undefined);
+    },
+
+    refreshWorkspaces: async ids => {
+        if (ids.length === 0) {
+            return;
+        }
+        const found = await fetchWorkspacesByIds(ids);
+        set(s => withWorkspaces(s, found));
+    },
+
     upsertWorkspace: workspace =>
-        set(s => ({
-            workspaces: s.workspaces.some(w => w.id === workspace.id)
-                ? s.workspaces.map(w => (w.id === workspace.id ? workspace : w))
-                : [...s.workspaces, workspace],
-        })),
+        set(s => {
+            const known = withWorkspaces(s, [workspace]);
+            const listed = s.workspaces.some(w => w.id === workspace.id);
+
+            return {
+                ...known,
+                workspaces:
+                    listed || s.workspacesNext || !s.workspacesLoaded
+                        ? known.workspaces
+                        : [...known.workspaces, workspace],
+            };
+        }),
 
     loadChildren: async (workspaceId, parentId, force) => {
         const key = pagerKey(workspaceId, parentId);
@@ -331,3 +498,18 @@ export const useCollectionStore = create<State>((set, get) => ({
 }));
 
 export {pagerKey};
+
+/** A workspace by id, loaded when not known yet */
+export function useWorkspace(id: string | undefined): Workspace | undefined {
+    const workspace = useCollectionStore(s =>
+        id ? s.workspacesById[id] : undefined
+    );
+    const ensureWorkspaces = useCollectionStore(s => s.ensureWorkspaces);
+    useEffect(() => {
+        if (id && !workspace) {
+            void ensureWorkspaces([id]);
+        }
+    }, [id, workspace, ensureWorkspaces]);
+
+    return workspace;
+}

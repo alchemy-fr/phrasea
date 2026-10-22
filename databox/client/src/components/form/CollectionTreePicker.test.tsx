@@ -59,6 +59,8 @@ describe('CollectionTreePicker', () => {
     beforeEach(() => {
         useCollectionStore.setState({
             workspaces: [workspace('w1'), workspace('w2')],
+            workspacesById: {w1: workspace('w1'), w2: workspace('w2')},
+            workspacesNext: undefined,
             workspacesLoaded: true,
             collections: {},
             pagers: {},
@@ -108,6 +110,53 @@ describe('CollectionTreePicker', () => {
                 e => e.textContent
             )
         ).toEqual(['Col c1', 'Col c2']);
+    });
+
+    it('resolves the workspace it is restricted to by id', async () => {
+        const ensureWorkspaces = vi.fn(async (ids: string[]) => {
+            useCollectionStore.setState(s => ({
+                workspacesById: {
+                    ...s.workspacesById,
+                    ...Object.fromEntries(ids.map(id => [id, workspace(id)])),
+                },
+            }));
+        });
+        useCollectionStore.setState({
+            ensureWorkspaces,
+            pagers: {[pagerKey('w9')]: pager([])},
+        });
+        renderPicker({value: undefined, workspaceId: 'w9'});
+
+        expect(ensureWorkspaces).toHaveBeenCalledWith(['w9']);
+        expect(await screen.findByText('WS w9')).toBeTruthy();
+        expect(screen.queryByText('WS w1')).toBeNull();
+    });
+
+    it('loads the next workspaces at the end of the tree', () => {
+        const observers: IntersectionObserverCallback[] = [];
+        globalThis.IntersectionObserver = class {
+            constructor(cb: IntersectionObserverCallback) {
+                observers.push(cb);
+            }
+            observe() {}
+            disconnect() {}
+        } as unknown as typeof IntersectionObserver;
+        const loadMoreWorkspaces = vi.fn(async () => undefined);
+        useCollectionStore.setState({
+            workspacesNext: '/workspaces?page=2',
+            loadMoreWorkspaces,
+        });
+        renderPicker({value: undefined});
+
+        act(() =>
+            observers.forEach(cb =>
+                cb(
+                    [{isIntersecting: true} as IntersectionObserverEntry],
+                    {} as IntersectionObserver
+                )
+            )
+        );
+        expect(loadMoreWorkspaces).toHaveBeenCalled();
     });
 
     describe('a collection already loaded without children', () => {

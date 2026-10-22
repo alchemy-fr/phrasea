@@ -22,10 +22,7 @@ import {Badge, EmptyState, Skeleton} from '@/components/ui/misc';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {useDebouncedValue} from '@/hooks/useDebouncedValue';
 import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
-import {
-    useEntityListDefinitions,
-    useWorkspaceDefinitions,
-} from '@/features/workspaces/manage/entities/useEntityAssets';
+import {useEntityListDefinitions} from '@/features/workspaces/manage/entities/useEntityAssets';
 import {EntityValueCard} from './EntityValueCard';
 
 const pageSize = 24;
@@ -113,8 +110,8 @@ function ExploreBrowser({listId}: {listId: string}) {
         routes.entityListExplore(listId)
     );
 
-    const definitionsLoaded = useWorkspaceDefinitions(workspaceId);
-    const listDefinitions = useEntityListDefinitions(workspaceId, listId);
+    const {definitions: listDefinitions, loaded: definitionsLoaded} =
+        useEntityListDefinitions(workspaceId, listId);
 
     // Shallow: only the URL has to stay shareable
     const update = useCallback(

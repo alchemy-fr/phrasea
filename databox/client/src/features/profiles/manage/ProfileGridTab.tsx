@@ -136,7 +136,7 @@ function cellLabel(t: TFunction, {region, anchor}: Cell): string {
 export function ProfileGridTab({profile}: ProfileTabProps) {
     const {t} = useTranslation();
     const editing = useProfileEditing(profile.id);
-    const {definitionOf, labelOf} = useProfileDefinitions();
+    const {definitionOf, labelOf} = useProfileDefinitions(profile.items);
     const [selected, setSelected] = useState<string | null>(null);
     const [target, setTarget] = useState<Cell>({region: 'below', anchor: 'l'});
     const [query, setQuery] = useState('');
@@ -165,7 +165,7 @@ export function ProfileGridTab({profile}: ProfileTabProps) {
         [profile.items]
     );
     const used = useMemo(() => new Set(items.map(paletteKeyOfItem)), [items]);
-    const groups = usePaletteGroups({used, query});
+    const palette = usePaletteGroups({used, query});
 
     const at = ({region, anchor}: Cell) =>
         items
@@ -345,7 +345,7 @@ export function ProfileGridTab({profile}: ProfileTabProps) {
             >
                 <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(14rem,1fr)_auto_minmax(15rem,1fr)] lg:grid-rows-[minmax(0,1fr)]">
                     <AttributePalette
-                        groups={groups}
+                        {...palette}
                         query={query}
                         onQueryChange={setQuery}
                         onAdd={e => void addTo(e, target)}

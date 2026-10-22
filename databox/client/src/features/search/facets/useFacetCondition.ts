@@ -5,7 +5,7 @@ import {ConditionBuilder} from '../aql/serializer';
 import type {ScalarValue} from '../aql/types';
 import {
     aqlKey,
-    useDefinitionsBySearchSlug,
+    useDefinitionBySearchSlug,
 } from '@/features/attributes/definitionsStore';
 
 /**
@@ -14,14 +14,9 @@ import {
  * attribute slug instead (built-ins keep their `@name`).
  */
 export function useFacetField(name: string): string {
-    const bySearchSlug = useDefinitionsBySearchSlug();
+    const definition = useDefinitionBySearchSlug(name);
 
-    return useMemo(() => {
-        const definition =
-            bySearchSlug[name] ?? bySearchSlug[name.replace(/_[a-z]{2}$/, '')];
-
-        return definition ? aqlKey(definition) : name;
-    }, [bySearchSlug, name]);
+    return definition ? aqlKey(definition) : name;
 }
 
 /**

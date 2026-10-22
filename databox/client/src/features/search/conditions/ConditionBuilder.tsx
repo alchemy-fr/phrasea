@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode, useEffect, useMemo, useState} from 'react';
+import {ReactNode, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     CheckIcon,
@@ -38,8 +38,14 @@ import {
     rawTypeMap,
 } from '../aql/validation';
 import {RawType} from '../aql/types';
-import {aqlKey} from '@/features/attributes/definitionsStore';
+import {
+    aqlKey,
+    useDefinitionsStore,
+} from '@/features/attributes/definitionsStore';
 import type {DefinitionsIndex} from '@/features/attributes/definitionsStore';
+import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
+import {Spinner} from '@/components/ui/loader';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {SimpleSelect} from '@/components/ui/select';
@@ -57,11 +63,11 @@ import {
     CommandList,
 } from '@/components/ui/command';
 import {cn} from '@/lib/utils/cn';
-import {useCollectionStore} from '@/features/collections/collectionStore';
 import {
     AttributeEntitySelect,
     TagSelect,
     UserSelect,
+    WorkspaceSelect,
 } from '@/components/form/selects';
 import {CollectionTreePicker} from '@/components/form/CollectionTreePicker';
 import {
@@ -131,6 +137,8 @@ type BuilderProps = {
     expression: AQLExpression;
     onChange: (expression: AQLExpression) => void;
     definitions: DefinitionsIndex;
+    /** Workspace whose attributes the field picker lists, all without */
+    workspaceId?: string;
     root?: boolean;
     onRemove?: () => void;
 };
@@ -139,6 +147,7 @@ export function ExpressionBuilder({
     expression,
     onChange,
     definitions,
+    workspaceId,
     root,
     onRemove,
 }: BuilderProps) {
@@ -149,6 +158,7 @@ export function ExpressionBuilder({
             <ConditionRow
                 condition={expression}
                 definitions={definitions}
+                workspaceId={workspaceId}
                 onChange={onChange}
                 onRemove={onRemove}
             />
@@ -215,6 +225,7 @@ export function ExpressionBuilder({
                         key={i}
                         expression={c}
                         definitions={definitions}
+                        workspaceId={workspaceId}
                         onChange={next =>
                             update(
                                 group.conditions.map((x, j) =>
@@ -265,12 +276,14 @@ export function ExpressionBuilder({
 export function ConditionRow({
     condition,
     definitions,
+    workspaceId,
     onChange,
     onRemove,
     fixedField,
 }: {
     condition: AQLCondition;
     definitions: DefinitionsIndex;
+    workspaceId?: string;
     onChange: (c: AQLCondition) => void;
     onRemove?: () => void;
     /** Hides the field picker: only the operator and the values change */
@@ -316,9 +329,10 @@ export function ConditionRow({
             {fixedField ? null : (
                 <FieldPicker
                     value={field}
-                    definitions={definitions}
-                    onChange={slug => {
-                        const def = definitions[slug];
+                    current={definition}
+                    workspaceId={workspaceId}
+                    onChange={def => {
+                        const slug = aqlKey(def);
                         const ops = getOperatorsForType(def?.type);
                         const operator = ops.includes(condition.operator)
                             ? condition.operator
@@ -423,40 +437,65 @@ export function ConditionRow({
 
 function FieldPicker({
     value,
-    definitions,
+    current,
+    workspaceId,
     onChange,
 }: {
     value: string;
-    definitions: DefinitionsIndex;
-    onChange: (slug: string) => void;
+    current: AttributeDefinitionOrBuiltIn | undefined;
+    workspaceId?: string;
+    onChange: (definition: AttributeDefinitionOrBuiltIn) => void;
 }) {
     const {t} = useTranslation();
     const [open, setOpen] = useState(false);
-    const list = useMemo(() => {
-        const defs = Object.values(definitions).filter(
-            d => d.builtIn || d.searchable
-        );
-        const builtIn = defs
-            .filter(d => d.builtIn)
-            .sort((a, b) =>
-                (a.displayName ?? a.name).localeCompare(b.displayName ?? b.name)
-            );
-        const others = defs
-            .filter(d => !d.builtIn)
-            .sort((a, b) =>
-                (a.displayName ?? a.name).localeCompare(b.displayName ?? b.name)
-            );
+    const builtIn = useDefinitionsStore(s => s.builtIn);
+    const ingest = useDefinitionsStore(s => s.ingest);
+    const filters = useMemo(
+        () => ({workspaceId, searchable: true, enabled: true}),
+        [workspaceId]
+    );
+    const attributes = useAttributeDefinitionList(filters, {enabled: open});
+    const listRef = useRef<HTMLDivElement>(null);
+    const sentinelRef = useInfiniteScroll(
+        listRef,
+        attributes.loadMore,
+        open && attributes.hasMore && !attributes.loadingMore
+    );
+    const q = attributes.query.trim().toLowerCase();
+    const builtIns = useMemo(
+        () =>
+            builtIn
+                .filter(
+                    d =>
+                        !q ||
+                        (d.displayName ?? d.name).toLowerCase().includes(q) ||
+                        aqlKey(d).toLowerCase().includes(q)
+                )
+                .sort((a, b) =>
+                    (a.displayName ?? a.name).localeCompare(
+                        b.displayName ?? b.name
+                    )
+                ),
+        [builtIn, q]
+    );
+    // A slug shared by several workspaces is a single field
+    const others = useMemo(() => {
+        const seen = new Set<string>();
 
-        return {builtIn, others};
-    }, [definitions]);
-    const current = definitions[value];
+        return attributes.items.filter(
+            d => !seen.has(aqlKey(d)) && !!seen.add(aqlKey(d))
+        );
+    }, [attributes.items]);
 
     const item = (d: AttributeDefinitionOrBuiltIn) => (
         <CommandItem
             key={aqlKey(d)}
-            value={`${d.displayName ?? d.name} ${aqlKey(d)}`}
+            value={aqlKey(d)}
             onSelect={() => {
-                onChange(aqlKey(d));
+                if (!d.builtIn) {
+                    ingest([d as AttributeDefinition]);
+                }
+                onChange(d);
                 setOpen(false);
             }}
         >
@@ -492,7 +531,8 @@ function FieldPicker({
                     <span className="truncate">
                         {current
                             ? (current.displayName ?? current.name)
-                            : t(
+                            : value ||
+                              t(
                                   'search.condition.select_field',
                                   'Select a field…'
                               )}
@@ -501,25 +541,48 @@ function FieldPicker({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-72 p-0" align="start">
-                <Command>
-                    <CommandInput placeholder={t('common.search', 'Search…')} />
-                    <CommandList>
-                        <CommandEmpty>
-                            {t('common.no_match', 'No match')}
-                        </CommandEmpty>
-                        <CommandGroup
-                            heading={t('search.condition.built_in', 'Built-in')}
-                        >
-                            {list.builtIn.map(item)}
-                        </CommandGroup>
-                        <CommandGroup
-                            heading={t(
-                                'search.condition.attributes',
-                                'Attributes'
-                            )}
-                        >
-                            {list.others.map(item)}
-                        </CommandGroup>
+                <Command shouldFilter={false}>
+                    <CommandInput
+                        value={attributes.query}
+                        onValueChange={attributes.setQuery}
+                        placeholder={t('common.search', 'Search…')}
+                    />
+                    <CommandList ref={listRef}>
+                        {attributes.loading ? (
+                            <div className="flex justify-center py-4">
+                                <Spinner />
+                            </div>
+                        ) : (
+                            <CommandEmpty>
+                                {t('common.no_match', 'No match')}
+                            </CommandEmpty>
+                        )}
+                        {builtIns.length > 0 ? (
+                            <CommandGroup
+                                heading={t(
+                                    'search.condition.built_in',
+                                    'Built-in'
+                                )}
+                            >
+                                {builtIns.map(item)}
+                            </CommandGroup>
+                        ) : null}
+                        {others.length > 0 ? (
+                            <CommandGroup
+                                heading={t(
+                                    'search.condition.attributes',
+                                    'Attributes'
+                                )}
+                            >
+                                {others.map(item)}
+                            </CommandGroup>
+                        ) : null}
+                        <div ref={sentinelRef} className="h-px" />
+                        {attributes.loadingMore ? (
+                            <div className="flex justify-center py-2">
+                                <Spinner />
+                            </div>
+                        ) : null}
                     </CommandList>
                 </Command>
             </PopoverContent>
@@ -845,30 +908,12 @@ function WorkspaceValueSelect({
     onChange: (id: string) => void;
 }) {
     const {t} = useTranslation();
-    const workspaces = useCollectionStore(s => s.workspaces);
-    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
-    useEffect(() => {
-        void loadWorkspaces();
-    }, [loadWorkspaces]);
-    const options = useMemo(
-        () =>
-            [...workspaces]
-                .sort((a, b) =>
-                    (a.displayName ?? a.name).localeCompare(
-                        b.displayName ?? b.name
-                    )
-                )
-                .map(w => ({value: w.id, label: w.displayName ?? w.name})),
-        [workspaces]
-    );
 
     return (
-        <SimpleSelect
-            size="sm"
-            className="w-52"
+        <WorkspaceSelect
+            className="h-8 w-52"
             value={value || undefined}
-            onValueChange={onChange}
-            options={options}
+            onChange={v => onChange(v ?? '')}
             placeholder={t('common.select', 'Select…')}
         />
     );

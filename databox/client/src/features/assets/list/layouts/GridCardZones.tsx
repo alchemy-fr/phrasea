@@ -97,7 +97,11 @@ export function GridCardZones({
     thumbSize: number;
 }) {
     const {t, i18n} = useTranslation();
-    const definitions = useDefinitionsById();
+    const definitionIds = useMemo(
+        () => items.map(i => i.definition).filter((id): id is string => !!id),
+        [items]
+    );
+    const definitions = useDefinitionsById({ids: definitionIds});
     const {getFormat} = useAttributeFormats();
 
     const resolved = useMemo<Resolved[]>(() => {

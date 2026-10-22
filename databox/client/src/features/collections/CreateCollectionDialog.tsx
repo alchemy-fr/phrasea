@@ -11,7 +11,7 @@ import {FormDialog} from '@/components/modals/FormDialog';
 import {FormRow, Input} from '@/components/ui/input';
 import {PrivacyField} from '@/components/form/PrivacyField';
 import {postCollection} from '@/lib/api/collections';
-import {useCollectionStore} from './collectionStore';
+import {useCollectionStore, useWorkspace} from './collectionStore';
 import {iri} from '@/lib/utils/iri';
 import {CollectionEvent, EventCategory, track} from '@/lib/analytics/events';
 
@@ -33,9 +33,7 @@ export function CreateCollectionDialog({
     const [name, setName] = useState('');
     const [privacy, setPrivacy] = useState<Privacy>(Privacy.Secret);
     const upsert = useCollectionStore(s => s.upsertCollection);
-    const workspace = useCollectionStore(s =>
-        s.workspaces.find(w => w.id === workspaceId)
-    );
+    const workspace = useWorkspace(workspaceId);
 
     const submit = async () => {
         const collection = await postCollection({

@@ -14,7 +14,10 @@ import {
 } from '@/components/chips';
 import {formatDateTime, formatFileSize} from '@/lib/utils/format';
 import {routes} from '@/lib/routes';
-import {useCollectionStore} from '@/features/collections/collectionStore';
+import {
+    useCollectionStore,
+    useWorkspace,
+} from '@/features/collections/collectionStore';
 
 export function InfoRow({
     label,
@@ -45,11 +48,8 @@ export function AssetInfoList({asset}: {asset: Asset}) {
     const {t, i18n} = useTranslation();
     // The workspace and collection embedded in the asset carry no
     // capabilities: rely on the tree's copies to land on the Edit tab.
-    const canEditWorkspace = useCollectionStore(
-        s =>
-            !!s.workspaces.find(w => w.id === asset.workspace.id)?.capabilities
-                .edit
-    );
+    const canEditWorkspace = !!useWorkspace(asset.workspace.id)?.capabilities
+        ?.edit;
     const canEditCollection = useCollectionStore(
         s =>
             !!(

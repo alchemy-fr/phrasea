@@ -24,19 +24,6 @@ import {multipartUpload} from './upload';
 
 // Attribute definitions ---------------------------------------------------
 
-export async function getAttributeDefinitions(): Promise<
-    AttributeDefinition[]
-> {
-    return toPage(
-        await api.get<HydraCollection<AttributeDefinition>>(
-            `/${EntityName.AttributeDefinition}`,
-            {
-                params: {limit: 1000},
-            }
-        )
-    ).items;
-}
-
 export type AttributeDefinitionListOptions = {
     workspaceId?: string;
     ids?: string[];
@@ -72,20 +59,6 @@ export function getAttributeDefinition(
     return api.get<AttributeDefinition>(
         `/${EntityName.AttributeDefinition}/${id}`
     );
-}
-
-export async function getWorkspaceAttributeDefinitions(options: {
-    workspaceId: string;
-    target?: AssetTypeFilter;
-    query?: string;
-    type?: string | null;
-    limit?: number;
-    url?: string;
-}): Promise<Page<AttributeDefinition>> {
-    return getAttributeDefinitionsPage({
-        ...options,
-        target: options.target ?? AssetTypeFilter.All,
-    });
 }
 
 export async function getBuiltInAttributes(): Promise<BuiltInAttribute[]> {

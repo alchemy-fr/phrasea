@@ -3,10 +3,13 @@ import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import type {AttributeDefinitionOrBuiltIn, Facets} from '@/types/api';
 import {
+    normalizeDefinition,
     useDefinitionsBySlug,
     useDefinitionsStore,
+    useDefinitionsWithSlug,
 } from '@/features/attributes/definitionsStore';
-import {useCollectionStore} from '@/features/collections/collectionStore';
+import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
+import {getWorkspaces} from '@/lib/api/collections';
 import {debounce} from '@/lib/utils/misc';
 import {
     candidateToValueSuggestion,
@@ -41,10 +44,7 @@ export function useSearchSuggestions(
     valuePrefix: string;
 } {
     const {t} = useTranslation();
-    const bySlug = useDefinitionsBySlug();
-    const definitions = useDefinitionsStore(s => s.definitions);
-    const workspaces = useCollectionStore(s => s.workspaces);
-    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
+    const builtIn = useDefinitionsStore(s => s.builtIn);
     const [debounced, setDebounced] = useState(input);
     const setDebouncedInput = useRef(
         debounce((q: string) => setDebounced(q), DEBOUNCE_MS)
@@ -61,24 +61,48 @@ export function useSearchSuggestions(
         [debounced]
     );
 
+    const fieldSlugs = useMemo(
+        () => (parsed.mode === 'field' ? [parsed.field] : []),
+        [parsed]
+    );
+    const bySlug = useDefinitionsBySlug({slugs: fieldSlugs});
     const fieldDefinition =
         parsed.mode === 'field'
             ? (bySlug[parsed.field] ?? bySlug[`@${parsed.field}`])
             : undefined;
+    // The same slug in every workspace: the values of all of them
+    const sameSlug = useDefinitionsWithSlug(
+        fieldDefinition && !fieldDefinition.builtIn
+            ? fieldDefinition.slug
+            : undefined
+    );
     const debouncedFieldDefinition =
         debouncedParsed.mode === 'field'
             ? (bySlug[debouncedParsed.field] ??
               bySlug[`@${debouncedParsed.field}`])
             : undefined;
 
-    // `@workspace:` lists the workspaces from the store
-    const wantsWorkspaces =
-        enabled && fieldDefinition?.type === AttributeType.Workspace;
-    useEffect(() => {
-        if (wantsWorkspaces) {
-            void loadWorkspaces();
-        }
-    }, [wantsWorkspaces, loadWorkspaces]);
+    // `@workspace:` lists the workspaces named like the value typed
+    const workspacePrefix =
+        enabled &&
+        fieldDefinition?.type === AttributeType.Workspace &&
+        debouncedParsed.mode === 'field' &&
+        debouncedFieldDefinition === fieldDefinition
+            ? debouncedParsed.valuePrefix.trim()
+            : undefined;
+    const workspaceValues = useQuery({
+        queryKey: ['workspaces', 'suggest', workspacePrefix],
+        queryFn: ({signal}) =>
+            getWorkspaces(
+                {name: workspacePrefix || undefined, limit: 20},
+                signal
+            ),
+        enabled: workspacePrefix !== undefined,
+        staleTime: 30_000,
+        placeholderData: previous => previous,
+        select: page => page.items,
+    });
+    const workspaces = workspaceValues.data;
 
     // Remote values are fetched for the definition of the debounced input, as
     // long as it is still the field being typed
@@ -92,24 +116,49 @@ export function useSearchSuggestions(
                       definition: fieldDefinition,
                       definitionIds: fieldDefinition.builtIn
                           ? []
-                          : definitions
-                                .filter(d => d.slug === fieldDefinition.slug)
-                                .map(d => d.id),
+                          : sameSlug.map(d => d.id),
                       prefix: debouncedParsed.valuePrefix,
                   }
                 : undefined,
-        [
-            fieldDefinition,
-            debouncedFieldDefinition,
-            debouncedParsed,
-            definitions,
-        ]
+        [fieldDefinition, debouncedFieldDefinition, debouncedParsed, sameSlug]
     );
 
     const textQuery =
         parsed.mode === 'text' && debouncedParsed.mode === 'text'
             ? debouncedParsed.text
             : '';
+
+    // The fields matching the word typed, searched by the API (the built-ins
+    // are all known)
+    const fieldQuery =
+        parsed.mode === 'text' &&
+        debouncedParsed.mode === 'text' &&
+        isFieldToken(debouncedParsed.text) &&
+        !debouncedParsed.text.startsWith('@')
+            ? debouncedParsed.text
+            : '';
+    const ingest = useDefinitionsStore(s => s.ingest);
+    const fieldSuggestions = useQuery({
+        queryKey: ['attribute-definitions', 'suggest', fieldQuery],
+        queryFn: async ({signal}) => {
+            const page = await getAttributeDefinitionsPage(
+                {
+                    query: fieldQuery,
+                    searchable: true,
+                    enabled: true,
+                    limit: 20,
+                },
+                signal
+            );
+            const definitions = page.items.map(normalizeDefinition);
+            ingest(definitions);
+
+            return definitions;
+        },
+        enabled: enabled && fieldQuery.length > 0,
+        staleTime: 30_000,
+        placeholderData: previous => previous,
+    });
 
     const textSuggestions = useQuery({
         queryKey: ['suggest', textQuery],
@@ -165,7 +214,10 @@ export function useSearchSuggestions(
         }
 
         const fields = isFieldToken(parsed.text)
-            ? suggestFields(parsed.text, Object.values(bySlug))
+            ? suggestFields(parsed.text, [
+                  ...builtIn,
+                  ...(fieldSuggestions.data ?? []),
+              ])
             : [];
         const texts: SuggestionItem[] =
             textQuery && textSuggestions.data
@@ -185,7 +237,8 @@ export function useSearchSuggestions(
         t,
         remote,
         remoteValues.data,
-        bySlug,
+        builtIn,
+        fieldSuggestions.data,
         textQuery,
         textSuggestions.data,
     ]);

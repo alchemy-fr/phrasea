@@ -91,7 +91,12 @@ export function ExportDialog({
                     signWorkspaceTerms(workspace.id)
                 )
             );
-            void useCollectionStore.getState().loadWorkspaces(true);
+            void useCollectionStore
+                .getState()
+                .refreshWorkspaces(
+                    unsignedTerms.map(({workspace}) => workspace.id)
+                )
+                .catch(() => undefined);
         }
 
         const exp = await exportAssets({

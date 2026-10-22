@@ -33,6 +33,7 @@ import {FilterInput} from '@/components/ui/filter-input';
 import {useSearch} from '../SearchProvider';
 import {BuiltInAttribute, isDefaultSortBy, resolveSortBy} from '../searchState';
 import {useDefinitionsBySearchSlug} from '@/features/attributes/definitionsStore';
+import {AttributeDefinitionSelect} from '@/components/form/selects';
 import {cn} from '@/lib/utils/cn';
 import {
     overlayRow,
@@ -48,10 +49,15 @@ export function SortByButton() {
     const {t} = useTranslation();
     const search = useSearch();
     const [open, setOpen] = useState(false);
+    const effective = useMemo(
+        () => resolveSortBy(search.sortBy),
+        [search.sortBy]
+    );
+    const searchSlugs = useMemo(() => effective.map(s => s.a), [effective]);
     const definitions = useDefinitionsBySearchSlug({
         workspaceId: search.workspaces[0],
+        searchSlugs,
     });
-    const effective = resolveSortBy(search.sortBy);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -95,16 +101,21 @@ export function SortByButton() {
 function SortEditor({onClose}: {onClose: () => void}) {
     const {t} = useTranslation();
     const search = useSearch();
-    const definitions = useDefinitionsBySearchSlug({
-        workspaceId: search.workspaces[0],
-    });
+    const workspaceId = search.workspaces[0];
+    const [rows, setRows] = useState<Row[]>(() =>
+        resolveSortBy(search.sortBy).map(s => ({...s, enabled: true}))
+    );
+    const searchSlugs = useMemo(() => rows.map(r => r.a), [rows]);
+    const definitions = useDefinitionsBySearchSlug({workspaceId, searchSlugs});
     const [filter, setFilter] = useState('');
     const [grouped, setGrouped] = useState(search.sortBy.some(s => s.g));
 
-    const sortable = useMemo(
+    // The other sortable attributes are added from a select searched by the
+    // API: only the built-ins are listed
+    const sortableBuiltIns = useMemo(
         () =>
             Object.values(definitions)
-                .filter(d => d.sortable)
+                .filter(d => d.builtIn && d.sortable)
                 .sort((a, b) =>
                     (a.displayName ?? a.name).localeCompare(
                         b.displayName ?? b.name
@@ -112,28 +123,45 @@ function SortEditor({onClose}: {onClose: () => void}) {
                 ),
         [definitions]
     );
-
-    const [rows, setRows] = useState<Row[]>([]);
     useEffect(() => {
-        const current = resolveSortBy(search.sortBy);
-        const active: Row[] = current
-            .filter(
-                s =>
-                    definitions[s.a]?.sortable ||
-                    s.a === BuiltInAttribute.Score ||
-                    s.a === BuiltInAttribute.CreatedAt
-            )
-            .map(s => ({...s, enabled: true}));
-        const rest: Row[] = sortable
-            .filter(d => !active.some(a => a.a === d.searchSlug))
-            .map(d => ({
-                a: d.searchSlug,
-                w: 1 as const,
-                g: false,
-                enabled: false,
-            }));
-        setRows([...active, ...rest]);
-    }, [search.sortBy, sortable, definitions]);
+        setRows(prev => {
+            const missing = sortableBuiltIns.filter(
+                d => !prev.some(r => r.a === d.searchSlug)
+            );
+
+            return missing.length === 0
+                ? prev
+                : [
+                      ...prev,
+                      ...missing.map(d => ({
+                          a: d.searchSlug,
+                          w: 1 as const,
+                          g: false,
+                          enabled: false,
+                      })),
+                  ];
+        });
+    }, [sortableBuiltIns]);
+
+    const addSort = (searchSlug: string) =>
+        setRows(prev =>
+            prev.some(r => r.a === searchSlug)
+                ? prev
+                : [
+                      ...prev.filter(r => r.enabled),
+                      {a: searchSlug, w: 1, g: false, enabled: true},
+                      ...prev.filter(r => !r.enabled),
+                  ]
+        );
+
+    // A sort on an attribute that is not sortable anymore is dropped
+    const sortableRows = rows.filter(
+        r =>
+            r.a === BuiltInAttribute.Score ||
+            r.a === BuiltInAttribute.CreatedAt ||
+            !definitions[r.a] ||
+            definitions[r.a].sortable
+    );
 
     const sensors = useSensors(
         useSensor(PointerSensor, {activationConstraint: {distance: 4}})
@@ -154,7 +182,7 @@ function SortEditor({onClose}: {onClose: () => void}) {
         });
     };
 
-    const enabledRows = rows.filter(r => r.enabled);
+    const enabledRows = sortableRows.filter(r => r.enabled);
     const firstIsScore = enabledRows[0]?.a === BuiltInAttribute.Score;
 
     const apply = () => {
@@ -172,7 +200,7 @@ function SortEditor({onClose}: {onClose: () => void}) {
         onClose();
     };
 
-    const visible = rows.filter(r => {
+    const visible = sortableRows.filter(r => {
         if (!filter) {
             return true;
         }
@@ -245,6 +273,14 @@ function SortEditor({onClose}: {onClose: () => void}) {
                     </SortableOverlay>
                 </DndContext>
             </div>
+            <AttributeDefinitionSelect
+                workspaceId={workspaceId}
+                filters={{sortable: true, enabled: true}}
+                postFilter={d => !rows.some(r => r.a === d.searchSlug)}
+                value={undefined}
+                onChange={(_v, d) => d && addSort(d.searchSlug)}
+                placeholder={t('search.sort.add', 'Add a sort…')}
+            />
             <LabeledControl
                 label={t('search.sort.group', 'Group by sections')}
                 description={

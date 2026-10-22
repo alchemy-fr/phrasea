@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import {AttributeType} from '@/types/api';
-import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
+import {useNarrowDefinitions} from '@/features/attributes/useAttributeDefinitionList';
 
 export type GeoField = {
     /** AQL field of the conditions */
@@ -10,13 +10,18 @@ export type GeoField = {
     label: string;
 };
 
+const GEO_FILTERS = {
+    type: AttributeType.GeoPoint,
+    searchable: true,
+    enabled: true,
+};
+
 /**
  * The geo point attributes the user can search, once each: an attribute
  * shared by several workspaces is the same field on the map.
  */
 export function useGeoFields(): {fields: GeoField[]; loaded: boolean} {
-    const definitions = useDefinitionsStore(s => s.definitions);
-    const loaded = useDefinitionsStore(s => s.loaded);
+    const {definitions, loaded} = useNarrowDefinitions(GEO_FILTERS);
 
     const fields = useMemo(() => {
         const bySlug = new Map<string, GeoField>();

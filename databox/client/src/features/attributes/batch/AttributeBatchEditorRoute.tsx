@@ -23,14 +23,12 @@ import {
     isAssetEligibleForDefinition,
     searchAssets,
 } from '@/lib/api/assets';
-import {
-    useDefinitionsStore,
-    workspaceIdOf,
-} from '@/features/attributes/definitionsStore';
+import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
 import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
-import {FullPageLoader} from '@/components/ui/loader';
+import {FullPageLoader, Spinner} from '@/components/ui/loader';
 import {
     Badge,
     EmptyState,
@@ -165,21 +163,17 @@ export function AttributeBatchEditorRoute() {
         [assetsQuery.data?.items]
     );
     const workspaceId = assets[0]?.workspace.id;
-    const loadWorkspace = useDefinitionsStore(s => s.loadWorkspace);
-    const allDefinitions = useDefinitionsStore(s => s.definitions);
-    useEffect(() => {
-        if (workspaceId) {
-            void loadWorkspace(workspaceId);
-        }
-    }, [workspaceId, loadWorkspace]);
+    const definitionFilters = useMemo(() => ({workspaceId}), [workspaceId]);
+    const definitionList = useAttributeDefinitionList(definitionFilters, {
+        pageSize: 100,
+        enabled: !!workspaceId,
+    });
+    const {hasMore: moreDefinitions, loadMore: loadMoreDefinitions} =
+        definitionList;
 
     const definitions = useMemo<AttributeDefinition[]>(() => {
-        const defs = allDefinitions.filter(
-            d =>
-                workspaceId &&
-                workspaceIdOf(d) === workspaceId &&
-                d.editable &&
-                d.editableInGui
+        const defs = definitionList.items.filter(
+            d => d.editable && d.editableInGui
         );
         const tagsDef = {
             id: TAGS_DEFINITION_ID,
@@ -196,7 +190,7 @@ export function AttributeBatchEditorRoute() {
         } as unknown as AttributeDefinition;
 
         return [tagsDef, ...defs];
-    }, [allDefinitions, workspaceId, t]);
+    }, [definitionList.items, workspaceId, t]);
 
     const remote = useMemo<ValueMap>(() => {
         const map: ValueMap = {};
@@ -262,8 +256,21 @@ export function AttributeBatchEditorRoute() {
         future: [],
     });
     const [initialized, setInitialized] = useState(false);
+    const definitionsRef = useRef<HTMLElement>(null);
+    const definitionsSentinel = useInfiniteScroll(
+        definitionsRef,
+        definitionList.loadMore,
+        // Once the column is shown
+        initialized && definitionList.hasMore && !definitionList.loadingMore
+    );
     useEffect(() => {
-        if (!initialized && assets.length > 0 && assetsQuery.isSuccess) {
+        if (
+            !initialized &&
+            assets.length > 0 &&
+            assetsQuery.isSuccess &&
+            // The first definition is the one shown
+            !definitionList.loading
+        ) {
             setHistory({
                 past: [],
                 present: {
@@ -275,7 +282,14 @@ export function AttributeBatchEditorRoute() {
             });
             setInitialized(true);
         }
-    }, [initialized, assets, assetsQuery.isSuccess, remote, definitions]);
+    }, [
+        initialized,
+        assets,
+        assetsQuery.isSuccess,
+        definitionList.loading,
+        remote,
+        definitions,
+    ]);
 
     const state = history.present;
     const relationIris = useMemo(() => {
@@ -665,7 +679,11 @@ export function AttributeBatchEditorRoute() {
             ) {
                 const list = definitions.filter(d => d.canEdit !== false);
                 const i = list.findIndex(d => d.id === state.currentDefinition);
-                if (i >= 0) {
+                if (i === list.length - 1 && !e.shiftKey && moreDefinitions) {
+                    // The next definitions are not loaded yet
+                    e.preventDefault();
+                    loadMoreDefinitions();
+                } else if (i >= 0) {
                     e.preventDefault();
                     const next =
                         list[
@@ -679,7 +697,13 @@ export function AttributeBatchEditorRoute() {
         window.addEventListener('keydown', onKey);
 
         return () => window.removeEventListener('keydown', onKey);
-    }, [definitions, state.currentDefinition, commit]);
+    }, [
+        definitions,
+        state.currentDefinition,
+        commit,
+        moreDefinitions,
+        loadMoreDefinitions,
+    ]);
 
     // Where the user is, shown in the top bar
     usePageTrail(t('batch_edit.trail', 'Batch edit'));
@@ -860,6 +884,7 @@ export function AttributeBatchEditorRoute() {
             <div className="flex min-h-0 flex-1">
                 {/* definitions */}
                 <aside
+                    ref={definitionsRef}
                     className="shrink-0 overflow-y-auto"
                     style={{width: layout.definitionsWidth}}
                 >
@@ -940,6 +965,14 @@ export function AttributeBatchEditorRoute() {
                             </button>
                         );
                     })}
+                    {definitionList.hasMore ? (
+                        <div
+                            ref={definitionsSentinel}
+                            className="flex justify-center py-2"
+                        >
+                            {definitionList.loadingMore ? <Spinner /> : null}
+                        </div>
+                    ) : null}
                 </aside>
 
                 <ResizeHandle

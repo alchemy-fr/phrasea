@@ -27,7 +27,7 @@ import {
     isLiteral,
     isLogical,
 } from '../aql/types';
-import {useDefinitionsBySlug} from '@/features/attributes/definitionsStore';
+import {useDefinitionBySlug} from '@/features/attributes/definitionsStore';
 import {useEntitiesStore, useEntity, ResolveStatus} from '../entitiesStore';
 import {getAttributeType} from '@/features/attributes/types/registry';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
@@ -226,11 +226,10 @@ function Keyword({children}: {children: ReactNode}) {
 
 function HumanizedCondition({condition}: {condition: AQLCondition}) {
     const {t, i18n} = useTranslation();
-    const definitions = useDefinitionsBySlug();
     const field = isField(condition.leftOperand)
         ? condition.leftOperand.field
         : undefined;
-    const definition = field ? definitions[field] : undefined;
+    const definition = useDefinitionBySlug(field);
     const label =
         definition?.displayName ??
         definition?.name ??
@@ -354,7 +353,7 @@ function HumanizedValues({
 }: {
     values: AQLValueExpr[];
     isBetween: boolean;
-    definition: ReturnType<typeof useDefinitionsBySlug>[string] | undefined;
+    definition: ReturnType<typeof useDefinitionBySlug>;
     t: ReturnType<typeof useTranslation>['t'];
 }) {
     return (
@@ -377,7 +376,7 @@ function HumanizedValue({
     t,
 }: {
     value: AQLValueExpr;
-    definition: ReturnType<typeof useDefinitionsBySlug>[string] | undefined;
+    definition: ReturnType<typeof useDefinitionBySlug>;
     t: ReturnType<typeof useTranslation>['t'];
 }) {
     const ctx = useFormatContext();

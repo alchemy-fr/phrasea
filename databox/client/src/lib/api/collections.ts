@@ -66,7 +66,10 @@ export function putCollection(
     id: string,
     data: CollectionInput
 ): Promise<Collection> {
-    return api.patch<Collection>(`/${EntityName.Collection}/${id}`, toIris(data));
+    return api.patch<Collection>(
+        `/${EntityName.Collection}/${id}`,
+        toIris(data)
+    );
 }
 
 export function postCollection(data: CollectionInput): Promise<Collection> {
@@ -103,13 +106,23 @@ export function addAssetToCollection(
 
 // Workspaces --------------------------------------------------------------
 
-export async function getWorkspaces(url?: string): Promise<Page<Workspace>> {
+export async function getWorkspaces(
+    {
+        url,
+        ...params
+    }: {
+        /** Contains match on the name */
+        name?: string;
+        ids?: string[];
+        limit?: number;
+        url?: string;
+    } = {},
+    signal?: AbortSignal
+): Promise<Page<Workspace>> {
     return toPage(
         await api.get<HydraCollection<Workspace>>(
             url ?? `/${EntityName.Workspace}`,
-            {
-                params: url ? undefined : {limit: 100},
-            }
+            {params: url ? undefined : params, signal}
         )
     );
 }

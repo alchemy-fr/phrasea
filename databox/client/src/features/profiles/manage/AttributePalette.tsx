@@ -1,6 +1,13 @@
 'use client';
 
-import {ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
+import {
+    ReactNode,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import {createPortal} from 'react-dom';
 import {useTranslation} from 'react-i18next';
 import {
@@ -18,9 +25,14 @@ import type {
 import {ProfileItemType} from '@/types/api';
 import {
     builtInTypes,
+    useDefinitionsById,
     useDefinitionsStore,
+    useEnsureDefinitions,
     workspaceIdOf,
 } from '@/features/attributes/definitionsStore';
+import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
+import {Spinner} from '@/components/ui/loader';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import type {BuiltInAttribute} from '@/features/search/searchState';
 import {Input} from '@/components/ui/input';
@@ -69,30 +81,29 @@ export function isLayoutItem(item: Pick<ProfileItem, 'type'>): boolean {
 }
 
 /**
- * The attribute definitions of the profile editor: loads them, resolves the
- * definition, label and type of a profile item.
+ * The attribute definitions of the profile editor: resolves the definition,
+ * label and type of the profile items.
  */
-export function useProfileDefinitions() {
+export function useProfileDefinitions(items: PaletteItem[] | undefined) {
     const {t} = useTranslation();
-    const definitions = useDefinitionsStore(s => s.definitions);
-    const builtIn = useDefinitionsStore(s => s.builtIn);
-    const load = useDefinitionsStore(s => s.load);
-    const workspaces = useCollectionStore(s => s.workspaces);
-    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
-
-    useEffect(() => {
-        void load();
-        void loadWorkspaces();
-    }, [load, loadWorkspaces]);
+    const ids = useMemo(
+        () =>
+            (items ?? [])
+                .filter(i => i.type === ProfileItemType.Definition)
+                .map(i => i.definition)
+                .filter((id): id is string => !!id),
+        [items]
+    );
+    const index = useDefinitionsById({ids});
 
     const definitionOf = useCallback(
         (item: PaletteItem): AttributeDefinitionOrBuiltIn | undefined =>
             item.type === ProfileItemType.BuiltIn
-                ? builtIn.find(x => x.searchSlug === item.key)
+                ? index[item.key ?? '']
                 : item.type === ProfileItemType.Definition
-                  ? definitions.find(x => x.id === item.definition)
+                  ? index[item.definition ?? '']
                   : undefined,
-        [builtIn, definitions]
+        [index]
     );
     const labelOf = useCallback(
         (item: PaletteItem): string => {
@@ -109,7 +120,7 @@ export function useProfileDefinitions() {
         [definitionOf, t]
     );
 
-    return {definitions, builtIn, workspaces, definitionOf, labelOf};
+    return {definitionOf, labelOf};
 }
 
 export function attributeTypeOf(
@@ -125,10 +136,19 @@ export function attributeTypeOf(
         : definition.type;
 }
 
+export type PaletteGroups = {
+    groups: PaletteGroup[];
+    /** More definitions to load, at the end of the list */
+    hasMore: boolean;
+    loadMore: () => void;
+    loadingMore: boolean;
+};
+
 /**
  * The palette groups: the layout elements (when asked), the built-in
  * attributes, then the definitions of each workspace — without the
- * attributes already `used`, filtered by `query`.
+ * attributes already `used`, filtered by `query` (searched by the API for
+ * the definitions, loaded page by page).
  */
 export function usePaletteGroups({
     used,
@@ -140,11 +160,31 @@ export function usePaletteGroups({
     query: string;
     withLayout?: boolean;
     accept?: (definition: AttributeDefinitionOrBuiltIn) => boolean;
-}): PaletteGroup[] {
+}): PaletteGroups {
     const {t} = useTranslation();
-    const {definitions, builtIn, workspaces} = useProfileDefinitions();
+    const builtIn = useDefinitionsStore(s => s.builtIn);
+    useEnsureDefinitions({}, true);
+    const list = useAttributeDefinitionList(PALETTE_FILTERS);
+    const {setQuery} = list;
+    useEffect(() => {
+        setQuery(query);
+    }, [query, setQuery]);
 
-    return useMemo(() => {
+    const workspacesById = useCollectionStore(s => s.workspacesById);
+    const ensureWorkspaces = useCollectionStore(s => s.ensureWorkspaces);
+    const workspaceIds = useMemo(
+        () => [
+            ...new Set(
+                list.items.map(workspaceIdOf).filter((id): id is string => !!id)
+            ),
+        ],
+        [list.items]
+    );
+    useEffect(() => {
+        void ensureWorkspaces(workspaceIds);
+    }, [workspaceIds, ensureWorkspaces]);
+
+    const groups = useMemo(() => {
         const q = query.trim().toLowerCase();
         const keep = (e: PaletteEntry) =>
             !used.has(e.key) && (!q || e.label.toLowerCase().includes(q));
@@ -190,28 +230,57 @@ export function usePaletteGroups({
                 )
                 .filter(keep),
         });
-        workspaces.forEach((ws: Workspace) => {
-            groups.push({
-                id: ws.id,
-                label: ws.displayName ?? ws.name,
-                entries: definitions
-                    .filter(
-                        d =>
-                            workspaceIdOf(d) === ws.id && (!accept || accept(d))
-                    )
-                    .map(d =>
-                        entryOf(d, {
-                            type: ProfileItemType.Definition,
-                            definition: d.id,
-                        })
-                    )
-                    .filter(keep),
+        // The API lists the definitions by workspace
+        const byWorkspace = new Map<string, PaletteGroup>();
+        list.items.forEach(d => {
+            if (accept && !accept(d)) {
+                return;
+            }
+            const entry = entryOf(d, {
+                type: ProfileItemType.Definition,
+                definition: d.id,
             });
+            if (used.has(entry.key)) {
+                return;
+            }
+            const wsId = workspaceIdOf(d) ?? '';
+            let group = byWorkspace.get(wsId);
+            if (!group) {
+                const ws: Workspace | undefined =
+                    workspacesById[wsId] ??
+                    (typeof d.workspace === 'object' ? d.workspace : undefined);
+                group = {
+                    id: `ws:${wsId}`,
+                    label: ws ? (ws.displayName ?? ws.name ?? '') : '',
+                    entries: [],
+                };
+                byWorkspace.set(wsId, group);
+                groups.push(group);
+            }
+            group.entries.push(entry);
         });
 
         return groups.filter(g => g.entries.length > 0);
-    }, [builtIn, definitions, workspaces, used, query, withLayout, accept, t]);
+    }, [
+        builtIn,
+        list.items,
+        workspacesById,
+        used,
+        query,
+        withLayout,
+        accept,
+        t,
+    ]);
+
+    return {
+        groups,
+        hasMore: list.hasMore,
+        loadMore: list.loadMore,
+        loadingMore: list.loadingMore,
+    };
 }
+
+const PALETTE_FILTERS = {};
 
 /**
  * The attributes that can be added to a profile section, grouped, to drag
@@ -220,14 +289,16 @@ export function usePaletteGroups({
  */
 export function AttributePalette({
     groups,
+    hasMore,
+    loadMore,
+    loadingMore,
     query,
     onQueryChange,
     onAdd,
     addIcon,
     addLabel,
     hint,
-}: {
-    groups: PaletteGroup[];
+}: PaletteGroups & {
     query: string;
     onQueryChange: (query: string) => void;
     onAdd: (entry: PaletteEntry) => void;
@@ -243,6 +314,12 @@ export function AttributePalette({
     });
     // A placed item is dragged: the palette takes it back
     const removing = !!active && !paletteKeyOf(active.id);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const sentinelRef = useInfiniteScroll(
+        scrollRef,
+        loadMore,
+        hasMore && !loadingMore
+    );
 
     return (
         <section
@@ -269,8 +346,8 @@ export function AttributePalette({
             {hint ? (
                 <p className="px-1 text-xs text-muted-foreground">{hint}</p>
             ) : null}
-            <div className="min-h-0 flex-1 overflow-y-auto">
-                {groups.length === 0 ? (
+            <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+                {groups.length === 0 && !hasMore ? (
                     <p className="px-1 py-6 text-center text-xs text-muted-foreground">
                         {query.trim()
                             ? t(
@@ -301,6 +378,12 @@ export function AttributePalette({
                         </ul>
                     </div>
                 ))}
+                <div ref={sentinelRef} className="h-px" />
+                {loadingMore ? (
+                    <div className="flex justify-center py-2">
+                        <Spinner />
+                    </div>
+                ) : null}
             </div>
             {removing ? (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-background/70 text-sm font-medium text-destructive">

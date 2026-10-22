@@ -64,15 +64,15 @@ function SearchScreenContent() {
     const results = useResults();
     const search = useSearch();
     const {openModal} = useModals();
-    const loadDefinitions = useDefinitionsStore(s => s.load);
+    const loadBuiltIn = useDefinitionsStore(s => s.loadBuiltIn);
     const openAsset = useAssetOpener();
     const display = useDisplayPreferences();
     const mapbox = useConfig().mapbox;
     const showMap = display.layout === 'map' && !!mapbox;
 
     useEffect(() => {
-        void loadDefinitions();
-    }, [loadDefinitions]);
+        void loadBuiltIn();
+    }, [loadBuiltIn]);
 
     const openUpload = (files?: File[]) => {
         openModal(

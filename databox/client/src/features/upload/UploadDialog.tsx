@@ -58,7 +58,7 @@ import {uniqueId, runWithConcurrency} from '@/lib/utils/misc';
 import {useAttributeEditor} from '@/features/attributes/editor/useAttributeEditor';
 import {AttributesEditor} from '@/features/attributes/editor/AttributesEditor';
 import {indexToCreateActions} from '@/features/attributes/editor/attributeEditorModel';
-import {useCollectionStore} from '@/features/collections/collectionStore';
+import {useWorkspace} from '@/features/collections/collectionStore';
 import {iri} from '@/lib/utils/iri';
 import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {SaveAsTemplateSection} from './SaveAsTemplateSection';
@@ -92,7 +92,6 @@ export function UploadDialog({
     const config = useConfig();
     const queryClient = useQueryClient();
     const results = useOptionalResults();
-    const workspaces = useCollectionStore(s => s.workspaces);
     const [files, setFiles] = useState<File[]>(initialFiles ?? []);
     const [source, setSource] = useState<Source>(
         initialFiles?.length ? 'files' : 'files'
@@ -128,7 +127,7 @@ export function UploadDialog({
     const [templateIds, setTemplateIds] = useState<string[]>([]);
     const uploadStore = useUploadStore();
     const workspaceId = destination?.workspaceId;
-    const workspace = workspaces.find(w => w.id === workspaceId);
+    const workspace = useWorkspace(workspaceId);
 
     const assetEditor = useAttributeEditor({
         workspaceId,
@@ -765,6 +764,9 @@ export function UploadDialog({
                             {workspaceId ? (
                                 <AttributesEditor
                                     attributes={storyEditor.attributes}
+                                    hasMore={storyEditor.hasMore}
+                                    onLoadMore={storyEditor.loadMore}
+                                    loadingMore={storyEditor.loadingMore}
                                     definitions={storyEditor.definitions}
                                     onChange={storyEditor.onChange}
                                     target={AssetTypeFilter.Story}
@@ -787,6 +789,9 @@ export function UploadDialog({
                                 {workspaceId ? (
                                     <AttributesEditor
                                         attributes={assetEditor.attributes}
+                                        hasMore={assetEditor.hasMore}
+                                        onLoadMore={assetEditor.loadMore}
+                                        loadingMore={assetEditor.loadingMore}
                                         definitions={assetEditor.definitions}
                                         onChange={assetEditor.onChange}
                                         target={AssetTypeFilter.Asset}

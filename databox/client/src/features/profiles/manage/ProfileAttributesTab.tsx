@@ -124,7 +124,7 @@ export function ProfileSectionEditor({
 }: SectionEditorProps) {
     const {t} = useTranslation();
     const editing = useProfileEditing(profile.id);
-    const {definitionOf, labelOf} = useProfileDefinitions();
+    const {definitionOf, labelOf} = useProfileDefinitions(profile.items);
     const [query, setQuery] = useState('');
     const [expanded, setExpanded] = useState<string | null>(null);
     const [dragging, setDragging] = useState<string | null>(null);
@@ -147,7 +147,7 @@ export function ProfileSectionEditor({
             new Set(items.filter(i => !isLayoutItem(i)).map(paletteKeyOfItem)),
         [items]
     );
-    const groups = usePaletteGroups({used, query, withLayout, accept});
+    const palette = usePaletteGroups({used, query, withLayout, accept});
 
     const add = (entry: PaletteEntry, index?: number) =>
         editing.add(
@@ -233,7 +233,7 @@ export function ProfileSectionEditor({
             >
                 <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-[minmax(15rem,2fr)_3fr] md:grid-rows-[minmax(0,1fr)]">
                     <AttributePalette
-                        groups={groups}
+                        {...palette}
                         query={query}
                         onQueryChange={setQuery}
                         onAdd={e => void add(e)}

@@ -32,6 +32,7 @@ import {TermsContent} from '@/features/share/ShareTerms';
 export function WorkspaceTermsGate() {
     const workspaces = useCollectionStore(s => s.workspaces);
     const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
+    const refreshWorkspaces = useCollectionStore(s => s.refreshWorkspaces);
     const loadChildren = useCollectionStore(s => s.loadChildren);
     const queryClient = useQueryClient();
     const search = useOptionalSearch();
@@ -48,7 +49,7 @@ export function WorkspaceTermsGate() {
     }
 
     const onSigned = async (workspaceId: string) => {
-        await loadWorkspaces(true);
+        await refreshWorkspaces([workspaceId]);
         // The content denied so far is now readable: refresh what was loaded
         if (useCollectionStore.getState().pagers[pagerKey(workspaceId)]) {
             void loadChildren(workspaceId, undefined, true).catch(() => {});

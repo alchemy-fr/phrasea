@@ -12,9 +12,10 @@ import {LabeledControl, Switch} from '@/components/ui/controls';
 import type {SearchContextValue} from '../SearchProvider';
 import {parseAQL} from '../aql/parser';
 import {astToString} from '../aql/serializer';
-import {validateAST} from '../aql/validation';
+import {fieldsOf, validateAST} from '../aql/validation';
 import {AQLExpression, AQLLogical, AQLQueryAST} from '../aql/types';
 import {
+    indexBySlug,
     useDefinitionsBySlug,
     useDefinitionsStore,
 } from '@/features/attributes/definitionsStore';
@@ -55,11 +56,6 @@ export function ConditionDialog({
 }: Props) {
     const {t} = useTranslation();
     const workspaceId = forcedWorkspaceId ?? search?.workspaces[0];
-    const definitions = useDefinitionsBySlug({workspaceId});
-    const loadDefinitions = useDefinitionsStore(s => s.load);
-    const loadWorkspace = useDefinitionsStore(s => s.loadWorkspace);
-    const loaded = useDefinitionsStore(s => s.loaded);
-    const loadingDefinitions = useDefinitionsStore(s => s.loading);
     const [mode, setMode] = useState<Mode>('builder');
     const [text, setText] = useState(condition?.query ?? '');
     const [expression, setExpression] = useState<AQLExpression>(() => {
@@ -72,12 +68,28 @@ export function ConditionDialog({
     const [inversed, setInversed] = useState(!!condition?.inversed);
     const [error, setError] = useState<string>();
 
+    // The definitions of the fields used: the others are picked from lists
+    const fields = useMemo(() => fieldsOf(expression), [expression]);
+    const definitions = useDefinitionsBySlug({workspaceId, slugs: fields});
+    const ensure = useDefinitionsStore(s => s.ensure);
+    const loadBuiltIn = useDefinitionsStore(s => s.loadBuiltIn);
+    const [initialFields] = useState(fields);
+    // Once the fields of the condition edited are known (or failed to load)
+    const [ready, setReady] = useState(false);
     useEffect(() => {
-        void loadDefinitions();
-        if (workspaceId) {
-            void loadWorkspace(workspaceId);
-        }
-    }, [loadDefinitions, loadWorkspace, workspaceId]);
+        let cancelled = false;
+        void Promise.all([ensure({slugs: initialFields}), loadBuiltIn()]).then(
+            () => {
+                if (!cancelled) {
+                    setReady(true);
+                }
+            }
+        );
+
+        return () => {
+            cancelled = true;
+        };
+    }, [ensure, loadBuiltIn, initialFields]);
 
     const builderQuery = useMemo(() => astToString({expression}), [expression]);
 
@@ -107,12 +119,17 @@ export function ConditionDialog({
         setMode(next);
     };
 
-    const submit = () => {
+    const submit = async () => {
         const query = mode === 'text' ? text.trim() : builderQuery;
         let ast: AQLQueryAST | undefined;
         try {
             ast = parseAQL(query, true);
-            validateAST(ast!, definitions);
+            // A field typed in AQL may not be known yet
+            await ensure({slugs: fieldsOf(ast)});
+            validateAST(
+                ast!,
+                indexBySlug(useDefinitionsStore.getState(), {workspaceId})
+            );
         } catch (e: any) {
             setError(e.message);
 
@@ -180,13 +197,14 @@ export function ConditionDialog({
             dirty={dirty}
             onSubmit={submit}
         >
-            {!loaded && loadingDefinitions ? (
+            {!ready ? (
                 <InlineLoader />
             ) : mode === 'builder' ? (
                 <ExpressionBuilder
                     expression={expression}
                     onChange={setExpression}
                     definitions={definitions}
+                    workspaceId={workspaceId}
                     root
                 />
             ) : (

@@ -1,13 +1,10 @@
 'use client';
 
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {AssetTypeFilter, type Attribute} from '@/types/api';
 import {getAssetAttributes} from '@/lib/api/assets';
-import {
-    useDefinitionsStore,
-    workspaceIdOf,
-} from '@/features/attributes/definitionsStore';
+import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
 import {
     AttributeIndex,
     buildAttributeIndex,
@@ -17,9 +14,9 @@ import {
 import type {OnAttributeChange} from './AttributesEditor';
 
 /**
- * State of an attribute form for a workspace: loads definitions (and the
- * asset's current attributes when editing), tracks local edits and computes
- * the batch actions to persist.
+ * State of an attribute form for a workspace: loads definitions page by page
+ * (`hasMore` / `loadMore`) and the asset's current attributes when editing,
+ * tracks local edits and computes the batch actions to persist.
  */
 export function useAttributeEditor({
     workspaceId,
@@ -30,30 +27,25 @@ export function useAttributeEditor({
     assetId?: string;
     target: AssetTypeFilter;
 }) {
-    const loadWorkspace = useDefinitionsStore(s => s.loadWorkspace);
-    const allDefinitions = useDefinitionsStore(s => s.definitions);
-
-    useEffect(() => {
-        if (workspaceId) {
-            void loadWorkspace(workspaceId);
-        }
-    }, [workspaceId, loadWorkspace]);
+    const filters = useMemo(
+        () => ({workspaceId, target}),
+        [workspaceId, target]
+    );
+    const list = useAttributeDefinitionList(filters, {
+        pageSize: 100,
+        enabled: !!workspaceId,
+    });
 
     const definitions = useMemo<DefinitionIndex>(() => {
         const index: DefinitionIndex = {};
-        allDefinitions
-            .filter(
-                d =>
-                    workspaceId &&
-                    workspaceIdOf(d) === workspaceId &&
-                    (!target || !d.target || (d.target & target) !== 0)
-            )
-            .forEach(d => {
+        if (workspaceId) {
+            list.items.forEach(d => {
                 index[d.id] = d;
             });
+        }
 
         return index;
-    }, [allDefinitions, workspaceId, target]);
+    }, [list.items, workspaceId]);
 
     const remote = useQuery({
         queryKey: ['asset-attributes', assetId],
@@ -69,10 +61,40 @@ export function useAttributeEditor({
     const [attributes, setAttributes] = useState<AttributeIndex>(remoteIndex);
     const [dirty, setDirty] = useState(false);
 
+    // Reset on other values (or another asset, workspace); the definitions of
+    // a new page only add their fields, the edits are kept
+    const source = useRef<{
+        data: unknown;
+        assetId?: string;
+        workspaceId?: string;
+    }>(undefined);
     useEffect(() => {
-        setAttributes(remoteIndex);
-        setDirty(false);
-    }, [remoteIndex]);
+        const last = source.current;
+        if (
+            !last ||
+            last.data !== remote.data ||
+            last.assetId !== assetId ||
+            last.workspaceId !== workspaceId
+        ) {
+            source.current = {data: remote.data, assetId, workspaceId};
+            setAttributes(remoteIndex);
+            setDirty(false);
+
+            return;
+        }
+        setAttributes(prev => {
+            const added = Object.keys(remoteIndex).filter(id => !(id in prev));
+
+            return added.length === 0
+                ? prev
+                : {
+                      ...prev,
+                      ...Object.fromEntries(
+                          added.map(id => [id, remoteIndex[id]])
+                      ),
+                  };
+        });
+    }, [remoteIndex, remote.data, assetId, workspaceId]);
 
     const onChange = useCallback<OnAttributeChange>((defId, locale, value) => {
         setDirty(true);
@@ -114,7 +136,10 @@ export function useAttributeEditor({
         getActions,
         dirty,
         reset,
-        loading: remote.isLoading,
+        loading: remote.isLoading || list.loading,
+        hasMore: list.hasMore,
+        loadMore: list.loadMore,
+        loadingMore: list.loadingMore,
         applyRemote,
         setAttributes,
     };

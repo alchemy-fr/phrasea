@@ -21,7 +21,7 @@ import type {ModalProps} from '@/components/modals/ModalProvider';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {useEntitiesStore} from '@/features/search/entitiesStore';
 import {iri} from '@/lib/utils/iri';
-import {useEntityAssets, useWorkspaceDefinitions} from './useEntityAssets';
+import {useEntityAssets} from './useEntityAssets';
 
 const PAGE_SIZE = 24;
 
@@ -42,7 +42,6 @@ export function EntityAssetsPreviewDialog({
     workspaceId: string;
 }) {
     const {t} = useTranslation();
-    useWorkspaceDefinitions(workspaceId);
     const {
         items,
         total,

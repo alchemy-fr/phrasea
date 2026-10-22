@@ -1,6 +1,5 @@
 'use client';
 
-import {useEffect} from 'react';
 import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
 import {ChevronDownIcon, CompassIcon} from 'lucide-react';
@@ -11,7 +10,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
-import {useCollectionStore} from '@/features/collections/collectionStore';
+import {WorkspaceName} from '@/features/collections/WorkspaceName';
 import {routes} from '@/lib/routes';
 import {cn} from '@/lib/utils/cn';
 import type {EntityListRef} from './useEntityListsOfFacet';
@@ -87,12 +86,6 @@ function ExploreListsMenu({
     className?: string;
     onNavigate?: () => void;
 }) {
-    const workspaces = useCollectionStore(s => s.workspaces);
-    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
-    useEffect(() => {
-        void loadWorkspaces();
-    }, [loadWorkspaces]);
-
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -114,8 +107,7 @@ function ExploreListsMenu({
                             data-testid="entity-list-explore-item"
                             onClick={() => onNavigate?.()}
                         >
-                            {workspaces.find(w => w.id === l.workspaceId)
-                                ?.displayName ?? l.workspaceId}
+                            <WorkspaceName id={l.workspaceId} />
                         </Link>
                     </DropdownMenuItem>
                 ))}

@@ -1,12 +1,17 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import {useMemo} from 'react';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import type {Asset, AttributeEntity, EntityList} from '@/types/api';
+import type {
+    Asset,
+    AttributeDefinition,
+    AttributeEntity,
+    EntityList,
+} from '@/types/api';
 import {AttributeEntityStatus} from '@/types/api';
 import {searchAssets} from '@/lib/api/assets';
 import {getAttributesOfDefinition} from '@/lib/api/metadata';
-import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
+import {useNarrowDefinitions} from '@/features/attributes/useAttributeDefinitionList';
 import {assetIdOf} from '@/features/faces/useFaceRecognition';
 import {
     entityAssetsCondition,
@@ -16,47 +21,27 @@ import {
 } from './entityAssetsSearch';
 
 /**
- * Loads the attribute definitions of the workspace into the definitions
- * store; true once done (or failed), for the workspace given.
+ * The attribute definitions of the workspace taking their values from the
+ * list, all of them (they all make the search of the values); `loaded` once
+ * done (or failed).
  */
-export function useWorkspaceDefinitions(workspaceId: string | undefined) {
-    const loadWorkspace = useDefinitionsStore(s => s.loadWorkspace);
-    const [loaded, setLoaded] = useState<string>();
-
-    useEffect(() => {
-        if (!workspaceId) {
-            return;
-        }
-        let cancelled = false;
-        void loadWorkspace(workspaceId)
-            .catch(() => {})
-            .finally(() => {
-                if (!cancelled) {
-                    setLoaded(workspaceId);
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [loadWorkspace, workspaceId]);
-
-    return !!workspaceId && loaded === workspaceId;
-}
-
-/** The attribute definitions of the workspace taking their values from the list */
 export function useEntityListDefinitions(
     workspaceId: string | undefined,
     listId: string
-) {
-    const definitions = useDefinitionsStore(s => s.definitions);
+): {definitions: AttributeDefinition[]; loaded: boolean} {
+    const {definitions, loaded} = useNarrowDefinitions(
+        {workspaceId, entityListId: listId},
+        {enabled: !!workspaceId}
+    );
 
     return useMemo(
-        () =>
-            workspaceId
+        () => ({
+            definitions: workspaceId
                 ? entityListDefinitions(definitions, workspaceId, listId)
                 : [],
-        [definitions, workspaceId, listId]
+            loaded,
+        }),
+        [definitions, workspaceId, listId, loaded]
     );
 }
 
@@ -65,8 +50,6 @@ export function useEntityListDefinitions(
  * values not approved yet are left out of the search index: their assets are
  * found through the attributes holding them (no search then).
  *
- * Reads the definitions from the store: the caller loads them
- * (`useWorkspaceDefinitions`).
  */
 export function useEntityAssets({
     entity,
@@ -83,7 +66,10 @@ export function useEntityAssets({
     enabled?: boolean;
     staleTime?: number;
 }) {
-    const listDefinitions = useEntityListDefinitions(workspaceId, list.id);
+    const {definitions: listDefinitions} = useEntityListDefinitions(
+        workspaceId,
+        list.id
+    );
     const slugs = useMemo(
         () => entityListSlugs(listDefinitions),
         [listDefinitions]

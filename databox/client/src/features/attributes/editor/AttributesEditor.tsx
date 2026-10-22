@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
 import {AlertTriangleIcon, ListIcon, PlusIcon, XIcon} from 'lucide-react';
@@ -22,6 +22,8 @@ import {shortId} from '@/lib/utils/misc';
 import {cn} from '@/lib/utils/cn';
 import {Flag} from '@/components/ui/flag';
 import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetButton';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
+import {Spinner} from '@/components/ui/loader';
 
 export type OnAttributeChange = (
     definitionId: string,
@@ -37,6 +39,10 @@ type Props = {
     target: AssetTypeFilter;
     workspaceId?: string;
     workspaceLocales?: string[];
+    /** More definitions to load, at the end of the form */
+    hasMore?: boolean;
+    onLoadMore?: () => void;
+    loadingMore?: boolean;
 };
 
 /**
@@ -51,9 +57,24 @@ export function AttributesEditor({
     target,
     workspaceId,
     workspaceLocales,
+    hasMore = false,
+    onLoadMore,
+    loadingMore = false,
 }: Props) {
     const {t} = useTranslation();
     const router = useRouter();
+    // The viewport: the form scrolls with its container
+    const viewport = useRef<HTMLElement>(null);
+    const sentinelRef = useInfiniteScroll(
+        viewport,
+        onLoadMore,
+        hasMore && !loadingMore
+    );
+    const more = hasMore ? (
+        <div ref={sentinelRef} className="flex justify-center py-2">
+            {loadingMore ? <Spinner /> : null}
+        </div>
+    ) : null;
     const list = useMemo(
         () =>
             Object.values(definitions)
@@ -79,9 +100,11 @@ export function AttributesEditor({
 
     if (list.length === 0) {
         return (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-                {t('attribute.editor.none', 'No editable attribute')}
-            </p>
+            more ?? (
+                <p className="py-4 text-center text-sm text-muted-foreground">
+                    {t('attribute.editor.none', 'No editable attribute')}
+                </p>
+            )
         );
     }
 
@@ -176,6 +199,7 @@ export function AttributesEditor({
                     </div>
                 );
             })}
+            {more}
         </div>
     );
 }

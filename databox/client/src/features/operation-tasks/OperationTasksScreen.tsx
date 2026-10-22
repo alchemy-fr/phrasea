@@ -30,12 +30,11 @@ import {FormRow, Input} from '@/components/ui/input';
 import {SimpleSelect} from '@/components/ui/select';
 import {CopyButton} from '@/components/ui/copy-button';
 import {formatDateTime, formatDuration} from '@/lib/utils/format';
-import {useCollectionStore} from '@/features/collections/collectionStore';
+import {useWorkspace} from '@/features/collections/collectionStore';
 import {
-    useDefinitionsStore,
-    workspaceIdOf,
-} from '@/features/attributes/definitionsStore';
-import {useEffect} from 'react';
+    AttributeDefinitionSelect,
+    WorkspaceSelect,
+} from '@/components/form/selects';
 import {cn} from '@/lib/utils/cn';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {routes} from '@/lib/routes';
@@ -453,17 +452,7 @@ function RunTaskForm({task, onRun}: {task: TaskType; onRun: () => void}) {
     const {t} = useTranslation();
     const [payload, setPayload] = useState<Record<string, string>>({});
     const [running, setRunning] = useState(false);
-    const {workspaces, loadWorkspaces} = useCollectionStore();
-    const {definitions, loadWorkspace} = useDefinitionsStore();
-    useEffect(() => {
-        void loadWorkspaces();
-    }, [loadWorkspaces]);
-    useEffect(() => {
-        if (payload.workspaceId) {
-            void loadWorkspace(payload.workspaceId);
-        }
-    }, [payload.workspaceId, loadWorkspace]);
-    const workspace = workspaces.find(w => w.id === payload.workspaceId);
+    const workspace = useWorkspace(payload.workspaceId);
     const valid = task.fields.every(f => !f.required || payload[f.name]);
 
     const run = async () => {
@@ -489,33 +478,26 @@ function RunTaskForm({task, onRun}: {task: TaskType; onRun: () => void}) {
                     label={`${f.label}${f.required ? ' *' : ''}`}
                 >
                     {f.type === 'workspace' ? (
-                        <SimpleSelect
+                        <WorkspaceSelect
                             value={payload.workspaceId}
-                            onValueChange={v =>
-                                setPayload({...payload, workspaceId: v})
-                            }
-                            options={workspaces.map(w => ({
-                                value: w.id,
-                                label: w.displayName ?? w.name,
-                            }))}
+                            onChange={v => {
+                                const {workspaceId: _ws, ...rest} = payload;
+                                setPayload(
+                                    v ? {...rest, workspaceId: v} : rest
+                                );
+                            }}
                             placeholder={t('common.select', 'Select…')}
                         />
                     ) : f.type === 'attribute' ? (
-                        <SimpleSelect
+                        <AttributeDefinitionSelect
+                            key={payload.workspaceId}
+                            workspaceId={payload.workspaceId}
                             value={payload[f.name]}
-                            onValueChange={v =>
-                                setPayload({...payload, [f.name]: v})
-                            }
+                            onChange={v => {
+                                const {[f.name]: _v, ...rest} = payload;
+                                setPayload(v ? {...rest, [f.name]: v} : rest);
+                            }}
                             disabled={!payload.workspaceId}
-                            options={definitions
-                                .filter(
-                                    d =>
-                                        workspaceIdOf(d) === payload.workspaceId
-                                )
-                                .map(d => ({
-                                    value: d.id,
-                                    label: d.displayName ?? d.name,
-                                }))}
                             placeholder={t('common.select', 'Select…')}
                         />
                     ) : f.type === 'locale' ? (

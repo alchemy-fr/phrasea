@@ -246,6 +246,28 @@ function validateCondition(node: AQLCondition, index: DefinitionIndex): void {
     }
 }
 
+/** The fields an expression refers to, operands and values included */
+export function fieldsOf(node: unknown): string[] {
+    const fields = new Set<string>();
+    const visit = (n: unknown): void => {
+        if (Array.isArray(n)) {
+            n.forEach(visit);
+        } else if (n && typeof n === 'object') {
+            if (isField(n)) {
+                if (n.field) {
+                    fields.add(n.field);
+                }
+
+                return;
+            }
+            Object.values(n).forEach(visit);
+        }
+    };
+    visit(node);
+
+    return [...fields];
+}
+
 export function validateAST(ast: AQLQueryAST, index: DefinitionIndex): void {
     const visit = (node: unknown): void => {
         if (isLogical(node)) {

@@ -67,7 +67,6 @@ export function AttributeList({
     className,
 }: Props) {
     const {t} = useTranslation();
-    const definitionsIndex = useDefinitionsById();
     const currentProfile = useProfileStore(s => s.current);
     const profile = ignoreProfile ? null : currentProfile;
     const toggleDefinition = useProfileStore(s => s.toggleDefinition);
@@ -78,6 +77,14 @@ export function AttributeList({
             ),
         [profile]
     );
+    const pinnedIds = useMemo(
+        () =>
+            pinnedItems
+                .map(i => i.definition)
+                .filter((id): id is string => !!id),
+        [pinnedItems]
+    );
+    const definitionsIndex = useDefinitionsById({ids: pinnedIds});
 
     const items = useMemo<Item[]>(() => {
         const groups = groupAttributes(asset.attributes);

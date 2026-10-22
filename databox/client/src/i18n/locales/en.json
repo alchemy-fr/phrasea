@@ -1358,6 +1358,7 @@
     "search.pinned.from": "From",
     "search.pinned.to": "To",
     "search.placeholder": "Search assets…",
+    "search.sort.add": "Add a sort…",
     "search.sort.button": "Sort",
     "search.sort.group": "Group by sections",
     "search.sort.group_disabled": "Not available when sorting by score",

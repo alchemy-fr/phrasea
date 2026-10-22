@@ -60,6 +60,9 @@ describe('WorkspaceTermsGate', () => {
         vi.clearAllMocks();
         useCollectionStore.setState({
             workspaces: [],
+            workspacesById: {},
+            workspacesResolved: {},
+            workspacesNext: undefined,
             workspacesLoaded: false,
             workspacesLoading: false,
             pagers: {},
@@ -100,17 +103,16 @@ describe('WorkspaceTermsGate', () => {
         fireEvent.click(screen.getByRole('checkbox'));
         expect(accept).toHaveProperty('disabled', false);
 
-        api.getWorkspaces.mockResolvedValueOnce(
-            page([
-                workspace('a', false),
-                workspace('b', false),
-                workspace('c', true),
-            ])
-        );
+        // Only the signed workspace is loaded again
+        api.getWorkspaces.mockResolvedValueOnce(page([workspace('a', false)]));
         fireEvent.click(accept);
 
         await screen.findByText('Terms of c');
         expect(api.signWorkspaceTerms).toHaveBeenCalledWith('a');
+        expect(api.getWorkspaces).toHaveBeenLastCalledWith({
+            ids: ['a'],
+            limit: 100,
+        });
         expect(screen.getByText('Not now')).toBeTruthy();
         // A new dialog: the previous acceptance is not carried over
         expect(screen.getByRole('checkbox').getAttribute('aria-checked')).toBe(

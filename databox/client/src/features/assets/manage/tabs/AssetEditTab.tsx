@@ -110,6 +110,9 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
                 <AttributesEditor
                     attributes={editor.attributes}
                     definitions={editor.definitions}
+                    hasMore={editor.hasMore}
+                    onLoadMore={editor.loadMore}
+                    loadingMore={editor.loadingMore}
                     onChange={editor.onChange}
                     disabled={!asset.capabilities.editAttributes}
                     target={

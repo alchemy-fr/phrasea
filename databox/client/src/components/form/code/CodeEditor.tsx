@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useTheme} from 'next-themes';
 import type {Ace} from 'ace-builds';
 import {cn} from '@/lib/utils/cn';
-import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
+import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
 
 export type CodeEditorMode = 'yaml' | 'twig';
 
@@ -44,9 +44,16 @@ function loadAce(): Promise<AceModule> {
         langTools.setCompleters([
             langTools.keyWordCompleter,
             langTools.textCompleter,
-            twigCompleter(() =>
-                useDefinitionsStore.getState().definitions.map(d => d.slug)
-            ),
+            twigCompleter(async prefix => [
+                ...new Set(
+                    (
+                        await getAttributeDefinitionsPage({
+                            query: prefix || undefined,
+                            limit: 30,
+                        })
+                    ).items.map(d => d.slug)
+                ),
+            ]),
         ]);
 
         return ace;
