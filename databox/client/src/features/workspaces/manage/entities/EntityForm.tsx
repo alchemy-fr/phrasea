@@ -19,6 +19,11 @@ import {Flag} from '@/components/ui/flag';
 import {ColorInput} from '@/components/ui/color-input';
 import {FilePicker} from '@/components/form/FilePicker';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {
+    checkUploadFile,
+    describeUploadRejection,
+    ENTITY_IMAGE_LIMITS,
+} from '@/lib/uploadLimits';
 
 export function EntityForm({
     entity,
@@ -33,7 +38,7 @@ export function EntityForm({
     onSaved: (entity: AttributeEntity) => void;
     onCancel: () => void;
 }) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const [value, setValue] = useState(entity?.value ?? '');
     const [note, setNote] = useState(entity?.note ?? '');
     const [status, setStatus] = useState(
@@ -95,6 +100,21 @@ export function EntityForm({
             // can be sent again from the edit dialog
             try {
                 if (list.withImages && image) {
+                    const rejection = checkUploadFile(
+                        image,
+                        ENTITY_IMAGE_LIMITS
+                    );
+                    if (rejection) {
+                        throw new Error(
+                            describeUploadRejection(
+                                t,
+                                image,
+                                rejection,
+                                ENTITY_IMAGE_LIMITS,
+                                i18n.language
+                            )
+                        );
+                    }
                     saved = await uploadAttributeEntityImage(saved.id, image);
                 } else if (list.withImages && image === '') {
                     await deleteAttributeEntityImage(saved.id);
@@ -180,7 +200,7 @@ export function EntityForm({
                 <FormRow label={t('entity.image', 'Photo')}>
                     <FilePicker
                         testId="entity-image"
-                        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                        {...ENTITY_IMAGE_LIMITS}
                         value={image}
                         onChange={setImage}
                         current={

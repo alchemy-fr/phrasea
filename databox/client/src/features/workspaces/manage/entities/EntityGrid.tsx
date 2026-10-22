@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useRef, useState} from 'react';
+import {type ReactElement, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import type {
@@ -28,14 +28,19 @@ import {
     type AttributeEntitySortField,
     clearEntityList,
     deleteAttributeEntity,
+    deleteAttributeEntityImage,
     getAttributeEntity,
     postAttributeEntity,
     putAttributeEntity,
+    uploadAttributeEntityImage,
 } from '@/lib/api/metadata';
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/misc';
 import {FilterInput} from '@/components/ui/filter-input';
 import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuTrigger,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -51,11 +56,13 @@ import {useRoutePath} from '@/lib/navigation/routePath';
 import {toastError} from '@/lib/utils/errors';
 import {cn} from '@/lib/utils/cn';
 import {
-    buildEntityColumns,
-    DRAFT_PREFIX,
-    entityPatchFromCell,
-    isDraft,
-} from './entityColumns';
+    checkUploadFile,
+    describeUploadRejection,
+    ENTITY_IMAGE_LIMITS,
+} from '@/lib/uploadLimits';
+import {buildEntityColumns, entityPatchFromCell} from './entityColumns';
+import {DRAFT_PREFIX, isDraft} from './drafts';
+import {type EntityMenuActions, EntityMenuItems} from './EntityMenuItems';
 import {EntityCellEditor} from './EntityCellEditor';
 import {EntityFormDialog} from './EntityFormDialog';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
@@ -115,7 +122,7 @@ export function EntityGrid({
     workspace: Workspace;
     onBack: () => void;
 }) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const {openModal} = useModals();
     const queryClient = useQueryClient();
     const locales = useMemo(
@@ -137,6 +144,12 @@ export function EntityGrid({
     const [requestFocus, setRequestFocus] = useState<
         (CellPosition & {edit?: boolean}) | null
     >(null);
+    const [uploadingImageIds, setUploadingImageIds] = useState<
+        ReadonlySet<string>
+    >(() => new Set());
+    // The file input of the menus' "Change the photo…" and its value
+    const imageInput = useRef<HTMLInputElement>(null);
+    const imageTarget = useRef<AttributeEntity | null>(null);
 
     const columnFilter = (id: string): string | undefined => {
         const v = debouncedColumnFilters.find(f => f.id === id)?.value;
@@ -340,37 +353,129 @@ export function EntityGrid({
         refreshPending();
     };
 
+    const openMerge = (entities: AttributeEntity[]) =>
+        openModal(MergeEntitiesDialog, {
+            entities,
+            onMerged: () => {
+                setRowSelection({});
+                reload();
+            },
+        });
+
+    const uploadImage = async (entity: AttributeEntity, file: File) => {
+        const rejection = checkUploadFile(file, ENTITY_IMAGE_LIMITS);
+        if (rejection) {
+            toast.error(
+                describeUploadRejection(
+                    t,
+                    file,
+                    rejection,
+                    ENTITY_IMAGE_LIMITS,
+                    i18n.language
+                )
+            );
+
+            return;
+        }
+        setUploadingImageIds(ids => new Set(ids).add(entity.id));
+        try {
+            grid.replaceEntity(
+                await uploadAttributeEntityImage(entity.id, file)
+            );
+        } catch (e: any) {
+            toast.error(
+                t(
+                    'entity.image_error',
+                    'The photo was not saved: {{message}}',
+                    {
+                        message: e?.message,
+                    }
+                )
+            );
+        } finally {
+            setUploadingImageIds(ids => {
+                const next = new Set(ids);
+                next.delete(entity.id);
+
+                return next;
+            });
+        }
+    };
+
+    const removeImage = async (entity: AttributeEntity) => {
+        try {
+            await deleteAttributeEntityImage(entity.id);
+            grid.patchEntity(entity.id, {image: null, thumbnail: null});
+        } catch (e) {
+            toastError(e);
+        }
+    };
+
+    const pickImage = (entity: AttributeEntity) => {
+        imageTarget.current = entity;
+        imageInput.current?.click();
+    };
+
+    /**
+     * The values a context menu opened on a row acts on: a selected row stands
+     * for the whole selection; an unselected one gets selected alone, as a
+     * plain click would, and the menu targets it only.
+     */
+    const menuTargets = (entity: AttributeEntity): AttributeEntity[] => {
+        if (!isDraft(entity) && rowSelection[entity.id]) {
+            return selected.length > 0 ? selected : [entity];
+        }
+        setRowSelection({[entity.id]: true});
+
+        return [entity];
+    };
+
     // The columns are memoized: their callbacks go through the latest handlers
     const actions = useRef({
-        approve: (_e: AttributeEntity) => {},
-        reject: (_e: AttributeEntity) => {},
-        remove: (_e: AttributeEntity) => {},
+        setStatus: (_es: AttributeEntity[], _s: AttributeEntityStatus) => {},
+        remove: (_es: AttributeEntity[]) => {},
+        merge: (_es: AttributeEntity[]) => {},
+        uploadImage: (_e: AttributeEntity, _f: File) => {},
+        removeImage: (_e: AttributeEntity) => {},
+        pickImage: (_e: AttributeEntity) => {},
     });
     actions.current = {
-        approve: e => void setStatus([e], AttributeEntityStatus.Approved),
-        reject: e => void setStatus([e], AttributeEntityStatus.Rejected),
-        remove: e => confirmDelete([e]),
+        setStatus: (es, status) => void setStatus(es, status),
+        remove: es => confirmDelete(es),
+        merge: openMerge,
+        uploadImage: (e, f) => void uploadImage(e, f),
+        removeImage: e => void removeImage(e),
+        pickImage,
     };
+    const menuActions = useMemo<EntityMenuActions>(
+        () => ({
+            onSetStatus: (es, status) => actions.current.setStatus(es, status),
+            onPreview: e =>
+                openModal(EntityAssetsPreviewDialog, {
+                    entity: e,
+                    list,
+                    workspaceId: workspace.id,
+                }),
+            onEdit: e => navigate([e.id]),
+            onPickImage: e => actions.current.pickImage(e),
+            onRemoveImage: e => actions.current.removeImage(e),
+            onMerge: es => actions.current.merge(es),
+            onDelete: es => actions.current.remove(es),
+            onDiscardDraft: e => setDrafts(ds => ds.filter(d => d.id !== e.id)),
+        }),
+        [list, workspace.id, openModal, navigate]
+    );
     const columns = useMemo(
         () =>
             buildEntityColumns({
+                ...menuActions,
                 list,
                 locales,
                 t,
-                onApprove: e => actions.current.approve(e),
-                onReject: e => actions.current.reject(e),
-                onPreview: e =>
-                    openModal(EntityAssetsPreviewDialog, {
-                        entity: e,
-                        list,
-                        workspaceId: workspace.id,
-                    }),
-                onEdit: e => navigate([e.id]),
-                onDelete: e => actions.current.remove(e),
-                onDiscardDraft: e =>
-                    setDrafts(ds => ds.filter(d => d.id !== e.id)),
+                onUploadImage: (e, f) => actions.current.uploadImage(e, f),
+                uploadingImageIds,
             }),
-        [list, locales, t, workspace.id, openModal, navigate]
+        [menuActions, list, locales, t, uploadingImageIds]
     );
 
     const chips: {id: EntityStatusFilter; label: string}[] = [
@@ -489,15 +594,7 @@ export function EntityGrid({
                             size="sm"
                             variant="outline"
                             disabled={selected.length < 2}
-                            onClick={() =>
-                                openModal(MergeEntitiesDialog, {
-                                    entities: selected,
-                                    onMerged: () => {
-                                        setRowSelection({});
-                                        reload();
-                                    },
-                                })
-                            }
+                            onClick={() => openMerge(selected)}
                         >
                             <MergeIcon /> {t('entity.merge', 'Merge')}
                         </Button>
@@ -592,9 +689,21 @@ export function EntityGrid({
                             !isDraft(e) &&
                             'bg-warning/10',
                         e.status === AttributeEntityStatus.Rejected &&
-                            'opacity-60'
-                    ) || undefined
+                            'opacity-60',
+                        // Its context menu is open
+                        'data-[state=open]:bg-accent'
+                    )
                 }
+                rowWrapper={(entity, rowElement) => (
+                    <EntityRowContextMenu
+                        entity={entity}
+                        list={list}
+                        actions={menuActions}
+                        getTargets={menuTargets}
+                    >
+                        {rowElement}
+                    </EntityRowContextMenu>
+                )}
                 loading={grid.isLoading}
                 loadingMore={grid.isFetchingNextPage}
                 hasMore={grid.hasNextPage}
@@ -603,6 +712,22 @@ export function EntityGrid({
                 requestFocus={requestFocus}
                 data-testid="entity-grid"
                 className="min-h-0 flex-1"
+            />
+            <input
+                ref={imageInput}
+                type="file"
+                accept={ENTITY_IMAGE_LIMITS.accept}
+                hidden
+                data-testid="entity-image-input"
+                onChange={ev => {
+                    const file = ev.target.files?.[0];
+                    ev.target.value = '';
+                    const target = imageTarget.current;
+                    imageTarget.current = null;
+                    if (file && target) {
+                        void uploadImage(target, file);
+                    }
+                }}
             />
             <EntityFormDialog
                 open={!!editingId}
@@ -623,5 +748,42 @@ export function EntityGrid({
                 }}
             />
         </div>
+    );
+}
+
+/** Right-click menu of a row, acting on the targets read when it opens */
+function EntityRowContextMenu({
+    entity,
+    list,
+    actions,
+    getTargets,
+    children,
+}: {
+    entity: AttributeEntity;
+    list: EntityList;
+    actions: EntityMenuActions;
+    getTargets: (entity: AttributeEntity) => AttributeEntity[];
+    children: ReactElement;
+}) {
+    const [targets, setTargets] = useState<AttributeEntity[]>([entity]);
+
+    return (
+        <ContextMenu
+            onOpenChange={open => {
+                if (open) {
+                    setTargets(getTargets(entity));
+                }
+            }}
+        >
+            <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+            <ContextMenuContent className="w-56" data-testid="entity-menu">
+                <EntityMenuItems
+                    entities={targets}
+                    list={list}
+                    variant="context"
+                    actions={actions}
+                />
+            </ContextMenuContent>
+        </ContextMenu>
     );
 }

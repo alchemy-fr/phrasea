@@ -1,8 +1,14 @@
 import {beforeAll, describe, expect, it, vi} from 'vitest';
-import {useState} from 'react';
+import {type ReactElement, type ReactNode, useState} from 'react';
 import {fireEvent, render, screen} from '@testing-library/react';
 import type {ColumnDef, SortingState} from '@tanstack/react-table';
 import {DataTable} from './DataTable';
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger,
+} from '@/components/ui/menu';
 import type {CellEditorRenderProps} from './types';
 
 // jsdom has no layout: the virtualizer would render no row
@@ -80,9 +86,11 @@ function Editor({
 function Table({
     onCellCommit = () => {},
     onSortingChange,
+    rowWrapper,
 }: {
     onCellCommit?: (row: Item, columnId: string, value: string) => void;
     onSortingChange?: (s: SortingState) => void;
+    rowWrapper?: (row: Item, rowElement: ReactElement) => ReactNode;
 }) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -100,6 +108,7 @@ function Table({
             }}
             onCellCommit={onCellCommit}
             renderEditor={p => <Editor {...p} />}
+            rowWrapper={rowWrapper}
             data-testid="grid"
         />
     );
@@ -202,5 +211,39 @@ describe('DataTable', () => {
         expect(
             screen.getByTestId('col-note').querySelector('button')
         ).toBeNull();
+    });
+
+    it('wraps the rows, e.g. in a context menu', () => {
+        const onSelect = vi.fn();
+        render(
+            <Table
+                rowWrapper={(item, rowElement) => (
+                    <ContextMenu>
+                        <ContextMenuTrigger asChild>
+                            {rowElement}
+                        </ContextMenuTrigger>
+                        <ContextMenuContent>
+                            <ContextMenuItem onSelect={() => onSelect(item)}>
+                                Act on {item.name}
+                            </ContextMenuItem>
+                        </ContextMenuContent>
+                    </ContextMenu>
+                )}
+            />
+        );
+        const rows = grid().querySelectorAll<HTMLElement>(
+            '[role=rowgroup] > [role=row]'
+        );
+        expect(rows).toHaveLength(3);
+        // The props of the row are kept
+        expect(rows[1].style.transform).toBe('translateY(36px)');
+        expect(rows[1].getAttribute('data-index')).toBe('1');
+
+        // A right click opens the menu of its row, without editing the cell
+        fireEvent.contextMenu(cellOf('Two'));
+        expect(screen.queryByTestId('editor')).toBeNull();
+        expect(rows[1].getAttribute('data-state')).toBe('open');
+        fireEvent.click(screen.getByText('Act on Two'));
+        expect(onSelect).toHaveBeenCalledWith(data[1]);
     });
 });

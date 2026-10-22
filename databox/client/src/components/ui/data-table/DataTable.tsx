@@ -1,7 +1,9 @@
 'use client';
 
 import {
+    Fragment,
     type KeyboardEvent,
+    type ReactElement,
     type ReactNode,
     useCallback,
     useEffect,
@@ -48,6 +50,12 @@ export type DataTableProps<T> = {
     ) => void | Promise<void>;
     'renderEditor'?: (props: CellEditorRenderProps<T>) => ReactNode;
     'rowClassName'?: (row: T) => string | undefined;
+    /**
+     * Wraps the row element, e.g. in a context menu trigger (`asChild`): the
+     * wrapper must forward the props and the ref it gets to the row element,
+     * which the virtualizer measures.
+     */
+    'rowWrapper'?: (row: T, rowElement: ReactElement) => ReactNode;
     'estimateRowHeight'?: number;
     'loading'?: boolean;
     'loadingMore'?: boolean;
@@ -92,6 +100,7 @@ export function DataTable<T>({
     onCellCommit,
     renderEditor,
     rowClassName,
+    rowWrapper,
     estimateRowHeight = 36,
     loading,
     loadingMore,
@@ -539,9 +548,8 @@ export function DataTable<T>({
                             return null;
                         }
 
-                        return (
+                        const rowElement = (
                             <div
-                                key={item.key}
                                 ref={virtualizer.measureElement}
                                 data-index={item.index}
                                 role="row"
@@ -644,6 +652,14 @@ export function DataTable<T>({
                                     );
                                 })}
                             </div>
+                        );
+
+                        return (
+                            <Fragment key={item.key}>
+                                {rowWrapper
+                                    ? rowWrapper(row.original, rowElement)
+                                    : rowElement}
+                            </Fragment>
                         );
                     })}
                 </div>

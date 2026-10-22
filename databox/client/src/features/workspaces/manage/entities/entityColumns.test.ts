@@ -30,10 +30,13 @@ const columnIds = (list: Partial<EntityList>) =>
         list: {id: 'l1', name: 'L', ...list} as EntityList,
         locales: ['en', 'fr'],
         t,
-        onApprove: noop,
-        onReject: noop,
+        onSetStatus: noop,
         onPreview: noop,
         onEdit: noop,
+        onPickImage: noop,
+        onUploadImage: noop,
+        onRemoveImage: noop,
+        onMerge: noop,
         onDelete: noop,
     }).map(c => c.id);
 

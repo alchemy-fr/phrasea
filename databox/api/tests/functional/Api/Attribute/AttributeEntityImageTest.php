@@ -22,7 +22,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * POST/DELETE /attribute-entities/{id}/image: the photo of an entity list value.
  *
  * A raster photo is kept as uploaded until the ProcessImageSet job replaces it with an
- * optimized WebP (≤ 2000 px) and builds a WebP thumbnail (≤ 512 px). The p2 transport is
+ * optimized WebP (≤ 2000 px) and builds a WebP thumbnail (≤ 256 px). The p2 transport is
  * synchronous in tests: the job runs right after the upload unless the transport is intercepted.
  * An SVG photo is inlined and served as a data URI.
  */
@@ -134,7 +134,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
         $this->assertSame('image/webp', $image->getType());
         $this->assertSame('image/webp', $thumbnail->getType());
         $this->assertSame([2000, 1000], self::storedImageSize($image));
-        $this->assertSame([512, 256], self::storedImageSize($thumbnail));
+        $this->assertSame([256, 128], self::storedImageSize($thumbnail));
         $this->assertLessThan($image->getSize(), $thumbnail->getSize());
         // The original is replaced
         $this->assertNull(self::getEntityManager()->find(File::class, $original->getId()));
@@ -149,12 +149,12 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
     {
         $this->setUpScene();
 
-        $this->uploadImage(self::USER, self::multipartPayload($this->createPngUpload(300, 200)));
+        $this->uploadImage(self::USER, self::multipartPayload($this->createPngUpload(200, 150)));
         $this->assertResponseStatusCodeSame(201);
 
         $imageSet = $this->findImage();
-        $this->assertSame([300, 200], self::storedImageSize($imageSet->getImageFile()));
-        $this->assertSame([300, 200], self::storedImageSize($imageSet->getThumbnailFile()));
+        $this->assertSame([200, 150], self::storedImageSize($imageSet->getImageFile()));
+        $this->assertSame([200, 150], self::storedImageSize($imageSet->getThumbnailFile()));
     }
 
     public function testTheJobIsANoopOnARemovedOrProcessedImage(): void

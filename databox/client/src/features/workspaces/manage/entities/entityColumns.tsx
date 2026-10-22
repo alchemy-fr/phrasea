@@ -1,12 +1,12 @@
 import type {ColumnDef} from '@tanstack/react-table';
 import type {TFunction} from 'i18next';
 import {
+    ImageIcon,
     ImagesIcon,
+    ImageUpIcon,
     MoreHorizontalIcon,
-    PencilIcon,
     ThumbsDownIcon,
     ThumbsUpIcon,
-    Trash2Icon,
     XIcon,
 } from 'lucide-react';
 import type {AttributeEntity, EntityList} from '@/types/api';
@@ -18,10 +18,9 @@ import {ColorSwatch} from '@/components/chips';
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
+import {Spinner} from '@/components/ui/loader';
 import {
     actionsColumn,
     selectionColumn,
@@ -29,24 +28,18 @@ import {
 import type {CellEditorOption} from '@/components/ui/data-table/types';
 import {formatDateTime} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
+import {ENTITY_IMAGE_LIMITS} from '@/lib/uploadLimits';
+import {isDraft} from './drafts';
+import {type EntityMenuActions, EntityMenuItems} from './EntityMenuItems';
 
-/** A row added inline, not saved yet: only its value can be typed */
-export const DRAFT_PREFIX = 'draft-';
-
-export function isDraft(entity: AttributeEntity): boolean {
-    return entity.id.startsWith(DRAFT_PREFIX);
-}
-
-export type EntityColumnsOptions = {
+export type EntityColumnsOptions = EntityMenuActions & {
     list: EntityList;
     locales: string[];
     t: TFunction;
-    onApprove: (e: AttributeEntity) => void;
-    onReject: (e: AttributeEntity) => void;
-    onPreview: (e: AttributeEntity) => void;
-    onEdit: (e: AttributeEntity) => void;
-    onDelete: (e: AttributeEntity) => void;
-    onDiscardDraft?: (e: AttributeEntity) => void;
+    /** A photo picked from the image cell, not checked yet */
+    onUploadImage: (e: AttributeEntity, file: File) => void;
+    /** The values whose photo is being sent */
+    uploadingImageIds?: ReadonlySet<string>;
 };
 
 const TRANSLATIONS = 'translations.';
@@ -264,7 +257,8 @@ export function buildEntityColumns(
         });
     }
     if (list.withImages) {
-        // Display only: the photo is changed from the edit dialog
+        // The photo is sent as soon as it is picked, from a button shown over
+        // the thumbnail on hover or focus
         columns.push({
             id: 'image',
             accessorFn: e => e.thumbnail ?? '',
@@ -272,17 +266,73 @@ export function buildEntityColumns(
             size: 64,
             enableSorting: false,
             meta: {align: 'center'},
-            cell: ({getValue}) =>
-                getValue() ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                        src={getValue()}
-                        alt=""
-                        loading="lazy"
-                        className="mx-auto size-7 rounded-full object-cover"
-                        data-testid="cell-image"
-                    />
-                ) : null,
+            cell: ({row}) => {
+                const e = row.original;
+                if (isDraft(e)) {
+                    return null;
+                }
+                const uploading = o.uploadingImageIds?.has(e.id);
+                const label = e.thumbnail
+                    ? t('entity.image.change', 'Change the photo…')
+                    : t('entity.image.add', 'Add a photo…');
+
+                return (
+                    <span className="group/image relative mx-auto flex size-7 items-center justify-center">
+                        {e.thumbnail ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={e.thumbnail}
+                                alt=""
+                                loading="lazy"
+                                className={cn(
+                                    'size-7 rounded-full object-cover',
+                                    uploading && 'opacity-40'
+                                )}
+                                data-testid="cell-image"
+                            />
+                        ) : !uploading ? (
+                            <ImageIcon className="size-4 text-muted-foreground/40" />
+                        ) : null}
+                        {uploading ? (
+                            <span
+                                className="absolute inset-0 flex items-center justify-center"
+                                title={t(
+                                    'entity.image.uploading',
+                                    'Sending the photo…'
+                                )}
+                                data-testid="cell-image-uploading"
+                            >
+                                <Spinner className="size-4" />
+                            </span>
+                        ) : (
+                            // Not a cell click: neither the focus nor the
+                            // edition of the cell
+                            <label
+                                title={label}
+                                data-testid="cell-image-upload"
+                                onClick={ev => ev.stopPropagation()}
+                                onDoubleClick={ev => ev.stopPropagation()}
+                                className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-background/80 opacity-0 group-hover/image:opacity-100 focus-within:opacity-100 focus-within:ring-2 focus-within:ring-ring/60"
+                            >
+                                <ImageUpIcon className="size-4" />
+                                <input
+                                    type="file"
+                                    accept={ENTITY_IMAGE_LIMITS.accept}
+                                    aria-label={label}
+                                    className="sr-only"
+                                    onChange={ev => {
+                                        const file = ev.target.files?.[0];
+                                        ev.target.value = '';
+                                        if (file) {
+                                            o.onUploadImage(e, file);
+                                        }
+                                    }}
+                                />
+                            </label>
+                        )}
+                    </span>
+                );
+            },
         });
     }
     if (list.withTranslations) {
@@ -406,7 +456,12 @@ export function buildEntityColumns(
                                 data-testid="entity-approve"
                                 aria-label={t('entity.approve', 'Approve')}
                                 title={t('entity.approve', 'Approve')}
-                                onClick={() => o.onApprove(e)}
+                                onClick={() =>
+                                    o.onSetStatus(
+                                        [e],
+                                        AttributeEntityStatus.Approved
+                                    )
+                                }
                             >
                                 <ThumbsUpIcon />
                             </Button>
@@ -418,7 +473,12 @@ export function buildEntityColumns(
                                 data-testid="entity-reject"
                                 aria-label={t('entity.reject', 'Reject')}
                                 title={t('entity.reject', 'Reject')}
-                                onClick={() => o.onReject(e)}
+                                onClick={() =>
+                                    o.onSetStatus(
+                                        [e],
+                                        AttributeEntityStatus.Rejected
+                                    )
+                                }
                             >
                                 <ThumbsDownIcon />
                             </Button>
@@ -451,18 +511,12 @@ export function buildEntityColumns(
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onSelect={() => o.onEdit(e)}>
-                                    <PencilIcon />{' '}
-                                    {t('entity.edit_form', 'Edit…')}
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    variant="destructive"
-                                    onSelect={() => o.onDelete(e)}
-                                >
-                                    <Trash2Icon />{' '}
-                                    {t('common.delete', 'Delete')}
-                                </DropdownMenuItem>
+                                <EntityMenuItems
+                                    entities={[e]}
+                                    list={list}
+                                    variant="dropdown"
+                                    actions={o}
+                                />
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </span>

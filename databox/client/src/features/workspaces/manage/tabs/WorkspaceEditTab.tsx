@@ -50,6 +50,7 @@ import {
     useSortableRow,
 } from '@/components/ui/sortable';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {LOGO_LIMITS, TERMS_PDF_LIMITS} from '@/lib/uploadLimits';
 
 export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -255,7 +256,7 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
             >
                 <FilePicker
                     testId="workspace-logo"
-                    accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+                    {...LOGO_LIMITS}
                     value={logo}
                     onChange={setLogo}
                     current={
@@ -303,7 +304,7 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
                 >
                     <FilePicker
                         testId="workspace-terms-pdf"
-                        accept="application/pdf"
+                        {...TERMS_PDF_LIMITS}
                         value={termsPdf}
                         onChange={setTermsPdf}
                         current={

@@ -31,7 +31,7 @@ final readonly class ProcessImageSetHandler
 {
     public const int IMAGE_SIZE = 2000;
     public const int IMAGE_QUALITY = 85;
-    public const int THUMBNAIL_SIZE = 512;
+    public const int THUMBNAIL_SIZE = 256;
     public const int THUMBNAIL_QUALITY = 70;
 
     public function __construct(

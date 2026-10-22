@@ -67,7 +67,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         $this->assertSame('image/webp', $image->getType());
         $this->assertSame([2000, 1000], self::storedImageSize($image));
         $this->assertSame('image/webp', $logo->getThumbnailFile()->getType());
-        $this->assertSame([512, 256], self::storedImageSize($logo->getThumbnailFile()));
+        $this->assertSame([256, 128], self::storedImageSize($logo->getThumbnailFile()));
         // The original is gone
         $this->assertNull(self::getEntityManager()->getRepository(File::class)->findOneBy(['path' => $upload->getPath()]));
         $this->assertFalse(self::isStored($upload->getPath()));
