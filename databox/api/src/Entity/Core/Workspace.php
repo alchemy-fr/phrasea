@@ -216,9 +216,9 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: File::class)]
     protected ?DoctrineCollection $files = null;
 
-    #[ORM\ManyToOne(targetEntity: File::class)]
+    #[ORM\OneToOne(targetEntity: ImageSet::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?File $logoFile = null;
+    private ?ImageSet $logo = null;
 
     public function __construct()
     {
@@ -329,14 +329,14 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         $this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS] = true;
     }
 
-    public function getLogoFile(): ?File
+    public function getLogo(): ?ImageSet
     {
-        return $this->logoFile;
+        return $this->logo;
     }
 
-    public function setLogoFile(?File $logoFile): void
+    public function setLogo(?ImageSet $logo): void
     {
-        $this->logoFile = $logoFile;
+        $this->logo = $logo;
     }
 
     public function getEnabledLocales(): array

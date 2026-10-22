@@ -13,6 +13,7 @@ use App\Elasticsearch\AttributeEntitySearch;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeRepository;
+use App\Service\Image\ImageSetManager;
 
 final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 {
@@ -25,6 +26,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         private readonly EntityIriConverter $entityIriConverter,
         private readonly AttributeRepository $attributeRepository,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
+        private readonly ImageSetManager $imageSetManager,
     ) {
     }
 
@@ -42,6 +44,14 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         } else {
             $result = $this->collectionProvider->provide($operation, $uriVariables, $context);
         }
+
+        $entities = [];
+        foreach (is_iterable($result) ? $result : [] as $entity) {
+            if ($entity instanceof AttributeEntity) {
+                $entities[] = $entity;
+            }
+        }
+        $this->imageSetManager->preload(array_map(fn (AttributeEntity $entity) => $entity->getImage(), $entities));
 
         $usage = self::getParameterValue($operation, 'usage');
         if (null !== $usage && '' !== $usage && filter_var($usage, FILTER_VALIDATE_BOOL)) {

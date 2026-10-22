@@ -87,6 +87,7 @@ function ListForm({
         withSynonyms: list?.withSynonyms ?? false,
         withEmojis: list?.withEmojis ?? false,
         withColors: list?.withColors ?? false,
+        withImages: list?.withImages ?? false,
     });
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState(form);
@@ -131,6 +132,7 @@ function ListForm({
         ['withSynonyms', t('entity_list.with_synonyms', 'Synonyms')],
         ['withEmojis', t('entity_list.with_emojis', 'Emojis')],
         ['withColors', t('entity_list.with_colors', 'Colors')],
+        ['withImages', t('entity_list.with_images', 'Photos')],
     ];
 
     return (

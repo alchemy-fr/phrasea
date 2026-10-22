@@ -448,6 +448,10 @@ export interface AttributeEntity extends HydraObject, Entity {
     note?: string | null;
     emoji?: string | null;
     color?: string | null;
+    /** Photo: an optimized image URL, or a data URI for an SVG */
+    image?: string | null;
+    /** Light version of the photo (falls back to the image until it is processed) */
+    thumbnail?: string | null;
     translations: Translations;
     synonyms?: Record<string, string[]>;
     createdAt: string;
@@ -466,6 +470,7 @@ export interface EntityList extends HydraObject, Entity {
     withSynonyms?: boolean;
     withEmojis?: boolean;
     withColors?: boolean;
+    withImages?: boolean;
     workspace?: Workspace | string;
     createdAt: string;
     updatedAt: string;

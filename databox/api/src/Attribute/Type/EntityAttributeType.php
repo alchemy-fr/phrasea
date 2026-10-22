@@ -12,6 +12,7 @@ use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Image\ImageSetManager;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -26,6 +27,7 @@ final class EntityAttributeType extends TextAttributeType
     public function __construct(
         private readonly AttributeEntityRepository $repository,
         private readonly Security $security,
+        private readonly ImageSetManager $imageSetManager,
     ) {
     }
 
@@ -109,6 +111,7 @@ final class EntityAttributeType extends TextAttributeType
     public function normalizeBuckets(array $buckets): array
     {
         $entities = DoctrineUtil::getIndexFromIds($this->repository, array_map(fn ($b) => $b['key'], $buckets));
+        $this->imageSetManager->preload(array_map(fn (AttributeEntity $entity) => $entity->getImage(), array_values($entities)));
 
         return array_map(function (array $bucket) use ($entities): ?array {
             $entity = $entities[$bucket['key']] ?? null;
@@ -133,12 +136,15 @@ final class EntityAttributeType extends TextAttributeType
 
     private function normalizeEntity(AttributeEntity $entity): array
     {
+        $canSeeValue = $this->canSeeValue($entity);
+
         return [
             'id' => $entity->getId(),
-            'value' => $this->canSeeValue($entity) ? $this->getTranslatedValue($entity) : null,
+            'value' => $canSeeValue ? $this->getTranslatedValue($entity) : null,
             'note' => $entity->getNote(),
             'emoji' => $entity->getEmoji(),
             'color' => $entity->getColor(),
+            'thumbnail' => $canSeeValue ? $this->imageSetManager->resolveThumbnailUrl($entity->getImage()) : null,
         ];
     }
 

@@ -19,6 +19,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAccess;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
+use App\Entity\Core\ImageSet;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
@@ -49,6 +50,8 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         Collection::class,
         CollectionAccess::class,
         File::class,
+        // Photos of the entity list values and logos are not carried by templates
+        ImageSet::class,
     ];
 
     private const array IN_TEMPLATE = [

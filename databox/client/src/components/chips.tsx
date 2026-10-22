@@ -86,6 +86,7 @@ export function EntityChip({
         note?: string | null;
         emoji?: string | null;
         color?: string | null;
+        thumbnail?: string | null;
         status?: number;
         translations?: Record<string, string>;
     };
@@ -105,6 +106,18 @@ export function EntityChip({
                 pending && 'italic text-warning-foreground'
             )}
         >
+            {entity.thumbnail ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                    src={entity.thumbnail}
+                    alt=""
+                    loading="lazy"
+                    className={cn(
+                        'shrink-0 rounded-full object-cover',
+                        size === 'xs' ? 'size-4' : 'size-5'
+                    )}
+                />
+            ) : null}
             {entity.color ? (
                 <span
                     className="inline-block size-2.5 rounded-full"

@@ -12,6 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
+use App\Entity\Core\ImageSet;
 use App\Repository\Core\FileDuplicateRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
@@ -36,6 +37,9 @@ readonly class FileListener
             || $object instanceof AssetFileVersion
         ) {
             $this->addFileToDelete($object->getFile());
+        } elseif ($object instanceof ImageSet) {
+            $this->addFileToDelete($object->getImageFile());
+            $this->addFileToDelete($object->getThumbnailFile());
         } elseif ($object instanceof File) {
             $path = null;
             if (File::STORAGE_S3_MAIN === $object->getStorage()) {

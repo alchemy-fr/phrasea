@@ -25,7 +25,9 @@ use App\Api\Filter\SortFilter;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Processor\AddAttributeEntityProcessor;
+use App\Api\Processor\DeleteAttributeEntityImageProcessor;
 use App\Api\Processor\MergeAttributeEntitiesProcessor;
+use App\Api\Processor\UploadAttributeEntityImageProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
@@ -134,6 +136,20 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: MergeAttributeEntitiesInput::class,
             name: 'entities_merge',
             processor: MergeAttributeEntitiesProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/attribute-entities/{id}/image',
+            security: 'is_granted("EDIT", object)',
+            input: false,
+            throwOnNotFound: true,
+            processor: UploadAttributeEntityImageProcessor::class,
+            name: 'upload_image',
+        ),
+        new Delete(
+            uriTemplate: '/attribute-entities/{id}/image',
+            security: 'is_granted("EDIT", object)',
+            processor: DeleteAttributeEntityImageProcessor::class,
+            name: 'delete_image',
         ),
     ],
     normalizationContext: [
@@ -244,6 +260,13 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $data = null;
+
+    /**
+     * Exposed as "image" and "thumbnail" URLs by AttributeEntityNormalizer.
+     */
+    #[ORM\OneToOne(targetEntity: ImageSet::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?ImageSet $image = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([
@@ -409,6 +432,16 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         } else {
             unset($this->data[self::DATA_COLOR]);
         }
+    }
+
+    public function getImage(): ?ImageSet
+    {
+        return $this->image;
+    }
+
+    public function setImage(?ImageSet $image): void
+    {
+        $this->image = $image;
     }
 
     public function __toString(): string

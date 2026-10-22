@@ -21,6 +21,7 @@ final class EntityListSection extends AbstractTemplateSection
         'approveNewValues' => ['isApproveNewValues', 'setApproveNewValues'],
         'withEmojis' => ['isWithEmojis', 'setWithEmojis'],
         'withColors' => ['isWithColors', 'setWithColors'],
+        'withImages' => ['isWithImages', 'setWithImages'],
         'withTranslations' => ['isWithTranslations', 'setWithTranslations'],
         'withSynonyms' => ['isWithSynonyms', 'setWithSynonyms'],
     ];

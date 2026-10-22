@@ -179,6 +179,7 @@
         "doctrine/orm": "^3.3",
         "dompdf/dompdf": "^3.1",
         "dragonmantank/cron-expression": "^3.4",
+        "enshrined/svg-sanitize": "^1.1",
         "exercise/htmlpurifier-bundle": "^5.2",
         "friendsofsymfony/elastica-bundle": "^7.2",
         "gedmo/doctrine-extensions": "^3.17",

@@ -18,6 +18,7 @@ use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\Workspace;
 use App\Http\LocaleContext;
 use App\Repository\Core\AttributeEntityRepository;
+use App\Tests\Unit\Attribute\Type\EntityAttributeTypeTest;
 use App\Validator\ValidAttributeConstraint;
 use App\Validator\ValidAttributeConstraintValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -43,7 +44,7 @@ class ValidAttributeConstraintValidatorTest extends ConstraintValidatorTestCase
             static fn (string $id): ?AttributeEntity => self::ENTITY_ID === $id ? $entity : null
         );
 
-        $entityType = new EntityAttributeType($repository, $this->createStub(Security::class));
+        $entityType = new EntityAttributeType($repository, $this->createStub(Security::class), EntityAttributeTypeTest::createImageSetManager());
         $entityType->setLocaleContext(new LocaleContext(new RequestStack()));
 
         return new ValidAttributeConstraintValidator(new AttributeTypeRegistry([

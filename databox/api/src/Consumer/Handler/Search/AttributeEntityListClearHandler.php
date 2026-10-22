@@ -8,9 +8,11 @@ use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\ImageSet;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Repository\Core\AttributeRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -22,6 +24,7 @@ final readonly class AttributeEntityListClearHandler
         private AttributeRepository $attributeRepository,
         private AttributeEntityRepository $attributeEntityRepository,
         private FieldNameResolver $fieldNameResolver,
+        private EntityManagerInterface $em,
     ) {
     }
 
@@ -50,6 +53,18 @@ final readonly class AttributeEntityListClearHandler
         // The entities are gone: so are their suggestions
         $calls[] = AttributeEntitySuggestionsScript::removeDefinitionsCall();
 
+        // The values are deleted in DQL: their images are removed through the ORM afterwards,
+        // so that FileListener schedules the deletion of their files.
+        $imageSetIds = array_column($this->attributeEntityRepository->createQueryBuilder('t')
+            ->select('IDENTITY(t.image) AS id')
+            ->where('t.list = :listId')
+            ->andWhere('t.workspace = :workspaceId')
+            ->andWhere('t.image IS NOT NULL')
+            ->setParameter('listId', $message->getListId())
+            ->setParameter('workspaceId', $message->getWorkspaceId())
+            ->getQuery()
+            ->getScalarResult(), 'id');
+
         $this->attributeEntityRepository->createQueryBuilder('t')
             ->delete()
             ->where('t.list = :listId')
@@ -58,6 +73,8 @@ final readonly class AttributeEntityListClearHandler
             ->setParameter('workspaceId', $message->getWorkspaceId())
             ->getQuery()
             ->execute();
+
+        $this->removeImageSets($imageSetIds);
 
         $this->elasticSearchClient->deleteByQuery('attributeEntity', [
             'bool' => [
@@ -123,5 +140,18 @@ EOF.implode("\n", $calls),
                 'lang' => 'painless',
             ]
         );
+    }
+
+    /**
+     * @param string[] $ids
+     */
+    private function removeImageSets(array $ids): void
+    {
+        foreach (array_chunk($ids, 100) as $chunk) {
+            foreach ($this->em->getRepository(ImageSet::class)->findBy(['id' => $chunk]) as $imageSet) {
+                $this->em->remove($imageSet);
+            }
+            $this->em->flush();
+        }
     }
 }

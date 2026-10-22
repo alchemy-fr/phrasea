@@ -173,12 +173,26 @@ export function EntityValueCard({
                 />
             ) : (
                 <div className="flex min-w-0 items-start gap-2">
+                    {entity.thumbnail ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={entity.thumbnail}
+                            alt=""
+                            loading="lazy"
+                            className="size-10 shrink-0 rounded-md object-cover"
+                            data-testid="entity-value-thumbnail"
+                        />
+                    ) : null}
                     <div className="min-w-0 flex-1 space-y-1">
                         <div
                             className="truncate text-sm font-medium"
                             data-testid="entity-value-name"
                         >
-                            <EntityChip entity={entity} size="sm" />
+                            {/* The bigger thumbnail stands for the chip one */}
+                            <EntityChip
+                                entity={{...entity, thumbnail: null}}
+                                size="sm"
+                            />
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                             {pending ? (

@@ -342,6 +342,7 @@ type EntityValue = {
     value: string | null;
     emoji?: string | null;
     color?: string | null;
+    thumbnail?: string | null;
     status?: number;
     translations?: Record<string, string>;
 };

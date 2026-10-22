@@ -126,6 +126,7 @@ final class EntityListTest extends AbstractDataboxTestCase
             'approveNewValues' => false,
             'withEmojis' => false,
             'withColors' => false,
+            'withImages' => false,
             'withTranslations' => false,
             'withSynonyms' => false,
         ]);
@@ -154,6 +155,7 @@ final class EntityListTest extends AbstractDataboxTestCase
             'allowNewValues' => true,
             'approveNewValues' => true,
             'withColors' => true,
+            'withImages' => true,
             'withTranslations' => true,
         ]));
         $this->assertResponseStatusCodeSame(201);
@@ -163,6 +165,7 @@ final class EntityListTest extends AbstractDataboxTestCase
             'approveNewValues' => true,
             'withEmojis' => false,
             'withColors' => true,
+            'withImages' => true,
             'withTranslations' => true,
             'withSynonyms' => false,
             'definitions' => [],
@@ -217,6 +220,10 @@ final class EntityListTest extends AbstractDataboxTestCase
         $this->api('PATCH', $iri, self::USER, ['withSynonyms' => true]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains(['name' => 'Palette', 'withEmojis' => true, 'withSynonyms' => true]);
+
+        $this->api('PATCH', $iri, self::USER, ['withImages' => true]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains(['withEmojis' => true, 'withImages' => true]);
     }
 
     public function testWritesRequireTheWorkspaceEditPermission(): void

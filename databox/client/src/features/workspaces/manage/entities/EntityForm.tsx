@@ -6,12 +6,18 @@ import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AttributeEntity, EntityList} from '@/types/api';
 import {AttributeEntityStatus} from '@/types/api';
-import {postAttributeEntity, putAttributeEntity} from '@/lib/api/metadata';
+import {
+    deleteAttributeEntityImage,
+    postAttributeEntity,
+    putAttributeEntity,
+    uploadAttributeEntityImage,
+} from '@/lib/api/metadata';
 import {Button} from '@/components/ui/button';
 import {FormRow, Input} from '@/components/ui/input';
 import {SimpleSelect} from '@/components/ui/select';
 import {Flag} from '@/components/ui/flag';
 import {ColorInput} from '@/components/ui/color-input';
+import {FilePicker} from '@/components/form/FilePicker';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export function EntityForm({
@@ -35,6 +41,8 @@ export function EntityForm({
     );
     const [emoji, setEmoji] = useState(entity?.emoji ?? '');
     const [color, setColor] = useState(entity?.color ?? '');
+    // A photo to upload, '' to remove the current one, undefined: unchanged
+    const [image, setImage] = useState<File | ''>();
     const [translations, setTranslations] = useState<Record<string, string>>(
         entity?.translations ?? {}
     );
@@ -55,6 +63,7 @@ export function EntityForm({
         color,
         translations,
         synonyms,
+        image: image === '' ? 'removed' : image?.name,
     });
 
     const save = async () => {
@@ -79,9 +88,30 @@ export function EntityForm({
                       )
                     : undefined,
             };
-            const saved = entity
+            let saved = entity
                 ? await putAttributeEntity(entity.id, data)
                 : await postAttributeEntity(list.id, data);
+            // The value is saved even when its photo is not: the photo
+            // can be sent again from the edit dialog
+            try {
+                if (list.withImages && image) {
+                    saved = await uploadAttributeEntityImage(saved.id, image);
+                } else if (list.withImages && image === '') {
+                    await deleteAttributeEntityImage(saved.id);
+                    saved = {...saved, image: null, thumbnail: null};
+                }
+            } catch (e: any) {
+                toast.error(
+                    t(
+                        'entity.image_error',
+                        'The photo was not saved: {{message}}',
+                        {
+                            message: e?.message,
+                        }
+                    )
+                );
+            }
+            setImage(undefined);
             toast.success(t('entity.saved', 'Value saved'));
             markSaved();
             onSaved(saved);
@@ -144,6 +174,35 @@ export function EntityForm({
             {list.withColors ? (
                 <FormRow label={t('tag.color', 'Color')}>
                     <ColorInput value={color} onChange={setColor} />
+                </FormRow>
+            ) : null}
+            {list.withImages ? (
+                <FormRow label={t('entity.image', 'Photo')}>
+                    <FilePicker
+                        testId="entity-image"
+                        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                        value={image}
+                        onChange={setImage}
+                        current={
+                            entity?.thumbnail ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={entity.thumbnail}
+                                    alt=""
+                                    className="size-16 rounded-full object-cover"
+                                />
+                            ) : null
+                        }
+                        uploadLabel={t('entity.image_upload', 'Upload a photo')}
+                        removeLabel={t(
+                            'entity.image_remove',
+                            'Remove the photo'
+                        )}
+                        removedLabel={t(
+                            'entity.image_removed',
+                            'The photo will be removed'
+                        )}
+                    />
                 </FormRow>
             ) : null}
             {list.withTranslations && locales.length > 0 ? (

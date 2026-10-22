@@ -18,6 +18,7 @@ use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
+use App\Entity\Core\ImageSet;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
@@ -111,6 +112,7 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(AlternateUrl::class, $workspaceId);
             $this->deleteDependencies(AttributeEntity::class, $workspaceId);
             $this->deleteDependencies(EntityList::class, $workspaceId);
+            $this->deleteDependencies(ImageSet::class, $workspaceId);
             $this->deleteDependencies(AttributeFilterRule::class, $workspaceId);
 
             $nFiles = $this->em->getRepository(File::class)

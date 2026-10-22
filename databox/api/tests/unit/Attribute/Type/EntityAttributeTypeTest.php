@@ -12,6 +12,7 @@ use App\Entity\Core\Workspace;
 use App\Http\LocaleContext;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Image\ImageSetManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -29,9 +30,17 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTestCase
         $this->security = $this->createMock(Security::class);
     }
 
+    /**
+     * The values of these tests have no image: the manager is never asked to load or sign anything.
+     */
+    public static function createImageSetManager(): ImageSetManager
+    {
+        return (new \ReflectionClass(ImageSetManager::class))->newInstanceWithoutConstructor();
+    }
+
     protected function getType(): AttributeTypeInterface
     {
-        $type = new EntityAttributeType($this->repository, $this->security);
+        $type = new EntityAttributeType($this->repository, $this->security, self::createImageSetManager());
         $type->setLocaleContext(new LocaleContext(new RequestStack()));
 
         return $type;

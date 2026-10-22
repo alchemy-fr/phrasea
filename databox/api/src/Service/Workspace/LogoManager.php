@@ -4,57 +4,39 @@ declare(strict_types=1);
 
 namespace App\Service\Workspace;
 
-use Alchemy\StorageBundle\Storage\FileStorageManager;
-use App\Entity\Core\File;
+use Alchemy\StorageBundle\Entity\MultipartUpload;
 use App\Entity\Core\Workspace;
-use App\Service\Asset\FileUrlResolver;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Service\Image\ImageSetManager;
 
 final readonly class LogoManager
 {
-    private const array ALLOWED_TYPES = [
-        'image/png',
-        'image/jpeg',
-        'image/gif',
-        'image/webp',
-        'image/svg+xml',
-    ];
+    private const int MAX_SIZE = 5 * 1024 * 1024;
 
     public function __construct(
-        private EntityManagerInterface $em,
-        private FileStorageManager $fileStorageManager,
-        private FileUrlResolver $fileUrlResolver,
+        private ImageSetManager $imageSetManager,
     ) {
     }
 
     /**
-     * Sets the logo from an uploaded File (S3 multipart upload).
+     * Sets the logo from a completed S3 multipart upload. The previous logo and its files are
+     * removed (orphan removal).
      */
-    public function setLogo(Workspace $workspace, File $file): void
+    public function setLogo(Workspace $workspace, MultipartUpload $upload): void
     {
-        if (!in_array($file->getType(), self::ALLOWED_TYPES, true)) {
-            throw new BadRequestHttpException(sprintf('Invalid logo type "%s": allowed types are %s', $file->getType(), implode(', ', self::ALLOWED_TYPES)));
-        }
-
-        $this->deleteLogoFile($workspace);
-        $workspace->setLogoFile($file);
+        $workspace->setLogo($this->imageSetManager->createFromUpload($upload, $workspace, self::MAX_SIZE));
     }
 
     public function removeLogo(Workspace $workspace): void
     {
-        $this->deleteLogoFile($workspace);
-        $workspace->setLogoFile(null);
+        $workspace->setLogo(null);
     }
 
     /**
-     * Returns the displayable logo URL, or null when the workspace has no logo.
+     * Returns the displayable logo URL (a data URI for an SVG), or null when the workspace has no logo.
      */
     public function resolveLogoUrl(Workspace $workspace): ?string
     {
-        $file = $workspace->getLogoFile();
-
-        return null !== $file ? $this->fileUrlResolver->resolveUrl($file) : null;
+        return $this->imageSetManager->resolveImageUrl($workspace->getLogo());
     }
 
     /**
@@ -62,30 +44,6 @@ final readonly class LogoManager
      */
     public function resolveLogoForPdf(Workspace $workspace): ?string
     {
-        $file = $workspace->getLogoFile();
-        if (null === $file) {
-            return null;
-        }
-
-        $stream = $this->fileStorageManager->getStream($file->getPath());
-        try {
-            return sprintf('data:%s;base64,%s', $file->getType(), base64_encode(stream_get_contents($stream)));
-        } finally {
-            fclose($stream);
-        }
-    }
-
-    private function deleteLogoFile(Workspace $workspace): void
-    {
-        $file = $workspace->getLogoFile();
-        if (null === $file) {
-            return;
-        }
-
-        $workspace->setLogoFile(null);
-        if (File::STORAGE_S3_MAIN === $file->getStorage() && $this->fileStorageManager->has($file->getPath())) {
-            $this->fileStorageManager->delete($file->getPath());
-        }
-        $this->em->remove($file);
+        return $this->imageSetManager->resolveDataUri($workspace->getLogo());
     }
 }

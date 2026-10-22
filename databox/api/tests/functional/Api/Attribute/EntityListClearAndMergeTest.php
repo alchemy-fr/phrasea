@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api\Attribute;
 
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
+use App\Entity\Core\File;
+use App\Entity\Core\ImageSet;
+use App\Service\Storage\FileManager;
 use App\Tests\Functional\AbstractSearchTestCase;
 
 /**
@@ -33,6 +37,59 @@ final class EntityListClearAndMergeTest extends AbstractSearchTestCase
         sort($values);
 
         return $values;
+    }
+
+    /**
+     * @return string the storage path of the image file
+     */
+    private function attachImage(AttributeEntity $entity): string
+    {
+        $em = self::getEntityManager();
+        $entity = $em->find(AttributeEntity::class, $entity->getId());
+        $path = sprintf('test-images/%s.png', uniqid());
+        self::getService(FileStorageManager::class)->store($path, 'image');
+
+        $imageSet = new ImageSet();
+        $imageSet->setWorkspace($entity->getWorkspace());
+        $imageSet->setImageFile(self::getService(FileManager::class)->createFile(File::STORAGE_S3_MAIN, $path, 'image/png', 5, 'image.png', $entity->getWorkspace()));
+        $entity->setImage($imageSet);
+        $em->flush();
+
+        return $path;
+    }
+
+    private function assertImageIsDeleted(string $path): void
+    {
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertNull($em->getRepository(File::class)->findOneBy(['path' => $path]), 'the image file is removed');
+        $this->assertFalse(self::getService(FileStorageManager::class)->has($path), 'the image is removed from the storage');
+    }
+
+    public function testClearAndMergeRemoveTheImagesOfTheRemovedValues(): void
+    {
+        $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
+        $list = $this->createEntityList(['name' => 'People']);
+        $alice = $this->createEntity($list, 'Alice');
+        $alicia = $this->createEntity($list, 'Alicia');
+        $bob = $this->createEntity($list, 'Bob');
+        $this->createAttributeDefinition(['name' => 'Person', 'type' => EntityAttributeType::NAME, 'list' => $list]);
+        $aliceImage = $this->attachImage($alice);
+        $aliciaImage = $this->attachImage($alicia);
+        $bobImage = $this->attachImage($bob);
+
+        $this->api('PUT', '/attribute-entities/'.$alice->getId().'/merge', self::USER, [
+            'ids' => [$alicia->getId()],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertImageIsDeleted($aliciaImage);
+        $this->assertTrue(self::getService(FileStorageManager::class)->has($aliceImage), 'the main value keeps its image');
+
+        $this->api('POST', '/entity-lists/'.$list->getId().'/clear', self::USER);
+        $this->assertResponseIsSuccessful();
+        $this->assertImageIsDeleted($aliceImage);
+        $this->assertImageIsDeleted($bobImage);
+        $this->assertSame([], self::getEntityManager()->getRepository(ImageSet::class)->findAll());
     }
 
     public function testClearRemovesTheValuesAndTheAttributesReferencingThem(): void

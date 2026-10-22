@@ -52,6 +52,7 @@ describe('entityColumns', () => {
             columnIds({
                 withEmojis: true,
                 withColors: true,
+                withImages: true,
                 withTranslations: true,
                 withSynonyms: true,
             })
@@ -61,6 +62,7 @@ describe('entityColumns', () => {
             'note',
             'emoji',
             'color',
+            'image',
             'translations.en',
             'translations.fr',
             'synonyms.en',

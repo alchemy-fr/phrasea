@@ -20,6 +20,7 @@ import {
     Tag,
 } from '@/types/api';
 import {toIris} from '@/lib/utils/iri';
+import {multipartUpload} from './upload';
 
 // Attribute definitions ---------------------------------------------------
 
@@ -342,6 +343,22 @@ export function putAttributeEntity(
 
 export function deleteAttributeEntity(id: string): Promise<void> {
     return api.delete(`/${EntityName.AttributeEntity}/${id}`);
+}
+
+export async function uploadAttributeEntityImage(
+    id: string,
+    file: File
+): Promise<AttributeEntity> {
+    const multipart = await multipartUpload(file);
+
+    return api.post<AttributeEntity>(
+        `/${EntityName.AttributeEntity}/${id}/image`,
+        {multipart}
+    );
+}
+
+export function deleteAttributeEntityImage(id: string): Promise<void> {
+    return api.delete(`/${EntityName.AttributeEntity}/${id}/image`);
 }
 
 /**

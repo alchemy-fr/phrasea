@@ -111,6 +111,7 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     private const string APPROVE_NEW_VALUES = 'av';
     private const string WITH_EMOJIS = 'we';
     private const string WITH_COLORS = 'wc';
+    private const string WITH_IMAGES = 'wi';
     private const string WITH_TRANSLATIONS = 'wt';
     private const string WITH_SYNONYMS = 'ws';
 
@@ -217,6 +218,17 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     public function setWithColors(bool $withColor): void
     {
         $this->options[self::WITH_COLORS] = $withColor;
+    }
+
+    #[Groups(self::COMMON_GROUPS)]
+    public function isWithImages(): bool
+    {
+        return $this->options[self::WITH_IMAGES] ?? false;
+    }
+
+    public function setWithImages(bool $withImages): void
+    {
+        $this->options[self::WITH_IMAGES] = $withImages;
     }
 
     #[Groups(self::COMMON_GROUPS)]

@@ -263,6 +263,28 @@ export function buildEntityColumns(
                 getValue() ? <ColorSwatch color={getValue()} /> : null,
         });
     }
+    if (list.withImages) {
+        // Display only: the photo is changed from the edit dialog
+        columns.push({
+            id: 'image',
+            accessorFn: e => e.thumbnail ?? '',
+            header: () => t('entity.image', 'Photo'),
+            size: 64,
+            enableSorting: false,
+            meta: {align: 'center'},
+            cell: ({getValue}) =>
+                getValue() ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                        src={getValue()}
+                        alt=""
+                        loading="lazy"
+                        className="mx-auto size-7 rounded-full object-cover"
+                        data-testid="cell-image"
+                    />
+                ) : null,
+        });
+    }
     if (list.withTranslations) {
         for (const locale of locales) {
             const id = `${TRANSLATIONS}${locale}`;
