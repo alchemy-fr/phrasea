@@ -2,6 +2,7 @@
 
 import {
     useEffect,
+    useId,
     useRef,
     useState,
     type PointerEvent as ReactPointerEvent,
@@ -113,6 +114,7 @@ export function AnnotationLayer({
     const pressedIdRef = useRef<string>(undefined);
     const editorRef = useRef(editor);
     editorRef.current = editor;
+    const maskIdPrefix = `annotation-mask-${useId()}`;
 
     // The shapes follow the size of the image (window or panel resize)
     useEffect(() => {
@@ -570,7 +572,8 @@ export function AnnotationLayer({
     const handleRadius = 5 * unscale;
     // The veil of the shape selected, else hovered (one at a time)
     const masked = selected ?? shown.find(a => a.id === hoveredId);
-    const maskModel = masked ? getShapeModel(masked.type) : undefined;
+    // Read only: the veiled shape may grow, it has no handles to stay on
+    const emphasized = editable ? undefined : masked;
     const shapeCursor = tool ? 'crosshair' : editable ? 'move' : 'pointer';
 
     return (
@@ -600,16 +603,41 @@ export function AnnotationLayer({
                 }
                 onDoubleClick={onDoubleClick}
             >
-                {media.width && masked && maskModel?.renderMask ? (
-                    <g data-annotation-mask={masked.id}>
-                        {maskModel.renderMask({
-                            annotation: masked,
-                            media,
-                            hitWidth,
-                            unscale,
-                        })}
-                    </g>
-                ) : null}
+                {media.width
+                    ? shown.map(annotation => {
+                          const model = getShapeModel(annotation.type);
+                          if (!model?.renderMask || annotation.id === draftId) {
+                              return null;
+                          }
+                          const visible = annotation === masked;
+
+                          // Every veil stays mounted to fade in and out
+                          return (
+                              <g
+                                  key={annotation.id}
+                                  data-annotation-mask={annotation.id}
+                                  data-visible={visible ? 'true' : undefined}
+                                  className="transition-opacity duration-200 ease-out motion-reduce:transition-none"
+                                  style={{
+                                      pointerEvents: 'none',
+                                      opacity: visible ? 1 : 0,
+                                  }}
+                              >
+                                  {model.renderMask({
+                                      annotation,
+                                      media,
+                                      hitWidth,
+                                      unscale,
+                                      emphasized: annotation === emphasized,
+                                      maskId: `${maskIdPrefix}-${annotation.id}`.replace(
+                                          /[^a-zA-Z0-9_-]/g,
+                                          ''
+                                      ),
+                                  })}
+                              </g>
+                          );
+                      })
+                    : null}
                 {media.width
                     ? shown.map(annotation => {
                           const model = getShapeModel(annotation.type);
@@ -650,6 +678,7 @@ export function AnnotationLayer({
                                       media,
                                       hitWidth,
                                       unscale,
+                                      emphasized: annotation === emphasized,
                                   })}
                               </g>
                           );

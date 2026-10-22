@@ -1,8 +1,11 @@
 import {describe, expect, it} from 'vitest';
+import {createElement, type ReactNode} from 'react';
+import {render} from '@testing-library/react';
 import {AnnotationType, type AnnotationOptions} from './types';
 import {
     defaultShapeSize,
     drawPathData,
+    faceStyle,
     getShapeBox,
     getShapeModel,
 } from './shapes';
@@ -185,6 +188,44 @@ describe('face', () => {
         ).toEqual(face);
         expect(model.renderMask).toBeDefined();
         expect(getShapeModel(AnnotationType.Rect)!.renderMask).toBeUndefined();
+    });
+
+    const oval = {type: 'face', x: 0.1, y: 0.2, w: 0.2, h: 0.2};
+    const props = {annotation: oval, media, hitWidth: 14, unscale: 1};
+    const renderSvg = (node: ReactNode) =>
+        render(createElement('svg', null, node)).container;
+
+    it('grows the oval when emphasized, keeping the stroke on screen', () => {
+        const grown = renderSvg(model.render({...props, emphasized: true}));
+        const group = grown.querySelector('g') as SVGGElement;
+        expect(group.style.transform).toBe(`scale(${faceStyle.expand})`);
+        expect(faceStyle.expand).toBe(1.3);
+        const stroke = grown.querySelectorAll('ellipse')[1];
+        expect(parseFloat(stroke.style.strokeWidth)).toBeCloseTo(
+            faceStyle.strokeWidth / faceStyle.expand
+        );
+
+        const plain = renderSvg(model.render(props));
+        expect((plain.querySelector('g') as SVGGElement).style.transform).toBe(
+            'none'
+        );
+        expect(
+            parseFloat(plain.querySelectorAll('ellipse')[1].style.strokeWidth)
+        ).toBe(faceStyle.strokeWidth);
+    });
+
+    it('darkens the image through a mask whose hole grows with the oval', () => {
+        const veil = renderSvg(
+            model.renderMask!({...props, emphasized: true, maskId: 'veil-1'})
+        );
+        const mask = veil.querySelector('mask');
+        expect(mask?.getAttribute('id')).toBe('veil-1');
+        expect((mask?.querySelector('g') as SVGGElement).style.transform).toBe(
+            `scale(${faceStyle.expand})`
+        );
+        const masked = veil.querySelector('rect[mask]');
+        expect(masked?.getAttribute('mask')).toBe('url(#veil-1)');
+        expect(masked?.getAttribute('fill')).toBe(faceStyle.mask);
     });
 });
 

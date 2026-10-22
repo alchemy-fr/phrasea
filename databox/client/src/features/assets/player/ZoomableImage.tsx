@@ -307,7 +307,7 @@ export function ZoomableImage({
                 <div
                     data-testid="annotation-overlay"
                     className={cn(
-                        'pointer-events-none absolute will-change-transform',
+                        'pointer-events-none absolute',
                         animated && 'transition-transform duration-200 ease-out'
                     )}
                     style={{

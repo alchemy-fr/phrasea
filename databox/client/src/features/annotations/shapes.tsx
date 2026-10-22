@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import type {CSSProperties, ReactNode} from 'react';
 import {
     AnnotationType,
     type AnnotationOptions,
@@ -49,6 +49,13 @@ export type RenderProps = {
     hitWidth: number;
     /** Pixels of the media per pixel of the screen (1 / zoom) */
     unscale: number;
+    /** Veiled and brought forward (read only): the shape may grow to clear what it outlines */
+    emphasized?: boolean;
+};
+
+export type MaskRenderProps = RenderProps & {
+    /** The id of the `<mask>` of the veil, unique in the document */
+    maskId: string;
 };
 
 /** A click (no drag) creates a shape of this size, in pixels of the media */
@@ -80,8 +87,8 @@ export type ShapeModel<A extends AssetAnnotation = AssetAnnotation> = {
     /** Drawn by the client only: no color, fill or size option */
     fixedStyle?: boolean;
     render: (props: RenderProps) => ReactNode;
-    /** Drawn under the shapes when the shape is selected or hovered */
-    renderMask?: (props: RenderProps) => ReactNode;
+    /** Drawn under the shapes, shown when the shape is selected or hovered */
+    renderMask?: (props: MaskRenderProps) => ReactNode;
 };
 
 const strokeOptions = {
@@ -404,7 +411,27 @@ export const faceStyle = {
     halo: 'rgba(0, 0, 0, 0.35)',
     haloWidth: 3,
     mask: 'rgba(0, 0, 0, 0.45)',
+    /** The oval and the hole of the veil grow by this factor when emphasized */
+    expand: 1.3,
 };
+
+const faceMotion = 'duration-200 ease-out motion-reduce:transition-none';
+
+/** The oval grown around its center when emphasized; stroke widths are
+ * divided by the returned scale to keep their size on screen */
+function faceGrowth(emphasized: boolean | undefined) {
+    const scale = emphasized ? faceStyle.expand : 1;
+
+    return {
+        scale,
+        className: `transition-transform ${faceMotion}`,
+        style: {
+            transformBox: 'fill-box',
+            transformOrigin: 'center',
+            transform: emphasized ? `scale(${scale})` : 'none',
+        } satisfies CSSProperties,
+    };
+}
 
 function ellipseOf(a: FaceAnnotation, media: MediaSize) {
     const box = getBoxOf(a, media);
@@ -426,42 +453,63 @@ const face: ShapeModel<FaceAnnotation> = {
     toOptions: () => ({color: '#ffffff', size: faceStyle.strokeWidth}),
     applyOptions: a => a,
     fixedStyle: true,
-    render: ({annotation, media, unscale}) => {
+    render: ({annotation, media, unscale, emphasized}) => {
         const ellipse = ellipseOf(annotation as FaceAnnotation, media);
+        const growth = faceGrowth(emphasized);
+        const strokeClassName = `transition-[stroke-width] ${faceMotion}`;
 
+        // The hit area grows with the oval: the pointer stays in the face
         return (
-            <g>
+            <g className={growth.className} style={growth.style}>
                 <ellipse
                     {...ellipse}
                     fill="transparent"
                     stroke={faceStyle.halo}
-                    strokeWidth={faceStyle.haloWidth * unscale}
+                    className={strokeClassName}
+                    style={{
+                        strokeWidth:
+                            (faceStyle.haloWidth * unscale) / growth.scale,
+                    }}
                 />
                 <ellipse
                     {...ellipse}
                     fill="none"
                     stroke={faceStyle.stroke}
-                    strokeWidth={faceStyle.strokeWidth * unscale}
+                    className={strokeClassName}
+                    style={{
+                        strokeWidth:
+                            (faceStyle.strokeWidth * unscale) / growth.scale,
+                    }}
                 />
             </g>
         );
     },
-    // The image darkened around the face
-    renderMask: ({annotation, media}) => {
-        const {cx, cy, rx, ry} = ellipseOf(annotation as FaceAnnotation, media);
-        const d =
-            `M0 0H${media.width}V${media.height}H0Z ` +
-            `M${cx - rx} ${cy}` +
-            `A${rx} ${ry} 0 1 0 ${cx + rx} ${cy}` +
-            `A${rx} ${ry} 0 1 0 ${cx - rx} ${cy}Z`;
+    // The image darkened around the face; a mask, not an evenodd path, so
+    // that the hole grows with the oval
+    renderMask: ({annotation, media, emphasized, maskId}) => {
+        const ellipse = ellipseOf(annotation as FaceAnnotation, media);
+        const growth = faceGrowth(emphasized);
 
         return (
-            <path
-                d={d}
-                fill={faceStyle.mask}
-                fillRule="evenodd"
-                style={{pointerEvents: 'none'}}
-            />
+            <>
+                <mask id={maskId}>
+                    <rect
+                        width={media.width}
+                        height={media.height}
+                        fill="white"
+                    />
+                    <g className={growth.className} style={growth.style}>
+                        <ellipse {...ellipse} fill="black" />
+                    </g>
+                </mask>
+                <rect
+                    width={media.width}
+                    height={media.height}
+                    fill={faceStyle.mask}
+                    mask={`url(#${maskId})`}
+                    style={{pointerEvents: 'none'}}
+                />
+            </>
         );
     },
 };
