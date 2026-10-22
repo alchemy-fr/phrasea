@@ -266,13 +266,12 @@ To add a theme:
 404) is replaced by the same variant of `nature`, with a warning in the logs, so that the
 fixtures always load while a theme is incomplete.
 
-The `studio` theme of Hollowtone Recording (album covers, photos of recording studios and
-sessions) is not uploaded yet: its images fall back to `nature`.
-
 The lock of an asset always gives the same variant (`lock % 42 + 1`) and the same orientation
 (`lock % 5`: 0 to 2 landscape, 3 and 4 portrait), so a variant can be chosen for the assets that
 use it: the `fashion` packshots show the category of their product (dress, knit, shirt…) and
-the `museum` specimens their group (orchid, butterfly, owl, mineral…).
+the `museum` specimens their group (orchid, butterfly, owl, mineral…). In the `studio` theme,
+`landscape/2`, `landscape/3`, `portrait/4` and `portrait/5` are the album covers of Hollowtone
+(locks 1 to 4), and the variants of its session photos (locks 5 to 24) show musicians recording.
 
 ## Themed media
 
