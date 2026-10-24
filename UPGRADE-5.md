@@ -915,10 +915,9 @@ API changes and their replacement:
 The Uploader forms using the built-in `databox_tags` field are converted to an
 attribute field by a separate migration of the Uploader, to deploy together
 (Databox no longer reads `databox_tags`): see
-[Tags field of the forms](#tags-field-of-the-forms). The Phraseanet indexer
-(`databox/indexer`) must write the status bits as values of an entity list
-instead of tags. The Rust indexer (`alchemy-fr/databox-indexer`), which calls `/tags`, must be
-upgraded separately.
+[Tags field of the forms](#tags-field-of-the-forms). The Databox indexer
+(`alchemy-fr/databox-indexer`), which calls `/tags`, must be upgraded separately
+to write the Phraseanet status bits as values of an entity list instead of tags.
 
 ## Expose API
 

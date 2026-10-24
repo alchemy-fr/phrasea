@@ -326,13 +326,6 @@ services:
       - ./configurator:/srv/app
       - ./lib/php:/srv/lib/php
 
-  databox-indexer:
-    extends:
-      service: a_client
-    entrypoint: ''
-    volumes:
-      - ./:/srv/workspace/phrasea
-
   db:
     networks:
       - data

@@ -34,7 +34,6 @@ body:
               - Dashboard
               - Configurator
               - Report
-              - Indexer
               - Other
       validations:
           required: true

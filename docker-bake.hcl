@@ -78,7 +78,7 @@ group "node-base" {
 }
 
 group "node" {
-  targets = ["client", "databox-indexer"]
+  targets = ["client"]
 }
 
 target "_common" {
@@ -134,12 +134,4 @@ target "client" {
   tags       = [image(img)]
   cache-from = cache_from(img)
   cache-to   = cache_to(img)
-}
-
-target "databox-indexer" {
-  inherits   = ["_app"]
-  dockerfile = "databox/indexer/Dockerfile"
-  tags       = [image("databox-indexer")]
-  cache-from = cache_from("databox-indexer")
-  cache-to   = cache_to("databox-indexer")
 }

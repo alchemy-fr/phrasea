@@ -20,10 +20,6 @@ uploader/client
 dashboard/client
 "
 
-NODE_PROJECTS="
-databox/indexer
-"
-
 PHP_LIBS="
 lib/php/admin-bundle
 lib/php/api-test
