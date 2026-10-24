@@ -25,6 +25,8 @@
         "@sentry/react": "^7.120.4"
     },
     "devDependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
         "@jonkoops/matomo-tracker-react": "^0.7.0",
         "@mui/material": "^6.5.0",
         "@mui/system": "^6.5.0",
