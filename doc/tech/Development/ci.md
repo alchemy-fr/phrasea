@@ -7,7 +7,7 @@ script that runs the same way locally (in Docker) and in GitHub Actions.
 |---|---|---|---|---|
 | **quick** | every push on every branch (`quick.yaml`); pull requests from forks | static checks and unit tests | none | < 8 min |
 | **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, GHCR/ECR push (Cypress smoke: not run in CI, see below) | full | ≈ 20 min |
-| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay (indexer end-to-end: not run in CI, see below); Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
+| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay; Docker Hub publication on tags only | full | ≈ 30 min |
 
 ## What each tier runs
 
@@ -24,8 +24,8 @@ Every lib in `lib/php/*` runs its own `composer test` (var-dump-check, plus
 PHPUnit for the libs that have tests).
 
 JS (`pnpm test:quick`): `pnpm lint` (eslint), `pnpm typecheck` (`tsc`) and
-`pnpm test` (vitest: `databox/client`, `databox/indexer`
-unit suite, `@alchemy/api`, `@alchemy/auth`, `@alchemy/i18n`).
+`pnpm test` (vitest: `databox/client`, `@alchemy/api`, `@alchemy/auth`,
+`@alchemy/i18n`).
 
 In CI the PHP part runs on the runner with `setup-php` and a Composer cache,
 the JS part with pnpm; no image is built.
@@ -52,8 +52,7 @@ and an empty `REPORT_API_URL`, and the scripts follow:
   profile, so the other services are listed explicitly);
 - the configurator skips its Keycloak configuration and its Keycloak
   migrations (`KeycloakMigrationTrait`);
-- the steps that log in through Keycloak, Cypress and the indexer end-to-end,
-  do not run.
+- the steps that log in through Keycloak (Cypress) do not run.
 
 The PHP suites do not need either service: they mock Keycloak, and an empty
 `REPORT_API_URL` disables the report client.
@@ -67,9 +66,6 @@ The PHP suites do not need either service: they mock Keycloak, and an empty
   `bin/setup.sh` never replays migrations (it uses `doctrine:schema:update`),
   so this is the only proof that a fresh install works. Non-blocking in CI
   until the current mapping/migrations drift is fixed.
-- `bin/dev/test-indexer-e2e.sh`: provisions a fixture tree, indexes it through
-  the real databox API, checks the result, indexes again and checks
-  idempotence (up to 5 minutes).
 
 ## Running locally
 

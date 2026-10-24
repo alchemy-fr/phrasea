@@ -1,6 +1,5 @@
 packages:
   - 'databox/client'
-  - 'databox/indexer'
   - 'expose/client'
   - 'uploader/client'
   - 'dashboard/client'

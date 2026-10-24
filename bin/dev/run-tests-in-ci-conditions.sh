@@ -7,7 +7,7 @@
 #
 # quick    builds only the PHP API images and runs bin/test.sh quick (no stack)
 # standard builds everything, sets the stack up, runs bin/test.sh standard + Cypress
-# release  same as standard, then migrations replay + indexer e2e (bin/test.sh release)
+# release  same as standard, then migrations replay (bin/test.sh release)
 
 set -e
 
@@ -77,7 +77,5 @@ bin/test.sh standard
 bin/dev/test-cypress.sh
 
 if [[ "${TIER}" == "release" ]]; then
-  docker compose --profile indexer build databox-indexer
   bin/dev/test-migrations.sh
-  bin/dev/test-indexer-e2e.sh --timeout 300
 fi

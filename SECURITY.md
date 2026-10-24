@@ -20,7 +20,7 @@ Report it privately through GitHub Private Vulnerability Reporting:
 
 Please include as much of the following as you can:
 
-- The affected component (Databox, Expose, Uploader, Dashboard, Configurator, Report, Indexer,
+- The affected component (Databox, Expose, Uploader, Dashboard, Configurator, Report,
   Keycloak configuration…) and version
 - The type of vulnerability and its impact
 - Step-by-step instructions to reproduce it, with a proof of concept if possible

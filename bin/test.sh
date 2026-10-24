@@ -7,7 +7,7 @@
 #   bin/test.sh standard   the full PHP suites inside the API images, with
 #                          db/redis/elasticsearch/minio up (default; what CI
 #                          runs on every pull request to master)
-#   bin/test.sh release    standard + Doctrine migrations replay + indexer e2e
+#   bin/test.sh release    standard + Doctrine migrations replay
 #                          (needs the whole stack up: bin/setup.sh first)
 #
 # Cypress is not part of this script: see bin/dev/test-cypress.sh.
@@ -99,10 +99,6 @@ tier_release() {
 
   set +e
   bin/dev/test-migrations.sh || status=1
-  # The indexer logs in through Keycloak.
-  if [ "${CONFIGURATOR_CONFIGURE_KEYCLOAK}" != "false" ]; then
-    bin/dev/test-indexer-e2e.sh --timeout 300 || status=1
-  fi
   set -e
 
   return ${status}

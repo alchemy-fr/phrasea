@@ -70,7 +70,6 @@ It is strongly recommended to delegate **primary datastores**—such as **Postgr
   - [Databox Worker](https://hub.docker.com/r/alchemyfr/ps-databox-worker/tags)  
   - [Databox Client](https://hub.docker.com/r/alchemyfr/ps-databox-client/tags)  
   - [Databox Nginx API](https://hub.docker.com/r/alchemyfr/ps-databox-api-nginx/tags)
-  - Databox indexer (local build only)
 
 * **Uploader Service**  
   - [Uploader PHP API](https://hub.docker.com/r/alchemyfr/ps-uploader-api-php/tags)  
@@ -141,7 +140,6 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 
 * Programming Language:  
   * Phrasea is developed in PHP with the Symfony Framework.  
-  * Node.js for certain modules (indexer)
 
 ### Front-End
 

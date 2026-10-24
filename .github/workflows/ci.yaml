@@ -42,7 +42,7 @@ env:
   COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,mailpit,elasticsearch,dashboard,sockudo
   # The Keycloak and report-api images are not built here and are never pulled
   # by the CI: the stack runs without them, so the tests that log in through
-  # Keycloak (Cypress, indexer end-to-end) are not run.
+  # Keycloak (Cypress) are not run.
   CONFIGURATOR_CONFIGURE_KEYCLOAK: 'false'
   REPORT_API_URL: ''
   FIXTURES_GENERATE_IMAGES: "true"
@@ -138,17 +138,6 @@ jobs:
     needs:
       - build_nodejs-base
 
-  build_databox_indexer:
-    name: 'Build Databox Indexer'
-    uses: ./.github/workflows/build.yaml
-    with:
-      image: databox-indexer
-      context: ./databox/indexer
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_nodejs-base
-
   build_expose_api:
     name: 'Build Expose API'
     uses: ./.github/workflows/build_api.yaml
@@ -208,7 +197,6 @@ jobs:
       - build_dashboard
       - build_databox_api
       - build_databox_client
-      - build_databox_indexer
       - build_expose_api
       - build_expose_client
       - build_uploader_api
@@ -259,12 +247,6 @@ jobs:
       - name: Replay Doctrine migrations
         if: env.TIER == 'release'
         run: bin/dev/test-migrations.sh
-
-      - name: Indexer end-to-end
-        if: env.TIER == 'release' && env.CONFIGURATOR_CONFIGURE_KEYCLOAK != 'false'
-        run: |
-          docker compose --profile indexer pull databox-indexer
-          bin/dev/test-indexer-e2e.sh --timeout 300
 
       - name: Extract error output
         if: failure()
@@ -334,14 +316,13 @@ jobs:
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
-          docker compose --profile indexer pull databox-indexer
           docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
             # Extract image name after ps- prefix
             image_name="${repo##*/ps-}"
             ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ env.IMAGE_TAG }}"
           done
-          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
+          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator"
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
 
       - name: Generate GitHub App token for documentation dispatch

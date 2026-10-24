@@ -2,7 +2,7 @@
 
 namespace App\OperationTask;
 
-use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\JwtInterface;
 use App\Consumer\Handler\RunOperationTask;
 use App\Entity\Admin\OperationTask;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +22,7 @@ final readonly class OperationTaskManager
     }
 
     public function createTask(
-        JwtUser $user,
+        JwtInterface $user,
         string $taskName,
         array $payload = [],
     ): OperationTask {

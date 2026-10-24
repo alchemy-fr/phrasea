@@ -116,9 +116,6 @@ flowchart LR
 
     report --> pg
     keycloak --> pg
-
-    indexer[Databox indexer] -- reads sources --> s3
-    indexer -- creates assets --> databoxApi
 ```
 
 A detailed diagram is available in
@@ -227,7 +224,7 @@ The documentation is published at **[docs.phrasea.com](https://docs.phrasea.com)
 ## Repository layout
 
 ```text
-databox/        core DAM: api/ (Symfony), client/ (Next.js), indexer/ (Node.js)
+databox/        core DAM: api/ (Symfony), client/ (Next.js)
 expose/         publication: api/ (Symfony), client/ (React + Vite)
 uploader/       ingestion: api/ (Symfony), client/ (React + Vite)
 dashboard/      client/ only: the shell that ties the applications together

@@ -28,7 +28,6 @@ The applications:
 - **uploader** — asset ingestion front-end.
 - **dashboard** — client-only shell that ties the apps together (no API of its own).
 - **configurator** — a standalone Symfony app that generates per-tenant configuration.
-- **databox/indexer** — a Node.js service (not a client) for external indexing.
 
 ## Repository layout
 
@@ -86,7 +85,7 @@ dc run --rm dev pnpm build         # tsc + vite build across packages
 
 Per-client: `pnpm --filter databox-client <script>` (scripts: `lint`, `build`, `cs` = lint:fix + format).
 
-**Frontend tests use Vitest** (`databox/client`, `databox/indexer`, `lib/js/api`, `lib/js/auth`, `lib/js/i18n`; `pnpm test` at the root runs them all through Turbo):
+**Frontend tests use Vitest** (`databox/client`, `lib/js/api`, `lib/js/auth`, `lib/js/i18n`; `pnpm test` at the root runs them all through Turbo):
 
 ```bash
 dc run --rm dev pnpm --filter databox-client test                      # vitest run
@@ -141,7 +140,7 @@ Tests are organised in three tiers, documented in `doc/tech/Development/ci.md`:
 
 - `bin/test.sh quick` — static checks + unit tests, **no service needed**: `composer test:quick` per Symfony project (lint + PHPUnit `--testsuite unit`), `composer test` per PHP lib, `pnpm test:quick` (lint, typecheck, vitest). Runs on every push (`.github/workflows/quick.yaml`).
 - `bin/test.sh standard` (default) — full `composer test` (unit + functional suites) inside the API images with db/redis/elasticsearch/minio up, plus the libs. Runs on PRs to master (`ci.yaml`), followed by `bin/dev/test-cypress.sh`.
-- `bin/test.sh release` — standard + `bin/dev/test-migrations.sh` (migrations replay + `schema:validate`) + `bin/dev/test-indexer-e2e.sh`. Runs on tags, nightly on master and on demand (`release.yaml`).
+- `bin/test.sh release` — standard + `bin/dev/test-migrations.sh` (migrations replay + `schema:validate`). Runs on tags, nightly on master and on demand (`release.yaml`).
 - `bin/dev/run-tests-in-ci-conditions.sh [tier]` — reproduces CI: builds, brings up the stack, runs the tier, then Cypress.
 
 PHPUnit suites are directories: `tests/unit/` (plain `TestCase`, no service, namespace `App\Tests\Unit\`) and `tests/functional/` (kernel/stack, namespace `App\Tests\Functional\`).

@@ -146,6 +146,42 @@ final class OperationTaskTest extends AbstractDataboxTestCase
         $this->assertSame($data['id'], $messages[0]->id);
     }
 
+    public function testAnAdminOAuthClientCreatesATask(): void
+    {
+        $client = static::createClient();
+        /** @var TestTransport $transport */
+        $transport = static::getContainer()->get('messenger.transport.task');
+        $queue = $transport->intercept();
+
+        $response = $client->request('POST', '/operation-tasks', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getClientCredentialJwt('admin'),
+            ],
+            'json' => [
+                'task' => 'import_files',
+                'payload' => ['workspaceId' => 'some-workspace'],
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(201);
+        $task = self::getEntityManager()->find(OperationTask::class, $response->toArray()['id']);
+        $this->assertSame('machine_client', $task->getOwnerId());
+        $this->assertCount(1, $queue->getSent());
+    }
+
+    public function testAnOAuthClientWithoutTheAdminScopeCannotCreateATask(): void
+    {
+        static::createClient()->request('POST', '/operation-tasks', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getClientCredentialJwt(),
+            ],
+            'json' => ['task' => 'index_assets'],
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertSame(0, self::getEntityManager()->getRepository(OperationTask::class)->count([]));
+    }
+
     public function testTheTaskNameIsRequired(): void
     {
         $response = static::createClient()->request('POST', '/operation-tasks', [
