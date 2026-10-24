@@ -23,6 +23,8 @@
         "@alchemy/phrasea-framework": "workspace:*",
         "@alchemy/phrasea-ui": "workspace:*",
         "@alchemy/react-auth": "workspace:*",
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
         "react": "^18.3.1",
