@@ -14,6 +14,7 @@ use App\Entity\Core\AssetExport;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetExportProcessor implements ProcessorInterface
 {
@@ -37,6 +38,10 @@ class AssetExportProcessor implements ProcessorInterface
         foreach ($data->getAssets() as $assetId) {
             $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
+        }
+
+        if (($data->getDelegateUserId() === null) !== ($data->getDelegationHash() === null)) {
+            throw new BadRequestHttpException('Delegated export requires both recipient and capability hash');
         }
 
         $user = $this->getStrictUser();

@@ -10,8 +10,10 @@ use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Output\UserOutput;
+use App\Api\Processor\AssetExportDelegationProcessor;
 use App\Api\Processor\AssetExportProcessor;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Model\ExportStatusEnum;
@@ -30,6 +32,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             processor: AssetExportProcessor::class,
+        ),
+        new Patch(
+            uriTemplate: '/asset-exports/{id}/delegation',
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            denormalizationContext: ['groups' => [self::GROUP_DELEGATION]],
+            processor: AssetExportDelegationProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -51,6 +59,7 @@ class AssetExport extends AbstractUuidEntity
     final public const string GROUP_READ = self::GROUP_PREFIX.'r';
     final public const string GROUP_WRITE = self::GROUP_PREFIX.'w';
     final public const string GROUP_ALL = self::GROUP_PREFIX.'a';
+    final public const string GROUP_DELEGATION = self::GROUP_PREFIX.'delegation';
 
     #[Groups(self::GROUP_READ)]
     #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: ExportStatusEnum::class)]
@@ -59,6 +68,17 @@ class AssetExport extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 36)]
     #[Assert\Length(min: 1, max: 36)]
     protected ?string $ownerId = null;
+
+    #[Groups([self::GROUP_WRITE, self::GROUP_DELEGATION])]
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    #[Assert\Uuid]
+    private ?string $delegateUserId = null;
+
+    // The capability itself is never persisted or returned by the API.
+    #[Groups([self::GROUP_WRITE, self::GROUP_DELEGATION])]
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
+    #[Assert\Regex(pattern: '/^[a-f0-9]{64}$/')]
+    private ?string $delegationHash = null;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $userData = null;
@@ -128,6 +148,26 @@ class AssetExport extends AbstractUuidEntity
     public function setUserData(UserData $userData): void
     {
         $this->userData = $userData->toArray();
+    }
+
+    public function getDelegateUserId(): ?string
+    {
+        return $this->delegateUserId;
+    }
+
+    public function setDelegateUserId(?string $delegateUserId): void
+    {
+        $this->delegateUserId = $delegateUserId;
+    }
+
+    public function getDelegationHash(): ?string
+    {
+        return $this->delegationHash;
+    }
+
+    public function setDelegationHash(?string $delegationHash): void
+    {
+        $this->delegationHash = $delegationHash;
     }
 
     public function getPath(): ?string

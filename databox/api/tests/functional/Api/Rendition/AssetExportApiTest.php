@@ -176,4 +176,91 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
         $this->jsonRequest('GET', '/asset-exports/'.$exportId, self::OTHER);
         $this->assertResponseStatusCodeSame(403);
     }
+
+    public function testDelegatedExportRequiresTheNamedUserAndTheCapability(): void
+    {
+        [$assetId, $definitionId] = $this->createExportableAsset();
+        $this->interceptP1();
+        $capability = str_repeat('a', 64);
+        $exportId = $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
+            'assets' => [$assetId],
+            'renditions' => [$definitionId],
+            'delegateUserId' => self::OTHER,
+            'delegationHash' => hash('sha256', $capability),
+        ])->toArray()['id'];
+
+        $this->jsonRequest('GET', '/asset-exports/'.$exportId, self::OTHER);
+        $this->assertResponseStatusCodeSame(403);
+        $this->jsonRequest('GET', '/asset-exports/'.$exportId, self::OTHER, null, [
+            'headers' => ['X-Phrasea-Export-Grant' => str_repeat('b', 64)],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+        $this->jsonRequest('GET', '/asset-exports/'.$exportId, KeycloakClientTestMock::ADMIN_UID, null, [
+            'headers' => ['X-Phrasea-Export-Grant' => $capability],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        $data = $this->jsonRequest('GET', '/asset-exports/'.$exportId, self::OTHER, null, [
+            'headers' => ['X-Phrasea-Export-Grant' => $capability],
+        ])->toArray();
+        $this->assertSame($exportId, $data['id']);
+        $this->assertArrayNotHasKey('delegationHash', $data);
+
+        /** @var AssetExport $export */
+        $export = self::getEntityManager()->find(AssetExport::class, $exportId);
+        $export->setStatus(ExportStatusEnum::Ready);
+        $export->setPath('exports/delegated.zip');
+        self::getEntityManager()->flush();
+        $ready = $this->jsonRequest('GET', '/asset-exports/'.$exportId, self::OTHER, null, [
+            'headers' => ['X-Phrasea-Export-Grant' => $capability],
+        ])->toArray();
+        $this->assertSame(ExportStatusEnum::Ready->value, $ready['status']);
+        $this->assertStringContainsString('exports/delegated.zip', $ready['downloadUrl']);
+
+        $this->jsonRequest('GET', '/asset-exports/'.$exportId, self::OWNER);
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testIncompleteDelegationDoesNotQueueAnExport(): void
+    {
+        [$assetId, $definitionId] = $this->createExportableAsset();
+        $transport = $this->interceptP1();
+        $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
+            'assets' => [$assetId],
+            'renditions' => [$definitionId],
+            'delegateUserId' => self::OTHER,
+        ]);
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertCount(0, $transport->getSent());
+    }
+
+    public function testOwnerCanDelegateAnExistingExportWithoutChangingItsAssets(): void
+    {
+        [$assetId, $definitionId] = $this->createExportableAsset();
+        $this->interceptP1();
+        $exportId = $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
+            'assets' => [$assetId],
+            'renditions' => [$definitionId],
+        ])->toArray()['id'];
+        $capability = str_repeat('c', 64);
+        $payload = [
+            'delegateUserId' => self::OTHER,
+            'delegationHash' => hash('sha256', $capability),
+            'assets' => [], // The delegation route must not edit the export.
+        ];
+
+        $this->jsonRequest('PATCH', '/asset-exports/'.$exportId.'/delegation', self::OTHER, $payload);
+        $this->assertResponseStatusCodeSame(403);
+        $this->jsonRequest('PATCH', '/asset-exports/'.$exportId.'/delegation', self::OWNER, $payload);
+        $this->assertResponseIsSuccessful();
+        $this->jsonRequest('GET', '/asset-exports/'.$exportId, self::OTHER, null, [
+            'headers' => ['X-Phrasea-Export-Grant' => $capability],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        /** @var AssetExport $export */
+        $export = self::getEntityManager()->find(AssetExport::class, $exportId);
+        $this->assertSame([$assetId], $export->getAssets());
+        $this->assertSame([$definitionId], $export->getRenditions());
+    }
 }
