@@ -14,7 +14,7 @@ RUN apk upgrade --no-cache musl \
         perl
 
 ENV APP_ENV=prod \
-    PHP_MEMORY_LIMIT=132M \
+    PHP_MEMORY_LIMIT=-1 \
     LOG_ACTION_LEVEL=error \
     WORKER_VERBOSITY= \
     APCU_VERSION=5.1.28 \

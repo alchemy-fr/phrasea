@@ -283,7 +283,7 @@
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
-        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
+        "phpstan": "php -d memory_limit=-1 vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
         "pre-phpunit": [
             "rm -f var/cache/test/data*.db",
@@ -292,11 +292,11 @@
         ],
         "phpunit": [
             "@pre-phpunit",
-            "php -d memory_limit=1024M ./bin/phpunit"
+            "php -d memory_limit=-1 ./bin/phpunit"
         ],
         "phpunit:compact": [
             "@pre-phpunit",
-            "php -d memory_limit=1024M ./bin/phpunit --extension 'Alchemy\\ApiTest\\PHPUnit\\CompactResultExtension'"
+            "php -d memory_limit=-1 ./bin/phpunit --extension 'Alchemy\\ApiTest\\PHPUnit\\CompactResultExtension'"
         ],
         "var-dump-check": "vendor/bin/var-dump-check --symfony src",
         "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
@@ -305,10 +305,10 @@
             "@phpstan",
             "@cs:check"
         ],
-        "phpunit:unit": "php -d memory_limit=1024M vendor/bin/phpunit --testsuite unit",
+        "phpunit:unit": "php -d memory_limit=-1 vendor/bin/phpunit --testsuite unit",
         "phpunit:functional": [
             "@pre-phpunit",
-            "php -d memory_limit=1024M ./bin/phpunit --testsuite functional"
+            "php -d memory_limit=-1 ./bin/phpunit --testsuite functional"
         ],
         "test:quick": [
             "@lint",
