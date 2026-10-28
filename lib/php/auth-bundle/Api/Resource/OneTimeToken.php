@@ -13,7 +13,8 @@ use ApiPlatform\Metadata\Post;
             uriTemplate: '/ott',
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             validate: false,
-            name: 'one-time-token',
+            // Not "one-time-token": the documentation builder derives the same page id from the "OneTimeToken" tag.
+            name: 'create_one_time_token',
             processor: UserOneTimeTokenProcessor::class,
         ),
     ]
