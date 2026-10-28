@@ -27,14 +27,24 @@ final class ApiDocumentationGenerator extends DocumentationGenerator
 
     public function getContent(): string
     {
+        // The documentation builder (docusaurus-plugin-openapi-docs) does not
+        // read OpenAPI 3.2, the API Platform default. Written to a file: going
+        // through the console formatter exhausts the default memory limit.
+        $file = tempnam(sys_get_temp_dir(), 'openapi');
         $input = new ArrayInput([
             'command' => 'api:openapi:export',
+            '--spec-version' => '3.0.0',
+            '--output' => $file,
         ]);
         $output = new BufferedOutput();
-        if (Command::SUCCESS !== $this->application->run($input, $output)) {
-            throw new \RuntimeException(sprintf('Unable to generate OpenAPI schema: %s', $output->fetch()));
-        }
+        try {
+            if (Command::SUCCESS !== $this->application->run($input, $output)) {
+                throw new \RuntimeException(sprintf('Unable to generate OpenAPI schema: %s', $output->fetch()));
+            }
 
-        return $output->fetch();
+            return file_get_contents($file);
+        } finally {
+            unlink($file);
+        }
     }
 }
