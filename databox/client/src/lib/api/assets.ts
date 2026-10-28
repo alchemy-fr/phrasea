@@ -273,15 +273,24 @@ function normalizeActions(
     );
 }
 
+/**
+ * When a value disagrees with the hierarchy of an entity attribute:
+ * `reject` (default) answers the conflicts, `replace` lets the written values
+ * win (see `withHierarchyConflictConfirm`).
+ */
+export type HierarchyConflictStrategy = 'reject' | 'replace';
+
 export async function attributeBatchUpdate(
     assetId: string | string[],
     actions: AttributeBatchAction[],
-    workspaceId?: string
+    workspaceId?: string,
+    hierarchyConflict?: HierarchyConflictStrategy
 ): Promise<Asset> {
     const normalized = normalizeActions(actions);
     if (typeof assetId === 'string') {
         return api.post<Asset>(`/${EntityName.Asset}/${assetId}/attributes`, {
             actions: normalized,
+            hierarchyConflict,
         });
     }
 
@@ -289,6 +298,7 @@ export async function attributeBatchUpdate(
         assets: assetId,
         workspaceId,
         actions: normalized,
+        hierarchyConflict,
     });
 }
 

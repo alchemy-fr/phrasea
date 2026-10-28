@@ -37,6 +37,28 @@ import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {EntityListSelect} from '@/components/form/selects';
 import {RenditionPicker} from '@/features/integrations/config/pickers/RenditionPicker';
+import {
+    HierarchyBindingFields,
+    type HierarchyBindingValue,
+} from '@/features/attributes/hierarchy/HierarchyBindingFields';
+
+/**
+ * The hierarchy binding sent with an entity definition (the branch as an IRI).
+ */
+function hierarchyBindingData(
+    h: HierarchyBindingValue
+): Partial<AttributeDefinition> {
+    const bound = h.depth !== '';
+
+    return {
+        entityHierarchyDepth: bound ? Number(h.depth) : null,
+        autoFillParents: bound && h.autoFillParents,
+        entityHierarchyBranch:
+            bound && h.branchId
+                ? iri(EntityName.AttributeEntity, h.branchId)
+                : null,
+    } as Partial<AttributeDefinition>;
+}
 
 export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -166,6 +188,11 @@ function DefinitionForm({
             typeof d?.entityList === 'string'
                 ? d.entityList
                 : (d?.entityList?.['@id'] ?? ''),
+        hierarchy: {
+            depth: d?.entityHierarchyDepth?.toString() ?? '',
+            branchId: d?.entityHierarchyBranchId ?? '',
+            autoFillParents: d?.autoFillParents ?? false,
+        } as HierarchyBindingValue,
         target: String(d?.target ?? AssetType.Asset),
         searchable: d?.searchable ?? true,
         editable: d?.editable ?? true,
@@ -209,6 +236,9 @@ function DefinitionForm({
                     form.type === AttributeType.Entity
                         ? form.entityList || null
                         : null,
+                ...(form.type === AttributeType.Entity
+                    ? hierarchyBindingData(form.hierarchy)
+                    : {}),
                 target: Number(form.target) as AssetType,
                 searchable: form.searchable,
                 editable: form.editable,
@@ -318,6 +348,13 @@ function DefinitionForm({
                             placeholder={t('common.none', 'None')}
                         />
                     </FormRow>
+                ) : null}
+                {form.type === AttributeType.Entity && form.entityList ? (
+                    <HierarchyBindingFields
+                        entityList={form.entityList}
+                        value={form.hierarchy}
+                        onChange={v => set('hierarchy', v)}
+                    />
                 ) : null}
                 <FormRow label={t('attribute_def.target', 'Applies to')}>
                     <SimpleSelect

@@ -355,6 +355,12 @@ export interface BaseAttributeDefinition extends Entity {
     searchable: boolean;
     sortable: boolean;
     entityList?: EntityList | string | null;
+    /** Depth of the entity list hierarchy whose entities are accepted (0 = root) */
+    entityHierarchyDepth?: number | null;
+    /** Only the descendants of this entity are accepted */
+    entityHierarchyBranchId?: string | null;
+    /** A value fills the attributes bound to the ancestor depths */
+    autoFillParents?: boolean;
     multiple: boolean;
     facetEnabled: boolean;
     slug: string;
@@ -396,8 +402,7 @@ export interface AttributeDefinition
 }
 
 export type AttributeDefinitionOrBuiltIn =
-    | AttributeDefinition
-    | BuiltInAttribute;
+    AttributeDefinition | BuiltInAttribute;
 
 export interface AttributePolicy extends HydraObject, Entity {
     name: string;
@@ -406,7 +411,13 @@ export interface AttributePolicy extends HydraObject, Entity {
     workspace: Workspace | string;
 }
 
-export type AttributeOrigin = 'human' | 'machine' | 'fallback' | 'initial';
+export type AttributeOrigin =
+    | 'human'
+    | 'machine'
+    | 'fallback'
+    | 'initial'
+    /** Filled from the hierarchy of a deeper value */
+    | 'hierarchy';
 
 export interface Attribute extends Partial<HydraObject>, Entity {
     definition: AttributeDefinition;
@@ -459,7 +470,24 @@ export interface AttributeEntity extends HydraObject, Entity {
     status: AttributeEntityStatus;
     /** Attribute values referencing the entity, with the `usage` parameter */
     usage?: {attributes: number; humanAttributes: number};
+    /** Order among the siblings of the hierarchy */
+    position?: number;
+    parentId?: string | null;
+    /** Depth in the list hierarchy (0 = root), null when not classified */
+    hierarchyDepth?: number | null;
+    /** Fills an empty level of the hierarchy: never selectable */
+    placeholder?: boolean;
+    /** Ancestors from the top (root and placeholders left out) */
+    path?: AttributeEntityPathItem[];
+    /** Direct children, in listings */
+    childCount?: number | null;
 }
+
+export type AttributeEntityPathItem = {
+    id: string;
+    value: string;
+    translations?: Translations | null;
+};
 
 export interface EntityList extends HydraObject, Entity {
     name: string;
@@ -472,6 +500,8 @@ export interface EntityList extends HydraObject, Entity {
     withColors?: boolean;
     withImages?: boolean;
     workspace?: Workspace | string;
+    /** Top of the hierarchy, none while the list is flat */
+    rootEntityId?: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -737,15 +767,7 @@ export enum ProfileItemType {
 
 export type GridRegion = 'over' | 'below';
 export type GridAnchor =
-    | 'l'
-    | 'c'
-    | 'r'
-    | 'tc'
-    | 'ml'
-    | 'cc'
-    | 'mr'
-    | 'bl'
-    | 'bc';
+    'l' | 'c' | 'r' | 'tc' | 'ml' | 'cc' | 'mr' | 'bl' | 'bc';
 
 export type ItemPlacement = {
     region: GridRegion;

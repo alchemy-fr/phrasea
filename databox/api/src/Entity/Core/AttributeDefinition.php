@@ -293,6 +293,26 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\JoinColumn(nullable: true)]
     protected ?EntityList $entityList = null;
 
+    /**
+     * Depth of the entity list hierarchy whose entities this attribute accepts (0 = root entity).
+     * Null: any entity of the list (no hierarchy binding).
+     */
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $entityHierarchyDepth = null;
+
+    /**
+     * Restricts the accepted entities to the descendants of this one.
+     */
+    #[ORM\ManyToOne(targetEntity: AttributeEntity::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?AttributeEntity $entityHierarchyBranch = null;
+
+    /**
+     * A value of this attribute fills the attributes bound to the ancestor depths of the same list.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $autoFillParents = false;
+
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $searchable = true;
 
@@ -754,6 +774,44 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     public function setSuggest(bool $suggest): void
     {
         $this->suggest = $suggest;
+    }
+
+    public function getEntityHierarchyDepth(): ?int
+    {
+        return $this->entityHierarchyDepth;
+    }
+
+    public function setEntityHierarchyDepth(?int $entityHierarchyDepth): void
+    {
+        $this->entityHierarchyDepth = $entityHierarchyDepth;
+    }
+
+    public function getEntityHierarchyBranch(): ?AttributeEntity
+    {
+        return $this->entityHierarchyBranch;
+    }
+
+    public function setEntityHierarchyBranch(?AttributeEntity $entityHierarchyBranch): void
+    {
+        $this->entityHierarchyBranch = $entityHierarchyBranch;
+    }
+
+    public function isAutoFillParents(): bool
+    {
+        return $this->autoFillParents;
+    }
+
+    public function setAutoFillParents(bool $autoFillParents): void
+    {
+        $this->autoFillParents = $autoFillParents;
+    }
+
+    /**
+     * Whether the attribute is bound to a depth of its entity list hierarchy.
+     */
+    public function isHierarchical(): bool
+    {
+        return null !== $this->entityHierarchyDepth && null !== $this->entityList;
     }
 
     public function getEntityList(): ?EntityList

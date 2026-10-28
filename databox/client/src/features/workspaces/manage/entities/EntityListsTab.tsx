@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQueryClient} from '@tanstack/react-query';
-import {SaveIcon} from 'lucide-react';
+import {NetworkIcon, SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {EntityList} from '@/types/api';
 import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
@@ -23,10 +23,13 @@ import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityGrid} from './EntityGrid';
+import {EntityHierarchyDialog} from './hierarchy/EntityHierarchyDialog';
+import {useModals} from '@/components/modals/ModalProvider';
 
 export function EntityListsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
+    const {openModal} = useModals();
     const lists = useInfiniteList<EntityList>({
         queryKey: ['entity-lists', workspace.id, 'manage'],
         fetchPage: ({query, url, signal}) =>
@@ -72,10 +75,23 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
             createLabel={t('entity_list.create', 'New list')}
             manageLabel={t('entity_list.manage', 'Values')}
             renderRowActions={l => (
-                <ExploreEntityListButton
-                    listId={l.id}
-                    className="h-7 text-xs"
-                />
+                <>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() =>
+                            openModal(EntityHierarchyDialog, {list: l})
+                        }
+                    >
+                        <NetworkIcon />{' '}
+                        {t('entity_hierarchy.open', 'Hierarchy')}
+                    </Button>
+                    <ExploreEntityListButton
+                        listId={l.id}
+                        className="h-7 text-xs"
+                    />
+                </>
             )}
             renderManage={(l, back) => (
                 <EntityGrid list={l} workspace={workspace} onBack={back} />

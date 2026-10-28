@@ -8,6 +8,8 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
+use App\Attribute\Hierarchy\EntityHierarchyValueValidator;
+use App\Attribute\Type\AttributeTypeInterface;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
@@ -32,6 +34,7 @@ final readonly class AttributeValidator
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeRepository $attributeRepository,
         private AttributeTypeRegistry $typeRegistry,
+        private EntityHierarchyValueValidator $hierarchyValueValidator,
     ) {
     }
 
@@ -75,7 +78,7 @@ final readonly class AttributeValidator
                     if (null !== $v) {
                         $normalized = $type->normalizeValue($v);
                         if (null !== $normalized) {
-                            $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                            $this->addErrorsToContext($definition, $attributeInput, $validationContext, $this->validateValue($definition, $type, $normalized));
                         }
                     }
                 }
@@ -84,10 +87,15 @@ final readonly class AttributeValidator
                 $normalized = $type->normalizeValue($value);
 
                 if (null !== $normalized) {
-                    $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                    $this->addErrorsToContext($definition, $attributeInput, $validationContext, $this->validateValue($definition, $type, $normalized));
                 }
             }
         }
+    }
+
+    private function validateValue(AttributeDefinition $definition, AttributeTypeInterface $type, mixed $normalized): ?array
+    {
+        return $type->validate($normalized) ?? $this->hierarchyValueValidator->validate($definition, $normalized);
     }
 
     private function addErrorsToContext(AttributeDefinition $definition, AbstractBaseAttributeInput $attributeInput, ExecutionContextInterface $validationContext, ?array $errors): void

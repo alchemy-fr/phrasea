@@ -12,6 +12,7 @@ use App\Api\Traits\WorkspaceCollectionTrait;
 use App\Elasticsearch\AttributeEntitySearch;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Repository\Core\AttributeEntityRepository;
 use App\Repository\Core\AttributeRepository;
 use App\Service\Image\ImageSetManager;
 
@@ -27,6 +28,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         private readonly AttributeRepository $attributeRepository,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly ImageSetManager $imageSetManager,
+        private readonly AttributeEntityRepository $attributeEntityRepository,
     ) {
     }
 
@@ -52,6 +54,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
             }
         }
         $this->imageSetManager->preload(array_map(fn (AttributeEntity $entity) => $entity->getImage(), $entities));
+        $this->preloadHierarchy($entities);
 
         $usage = self::getParameterValue($operation, 'usage');
         if (null !== $usage && '' !== $usage && filter_var($usage, FILTER_VALIDATE_BOOL)) {
@@ -59,6 +62,30 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         }
 
         return $result;
+    }
+
+    /**
+     * Loads the ancestors of the page at once (AttributeEntity::getPath() walks them) and counts the children.
+     *
+     * @param AttributeEntity[] $entities
+     */
+    private function preloadHierarchy(array $entities): void
+    {
+        $classified = array_values(array_filter($entities, fn (AttributeEntity $e): bool => null !== $e->getParent() || $e->isClassified()));
+        if (empty($classified)) {
+            return;
+        }
+
+        $ids = array_map(fn (AttributeEntity $e): string => $e->getId(), $classified);
+        $ancestorIds = array_values(array_unique(array_merge(...array_values($this->attributeEntityRepository->getAncestorIds($ids)))));
+        if (!empty($ancestorIds)) {
+            $this->attributeEntityRepository->findBy(['id' => $ancestorIds]);
+        }
+
+        $childCounts = $this->attributeEntityRepository->countChildren($ids);
+        foreach ($classified as $entity) {
+            $entity->setChildCount($childCounts[$entity->getId()] ?? 0);
+        }
     }
 
     /**

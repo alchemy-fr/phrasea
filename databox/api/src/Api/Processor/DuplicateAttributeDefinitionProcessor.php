@@ -47,6 +47,9 @@ final class DuplicateAttributeDefinitionProcessor implements ProcessorInterface
         ));
         $copy->setPolicy($data->getPolicy());
         $copy->setEntityList($data->getEntityList());
+        $copy->setEntityHierarchyDepth($data->getEntityHierarchyDepth());
+        $copy->setEntityHierarchyBranch($data->getEntityHierarchyBranch());
+        $copy->setAutoFillParents($data->isAutoFillParents());
         $copy->setWriteMetadataRenditions($data->getWriteMetadataRenditions());
         $copy->setFileType($data->getFileType());
         $copy->setType($data->getType());

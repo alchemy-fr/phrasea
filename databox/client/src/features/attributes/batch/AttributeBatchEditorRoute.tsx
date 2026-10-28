@@ -23,6 +23,7 @@ import {
     isAssetEligibleForDefinition,
     searchAssets,
 } from '@/lib/api/assets';
+import {useHierarchyConflictConfirm} from '@/features/attributes/hierarchy/useHierarchyConflictConfirm';
 import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
 import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
@@ -605,6 +606,8 @@ export function AttributeBatchEditorRoute() {
         return actions;
     };
 
+    const runWithHierarchyConfirm = useHierarchyConflictConfirm();
+
     const save = async () => {
         const actions = computeActions();
         openModal(SavePreviewDialog as any, {
@@ -618,25 +621,34 @@ export function AttributeBatchEditorRoute() {
                     a => a.definition.id !== TAGS_DEFINITION_ID
                 );
                 if (attrActions.length > 0) {
-                    await attributeBatchUpdate(
-                        assets.map(a => a.id),
-                        attrActions.map(a => ({
-                            action: a.action,
-                            definitionId: a.definition.id,
-                            value:
-                                a.action === AttributeBatchActionEnum.Delete &&
-                                a.definition.multiple
-                                    ? a.value
-                                    : a.action ===
-                                        AttributeBatchActionEnum.Delete
-                                      ? undefined
-                                      : a.value,
-                            locale:
-                                a.locale !== NO_LOCALE ? a.locale : undefined,
-                            assets: a.assets,
-                        })),
-                        workspaceId
+                    const saved = await runWithHierarchyConfirm(strategy =>
+                        attributeBatchUpdate(
+                            assets.map(a => a.id),
+                            attrActions.map(a => ({
+                                action: a.action,
+                                definitionId: a.definition.id,
+                                value:
+                                    a.action ===
+                                        AttributeBatchActionEnum.Delete &&
+                                    a.definition.multiple
+                                        ? a.value
+                                        : a.action ===
+                                            AttributeBatchActionEnum.Delete
+                                          ? undefined
+                                          : a.value,
+                                locale:
+                                    a.locale !== NO_LOCALE
+                                        ? a.locale
+                                        : undefined,
+                                assets: a.assets,
+                            })),
+                            workspaceId,
+                            strategy
+                        )
                     );
+                    if (undefined === saved) {
+                        return;
+                    }
                 }
                 if (tagActions.length > 0) {
                     const {patchAsset} = await import('@/lib/api/assets');
