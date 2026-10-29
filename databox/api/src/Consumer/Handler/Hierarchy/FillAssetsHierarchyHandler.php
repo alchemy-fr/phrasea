@@ -53,7 +53,8 @@ final readonly class FillAssetsHierarchyHandler
             ]);
         }
 
-        if (!empty($changed = $report->getChangedAssetIds())) {
+        $changed = $message->isReindex() ? $assetIds : $report->getChangedAssetIds();
+        if (!empty($changed)) {
             $this->searchIndexer->scheduleObjectsIndex(Asset::class, $changed, Operation::Upsert);
         }
     }

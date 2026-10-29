@@ -14,11 +14,13 @@ final readonly class FillAssetsHierarchy
 {
     /**
      * @param string[] $assetIds
+     * @param bool     $reindex  reindex every asset, even unchanged: the indexed branch of their entities moved
      */
     public function __construct(
         private string $workspaceId,
         private array $assetIds,
         private ?string $listId = null,
+        private bool $reindex = false,
     ) {
     }
 
@@ -38,5 +40,10 @@ final readonly class FillAssetsHierarchy
     public function getListId(): ?string
     {
         return $this->listId;
+    }
+
+    public function isReindex(): bool
+    {
+        return $this->reindex;
     }
 }

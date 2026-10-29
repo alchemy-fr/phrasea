@@ -14,7 +14,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Targeted reindexing after a hierarchy change: the moved entities (for their parent, depth and ancestors)
- * and the assets holding one of them, whose "hierarchy" values are recomputed.
+ * and the assets holding one of them, whose "hierarchy" values are recomputed and whose indexed entity
+ * branches change.
  */
 #[AsMessageHandler]
 final readonly class EntityHierarchyChangedHandler
@@ -47,13 +48,13 @@ final readonly class EntityHierarchyChangedHandler
         ) as $assetId) {
             $assetIds[] = $assetId;
             if (\count($assetIds) >= self::CHUNK_SIZE) {
-                $this->bus->dispatch(new FillAssetsHierarchy($message->getWorkspaceId(), $assetIds, $message->getListId()));
+                $this->bus->dispatch(new FillAssetsHierarchy($message->getWorkspaceId(), $assetIds, $message->getListId(), null !== $entityIds));
                 $assetIds = [];
             }
         }
 
         if (!empty($assetIds)) {
-            $this->bus->dispatch(new FillAssetsHierarchy($message->getWorkspaceId(), $assetIds, $message->getListId()));
+            $this->bus->dispatch(new FillAssetsHierarchy($message->getWorkspaceId(), $assetIds, $message->getListId(), null !== $entityIds));
         }
     }
 }

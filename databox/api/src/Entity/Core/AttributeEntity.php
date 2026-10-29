@@ -685,6 +685,17 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         return $path;
     }
 
+    /**
+     * The entity and its ancestors (root and placeholders left out): indexed with the attribute values,
+     * so that searching an entity also finds the assets holding one of its descendants.
+     *
+     * @return string[]
+     */
+    public function getBranchIds(): array
+    {
+        return [$this->getId(), ...array_column($this->getPath(), 'id')];
+    }
+
     public function getChildCount(): ?int
     {
         return $this->childCount;
