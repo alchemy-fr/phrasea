@@ -116,3 +116,11 @@ images and reproduces the CI run in an isolated compose project.
 builder. They read the head commit message, which is empty on `pull_request`,
 `schedule` and `workflow_dispatch`, so the tests always run there. The native
 `[skip ci]` still skips every workflow.
+
+On any other branch, `[documentation]` in one of the pushed commits runs
+`documentation.yaml` instead: it builds only the images the documentation
+builder reads (`databox`, `expose` and `uploader` `api-php`, `configurator`)
+and triggers the builder, which reads them from GHCR (the build cache, tagged
+with the commit sha). These images are not tested and never reach the public
+registries (AWS ECR, Docker Hub). It can also be run on demand
+(`workflow_dispatch`).
