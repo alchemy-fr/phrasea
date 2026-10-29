@@ -1841,5 +1841,10 @@
     "entity_hierarchy.placeholder": "niveau vide",
     "entity_hierarchy.set_root": "Définir comme racine",
     "entity_hierarchy.title": "Hiérarchie de {{name}}",
-    "entity_hierarchy.unclassified": "Non classées"
+    "entity_hierarchy.unclassified": "Non classées",
+    "entity_hierarchy.dnd_hint": "Glissez une entité sur le haut ou le bas d'une autre pour la placer à côté, sur son milieu pour la placer dedans, ou sur le panneau des non classées pour la sortir de la hiérarchie.",
+    "entity_hierarchy.drag": "Glisser pour déplacer",
+    "entity_hierarchy.detach_title": "Détacher « {{value}} »",
+    "entity_hierarchy.detach_submit": "Détacher",
+    "entity_hierarchy.detach_description": "L'entité et sa branche sortent de la hiérarchie : elles deviennent non classées et les attributs hiérarchiques ne les proposent plus."
 }

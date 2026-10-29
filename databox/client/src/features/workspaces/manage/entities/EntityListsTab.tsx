@@ -74,6 +74,8 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
             onDelete={l => deleteEntityList(l.id)}
             createLabel={t('entity_list.create', 'New list')}
             manageLabel={t('entity_list.manage', 'Values')}
+            // The rows carry several actions: a wide list, a narrow form
+            columnsClassName="lg:grid-cols-[minmax(0,2fr)_minmax(16rem,1fr)]"
             renderRowActions={l => (
                 <>
                     <Button
@@ -182,7 +184,7 @@ function ListForm({
                     onChange={e => set('name', e.target.value)}
                 />
             </FormRow>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2">
                 {flags.map(([k, label]) => (
                     <LabeledControl key={k} label={label}>
                         <Checkbox

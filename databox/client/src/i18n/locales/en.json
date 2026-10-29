@@ -1841,5 +1841,10 @@
     "entity_hierarchy.placeholder": "empty level",
     "entity_hierarchy.set_root": "Set as root",
     "entity_hierarchy.title": "Hierarchy of {{name}}",
-    "entity_hierarchy.unclassified": "Unclassified"
+    "entity_hierarchy.unclassified": "Unclassified",
+    "entity_hierarchy.dnd_hint": "Drag an entity onto the top or bottom of another one to place it beside it, onto its middle to place it inside, or onto the unclassified panel to take it out of the hierarchy.",
+    "entity_hierarchy.drag": "Drag to move",
+    "entity_hierarchy.detach_title": "Detach \"{{value}}\"",
+    "entity_hierarchy.detach_submit": "Detach",
+    "entity_hierarchy.detach_description": "The entity and its branch leave the hierarchy: they become unclassified and the hierarchical attributes no longer propose them."
 }

@@ -102,6 +102,21 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(204);
     }
 
+    public function testImpactOfAMove(): void
+    {
+        $this->setUpScene();
+        $this->createGeographyDefinitions();
+
+        $impact = $this->api('GET', '/attribute-entities/'.$this->e['france']->getId().'/hierarchy-impact', self::USER)->toArray();
+        $this->assertSame(9, $impact['entityCount']);
+        $this->assertSame(0, $impact['attributeCount']);
+        $this->assertSame(0, $impact['humanAttributeCount']);
+        $this->assertSame(
+            ['Continent' => 1, 'Pays' => 2, 'Region' => 3, 'Ville' => 4, 'Arrondissement' => 5, 'Rue' => 6],
+            array_column($impact['definitions'], 'depth', 'name'),
+        );
+    }
+
     public function testListingFiltersAndPath(): void
     {
         $this->setUpScene();

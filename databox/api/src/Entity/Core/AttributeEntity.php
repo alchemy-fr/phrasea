@@ -66,6 +66,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         // EDIT on the entity, checked by the provider
         new Get(
             uriTemplate: '/attribute-entities/{id}/hierarchy-impact',
+            normalizationContext: [
+                'groups' => [
+                    EntityHierarchyImpactOutput::GROUP_READ,
+                ],
+            ],
             output: EntityHierarchyImpactOutput::class,
             name: 'hierarchy_impact',
             provider: EntityHierarchyImpactProvider::class,

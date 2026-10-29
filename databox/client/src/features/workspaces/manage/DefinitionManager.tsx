@@ -89,6 +89,8 @@ type Props<D extends DefinitionItem> = {
     renderRowActions?: (item: D) => ReactNode;
     /** Take the whole height of the parent (a flex column); both panes scroll */
     fill?: boolean;
+    /** Widths of the list and form columns (large screens), as a Tailwind class */
+    columnsClassName?: string;
     /** More items to load (`onReachEnd`) after `items` */
     hasMore?: boolean;
     loadingMore?: boolean;
@@ -142,6 +144,7 @@ export function DefinitionManager<D extends DefinitionItem>({
     manageLabel,
     renderRowActions,
     fill,
+    columnsClassName = 'lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]',
     hasMore,
     loadingMore,
     onReachEnd,
@@ -289,7 +292,8 @@ export function DefinitionManager<D extends DefinitionItem>({
         <div
             className={cn(
                 // minmax(0, …): wide content (YAML, references) must not widen the columns
-                'grid gap-4 lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]',
+                'grid gap-4',
+                columnsClassName,
                 fill && 'min-h-0 flex-1 lg:grid-rows-[minmax(0,1fr)]'
             )}
         >

@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
@@ -9,6 +9,7 @@ import {
     ChevronDownIcon,
     ChevronRightIcon,
     DownloadIcon,
+    GripVerticalIcon,
     MoveIcon,
     PlusIcon,
     UndoIcon,
@@ -43,11 +44,23 @@ import {EntityChip} from '@/components/chips';
 import {AttributeEntitySelect} from '@/components/form/selects';
 import {useModals, type ModalProps} from '@/components/modals/ModalProvider';
 import {iri} from '@/lib/utils/iri';
+import {cn} from '@/lib/utils/cn';
 import {downloadUrl} from '@/lib/utils/misc';
 import {ImportEntityHierarchyDialog} from './ImportEntityHierarchyDialog';
 import {MoveEntityDialog} from './MoveEntityDialog';
+import {
+    dropZoneClass,
+    HierarchyDndProvider,
+    type HierarchyDrop,
+    useHierarchyNode,
+    useUnclassifiedDrop,
+    useUnclassifiedEntityDrag,
+} from './hierarchyDnd';
 
 const CHILDREN_LIMIT = 200;
+
+/** Hovering a collapsed node while dragging opens it after this delay */
+const EXPAND_DELAY = 600;
 
 export function hierarchyQueryKey(listId: string): unknown[] {
     return ['entity-hierarchy', listId];
@@ -71,6 +84,32 @@ export function EntityHierarchyDialog({
         initialData: initialList,
     }).data;
     const rootId = list.rootEntityId ?? undefined;
+    const refresh = useRefreshHierarchy(list.id);
+
+    const onDrop = async (drop: HierarchyDrop) => {
+        if (drop.reparent) {
+            // Shows what the move affects before applying it
+            openModal(MoveEntityDialog, {
+                list,
+                entity: drop.entity,
+                parentId: drop.parentId,
+                position: drop.position,
+                onMoved: refresh,
+            });
+
+            return;
+        }
+        try {
+            await moveAttributeEntity(
+                drop.entity.id,
+                drop.parentId,
+                drop.position
+            );
+            await refresh();
+        } catch (e: any) {
+            toast.error(e?.message);
+        }
+    };
 
     const exportCsv = async () => {
         const {blob, filename} = await exportEntityHierarchy(list.id);
@@ -116,16 +155,29 @@ export function EntityHierarchyDialog({
                             </Button>
                         ) : null}
                     </div>
-                    {rootId ? (
+                    <HierarchyDndProvider
+                        onDrop={onDrop}
+                        renderOverlay={e => <NodeLabel entity={e} />}
+                    >
+                        {rootId ? (
+                            <p className="text-xs text-muted-foreground">
+                                {t(
+                                    'entity_hierarchy.dnd_hint',
+                                    'Drag an entity onto the top or bottom of another one to place it beside it, onto its middle to place it inside, or onto the unclassified panel to take it out of the hierarchy.'
+                                )}
+                            </p>
+                        ) : null}
                         <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
                             <div className="max-h-[60vh] overflow-auto rounded-md border p-2">
-                                <RootNode list={list} rootId={rootId} />
+                                {rootId ? (
+                                    <RootNode list={list} rootId={rootId} />
+                                ) : (
+                                    <ChooseRoot list={list} />
+                                )}
                             </div>
-                            <UnclassifiedPanel list={list} />
+                            <UnclassifiedPanel list={list} flat={!rootId} />
                         </div>
-                    ) : (
-                        <ChooseRoot list={list} />
-                    )}
+                    </HierarchyDndProvider>
                 </DialogBody>
             </DialogContent>
         </Dialog>
@@ -144,11 +196,8 @@ function useRefreshHierarchy(listId: string) {
         ]);
 }
 
-function ChooseRoot({list}: {list: EntityList}) {
-    const {t} = useTranslation();
+function useSetRoot(list: EntityList) {
     const refresh = useRefreshHierarchy(list.id);
-    const [entityId, setEntityId] = useState<string>();
-    const [value, setValue] = useState('');
     const [saving, setSaving] = useState(false);
 
     const setRoot = async (id: string) => {
@@ -163,8 +212,18 @@ function ChooseRoot({list}: {list: EntityList}) {
         }
     };
 
+    return {setRoot, saving};
+}
+
+/** Takes the place of the tree while the list is flat */
+function ChooseRoot({list}: {list: EntityList}) {
+    const {t} = useTranslation();
+    const {setRoot, saving} = useSetRoot(list);
+    const [entityId, setEntityId] = useState<string>();
+    const [value, setValue] = useState('');
+
     return (
-        <div className="space-y-3 rounded-md border p-4">
+        <div className="space-y-3 p-2">
             <p className="text-sm text-muted-foreground">
                 {t(
                     'entity_hierarchy.no_root',
@@ -235,7 +294,20 @@ function RootNode({list, rootId}: {list: EntityList; rootId: string}) {
             defaultOpen
             index={0}
             siblingCount={1}
+            ancestorIds={[]}
         />
+    );
+}
+
+function NodeLabel({entity}: {entity: AttributeEntity}) {
+    const {t} = useTranslation();
+
+    return entity.placeholder ? (
+        <span className="text-sm text-muted-foreground italic">
+            {t('entity_hierarchy.placeholder', 'empty level')}
+        </span>
+    ) : (
+        <EntityChip entity={entity} size="sm" />
     );
 }
 
@@ -246,6 +318,7 @@ function TreeNode({
     defaultOpen,
     index,
     siblingCount,
+    ancestorIds,
 }: {
     list: EntityList;
     entity: AttributeEntity;
@@ -253,6 +326,7 @@ function TreeNode({
     defaultOpen?: boolean;
     index: number;
     siblingCount: number;
+    ancestorIds: string[];
 }) {
     const {t} = useTranslation();
     const {openModal} = useModals();
@@ -260,6 +334,21 @@ function TreeNode({
     const [open, setOpen] = useState(!!defaultOpen);
     const [adding, setAdding] = useState(false);
     const hasChildren = isRoot || (entity.childCount ?? 0) > 0;
+    const {setNodeRef, handle, isDragging, zone} = useHierarchyNode({
+        entity,
+        index,
+        ancestorIds,
+        isRoot: !!isRoot,
+    });
+
+    useEffect(() => {
+        if (zone !== 'inside' || open || !hasChildren) {
+            return;
+        }
+        const timeout = setTimeout(() => setOpen(true), EXPAND_DELAY);
+
+        return () => clearTimeout(timeout);
+    }, [zone, open, hasChildren]);
 
     const move = async (parentId: string | null, position: number) => {
         try {
@@ -272,7 +361,15 @@ function TreeNode({
 
     return (
         <div>
-            <div className="group flex items-center gap-1 rounded px-1 py-0.5 hover:bg-accent/50">
+            <div
+                ref={setNodeRef}
+                className={cn(
+                    'group flex items-center gap-1 rounded px-1 py-0.5 hover:bg-accent/50',
+                    isDragging && 'opacity-40',
+                    zone && dropZoneClass[zone]
+                )}
+            >
+                {isRoot ? null : <DragHandle handle={handle} />}
                 <button
                     type="button"
                     className="flex size-5 items-center justify-center text-muted-foreground disabled:opacity-0"
@@ -286,13 +383,7 @@ function TreeNode({
                         <ChevronRightIcon className="size-4" />
                     )}
                 </button>
-                {entity.placeholder ? (
-                    <span className="text-sm text-muted-foreground italic">
-                        {t('entity_hierarchy.placeholder', 'empty level')}
-                    </span>
-                ) : (
-                    <EntityChip entity={entity} size="sm" />
-                )}
+                <NodeLabel entity={entity} />
                 <Badge variant="muted" className="ml-1">
                     {entity.hierarchyDepth}
                 </Badge>
@@ -363,7 +454,11 @@ function TreeNode({
                         />
                     ) : null}
                     {hasChildren ? (
-                        <Children list={list} parentId={entity.id} />
+                        <Children
+                            list={list}
+                            parentId={entity.id}
+                            ancestorIds={[...ancestorIds, entity.id]}
+                        />
                     ) : null}
                 </div>
             ) : null}
@@ -371,7 +466,30 @@ function TreeNode({
     );
 }
 
-function Children({list, parentId}: {list: EntityList; parentId: string}) {
+function DragHandle({handle}: {handle: object}) {
+    const {t} = useTranslation();
+
+    return (
+        <button
+            type="button"
+            className="cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+            aria-label={t('entity_hierarchy.drag', 'Drag to move')}
+            {...handle}
+        >
+            <GripVerticalIcon className="size-4" />
+        </button>
+    );
+}
+
+function Children({
+    list,
+    parentId,
+    ancestorIds,
+}: {
+    list: EntityList;
+    parentId: string;
+    ancestorIds: string[];
+}) {
     const {t} = useTranslation();
     const children = useQuery({
         queryKey: [...hierarchyQueryKey(list.id), 'children', parentId],
@@ -398,6 +516,7 @@ function Children({list, parentId}: {list: EntityList; parentId: string}) {
                     entity={child}
                     index={i}
                     siblingCount={items.length}
+                    ancestorIds={ancestorIds}
                 />
             ))}
             {children.data.total > items.length ? (
@@ -514,11 +633,17 @@ function AddChild({
  * Entities placed nowhere: still available to the attributes that are not
  * bound to the hierarchy.
  */
-function UnclassifiedPanel({list}: {list: EntityList}) {
+function UnclassifiedPanel({
+    list,
+    flat,
+}: {
+    list: EntityList;
+    /** No root yet: the entities can only become the root */
+    flat: boolean;
+}) {
     const {t} = useTranslation();
-    const {openModal} = useModals();
-    const refresh = useRefreshHierarchy(list.id);
     const [query, setQuery] = useState('');
+    const {setNodeRef, isOver} = useUnclassifiedDrop();
     const unclassified = useQuery({
         queryKey: [...hierarchyQueryKey(list.id), 'unclassified', query],
         queryFn: () =>
@@ -531,7 +656,13 @@ function UnclassifiedPanel({list}: {list: EntityList}) {
     });
 
     return (
-        <div className="flex max-h-[60vh] flex-col gap-2 rounded-md border p-2">
+        <div
+            ref={setNodeRef}
+            className={cn(
+                'flex max-h-[60vh] flex-col gap-2 rounded-md border p-2',
+                isOver && dropZoneClass.inside
+            )}
+        >
             <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">
                     {t('entity_hierarchy.unclassified', 'Unclassified')}
@@ -548,43 +679,12 @@ function UnclassifiedPanel({list}: {list: EntityList}) {
             />
             <div className="flex-1 space-y-1 overflow-auto">
                 {unclassified.data?.items.map(e => (
-                    <div
+                    <UnclassifiedEntity
                         key={e.id}
-                        className="group flex items-center gap-1 rounded px-1 py-0.5 hover:bg-accent/50"
-                    >
-                        <EntityChip entity={e} size="sm" />
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            className="ml-auto opacity-0 group-hover:opacity-100"
-                            title={t('entity_hierarchy.place', 'Place…')}
-                            onClick={() =>
-                                openModal(MoveEntityDialog, {
-                                    list,
-                                    entity: e,
-                                    onMoved: refresh,
-                                })
-                            }
-                        >
-                            <MoveIcon />
-                        </Button>
-                        {e.parentId ? (
-                            <Button
-                                variant="ghost"
-                                size="icon-xs"
-                                title={t(
-                                    'entity_hierarchy.detach',
-                                    'Detach from its former parent'
-                                )}
-                                onClick={async () => {
-                                    await moveAttributeEntity(e.id, null, 0);
-                                    await refresh();
-                                }}
-                            >
-                                <UndoIcon />
-                            </Button>
-                        ) : null}
-                    </div>
+                        list={list}
+                        entity={e}
+                        flat={flat}
+                    />
                 ))}
                 {unclassified.data?.items.length === 0 ? (
                     <p className="text-xs text-muted-foreground">
@@ -595,6 +695,86 @@ function UnclassifiedPanel({list}: {list: EntityList}) {
                     </p>
                 ) : null}
             </div>
+        </div>
+    );
+}
+
+function UnclassifiedEntity({
+    list,
+    entity,
+    flat,
+}: {
+    list: EntityList;
+    entity: AttributeEntity;
+    flat: boolean;
+}) {
+    const {t} = useTranslation();
+    const {openModal} = useModals();
+    const refresh = useRefreshHierarchy(list.id);
+    const {setRoot, saving} = useSetRoot(list);
+    const {setNodeRef, handle, isDragging} = useUnclassifiedEntityDrag(
+        entity,
+        flat
+    );
+
+    if (flat) {
+        return (
+            <div className="group flex items-center gap-1 rounded px-1 py-0.5 hover:bg-accent/50">
+                <EntityChip entity={entity} size="sm" />
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto h-7 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                    loading={saving}
+                    onClick={() => setRoot(entity.id)}
+                >
+                    {t('entity_hierarchy.set_root', 'Set as root')}
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div
+            ref={setNodeRef}
+            className={cn(
+                'group flex items-center gap-1 rounded px-1 py-0.5 hover:bg-accent/50',
+                isDragging && 'opacity-40'
+            )}
+        >
+            <DragHandle handle={handle} />
+            <EntityChip entity={entity} size="sm" />
+            <Button
+                variant="ghost"
+                size="icon-xs"
+                className="ml-auto opacity-0 group-hover:opacity-100"
+                title={t('entity_hierarchy.place', 'Place…')}
+                onClick={() =>
+                    openModal(MoveEntityDialog, {
+                        list,
+                        entity,
+                        onMoved: refresh,
+                    })
+                }
+            >
+                <MoveIcon />
+            </Button>
+            {entity.parentId ? (
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={t(
+                        'entity_hierarchy.detach',
+                        'Detach from its former parent'
+                    )}
+                    onClick={async () => {
+                        await moveAttributeEntity(entity.id, null, 0);
+                        await refresh();
+                    }}
+                >
+                    <UndoIcon />
+                </Button>
+            ) : null}
         </div>
     );
 }
