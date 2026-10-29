@@ -109,12 +109,17 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     final public const int ORIGIN_FALLBACK = 2;
     final public const int ORIGIN_INITIAL = 3;
     final public const int ORIGIN_FALLBACK_PERSISTED = 4;
+    /**
+     * Filled from the hierarchy of a deeper value (HierarchyAttributeFiller): recomputed when the hierarchy changes.
+     */
+    final public const int ORIGIN_HIERARCHY = 5;
 
     final public const array ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
         self::ORIGIN_HUMAN => 'human',
         self::ORIGIN_FALLBACK => 'fallback',
         self::ORIGIN_INITIAL => 'initial',
+        self::ORIGIN_HIERARCHY => 'hierarchy',
     ];
 
     final public const int STATUS_VALID = 0;

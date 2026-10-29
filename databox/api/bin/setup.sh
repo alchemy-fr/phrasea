@@ -33,6 +33,6 @@ wait_for_es
 "${BASEDIR}/console" app:database:configure
 "${BASEDIR}/console" doctrine:schema:update -f
 "${BASEDIR}/console" fos:elastica:reset
-php -d memory_limit=1G "${BASEDIR}/console" fos:elastica:populate
+php -d memory_limit=-1 "${BASEDIR}/console" fos:elastica:populate
 "${BASEDIR}/console" doctrine:migrations:sync-metadata-storage
 "${BASEDIR}/console" doctrine:migrations:version --add --all -n

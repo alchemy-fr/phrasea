@@ -401,6 +401,15 @@ fos_elastica:
                             type: keyword
                 workspaceId:
                     type: keyword
+                parentId:
+                    type: keyword
+                ancestorIds:
+                    type: keyword
+                depth:
+                    type: integer
+                    property_path: hierarchyDepth
+                placeholder:
+                    type: boolean
             persistence:
                 driver: orm
                 model: App\Entity\Core\AttributeEntity

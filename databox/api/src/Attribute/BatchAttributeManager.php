@@ -14,7 +14,9 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
+use App\Attribute\Hierarchy\HierarchyAttributeFiller;
 use App\Consumer\Handler\Asset\AttributeChanged;
+use App\Doctrine\Listener\HierarchyAttributeListener;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -46,6 +48,8 @@ class BatchAttributeManager
         private readonly DeferredIndexListener $deferredIndexListener,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributeValidator $attributeValidator,
+        private readonly HierarchyAttributeFiller $hierarchyAttributeFiller,
+        private readonly HierarchyAttributeListener $hierarchyAttributeListener,
     ) {
     }
 
@@ -96,6 +100,7 @@ class BatchAttributeManager
         bool $dispatchUpdateEvent = false,
     ): void {
         DeferredIndexListener::disable();
+        $this->hierarchyAttributeListener->disabled = true;
         $assetsId ??= [];
 
         try {
@@ -266,6 +271,8 @@ class BatchAttributeManager
                 }
 
                 $updatedAssetIds = array_keys($updatedAssets);
+                $this->fillHierarchy($workspaceId, $updatedAssetIds, $changedAttributeDefinitions, $input->hierarchyConflict);
+
                 $this->em->createQueryBuilder()
                     ->update()
                     ->from(Asset::class, 't')
@@ -294,7 +301,29 @@ class BatchAttributeManager
             });
         } finally {
             DeferredIndexListener::enable();
+            $this->hierarchyAttributeListener->disabled = false;
         }
+    }
+
+    /**
+     * Fills the ancestors of the written hierarchy values; throws on a conflict the strategy leaves.
+     *
+     * @param array<string, true> $changedAttributeDefinitions
+     */
+    private function fillHierarchy(string $workspaceId, array $assetIds, array $changedAttributeDefinitions, ?string $strategy): void
+    {
+        $definitionIds = isset($changedAttributeDefinitions['*']) ? null : array_keys($changedAttributeDefinitions);
+        if (empty($assetIds) || !$this->hierarchyAttributeFiller->isConcerned($workspaceId, $definitionIds)) {
+            return;
+        }
+
+        $this->em->flush();
+        $this->hierarchyAttributeFiller->fill(
+            $workspaceId,
+            $assetIds,
+            $definitionIds ?? [],
+            $strategy ?? HierarchyAttributeFiller::CONFLICT_REJECT,
+        );
     }
 
     private function handleTagAction(AttributeActionInput $action, array $assetIds): void

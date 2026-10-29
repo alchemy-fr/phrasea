@@ -5,6 +5,7 @@
             "confidence": 1,
             "createdAt": "<date>",
             "definition": {
+                "autoFillParents": false,
                 "createdAt": "<date>",
                 "displayName": "Keywords",
                 "id": "<keywordsDef>",
@@ -27,6 +28,7 @@
             "confidence": 1,
             "createdAt": "<date>",
             "definition": {
+                "autoFillParents": false,
                 "createdAt": "<date>",
                 "displayName": "Keywords",
                 "id": "<keywordsDef>",
@@ -49,6 +51,7 @@
             "confidence": 1,
             "createdAt": "<date>",
             "definition": {
+                "autoFillParents": false,
                 "createdAt": "<date>",
                 "displayName": "Name",
                 "id": "<uuid>",
@@ -71,6 +74,7 @@
             "confidence": 1,
             "createdAt": "<date>",
             "definition": {
+                "autoFillParents": false,
                 "createdAt": "<date>",
                 "displayName": "Title",
                 "id": "<titleDef>",

@@ -182,7 +182,7 @@
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
-        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse",
+        "phpstan": "php -d memory_limit=-1 vendor/bin/phpstan analyse",
         "cs": "vendor/bin/php-cs-fixer fix",
         "pre-phpunit": [
             "rm -f var/cache/test/data*.db",
@@ -190,11 +190,11 @@
         ],
         "phpunit": [
             "@pre-phpunit",
-            "php -d memory_limit=1024M ./bin/phpunit"
+            "php -d memory_limit=-1 ./bin/phpunit"
         ],
         "phpunit:compact": [
             "@pre-phpunit",
-            "php -d memory_limit=1024M ./bin/phpunit --extension 'Alchemy\\ApiTest\\PHPUnit\\CompactResultExtension'"
+            "php -d memory_limit=-1 ./bin/phpunit --extension 'Alchemy\\ApiTest\\PHPUnit\\CompactResultExtension'"
         ],
         "var-dump-check": "vendor/bin/var-dump-check --symfony src",
         "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
@@ -206,7 +206,7 @@
         "phpunit:unit": "echo 'expose/api: no unit suite yet (see phpunit.xml.dist)'",
         "phpunit:functional": [
             "@pre-phpunit",
-            "php -d memory_limit=1024M ./bin/phpunit --testsuite functional"
+            "php -d memory_limit=-1 ./bin/phpunit --testsuite functional"
         ],
         "test:quick": [
             "@lint",

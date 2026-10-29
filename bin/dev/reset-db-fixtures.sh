@@ -7,7 +7,7 @@ set -e
 . bin/functions.sh
 load-env
 
-export DEV_PHP_MEMORY_LIMIT=2G
+export DEV_PHP_MEMORY_LIMIT=-1
 
 echo "# Generating fixtures..."
 echo "## Setting up configurator..."
@@ -23,7 +23,7 @@ done
 
 echo "## Setting up databox..."
 docker compose run --rm databox-api-php /bin/ash -c 'bin/console hautelook:fixtures:load --no-interaction \
-&& php -d memory_limit=2G bin/console app:workspace:ingest-assets \
+&& php -d memory_limit=-1 bin/console app:workspace:ingest-assets \
 && bin/console fos:elastica:populate'
 
 echo "## Setting up expose..."

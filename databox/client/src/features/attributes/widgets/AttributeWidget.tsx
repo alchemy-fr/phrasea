@@ -229,15 +229,19 @@ export function AttributeWidget(props: AttributeWidgetProps) {
                     ? idFromIri(definition.entityList)
                     : definition.entityList.id
                 : undefined;
+            const hierarchical = definition.entityHierarchyDepth != null;
+            // A new value would not be placed in the hierarchy
             const allowNew =
-                typeof definition.entityList === 'object'
+                !hierarchical &&
+                (typeof definition.entityList === 'object'
                     ? definition.entityList?.allowNewValues
-                    : true;
+                    : true);
 
             return (
                 <AttributeEntitySelect
                     id={id}
                     listId={listId}
+                    definitionId={hierarchical ? definition.id : undefined}
                     allowNewValues={allowNew}
                     disabled={disabled || readOnly}
                     value={

@@ -74,6 +74,9 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     # The session upload progress handler is exploitable before any authentication
     # (CVE-2026-109618, CVE-2026-109619) and no application relies on it.
     && printf "session.upload_progress.enabled = Off\n" > $PHP_INI_DIR/conf.d/zz-session-upload-progress.ini \
+    # Read by PHP itself from the environment, so that it also applies during the image
+    # builds (composer auto-scripts, documentation dump), where the entrypoint never runs.
+    && printf 'memory_limit = ${PHP_MEMORY_LIMIT}\n' > $PHP_INI_DIR/conf.d/memory-limit.ini \
     # Increase process-timeout for "composer test" which downloads phpunit
     && composer config --global process-timeout 2000 \
     && adduser -D -u 1000 app \

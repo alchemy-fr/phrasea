@@ -14,6 +14,7 @@ import {PrivacyField} from '@/components/form/PrivacyField';
 import {AttributesEditor} from '@/features/attributes/editor/AttributesEditor';
 import {useAttributeEditor} from '@/features/attributes/editor/useAttributeEditor';
 import {attributeBatchUpdate, patchAsset} from '@/lib/api/assets';
+import {useHierarchyConflictConfirm} from '@/features/attributes/hierarchy/useHierarchyConflictConfirm';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {iri} from '@/lib/utils/iri';
 import {InlineLoader} from '@/components/ui/loader';
@@ -49,6 +50,8 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
         setPrivacy(asset.privacy);
     }, [asset]);
 
+    const runWithHierarchyConfirm = useHierarchyConflictConfirm();
+
     const save = async () => {
         setSaving(true);
         try {
@@ -63,7 +66,12 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
             }
             const actions = editor.getActions();
             if (actions.length > 0) {
-                const updated = await attributeBatchUpdate(asset.id, actions);
+                const updated = await runWithHierarchyConfirm(strategy =>
+                    attributeBatchUpdate(asset.id, actions, undefined, strategy)
+                );
+                if (!updated) {
+                    return;
+                }
                 update(updated);
                 editor.applyRemote(updated.attributes);
                 void queryClient.invalidateQueries({

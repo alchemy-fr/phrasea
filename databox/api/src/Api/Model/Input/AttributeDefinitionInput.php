@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Input;
 
 use App\Attribute\Type\EntityAttributeType;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\RenditionDefinition;
@@ -41,6 +42,21 @@ class AttributeDefinitionInput
      * @var EntityList|null
      */
     public $entityList;
+
+    /**
+     * Depth of the entity list hierarchy whose entities the attribute accepts; null unbinds it.
+     * Left unset (not sent), the binding is kept.
+     */
+    #[Assert\PositiveOrZero]
+    public ?int $entityHierarchyDepth;
+
+    /**
+     * Restricts the accepted entities to the descendants of this one; null removes the restriction.
+     * Left unset (not sent), the branch is kept.
+     */
+    public ?AttributeEntity $entityHierarchyBranch;
+
+    public ?bool $autoFillParents = null;
 
     /**
      * @var string
@@ -171,6 +187,11 @@ class AttributeDefinitionInput
     public ?array $translations = null;
 
     public ?int $target = null;
+
+    public function isProvided(string $property): bool
+    {
+        return (new \ReflectionProperty($this, $property))->isInitialized($this);
+    }
 
     #[Assert\Callback()]
     public function validate(ExecutionContextInterface $context)

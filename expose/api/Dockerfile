@@ -37,7 +37,9 @@ COPY ./lib/bash/configurator /docker/configurator
 COPY --chown=app:app lib/php /lib/php
 COPY --chown=app:app ./expose/api .
 
-RUN mkdir -p var/cache var/logs var/sessions \
+# The runtime memory limit is too low for the cache warmup and the documentation dump.
+RUN export PHP_MEMORY_LIMIT=-1 \
+    && mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache \
     && bin/console alchemy:core:documentation:dump /srv/app/doc

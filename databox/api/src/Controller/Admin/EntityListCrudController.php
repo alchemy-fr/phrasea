@@ -52,6 +52,9 @@ class EntityListCrudController extends AbstractAdminCrudController
         yield TextField::new('name');
         yield BooleanField::new('allowNewValues');
         yield BooleanField::new('approveNewValues');
+        // Set through the API, which places the root at depth 0
+        yield AssociationField::new('rootEntity')
+            ->hideOnForm();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

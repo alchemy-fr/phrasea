@@ -113,8 +113,12 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
             if (null !== $data->entityList) {
                 $object->setEntityList($data->entityList);
             }
+            $this->mapHierarchyBinding($data, $object);
         } else {
             $object->setEntityList(null);
+            $object->setEntityHierarchyDepth(null);
+            $object->setEntityHierarchyBranch(null);
+            $object->setAutoFillParents(false);
         }
 
         if (null !== $data->fillFromName) {
@@ -172,5 +176,38 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         }
 
         return $object;
+    }
+
+    private function mapHierarchyBinding(AttributeDefinitionInput $data, AttributeDefinition $object): void
+    {
+        if ($data->isProvided('entityHierarchyDepth')) {
+            $object->setEntityHierarchyDepth($data->entityHierarchyDepth);
+        }
+        if ($data->isProvided('entityHierarchyBranch')) {
+            $object->setEntityHierarchyBranch($data->entityHierarchyBranch);
+        }
+        if (null !== $data->autoFillParents) {
+            $object->setAutoFillParents($data->autoFillParents);
+        }
+
+        $list = $object->getEntityList();
+        if (null !== $object->getEntityHierarchyDepth() && !$list?->isHierarchical()) {
+            throw new BadRequestHttpException('The entity list has no hierarchy (no root entity)');
+        }
+        $branch = $object->getEntityHierarchyBranch();
+        if (null !== $branch) {
+            if (null === $object->getEntityHierarchyDepth()) {
+                throw new BadRequestHttpException('A hierarchy branch needs a hierarchy depth');
+            }
+            if ($branch->getList() !== $list || !$branch->isClassified()) {
+                throw new BadRequestHttpException('The hierarchy branch must be an entity placed in the hierarchy of the list');
+            }
+            if ($branch->getHierarchyDepth() >= $object->getEntityHierarchyDepth()) {
+                throw new BadRequestHttpException('The hierarchy branch must be above the hierarchy depth');
+            }
+        }
+        if (null === $object->getEntityHierarchyDepth()) {
+            $object->setAutoFillParents(false);
+        }
     }
 }

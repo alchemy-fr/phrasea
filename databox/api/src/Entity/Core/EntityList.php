@@ -19,11 +19,14 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
+use App\Api\Model\Input\EntityHierarchyImportInput;
 use App\Api\Model\Input\ExportEntitiesInput;
 use App\Api\Model\Input\ImportEntitiesInput;
 use App\Api\Processor\ClearEntitiesProcessor;
 use App\Api\Processor\ExportEntitiesProcessor;
+use App\Api\Processor\ExportEntityHierarchyProcessor;
 use App\Api\Processor\ImportEntitiesProcessor;
+use App\Api\Processor\ImportEntityHierarchyProcessor;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Listener\OwnerPersistableInterface;
@@ -34,6 +37,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'entity-list',
@@ -77,6 +81,20 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: ExportEntitiesInput::class,
             name: 'export_entities',
             processor: ExportEntitiesProcessor::class
+        ),
+        new Post(
+            uriTemplate: '/entity-lists/{id}/hierarchy-import',
+            security: 'is_granted("EDIT", object)',
+            input: EntityHierarchyImportInput::class,
+            name: 'import_entity_hierarchy',
+            processor: ImportEntityHierarchyProcessor::class
+        ),
+        new Post(
+            uriTemplate: '/entity-lists/{id}/hierarchy-export',
+            security: 'is_granted("EDIT", object)',
+            input: false,
+            name: 'export_entity_hierarchy',
+            processor: ExportEntityHierarchyProcessor::class
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/clear',
@@ -142,6 +160,18 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
 
     #[ORM\OneToMany(mappedBy: 'entityList', targetEntity: AttributeDefinition::class, cascade: ['remove'])]
     private ?Collection $definitions = null;
+
+    /**
+     * Top of the list hierarchy (depth 0); null while the list is flat.
+     */
+    #[ORM\OneToOne(targetEntity: AttributeEntity::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?AttributeEntity $rootEntity = null;
+
+    /**
+     * Previous root, demoted on validation (see validateRootEntity).
+     */
+    private ?AttributeEntity $previousRootEntity = null;
 
     public function __construct()
     {
@@ -257,5 +287,56 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     public function getEntities(): ?Collection
     {
         return $this->entities;
+    }
+
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    public function getRootEntity(): ?AttributeEntity
+    {
+        return $this->rootEntity;
+    }
+
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    public function getRootEntityId(): ?string
+    {
+        return $this->rootEntity?->getId();
+    }
+
+    public function setRootEntity(?AttributeEntity $rootEntity): void
+    {
+        if ($rootEntity === $this->rootEntity) {
+            return;
+        }
+
+        $this->previousRootEntity ??= $this->rootEntity;
+        $this->previousRootEntity?->setHierarchyDepth(null);
+        if (null !== $rootEntity && $rootEntity->getList() === $this && null === $rootEntity->getParent() && $rootEntity->getChildren()->isEmpty()) {
+            $rootEntity->setHierarchyDepth(0);
+        }
+        $this->rootEntity = $rootEntity;
+    }
+
+    public function isHierarchical(): bool
+    {
+        return null !== $this->rootEntity;
+    }
+
+    #[Assert\Callback]
+    public function validateRootEntity(ExecutionContextInterface $context): void
+    {
+        if (null !== $this->previousRootEntity && !$this->previousRootEntity->getChildren()->isEmpty()) {
+            $context->buildViolation('The current root entity has children: move or remove them first')->atPath('rootEntity')->addViolation();
+        }
+
+        $root = $this->rootEntity;
+        if (null === $root) {
+            return;
+        }
+        if ($root->getList() !== $this) {
+            $context->buildViolation('The root entity must belong to the list')->atPath('rootEntity')->addViolation();
+        } elseif ($root->isPlaceholder()) {
+            $context->buildViolation('A placeholder cannot be the root entity')->atPath('rootEntity')->addViolation();
+        } elseif (null !== $root->getParent() || !$root->getChildren()->isEmpty()) {
+            $context->buildViolation('The root entity must not be placed in the hierarchy yet')->atPath('rootEntity')->addViolation();
+        }
     }
 }

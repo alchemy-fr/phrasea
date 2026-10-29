@@ -285,11 +285,7 @@ export function clearEntityList(listId: string): Promise<void> {
 }
 
 export type AttributeEntitySortField =
-    | 'value'
-    | 'status'
-    | 'note'
-    | 'createdAt'
-    | 'updatedAt';
+    'value' | 'status' | 'note' | 'position' | 'createdAt' | 'updatedAt';
 
 export async function getAttributeEntities(options: {
     list?: string;
@@ -303,6 +299,17 @@ export async function getAttributeEntities(options: {
     status?: AttributeEntityStatus | AttributeEntityStatus[];
     /** Also count the attribute values referencing each entity (`usage`) */
     usage?: boolean;
+    /** Direct children of this entity */
+    parent?: string;
+    /** Entities at this depth of the hierarchy */
+    depth?: number;
+    /** Descendants of this entity */
+    branch?: string;
+    /** Entities placed in no hierarchy (true) or placed ones (false) */
+    unclassified?: boolean;
+    placeholder?: boolean;
+    /** Entities accepted by this attribute definition (its depth and branch) */
+    definition?: string;
     limit?: number;
     /** Defaults to `{value: 'asc'}` */
     order?: Partial<Record<AttributeEntitySortField, 'asc' | 'desc'>>;
@@ -322,6 +329,12 @@ export async function getAttributeEntities(options: {
                           note: options.note,
                           status: options.status,
                           usage: options.usage ? 1 : undefined,
+                          parent: options.parent,
+                          depth: options.depth,
+                          branch: options.branch,
+                          unclassified: options.unclassified,
+                          placeholder: options.placeholder,
+                          definition: options.definition,
                           limit: options.limit,
                           ...Object.fromEntries(
                               Object.entries(
@@ -346,6 +359,88 @@ export function postAttributeEntity(
         ...data,
         list: `/${EntityName.EntityList}/${listId}`,
     });
+}
+
+/**
+ * Moves an entity in the hierarchy of its list (null: unclassified), at a
+ * position among its new siblings.
+ */
+export function moveAttributeEntity(
+    id: string,
+    parentId: string | null,
+    position: number
+): Promise<AttributeEntity> {
+    return api.patch<AttributeEntity>(`/${EntityName.AttributeEntity}/${id}`, {
+        parent: parentId ? `/${EntityName.AttributeEntity}/${parentId}` : null,
+        position,
+    });
+}
+
+export type EntityHierarchyImpact = {
+    id: string;
+    /** The entity and its descendants */
+    entityCount: number;
+    attributeCount: number;
+    humanAttributeCount: number;
+    definitions: {
+        id: string;
+        name: string;
+        depth: number | null;
+        autoFillParents: boolean;
+    }[];
+};
+
+export function getEntityHierarchyImpact(
+    id: string
+): Promise<EntityHierarchyImpact> {
+    return api.get<EntityHierarchyImpact>(
+        `/${EntityName.AttributeEntity}/${id}/hierarchy-impact`
+    );
+}
+
+export function setEntityListRoot(
+    listId: string,
+    rootEntityId: string | null
+): Promise<EntityList> {
+    return api.patch<EntityList>(`/${EntityName.EntityList}/${listId}`, {
+        rootEntity: rootEntityId
+            ? `/${EntityName.AttributeEntity}/${rootEntityId}`
+            : null,
+    });
+}
+
+export type EntityHierarchyImportReport = {
+    applied: number;
+    rejected: {line: number; entity: string | null; reason: string}[];
+    rootEntityId: string | null;
+};
+
+/**
+ * CSV: entity_external_id, parent_external_id (empty for the root), position.
+ */
+export function importEntityHierarchy(
+    listId: string,
+    data: string,
+    dryRun: boolean
+): Promise<EntityHierarchyImportReport> {
+    return api.post<EntityHierarchyImportReport>(
+        `/${EntityName.EntityList}/${listId}/hierarchy-import`,
+        {data, dryRun}
+    );
+}
+
+export async function exportEntityHierarchy(
+    listId: string
+): Promise<{blob: Blob; filename: string}> {
+    const res = await api.raw(
+        `/${EntityName.EntityList}/${listId}/hierarchy-export`,
+        {method: 'post', json: {}}
+    );
+    const disposition = res.headers.get('content-disposition');
+    const filename =
+        disposition?.match(/filename="?([^"]+)"?/)?.[1] ?? 'hierarchy.csv';
+
+    return {blob: await res.blob(), filename};
 }
 
 export function putAttributeEntity(

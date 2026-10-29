@@ -16,6 +16,7 @@ use App\Doctrine\Listener\AttributeEntityListener;
 use App\Entity\Core\AttributeEntity;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class MergeAttributeEntitiesProcessor implements ProcessorInterface
 {
@@ -63,6 +64,9 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
             }
 
             $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $entity);
+            if ($entity === $mainEntity->getList()->getRootEntity() || !$entity->getChildren()->isEmpty()) {
+                throw new UnprocessableEntityHttpException(sprintf('Entity "%s" is a node of the hierarchy and cannot be merged', $entity->getValue()));
+            }
             $synonyms = $this->mergeSynonyms($synonyms, $entity);
             $this->em->remove($entity);
             $merged[] = $entity->getId();

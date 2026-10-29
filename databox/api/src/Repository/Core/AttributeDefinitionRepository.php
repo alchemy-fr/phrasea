@@ -380,6 +380,28 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Entity definitions bound to a depth of their list hierarchy.
+     *
+     * @return AttributeDefinition[]
+     */
+    public function getHierarchicalDefinitions(string $workspaceId, ?string $entityListId = null): array
+    {
+        $qb = $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.type = :t')
+            ->andWhere('d.entityList IS NOT NULL')
+            ->andWhere('d.entityHierarchyDepth IS NOT NULL')
+            ->setParameter('workspace', $workspaceId)
+            ->setParameter('t', EntityAttributeType::getName());
+        if (null !== $entityListId) {
+            $qb->andWhere('d.entityList = :listId')->setParameter('listId', $entityListId);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * @return AttributeDefinition[]
      */
     public function findByIds(array $ids): array

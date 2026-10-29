@@ -23,33 +23,57 @@ use App\Api\Filter\ExactSearchFilter;
 use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SortFilter;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
+use App\Api\Model\Output\EntityHierarchyImpactOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Processor\AddAttributeEntityProcessor;
+use App\Api\Processor\AttributeEntityHierarchyProcessor;
 use App\Api\Processor\DeleteAttributeEntityImageProcessor;
+use App\Api\Processor\DeleteAttributeEntityProcessor;
 use App\Api\Processor\MergeAttributeEntitiesProcessor;
 use App\Api\Processor\UploadAttributeEntityImageProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
+use App\Api\Provider\EntityHierarchyImpactProvider;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Validator\SameWorkspaceConstraint;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'attribute-entity',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
-        new Delete(security: 'is_granted("DELETE", object)'),
+        new Delete(
+            security: 'is_granted("DELETE", object)',
+            processor: DeleteAttributeEntityProcessor::class,
+        ),
         // Moving a value to another list takes the edition of both lists
         new Patch(
             security: 'is_granted("EDIT", object)',
             securityPostDenormalize: self::LIST_CHANGE_SECURITY,
+            processor: AttributeEntityHierarchyProcessor::class,
+        ),
+        // EDIT on the entity, checked by the provider
+        new Get(
+            uriTemplate: '/attribute-entities/{id}/hierarchy-impact',
+            normalizationContext: [
+                'groups' => [
+                    EntityHierarchyImpactOutput::GROUP_READ,
+                ],
+            ],
+            output: EntityHierarchyImpactOutput::class,
+            name: 'hierarchy_impact',
+            provider: EntityHierarchyImpactProvider::class,
         ),
         new GetCollection(
             normalizationContext: [
@@ -116,6 +140,36 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'order[status]' => new QueryParameter(filter: new OrmSortFilter(), property: 'status', castToArray: false),
                 'order[note]' => new QueryParameter(filter: new OrmSortFilter(), property: 'note', castToArray: false),
                 'order[position]' => new QueryParameter(filter: new OrmSortFilter(), property: 'position', castToArray: false),
+                'parent' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Direct children of this entity (ID), ordered by position',
+                    castToArray: false,
+                ),
+                'depth' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Entities at this depth of the list hierarchy (0 is the root entity)',
+                    castToArray: false,
+                ),
+                'branch' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Descendants of this entity (ID)',
+                    castToArray: false,
+                ),
+                'unclassified' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Entities placed in no hierarchy (true) or placed ones (false)',
+                    castToArray: false,
+                ),
+                'placeholder' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Hierarchy placeholders (empty levels) only (true) or excluded (false)',
+                    castToArray: false,
+                ),
+                'definition' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Entities accepted by this attribute definition (ID): its hierarchy depth and branch when it is bound to one',
+                    castToArray: false,
+                ),
                 'limit' => new QueryParameter(
                     schema: ['type' => 'integer'],
                     description: 'Page size (max 50 on a "query" search)',
@@ -163,6 +217,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
 #[ORM\Index(columns: ['list_id'], name: 'entity_list_idx')]
+#[ORM\Index(columns: ['list_id', 'parent_id', 'position'], name: 'entity_parent_idx')]
+#[ORM\Index(columns: ['list_id', 'hierarchy_depth'], name: 'entity_depth_idx')]
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
 )]
@@ -245,8 +301,51 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     #[ApiProperty(writable: false)]
     private ?array $usage = null;
 
+    /**
+     * Order among the siblings of the hierarchy.
+     */
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    #[Groups([self::GROUP_LIST])]
     private int $position = 0;
+
+    /**
+     * Parent in the list hierarchy; null for the root entity and the unclassified ones.
+     * Moved by AttributeEntityHierarchyProcessor (EntityHierarchyManager).
+     */
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?self $parent = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $children;
+
+    /**
+     * Absolute depth in the list hierarchy (0 = root entity), null when the entity is not classified.
+     * Maintained by EntityHierarchyManager, never written from the input.
+     */
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    #[Groups([self::GROUP_LIST])]
+    #[ApiProperty(writable: false)]
+    private ?int $hierarchyDepth = null;
+
+    /**
+     * Fills an empty level of the hierarchy (e.g. no district between a city and its streets):
+     * never proposed nor written in an attribute.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    #[Groups([self::GROUP_LIST])]
+    private bool $placeholder = false;
+
+    /**
+     * Number of direct children, computed on read by the collection provider.
+     */
+    #[Groups([self::GROUP_LIST])]
+    #[ApiProperty(writable: false)]
+    private ?int $childCount = null;
 
     /**
      * Only the list moderators (its editors) change the status: a change by anyone else is reverted.
@@ -282,6 +381,12 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     #[ApiProperty(writable: false)]
     protected ?string $creatorId = null;
+
+    public function __construct(string|UuidInterface|null $id = null)
+    {
+        parent::__construct($id);
+        $this->children = new ArrayCollection();
+    }
 
     public function getValue(): ?string
     {
@@ -484,5 +589,154 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     public function setExternalId(?string $externalId): void
     {
         $this->externalId = $externalId;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    #[Groups([self::GROUP_LIST])]
+    public function getParentId(): ?string
+    {
+        return $this->parent?->getId();
+    }
+
+    /**
+     * From the parent up to the root. Used by ES.
+     *
+     * @return string[]
+     */
+    public function getAncestorIds(): array
+    {
+        $ids = [];
+        $ancestor = $this->parent;
+        while (null !== $ancestor && \count($ids) < 100) {
+            $ids[] = $ancestor->getId();
+            $ancestor = $ancestor->getParent();
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function getHierarchyDepth(): ?int
+    {
+        return $this->hierarchyDepth;
+    }
+
+    public function setHierarchyDepth(?int $hierarchyDepth): void
+    {
+        $this->hierarchyDepth = $hierarchyDepth;
+    }
+
+    /**
+     * Whether the entity is placed in the hierarchy of its list (the root included).
+     */
+    public function isClassified(): bool
+    {
+        return null !== $this->hierarchyDepth;
+    }
+
+    public function isPlaceholder(): bool
+    {
+        return $this->placeholder;
+    }
+
+    public function setPlaceholder(bool $placeholder): void
+    {
+        $this->placeholder = $placeholder;
+    }
+
+    /**
+     * Ancestors from the top (root and placeholders left out): tells homonyms apart, e.g. "16e / Paris / Île-de-France".
+     * The collection provider preloads the ancestors of a page.
+     *
+     * @return list<array{id: string, value: ?string, translations: ?array}>
+     */
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
+    public function getPath(): array
+    {
+        $path = [];
+        $ancestor = $this->parent;
+        while (null !== $ancestor && \count($path) < 100) {
+            if (!$ancestor->isPlaceholder() && 0 !== $ancestor->getHierarchyDepth()) {
+                array_unshift($path, [
+                    'id' => $ancestor->getId(),
+                    'value' => $ancestor->getValue(),
+                    'translations' => $ancestor->getTranslations(),
+                ]);
+            }
+            $ancestor = $ancestor->getParent();
+        }
+
+        return $path;
+    }
+
+    /**
+     * The entity and its ancestors (root and placeholders left out): indexed with the attribute values,
+     * so that searching an entity also finds the assets holding one of its descendants.
+     *
+     * @return string[]
+     */
+    public function getBranchIds(): array
+    {
+        return [$this->getId(), ...array_column($this->getPath(), 'id')];
+    }
+
+    public function getChildCount(): ?int
+    {
+        return $this->childCount;
+    }
+
+    public function setChildCount(?int $childCount): void
+    {
+        $this->childCount = $childCount;
+    }
+
+    #[Assert\Callback]
+    public function validateHierarchy(ExecutionContextInterface $context): void
+    {
+        if (null === $this->parent) {
+            return;
+        }
+
+        if ($this->parent->getListId() !== $this->getListId()) {
+            $context->buildViolation('The parent must belong to the same list')->atPath('parent')->addViolation();
+
+            return;
+        }
+        if ($this->list?->getRootEntity() === $this) {
+            $context->buildViolation('The root entity cannot have a parent')->atPath('parent')->addViolation();
+
+            return;
+        }
+        if (!$this->parent->isClassified()) {
+            $context->buildViolation('The parent is not placed in the hierarchy')->atPath('parent')->addViolation();
+
+            return;
+        }
+
+        $ancestor = $this->parent;
+        while (null !== $ancestor) {
+            if ($ancestor === $this) {
+                $context->buildViolation('An entity cannot be its own ancestor')->atPath('parent')->addViolation();
+
+                return;
+            }
+            $ancestor = $ancestor->getParent();
+        }
     }
 }
