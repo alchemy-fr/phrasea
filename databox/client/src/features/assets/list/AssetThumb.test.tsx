@@ -8,7 +8,7 @@ import {
     usePreferencesStore,
 } from '@/features/preferences/store';
 import type {Asset} from '@/types/api';
-import {AssetThumb} from './AssetThumb';
+import {AssetThumb, similarityScoreLevel} from './AssetThumb';
 
 const api = vi.hoisted(() => ({
     getStoryThumbnails: vi.fn(() =>
@@ -80,6 +80,19 @@ describe('AssetThumb', () => {
         expect(
             screen.getByTestId('asset-similarity-score').textContent?.trim()
         ).toBe('87%');
+    });
+
+    it('colors the similarity score by level', () => {
+        expect(similarityScoreLevel(0.95)).toBe('high');
+        expect(similarityScoreLevel(0.9)).toBe('high');
+        expect(similarityScoreLevel(0.85)).toBe('medium');
+        expect(similarityScoreLevel(0.8)).toBe('medium');
+        expect(similarityScoreLevel(0.79)).toBe('low');
+
+        renderThumb(fakeAsset({}), 0.92);
+        expect(screen.getByTestId('asset-similarity-score').dataset.level).toBe(
+            'high'
+        );
     });
 
     it('shows no similarity score without one', () => {

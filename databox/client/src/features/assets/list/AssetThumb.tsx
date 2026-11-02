@@ -36,7 +36,8 @@ import {StoryThumb} from '@/features/assets/list/StoryThumb';
  * has to look at (quarantine resolution, duplicate comparison).
  *
  * `score` is the similarity of the asset to the reference asset of a
- * similarity search, in [0, 1], shown as a percentage.
+ * similarity search, in [0, 1], shown as a percentage colored by
+ * `similarityScoreLevel`.
  */
 export function AssetThumb({
     asset,
@@ -76,6 +77,8 @@ export function AssetThumb({
     const isVideoThumb = !!url && thumbKind === FileKind.Video;
     const isAudioThumb = !!url && thumbKind === FileKind.Audio;
     const storyCarousel = !!asset.storyCollection && !asset.deleted;
+    const scoreLevel =
+        score === undefined ? undefined : similarityScoreLevel(score);
     const videoRef = useRef<HTMLVideoElement>(null);
     const playing = hover && playOnHover;
     // Natural size: the ratio of the still thumbnail, kept while the animated
@@ -180,10 +183,14 @@ export function AssetThumb({
             ) : null}
 
             <div className="pointer-events-none absolute right-1 bottom-1 z-10 flex items-center gap-1">
-                {score !== undefined ? (
+                {score !== undefined && scoreLevel ? (
                     <span
                         data-testid="asset-similarity-score"
-                        className="flex items-center gap-0.5 rounded bg-black/60 px-1 py-0.5 text-[10px] font-semibold text-white tabular-nums"
+                        data-level={scoreLevel}
+                        className={cn(
+                            'flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-semibold tabular-nums',
+                            similarityScoreClasses[scoreLevel]
+                        )}
                         title={t('asset.similarity_score', 'Similarity')}
                     >
                         <ScanSearchIcon className="size-3" />{' '}
@@ -257,6 +264,27 @@ export function AssetThumb({
         </div>
     );
 }
+
+export type SimilarityScoreLevel = 'high' | 'medium' | 'low';
+
+/**
+ * The score is (1 + cosine) / 2 of CLIP embeddings: two unrelated images
+ * already score around 60%, the closest neighbors of an image around 80%,
+ * and near duplicates above 90%.
+ */
+export function similarityScoreLevel(score: number): SimilarityScoreLevel {
+    if (score >= 0.9) {
+        return 'high';
+    }
+
+    return score >= 0.8 ? 'medium' : 'low';
+}
+
+const similarityScoreClasses: Record<SimilarityScoreLevel, string> = {
+    high: 'bg-green-600 text-white',
+    medium: 'bg-amber-400 text-black',
+    low: 'bg-red-600 text-white',
+};
 
 /** Box ratio of a natural thumbnail until its size is known, or without image */
 const defaultNaturalRatio = 4 / 3;
