@@ -1,6 +1,6 @@
-ARG NGINX_VERSION=1.27.1
+ARG NGINX_VERSION=1.30.6
 
-FROM nginx:${NGINX_VERSION}-alpine3.20 AS builder
+FROM nginx:${NGINX_VERSION}-alpine3.24 AS builder
 
 ENV PURGE_CACHE_VERSION=2.3
 
@@ -36,7 +36,10 @@ RUN cd /usr/src \
     && sh -c "./configure --with-compat $CONFARGS --add-dynamic-module=$PURGE_CACHEDIR" \
     && make modules
 
-FROM nginx:${NGINX_VERSION}-alpine3.20 AS nginx
+FROM nginx:${NGINX_VERSION}-alpine3.24 AS nginx
+
+# brotli-libs >= 1.2.1: CVE-2026-111497
+RUN apk add --no-cache 'brotli-libs>=1.2.1'
 
 COPY --from=builder /usr/src/nginx-${NGINX_VERSION}/objs/*_module.so /etc/nginx/modules/
 
