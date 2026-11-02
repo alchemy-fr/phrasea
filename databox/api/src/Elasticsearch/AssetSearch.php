@@ -27,6 +27,7 @@ use App\Security\AttributeFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Asset\AssetSortGroupMapper;
+use App\Service\Vector\AssetSimilarityScorer;
 use Elastica\Aggregation;
 use Elastica\Index;
 use Elastica\Query;
@@ -64,6 +65,7 @@ class AssetSearch extends AbstractSearch
         private readonly SavedSearchRepository $savedSearchRepository,
         private readonly AssetSortGroupMapper $assetSortGroupMapper,
         private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
+        private readonly AssetSimilarityScorer $assetSimilarityScorer,
     ) {
     }
 
@@ -81,6 +83,10 @@ class AssetSearch extends AbstractSearch
         return false;
     }
 
+    /**
+     * Returns the results, the facets, the ES query, the search time and, for a `@similar`
+     * search, the similarity score of each asset of the page by asset ID (null otherwise).
+     */
     public function search(
         ?string $userId,
         array $groupIds,
@@ -131,7 +137,15 @@ class AssetSearch extends AbstractSearch
             $this->assetSortGroupMapper->resolveSortGroups($result, $groupByKey);
         }
 
-        return [$result, $facets, $esQuery, $searchTime];
+        $scores = null;
+        if (null !== $referenceId = $this->assetSimilarityScorer->getReferenceAssetId($options['conditions'] ?? [])) {
+            $scores = $this->assetSimilarityScorer->score($referenceId, array_map(
+                static fn (Asset $asset): string => $asset->getId(),
+                [...$result->getCurrentPageResults()],
+            ));
+        }
+
+        return [$result, $facets, $esQuery, $searchTime, $scores];
     }
 
     /**

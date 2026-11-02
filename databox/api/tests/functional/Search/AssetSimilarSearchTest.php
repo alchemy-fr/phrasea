@@ -39,14 +39,23 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
         ]);
         $create = fn (string $name, ?array $vector): Asset => $this->createEmbeddedAsset($workspace, $name, $vector);
         $reference = $create('Reference', self::vector([0 => 1.0]));
-        $create('Close', self::vector([0 => 1.0, 1 => 0.2]));
-        $create('Far', self::vector([1 => 1.0]));
+        $close = $create('Close', self::vector([0 => 1.0, 1 => 0.2]));
+        $far = $create('Far', self::vector([1 => 1.0]));
         $notEmbedded = $create('Not embedded', null);
         self::forceNewEntitiesToBeIndexed();
         self::waitForESIndex('asset');
 
         $this->assertSame(['Close', 'Far'], $this->search(sprintf('@similar = "%s"', $reference->getId())));
         $this->assertSame([], $this->search(sprintf('@similar = "%s"', $notEmbedded->getId())));
+
+        // The score of the kNN search of a cosine field: (1 + cosine) / 2
+        $scores = $this->searchScores(sprintf('@similar = "%s"', $reference->getId()));
+        $this->assertEqualsCanonicalizing([$close->getId(), $far->getId()], array_keys($scores));
+        $this->assertEqualsWithDelta((1 + 1 / sqrt(1.04)) / 2, $scores[$close->getId()], 0.0001);
+        $this->assertEqualsWithDelta(0.5, $scores[$far->getId()], 0.0001);
+
+        $this->assertNull($this->searchScores(sprintf('NOT (@similar = "%s")', $reference->getId())));
+        $this->assertNull($this->searchScores('@workspace = "'.$workspace->getId().'"'));
     }
 
     /**
@@ -294,5 +303,17 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
         $data = $this->getDataFromResponse($response, 200)['member'];
 
         return array_map(fn (array $asset): ?string => $asset['name'] ?? null, $data);
+    }
+
+    /**
+     * @return array<string, float>|null similarity scores of the results, by asset ID
+     */
+    private function searchScores(string $condition): ?array
+    {
+        $response = self::createClient()->request('GET', '/assets', [
+            'query' => ['conditions' => [$condition]],
+        ]);
+
+        return $this->getDataFromResponse($response, 200)['scores'] ?? null;
     }
 }

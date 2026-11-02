@@ -53,14 +53,14 @@ function setPlayOnHover(playOnHover: boolean) {
     });
 }
 
-function renderThumb(asset: Asset) {
+function renderThumb(asset: Asset, score?: number) {
     const i18n = createI18n('en');
     const client = new QueryClient();
 
     return render(
         <I18nextProvider i18n={i18n}>
             <QueryClientProvider client={client}>
-                <AssetThumb asset={asset} size={200} />
+                <AssetThumb asset={asset} size={200} score={score} />
             </QueryClientProvider>
         </I18nextProvider>
     );
@@ -72,6 +72,20 @@ describe('AssetThumb', () => {
         pause.mockClear();
         api.getStoryThumbnails.mockClear();
         setPlayOnHover(true);
+    });
+
+    it('shows the similarity score as a percentage', () => {
+        renderThumb(fakeAsset({}), 0.8749);
+
+        expect(
+            screen.getByTestId('asset-similarity-score').textContent?.trim()
+        ).toBe('87%');
+    });
+
+    it('shows no similarity score without one', () => {
+        renderThumb(fakeAsset({}));
+
+        expect(screen.queryByTestId('asset-similarity-score')).toBeNull();
     });
 
     it('plays a video thumbnail only while hovered', () => {

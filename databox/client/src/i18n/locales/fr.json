@@ -222,6 +222,7 @@
     "asset.similar.empty": "Aucun asset similaire trouvé. La similarité de cet asset n'a peut-être pas encore été calculée.",
     "asset.similar.error": "Les assets similaires n'ont pas pu être chargés",
     "asset.similar.search": "Rechercher les assets similaires",
+    "asset.similarity_score": "Similarité",
     "asset.story": "Story",
     "asset.story.cover": "Story",
     "asset.story.items_one": "{{count}} élément",

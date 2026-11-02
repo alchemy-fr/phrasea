@@ -32,6 +32,8 @@ export type ResultContextValue = {
     total?: number;
     facets?: Facets;
     debug?: ESDebug;
+    /** Similarity scores of the loaded assets, by asset ID, see `SearchAssetsResult` */
+    scores?: Record<string, number>;
     error?: string;
     hasMore: boolean;
     loadMore: () => Promise<void>;
@@ -63,6 +65,7 @@ export function ResultProvider({
         next?: string;
         facets?: Facets;
         debug?: ESDebug;
+        scores?: Record<string, number>;
         error?: string;
         generation: number;
     }>({pages: [], loading: true, loadingMore: false, generation: 0});
@@ -161,6 +164,10 @@ export function ResultProvider({
                     total: result.total,
                     facets: result.facets,
                     debug: result.debug,
+                    scores:
+                        nextUrl && prev.scores && result.scores
+                            ? {...prev.scores, ...result.scores}
+                            : result.scores,
                     loading: false,
                     loadingMore: false,
                     generation: nextUrl ? prev.generation : prev.generation + 1,
@@ -195,6 +202,7 @@ export function ResultProvider({
             total: state.total,
             facets: state.facets,
             debug: state.debug,
+            scores: state.scores,
             error: state.error,
             hasMore: !!state.next,
             loadMore: async () => {

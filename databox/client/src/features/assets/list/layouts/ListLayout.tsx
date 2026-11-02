@@ -156,6 +156,7 @@ export function ListLayout(props: LayoutProps) {
                                 openAsset={props.openAsset}
                                 itemOverlay={props.itemOverlay}
                                 itemActions={props.itemActions}
+                                score={props.scores?.[row.asset.id]}
                                 expanded={expandedKeys.has(assetKey(row.asset))}
                                 onToggleExpanded={toggleExpanded}
                             />
@@ -178,6 +179,7 @@ const ListItem = memo(function ListItem({
     openAsset,
     itemOverlay,
     itemActions,
+    score,
     expanded,
     onToggleExpanded,
 }: Pick<
@@ -191,6 +193,7 @@ const ListItem = memo(function ListItem({
 > & {
     asset: Asset;
     index: number;
+    score?: number;
     expanded: boolean;
     onToggleExpanded: (key: string) => void;
 }) {
@@ -213,7 +216,12 @@ const ListItem = memo(function ListItem({
                     className="relative shrink-0 overflow-hidden rounded-md bg-media-bg"
                     style={{width: size, height: size}}
                 >
-                    <AssetThumb asset={asset} size={size} previewOnHover />
+                    <AssetThumb
+                        asset={asset}
+                        size={size}
+                        score={score}
+                        previewOnHover
+                    />
                     <AssetItemControls
                         asset={asset}
                         actions={itemActions?.(asset)}

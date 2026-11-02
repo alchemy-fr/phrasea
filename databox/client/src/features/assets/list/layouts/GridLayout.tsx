@@ -44,6 +44,7 @@ export function GridLayout(props: LayoutProps) {
             itemOverlay={props.itemOverlay}
             itemActions={props.itemActions}
             searchQuery={props.searchQuery}
+            score={props.scores?.[asset.id]}
         />
     );
 
@@ -86,7 +87,7 @@ type GridItemProps = Pick<
     | 'itemOverlay'
     | 'itemActions'
     | 'searchQuery'
-> & {asset: Asset; index: number; masonry?: boolean};
+> & {asset: Asset; index: number; masonry?: boolean; score?: number};
 
 const GridItem = memo(function GridItem({
     asset: initialAsset,
@@ -99,6 +100,7 @@ const GridItem = memo(function GridItem({
     itemOverlay,
     itemActions,
     searchQuery,
+    score,
 }: GridItemProps) {
     // Not subscribed to the selection: see `SelectableCard`
     const asset = useLiveAsset(initialAsset);
@@ -124,6 +126,7 @@ const GridItem = memo(function GridItem({
                         asset={asset}
                         size={thumbSize}
                         natural={masonry}
+                        score={score}
                         previewOnHover
                     />
                     <AssetItemControls

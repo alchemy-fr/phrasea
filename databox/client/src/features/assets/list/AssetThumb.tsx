@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {LayersIcon, Trash2Icon} from 'lucide-react';
+import {LayersIcon, ScanSearchIcon, Trash2Icon} from 'lucide-react';
 import type {Asset} from '@/types/api';
 import {FileKindIcon, FileTypeChip} from '@/components/chips';
 import {useDisplayPreferences} from '@/features/preferences/store';
@@ -34,6 +34,9 @@ import {StoryThumb} from '@/features/assets/list/StoryThumb';
  * its analysis state instead of the image; `ignoreAnalysis` renders the
  * thumbnail rendition anyway, for screens where the picture is what the user
  * has to look at (quarantine resolution, duplicate comparison).
+ *
+ * `score` is the similarity of the asset to the reference asset of a
+ * similarity search, in [0, 1], shown as a percentage.
  */
 export function AssetThumb({
     asset,
@@ -42,6 +45,7 @@ export function AssetThumb({
     previewOnHover,
     ignoreAnalysis,
     natural,
+    score,
 }: {
     asset: Asset;
     size?: number;
@@ -50,8 +54,9 @@ export function AssetThumb({
     ignoreAnalysis?: boolean;
     /** Height from the thumbnail's aspect ratio, for the given width */
     natural?: boolean;
+    score?: number;
 }) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const [hover, setHover] = useState(false);
     const {thumbFit, playOnHover} = useDisplayPreferences();
     const preview = usePreview();
@@ -175,6 +180,19 @@ export function AssetThumb({
             ) : null}
 
             <div className="pointer-events-none absolute right-1 bottom-1 z-10 flex items-center gap-1">
+                {score !== undefined ? (
+                    <span
+                        data-testid="asset-similarity-score"
+                        className="flex items-center gap-0.5 rounded bg-black/60 px-1 py-0.5 text-[10px] font-semibold text-white tabular-nums"
+                        title={t('asset.similarity_score', 'Similarity')}
+                    >
+                        <ScanSearchIcon className="size-3" />{' '}
+                        {new Intl.NumberFormat(i18n.language, {
+                            style: 'percent',
+                            maximumFractionDigits: 0,
+                        }).format(score)}
+                    </span>
+                ) : null}
                 {asset.storyCollection ? (
                     <span
                         className="flex items-center gap-0.5 rounded bg-black/60 px-1 py-0.5 text-[10px] font-semibold text-white"

@@ -42,6 +42,11 @@ export type SearchAssetsOptions = {
 export type SearchAssetsResult = Page<Asset> & {
     facets: Facets;
     debug?: ESDebug;
+    /**
+     * Similarity score of each asset of the page to the reference asset, by
+     * asset ID, when the search ranks by similarity (`@similar`)
+     */
+    scores?: Record<string, number>;
 };
 
 export async function searchAssets(
@@ -52,7 +57,11 @@ export async function searchAssets(
     const res = await api.get<
         HydraCollection<
             Asset,
-            {'facets': Facets; 'debug:es'?: {query: object; time: number}}
+            {
+                'facets': Facets;
+                'debug:es'?: {query: object; time: number};
+                'scores'?: Record<string, number>;
+            }
         >
     >(url ?? `/${EntityName.Asset}`, {
         params: url ? undefined : params,
@@ -65,6 +74,8 @@ export async function searchAssets(
     return {
         ...page,
         facets: res.facets ?? {},
+        // An empty PHP array is serialized as a JSON list
+        scores: Array.isArray(res.scores) ? {} : res.scores,
         debug: debug
             ? {
                   query: debug.query,
