@@ -21,7 +21,7 @@ import {AttributeBatchActionEnum, AttributeType, EntityName} from '@/types/api';
 import {
     attributeBatchUpdate,
     isAssetEligibleForDefinition,
-    searchAssets,
+    getAssetsByIds,
 } from '@/lib/api/assets';
 import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
 import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
@@ -151,17 +151,13 @@ export function AttributeBatchEditorRoute() {
         }
     }, []);
 
-    // The assets come with their attributes: one request for the whole
-    // selection
+    // The assets come with their attributes
     const assetsQuery = useQuery({
         queryKey: ['batch-edit', 'assets', ids],
-        queryFn: () => searchAssets({ids, limit: ids.length || 1}),
+        queryFn: ({signal}) => getAssetsByIds(ids, {}, signal),
         enabled: ids.length > 0,
     });
-    const assets = useMemo(
-        () => assetsQuery.data?.items ?? [],
-        [assetsQuery.data?.items]
-    );
+    const assets = useMemo(() => assetsQuery.data ?? [], [assetsQuery.data]);
     const workspaceId = assets[0]?.workspace.id;
     const definitionFilters = useMemo(() => ({workspaceId}), [workspaceId]);
     const definitionList = useAttributeDefinitionList(definitionFilters, {

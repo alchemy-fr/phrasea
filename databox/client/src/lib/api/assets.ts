@@ -75,6 +75,36 @@ export async function searchAssets(
     };
 }
 
+/**
+ * Ids per request: each one adds ~47 characters to the query string, and
+ * proxies reject long URLs (nginx answers 414 past 8 KB by default).
+ */
+export const ASSET_IDS_CHUNK = 50;
+
+/**
+ * The assets of `ids` the user can see (the others are left out), fetched
+ * by chunks in parallel. `options` narrows the search the same way for
+ * every chunk.
+ */
+export async function getAssetsByIds(
+    ids: string[],
+    options: Omit<SearchAssetsOptions, 'url' | 'ids' | 'limit'> = {},
+    signal?: AbortSignal
+): Promise<Asset[]> {
+    const chunks: string[][] = [];
+    for (let i = 0; i < ids.length; i += ASSET_IDS_CHUNK) {
+        chunks.push(ids.slice(i, i + ASSET_IDS_CHUNK));
+    }
+
+    const pages = await Promise.all(
+        chunks.map(chunk =>
+            searchAssets({...options, ids: chunk, limit: chunk.length}, signal)
+        )
+    );
+
+    return pages.flatMap(p => p.items);
+}
+
 /** Latitudes and longitudes of a box */
 export type GeoBounds = {
     top: number;

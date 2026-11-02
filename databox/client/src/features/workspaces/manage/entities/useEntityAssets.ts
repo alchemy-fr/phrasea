@@ -9,7 +9,7 @@ import type {
     EntityList,
 } from '@/types/api';
 import {AttributeEntityStatus} from '@/types/api';
-import {searchAssets} from '@/lib/api/assets';
+import {getAssetsByIds, searchAssets} from '@/lib/api/assets';
 import {getAttributesOfDefinition} from '@/lib/api/metadata';
 import {useNarrowDefinitions} from '@/features/attributes/useAttributeDefinitionList';
 import {assetIdOf} from '@/features/faces/useFaceRecognition';
@@ -117,11 +117,7 @@ export function useEntityAssets({
                         .filter((id): id is string => !!id)
                 ),
             ];
-            const found =
-                ids.length > 0
-                    ? (await searchAssets({ids, limit: ids.length}, signal))
-                          .items
-                    : [];
+            const found = await getAssetsByIds(ids, {}, signal);
             const byId = new Map(found.map(a => [a.id, a]));
 
             return {
