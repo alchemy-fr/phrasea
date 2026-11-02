@@ -112,15 +112,24 @@ images and reproduces the CI run in an isolated compose project.
 ## Commit markers (push events only)
 
 `[skip test]` skips setup, PHP tests and Cypress; `[skip php-test]` and
-`[skip cypress]` skip one of them; `[documentation]` triggers the documentation
-builder. They read the head commit message, which is empty on `pull_request`,
-`schedule` and `workflow_dispatch`, so the tests always run there. The native
-`[skip ci]` still skips every workflow.
+`[skip cypress]` skip one of them. They read the head commit message, which is
+empty on `pull_request`, `schedule` and `workflow_dispatch`, so the tests
+always run there. The native `[skip ci]` still skips every workflow.
 
-On any other branch, `[documentation]` in one of the pushed commits runs
-`documentation.yaml` instead: it builds only the images the documentation
-builder reads (`databox`, `expose` and `uploader` `api-php`, `configurator`)
-and triggers the builder, which reads them from GHCR (the build cache, tagged
-with the commit sha). These images are not tested and never reach the public
-registries (AWS ECR, Docker Hub). It can also be run on demand
-(`workflow_dispatch`).
+## Documentation builder
+
+`ci.yaml` triggers `alchemy-fr/phrasea-documentation-builder` (`documentation`
+job) as soon as the images it reads `/srv/app/doc` from are built (`databox`,
+`expose` and `uploader` `api-php`, `configurator`): it does not wait for the
+tests. The builder pulls them from GHCR, tagged with the commit sha, and checks
+out the branch for `doc/` (so the branch name cannot contain a `/`). It runs:
+
+- on every push on `next`;
+- on a push on `master` or `release/**` whose commits contain `[documentation]`;
+- on a pull request from this repository when one of its commits contains
+  `[documentation]` (on each update of the pull request);
+- on demand: `workflow_dispatch` of `ci.yaml` with the `documentation` input,
+  which also works on a branch without a pull request.
+
+Tags are left to `release.yaml`, which triggers the builder after the Docker
+Hub publication to rebuild every released version.

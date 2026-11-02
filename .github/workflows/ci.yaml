@@ -12,6 +12,12 @@ on:
       - master
       - 'release/**'
   workflow_dispatch:
+    inputs:
+      documentation:
+        description: 'Trigger the documentation builder (always done on next)'
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       tier:
@@ -344,9 +350,64 @@ jobs:
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
 
+  # The documentation builder reads /srv/app/doc from the api-php and
+  # configurator images of this run (GHCR, tagged with the commit sha), as soon
+  # as they are built: it does not wait for the tests. Tags are left to
+  # release.yaml, which rebuilds every released version.
+  documentation_requested:
+    name: 'Documentation requested?'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - name: Look for next or the [documentation] marker
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          PUSHED_MARKER: ${{ contains(toJson(github.event.commits), '[documentation]') }}
+          DISPATCH_INPUT: ${{ inputs.documentation }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          run=false
+          case "${EVENT}:${REF}" in
+            *:refs/tags/*) ;;
+            *:refs/heads/next) run=true ;;
+            push:*) run=${PUSHED_MARKER} ;;
+            workflow_dispatch:*) [ "${DISPATCH_INPUT}" = true ] && run=true ;;
+            pull_request:*)
+              # Not for a fork: no secret there, and the builder checks out
+              # the head branch from this repository.
+              if [ "${PR_HEAD_REPO}" = "${GITHUB_REPOSITORY}" ] \
+                && gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits" --jq '.[].commit.message' \
+                  | grep -qF '[documentation]'; then
+                run=true
+              fi
+              ;;
+          esac
+          echo "Documentation: ${run}"
+          echo "run=${run}" >> "$GITHUB_OUTPUT"
+
+  documentation:
+    name: 'Trigger the documentation builder'
+    if: needs.documentation_requested.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - documentation_requested
+      - build_configurator
+      - build_databox_api
+      - build_expose_api
+      - build_uploader_api
+    steps:
       - name: Generate GitHub App token for documentation dispatch
         id: documentation-builder-app-token
-        if: "contains(github.event.head_commit.message || '', '[documentation]') || contains(toJson(github.event.commits), '[documentation]')"
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ secrets.DOCUMENTATION_BUILDER_APP_ID }}
@@ -355,19 +416,21 @@ jobs:
           repositories: phrasea-documentation-builder
 
       - name: Trigger Workflow in documentation builder Repository
-        if: "contains(github.event.head_commit.message || '', '[documentation]') || contains(toJson(github.event.commits), '[documentation]')"
+        env:
+          GH_TOKEN: ${{ steps.documentation-builder-app-token.outputs.token }}
+          # The branch, also on a pull request (whose ref is refs/pull/N/merge)
+          BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
-            DATETIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-            http_code=$(curl -sS -o /tmp/dispatch-response.json -w "%{http_code}" -L \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ steps.documentation-builder-app-token.outputs.token }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/alchemy-fr/phrasea-documentation-builder/dispatches \
-            -d "{\"event_type\": \"trigger-workflow\",\"client_payload\": {\"PHRASEA_REFNAME\": \"${{ github.ref_name }}\", \"PHRASEA_REFTYPE\": \"${{ github.ref_type }}\", \"PHRASEA_DATETIME\": \"${DATETIME}\"}}")
-            echo "repository_dispatch HTTP status: ${http_code}"
-            if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 300 ]; then
-              echo "repository_dispatch failed"
-              cat /tmp/dispatch-response.json
-              exit 1
-            fi
+          jq -n \
+            --arg branch "${BRANCH}" \
+            --arg registry "${IMAGE_REGISTRY}" \
+            --arg tag "${DOCKER_TAG}" \
+            --arg datetime "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{event_type: "trigger-workflow", client_payload: {
+              PHRASEA_REFNAME: $branch,
+              PHRASEA_REFTYPE: "branch",
+              PHRASEA_IMAGE_REGISTRY: $registry,
+              PHRASEA_IMAGE_TAG: $tag,
+              PHRASEA_DATETIME: $datetime
+            }}' \
+            | gh api repos/alchemy-fr/phrasea-documentation-builder/dispatches --input -
