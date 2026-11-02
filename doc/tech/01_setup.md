@@ -113,6 +113,11 @@ ones between 00:00 and 02:59), to spread the load. The commands can still be
 run by hand; `bin/console app:automation:run-due` triggers the due automations
 once, for development.
 
+`SCHEDULER_OFFSET` (in seconds, `0` by default, negative to run earlier) shifts
+every task of both schedulers (with `600`, each hourly and daily task runs 10
+minutes later). Give each stack sharing the same resources its own offset so
+that they do not run their tasks at the same time.
+
 No host cron is needed: every periodic task runs in the scheduler containers.
 
 ### Changing ports

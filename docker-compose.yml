@@ -260,6 +260,7 @@ services:
       replicas: 1
     environment:
       - WORKER_PRIORITIES=scheduler_main
+      - SCHEDULER_OFFSET
 
   uploader-api-nginx:
     logging: *default-logging
@@ -806,6 +807,7 @@ services:
       replicas: 1
     environment:
       - WORKER_PRIORITIES=scheduler_main
+      - SCHEDULER_OFFSET
 
   databox-api-nginx:
     logging: *default-logging
