@@ -119,10 +119,11 @@ always run there. The native `[skip ci]` still skips every workflow.
 ## Documentation builder
 
 `ci.yaml` triggers `alchemy-fr/phrasea-documentation-builder` (`documentation`
-job) as soon as the images it reads `/srv/app/doc` from are built (`databox`,
-`expose` and `uploader` `api-php`, `configurator`): it does not wait for the
-tests. The builder pulls them from GHCR, tagged with the commit sha, and checks
-out the branch for `doc/` (so the branch name cannot contain a `/`). It runs:
+job) once the `setup` job has passed, tests included (`[skip test]` lets it
+through). The builder pulls the images it reads `/srv/app/doc` from (`databox`,
+`expose` and `uploader` `api-php`, `configurator`) from GHCR, tagged with the
+commit sha, and checks out the branch for `doc/` (so the branch name cannot
+contain a `/`). It runs:
 
 - on every push on `next`;
 - on a push on `master` or `release/**` whose commits contain `[documentation]`;

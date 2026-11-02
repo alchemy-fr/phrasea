@@ -351,9 +351,9 @@ jobs:
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
 
   # The documentation builder reads /srv/app/doc from the api-php and
-  # configurator images of this run (GHCR, tagged with the commit sha), as soon
-  # as they are built: it does not wait for the tests. Tags are left to
-  # release.yaml, which rebuilds every released version.
+  # configurator images of this run (GHCR, tagged with the commit sha), once
+  # the tests have passed. Tags are left to release.yaml, which rebuilds every
+  # released version.
   documentation_requested:
     name: 'Documentation requested?'
     runs-on: ubuntu-latest
@@ -401,10 +401,7 @@ jobs:
     timeout-minutes: 10
     needs:
       - documentation_requested
-      - build_configurator
-      - build_databox_api
-      - build_expose_api
-      - build_uploader_api
+      - setup
     steps:
       - name: Generate GitHub App token for documentation dispatch
         id: documentation-builder-app-token
