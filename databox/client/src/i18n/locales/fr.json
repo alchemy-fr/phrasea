@@ -1674,6 +1674,7 @@
     "upload.story_title": "Titre de la story",
     "upload.submit_one": "Téléverser {{count}} fichier",
     "upload.submit_other": "Téléverser {{count}} fichiers",
+    "upload.template_all_collections": "Dans toutes les collections",
     "upload.template_children": "Y compris les sous-collections",
     "upload.template_collection": "Mémoriser la collection",
     "upload.template_name": "Nom du modèle",

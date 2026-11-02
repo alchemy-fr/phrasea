@@ -1,10 +1,14 @@
 'use client';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import type {AttributeBatchAction, Privacy} from '@/types/api';
+import type {
+    AssetDataTemplate,
+    AttributeBatchAction,
+    Privacy,
+} from '@/types/api';
 import {EntityName} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {FormRow, Input} from '@/components/ui/input';
@@ -18,7 +22,7 @@ export function SaveAsTemplateSection({
     privacy,
     tags,
     attributes,
-    appliedTemplateId,
+    appliedTemplate,
     onSaved,
 }: {
     workspaceId: string;
@@ -26,19 +30,38 @@ export function SaveAsTemplateSection({
     privacy?: Privacy;
     tags: string[];
     attributes: AttributeBatchAction[];
-    appliedTemplateId?: string;
+    appliedTemplate?: AssetDataTemplate;
     onSaved?: () => void;
 }) {
     const {t} = useTranslation();
     const [name, setName] = useState('');
     const [replace, setReplace] = useState(false);
     const [withCollection, setWithCollection] = useState(!!collectionId);
-    const [includeChildren, setIncludeChildren] = useState(false);
+    // Without it, a template is only offered in its own collection (or at
+    // the workspace root for a workspace template)
+    const [includeChildren, setIncludeChildren] = useState(true);
     const [withAttributes, setWithAttributes] = useState(true);
     const [withPrivacy, setWithPrivacy] = useState(true);
     const [withTags, setWithTags] = useState(true);
     const [isPublic, setIsPublic] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (!appliedTemplate) {
+            setReplace(false);
+
+            return;
+        }
+        setName(appliedTemplate.name);
+        setReplace(true);
+        setWithCollection(!!appliedTemplate.collection);
+        setIncludeChildren(appliedTemplate.includeCollectionChildren);
+        setWithPrivacy(
+            appliedTemplate.privacy !== undefined &&
+                appliedTemplate.privacy !== null
+        );
+        setIsPublic(appliedTemplate.public);
+    }, [appliedTemplate]);
 
     const save = async () => {
         setLoading(true);
@@ -50,7 +73,7 @@ export function SaveAsTemplateSection({
                     withCollection && collectionId
                         ? iri(EntityName.Collection, collectionId)
                         : undefined,
-                includeCollectionChildren: withCollection && includeChildren,
+                includeCollectionChildren: includeChildren,
                 attributes: withAttributes ? attributes : undefined,
                 privacy: withPrivacy ? privacy : undefined,
                 tags: withTags
@@ -58,8 +81,8 @@ export function SaveAsTemplateSection({
                     : undefined,
                 public: isPublic,
             } as any;
-            if (replace && appliedTemplateId) {
-                await putAssetDataTemplate(appliedTemplateId, data);
+            if (replace && appliedTemplate) {
+                await putAssetDataTemplate(appliedTemplate.id, data);
             } else {
                 await postAssetDataTemplate(data);
             }
@@ -78,7 +101,7 @@ export function SaveAsTemplateSection({
             <FormRow label={t('upload.template_name', 'Template name')}>
                 <Input value={name} onChange={e => setName(e.target.value)} />
             </FormRow>
-            {appliedTemplateId ? (
+            {appliedTemplate ? (
                 <LabeledControl
                     label={t(
                         'upload.template_replace',
@@ -105,14 +128,20 @@ export function SaveAsTemplateSection({
                     />
                 </LabeledControl>
                 <LabeledControl
-                    label={t(
-                        'upload.template_children',
-                        'Including sub-collections'
-                    )}
+                    label={
+                        withCollection && collectionId
+                            ? t(
+                                  'upload.template_children',
+                                  'Including sub-collections'
+                              )
+                            : t(
+                                  'upload.template_all_collections',
+                                  'In every collection'
+                              )
+                    }
                 >
                     <Checkbox
                         checked={includeChildren}
-                        disabled={!withCollection}
                         onCheckedChange={v => setIncludeChildren(v === true)}
                     />
                 </LabeledControl>

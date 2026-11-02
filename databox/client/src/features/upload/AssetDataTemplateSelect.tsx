@@ -2,8 +2,8 @@
 
 import {useCallback, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
-import {LayoutTemplateIcon, XIcon} from 'lucide-react';
+import {LayoutTemplateIcon} from 'lucide-react';
+import {toast} from 'sonner';
 import type {AssetDataTemplate} from '@/types/api';
 import {getAssetDataTemplate, getAssetDataTemplates} from '@/lib/api/metadata';
 import {FormRow} from '@/components/ui/input';
@@ -27,22 +27,18 @@ export function AssetDataTemplateSelect({
     onApply: (template: AssetDataTemplate) => void;
 }) {
     const {t} = useTranslation();
-    const pending = value[value.length - 1];
     // Names of the applied templates, for their chips
     const [names, setNames] = useState<Record<string, string>>({});
 
-    useQuery({
-        queryKey: ['asset-data-template', pending],
-        queryFn: async () => {
-            const tpl = await getAssetDataTemplate(pending);
-            setNames(n => ({...n, [tpl.id]: tpl.name}));
-            onApply(tpl);
-
-            return tpl;
-        },
-        enabled: !!pending,
-        staleTime: Infinity,
-    });
+    // Fetched at each selection: a template picked again must be applied again
+    const apply = async (id: string) => {
+        try {
+            onApply(await getAssetDataTemplate(id));
+        } catch (e: any) {
+            onChange(value.filter(v => v !== id));
+            toast.error(e?.message);
+        }
+    };
 
     const load = useCallback(
         async (query: string, signal: AbortSignal, cursor?: string) => {
@@ -85,6 +81,7 @@ export function AssetDataTemplateSelect({
                                 setNames(n => ({...n, [id]: opt.label}));
                             }
                             onChange([...value, id]);
+                            apply(id);
                         }
                     }}
                     placeholder={t(
@@ -112,5 +109,3 @@ export function AssetDataTemplateSelect({
         </FormRow>
     );
 }
-
-export {XIcon};

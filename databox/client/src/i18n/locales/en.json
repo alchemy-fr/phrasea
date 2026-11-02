@@ -1674,6 +1674,7 @@
     "upload.story_title": "Story title",
     "upload.submit_one": "Upload {{count}} file",
     "upload.submit_other": "Upload {{count}} files",
+    "upload.template_all_collections": "In every collection",
     "upload.template_children": "Including sub-collections",
     "upload.template_collection": "Remember collection",
     "upload.template_name": "Template name",
