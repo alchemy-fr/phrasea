@@ -55,6 +55,8 @@ final readonly class AttributeEntityMergeHandler
         ];
         $params = [
             'merged' => $merged,
+            // The merged entities take the place (and the branch) of the main one
+            '_branch' => $mainEntity->getBranchIds(),
             '_entityIds' => array_merge($merged, [$id]),
             '_labels' => AttributeEntitySuggestionsScript::labels($this->entityAttributeType->getSuggestionLabels(
                 $mainEntity,
@@ -72,7 +74,7 @@ final readonly class AttributeEntityMergeHandler
                     's' => $mainEntity->getSynonymsOfLocale($locale) ?? [],
                 ];
                 $calls[$fieldName.'-'.$locale] = sprintf(
-                    'merge(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'merged\'], params[\'%1$s\'][\'v\'], params[\'%1$s\'][\'s\'], %3$s);',
+                    'merge(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'_branch\'], params[\'merged\'], params[\'%1$s\'][\'v\'], params[\'%1$s\'][\'s\'], %3$s);',
                     $locale,
                     $fieldName,
                     $definition->isMultiple() ? 'true' : 'false',
@@ -105,7 +107,7 @@ final readonly class AttributeEntityMergeHandler
             ],
             [
                 'source' => sprintf(<<<EOF
-void merge(HashMap src, String locale, String name, String id, List merged, String n, def s, boolean m) {
+void merge(HashMap src, String locale, String name, String id, List branch, List merged, String n, def s, boolean m) {
     HashMap attributes;
 
     List all = new ArrayList(merged);
@@ -140,6 +142,7 @@ void merge(HashMap src, String locale, String name, String id, List merged, Stri
             if (all.contains(item['id'])) {
                 if (hasValOrSyn) {
                     item['id'] = id;
+                    item['branch'] = branch;
                     if (hasVal) {
                         item['value'] = n;
                     } else {
@@ -164,6 +167,7 @@ void merge(HashMap src, String locale, String name, String id, List merged, Stri
         if (all.contains(field['id'])) {
             if (hasValOrSyn) {
                 field['id'] = id;
+                field['branch'] = branch;
                 if (hasVal) {
                     field['value'] = n;
                 } else {
