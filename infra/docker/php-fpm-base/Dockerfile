@@ -1,6 +1,8 @@
 FROM php:8.3.36-fpm-alpine3.23
 
+# brotli-libs >= 1.2.1: CVE-2026-111497
 RUN apk upgrade --no-cache \
+    && apk add --no-cache 'brotli-libs>=1.2.1' \
     && apk add --no-cache --virtual .persistent-deps \
         fcgi \
 		git \

@@ -1,7 +1,9 @@
-FROM nginx:1.27.1-alpine3.20 AS api-nginx
+FROM nginx:1.30.6-alpine3.24 AS api-nginx
 
+# brotli-libs >= 1.2.1: CVE-2026-111497
 RUN apk update \
     && apk add --no-cache \
+      'brotli-libs>=1.2.1' \
       libstdc++ \
     && apk add --virtual .build \
         wget \
