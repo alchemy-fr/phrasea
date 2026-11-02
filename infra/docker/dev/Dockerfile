@@ -1,6 +1,8 @@
 FROM php:8.5.12-cli-alpine3.24
 
+# brotli-libs >= 1.2.1: CVE-2026-111497
 RUN apk add --no-cache \
+		'brotli-libs>=1.2.1' \
 		autoconf \
 		curl \
 		git \
