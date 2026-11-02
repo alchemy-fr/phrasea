@@ -6,7 +6,7 @@ RUN apk add --no-cache \
         g++ \
     && npm install -g pnpm@^12.15.0 \
     && mkdir -p /var/docker \
-    && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.1/generate-env-alpine \
+    && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.2/generate-env-alpine \
     && chmod +x /var/docker/generate-env \
     && mkdir -p /srv/workspace/phrasea \
     && chown -R node: /srv/workspace/phrasea \
