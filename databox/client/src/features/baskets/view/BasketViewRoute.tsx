@@ -12,6 +12,7 @@ import {
     InfoIcon,
     PencilIcon,
     PlugIcon,
+    ScissorsIcon,
     ShoppingBasketIcon,
     Trash2Icon,
     XIcon,
@@ -39,6 +40,10 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@/lib/utils/cn';
+import {useModals} from '@/components/modals/ModalProvider';
+import {isClipApplicable} from '../clip/clip';
+import {ClipBadge} from '../clip/ClipBadge';
+import {BasketClipDialog} from '../clip/BasketClipDialog';
 
 /**
  * Full screen basket view: basket list on the left, ordered assets grid.
@@ -60,6 +65,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
     const display = useDisplayPreferences();
     const removeItems = useBasketStore(s => s.removeItems);
     const upsert = useBasketStore(s => s.upsert);
+    const {openModal} = useModals();
 
     const basket = useQuery({
         queryKey: ['basket', basketId],
@@ -88,7 +94,11 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
     const pages = useMemo(
         () =>
             (assets.data?.pages ?? []).map(p =>
-                p.items.map(i => ({...i.asset, basketItemId: i.id}))
+                p.items.map(i => ({
+                    ...i.asset,
+                    basketItemId: i.id,
+                    basketClip: i.clip ?? undefined,
+                }))
             ),
         [assets.data]
     );
@@ -118,6 +128,15 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
             );
         } catch (e: any) {
             toast.error(e?.message);
+        }
+    };
+
+    const editClip = async (asset: Asset) => {
+        const saved = await openModal(BasketClipDialog, {asset});
+        if (saved) {
+            void queryClient.invalidateQueries({
+                queryKey: ['basket-assets', basketId],
+            });
         }
     };
 
@@ -260,33 +279,67 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                                     thumbSize={display.thumbSize}
                                     onOpen={openAsset}
                                     itemOverlay={asset => (
-                                        <span className="pointer-events-none absolute bottom-1.5 left-1.5 z-10 rounded bg-background/90 px-1.5 py-0.5 font-mono text-[11px] font-semibold shadow-sm">
-                                            #
-                                            {positions.get(
-                                                asset.basketItemId ?? ''
-                                            )}
+                                        <span className="pointer-events-none absolute bottom-1.5 left-1.5 z-10 flex items-center gap-1">
+                                            <span className="rounded bg-background/90 px-1.5 py-0.5 font-mono text-[11px] font-semibold shadow-sm">
+                                                #
+                                                {positions.get(
+                                                    asset.basketItemId ?? ''
+                                                )}
+                                            </span>
+                                            <ClipBadge
+                                                clip={asset.basketClip}
+                                            />
                                         </span>
                                     )}
                                     itemActions={
                                         basket.data?.capabilities.edit
                                             ? asset => (
-                                                  <Tooltip
-                                                      content={t(
-                                                          'basket.remove_item',
-                                                          'Remove from basket'
-                                                      )}
-                                                  >
-                                                      <Button
-                                                          variant="secondary"
-                                                          size="icon-xs"
-                                                          className="bg-background/90 shadow-sm"
-                                                          onClick={() =>
-                                                              remove([asset])
-                                                          }
+                                                  <>
+                                                      {asset.basketItemId &&
+                                                      isClipApplicable(
+                                                          asset.source?.type
+                                                      ) ? (
+                                                          <Tooltip
+                                                              content={t(
+                                                                  'basket.clip.action',
+                                                                  'Cut / crop'
+                                                              )}
+                                                          >
+                                                              <Button
+                                                                  variant="secondary"
+                                                                  size="icon-xs"
+                                                                  className="bg-background/90 shadow-sm"
+                                                                  data-testid="basket-clip-action"
+                                                                  onClick={() =>
+                                                                      void editClip(
+                                                                          asset
+                                                                      )
+                                                                  }
+                                                              >
+                                                                  <ScissorsIcon />
+                                                              </Button>
+                                                          </Tooltip>
+                                                      ) : null}
+                                                      <Tooltip
+                                                          content={t(
+                                                              'basket.remove_item',
+                                                              'Remove from basket'
+                                                          )}
                                                       >
-                                                          <Trash2Icon />
-                                                      </Button>
-                                                  </Tooltip>
+                                                          <Button
+                                                              variant="secondary"
+                                                              size="icon-xs"
+                                                              className="bg-background/90 shadow-sm"
+                                                              onClick={() =>
+                                                                  remove([
+                                                                      asset,
+                                                                  ])
+                                                              }
+                                                          >
+                                                              <Trash2Icon />
+                                                          </Button>
+                                                      </Tooltip>
+                                                  </>
                                               )
                                             : undefined
                                     }

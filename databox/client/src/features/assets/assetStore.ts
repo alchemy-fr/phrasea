@@ -56,7 +56,11 @@ export function useLiveAsset(asset: Asset): Asset {
                 ? asset
                 : asset.basketItemId
                   ? // Still the same basket item
-                    {...live, basketItemId: asset.basketItemId}
+                    {
+                        ...live,
+                        basketItemId: asset.basketItemId,
+                        basketClip: asset.basketClip,
+                    }
                   : live,
         [live, asset]
     );

@@ -542,6 +542,11 @@ export interface Asset
      * can be in a basket several times, each item is selected on its own.
      */
     basketItemId?: string;
+    /**
+     * Client side only: the clip of the basket item this asset is displayed
+     * for, applied when the asset is played or shown.
+     */
+    basketClip?: BasketClip;
     description?: string;
     privacy: Privacy;
     tags?: Tag[];
@@ -609,9 +614,25 @@ export interface Basket extends WithCapabilities<{share: boolean}>, Entity {
     owner?: User;
 }
 
+/** Part of a video or an audio, in seconds */
+export type ClipTimeRange = {s: number; e: number};
+
+/** Rectangle of an image or a video, relative to its displayed size (0..1) */
+export type ClipCrop = {x: number; y: number; w: number; h: number};
+
+/**
+ * Extract of a basket item: the file is not cut, the clip is applied on
+ * display, and when the item is published or exported.
+ */
+export type BasketClip = {
+    timeRange?: ClipTimeRange;
+    crop?: ClipCrop;
+};
+
 export interface BasketAsset extends Entity {
     asset: Asset;
     context?: unknown;
+    clip?: BasketClip | null;
     nameHighlight?: string;
     position: number;
     createdAt: string;

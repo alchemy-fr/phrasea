@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import {type CSSProperties, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {LayersIcon, ScanSearchIcon, Trash2Icon} from 'lucide-react';
 import type {Asset} from '@/types/api';
@@ -12,6 +12,9 @@ import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {usePreview} from '@/features/assets/list/preview/PreviewProvider';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
 import {StoryThumb} from '@/features/assets/list/StoryThumb';
+import {clipForFile, cropAspect} from '@/features/baskets/clip/clip';
+import {ClipFrame} from '@/features/baskets/clip/ClipFrame';
+import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
 
 /**
  * Thumbnail of an asset (with animated preview on hover when available),
@@ -38,6 +41,9 @@ import {StoryThumb} from '@/features/assets/list/StoryThumb';
  * `score` is the similarity of the asset to the reference asset of a
  * similarity search, in [0, 1], shown as a percentage colored by
  * `similarityScoreLevel`.
+ *
+ * The clip of a basket item (`asset.basketClip`) applies to the thumbnail:
+ * cropped, and played within its time range.
  */
 export function AssetThumb({
     asset,
@@ -71,9 +77,11 @@ export function AssetThumb({
 
     const url = hover && animated?.url ? animated.url : thumb?.url;
     const fitClass = thumbFit === 'cover' ? 'object-cover' : 'object-contain';
-    const thumbKind = getFileKind(
-        hover && animated?.url ? animated.type : thumb?.type
-    );
+    const thumbType = hover && animated?.url ? animated.type : thumb?.type;
+    const thumbKind = getFileKind(thumbType);
+    const clip = clipForFile(asset.basketClip, thumbType);
+    const crop = clip?.crop;
+    const timeRange = clip?.timeRange;
     const isVideoThumb = !!url && thumbKind === FileKind.Video;
     const isAudioThumb = !!url && thumbKind === FileKind.Audio;
     const storyCarousel = !!asset.storyCollection && !asset.deleted;
@@ -81,14 +89,30 @@ export function AssetThumb({
         score === undefined ? undefined : similarityScoreLevel(score);
     const videoRef = useRef<HTMLVideoElement>(null);
     const playing = hover && playOnHover;
+    useClipPlayback(videoRef, isVideoThumb ? timeRange : undefined, {
+        loop: true,
+    });
+    // Size of the thumbnail media, for the crop
+    const [mediaAspect, setMediaAspect] = useState<{
+        url: string;
+        value: number;
+    }>();
+    const cropMediaAspect =
+        mediaAspect && mediaAspect.url === url ? mediaAspect.value : undefined;
     // Natural size: the ratio of the still thumbnail, kept while the animated
     // one is shown so that hovering never changes the height of the box
     const [ratio, setRatio] = useState<{url: string; value: number}>();
     const naturalRatio =
         ratio && ratio.url === thumb?.url ? ratio.value : defaultNaturalRatio;
     const measure = (w: number, h: number) => {
+        if (url && w > 0 && h > 0) {
+            setMediaAspect({url, value: w / h});
+        }
         if (natural && thumb?.url && url === thumb.url && w > 0 && h > 0) {
-            setRatio({url: thumb.url, value: w / h});
+            setRatio({
+                url: thumb.url,
+                value: crop ? cropAspect(crop, w / h) : w / h,
+            });
         }
     };
 
@@ -103,9 +127,45 @@ export function AssetThumb({
             video.play()?.catch(() => undefined);
         } else {
             video.pause();
-            video.currentTime = 0;
+            // Back to the start of the clip
+            video.currentTime = timeRange?.s ?? 0;
         }
-    }, [playing, url]);
+    }, [playing, url, timeRange?.s]);
+
+    const renderVideo = (style?: CSSProperties, mediaClass?: string) => (
+        <video
+            ref={videoRef}
+            src={url}
+            className={mediaClass ?? cn('size-full', fitClass)}
+            style={style}
+            muted
+            // A clip loops through useClipPlayback
+            loop={!timeRange}
+            playsInline
+            preload="metadata"
+            onLoadedMetadata={e =>
+                measure(e.currentTarget.videoWidth, e.currentTarget.videoHeight)
+            }
+        />
+    );
+    const renderImage = (style?: CSSProperties, mediaClass?: string) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+            src={url}
+            alt={asset.name ?? ''}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            className={mediaClass ?? cn('size-full', fitClass)}
+            style={style ?? (size && !natural ? {maxHeight: size} : undefined)}
+            onLoad={e =>
+                measure(
+                    e.currentTarget.naturalWidth,
+                    e.currentTarget.naturalHeight
+                )
+            }
+        />
+    );
 
     return (
         <div
@@ -125,47 +185,27 @@ export function AssetThumb({
                     <AnalysisChip file={source} />
                 </div>
             ) : url ? (
-                isVideoThumb ? (
-                    <video
-                        ref={videoRef}
-                        src={url}
-                        className={cn('size-full', fitClass)}
-                        muted
-                        loop
-                        playsInline
-                        preload="metadata"
-                        onLoadedMetadata={e =>
-                            measure(
-                                e.currentTarget.videoWidth,
-                                e.currentTarget.videoHeight
-                            )
-                        }
-                    />
-                ) : isAudioThumb ? (
+                isAudioThumb ? (
                     <AudioPlayer
                         src={url}
                         controls={false}
                         playing={playing}
                         height={Math.round((size ?? 200) * 0.4)}
                         className="size-full px-2"
+                        timeRange={timeRange}
                     />
-                ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                        src={url}
-                        alt={asset.name ?? ''}
-                        loading="lazy"
-                        decoding="async"
-                        draggable={false}
-                        className={cn('size-full', fitClass)}
-                        style={size && !natural ? {maxHeight: size} : undefined}
-                        onLoad={e =>
-                            measure(
-                                e.currentTarget.naturalWidth,
-                                e.currentTarget.naturalHeight
-                            )
+                ) : crop ? (
+                    <ClipFrame crop={crop} aspect={cropMediaAspect}>
+                        {media =>
+                            isVideoThumb
+                                ? renderVideo(media.style, media.className)
+                                : renderImage(media.style, media.className)
                         }
-                    />
+                    </ClipFrame>
+                ) : isVideoThumb ? (
+                    renderVideo()
+                ) : (
+                    renderImage()
                 )
             ) : (
                 <FileKindIcon

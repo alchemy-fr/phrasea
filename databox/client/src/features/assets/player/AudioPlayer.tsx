@@ -6,6 +6,8 @@ import {PauseIcon, PlayIcon} from 'lucide-react';
 import {useWavesurfer} from '@wavesurfer/react';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.esm.js';
+import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js';
+import type {ClipTimeRange} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {Spinner} from '@/components/ui/loader';
 import {formatDuration} from '@/lib/utils/format';
@@ -47,6 +49,10 @@ function formatTime(seconds: number): string {
  * `playing`, playback is driven by the parent instead (thumbnails played on
  * hover): it rewinds when `playing` turns false.
  *
+ * With `timeRange` (the clip of a basket item), the range is highlighted on
+ * the waveform and the playback is bounded to it: it starts at the range
+ * start and stops (loops, when driven by `playing`) at its end.
+ *
  * The player fills the width of its box.
  */
 export function AudioPlayer({
@@ -56,6 +62,9 @@ export function AudioPlayer({
     controls = true,
     height = 128,
     className,
+    timeRange,
+    onTimeUpdate,
+    onDuration,
 }: {
     src: string;
     autoPlay?: boolean;
@@ -64,6 +73,10 @@ export function AudioPlayer({
     /** Waveform height in px */
     height?: number;
     className?: string;
+    timeRange?: ClipTimeRange;
+    onTimeUpdate?: (time: number) => void;
+    /** Called once the sound is loaded */
+    onDuration?: (duration: number) => void;
 }) {
     const {t} = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -74,19 +87,34 @@ export function AudioPlayer({
                 'rgba(99, 102, 241, 0.5)'
             ),
             progress: resolveCssColor('var(--primary)', 'rgb(99, 102, 241)'),
+            region: resolveCssColor(
+                'color-mix(in oklch, var(--primary) 20%, transparent)',
+                'rgba(99, 102, 241, 0.2)'
+            ),
         }),
         []
     );
+    const hasRange = !!timeRange;
+    const regions = useMemo(
+        () => (hasRange ? RegionsPlugin.create() : undefined),
+        [hasRange]
+    );
     const plugins = useMemo(
-        () =>
-            controls
+        () => [
+            ...(controls
                 ? [
                       TimelinePlugin.create(),
                       ZoomPlugin.create({scale: 0.5, maxZoom: 100}),
                   ]
-                : [],
-        [controls]
+                : []),
+            ...(regions ? [regions] : []),
+        ],
+        [controls, regions]
     );
+    const onTimeUpdateRef = useRef(onTimeUpdate);
+    onTimeUpdateRef.current = onTimeUpdate;
+    const onDurationRef = useRef(onDuration);
+    onDurationRef.current = onDuration;
 
     const {wavesurfer, currentTime, isReady, isPlaying} = useWavesurfer({
         container: containerRef,
@@ -121,6 +149,8 @@ export function AudioPlayer({
         return () => observer.disconnect();
     }, [wavesurfer, autoPlay, isReady]);
 
+    const rangeStart = timeRange?.s;
+    const rangeEnd = timeRange?.e;
     useEffect(() => {
         if (!wavesurfer || !isReady || undefined === playing) {
             return;
@@ -130,9 +160,80 @@ export function AudioPlayer({
             wavesurfer.play().catch(() => undefined);
         } else {
             wavesurfer.pause();
-            wavesurfer.seekTo(0);
+            if (rangeStart !== undefined) {
+                wavesurfer.setTime(rangeStart);
+            } else {
+                wavesurfer.seekTo(0);
+            }
         }
-    }, [wavesurfer, isReady, playing]);
+    }, [wavesurfer, isReady, playing, rangeStart]);
+
+    useEffect(() => {
+        if (!wavesurfer) {
+            return;
+        }
+
+        return wavesurfer.on('timeupdate', time =>
+            onTimeUpdateRef.current?.(time)
+        );
+    }, [wavesurfer]);
+
+    useEffect(() => {
+        if (wavesurfer && isReady) {
+            onDurationRef.current?.(wavesurfer.getDuration());
+        }
+    }, [wavesurfer, isReady]);
+
+    // The clip: highlighted, and bounding the playback
+    const loop = undefined !== playing;
+    useEffect(() => {
+        if (
+            !wavesurfer ||
+            !isReady ||
+            rangeStart === undefined ||
+            rangeEnd === undefined
+        ) {
+            return;
+        }
+        const inRange = (time: number) => time >= rangeStart && time < rangeEnd;
+
+        regions?.clearRegions();
+        regions?.addRegion({
+            start: rangeStart,
+            end: rangeEnd,
+            drag: false,
+            resize: false,
+            color: colors.region,
+        });
+        if (!inRange(wavesurfer.getCurrentTime())) {
+            wavesurfer.setTime(rangeStart);
+        }
+
+        const unsubscribe = [
+            wavesurfer.on('timeupdate', time => {
+                if (time < rangeEnd) {
+                    return;
+                }
+                if (loop) {
+                    wavesurfer.setTime(rangeStart);
+                } else {
+                    wavesurfer.pause();
+                }
+            }),
+            wavesurfer.on('play', () => {
+                if (!inRange(wavesurfer.getCurrentTime())) {
+                    wavesurfer.setTime(rangeStart);
+                }
+            }),
+            wavesurfer.on('interaction', time => {
+                if (!inRange(time)) {
+                    wavesurfer.setTime(rangeStart);
+                }
+            }),
+        ];
+
+        return () => unsubscribe.forEach(u => u());
+    }, [wavesurfer, isReady, regions, rangeStart, rangeEnd, loop, colors]);
 
     const duration = wavesurfer && isReady ? wavesurfer.getDuration() : null;
     const playLabel = isPlaying
