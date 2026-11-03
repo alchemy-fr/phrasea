@@ -1,4 +1,4 @@
-(function (config, env) {
+(function (stackConfig, env) {
     const normalizeTypes = value => {
         if (!value) {
             return {};
@@ -51,9 +51,6 @@
         return undefined;
     }
 
-    const stackConfig = JSON.parse(
-        require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8')
-    );
     const customHTML = {};
     customHTML['__MUI_THEME__'] = '';
     if (stackConfig.theme) {
