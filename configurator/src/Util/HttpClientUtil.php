@@ -17,7 +17,12 @@ abstract class HttpClientUtil
     public const array DEFAULT_UNEXPECTED_CODES = [500];
     public const array DEFAULT_SUCCESS_CODES = [200];
 
-    public static function debugError(callable $handler, ?int $ignoreHttpCode = null, ?array $data = null, int $retry = 0): mixed
+    /**
+     * @param callable|null $isAlreadyApplied for non-idempotent requests: called after a transport error
+     *                                        (the request may have reached the server anyway), the request
+     *                                        is not sent again if it returns true
+     */
+    public static function debugError(callable $handler, ?int $ignoreHttpCode = null, ?array $data = null, int $retry = 0, ?callable $isAlreadyApplied = null): mixed
     {
         try {
             return $handler();
@@ -28,7 +33,11 @@ abstract class HttpClientUtil
 
             sleep(1);
 
-            return self::debugError($handler, $ignoreHttpCode, $data, $retry + 1);
+            if (null !== $isAlreadyApplied && $isAlreadyApplied()) {
+                return null;
+            }
+
+            return self::debugError($handler, $ignoreHttpCode, $data, $retry + 1, $isAlreadyApplied);
         } catch (HttpExceptionInterface $e) {
             if (null !== $ignoreHttpCode && $ignoreHttpCode === $e->getResponse()->getStatusCode()) {
                 return null;
