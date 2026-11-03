@@ -32,8 +32,9 @@ type Props = {
 
 /**
  * Ordered list of metadata tag names (e.g. "IPTC:Keywords") with suggestions
- * from the exiftool dictionary: the namespaces first, then the tags of the
- * namespace once it is picked (or typed followed by a colon).
+ * from the exiftool dictionary: the namespaces and the tags of any namespace
+ * matching the typed name, then the tags of the namespace once it is picked
+ * (or typed followed by a colon).
  */
 export function MetadataTagsField({
     value,
@@ -69,6 +70,9 @@ export function MetadataTagsField({
     const typed = search.trim();
     const typedTag = /^[^:\s]+:[^:\s]+$/.test(typed) ? typed : undefined;
     const items = suggestions.data ?? [];
+    const namespaces = items.filter(i => !i.name);
+    const tags = items.filter(i => !!i.name);
+    const grouped = namespaces.length > 0 && tags.length > 0;
     const canAddTyped =
         !!typedTag &&
         !value.includes(typedTag) &&
@@ -154,8 +158,8 @@ export function MetadataTagsField({
                                 {t('common.no_match', 'No match')}
                             </CommandEmpty>
                         )}
-                        <CommandGroup>
-                            {canAddTyped ? (
+                        {canAddTyped ? (
+                            <CommandGroup>
                                 <CommandItem
                                     value={`__typed_${typedTag}`}
                                     onSelect={() => add(typedTag!)}
@@ -167,73 +171,94 @@ export function MetadataTagsField({
                                         {tag: typedTag}
                                     )}
                                 </CommandItem>
-                            ) : null}
-                            {items.map(item => {
-                                if (!item.name) {
+                            </CommandGroup>
+                        ) : null}
+                        {namespaces.length > 0 ? (
+                            <CommandGroup
+                                heading={
+                                    grouped
+                                        ? t(
+                                              'metadata_tags.namespaces',
+                                              'Namespaces'
+                                          )
+                                        : undefined
+                                }
+                            >
+                                {namespaces.map(item => (
+                                    <CommandItem
+                                        key={item.id}
+                                        value={item.id}
+                                        onSelect={() => {
+                                            setSearch(`${item.id}:`);
+                                            inputRef.current?.focus();
+                                        }}
+                                    >
+                                        <span className="flex-1 truncate font-mono">
+                                            {item.id}
+                                        </span>
+                                        <ChevronRightIcon className="opacity-50" />
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        ) : null}
+                        {tags.length > 0 ? (
+                            <CommandGroup
+                                heading={
+                                    grouped
+                                        ? t('metadata_tags.tags', 'Tags')
+                                        : undefined
+                                }
+                            >
+                                {tags.map(item => {
+                                    const selected = value.includes(item.id);
+                                    const readOnly =
+                                        writableOnly && item.writable === false;
+
                                     return (
                                         <CommandItem
                                             key={item.id}
                                             value={item.id}
-                                            onSelect={() => {
-                                                setSearch(`${item.id}:`);
-                                                inputRef.current?.focus();
-                                            }}
+                                            disabled={selected || readOnly}
+                                            onSelect={() => add(item.id)}
                                         >
-                                            <span className="flex-1 truncate font-mono">
-                                                {item.id}
+                                            <CheckIcon
+                                                className={cn(
+                                                    !selected && 'opacity-0'
+                                                )}
+                                            />
+                                            <span className="flex min-w-0 flex-1 flex-col">
+                                                <span className="truncate font-mono">
+                                                    {item.id}
+                                                </span>
+                                                {item.description &&
+                                                item.description !==
+                                                    item.name ? (
+                                                    <span className="truncate text-xs text-muted-foreground">
+                                                        {item.description}
+                                                    </span>
+                                                ) : null}
                                             </span>
-                                            <ChevronRightIcon className="opacity-50" />
+                                            {item.multi ? (
+                                                <Badge variant="muted">
+                                                    {t(
+                                                        'metadata_tags.multi',
+                                                        'List'
+                                                    )}
+                                                </Badge>
+                                            ) : null}
+                                            {item.writable === false ? (
+                                                <Badge variant="outline">
+                                                    {t(
+                                                        'metadata_tags.read_only',
+                                                        'Read-only'
+                                                    )}
+                                                </Badge>
+                                            ) : null}
                                         </CommandItem>
                                     );
-                                }
-
-                                const selected = value.includes(item.id);
-                                const readOnly =
-                                    writableOnly && item.writable === false;
-
-                                return (
-                                    <CommandItem
-                                        key={item.id}
-                                        value={item.id}
-                                        disabled={selected || readOnly}
-                                        onSelect={() => add(item.id)}
-                                    >
-                                        <CheckIcon
-                                            className={cn(
-                                                !selected && 'opacity-0'
-                                            )}
-                                        />
-                                        <span className="flex min-w-0 flex-1 flex-col">
-                                            <span className="truncate font-mono">
-                                                {item.id}
-                                            </span>
-                                            {item.description &&
-                                            item.description !== item.name ? (
-                                                <span className="truncate text-xs text-muted-foreground">
-                                                    {item.description}
-                                                </span>
-                                            ) : null}
-                                        </span>
-                                        {item.multi ? (
-                                            <Badge variant="muted">
-                                                {t(
-                                                    'metadata_tags.multi',
-                                                    'List'
-                                                )}
-                                            </Badge>
-                                        ) : null}
-                                        {item.writable === false ? (
-                                            <Badge variant="outline">
-                                                {t(
-                                                    'metadata_tags.read_only',
-                                                    'Read-only'
-                                                )}
-                                            </Badge>
-                                        ) : null}
-                                    </CommandItem>
-                                );
-                            })}
-                        </CommandGroup>
+                                })}
+                            </CommandGroup>
+                        ) : null}
                     </CommandList>
                 </PopoverContent>
             </Popover>

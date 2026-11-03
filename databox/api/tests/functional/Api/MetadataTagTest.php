@@ -8,8 +8,9 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Tests\Functional\AbstractDataboxTestCase;
 
 /**
- * The exiftool dictionary (/metadata-tags) suggests the namespaces, then the
- * tags of a namespace once the query contains a colon.
+ * The exiftool dictionary (/metadata-tags) suggests the namespaces and the tags of
+ * every namespace by their name, then the tags of a namespace once the query
+ * contains a colon.
  */
 class MetadataTagTest extends AbstractDataboxTestCase
 {
@@ -28,9 +29,63 @@ class MetadataTagTest extends AbstractDataboxTestCase
         $this->assertSame('IPTC', $members[0]['id']);
         $this->assertSame('IPTC', $members[0]['namespace']);
         $this->assertNull($members[0]['name'] ?? null);
+
+        $namespaces = array_filter($members, fn (array $member): bool => null === ($member['name'] ?? null));
+        $this->assertTrue(array_is_list($namespaces), 'the namespaces come before the tags');
+        foreach ($namespaces as $namespace) {
+            $this->assertStringNotContainsString(':', $namespace['id']);
+            $this->assertStringContainsStringIgnoringCase('ipt', $namespace['id']);
+        }
+        foreach (array_slice($members, count($namespaces)) as $tag) {
+            $this->assertStringContainsStringIgnoringCase('ipt', $tag['name']);
+        }
+    }
+
+    public function testTagNameIsSearchedInEveryNamespace(): void
+    {
+        $members = $this->search('title');
+
+        $this->assertNotEmpty($members);
+        $this->assertLessThanOrEqual(50, count($members));
+        $ids = array_column($members, 'id');
+        $this->assertContains('XMP-dc:Title', $ids);
+        $this->assertGreaterThan(1, count(array_unique(array_column($members, 'namespace'))));
+
+        $namespaces = array_filter($members, fn (array $member): bool => null === ($member['name'] ?? null));
+        $this->assertTrue(array_is_list($namespaces), 'the namespaces come before the tags');
+        foreach ($namespaces as $namespace) {
+            $this->assertStringContainsStringIgnoringCase('title', $namespace['id']);
+        }
+        $tags = array_slice($members, count($namespaces));
+        foreach ($tags as $tag) {
+            $this->assertStringContainsStringIgnoringCase('title', $tag['name']);
+            $this->assertSame($tag['namespace'].':'.$tag['name'], $tag['id']);
+        }
+
+        $title = $members[array_search('XMP-dc:Title', $ids, true)];
+        $this->assertSame('XMP-dc', $title['namespace']);
+        $this->assertSame('Title', $title['name']);
+        $this->assertTrue($title['writable']);
+
+        // Exact matches, then prefix matches, then contained ones
+        $ranks = array_map(fn (array $member): int => match (true) {
+            0 === strcasecmp($member['name'], 'title') => 0,
+            0 === stripos($member['name'], 'title') => 1,
+            default => 2,
+        }, $tags);
+        $sorted = $ranks;
+        sort($sorted);
+        $this->assertSame($sorted, $ranks);
+        $this->assertSame(0, $ranks[0]);
+    }
+
+    public function testTagsAreNotSearchedWithASingleCharacter(): void
+    {
+        $members = $this->search('t');
+
+        $this->assertNotEmpty($members);
         foreach ($members as $member) {
-            $this->assertStringNotContainsString(':', $member['id']);
-            $this->assertStringContainsStringIgnoringCase('ipt', $member['id']);
+            $this->assertNull($member['name'] ?? null);
         }
     }
 
