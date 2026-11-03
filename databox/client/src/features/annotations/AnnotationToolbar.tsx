@@ -7,6 +7,7 @@ import {
     ChevronDownIcon,
     CircleIcon,
     CrosshairIcon,
+    FlagIcon,
     LucideIcon,
     MousePointer2Icon,
     MoveUpRightIcon,
@@ -63,8 +64,9 @@ type Props = {
 
 /**
  * The tools of the layer, in the toolbar of the player: the selection and
- * drawing tools, the color, fill and size of the tool or of the selected
- * shape, pausing the tools and hiding the annotations.
+ * drawing tools (and the cue of a video), the color, fill and size of the
+ * tool or of the selected shape, pausing the tools and hiding the
+ * annotations.
  */
 export function AnnotationToolbar({
     editor,
@@ -152,8 +154,9 @@ export function AnnotationToolbar({
     const optionsType = editor.selected?.type ?? tool;
     const optionsModel = getShapeModel(optionsType);
     const fillable = !!optionsModel?.fillable;
-    // A shape drawn by the client has no style option
-    const styled = !optionsModel?.fixedStyle;
+    // A shape drawn by the client has no style option, a cue has no shape
+    const styled =
+        !optionsModel?.fixedStyle && optionsType !== AnnotationType.Cue;
     const isText = optionsType === AnnotationType.Text;
     const maxSize = isText ? 120 : 40;
 
@@ -262,6 +265,23 @@ export function AnnotationToolbar({
                             tool === item.type
                         )
                     )}
+                    {editor.timeline
+                        ? button(
+                              AnnotationType.Cue,
+                              t(
+                                  'annotation.add_cue',
+                                  'Add a cue at the current time'
+                              ),
+                              <FlagIcon />,
+                              () => {
+                                  setTool(undefined);
+                                  editor.add({
+                                      type: AnnotationType.Cue,
+                                      t: editor.timeline!.now(),
+                                  });
+                              }
+                          )
+                        : null}
                 </>
             ) : null}
             {editable && annotate && styled ? (

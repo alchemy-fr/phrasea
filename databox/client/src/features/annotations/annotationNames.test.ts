@@ -1,6 +1,10 @@
 import {describe, expect, it} from 'vitest';
 import type {TFunction} from 'i18next';
-import {getAnnotationLabel, getAnnotationName} from './annotationNames';
+import {
+    formatAnnotationTime,
+    getAnnotationLabel,
+    getAnnotationName,
+} from './annotationNames';
 import {labelAttributeAnnotations} from './assetAnnotations';
 import {AttributeType, type Attribute} from '@/types/api';
 import {AnnotationType, type AssetAnnotation} from './types';
@@ -49,6 +53,16 @@ describe('getAnnotationLabel', () => {
         );
     });
 
+    it('tells the time of a shape or a cue of a video', () => {
+        expect(getAnnotationLabel(t, {...rect, name: 'Logo', t: 5.9})).toBe(
+            'Logo · 0:05'
+        );
+        expect(getAnnotationLabel(t, {type: AnnotationType.Cue, t: 754})).toBe(
+            'Cue · 12:34'
+        );
+        expect(getAnnotationLabel(t, {...rect, t: 0})).toBe('Rectangle · 0:00');
+    });
+
     it('names the shapes of a value once, with their page', () => {
         const attribute = {
             id: 'a1',
@@ -65,5 +79,17 @@ describe('getAnnotationLabel', () => {
 
         expect(shape.name).toBe('Signed');
         expect(getAnnotationLabel(t, shape)).toBe('Signed · p. 3');
+    });
+});
+
+describe('formatAnnotationTime', () => {
+    it('shows minutes and seconds, hours from an hour', () => {
+        expect(formatAnnotationTime(0)).toBe('0:00');
+        expect(formatAnnotationTime(9.99)).toBe('0:09');
+        expect(formatAnnotationTime(65)).toBe('1:05');
+        expect(formatAnnotationTime(3599)).toBe('59:59');
+        expect(formatAnnotationTime(3600)).toBe('1:00:00');
+        expect(formatAnnotationTime(3725)).toBe('1:02:05');
+        expect(formatAnnotationTime(-3)).toBe('0:00');
     });
 });

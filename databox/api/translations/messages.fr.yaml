@@ -16,6 +16,7 @@ field_type:
     number: Nombre
     text: Texte
     textarea: Zone de texte
+    web_vtt: Sous-titres WebVTT
     id: ID
     privacy: Confidentialité
     asset_status: Statut de l'asset

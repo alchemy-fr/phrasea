@@ -309,3 +309,80 @@ describe('useAnnotationEditor', () => {
         ]);
     });
 });
+
+describe('useAnnotationEditor of a video', () => {
+    const shapes: AssetAnnotation[] = [
+        {...rect, id: 'still'},
+        {...rect, id: 'at5', t: 5},
+        {...rect, id: 'at9', t: 9},
+        {id: 'cue', type: AnnotationType.Cue, t: 5},
+    ];
+
+    function setupVideo(time: number | undefined, now = time ?? 0) {
+        const onChange = vi.fn();
+        const hook = renderHook(
+            ({time}: {time: number | undefined}) =>
+                useAnnotationEditor(
+                    {key: 'v', annotations: shapes, editable: true, onChange},
+                    undefined,
+                    {time, tolerance: 0.04, now: () => now}
+                ),
+            {initialProps: {time}}
+        );
+
+        return {hook, onChange, editor: () => hook.result.current};
+    }
+
+    it('keeps the shapes of the frame shown within a frame, and the ones without a time', () => {
+        const {editor, hook} = setupVideo(5.03);
+        const ids = () => editor().pageAnnotations.map(a => a.id);
+        expect(ids()).toEqual(['still', 'at5', 'cue']);
+        expect(editor().isAtTime(shapes[2])).toBe(false);
+
+        hook.rerender({time: 5.05});
+        expect(ids()).toEqual(['still']);
+
+        hook.rerender({time: 9});
+        expect(ids()).toEqual(['still', 'at9']);
+    });
+
+    it('keeps the shapes without a time only while playing', () => {
+        const {editor} = setupVideo(undefined);
+        expect(editor().pageAnnotations.map(a => a.id)).toEqual(['still']);
+        expect(editor().timeline?.time).toBeUndefined();
+    });
+
+    it('puts a shape created on the current time of the video', () => {
+        const {editor, onChange} = setupVideo(7.25);
+        act(() => {
+            editor().add({...rect, id: undefined});
+        });
+        expect(onChange.mock.lastCall![0][4]).toMatchObject({
+            type: AnnotationType.Rect,
+            t: 7.25,
+        });
+        expect(onChange.mock.lastCall![0][4]).not.toHaveProperty('page');
+    });
+
+    it('keeps the time of a cue, named after its type', () => {
+        const {editor, onChange} = setupVideo(undefined, 12);
+        act(() => {
+            editor().add({type: AnnotationType.Cue, t: 3.5});
+        });
+        expect(onChange.mock.lastCall![0][4]).toMatchObject({
+            type: AnnotationType.Cue,
+            t: 3.5,
+            name: 'Cue #2',
+        });
+    });
+
+    it('does not time the shapes of an image', () => {
+        const {editor, onChange} = setup();
+        expect(editor().timeline).toBeUndefined();
+        expect(editor().isAtTime({...rect, t: 3})).toBe(true);
+        act(() => {
+            editor().add({...rect, id: undefined});
+        });
+        expect(onChange.mock.lastCall![0][0]).not.toHaveProperty('t');
+    });
+});

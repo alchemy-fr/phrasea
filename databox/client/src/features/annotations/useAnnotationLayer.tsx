@@ -12,11 +12,17 @@ import {
     type AnnotationEditor,
 } from './useAnnotationEditor';
 import {useAnnotations, type AnnotationTarget} from './AnnotationsProvider';
+import type {AnnotationTimeline} from './common';
 
 type Props = {
     /** Screen pixels per pixel of the media (the player's zoom) */
     zoom: number;
     page?: number;
+    /**
+     * A video: the shapes are the ones of the frame shown, the pointer goes
+     * through the layer to the player out of the drawing tools
+     */
+    timeline?: AnnotationTimeline;
     /**
      * False: nothing is shown nor told to the provider (a player that is
      * not the media of the asset view)
@@ -34,7 +40,12 @@ type Props = {
  *
  * Returns nothing to render without a provider or a target.
  */
-export function useAnnotationLayer({zoom, page, enabled = true}: Props): {
+export function useAnnotationLayer({
+    zoom,
+    page,
+    timeline,
+    enabled = true,
+}: Props): {
     /** To render over the image, in a box following its transform */
     layer: ReactNode;
     /** The layer of a page of a document, in a box of the size of the page */
@@ -51,7 +62,7 @@ export function useAnnotationLayer({zoom, page, enabled = true}: Props): {
     const providerCtx = useAnnotations();
     const ctx = enabled ? providerCtx : undefined;
     const target = ctx?.target;
-    const editor = useAnnotationEditor(target, page);
+    const editor = useAnnotationEditor(target, page, timeline);
     const fallback = ctx?.fallback;
     const editing = !!target?.editable && target.key !== fallback?.key;
     const editedValue = target?.attributeId;
@@ -141,6 +152,7 @@ export function useAnnotationLayer({zoom, page, enabled = true}: Props): {
             onEditShape={ctx.editShape}
             canEditShape={ctx.canEditShape}
             context={context}
+            passThrough={!!timeline}
         />
     );
 

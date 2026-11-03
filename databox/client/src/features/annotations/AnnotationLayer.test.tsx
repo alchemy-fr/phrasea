@@ -1,9 +1,12 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import type {ReactNode} from 'react';
+import {useEffect, type ReactNode} from 'react';
 import {cleanup, fireEvent, render} from '@testing-library/react';
 import {Tooltip as TooltipPrimitive} from 'radix-ui';
 import {AnnotationLayer} from './AnnotationLayer';
-import type {AnnotationEditor} from './useAnnotationEditor';
+import {
+    useAnnotationEditor,
+    type AnnotationEditor,
+} from './useAnnotationEditor';
 import {AnnotationType, type AssetAnnotation} from './types';
 import {faceStyle} from './shapes';
 
@@ -42,6 +45,7 @@ function renderLayer(
         setAnnotate,
         media: {width: 1000, height: 500},
         mediaOf: () => ({width: 1000, height: 500}),
+        isAtTime: () => true,
         setMedia: vi.fn(),
         tool: undefined,
         options: {color: '#ffffff', size: 1},
@@ -301,6 +305,7 @@ describe('AnnotationLayer of a page', () => {
             setAnnotate: vi.fn(),
             media: {width: 0, height: 0},
             mediaOf: (p?: number) => pageMedia[p ?? 1],
+            isAtTime: () => true,
             setMedia: vi.fn(),
             tool: undefined,
             setTool: vi.fn(),
@@ -376,5 +381,114 @@ describe('AnnotationLayer of a page', () => {
         expect(
             container.querySelector('[data-annotation-id="p1"]')
         ).toBeTruthy();
+    });
+});
+
+describe('AnnotationLayer of a video', () => {
+    const shapes: AssetAnnotation[] = [
+        {
+            id: 'still',
+            type: AnnotationType.Rect,
+            x: 0.1,
+            y: 0.1,
+            w: 0.2,
+            h: 0.2,
+        },
+        {
+            id: 'at5',
+            type: AnnotationType.Rect,
+            x: 0.1,
+            y: 0.1,
+            w: 0.2,
+            h: 0.2,
+            t: 5,
+        },
+        {
+            id: 'at9',
+            type: AnnotationType.Circle,
+            x: 0.5,
+            y: 0.5,
+            r: 0.1,
+            t: 9,
+        },
+        {id: 'cue', type: AnnotationType.Cue, t: 5},
+    ];
+    const target = {key: 'k', annotations: shapes, editable: true};
+
+    beforeEach(() => {
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                observe() {}
+                disconnect() {}
+            }
+        );
+    });
+
+    afterEach(() => {
+        cleanup();
+        vi.unstubAllGlobals();
+    });
+
+    function VideoLayer({
+        time,
+        tool,
+    }: {
+        time: number | undefined;
+        tool?: AnnotationType;
+    }) {
+        const editor = useAnnotationEditor(target, undefined, {
+            time,
+            tolerance: 0.04,
+            now: () => time ?? 0,
+        });
+        const {setMedia, setTool} = editor;
+        useEffect(() => {
+            setMedia({width: 1000, height: 500});
+        }, [setMedia]);
+        useEffect(() => {
+            setTool(tool);
+        }, [setTool, tool]);
+
+        return <AnnotationLayer editor={editor} zoom={1} passThrough />;
+    }
+
+    const shown = (container: HTMLElement) =>
+        Array.from(container.querySelectorAll('[data-annotation-id]')).map(g =>
+            g.getAttribute('data-annotation-id')
+        );
+
+    const renderVideo = (time: number | undefined, tool?: AnnotationType) =>
+        render(
+            <TooltipPrimitive.Provider>
+                <VideoLayer time={time} tool={tool} />
+            </TooltipPrimitive.Provider>
+        ).container;
+
+    it('shows the shapes of the frame paused on and the ones without a time, never a cue', () => {
+        expect(shown(renderVideo(5.02))).toEqual(['still', 'at5']);
+        cleanup();
+        expect(shown(renderVideo(9))).toEqual(['still', 'at9']);
+        cleanup();
+        expect(shown(renderVideo(5.1))).toEqual(['still']);
+    });
+
+    it('hides the timed shapes while playing', () => {
+        expect(shown(renderVideo(undefined))).toEqual(['still']);
+    });
+
+    it('lets the pointer through to the video but on the shapes, out of a tool', () => {
+        const container = renderVideo(5);
+        expect(container.querySelector('svg')!.style.pointerEvents).toBe(
+            'none'
+        );
+        const shape = container.querySelector(
+            '[data-annotation-id="at5"]'
+        ) as SVGGElement;
+        expect(shape.style.pointerEvents.toLowerCase()).toBe('visiblepainted');
+        cleanup();
+
+        const drawing = renderVideo(5, AnnotationType.Rect);
+        expect(drawing.querySelector('svg')!.style.pointerEvents).toBe('auto');
     });
 });

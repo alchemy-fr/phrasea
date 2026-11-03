@@ -20,6 +20,7 @@ import {Tooltip} from '@/components/ui/overlays';
 import {FullPageLoader} from '@/components/ui/loader';
 import {EmptyState, Separator} from '@/components/ui/misc';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
+import {getSubtitleTracks} from '@/features/assets/player/subtitles';
 import {
     AssetPanel,
     defaultAssetPanelTab,
@@ -108,7 +109,7 @@ export function AssetViewRoute({
             setPanelTab(hashTarget);
         }
     }, [initialAssetId, initialRenditionId]);
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const queryClient = useQueryClient();
     const {openModal} = useModals();
     const close = useCloseRoute();
@@ -196,6 +197,10 @@ export function AssetViewRoute({
     const displayedFile = rendition?.file ?? standInFile(storyStandIn);
     // The media displayed is the stand-in's for a story without a file
     const displayedAsset = storyStandIn ?? asset;
+    const subtitles = useMemo(
+        () => getSubtitleTracks(displayedAsset?.attributes, i18n.language),
+        [displayedAsset?.attributes, i18n.language]
+    );
     useContentImpression(
         displayedFile ? displayedAsset : undefined,
         displayedFile?.type
@@ -529,6 +534,7 @@ export function AssetViewRoute({
                                         fit="zoom"
                                         className="size-full"
                                         autoPlay
+                                        subtitles={subtitles}
                                     />
                                 </div>
                             ) : asset &&

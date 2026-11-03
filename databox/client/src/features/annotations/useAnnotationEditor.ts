@@ -14,8 +14,10 @@ import {getDefaultOptions, updateLastOptions} from './defaultOptions';
 import {
     ensureAnnotationIds,
     getAnnotationPage,
+    isAtTime,
     isOnPage,
     toStoredAnnotation,
+    type AnnotationTimeline,
 } from './common';
 import {getDefaultAnnotationName} from './annotationNames';
 
@@ -28,13 +30,23 @@ export type TextEdit = {
 export type AnnotationEditor = {
     /** Every shape of the target, with an id */
     annotations: AssetAnnotation[];
-    /** The shapes of `page`, all of them without a page */
+    /**
+     * The shapes of `page` (all of them without a page) on the frame shown
+     * (see `timeline`)
+     */
     pageAnnotations: AssetAnnotation[];
     /**
      * The page the layers are of unless they tell theirs (a document shows
      * one layer per page), every page when undefined
      */
     page: number | undefined;
+    /**
+     * The instant of a video the layer shows: the shapes are drawn on its
+     * frame, the cues are placed at its current time
+     */
+    timeline: AnnotationTimeline | undefined;
+    /** The shape is on the frame shown, always without a timeline */
+    isAtTime: (annotation: AssetAnnotation) => boolean;
     editable: boolean;
     /** The pointer draws and selects shapes (editable and not paused) */
     active: boolean;
@@ -64,7 +76,8 @@ export type AnnotationEditor = {
     editText: (edit: TextEdit | undefined) => void;
     commitText: (text: string) => void;
     /**
-     * Adds a shape (named, on its page, else on `page`) and selects it
+     * Adds a shape (named, on its page, else on `page`; at its time, else
+     * at the current time of the timeline) and selects it
      */
     add: (annotation: AssetAnnotation) => AssetAnnotation;
     update: (id: string, annotation: AssetAnnotation) => void;
@@ -106,7 +119,8 @@ export const draftId = '__draft__';
  */
 export function useAnnotationEditor(
     target: AnnotationTarget | undefined,
-    page: number | undefined
+    page: number | undefined,
+    timeline?: AnnotationTimeline
 ): AnnotationEditor {
     const {t} = useTranslation();
     const editable = !!target?.editable;
@@ -129,17 +143,37 @@ export function useAnnotationEditor(
             ),
         [target?.annotations, targetKey]
     );
+    const timelineTime = timeline?.time;
+    const timelineTolerance = timeline?.tolerance;
+    const timed = !!timeline;
+    const atTime = useCallback(
+        (annotation: AssetAnnotation) =>
+            isAtTime(
+                annotation,
+                timed
+                    ? {time: timelineTime, tolerance: timelineTolerance ?? 0}
+                    : undefined
+            ),
+        [timed, timelineTime, timelineTolerance]
+    );
     const pageAnnotations = useMemo(
         () =>
-            page === undefined
+            page === undefined && !timed
                 ? annotations
-                : annotations.filter(a => isOnPage(a, page)),
-        [annotations, page]
+                : annotations.filter(a => isOnPage(a, page) && atTime(a)),
+        [annotations, page, timed, atTime]
     );
 
     // The actions read the latest values without being recreated
-    const latest = useRef({annotations, medias, page, selectedId, tool});
-    latest.current = {annotations, medias, page, selectedId, tool};
+    const latest = useRef({
+        annotations,
+        medias,
+        page,
+        selectedId,
+        tool,
+        timeline,
+    });
+    latest.current = {annotations, medias, page, selectedId, tool, timeline};
     /** The size of the page of the shape */
     const shapeMedia = useCallback(
         (annotation: AssetAnnotation): MediaSize =>
@@ -203,7 +237,7 @@ export function useAnnotationEditor(
 
     const add = useCallback(
         (annotation: AssetAnnotation): AssetAnnotation => {
-            const {annotations} = latest.current;
+            const {annotations, timeline} = latest.current;
             const created: AssetAnnotation = {
                 ...annotation,
                 id: `annotation-${shortId()}`,
@@ -211,6 +245,9 @@ export function useAnnotationEditor(
             };
             if (created.page === undefined) {
                 delete created.page;
+            }
+            if (timeline && typeof created.t !== 'number') {
+                created.t = timeline.now();
             }
             if (!created.name && created.type !== AnnotationType.Text) {
                 created.name = getDefaultAnnotationName(
@@ -369,6 +406,8 @@ export function useAnnotationEditor(
         annotations,
         pageAnnotations,
         page,
+        timeline,
+        isAtTime: atTime,
         editable,
         active: editable && annotate,
         media: mediaOf(page),

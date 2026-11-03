@@ -32,6 +32,7 @@
         "@tiptap/pm": "^3.32.0",
         "@tiptap/react": "^3.32.0",
         "@tiptap/starter-kit": "^3.32.0",
+        "@videojs/react": "^10.2.0",
         "@wavesurfer/react": "^1.0.12",
         "ace-builds": "^1.45.2",
         "class-variance-authority": "^0.7.1",

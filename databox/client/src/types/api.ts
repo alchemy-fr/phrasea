@@ -494,6 +494,11 @@ export type AssetAnnotation = {
     name?: string;
     page?: number;
     /**
+     * Time in seconds of the frame of a video the shape is drawn on, the
+     * instant of a cue
+     */
+    t?: number;
+    /**
      * Client only: tooltip of the label of a read only shape, never sent to
      * the API
      */

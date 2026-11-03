@@ -110,6 +110,7 @@ export function AnnotationLayer({
     onEditShape,
     canEditShape,
     context,
+    passThrough = false,
 }: {
     editor: AnnotationEditor;
     /** The page of the document the layer is over, `editor.page` if unset */
@@ -130,24 +131,35 @@ export function AnnotationLayer({
      * but the ones `onEditShape` opens without a tool
      */
     context?: AssetAnnotation[];
+    /**
+     * Out of a drawing tool, the pointer goes through the layer to the media
+     * under it (a video and its controls) but on the shapes; space does not
+     * pan
+     */
+    passThrough?: boolean;
 }) {
     const {active, editable, tool, selectedId, setDraft} = editor;
     const layerPage = page ?? editor.page;
     const media = editor.mediaOf(layerPage);
-    const onLayer = (a: AssetAnnotation) => isOnPage(a, layerPage);
-    // The ones of the other pages are another layer's
+    // The ones of the other pages are another layer's, the ones of the other
+    // frames of a video are hidden
+    const onLayer = (a: AssetAnnotation) =>
+        isOnPage(a, layerPage) && editor.isAtTime(a);
     const draft =
         editor.draft && onLayer(editor.draft) ? editor.draft : undefined;
     const textEdit =
         editor.textEdit && onLayer(editor.textEdit.annotation)
             ? editor.textEdit
             : undefined;
+    const {isAtTime} = editor;
     const pageAnnotations = useMemo(
         () =>
             page === undefined
                 ? editor.pageAnnotations
-                : editor.annotations.filter(a => isOnPage(a, page)),
-        [page, editor.pageAnnotations, editor.annotations]
+                : editor.annotations.filter(
+                      a => isOnPage(a, page) && isAtTime(a)
+                  ),
+        [page, editor.pageAnnotations, editor.annotations, isAtTime]
     );
     /** A shape created on the layer goes on its page */
     const onThisPage = <T extends AssetAnnotation>(a: T): T =>
@@ -200,7 +212,7 @@ export function AnnotationLayer({
 
     // Space held: the pointer pans the image (the layer lets it through)
     useEffect(() => {
-        if (!active) {
+        if (!active || passThrough) {
             spaceRef.current = false;
             setSpaceHeld(false);
 
@@ -227,7 +239,7 @@ export function AnnotationLayer({
             window.removeEventListener('keydown', onKeyDown);
             window.removeEventListener('keyup', onKeyUp);
         };
-    }, [active]);
+    }, [active, passThrough]);
 
     // Delete removes the selected shape, the arrows move it, Escape cancels
     // the drag, leaves the tool, then deselects; before the viewer gets the
@@ -259,8 +271,14 @@ export function AnnotationLayer({
 
                 return;
             }
-            // The layer of the page of the selected shape moves it
-            if (!ed.selected || !active || !isOnPage(ed.selected, layerPage)) {
+            // The layer of the page of the selected shape moves it, when it
+            // is on the frame shown
+            if (
+                !ed.selected ||
+                !active ||
+                !isOnPage(ed.selected, layerPage) ||
+                !ed.isAtTime(ed.selected)
+            ) {
                 return;
             }
             if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -682,6 +700,8 @@ export function AnnotationLayer({
     // Read only: the veiled shape may grow, it has no handles to stay on
     const emphasized = editable ? undefined : masked;
     const shapeCursor = tool ? 'crosshair' : active ? 'move' : 'pointer';
+    // The layer takes the pointer, else only its shapes do
+    const capturing = active && !spaceHeld && (!passThrough || !!tool);
 
     return (
         <>
@@ -697,7 +717,7 @@ export function AnnotationLayer({
                     zIndex: annotationZIndex + 1,
                     overflow: 'visible',
                     cursor: tool ? 'crosshair' : 'default',
-                    pointerEvents: active && !spaceHeld ? 'auto' : 'none',
+                    pointerEvents: capturing ? 'auto' : 'none',
                     touchAction: 'none',
                     userSelect: 'none',
                 }}
@@ -809,7 +829,7 @@ export function AnnotationLayer({
                                       pointerEvents:
                                           annotation.id === draftId
                                               ? 'none'
-                                              : active
+                                              : capturing
                                                 ? undefined
                                                 : 'visiblePainted',
                                   }}
@@ -826,7 +846,17 @@ export function AnnotationLayer({
                       })
                     : null}
                 {selected && selectedBox && !tool ? (
-                    <g style={{pointerEvents: dragging ? 'none' : undefined}}>
+                    <g
+                        style={{
+                            // The handles answer the pointer the layer lets
+                            // through
+                            pointerEvents: dragging
+                                ? 'none'
+                                : active && !capturing && !spaceHeld
+                                  ? 'visiblePainted'
+                                  : undefined,
+                        }}
+                    >
                         <rect
                             x={selectedBox.x - 4 * unscale}
                             y={selectedBox.y - 4 * unscale}

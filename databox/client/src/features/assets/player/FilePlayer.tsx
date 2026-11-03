@@ -18,10 +18,28 @@ import {clipForFile} from '@/features/baskets/clip/clip';
 import {ClipFrame} from '@/features/baskets/clip/ClipFrame';
 import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
 import {Spinner} from '@/components/ui/loader';
+import type {SubtitleTrack} from '@/features/assets/player/subtitles';
 
 // pdf.js is loaded with the first PDF displayed, in the browser only
 const PdfViewer = dynamic(
     () => import('@/features/assets/player/PdfViewer').then(m => m.PdfViewer),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex size-full items-center justify-center">
+                <Spinner />
+            </div>
+        ),
+    }
+);
+
+// Video.js is loaded with the first video played with controls, in the
+// browser only
+const VideoJsPlayer = dynamic(
+    () =>
+        import('@/features/assets/player/VideoJsPlayer').then(
+            m => m.VideoJsPlayer
+        ),
     {
         ssr: false,
         loading: () => (
@@ -54,6 +72,8 @@ export type FilePlayerProps = {
      * media, for the parts that apply to the file
      */
     clip?: BasketClip;
+    /** Subtitle tracks of a video, none shown by default */
+    subtitles?: SubtitleTrack[];
 };
 
 /**
@@ -69,6 +89,7 @@ export function FilePlayer({
     onInteraction,
     tracking,
     clip,
+    subtitles,
 }: FilePlayerProps) {
     const onContentClick = tracking ? () => contentClick(tracking) : undefined;
     const fileClip = clipForFile(clip, file.type);
@@ -132,13 +153,26 @@ export function FilePlayer({
                 />
             );
         case FileKind.Video:
-            return (
-                <VideoPlayer
+            return controls ? (
+                <VideoJsPlayer
+                    // The playback and its frame belong to one video
                     key={file.id}
                     src={file.url}
                     type={file.type}
                     autoPlay={autoPlay}
-                    controls={controls}
+                    className={className}
+                    tracking={tracking}
+                    timeRange={fileClip?.timeRange}
+                    crop={fileClip?.crop}
+                    subtitles={subtitles}
+                    annotate={fit === 'zoom'}
+                />
+            ) : (
+                <VideoPreview
+                    key={file.id}
+                    src={file.url}
+                    type={file.type}
+                    autoPlay={autoPlay}
                     className={className}
                     tracking={tracking}
                     timeRange={fileClip?.timeRange}
@@ -188,11 +222,14 @@ export function FilePlayer({
     }
 }
 
-function VideoPlayer({
+/**
+ * A video without controls (a preview): it loops, within the clip of a basket
+ * item.
+ */
+function VideoPreview({
     src,
     type,
     autoPlay,
-    controls,
     className,
     tracking,
     timeRange,
@@ -201,7 +238,6 @@ function VideoPlayer({
     src: string;
     type: string;
     autoPlay?: boolean;
-    controls: boolean;
     className?: string;
     tracking?: ContentTracking;
     timeRange?: ClipTimeRange;
@@ -210,8 +246,7 @@ function VideoPlayer({
     const ref = useRef<HTMLVideoElement>(null);
     const trackingId = tracking?.id;
     const [aspect, setAspect] = useState<number>();
-    // Without controls, the video loops: within the clip
-    useClipPlayback(ref, timeRange, {loop: !controls});
+    useClipPlayback(ref, timeRange, {loop: true});
 
     // MediaAnalytics reads the `data-matomo-*` attributes when it scans the
     // container, so they are rendered first
@@ -248,12 +283,10 @@ function VideoPlayer({
             src={src}
             className={mediaClassName ?? cn('max-h-full max-w-full', className)}
             style={style}
-            // The native controls would be cropped with the video
-            controls={controls && !crop}
             autoPlay={autoPlay}
             muted={autoPlay}
             // A clip loops through useClipPlayback
-            loop={!controls && !timeRange}
+            loop={!timeRange}
             playsInline
             preload="metadata"
             data-type={type}
@@ -272,33 +305,9 @@ function VideoPlayer({
         return video();
     }
 
-    // Without the native controls, a click plays or pauses
-    const togglePlay = () => {
-        const el = ref.current;
-        if (!el) {
-            return;
-        }
-        if (el.paused) {
-            el.play()?.catch(() => undefined);
-        } else {
-            el.pause();
-        }
-    };
-
     return (
-        <ClipFrame
-            crop={crop}
-            aspect={aspect}
-            className={cn(controls && 'cursor-pointer', className)}
-        >
-            {media => (
-                <div
-                    className="contents"
-                    onClick={controls ? togglePlay : undefined}
-                >
-                    {video(media.style, media.className)}
-                </div>
-            )}
+        <ClipFrame crop={crop} aspect={aspect} className={className}>
+            {media => video(media.style, media.className)}
         </ClipFrame>
     );
 }
