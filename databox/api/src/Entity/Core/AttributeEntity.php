@@ -402,7 +402,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         return self::STATUS_APPROVED === $this->status;
     }
 
-    #[Groups([self::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
     #[Assert\Length(min: 1, max: 1, countUnit: Assert\Length::COUNT_GRAPHEMES)]
     public function getEmoji(): ?string
     {
@@ -418,7 +418,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         }
     }
 
-    #[Groups([self::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
     #[Assert\CssColor]
     public function getColor(): ?string
     {

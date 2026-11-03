@@ -6,7 +6,9 @@ namespace App\Tests\Functional\Api\Asset;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Workflow\WorkflowState;
@@ -81,6 +83,34 @@ final class AssetActionsTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame('image/png', $resolved['thumbnail']['file']['type']);
         $this->assertNotEmpty($resolved['thumbnail']['file']['url']);
+    }
+
+    public function testResolveAttributeEntities(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $em = self::getEntityManager();
+        $list = new EntityList();
+        $list->setName('Countries');
+        $list->setWorkspace($workspace);
+        $em->persist($list);
+        $entity = new AttributeEntity();
+        $entity->setList($list);
+        $entity->setValue('France');
+        $entity->setTranslations(['fr' => 'France', 'de' => 'Frankreich']);
+        $entity->setEmoji('🇫🇷');
+        $em->persist($entity);
+        $em->flush();
+
+        $iri = '/attribute-entities/'.$entity->getId();
+        $resolved = $this->request('POST', '/assets/entities', self::OWNER, [
+            'entities' => [$iri],
+        ])->toArray()['entities'][$iri];
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame($entity->getId(), $resolved['id']);
+        $this->assertSame('France', $resolved['value']);
+        $this->assertSame(['fr' => 'France', 'de' => 'Frankreich'], $resolved['translations']);
+        $this->assertSame('🇫🇷', $resolved['emoji']);
     }
 
     public function testResolveEntitiesAsAnonymous(): void
