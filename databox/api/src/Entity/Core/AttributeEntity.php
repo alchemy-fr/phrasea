@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
+use App\Api\Filter\InIdsFilter;
 use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SortFilter;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
@@ -70,6 +71,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                     extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'listId'],
                 ),
                 'list[]' => new QueryParameter(property: 'list', openApi: false),
+                'ids' => new QueryParameter(
+                    filter: InIdsFilter::class,
+                    property: 'id',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'id'],
+                    hydra: false,
+                ),
                 'value' => new QueryParameter(
                     filter: new PartialSearchFilter(),
                     property: 'value',

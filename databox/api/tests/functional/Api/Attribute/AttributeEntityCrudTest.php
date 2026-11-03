@@ -137,6 +137,22 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         ]));
     }
 
+    public function testListFiltersByIds(): void
+    {
+        $this->setUpScene();
+        $red = $this->createEntity($this->list, 'Red');
+        $this->createEntity($this->list, 'Green');
+        $blue = $this->createEntity($this->list, 'Blue');
+        $pending = $this->createEntity($this->list, 'Pending by someone', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => 'someone']);
+        $ids = [$red->getId(), $blue->getId(), $pending->getId()];
+
+        $this->assertEqualsCanonicalizing(['Red', 'Blue'], $this->listValues(self::OTHER, ['ids' => $ids]));
+        $this->assertEqualsCanonicalizing(['Red', 'Blue', 'Pending by someone'], $this->listValues(self::USER, ['ids' => $ids]));
+
+        $this->api('GET', '/attribute-entities', self::OTHER, options: ['query' => ['ids' => ['not-an-id']]]);
+        $this->assertResponseStatusCodeSame(400);
+    }
+
     public function testListFiltersByStatusesNoteAndSorts(): void
     {
         $this->setUpScene();

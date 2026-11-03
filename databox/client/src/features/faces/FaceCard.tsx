@@ -13,7 +13,7 @@ import type {
 import {AttributeEntityStatus} from '@/types/api';
 import {
     getAttributeEntities,
-    getAttributeEntity,
+    loadAttributeEntity,
     postAttributeEntity,
 } from '@/lib/api/metadata';
 import {AsyncCombobox, type ComboOption} from '@/components/form/AsyncCombobox';
@@ -121,7 +121,7 @@ export function FaceCard<F extends FaceCardFace>({
         [listId]
     );
     const resolvePerson = useCallback(
-        async (id: string) => personOption(await getAttributeEntity(id)),
+        async (id: string) => personOption(await loadAttributeEntity(id)),
         []
     );
 

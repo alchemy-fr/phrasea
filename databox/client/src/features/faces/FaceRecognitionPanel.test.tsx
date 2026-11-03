@@ -42,6 +42,7 @@ const {api} = vi.hoisted(() => ({
         deleteAssetAttribute: vi.fn(),
         getAttributeEntities: vi.fn(),
         getAttributeEntity: vi.fn(),
+        loadAttributeEntity: vi.fn(),
         putAttributeEntity: vi.fn(),
     },
 }));
@@ -68,6 +69,7 @@ vi.mock('@/lib/api/metadata', async importOriginal => {
         ...actual,
         getAttributeEntities: api.getAttributeEntities,
         getAttributeEntity: api.getAttributeEntity,
+        loadAttributeEntity: api.loadAttributeEntity,
         putAttributeEntity: api.putAttributeEntity,
     };
 });
