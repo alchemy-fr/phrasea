@@ -261,7 +261,7 @@ services:
       - MATOMO_MEDIA_PLUGIN_ENABLED
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
-      - SOCKUDO_HOST=sockudo.${PHRASEA_DOMAIN}
+      - SOCKUDO_HOST=ws.${PHRASEA_DOMAIN}
       - SOCKUDO_APP_ID
       - SOCKUDO_KEY
       - SOCKUDO_SECRET
@@ -300,7 +300,7 @@ services:
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - ws.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   configurator:
     volumes:
