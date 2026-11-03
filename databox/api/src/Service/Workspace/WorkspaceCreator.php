@@ -64,6 +64,21 @@ final readonly class WorkspaceCreator
             $this->em->persist($rendition);
         }
 
+        // Thumbnail of the stories without cover, hover image of all stories
+        $contactSheet = new RenditionDefinition();
+        $contactSheet->setName('StoryContactSheet');
+        $contactSheet->setKey('storyContactSheet');
+        $contactSheet->setPolicy($renditionPolicy);
+        $contactSheet->setWorkspace($workspace);
+        $contactSheet->setTarget(AssetTypeEnum::Story);
+        $contactSheet->setBuildMode(RenditionDefinition::BUILD_MODE_CUSTOM);
+        $contactSheet->setDefinition(file_get_contents(__DIR__.'/renditions/storyContactSheet.yaml'));
+        $contactSheet->setUseAsThumbnail(true);
+        $contactSheet->setUseAsAnimatedThumbnail(true);
+        $contactSheet->setSubstitutable(true);
+        $this->em->persist($contactSheet);
+        $renditionDefs['storyContactSheet'] = $contactSheet;
+
         $attributePolicy = new AttributePolicy();
         $attributePolicy->setWorkspace($workspace);
         $attributePolicy->setPublic(true);

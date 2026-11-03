@@ -30,7 +30,7 @@ final class RenditionBuildReferenceTest extends AbstractDataboxTestCase
         $this->assertStringContainsString('image', $data['reference']);
 
         $modules = array_column($data['references'], null, 'name');
-        foreach (['imagine', 'ffmpeg', 'void'] as $name) {
+        foreach (['imagine', 'ffmpeg', 'void', 'contact_sheet'] as $name) {
             $this->assertArrayHasKey($name, $modules, sprintf('Module "%s" is documented', $name));
             $this->assertArrayHasKey('description', $modules[$name]);
             $this->assertIsString($modules[$name]['reference']);

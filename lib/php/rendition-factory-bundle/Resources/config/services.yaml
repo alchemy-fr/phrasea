@@ -61,6 +61,11 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
+    # Generators: first module of a "generate" build
+    Alchemy\RenditionFactory\Transformer\Image\ContactSheet\ContactSheetGeneratorModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\GeneratorModuleInterface::TAG }
+
     # Output "formats"
     Alchemy\RenditionFactory\Transformer\Video\Format\JpegFormat:
         tags:

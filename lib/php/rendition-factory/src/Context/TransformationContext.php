@@ -3,6 +3,7 @@
 namespace Alchemy\RenditionFactory\Context;
 
 use Alchemy\CoreBundle\Util\UrlUtil;
+use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Psr\Log\LoggerInterface;
@@ -19,8 +20,15 @@ final readonly class TransformationContext implements TransformationContextInter
         private HttpClientInterface $client,
         private LoggerInterface $logger,
         private ?MetadataContainerInterface $metadata = null,
+        /** @var InputFileInterface[] */
+        private array $inputFiles = [],
     ) {
         $this->buildHashes = new BuildHashes();
+    }
+
+    public function getInputFiles(): array
+    {
+        return $this->inputFiles;
     }
 
     public function createTmpFilePath(?string $extension): string

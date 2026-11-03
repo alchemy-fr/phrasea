@@ -2,6 +2,8 @@
 
 namespace Alchemy\RenditionFactory\Context;
 
+use Alchemy\RenditionFactory\DTO\InputFileInterface;
+
 interface TransformationContextInterface
 {
     public function createTmpFilePath(?string $extension): string;
@@ -23,4 +25,9 @@ interface TransformationContextInterface
     public function log(string $message, array $context = []): void;
 
     public function getBuildHashes(): BuildHashes;
+
+    /**
+     * @return InputFileInterface[] the files fed to a generator module
+     */
+    public function getInputFiles(): array;
 }

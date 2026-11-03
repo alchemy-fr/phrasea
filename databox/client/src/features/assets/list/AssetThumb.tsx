@@ -24,7 +24,10 @@ import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
  * Video and audio thumbnails (the thumbnail rendition of a sound is a sound,
  * drawn as a waveform) stay still, and play while hovered when the
  * `playOnHover` display preference is on; a story shows the carousel of its
- * items' thumbnails while hovered (see `StoryThumb`).
+ * items' thumbnails while hovered (see `StoryThumb`). A story whose animated
+ * thumbnail is an image (its contact sheet) shows that image first, and the
+ * carousel only once the pointer has moved horizontally by
+ * `storyCarouselMoveRatio` of the width since it entered.
  *
  * With `previewOnHover`, hovering the file type chip opens the preview popover
  * (see `PreviewProvider`), anchored on the thumbnail; clicking the chip locks
@@ -85,6 +88,14 @@ export function AssetThumb({
     const isVideoThumb = !!url && thumbKind === FileKind.Video;
     const isAudioThumb = !!url && thumbKind === FileKind.Audio;
     const storyCarousel = !!asset.storyCollection && !asset.deleted;
+    const storySheetFirst =
+        storyCarousel &&
+        !!animated?.url &&
+        getFileKind(animated.type) === FileKind.Image;
+    // The pointer moved enough to switch from the contact sheet to the carousel
+    const [carouselRequested, setCarouselRequested] = useState(false);
+    const pointerEntryX = useRef<number | undefined>(undefined);
+    const carouselActive = hover && (!storySheetFirst || carouselRequested);
     const scoreLevel =
         score === undefined ? undefined : similarityScoreLevel(score);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -176,8 +187,40 @@ export function AssetThumb({
                 className
             )}
             style={natural ? {aspectRatio: naturalRatio} : undefined}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
+            onMouseEnter={e => {
+                pointerEntryX.current = e.clientX;
+                setHover(true);
+            }}
+            onMouseMove={
+                storySheetFirst
+                    ? e => {
+                          if (carouselRequested) {
+                              return;
+                          }
+                          if (pointerEntryX.current === undefined) {
+                              pointerEntryX.current = e.clientX;
+                              return;
+                          }
+                          const width =
+                              e.currentTarget.getBoundingClientRect().width;
+                          const threshold = Math.max(
+                              1,
+                              width * storyCarouselMoveRatio
+                          );
+                          if (
+                              Math.abs(e.clientX - pointerEntryX.current) >=
+                              threshold
+                          ) {
+                              setCarouselRequested(true);
+                          }
+                      }
+                    : undefined
+            }
+            onMouseLeave={() => {
+                pointerEntryX.current = undefined;
+                setHover(false);
+                setCarouselRequested(false);
+            }}
         >
             {pending && source ? (
                 <div className="flex flex-col items-center gap-2">
@@ -218,7 +261,7 @@ export function AssetThumb({
                 <StoryThumb
                     assetId={asset.id}
                     size={size ?? 200}
-                    active={hover}
+                    active={carouselActive}
                 />
             ) : null}
 
@@ -325,6 +368,12 @@ const similarityScoreClasses: Record<SimilarityScoreLevel, string> = {
     medium: 'bg-amber-400 text-black',
     low: 'bg-red-600 text-white',
 };
+
+/**
+ * Horizontal move of the pointer over a story showing its contact sheet, as a
+ * share of the thumbnail width, before the carousel replaces the sheet
+ */
+const storyCarouselMoveRatio = 0.15;
 
 /** Box ratio of a natural thumbnail until its size is known, or without image */
 const defaultNaturalRatio = 4 / 3;

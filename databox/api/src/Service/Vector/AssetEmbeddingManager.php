@@ -9,6 +9,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetEmbedding;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
+use App\Model\AssetTypeEnum;
 use App\Service\Asset\FileFetcher;
 use App\Service\Image\ImageDownscaler;
 use App\Service\Storage\RenditionManager;
@@ -77,10 +78,14 @@ final readonly class AssetEmbeddingManager
      */
     public function getFallbackRenditionDefinitionIds(string $workspaceId): array
     {
-        return array_map(
+        return array_values(array_map(
             static fn (RenditionDefinition $definition): string => $definition->getId(),
-            $this->renditionManager->getRenditionDefinitionsUsedAs('thumbnail', $workspaceId),
-        );
+            // A story-only thumbnail (contact sheet) shows the story items, not the asset content
+            array_filter(
+                $this->renditionManager->getRenditionDefinitionsUsedAs('thumbnail', $workspaceId),
+                static fn (RenditionDefinition $definition): bool => $definition->isForTarget(AssetTypeEnum::Asset),
+            ),
+        ));
     }
 
     private function getImageFile(Asset $asset, string $renditionName): ?File

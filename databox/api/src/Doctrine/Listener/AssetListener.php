@@ -13,6 +13,7 @@ use App\Entity\Core\File;
 use App\Model\ActionLogTypeEnum;
 use App\Repository\Core\FileDuplicateRepository;
 use App\Service\Asset\Attribute\AssetNameFiller;
+use App\Service\Asset\StoryContactSheetScheduler;
 use App\Service\Log\ActionLogManager;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -26,6 +27,7 @@ class AssetListener
         private readonly ActionLogManager $actionLogManager,
         private readonly AssetNameFiller $assetNameFiller,
         private readonly FileDuplicateRepository $fileDuplicateRepository,
+        private readonly StoryContactSheetScheduler $contactSheetScheduler,
     ) {
     }
 
@@ -33,6 +35,25 @@ class AssetListener
     {
         $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
+
+        // Story contact sheets only show the items not deleted and accepted
+        $storyItemIds = [];
+        foreach ($uow->getScheduledEntityDeletions() as $entityDelete) {
+            if ($entityDelete instanceof Asset) {
+                $storyItemIds[] = $entityDelete->getId();
+            }
+        }
+        foreach ($uow->getScheduledEntityUpdates() as $entityUpdate) {
+            if ($entityUpdate instanceof Asset) {
+                $changeSet = $uow->getEntityChangeSet($entityUpdate);
+                if (array_key_exists('deletedAt', $changeSet) || array_key_exists('status', $changeSet)) {
+                    $storyItemIds[] = $entityUpdate->getId();
+                }
+            }
+        }
+        if (!empty($storyItemIds)) {
+            $this->contactSheetScheduler->scheduleForStoriesContaining(...$storyItemIds);
+        }
 
         foreach ($uow->getScheduledEntityDeletions() as $entityDelete) {
             if ($entityDelete instanceof Asset) {

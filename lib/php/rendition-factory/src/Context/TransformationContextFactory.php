@@ -41,7 +41,8 @@ final readonly class TransformationContextFactory
             $this->mimeTypeGuesser,
             $this->client ?? new NativeHttpClient(),
             $this->logger ?? new NullLogger(),
-            $options->getMetadataContainer()
+            $options?->getMetadataContainer(),
+            $options?->getInputFiles() ?? [],
         );
     }
 
@@ -50,7 +51,8 @@ final readonly class TransformationContextFactory
         return new ReadOnlyTransformationContext(
             $this->mimeTypeGuesser,
             $this->logger ?? new NullLogger(),
-            $options->getMetadataContainer()
+            $options?->getMetadataContainer(),
+            $options?->getInputFiles() ?? [],
         );
     }
 }
