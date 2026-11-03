@@ -45,6 +45,7 @@ import {usePreferencesStore} from '@/features/preferences/store';
 import {resolveOrder} from '@/lib/utils/order';
 import {Tooltip} from '@/components/ui/overlays';
 import type {AssetTabProps} from '@/features/assets/manage/types';
+import {ShapeEditorsScope} from '@/features/annotations/AnnotationsProvider';
 import {AssetEditTab} from '@/features/assets/manage/tabs/AssetEditTab';
 import {AssetRenditionsTab} from '@/features/assets/manage/tabs/AssetRenditionsTab';
 import {AssetSimilarTab} from '@/features/assets/manage/tabs/AssetSimilarTab';
@@ -86,8 +87,7 @@ const integrationTabPrefix = 'integration-';
 type IntegrationPanelTab = `${typeof integrationTabPrefix}${string}`;
 
 export type AssetPanelTab =
-    | (typeof assetPanelTabs)[number]
-    | IntegrationPanelTab;
+    (typeof assetPanelTabs)[number] | IntegrationPanelTab;
 
 function integrationPanelTab(integrationId: string): IntegrationPanelTab {
     return `${integrationTabPrefix}${integrationId}`;
@@ -174,15 +174,13 @@ function useTabs(
             enabled: !!asset.workspace.similarity && !asset.deleted,
         },
         ...(file
-            ? integrations.map(
-                  (integration): PanelTab => ({
-                      id: integrationPanelTab(integration.id),
-                      title: integrationLabel(integration),
-                      icon: <PlugIcon />,
-                      component: FileIntegrationTab,
-                      props: {integration, file},
-                  })
-              )
+            ? integrations.map((integration): PanelTab => ({
+                  id: integrationPanelTab(integration.id),
+                  title: integrationLabel(integration),
+                  icon: <PlugIcon />,
+                  component: FileIntegrationTab,
+                  props: {integration, file},
+              }))
             : []),
         {
             id: 'versions',
@@ -515,7 +513,9 @@ export function AssetPanel({
                 </div>
                 {editorUsed ? (
                     <div hidden={!editing} data-testid="asset-panel-edit">
-                        <AssetEditTab {...baseProps} />
+                        <ShapeEditorsScope enabled={editing}>
+                            <AssetEditTab {...baseProps} />
+                        </ShapeEditorsScope>
                     </div>
                 ) : null}
             </div>

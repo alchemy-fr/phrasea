@@ -198,6 +198,17 @@ describe('useAnnotationEditor', () => {
         expect(editor().active).toBe(false);
     });
 
+    it('leaves nothing selected once annotating stops', () => {
+        const {editor} = setup([rect]);
+        act(() => editor().select('r1'));
+        expect(editor().selectedId).toBe('r1');
+
+        act(() => editor().setAnnotate(false));
+        expect(editor().annotate).toBe(false);
+        expect(editor().active).toBe(false);
+        expect(editor().selectedId).toBeUndefined();
+    });
+
     it('keeps the shapes of the other pages out of the layer', () => {
         const hook = renderHook(() =>
             useAnnotationEditor(

@@ -396,8 +396,7 @@ export interface AttributeDefinition
 }
 
 export type AttributeDefinitionOrBuiltIn =
-    | AttributeDefinition
-    | BuiltInAttribute;
+    AttributeDefinition | BuiltInAttribute;
 
 export interface AttributePolicy extends HydraObject, Entity {
     name: string;
@@ -498,6 +497,12 @@ export type AssetAnnotation = {
      * the API
      */
     title?: string;
+    /**
+     * Client only: where a read only shape of the asset comes from (its
+     * attribute value and definition, its position among the shapes of that
+     * value), never sent to the API
+     */
+    source?: {attributeId: string; definitionId: string; index: number};
     [prop: string]: any;
 };
 
@@ -737,15 +742,7 @@ export enum ProfileItemType {
 
 export type GridRegion = 'over' | 'below';
 export type GridAnchor =
-    | 'l'
-    | 'c'
-    | 'r'
-    | 'tc'
-    | 'ml'
-    | 'cc'
-    | 'mr'
-    | 'bl'
-    | 'bc';
+    'l' | 'c' | 'r' | 'tc' | 'ml' | 'cc' | 'mr' | 'bl' | 'bc';
 
 export type ItemPlacement = {
     region: GridRegion;

@@ -16,7 +16,7 @@ import {integrationLabel} from '@/features/integrations/integrationLabel';
  * the `asset-view` context, filtered by supported file type.
  */
 export function useFileIntegrations(
-    asset: Asset,
+    asset: Asset | undefined,
     file: ApiFile | undefined,
     enabled: boolean
 ): WorkspaceIntegration[] {
@@ -24,16 +24,16 @@ export function useFileIntegrations(
         queryKey: [
             'integrations',
             'asset-view',
-            asset.workspace.id,
+            asset?.workspace.id,
             file?.type,
         ],
         queryFn: () =>
             getIntegrationsOfContext(
                 IntegrationContext.AssetView,
-                asset.workspace.id,
+                asset!.workspace.id,
                 {fileType: file!.type}
             ),
-        enabled: enabled && !!file,
+        enabled: enabled && !!asset && !!file,
     });
 
     return (integrations.data?.items ?? []).filter(i => i.supported !== false);

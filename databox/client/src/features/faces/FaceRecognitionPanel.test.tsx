@@ -212,9 +212,12 @@ describe('FaceRecognitionPanel', () => {
 
         const cards = await screen.findAllByTestId('face-card');
         fireEvent.click(within(cards[0]).getByRole('combobox'));
-        fireEvent.change(await screen.findByPlaceholderText('Search…'), {
-            target: {value: 'Carol'},
-        });
+        fireEvent.change(
+            await screen.findByPlaceholderText('Search or type a name…'),
+            {
+                target: {value: 'Carol'},
+            }
+        );
         fireEvent.click(await screen.findByText('New person « Carol »'));
 
         await waitFor(() =>
@@ -224,6 +227,20 @@ describe('FaceRecognitionPanel', () => {
             })
         );
         expect(api.patchAssetAttribute).not.toHaveBeenCalled();
+    });
+
+    it('tells to type a name while nobody is named', async () => {
+        api.getAttributeEntities.mockResolvedValue({items: []});
+        renderPanel();
+
+        const cards = await screen.findAllByTestId('face-card');
+        fireEvent.click(within(cards[0]).getByRole('combobox'));
+
+        expect(
+            await screen.findByText(
+                'No person named yet: type a name to name this face.'
+            )
+        ).toBeTruthy();
     });
 
     it('runs the detection on the asset', async () => {

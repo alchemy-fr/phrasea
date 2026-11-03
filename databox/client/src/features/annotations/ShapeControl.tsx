@@ -1,6 +1,6 @@
 'use client';
 
-import {useLayoutEffect, useRef, useState} from 'react';
+import {type ReactNode, useLayoutEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {CopyIcon, GripVerticalIcon, PencilIcon, Trash2Icon} from 'lucide-react';
 import {Button} from '@/components/ui/button';
@@ -16,8 +16,8 @@ const gap = 8;
 
 /**
  * Floating panel of the selected shape, above it: a grip to drag the shape,
- * its name (renamed on click when editable), edit text, duplicate and
- * delete.
+ * its name (renamed on click when editable, or replaced by `control` when
+ * read only), edit text, duplicate and delete.
  */
 export function ShapeControl({
     annotation,
@@ -25,6 +25,7 @@ export function ShapeControl({
     media,
     zoom,
     editable,
+    control,
     onDragStart,
     onDelete,
     onDuplicate,
@@ -37,6 +38,8 @@ export function ShapeControl({
     media: MediaSize;
     zoom: number;
     editable: boolean;
+    /** Read only: shown instead of the name */
+    control?: ReactNode;
     /** The grip is pressed: the layer takes over the drag of the shape */
     onDragStart: (e: React.PointerEvent) => void;
     onDelete: () => void;
@@ -144,6 +147,8 @@ export function ShapeControl({
                             {label}
                         </button>
                     </Tooltip>
+                ) : control ? (
+                    control
                 ) : (
                     <Tooltip
                         content={annotation.title}

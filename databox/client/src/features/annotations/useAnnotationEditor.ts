@@ -219,7 +219,11 @@ export function useAnnotationEditor(
         (next: boolean) => {
             setAnnotateState(next);
             if (!next) {
+                // Nothing stays being edited while the pointer pans the image
                 setTool(undefined);
+                setSelectedId(undefined);
+                setDraft(undefined);
+                setTextEdit(undefined);
             }
         },
         [setTool]

@@ -6,6 +6,7 @@ import {
     useRef,
     useState,
     type PointerEvent as ReactPointerEvent,
+    type ReactNode,
 } from 'react';
 import {
     AnnotationType,
@@ -32,6 +33,8 @@ type Drag =
           moved: boolean;
           /** Started from the grip of the panel, not from the shape */
           grip?: boolean;
+          /** The shape was already selected when pressed */
+          wasSelected?: boolean;
       }
     | {kind: 'resize'; id: string; handle: HandleId; origin: AssetAnnotation}
     | {kind: 'create'; tool: AnnotationType}
@@ -75,6 +78,16 @@ function annotationIdOf(target: EventTarget | null): string | undefined {
     );
 }
 
+function contextIdOf(target: EventTarget | null): string | undefined {
+    return (
+        (target instanceof Element &&
+            target
+                .closest<SVGElement>('[data-annotation-context-id]')
+                ?.getAttribute('data-annotation-context-id')) ||
+        undefined
+    );
+}
+
 function toRelativePath(points: Point[], media: MediaSize): Point[] {
     return points.map(p => ({x: p.x / media.width, y: p.y / media.height}));
 }
@@ -87,10 +100,28 @@ function toRelativePath(points: Point[], media: MediaSize): Point[] {
 export function AnnotationLayer({
     editor,
     zoom,
+    renderControl,
+    onEditShape,
+    canEditShape,
+    context,
 }: {
     editor: AnnotationEditor;
     /** Screen pixels per pixel of the media: controls keep their size */
     zoom: number;
+    /** See `AnnotationTarget.renderControl` */
+    renderControl?: (annotation: AssetAnnotation) => ReactNode;
+    /**
+     * Opens the clicked shape where it is edited, if anywhere: a shape of a
+     * read only target, or one of `context`
+     */
+    onEditShape?: (annotation: AssetAnnotation) => boolean;
+    /** The shape of `context` may be opened by `onEditShape` */
+    canEditShape?: (annotation: AssetAnnotation) => boolean;
+    /**
+     * Other shapes, shown faded under the target's: out of the pointer's way,
+     * but the ones `onEditShape` opens without a tool
+     */
+    context?: AssetAnnotation[];
 }) {
     const {
         active,
@@ -250,6 +281,10 @@ export function AnnotationLayer({
                 return;
             }
             e.stopPropagation();
+            const shape = editor.pageAnnotations.find(a => a.id === id);
+            if (shape && onEditShape?.(shape)) {
+                return;
+            }
             if (id !== selectedId) {
                 editor.select(id);
             } else if (!cycleSelection(e.clientX, e.clientY, id)) {
@@ -258,7 +293,25 @@ export function AnnotationLayer({
 
             return;
         }
+        const contextId = tool ? undefined : contextIdOf(e.target);
+        const contextShape = contextId
+            ? context?.find(a => a.id === contextId)
+            : undefined;
+        if (contextShape && onEditShape?.(contextShape)) {
+            e.stopPropagation();
+
+            return;
+        }
         if (!active) {
+            // Paused: a press on a shape takes the tools back with it
+            // selected, the rest of the image stays the player's
+            const id = annotationIdOf(e.target);
+            if (id && editor.pageAnnotations.some(a => a.id === id)) {
+                e.stopPropagation();
+                editor.setAnnotate(true);
+                editor.select(id);
+            }
+
             return;
         }
         // The image is not panned, the shape is not zoomed on
@@ -322,6 +375,7 @@ export function AnnotationLayer({
                 id,
                 origin: annotation,
                 moved: false,
+                wasSelected: id === selectedId,
                 start: p,
                 client,
             };
@@ -457,11 +511,7 @@ export function AnnotationLayer({
                             media
                         )
                     );
-                } else if (
-                    !drag.moved &&
-                    !drag.grip &&
-                    drag.id === selectedId
-                ) {
+                } else if (!drag.moved && !drag.grip && drag.wasSelected) {
                     cycleSelection(e.clientX, e.clientY, drag.id);
                 }
                 break;
@@ -521,23 +571,46 @@ export function AnnotationLayer({
         if (!svg) {
             return false;
         }
-        const ids: string[] = [];
+        // The shapes under the pointer, topmost first: the target's, and the
+        // ones of `context` that open where they are edited
+        const hits: {id: string; context?: AssetAnnotation}[] = [];
         for (const el of document.elementsFromPoint(clientX, clientY)) {
             if (!svg.contains(el)) {
                 continue;
             }
-            const other = annotationIdOf(el);
-            if (other && !ids.includes(other)) {
-                ids.push(other);
+            const own = annotationIdOf(el);
+            if (own) {
+                if (!hits.some(h => !h.context && h.id === own)) {
+                    hits.push({id: own});
+                }
+                continue;
+            }
+            const contextId = contextIdOf(el);
+            const shape = contextId
+                ? context?.find(a => a.id === contextId)
+                : undefined;
+            if (
+                shape &&
+                canEditShape?.(shape) &&
+                !hits.some(h => h.context === shape)
+            ) {
+                hits.push({id: contextId!, context: shape});
             }
         }
-        if (ids.length > 1) {
-            editor.select(ids[(ids.indexOf(id) + 1) % ids.length]);
-
-            return true;
+        if (hits.length < 2) {
+            return false;
         }
+        const next =
+            hits[
+                (hits.findIndex(h => !h.context && h.id === id) + 1) %
+                    hits.length
+            ];
+        if (next.context) {
+            return !!onEditShape?.(next.context);
+        }
+        editor.select(next.id);
 
-        return false;
+        return true;
     };
 
     const onDoubleClick = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -574,7 +647,7 @@ export function AnnotationLayer({
     const masked = selected ?? shown.find(a => a.id === hoveredId);
     // Read only: the veiled shape may grow, it has no handles to stay on
     const emphasized = editable ? undefined : masked;
-    const shapeCursor = tool ? 'crosshair' : editable ? 'move' : 'pointer';
+    const shapeCursor = tool ? 'crosshair' : active ? 'move' : 'pointer';
 
     return (
         <>
@@ -603,6 +676,50 @@ export function AnnotationLayer({
                 }
                 onDoubleClick={onDoubleClick}
             >
+                {media.width && context?.length ? (
+                    <g data-annotation-context style={{pointerEvents: 'none'}}>
+                        {context
+                            .filter(
+                                a =>
+                                    !editor.page ||
+                                    !a.page ||
+                                    a.page === editor.page
+                            )
+                            .map((annotation, i) => {
+                                const clickable =
+                                    !tool &&
+                                    !!onEditShape &&
+                                    !!canEditShape?.(annotation);
+
+                                return (
+                                    <g
+                                        key={annotation.id ?? i}
+                                        data-annotation-context-id={
+                                            annotation.id
+                                        }
+                                        className="opacity-50 transition-opacity duration-200 hover:opacity-90 motion-reduce:transition-none"
+                                        style={{
+                                            pointerEvents: clickable
+                                                ? 'visiblePainted'
+                                                : 'none',
+                                            cursor: clickable
+                                                ? 'pointer'
+                                                : undefined,
+                                        }}
+                                    >
+                                        {getShapeModel(annotation.type)?.render(
+                                            {
+                                                annotation,
+                                                media,
+                                                hitWidth,
+                                                unscale,
+                                            }
+                                        )}
+                                    </g>
+                                );
+                            })}
+                    </g>
+                ) : null}
                 {media.width
                     ? shown.map(annotation => {
                           const model = getShapeModel(annotation.type);
@@ -663,12 +780,13 @@ export function AnnotationLayer({
                                   }
                                   style={{
                                       cursor: shapeCursor,
-                                      // Read only: the shapes answer the
-                                      // pointer, not the layer around them
+                                      // Read only or paused: the shapes
+                                      // answer the pointer, not the layer
+                                      // around them
                                       pointerEvents:
                                           annotation.id === draftId
                                               ? 'none'
-                                              : editable
+                                              : active
                                                 ? undefined
                                                 : 'visiblePainted',
                                   }}
@@ -724,6 +842,7 @@ export function AnnotationLayer({
                     media={media}
                     zoom={zoom}
                     editable={editable}
+                    control={renderControl?.(selected)}
                     onDragStart={e => onGripDown(e, selected)}
                     onDelete={() => editor.remove(selected.id!)}
                     onDuplicate={() => editor.duplicate(selected.id!)}

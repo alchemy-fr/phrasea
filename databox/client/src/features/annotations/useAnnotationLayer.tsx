@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode, useEffect} from 'react';
+import {ReactNode, useEffect, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ShapesIcon} from 'lucide-react';
 import {Button} from '@/components/ui/button';
@@ -35,6 +35,19 @@ export function useAnnotationLayer({zoom, page}: Props): {
     const ctx = useAnnotations();
     const target = ctx?.target;
     const editor = useAnnotationEditor(target, page);
+    const fallback = ctx?.fallback;
+    const editing = !!target?.editable && target.key !== fallback?.key;
+    const editedValue = target?.attributeId;
+    // The other shapes of the asset, kept in sight while some are edited
+    const context = useMemo(
+        () =>
+            editing && fallback
+                ? fallback.annotations.filter(
+                      a => !editedValue || a.source?.attributeId !== editedValue
+                  )
+                : undefined,
+        [editing, editedValue, fallback]
+    );
 
     // The player tells the panel that annotations can be shown
     useEffect(() => {
@@ -94,11 +107,25 @@ export function useAnnotationLayer({zoom, page}: Props): {
     return {
         active: editor.active,
         target,
-        layer: <AnnotationLayer editor={editor} zoom={zoom} />,
+        layer: (
+            <AnnotationLayer
+                editor={editor}
+                zoom={zoom}
+                renderControl={
+                    target.editable ? undefined : target.renderControl
+                }
+                onEditShape={ctx.editShape}
+                canEditShape={ctx.canEditShape}
+                context={context}
+            />
+        ),
         toolbar: (
             <AnnotationToolbar
                 editor={editor}
                 label={target.label}
+                sets={ctx.sets}
+                currentSet={isFallback ? (ctx.setId ?? null) : undefined}
+                onSelectSet={ctx.showSet}
                 onClose={() =>
                     isFallback
                         ? ctx.setShowFallback(false)

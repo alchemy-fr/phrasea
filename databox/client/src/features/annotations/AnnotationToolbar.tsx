@@ -4,6 +4,7 @@ import {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     BrushIcon,
+    ChevronDownIcon,
     CircleIcon,
     CrosshairIcon,
     LucideIcon,
@@ -27,10 +28,21 @@ import {
 import {ColorInput} from '@/components/ui/color-input';
 import {Input} from '@/components/ui/input';
 import {Slider} from '@/components/ui/controls';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/menu';
 import {cn} from '@/lib/utils/cn';
 import {AnnotationType} from './types';
 import {getShapeModel} from './shapes';
 import type {AnnotationEditor} from './useAnnotationEditor';
+import type {AnnotationSet} from './assetAnnotations';
+
+/** The value of the choice of every shape of the asset */
+const allSets = '__all__';
 
 type Props = {
     editor: AnnotationEditor;
@@ -38,6 +50,15 @@ type Props = {
     label?: string;
     /** Stops showing the annotations */
     onClose?: () => void;
+    /** The attributes whose shapes the asset may show instead */
+    sets?: AnnotationSet[];
+    /**
+     * The attribute the asset shows the shapes of, null for all of them,
+     * undefined when the shapes are not the asset's
+     */
+    currentSet?: string | null;
+    /** Shows the shapes of the asset: all of them, or of an attribute */
+    onSelectSet?: (setId: string | undefined) => void;
 };
 
 /**
@@ -45,7 +66,14 @@ type Props = {
  * drawing tools, the color, fill and size of the tool or of the selected
  * shape, pausing the tools and hiding the annotations.
  */
-export function AnnotationToolbar({editor, label, onClose}: Props) {
+export function AnnotationToolbar({
+    editor,
+    label,
+    onClose,
+    sets,
+    currentSet,
+    onSelectSet,
+}: Props) {
     const {t} = useTranslation();
     const {tool, setTool, annotate, setAnnotate, options, setOptions} = editor;
     const {editable} = editor;
@@ -136,7 +164,65 @@ export function AnnotationToolbar({editor, label, onClose}: Props) {
             role="toolbar"
             aria-label={t('annotation.toolbar', 'Annotations')}
         >
-            {label ? (
+            {sets?.length && onSelectSet ? (
+                // Not modal: the player stays usable while it is open
+                <DropdownMenu modal={false}>
+                    <Tooltip
+                        content={t(
+                            'annotation.choose_set',
+                            'Choose the annotations to show'
+                        )}
+                    >
+                        <DropdownMenuTrigger asChild>
+                            <button
+                                type="button"
+                                data-testid="annotation-set"
+                                className="flex h-6 max-w-44 items-center gap-0.5 rounded-md px-1 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                            >
+                                <span className="truncate">{label}</span>
+                                <ChevronDownIcon className="size-3 shrink-0" />
+                            </button>
+                        </DropdownMenuTrigger>
+                    </Tooltip>
+                    <DropdownMenuContent side="top" align="start">
+                        <DropdownMenuRadioGroup
+                            value={
+                                currentSet === undefined
+                                    ? ''
+                                    : (currentSet ?? allSets)
+                            }
+                            onValueChange={value =>
+                                onSelectSet(
+                                    value === allSets ? undefined : value
+                                )
+                            }
+                        >
+                            <DropdownMenuRadioItem value={allSets}>
+                                <span className="flex-1">
+                                    {t('annotation.all_sets', 'All')}
+                                </span>
+                                <SetCount
+                                    count={sets.reduce(
+                                        (n, s) => n + s.count,
+                                        0
+                                    )}
+                                />
+                            </DropdownMenuRadioItem>
+                            {sets.map(set => (
+                                <DropdownMenuRadioItem
+                                    key={set.id}
+                                    value={set.id}
+                                >
+                                    <span className="flex-1 truncate">
+                                        {set.label}
+                                    </span>
+                                    <SetCount count={set.count} />
+                                </DropdownMenuRadioItem>
+                            ))}
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : label ? (
                 <span
                     className="max-w-40 truncate px-1 text-xs text-muted-foreground"
                     title={label}
@@ -292,5 +378,13 @@ export function AnnotationToolbar({editor, label, onClose}: Props) {
                 : null}
             <span className="mx-0.5 h-4 w-px bg-border" />
         </div>
+    );
+}
+
+function SetCount({count}: {count: number}) {
+    return (
+        <span className="ml-3 text-xs text-muted-foreground tabular-nums">
+            {count}
+        </span>
     );
 }

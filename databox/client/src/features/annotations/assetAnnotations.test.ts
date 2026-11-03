@@ -7,6 +7,7 @@ import {
 } from '@/types/api';
 import type {FormatContext} from '@/features/attributes/types/registry';
 import {
+    getAnnotationSets,
     getAssetAnnotationsTarget,
     labelAttributeAnnotations,
 } from './assetAnnotations';
@@ -181,6 +182,32 @@ describe('getAssetAnnotationsTarget', () => {
         expect(target.annotations.map(a => [a.id, a.name, a.title])).toEqual([
             ['a1-s1', '🙂 Arthur Dupont', 'Faces'],
             ['a1-1', '🙂 Arthur Dupont', 'Faces'],
+        ]);
+        expect(target.annotations.map(a => a.source)).toEqual([
+            {attributeId: 'a1', definitionId: expect.any(String), index: 0},
+            {attributeId: 'a1', definitionId: expect.any(String), index: 1},
+        ]);
+    });
+});
+
+describe('getAnnotationSets', () => {
+    const shape = (definitionId: string, title: string): AssetAnnotation => ({
+        type: AnnotationType.Rect,
+        title,
+        source: {attributeId: 'a', definitionId, index: 0},
+    });
+
+    it('groups the shapes by attribute, in their order', () => {
+        expect(
+            getAnnotationSets([
+                shape('persons', 'Persons'),
+                shape('places', 'Places'),
+                shape('persons', 'Persons'),
+                {type: AnnotationType.Rect},
+            ])
+        ).toEqual([
+            {id: 'persons', label: 'Persons', count: 2},
+            {id: 'places', label: 'Places', count: 1},
         ]);
     });
 });

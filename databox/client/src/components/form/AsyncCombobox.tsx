@@ -63,6 +63,10 @@ type BaseProps<T> = {
     /** Listed before the loaded options, whatever the search */
     fixedOptions?: ComboOption<T>[];
     placeholder?: string;
+    /** Placeholder of the search field */
+    searchPlaceholder?: string;
+    /** Shown instead of "No match" when nothing is listed and nothing is typed */
+    emptyLabel?: string;
     disabled?: boolean;
     className?: string;
     id?: string;
@@ -299,7 +303,10 @@ export function AsyncCombobox<T = unknown>(
                     <CommandInput
                         value={search}
                         onValueChange={setSearch}
-                        placeholder={t('common.search', 'Search…')}
+                        placeholder={
+                            props.searchPlaceholder ??
+                            t('common.search', 'Search…')
+                        }
                     />
                     <CommandList ref={listRef}>
                         {isLoading ? (
@@ -308,7 +315,9 @@ export function AsyncCombobox<T = unknown>(
                             </div>
                         ) : (
                             <CommandEmpty>
-                                {t('common.no_match', 'No match')}
+                                {!search.trim() && props.emptyLabel
+                                    ? props.emptyLabel
+                                    : t('common.no_match', 'No match')}
                             </CommandEmpty>
                         )}
                         <CommandGroup>

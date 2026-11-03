@@ -2,50 +2,22 @@
 
 import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQueryClient} from '@tanstack/react-query';
 import {RefreshCwIcon, ScanFaceIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import type {
-    ApiFile,
-    Asset,
-    AttributeEntity,
-    WorkspaceIntegration,
-} from '@/types/api';
-import {AttributeEntityStatus} from '@/types/api';
+import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
 import {runIntegrationAction} from '@/lib/api/integrations';
-import {deleteAssetAttribute, patchAssetAttribute} from '@/lib/api/assets';
-import {putAttributeEntity} from '@/lib/api/metadata';
 import {Button} from '@/components/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
-import {FaceCard, type FaceCardFace} from './FaceCard';
-import {boxOf, faceRecognition, setupOf} from './useFaceRecognition';
+import {FaceCard} from './FaceCard';
+import {
+    canNameFaces,
+    faceRecognition,
+    facesOfAsset,
+    setupOf,
+} from './useFaceRecognition';
+import {useFaceActions} from './useFaceActions';
 
 export {faceRecognition};
-
-/** The faces of the asset: the values of its face attribute */
-export function facesOfAsset(
-    asset: Asset,
-    attributeSlug: string
-): FaceCardFace[] {
-    return (asset.attributes ?? [])
-        .filter(a => a.definition?.slug === attributeSlug)
-        .flatMap(a => {
-            const box = boxOf(a);
-
-            return box
-                ? [
-                      {
-                          id: a.id,
-                          asset,
-                          box,
-                          origin: a.origin,
-                          confidence: a.confidence,
-                          entity: a.value ?? null,
-                      },
-                  ]
-                : [];
-        });
-}
 
 /**
  * Face recognition panel of the asset view: the faces detected on the asset
@@ -61,12 +33,9 @@ export function FaceRecognitionPanel({
     file: ApiFile;
 }) {
     const {t} = useTranslation();
-    const queryClient = useQueryClient();
     const [detecting, setDetecting] = useState(false);
     const setup = setupOf(integration);
-    const assetQueryKey = ['asset-view', asset.id];
-    const refresh = () =>
-        queryClient.invalidateQueries({queryKey: assetQueryKey});
+    const {refresh, assign, name, remove} = useFaceActions(asset.id);
 
     // The analyzer announces every detection of the asset
     useChannelEvent(
@@ -79,9 +48,7 @@ export function FaceRecognitionPanel({
         () => (setup ? facesOfAsset(asset, setup.attribute) : []),
         [asset, setup]
     );
-    const canInteract =
-        integration.capabilities?.interact !== false &&
-        asset.capabilities?.edit !== false;
+    const canInteract = canNameFaces(integration, asset);
 
     const detect = async () => {
         setDetecting(true);
@@ -94,69 +61,6 @@ export function FaceRecognitionPanel({
             toast.error(e?.message);
         } finally {
             setDetecting(false);
-        }
-    };
-
-    const assign = async (
-        face: FaceCardFace,
-        entityId: string,
-        name?: string
-    ) => {
-        try {
-            const updated = await patchAssetAttribute(face.id, {
-                value: entityId,
-            });
-            await refresh();
-            toast.success(
-                t('faces.named_toast', {
-                    defaultValue: 'Face named {{name}}',
-                    name: name ?? updated.value?.value ?? '',
-                })
-            );
-        } catch (e: any) {
-            toast.error(
-                e?.message ??
-                    t('faces.name_error', 'The face could not be named')
-            );
-            throw e;
-        }
-    };
-
-    const name = async (
-        face: FaceCardFace,
-        value: string
-    ): Promise<AttributeEntity> => {
-        try {
-            const saved = await putAttributeEntity(face.entity!.id, {
-                value,
-                status: AttributeEntityStatus.Approved,
-            });
-            await refresh();
-            toast.success(
-                t('faces.named_toast', {
-                    defaultValue: 'Face named {{name}}',
-                    name: saved.value,
-                })
-            );
-
-            return saved;
-        } catch (e: any) {
-            toast.error(
-                e?.message ??
-                    t('faces.name_error', 'The face could not be named')
-            );
-            throw e;
-        }
-    };
-
-    const remove = async (face: FaceCardFace) => {
-        try {
-            await deleteAssetAttribute(face.id);
-            await refresh();
-            toast.success(t('faces.forgotten', 'Face forgotten'));
-        } catch (e: any) {
-            toast.error(e?.message);
-            throw e;
         }
     };
 

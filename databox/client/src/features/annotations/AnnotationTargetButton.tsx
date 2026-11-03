@@ -6,11 +6,18 @@ import type {AssetAnnotation} from '@/types/api';
 import {Button, type ButtonProps} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
 import {cn} from '@/lib/utils/cn';
-import {useAnnotations, useAnnotationTarget} from './AnnotationsProvider';
+import {
+    useAnnotations,
+    useAnnotationTarget,
+    useShapeEditor,
+} from './AnnotationsProvider';
+import {ensureAnnotationIds} from './common';
 
 /**
  * Shows the shapes of something (a value of an attribute…) on the asset, or
- * lets draw them when `editable`. Nothing outside of an asset view.
+ * lets draw them when `editable`: a click on one of the shapes of its stored
+ * value (`attributeId`) shown with the asset then opens it here. Nothing
+ * outside of an asset view.
  */
 export function AnnotationTargetButton({
     targetKey,
@@ -18,6 +25,7 @@ export function AnnotationTargetButton({
     editable,
     onChange,
     label,
+    attributeId,
     disabled,
     size = 'icon-xs',
     className,
@@ -28,6 +36,8 @@ export function AnnotationTargetButton({
     onChange?: (annotations: AssetAnnotation[]) => void;
     /** What is annotated, shown in the player toolbar */
     label?: string;
+    /** The stored attribute value the shapes are of */
+    attributeId?: string;
     disabled?: boolean;
     size?: ButtonProps['size'];
     className?: string;
@@ -39,7 +49,13 @@ export function AnnotationTargetButton({
         editable,
         onChange,
         label,
+        attributeId,
     });
+    useShapeEditor(editable && !disabled ? attributeId : undefined, index =>
+        target.activate({
+            selectedId: ensureAnnotationIds(annotations, targetKey)[index]?.id,
+        })
+    );
     if (!ctx) {
         return null;
     }
