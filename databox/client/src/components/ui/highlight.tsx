@@ -2,6 +2,9 @@ import {Fragment, ReactNode} from 'react';
 
 /**
  * Renders `[hl]…[/hl]` (API highlight tags) as <mark>.
+ *
+ * The parts are wrapped in a single <span>: in a flex parent, they would
+ * otherwise each be an item, spaced by its gap even within a word.
  */
 export function Highlight({
     text,
@@ -17,7 +20,7 @@ export function Highlight({
     const parts = text.split(/(\[hl\].*?\[\/hl\])/g);
 
     return (
-        <>
+        <span>
             {parts.map((part, i) => {
                 const m = part.match(/^\[hl\](.*?)\[\/hl\]$/);
 
@@ -27,7 +30,7 @@ export function Highlight({
                     <Fragment key={i}>{part}</Fragment>
                 );
             })}
-        </>
+        </span>
     );
 }
 
