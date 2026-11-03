@@ -7,10 +7,16 @@ import {LinkIcon, UploadCloudIcon, XIcon} from 'lucide-react';
 import {Input} from '@/components/ui/input';
 import {Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
 import {Button} from '@/components/ui/button';
+import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {formatFileSize} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
 
-export type FileOrUrl = {file?: File; url?: string};
+export type FileOrUrl = {
+    file?: File;
+    url?: string;
+    /** Whether the file at `url` is copied into the storage (the default) */
+    importFile?: boolean;
+};
 
 /**
  * Single file picker (drop zone) or remote URL.
@@ -19,10 +25,13 @@ export function FileOrUrlInput({
     value,
     onChange,
     accept,
+    allowReference,
 }: {
     value: FileOrUrl;
     onChange: (v: FileOrUrl) => void;
     accept?: Record<string, string[]>;
+    /** Lets the remote URL be referenced instead of imported */
+    allowReference?: boolean;
 }) {
     const {t, i18n} = useTranslation();
     const [mode, setMode] = useState<'file' | 'url'>(
@@ -88,12 +97,40 @@ export function FileOrUrlInput({
                     </div>
                 )
             ) : (
-                <Input
-                    type="url"
-                    placeholder="https://…"
-                    value={value.url ?? ''}
-                    onChange={e => onChange({url: e.target.value})}
-                />
+                <>
+                    <Input
+                        type="url"
+                        placeholder="https://…"
+                        value={value.url ?? ''}
+                        onChange={e =>
+                            onChange({
+                                url: e.target.value,
+                                importFile: value.importFile,
+                            })
+                        }
+                    />
+                    {allowReference ? (
+                        <LabeledControl
+                            label={t('upload.import_files', 'Import the file', {
+                                count: 1,
+                            })}
+                            description={t(
+                                'upload.import_files_help',
+                                'Copy the file into the storage instead of referencing the remote URL.'
+                            )}
+                        >
+                            <Checkbox
+                                checked={value.importFile ?? true}
+                                onCheckedChange={v =>
+                                    onChange({
+                                        url: value.url,
+                                        importFile: v === true,
+                                    })
+                                }
+                            />
+                        </LabeledControl>
+                    ) : null}
+                </>
             )}
         </div>
     );

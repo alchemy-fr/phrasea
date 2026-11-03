@@ -40,7 +40,10 @@ export function ReplaceSourceDialog({
                 updated = await patchAsset(asset.id, {multipart});
             } else {
                 updated = await patchAsset(asset.id, {
-                    sourceFile: {url: value.url, importFile: true},
+                    sourceFile: {
+                        url: value.url,
+                        importFile: value.importFile ?? true,
+                    },
                 });
             }
             update(updated);
@@ -93,6 +96,7 @@ export function ReplaceSourceDialog({
                 value={value}
                 onChange={setValue}
                 accept={toDropzoneAccept(config.upload.allowedTypes)}
+                allowReference
             />
             {progress !== undefined ? (
                 <Progress value={Math.round(progress * 100)} />
