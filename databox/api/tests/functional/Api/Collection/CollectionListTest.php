@@ -319,14 +319,59 @@ final class CollectionListTest extends AbstractSearchTestCase
 
     public function testQuerySearchesNestedCollections(): void
     {
-        $this->markTestIncomplete('BUG: without parent, CollectionSearch::applyFilters() (src/Elasticsearch/CollectionSearch.php:134) always restricts to pathDepth 0, although a query is meant to be "deep": searching collections by name (CollectionsPanel, AQL suggestions) never finds sub-collections');
-
         $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
         $root = $this->createCollection(['workspace' => $workspace, 'name' => 'Holidays']);
-        $this->createCollection(['workspace' => $workspace, 'name' => 'Summer holidays', 'parent' => $root]);
+        $child = $this->createCollection(['workspace' => $workspace, 'name' => 'Summer holidays', 'parent' => $root]);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Beach holidays', 'parent' => $child]);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Work', 'parent' => $child]);
         $this->reindex();
 
-        $this->assertSame(['Holidays', 'Summer holidays'], $this->listNames(self::USER, ['query' => 'holidays']));
+        $this->assertSame(['Beach holidays', 'Holidays', 'Summer holidays'], $this->listNames(self::USER, ['query' => 'holidays']));
+        $this->assertSame(['Holidays'], $this->listNames(self::USER, ['query' => 'holidays', 'deep' => 'false']));
+
+        $members = $this->list(self::USER, ['query' => 'summer']);
+        $this->assertSame(['Summer holidays'], array_column($members, 'name'));
+        $this->assertSame('[hl]Summer[/hl] holidays', $members[0]['nameHighlight']);
+    }
+
+    public function testQueryOnNestedCollectionsAppliesPermissions(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
+        $root = $this->createCollection(['workspace' => $workspace, 'name' => 'Project root']);
+        $this->setCollectionPrivacy($root, Privacy::PRIVATE_IN_WORKSPACE);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Project inherited', 'parent' => $root]);
+        $secretRoot = $this->createCollection(['workspace' => $workspace, 'name' => 'Secret root']);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Project secret', 'parent' => $secretRoot]);
+        $shared = $this->createCollection(['workspace' => $workspace, 'name' => 'Project shared', 'parent' => $secretRoot]);
+        $this->grantUserOnObject(self::USER, $shared, PermissionInterface::VIEW);
+        $this->reindex();
+
+        $this->assertSame(['Project inherited', 'Project root', 'Project shared'], $this->listNames(self::USER, ['query' => 'project']));
+        $this->assertSame(['Project inherited', 'Project root', 'Project secret', 'Project shared'], $this->listNames(self::ADMIN, ['query' => 'project']));
+        $this->assertSame([], $this->listNames(self::OTHER, ['query' => 'project']));
+        $this->assertSame([], $this->listNames(self::ANONYMOUS, ['query' => 'project']));
+    }
+
+    /**
+     * "query" is a search-as-you-type: the last word matches as a prefix, every word is required.
+     */
+    public function testQueryMatchesWordPrefixes(): void
+    {
+        $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Demo user']);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'User guide']);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Academic']);
+        $this->reindex();
+
+        $this->assertSame(['Demo user'], $this->listNames(self::USER, ['query' => 'dem']));
+        $this->assertSame(['Demo user'], $this->listNames(self::USER, ['query' => 'DEMO us']));
+        $this->assertSame(['Demo user', 'User guide'], $this->listNames(self::USER, ['query' => 'use']));
+        $this->assertSame(['User guide'], $this->listNames(self::USER, ['query' => 'user gu']));
+        $this->assertSame([], $this->listNames(self::USER, ['query' => 'emo']));
+        $this->assertSame([], $this->listNames(self::USER, ['query' => 'demo guide']));
+
+        $members = $this->list(self::USER, ['query' => 'dem']);
+        $this->assertSame('[hl]Demo[/hl] user', $members[0]['nameHighlight']);
     }
 
     public function testQuerySearchesRootCollectionsByName(): void

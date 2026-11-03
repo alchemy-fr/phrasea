@@ -137,7 +137,7 @@ class CollectionSearch extends AbstractSearch
             }, $parentCollections);
 
             $boolQuery->addFilter($parentsBoolQuery);
-        } else {
+        } elseif (!$deep) {
             $boolQuery->addFilter(new Query\Term(['pathDepth' => 0]));
         }
 
@@ -149,13 +149,14 @@ class CollectionSearch extends AbstractSearch
     }
 
     /**
-     * Matches the name or any of its translations.
+     * Matches the name or any of its translations, the last word being a prefix (search-as-you-type).
      */
     private static function createNameMatch(string $text): Query\MultiMatch
     {
         $match = new Query\MultiMatch();
         $match->setQuery($text);
-        $match->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
+        $match->setType(Query\MultiMatch::TYPE_BOOL_PREFIX);
+        $match->setOperator(Query\MultiMatch::OPERATOR_AND);
         $match->setFields(['name', 'translatedNames']);
 
         return $match;
