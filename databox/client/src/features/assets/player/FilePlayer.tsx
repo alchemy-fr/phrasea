@@ -1,6 +1,7 @@
 'use client';
 
 import {type CSSProperties, useEffect, useRef, useState} from 'react';
+import dynamic from 'next/dynamic';
 import type {ApiFile, BasketClip, ClipCrop, ClipTimeRange} from '@/types/api';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {FileKindIcon} from '@/components/chips';
@@ -16,13 +17,30 @@ import {
 import {clipForFile} from '@/features/baskets/clip/clip';
 import {ClipFrame} from '@/features/baskets/clip/ClipFrame';
 import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
+import {Spinner} from '@/components/ui/loader';
+
+// pdf.js is loaded with the first PDF displayed, in the browser only
+const PdfViewer = dynamic(
+    () => import('@/features/assets/player/PdfViewer').then(m => m.PdfViewer),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex size-full items-center justify-center">
+                <Spinner />
+            </div>
+        ),
+    }
+);
 
 export type FilePlayerProps = {
     file: ApiFile;
     title?: string;
     autoPlay?: boolean;
     controls?: boolean;
-    /** `contain` keeps the whole media visible; `zoom` enables zoom/pan (viewer) */
+    /**
+     * `contain` keeps the whole media visible; `zoom` enables zoom/pan and
+     * the annotations (viewer)
+     */
     fit?: 'contain' | 'zoom';
     className?: string;
     onInteraction?: () => void;
@@ -141,9 +159,14 @@ export function FilePlayer({
         case FileKind.Document:
             if (file.type === 'application/pdf') {
                 return (
-                    <PdfPlayer
+                    <PdfViewer
+                        // The view (page, zoom) belongs to one document
+                        key={file.id}
                         src={file.url}
+                        controls={controls}
+                        annotate={fit === 'zoom'}
                         className={className}
+                        onInteraction={onInteraction}
                         onContentClick={onContentClick}
                     />
                 );
@@ -315,50 +338,5 @@ function CroppedImage({
                 />
             )}
         </ClipFrame>
-    );
-}
-
-/**
- * The clicks inside the PDF viewer (an iframe) never reach the page: the
- * first one is noticed by the focus moving into the iframe.
- */
-function PdfPlayer({
-    src,
-    className,
-    onContentClick,
-}: {
-    src: string;
-    className?: string;
-    onContentClick?: () => void;
-}) {
-    const ref = useRef<HTMLIFrameElement>(null);
-    const onClickRef = useRef(onContentClick);
-    onClickRef.current = onContentClick;
-
-    useEffect(() => {
-        let timeout: ReturnType<typeof setTimeout> | undefined;
-        const onBlur = () => {
-            // The iframe becomes the active element once the blur is over
-            timeout = setTimeout(() => {
-                if (document.activeElement === ref.current) {
-                    onClickRef.current?.();
-                }
-            }, 0);
-        };
-        window.addEventListener('blur', onBlur);
-
-        return () => {
-            window.removeEventListener('blur', onBlur);
-            clearTimeout(timeout);
-        };
-    }, []);
-
-    return (
-        <iframe
-            ref={ref}
-            src={`${src}#toolbar=1&view=FitH`}
-            title="PDF"
-            className={cn('size-full border-0 bg-white', className)}
-        />
     );
 }

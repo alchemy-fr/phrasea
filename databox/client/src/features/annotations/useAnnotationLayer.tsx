@@ -7,13 +7,21 @@ import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
 import {AnnotationLayer} from './AnnotationLayer';
 import {AnnotationToolbar} from './AnnotationToolbar';
-import {useAnnotationEditor} from './useAnnotationEditor';
+import {
+    useAnnotationEditor,
+    type AnnotationEditor,
+} from './useAnnotationEditor';
 import {useAnnotations, type AnnotationTarget} from './AnnotationsProvider';
 
 type Props = {
     /** Screen pixels per pixel of the media (the player's zoom) */
     zoom: number;
     page?: number;
+    /**
+     * False: nothing is shown nor told to the provider (a player that is
+     * not the media of the asset view)
+     */
+    enabled?: boolean;
 };
 
 /**
@@ -21,18 +29,27 @@ type Props = {
  * of the {@link AnnotationsProvider} over the image, and the tools to draw
  * new ones when the target is editable.
  *
+ * A document gets one toolbar and one layer per page (`renderLayer()`),
+ * sharing the same editor.
+ *
  * Returns nothing to render without a provider or a target.
  */
-export function useAnnotationLayer({zoom, page}: Props): {
+export function useAnnotationLayer({zoom, page, enabled = true}: Props): {
     /** To render over the image, in a box following its transform */
     layer: ReactNode;
+    /** The layer of a page of a document, in a box of the size of the page */
+    renderLayer: (page: number) => ReactNode;
     toolbar: ReactNode;
     /** The pointer draws or selects shapes instead of panning */
     active: boolean;
     target: AnnotationTarget | undefined;
+    /** The target is the shapes of the asset, shown by default */
+    isFallback: boolean;
+    editor: AnnotationEditor;
 } {
     const {t} = useTranslation();
-    const ctx = useAnnotations();
+    const providerCtx = useAnnotations();
+    const ctx = enabled ? providerCtx : undefined;
     const target = ctx?.target;
     const editor = useAnnotationEditor(target, page);
     const fallback = ctx?.fallback;
@@ -60,8 +77,17 @@ export function useAnnotationLayer({zoom, page}: Props): {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ctx?.setSupported]);
 
+    const noLayer = () => null;
     if (!ctx) {
-        return {layer: null, toolbar: null, active: false, target};
+        return {
+            layer: null,
+            renderLayer: noLayer,
+            toolbar: null,
+            active: false,
+            target,
+            isFallback: false,
+            editor,
+        };
     }
 
     const fallbackCount = ctx.fallback?.annotations.length ?? 0;
@@ -74,8 +100,11 @@ export function useAnnotationLayer({zoom, page}: Props): {
 
         return {
             layer: null,
+            renderLayer: noLayer,
             active: false,
             target,
+            isFallback: false,
+            editor,
             toolbar:
                 fallbackCount > 0 ? (
                     <>
@@ -103,22 +132,25 @@ export function useAnnotationLayer({zoom, page}: Props): {
     }
 
     const isFallback = target.key === ctx.fallback?.key;
+    const renderLayer = (layerPage?: number) => (
+        <AnnotationLayer
+            editor={editor}
+            page={layerPage}
+            zoom={zoom}
+            renderControl={target.editable ? undefined : target.renderControl}
+            onEditShape={ctx.editShape}
+            canEditShape={ctx.canEditShape}
+            context={context}
+        />
+    );
 
     return {
         active: editor.active,
         target,
-        layer: (
-            <AnnotationLayer
-                editor={editor}
-                zoom={zoom}
-                renderControl={
-                    target.editable ? undefined : target.renderControl
-                }
-                onEditShape={ctx.editShape}
-                canEditShape={ctx.canEditShape}
-                context={context}
-            />
-        ),
+        isFallback,
+        editor,
+        layer: renderLayer(),
+        renderLayer,
         toolbar: (
             <AnnotationToolbar
                 editor={editor}

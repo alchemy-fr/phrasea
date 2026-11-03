@@ -19,3 +19,16 @@ export function ensureAnnotationIds(
 ): AssetAnnotation[] {
     return annotations.map((a, i) => (a.id ? a : {...a, id: `${prefix}-${i}`}));
 }
+
+/** The page of a document a shape is on: the first one when it has none */
+export function getAnnotationPage(annotation: AssetAnnotation): number {
+    return annotation.page ?? 1;
+}
+
+/** The shape is on the page; every shape is when no page is given */
+export function isOnPage(
+    annotation: AssetAnnotation,
+    page: number | undefined
+): boolean {
+    return page === undefined || getAnnotationPage(annotation) === page;
+}

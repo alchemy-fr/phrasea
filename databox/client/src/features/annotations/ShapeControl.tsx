@@ -9,7 +9,7 @@ import {Input} from '@/components/ui/input';
 import {annotationZIndex} from './controls';
 import type {AssetAnnotation} from './types';
 import type {Box, MediaSize} from './geometry';
-import {getAnnotationLabel} from './annotationNames';
+import {getAnnotationName} from './annotationNames';
 
 /** Space between the panel and the shape, in screen pixels */
 const gap = 8;
@@ -75,7 +75,7 @@ export function ShapeControl({
         left = Math.max(0, media.width - w);
     }
 
-    const label = getAnnotationLabel(t, annotation);
+    const label = getAnnotationName(t, annotation);
 
     return (
         <div

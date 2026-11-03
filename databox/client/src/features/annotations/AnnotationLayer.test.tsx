@@ -41,6 +41,7 @@ function renderLayer(
         active,
         setAnnotate,
         media: {width: 1000, height: 500},
+        mediaOf: () => ({width: 1000, height: 500}),
         setMedia: vi.fn(),
         tool: undefined,
         options: {color: '#ffffff', size: 1},
@@ -254,5 +255,126 @@ describe('AnnotationLayer veils', () => {
 
         expect(onEditShape).toHaveBeenCalledWith(below);
         expect(select).not.toHaveBeenCalled();
+    });
+});
+
+describe('AnnotationLayer of a page', () => {
+    const shapes: AssetAnnotation[] = [
+        {id: 'p1', type: AnnotationType.Rect, x: 0.1, y: 0.1, w: 0.2, h: 0.2},
+        {
+            id: 'p2',
+            type: AnnotationType.Rect,
+            x: 0.1,
+            y: 0.1,
+            w: 0.2,
+            h: 0.2,
+            page: 2,
+        },
+    ];
+    const pageMedia: Record<number, {width: number; height: number}> = {
+        1: {width: 600, height: 800},
+        2: {width: 300, height: 400},
+    };
+
+    beforeEach(() => {
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                observe() {}
+                disconnect() {}
+            }
+        );
+    });
+
+    afterEach(() => {
+        cleanup();
+        vi.unstubAllGlobals();
+    });
+
+    function renderPage(page: number, extra: Partial<AnnotationEditor> = {}) {
+        const editor = {
+            annotations: shapes,
+            pageAnnotations: shapes,
+            page: undefined,
+            editable: true,
+            active: true,
+            setAnnotate: vi.fn(),
+            media: {width: 0, height: 0},
+            mediaOf: (p?: number) => pageMedia[p ?? 1],
+            setMedia: vi.fn(),
+            tool: undefined,
+            setTool: vi.fn(),
+            options: {color: '#ffffff', size: 1},
+            selectedId: undefined,
+            selected: undefined,
+            select: vi.fn(),
+            draft: undefined,
+            setDraft: vi.fn(),
+            textEdit: undefined,
+            add: vi.fn((a: AssetAnnotation) => a),
+            ...extra,
+        } as unknown as AnnotationEditor;
+        const {container} = render(
+            <TooltipPrimitive.Provider>
+                <AnnotationLayer editor={editor} page={page} zoom={1} />
+            </TooltipPrimitive.Provider>
+        );
+
+        return {container, editor};
+    }
+
+    it('shows the shapes of its page only, the ones without a page on the first', () => {
+        const ids = (container: HTMLElement) =>
+            Array.from(container.querySelectorAll('[data-annotation-id]')).map(
+                g => g.getAttribute('data-annotation-id')
+            );
+
+        expect(ids(renderPage(1).container)).toEqual(['p1']);
+        cleanup();
+        expect(ids(renderPage(2).container)).toEqual(['p2']);
+    });
+
+    it('measures the shapes against the size of its page', () => {
+        const {container} = renderPage(2);
+        const rect = container.querySelector('[data-annotation-id="p2"] rect')!;
+
+        expect(Number(rect.getAttribute('width'))).toBeCloseTo(60);
+    });
+
+    it('puts a shape drawn on it on its page', () => {
+        const {container, editor} = renderPage(2, {
+            tool: AnnotationType.Rect,
+        });
+        const svg = container.querySelector('svg')!;
+        // jsdom has neither
+        svg.setPointerCapture = () => {};
+        svg.getScreenCTM = () => null;
+
+        fireEvent.pointerDown(svg, {
+            button: 0,
+            pointerId: 1,
+            clientX: 10,
+            clientY: 10,
+        });
+        fireEvent.pointerMove(svg, {pointerId: 1, clientX: 100, clientY: 80});
+        expect(editor.setDraft).toHaveBeenLastCalledWith(
+            expect.objectContaining({page: 2})
+        );
+        fireEvent.pointerUp(svg, {pointerId: 1, clientX: 100, clientY: 80});
+
+        expect(editor.add).toHaveBeenCalledWith(
+            expect.objectContaining({type: AnnotationType.Rect, page: 2})
+        );
+    });
+
+    it('leaves the shape dragged on another page to its layer', () => {
+        const {container} = renderPage(1, {
+            draft: {...shapes[1], x: 0.5},
+        });
+
+        expect(container.querySelector('[data-annotation-id="p2"]')).toBeNull();
+        expect(
+            container.querySelector('[data-annotation-id="p1"]')
+        ).toBeTruthy();
     });
 });

@@ -56,8 +56,8 @@ export function isDefaultAnnotationName(
     return new RegExp(`^${pattern}$`).test(annotation.name);
 }
 
-/** The name shown for a shape (its text, its name, else its type) */
-export function getAnnotationLabel(
+/** The name of a shape (its name, its text, else its type) */
+export function getAnnotationName(
     t: TFunction,
     annotation: AssetAnnotation
 ): string {
@@ -66,4 +66,23 @@ export function getAnnotationLabel(
         annotation.text ||
         getAnnotationTypeLabel(t, annotation.type)
     );
+}
+
+/**
+ * The name shown for a shape away from the media: with its page, for a
+ * shape of a document
+ */
+export function getAnnotationLabel(
+    t: TFunction,
+    annotation: AssetAnnotation
+): string {
+    const name = getAnnotationName(t, annotation);
+    if (!annotation.page) {
+        return name;
+    }
+
+    return t('annotation.on_page', '{{name}} · p. {{page}}', {
+        name,
+        page: annotation.page,
+    });
 }

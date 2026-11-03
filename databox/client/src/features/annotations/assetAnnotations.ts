@@ -5,7 +5,7 @@ import {
 } from '@/features/attributes/types/registry';
 import type {AnnotationTarget} from './AnnotationsProvider';
 import {
-    getAnnotationLabel,
+    getAnnotationName,
     getAnnotationTypeLabel,
     isDefaultAnnotationName,
 } from './annotationNames';
@@ -34,7 +34,7 @@ export function labelAttributeAnnotations(
     const title = definition.displayName ?? definition.name;
 
     return (attribute.assetAnnotations ?? []).map(shape => {
-        const own = getAnnotationLabel(t, shape);
+        const own = getAnnotationName(t, shape);
         const generic =
             !shape.text &&
             (own === getAnnotationTypeLabel(t, shape.type) ||
