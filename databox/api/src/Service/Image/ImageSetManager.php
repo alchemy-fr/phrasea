@@ -75,6 +75,25 @@ final readonly class ImageSetManager
         return $imageSet;
     }
 
+    /**
+     * Creates the image from a stored raster file, kept as its original until ProcessImageSetHandler
+     * replaces it.
+     *
+     * @param string|null $sourceAttributeId the face the image was cropped from (null for an image a user gave)
+     */
+    public function createFromFile(File $file, Workspace $workspace, ?string $sourceAttributeId = null): ImageSet
+    {
+        $imageSet = new ImageSet();
+        $imageSet->setWorkspace($workspace);
+        $imageSet->setImageFile($file);
+        $imageSet->setSourceAttributeId($sourceAttributeId);
+        $this->em->persist($imageSet);
+
+        $this->postFlushStack->addBusMessage(new ProcessImageSet($imageSet->getId()));
+
+        return $imageSet;
+    }
+
     public function resolveImageUrl(?ImageSet $imageSet): ?string
     {
         if (null === $imageSet) {

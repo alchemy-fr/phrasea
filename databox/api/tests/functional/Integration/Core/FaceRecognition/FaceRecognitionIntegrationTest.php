@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Integration\Core\FaceRecognition;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -12,20 +13,29 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
+use App\Entity\Core\ImageSet;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Traits\AssetAnnotationsInterface;
 use App\Integration\Core\FaceRecognition\FaceManager;
+use App\Integration\Core\FaceRecognition\FacePhotoCropper;
 use App\Integration\Core\FaceRecognition\FaceRecognitionAnalyzer;
 use App\Integration\Core\FaceRecognition\FaceRecognitionClient;
 use App\Integration\Core\FaceRecognition\FaceRecognitionIntegration;
+use App\Integration\Core\FaceRecognition\Message\FaceRecognitionPhoto;
+use App\Integration\Core\FaceRecognition\Message\FaceRecognitionPhotoHandler;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationManager;
 use App\Repository\Core\AttributeRepository;
+use App\Service\Storage\FileManager;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Attribute\AttributeApiTestTrait;
+use App\Tests\Functional\Api\ImageUploadTestTrait;
 use App\Tests\Functional\Face\FaceRecognitionClientMock;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 /**
  * Faces are values of the configured entity attribute, persons are the entities of its list.
@@ -33,6 +43,9 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
 {
     use AttributeApiTestTrait;
+    use ImageUploadTestTrait;
+
+    private const string FIXTURE_IMAGE = __DIR__.'/../../../../fixtures/files/alchemy.png';
 
     private const array BOX_LEFT = ['x' => 0.1, 'y' => 0.2, 'w' => 0.2, 'h' => 0.3];
     private const array BOX_RIGHT = ['x' => 0.6, 'y' => 0.2, 'w' => 0.2, 'h' => 0.3];
@@ -176,6 +189,218 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->assertSame(Attribute::ORIGIN_HUMAN, $em->find(Attribute::class, $bobFace->getId())->getOrigin());
     }
 
+    public function testDetectionGivesTheUnknownPersonThePhotoOfItsFace(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig();
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $transport = self::interceptP2();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
+        $person = (string) $face->getValue();
+        $messages = self::sentPhotoMessages($transport);
+        $this->assertSame([$person], array_map(fn (FaceRecognitionPhoto $m): string => $m->getEntityId(), $messages));
+        $this->assertNull($this->photoOf($person), 'Nothing is done before the message is handled');
+
+        $transport->reset();
+        $handler = self::getService(FaceRecognitionPhotoHandler::class);
+        $handler($messages[0]);
+
+        $photo = $this->photoOf($person);
+        $this->assertInstanceOf(ImageSet::class, $photo);
+        $this->assertTrue($photo->isAuto());
+        $this->assertSame($face->getId(), $photo->getSourceAttributeId());
+        $this->assertSame($this->workspace->getId(), $photo->getWorkspace()->getId());
+        $original = $photo->getImageFile();
+        $this->assertSame('image/jpeg', $original->getType());
+        [$width, $height] = getimagesize(self::FIXTURE_IMAGE);
+        $side = FacePhotoCropper::square(self::BOX_LEFT, $width, $height)['side'];
+        $this->assertGreaterThan(1, $side);
+        $this->assertSame([$side, $side], self::storedImageSize($original), 'Square framing around the face');
+        $processed = self::sentProcessImageSetMessages($transport);
+        $this->assertCount(1, $processed);
+        $this->assertSame($photo->getId(), $processed[0]->getImageSetId());
+
+        // Handled again: nothing changes
+        $handler($messages[0]);
+        $this->assertSame($photo->getId(), $this->photoOf($person)->getId());
+    }
+
+    public function testAnAutoPhotoIsReplacedByANamedFaceOrWhenItsFaceIsGoneOnly(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+        $analyzer = self::getService(FaceRecognitionAnalyzer::class);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $transport = self::interceptP2();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $first = $analyzer->analyze($this->createImageAsset(), $config)[0];
+        $person = (string) $first->getValue();
+        $this->handlePhotoMessages($transport);
+        $photo = $this->photoOf($person);
+        $this->assertSame($first->getId(), $photo->getSourceAttributeId());
+        $photoFiles = self::imageFilesOf($photo);
+
+        // 1. A more confident face recognized by the machine does not replace it
+        $client->setFaces([self::face(self::BOX_RIGHT, self::ALICE_LOOKALIKE)]);
+        $second = $analyzer->analyze($this->createImageAsset(), $config)[0];
+        $this->assertSame($person, (string) $second->getValue());
+        $this->assertGreaterThan($first->getConfidence(), $second->getConfidence());
+        $this->handlePhotoMessages($transport);
+        $this->assertSame($photo->getId(), $this->photoOf($person)->getId());
+
+        // 2. A face named by a user does: the previous photo and its files are removed
+        $client->setFaces([self::face(self::BOX_LEFT, self::STRANGER)]);
+        $third = $analyzer->analyze($this->createImageAsset(), $config)[0];
+        $this->handlePhotoMessages($transport);
+        $em = self::getEntityManager();
+        $third = $em->find(Attribute::class, $third->getId());
+        $third->setValue($person);
+        self::getService(FaceManager::class)->confirm($third, KeycloakClientTestMock::ADMIN_UID);
+        $em->flush();
+        self::stopInterceptingP2();
+        self::getService(FaceRecognitionPhotoHandler::class)(new FaceRecognitionPhoto($person, $config->getIntegrationId()));
+        $named = $this->photoOf($person);
+        $this->assertNotSame($photo->getId(), $named->getId());
+        $this->assertSame($third->getId(), $named->getSourceAttributeId());
+        $this->assertNull(self::getEntityManager()->find(ImageSet::class, $photo->getId()));
+        $this->assertImageFilesAreDeleted($photoFiles);
+        $namedFiles = self::imageFilesOf($named);
+        $this->assertCount(2, $namedFiles, 'Processed like an uploaded image');
+
+        // 3. Deleting its face gives the person the photo of its best face left
+        $em = self::getEntityManager();
+        $em->remove($em->find(Attribute::class, $third->getId()));
+        $em->flush();
+        $rebuilt = $this->photoOf($person);
+        $this->assertNotSame($named->getId(), $rebuilt->getId());
+        $this->assertSame($second->getId(), $rebuilt->getSourceAttributeId());
+        $this->assertNull(self::getEntityManager()->find(ImageSet::class, $named->getId()));
+        $this->assertImageFilesAreDeleted($namedFiles);
+    }
+
+    public function testAPhotoUploadedByAUserIsNeverReplaced(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig();
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $transport = self::interceptP2();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
+        $person = (string) $face->getValue();
+        $uploaded = $this->attachImage($person);
+        $this->handlePhotoMessages($transport);
+        $this->assertSame($uploaded->getId(), $this->photoOf($person)->getId());
+        $this->assertFalse($this->photoOf($person)->isAuto());
+
+        // Even once a user named its face
+        $em = self::getEntityManager();
+        self::getService(FaceManager::class)->confirm($em->find(Attribute::class, $face->getId()), KeycloakClientTestMock::ADMIN_UID);
+        $em->flush();
+        self::getService(FaceRecognitionPhotoHandler::class)(new FaceRecognitionPhoto($person, $config->getIntegrationId()));
+        $this->assertSame($uploaded->getId(), $this->photoOf($person)->getId());
+    }
+
+    public function testNoPhotoWhenAutoPhotoIsDisabled(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig(['autoPhoto' => false]);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
+        $person = (string) $face->getValue();
+        $this->assertNull($this->photoOf($person));
+        self::getService(FaceRecognitionPhotoHandler::class)(new FaceRecognitionPhoto($person, $config->getIntegrationId()));
+        $this->assertNull($this->photoOf($person));
+        $this->assertSame([], self::getEntityManager()->getRepository(ImageSet::class)->findAll());
+    }
+
+    public function testApprovingAPendingPersonAsksForItsPhoto(): void
+    {
+        $httpClient = static::createClient();
+        $httpClient->disableReboot();
+        $this->setUpScene();
+        $config = $this->createConfig();
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $transport = self::interceptP2();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
+        $person = (string) $face->getValue();
+        $transport->reset();
+
+        $httpClient->request('PATCH', '/attribute-entities/'.$person, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => ['value' => 'Alice', 'status' => AttributeEntity::STATUS_APPROVED],
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([$person], array_map(fn (FaceRecognitionPhoto $m): string => $m->getEntityId(), self::sentPhotoMessages($transport)));
+    }
+
+    public function testMergingAsksForThePhotoOfTheMainPersonAndKeepsItsUploadedPhoto(): void
+    {
+        $httpClient = static::createClient();
+        $httpClient->disableReboot();
+        $this->setUpScene();
+        $config = $this->createConfig();
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $transport = self::interceptP2();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
+        $unknown = (string) $face->getValue();
+        $alice = $this->createEntity($this->list(), 'Alice');
+        $uploaded = $this->attachImage($alice->getId());
+        $transport->reset();
+
+        $httpClient->request('PUT', '/attribute-entities/'.$alice->getId().'/merge', [
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID)],
+            'json' => ['ids' => [$unknown]],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertSame($alice->getId(), (string) $em->find(Attribute::class, $face->getId())->getValue());
+        $this->assertSame([$alice->getId()], array_map(fn (FaceRecognitionPhoto $m): string => $m->getEntityId(), self::sentPhotoMessages($transport)));
+
+        $this->handlePhotoMessages($transport);
+        $this->assertSame($uploaded->getId(), $this->photoOf($alice->getId())->getId());
+    }
+
+    public function testPhotosCommandQueuesThePersonsWithoutAPhotoOrWithAnAutomaticOne(): void
+    {
+        $this->setUpScene();
+        $this->createIntegration();
+        $none = $this->createEntity($this->list, 'No photo');
+        $uploaded = $this->createEntity($this->list, 'Uploaded photo');
+        $this->attachImage($uploaded->getId());
+        $auto = $this->createEntity($this->list, 'Automatic photo');
+        $this->attachImage($auto->getId(), '2f1c7f0e-0b0a-4b6e-9a51-3c1b4f8f0a99');
+        $this->createEntity($this->createEntityList(['name' => 'Places', 'workspace' => $this->workspace]), 'Elsewhere');
+        $transport = self::interceptP2();
+
+        $tester = new CommandTester((new Application(self::$kernel))->find('app:face-recognition:photos'));
+        $tester->execute([]);
+        $tester->assertCommandIsSuccessful();
+        $this->assertEqualsCanonicalizing(
+            [$none->getId(), $auto->getId()],
+            array_map(fn (FaceRecognitionPhoto $m): string => $m->getEntityId(), self::sentPhotoMessages($transport)),
+        );
+    }
+
     public function testApprovingAnUnknownPersonMakesItsBestFaceAReference(): void
     {
         $em = self::getEntityManager();
@@ -312,6 +537,19 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         return $this->list;
     }
 
+    /**
+     * The workspace, reattached after the entity manager was cleared.
+     */
+    private function workspace(): Workspace
+    {
+        $em = self::getEntityManager();
+        if (!$em->contains($this->workspace)) {
+            $this->workspace = $em->find(Workspace::class, $this->workspace->getId());
+        }
+
+        return $this->workspace;
+    }
+
     private function createConfig(array $config = []): IntegrationConfig
     {
         return self::getService(IntegrationManager::class)->getIntegrationConfiguration($this->createIntegration($config));
@@ -360,22 +598,105 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         return $entity;
     }
 
+    /**
+     * @return FaceRecognitionPhoto[]
+     */
+    private static function sentPhotoMessages(InMemoryTransport $transport): array
+    {
+        return array_values(array_filter(
+            array_map(static fn ($envelope): object => $envelope->getMessage(), $transport->getSent()),
+            static fn (object $message): bool => $message instanceof FaceRecognitionPhoto,
+        ));
+    }
+
+    /**
+     * Handles the photo messages kept by the intercepted transport, after forgetting every message.
+     */
+    private function handlePhotoMessages(InMemoryTransport $transport): void
+    {
+        $messages = self::sentPhotoMessages($transport);
+        $transport->reset();
+        $handler = self::getService(FaceRecognitionPhotoHandler::class);
+        foreach ($messages as $message) {
+            $handler($message);
+        }
+    }
+
+    private function photoOf(string $entityId): ?ImageSet
+    {
+        $em = self::getEntityManager();
+        $em->clear();
+
+        return $em->find(AttributeEntity::class, $entityId)?->getImage();
+    }
+
+    /**
+     * A photo uploaded by a user, unless it comes from a face.
+     */
+    private function attachImage(string $entityId, ?string $sourceAttributeId = null): ImageSet
+    {
+        $em = self::getEntityManager();
+        $entity = $em->find(AttributeEntity::class, $entityId);
+        $path = sprintf('test-images/%s.png', uniqid());
+        $content = self::createImage(10, 10, 'png');
+        self::getService(FileStorageManager::class)->store($path, $content);
+
+        $imageSet = new ImageSet();
+        $imageSet->setWorkspace($entity->getWorkspace());
+        $imageSet->setImageFile(self::getService(FileManager::class)->createFile(File::STORAGE_S3_MAIN, $path, 'image/png', strlen($content), 'image.png', $entity->getWorkspace()));
+        $imageSet->setSourceAttributeId($sourceAttributeId);
+        $entity->setImage($imageSet);
+        $em->flush();
+
+        return $imageSet;
+    }
+
+    /**
+     * @return array<string, string> file ID => storage path
+     */
+    private static function imageFilesOf(ImageSet $imageSet): array
+    {
+        $files = [];
+        foreach ([$imageSet->getImageFile(), $imageSet->getThumbnailFile()] as $file) {
+            if (null !== $file) {
+                $files[$file->getId()] = $file->getPath();
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * @param array<string, string> $files file ID => storage path
+     */
+    private function assertImageFilesAreDeleted(array $files): void
+    {
+        $this->assertNotEmpty($files);
+        $em = self::getEntityManager();
+        foreach ($files as $fileId => $path) {
+            $this->assertNull($em->find(File::class, $fileId), 'The file is removed');
+            $this->assertFalse(self::isStored($path), 'The file is removed from the storage');
+        }
+    }
+
     private function createImageAsset(): Asset
     {
         $em = self::getEntityManager();
+        $workspace = $this->workspace();
 
         $file = new File();
-        $file->setWorkspace($this->workspace);
+        $file->setWorkspace($workspace);
         $file->setStorage(File::STORAGE_S3_MAIN);
         $file->setPathPublic(true);
         $file->setPath('test/'.uniqid().'.png');
         $file->setType('image/png');
-        // Short-circuits the storage fetch
-        $file->localTmpPath = __DIR__.'/../../../../fixtures/files/alchemy.png';
+        // Short-circuits the storage fetch, as long as the entity manager is not cleared
+        $file->localTmpPath = self::FIXTURE_IMAGE;
+        self::getService(FileStorageManager::class)->store($file->getPath(), file_get_contents(self::FIXTURE_IMAGE));
         $em->persist($file);
 
         $asset = $this->createAsset([
-            'workspace' => $this->workspace,
+            'workspace' => $workspace,
             'no_flush' => true,
         ]);
         $asset->setSource($file);

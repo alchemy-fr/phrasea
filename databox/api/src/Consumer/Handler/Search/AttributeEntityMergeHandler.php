@@ -11,10 +11,13 @@ use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\AttributeEntity;
+use App\Integration\Core\FaceRecognition\FaceRecognitionConfigResolver;
+use App\Integration\Core\FaceRecognition\Message\FaceRecognitionPhoto;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Repository\Core\AttributeRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 final readonly class AttributeEntityMergeHandler
@@ -26,6 +29,8 @@ final readonly class AttributeEntityMergeHandler
         private AttributeRepository $attributeRepository,
         private FieldNameResolver $fieldNameResolver,
         private EntityAttributeType $entityAttributeType,
+        private FaceRecognitionConfigResolver $faceRecognitionConfigResolver,
+        private MessageBusInterface $bus,
     ) {
     }
 
@@ -48,6 +53,12 @@ final readonly class AttributeEntityMergeHandler
             $mainEntity->getId(),
             $merged,
         );
+
+        // The faces of the merged persons are the main one's now: it may get its photo from them
+        $faceRecognitionConfig = $this->faceRecognitionConfigResolver->getConfigOfList($mainEntity->getList());
+        if (null !== $faceRecognitionConfig) {
+            $this->bus->dispatch(new FaceRecognitionPhoto($mainEntity->getId(), $faceRecognitionConfig->getIntegrationId()));
+        }
 
         $fields = [];
         $calls = [
