@@ -9,7 +9,10 @@ if [ ! -d "${BASEDIR}/../vendor" ]; then
 fi
 
 is_es_ready() {
-    [ $(curl --write-out %{http_code} --silent --output /dev/null ${ELASTICSEARCH_URL}/_cat/health?h=st) = 200 ]
+    if [ -n "${ELASTICSEARCH_USERNAME}" ]; then
+        set -- -u "${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD}"
+    fi
+    [ $(curl "$@" --write-out %{http_code} --silent --output /dev/null ${ELASTICSEARCH_URL}/_cat/health?h=st) = 200 ]
 }
 
 wait_for_es() {

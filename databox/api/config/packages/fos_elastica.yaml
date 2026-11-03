@@ -8,6 +8,8 @@ fos_elastica:
         default:
             hosts:
                 - '%env(ELASTICSEARCH_URL)%/'
+            username: '%env(ELASTICSEARCH_USERNAME)%'
+            password: '%env(ELASTICSEARCH_PASSWORD)%'
     indexes:
         asset:
             use_alias: '%elastica.use_alias%'

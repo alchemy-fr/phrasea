@@ -62,6 +62,10 @@ Elasticsearch moves from 7.17 to 9.1.4.
 - The `asset` index now holds a `dense_vector` field (`embedding`, 512 dims,
   indexed, cosine) and `fileFamily`: Elasticsearch older than 8.12 cannot create
   it. Upgrade any external cluster.
+- An external cluster protected by basic authentication is supported through
+  `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD` (empty by default: no
+  authentication). The bundled `elasticsearch` service keeps its security
+  disabled.
 
 See [Elasticsearch 9 and index rebuild](#elasticsearch-9-and-index-rebuild).
 
