@@ -28,6 +28,10 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
     use AttributeInputTrait;
 
     final public const string CONTEXT_CREATION_MICRO_TIME = 'micro_time';
+    /**
+     * Never update the asset of the same key: the creation fails on the unique key instead.
+     */
+    final public const string CONTEXT_CREATE_ONLY = 'create_only';
 
     public function __construct(
         private readonly PickSourceRenditionManager $pickSourceRenditionManager,
@@ -60,7 +64,7 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
             $data->sequence
         );
 
-        if ($isNew) {
+        if ($isNew && !($context[self::CONTEXT_CREATE_ONLY] ?? false)) {
             if ($workspace instanceof Workspace && $data->key) {
                 $asset = $this->em->getRepository(Asset::class)
                     ->findOneBy([

@@ -8,6 +8,7 @@ import {useInfiniteQuery} from '@tanstack/react-query';
 import {
     BellIcon,
     ChevronRightIcon,
+    FileInputIcon,
     FolderIcon,
     FolderOpenIcon,
     FolderPlusIcon,
@@ -58,6 +59,7 @@ import {routes} from '@/lib/routes';
 import {cn} from '@/lib/utils/cn';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {UploadDialog} from '@/features/upload/UploadDialog';
+import {ImportAssetsDialog} from '@/features/import/ImportAssetsDialog';
 import {CreateCollectionDialog} from '../CreateCollectionDialog';
 import {
     DeleteCollectionDialog,
@@ -355,6 +357,21 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                     {t('collections.menu.add_asset', 'Add asset')}
                 </Item>
             ) : null}
+            {workspace.capabilities.createAsset ? (
+                <Item
+                    data-testid="import-assets-workspace"
+                    onSelect={() =>
+                        openModal(
+                            ImportAssetsDialog,
+                            {workspaceId: workspace.id},
+                            {key: 'import-assets'}
+                        )
+                    }
+                >
+                    <FileInputIcon />{' '}
+                    {t('collections.menu.import_assets', 'Import assets…')}
+                </Item>
+            ) : null}
             {workspace.capabilities.edit ||
             workspace.capabilities.editPermissions ? (
                 <>
@@ -562,6 +579,24 @@ function CollectionItem({
                 >
                     <ImagePlusIcon />{' '}
                     {t('collections.menu.add_asset', 'Add asset')}
+                </Item>
+            ) : null}
+            {collection.capabilities.createAsset ? (
+                <Item
+                    data-testid="import-assets-collection"
+                    onSelect={() =>
+                        openModal(
+                            ImportAssetsDialog,
+                            {
+                                workspaceId: collection.workspaceId,
+                                collectionId: collection.id,
+                            },
+                            {key: 'import-assets'}
+                        )
+                    }
+                >
+                    <FileInputIcon />{' '}
+                    {t('collections.menu.import_assets', 'Import assets…')}
                 </Item>
             ) : null}
             {collection.capabilities.createCollection ? (

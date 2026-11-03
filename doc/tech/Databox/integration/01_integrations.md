@@ -98,6 +98,25 @@ Operational notes:
 - Uses an ApiKey authorization scheme.
 - Security key must match on both Phrasea and uploader configurations.
 
+## Asset import integration (core.asset_import)
+
+Display name: Asset import
+
+This integration exposes a webhook receiving import instructions (JSON or NDJSON, one entry per asset):
+the assets are created and their files downloaded from URLs. See [Import of assets](../import.md).
+
+Main behavior:
+
+- `POST /integrations/asset-import/{integrationId}/imports`, authenticated by the `Authorization: ApiKey <securityKey>` header; the format is given by the `Content-Type` (`application/x-ndjson`, `application/json`).
+- Answers 202 with the ID of the created import, followed in the Imports tab of the workspace (`GET /asset-imports/{id}`).
+- The entries are imported as the owner of the integration, in the configured `collectionId` (the workspace root otherwise) with the configured default `privacy`.
+- Generates the security key at creation, and a new one when the integration is duplicated.
+
+Operational notes:
+
+- Requires a workspace; the `collectionId` must belong to it.
+- 401 without the ApiKey header, 403 on a wrong key, 404 for an unknown or disabled integration, 415 on an unsupported Content-Type.
+
 ## Toast UI Photo Editor integration (tui.photo-editor)
 
 Display name: Toast UI Photo Editor
@@ -217,6 +236,7 @@ The table below is the exhaustive integration list currently available in Databo
 | phrasea.expose | Expose | Basket publication synchronization with Expose | No |
 | core.read_metadata | Read Metadata | Asset source metadata extraction and normalization | No |
 | phrasea.uploader | Uploader | External upload/webhook integration for Phrasea | No |
+| core.asset_import | Asset import | Webhook receiving JSON/NDJSON asset import instructions | No |
 | tui.photo-editor | Toast UI Photo Editor | Asset view editing integration | No |
 | core.moderation | Moderation | Workflow moderation step for assets | No |
 | core.watermark | Watermark | Workflow watermark generation | No |

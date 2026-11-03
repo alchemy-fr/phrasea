@@ -131,6 +131,7 @@ export enum AttributeType {
 
 export enum EntityName {
     Asset = 'assets',
+    AssetImport = 'asset-imports',
     AssetPolicy = 'asset-policies',
     Attachment = 'attachments',
     Collection = 'collections',
@@ -1153,6 +1154,45 @@ export type SearchSuggestion = {
     locale?: string;
     /** Id of the entity behind an entity attribute value */
     entityId?: string;
+};
+
+// ---------------------------------------------------------------------------
+// Asset imports (JSON / NDJSON instructions file)
+
+export type AssetImportFormat = 'json' | 'ndjson';
+
+export type AssetImportStatus =
+    'pending' | 'dispatching' | 'processing' | 'completed' | 'failed';
+
+export type AssetImport = Entity & {
+    workspaceId: string;
+    collectionId?: string;
+    collectionTitle?: string;
+    /** Set when the import was triggered by an integration (webhook) */
+    integrationId?: string;
+    integrationTitle?: string;
+    owner?: Pick<User, 'id' | 'username'>;
+    format: AssetImportFormat;
+    privacy?: Privacy;
+    originalName?: string;
+    status: AssetImportStatus;
+    /** Unknown until the whole file has been read */
+    total?: number;
+    created: number;
+    skipped: number;
+    failed: number;
+    /** Fatal error which stopped the import (invalid JSON…) */
+    error?: string;
+    endedAt?: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type AssetImportError = Entity & {
+    /** Line of the NDJSON file, or position (from 1) in the JSON array */
+    line: number;
+    key?: string;
+    message: string;
 };
 
 // ---------------------------------------------------------------------------

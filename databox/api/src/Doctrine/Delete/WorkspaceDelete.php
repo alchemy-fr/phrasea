@@ -10,6 +10,7 @@ use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetImport;
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
@@ -29,6 +30,7 @@ use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
+use App\Service\Import\AssetImportManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -40,6 +42,7 @@ final readonly class WorkspaceDelete
         private IndexCleaner $indexCleaner,
         private SoftDeleteToggler $softDeleteToggler,
         private CollectionListener $collectionListener,
+        private AssetImportManager $assetImportManager,
         private LoggerInterface $logger,
     ) {
     }
@@ -105,6 +108,7 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(AssetPolicy::class, $workspaceId);
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributePolicy::class, $workspaceId);
+            $this->deleteAssetImports($workspaceId);
             $this->deleteIntegrationChildren($workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
@@ -151,6 +155,21 @@ final readonly class WorkspaceDelete
             $this->softDeleteToggler->enable();
             $this->collectionListener->softDeleteEnabled = true;
         }
+    }
+
+    private function deleteAssetImports(string $workspaceId): void
+    {
+        $this->logger->debug('Deleting AssetImport(s)');
+
+        $imports = $this->em->getRepository(AssetImport::class)->findBy([
+            'workspace' => $workspaceId,
+        ]);
+        foreach ($imports as $import) {
+            $this->assetImportManager->scheduleFileDeletion($import);
+            $this->em->remove($import);
+        }
+        $this->em->flush();
+        $this->em->clear();
     }
 
     private function deleteIntegrationChildren(string $workspaceId): void
