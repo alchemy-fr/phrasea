@@ -18,7 +18,7 @@ import {Button} from '@/components/ui/button';
 import {SimpleSelect} from '@/components/ui/select';
 import {Tooltip} from '@/components/ui/overlays';
 import {FullPageLoader} from '@/components/ui/loader';
-import {EmptyState} from '@/components/ui/misc';
+import {EmptyState, Separator} from '@/components/ui/misc';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {
     AssetPanel,
@@ -396,16 +396,6 @@ export function AssetViewRoute({
                 )}
             >
                 <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
-                    <Tooltip content={t('common.close', 'Close')}>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={close}
-                            aria-label={t('common.close', 'Close')}
-                        >
-                            <XIcon />
-                        </Button>
-                    </Tooltip>
                     <h1
                         data-testid="asset-view-title"
                         className="min-w-0 flex-1 truncate text-base font-semibold"
@@ -437,6 +427,17 @@ export function AssetViewRoute({
                             panelOpen={panelOpen}
                         />
                     ) : null}
+                    <Separator orientation="vertical" className="mx-0.5 h-5" />
+                    <Tooltip content={t('common.close', 'Close')}>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={close}
+                            aria-label={t('common.close', 'Close')}
+                        >
+                            <XIcon />
+                        </Button>
+                    </Tooltip>
                 </header>
 
                 <div className="flex min-h-0 flex-1">

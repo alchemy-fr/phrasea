@@ -23,7 +23,7 @@ import {getBasket, getBasketAssets} from '@/lib/api/misc';
 import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
 import {FullPageLoader} from '@/components/ui/loader';
-import {EmptyState} from '@/components/ui/misc';
+import {EmptyState, Separator} from '@/components/ui/misc';
 import {AssetList} from '@/features/assets/list/AssetList';
 import {SelectionProvider} from '@/features/assets/list/SelectionProvider';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
@@ -155,14 +155,6 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
             className={cn(belowTopBar, 'z-50 flex flex-col bg-background')}
         >
             <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={close}
-                    aria-label={t('common.close', 'Close')}
-                >
-                    <XIcon />
-                </Button>
                 <ShoppingBasketIcon className="size-5 text-muted-foreground" />
                 <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
                     {basket.data?.name ?? ''}
@@ -225,6 +217,15 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                         </Tooltip>
                     </>
                 ) : null}
+                <Separator orientation="vertical" className="mx-0.5 h-5" />
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={close}
+                    aria-label={t('common.close', 'Close')}
+                >
+                    <XIcon />
+                </Button>
             </header>
             <div className="flex min-h-0 flex-1">
                 <aside
