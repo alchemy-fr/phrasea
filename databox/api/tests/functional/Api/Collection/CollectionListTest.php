@@ -371,7 +371,25 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->assertSame([], $this->listNames(self::USER, ['query' => 'demo guide']));
 
         $members = $this->list(self::USER, ['query' => 'dem']);
-        $this->assertSame('[hl]Demo[/hl] user', $members[0]['nameHighlight']);
+        $this->assertSame('[hl]Dem[/hl]o user', $members[0]['nameHighlight']);
+        $members = $this->list(self::USER, ['query' => 'DEMO us']);
+        $this->assertSame('[hl]Demo[/hl] [hl]us[/hl]er', $members[0]['nameHighlight']);
+    }
+
+    /**
+     * The partial highlight relies on edge n-grams of a limited length: a longer word typed in full
+     * is highlighted as a whole word.
+     */
+    public function testQueryHighlightsLongWordsInFull(): void
+    {
+        $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Photographies anciennes']);
+        $this->reindex();
+
+        $members = $this->list(self::USER, ['query' => 'photog']);
+        $this->assertSame('[hl]Photog[/hl]raphies anciennes', $members[0]['nameHighlight']);
+        $members = $this->list(self::USER, ['query' => 'photographies']);
+        $this->assertSame('[hl]Photographies[/hl] anciennes', $members[0]['nameHighlight']);
     }
 
     public function testQuerySearchesRootCollectionsByName(): void
@@ -418,6 +436,12 @@ final class CollectionListTest extends AbstractSearchTestCase
         ])->toArray()['member'];
         $this->assertSame('Légende', $members[0]['displayName']);
         $this->assertSame('[hl]Légende[/hl]', $members[0]['nameHighlight']);
+
+        $members = $this->request('GET', '/collections', self::USER, [
+            'query' => ['query' => 'leg'],
+            'headers' => ['X-Data-Locale' => 'fr'],
+        ])->toArray()['member'];
+        $this->assertSame('[hl]Lég[/hl]ende', $members[0]['nameHighlight']);
 
         // The displayed name does not match: no highlight
         $members = $this->request('GET', '/collections', self::USER, [

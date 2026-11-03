@@ -48,10 +48,28 @@ class CollectionSearch extends AbstractSearch
         ]);
 
         if (!empty($options['query'])) {
+            $parsed = $this->queryStringParser->parseQuery((string) $options['query']);
+            $partialMatch = new Query\MultiMatch();
+            $partialMatch->setQuery(implode(' ', [$parsed['should'], ...$parsed['must']]));
+            $partialMatch->setFields(['name.suggest', 'translatedNames.suggest']);
+            $partialHighlightQuery = $partialMatch->toArray();
+
             $query->setHighlight([
                 'pre_tags' => ['[hl]'],
                 'post_tags' => ['[/hl]'],
                 'fields' => [
+                    // Only the typed part of the words, from the edge n-grams of the name
+                    // (see CollectionOutputMapper::getNameHighlight())
+                    'name.suggest' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 1,
+                        'highlight_query' => $partialHighlightQuery,
+                    ],
+                    'translatedNames.suggest' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 0,
+                        'highlight_query' => $partialHighlightQuery,
+                    ],
                     'name' => [
                         'fragment_size' => 255,
                         'number_of_fragments' => 1,
