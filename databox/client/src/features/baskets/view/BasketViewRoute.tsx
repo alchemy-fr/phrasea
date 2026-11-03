@@ -28,6 +28,7 @@ import {AssetList} from '@/features/assets/list/AssetList';
 import {SelectionProvider} from '@/features/assets/list/SelectionProvider';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {useBasketStore} from '../basketStore';
+import {invalidateBasket} from '../basketQueries';
 import {BasketsPanel} from '../BasketsPanel';
 import {routes} from '@/lib/routes';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
@@ -82,12 +83,9 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
         initialPageParam: undefined as string | undefined,
         getNextPageParam: last => last.next,
     });
-    useChannelEvent(`basket-${basketId}`, 'basket:update', () => {
-        void queryClient.invalidateQueries({
-            queryKey: ['basket-assets', basketId],
-        });
-        void basket.refetch();
-    });
+    useChannelEvent(`basket-${basketId}`, 'basket:update', () =>
+        invalidateBasket(queryClient, basketId)
+    );
 
     // An asset can be in the basket several times: each item is its own
     // card, selected and removed on its own (see `assetKey`)
@@ -118,9 +116,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
             .filter((id): id is string => !!id);
         try {
             await removeItems(basketId, itemIds);
-            void queryClient.invalidateQueries({
-                queryKey: ['basket-assets', basketId],
-            });
+            invalidateBasket(queryClient, basketId);
             toast.success(
                 t('basket.removed', '{{count}} items removed from basket', {
                     count: itemIds.length,
@@ -134,9 +130,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
     const editClip = async (asset: Asset) => {
         const saved = await openModal(BasketClipDialog, {asset});
         if (saved) {
-            void queryClient.invalidateQueries({
-                queryKey: ['basket-assets', basketId],
-            });
+            invalidateBasket(queryClient, basketId);
         }
     };
 

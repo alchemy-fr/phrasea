@@ -27,7 +27,7 @@ import type {Asset} from '@/types/api';
 import {useModals} from '@/components/modals/ModalProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {routes} from '@/lib/routes';
-import {useBasketStore} from '@/features/baskets/basketStore';
+import {useAddToCurrentBasket} from '@/features/baskets/useAddToCurrentBasket';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {ExportDialog} from './ExportDialog';
 import {CopyMoveDialog} from './CopyMoveDialog';
@@ -135,7 +135,7 @@ export function useAssetActions(
     const router = useRouter();
     const {openModal} = useModals();
     const {isAuthenticated} = useAuth();
-    const addToBasket = useBasketStore(s => s.addToCurrent);
+    const addToBasket = useAddToCurrentBasket();
     const openAsset = useAssetOpener();
     const results = useOptionalResults();
     const selection = useOptionalSelection();
