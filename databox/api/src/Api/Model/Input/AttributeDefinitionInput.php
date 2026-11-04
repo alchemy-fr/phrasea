@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\Model\Input;
 
 use App\Attribute\Type\EntityAttributeType;
-use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\RenditionDefinition;
@@ -44,17 +43,18 @@ class AttributeDefinitionInput
     public $entityList;
 
     /**
-     * Depth of the entity list hierarchy whose entities the attribute accepts; null unbinds it.
-     * Left unset (not sent), the binding is kept.
+     * Lowest depth of the entity list hierarchy whose entities the attribute accepts; null: open bound.
+     * Left unset (not sent), the bound is kept. Both bounds null unbind the attribute.
      */
     #[Assert\PositiveOrZero]
-    public ?int $entityHierarchyDepth;
+    public ?int $entityHierarchyDepthMin;
 
     /**
-     * Restricts the accepted entities to the descendants of this one; null removes the restriction.
-     * Left unset (not sent), the branch is kept.
+     * Deepest depth of the entity list hierarchy whose entities the attribute accepts; null: open bound.
+     * Left unset (not sent), the bound is kept.
      */
-    public ?AttributeEntity $entityHierarchyBranch;
+    #[Assert\PositiveOrZero]
+    public ?int $entityHierarchyDepthMax;
 
     public ?bool $autoFillParents = null;
 

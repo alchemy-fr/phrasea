@@ -79,11 +79,10 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield AssociationField::new('entityList')
             ->autocomplete();
         // Set through the API, which recomputes the assets holding a value of the list
-        yield IntegerField::new('entityHierarchyDepth')
+        yield IntegerField::new('entityHierarchyDepthMin')
             ->hideOnForm();
-        yield AssociationField::new('entityHierarchyBranch')
-            ->hideOnForm()
-            ->hideOnIndex();
+        yield IntegerField::new('entityHierarchyDepthMax')
+            ->hideOnForm();
         yield BooleanField::new('autoFillParents')
             ->renderAsSwitch(false)
             ->hideOnForm()

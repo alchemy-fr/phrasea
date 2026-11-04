@@ -15,7 +15,8 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * Upward filling of the attributes bound to an entity list hierarchy: a value (source) of a definition having
- * "autoFillParents" fills the definitions bound to the depths of its ancestors (Ville=Paris fills Pays=France).
+ * "autoFillParents" fills the other definitions of its list with its closest ancestor within their depths
+ * (Ville=Paris fills Pays=France). A value holding a farther ancestor of the same branch is consistent.
  *
  * - Filled values get the "hierarchy" origin; they follow the hierarchy (added, updated, removed).
  * - Any other value is never overwritten silently: a single-valued definition holding another value than the
@@ -176,20 +177,16 @@ final class HierarchyAttributeFiller
     }
 
     /**
-     * Ancestor entities expected per definition, with the sources implying them.
+     * Ancestor entities expected per definition, with the sources implying them and the entities satisfying them
+     * (the expected one and its farther ancestors within the depths of the definition).
      *
      * @param AttributeDefinition[] $definitions
      * @param Attribute[]           $attributes
      *
-     * @return array<string, array<string, array{entity: AttributeEntity, sources: Attribute[]}>> definition ID => entity ID => ...
+     * @return array<string, array<string, array{entity: AttributeEntity, sources: Attribute[], accepted: array<string, true>}>> definition ID => entity ID => ...
      */
     private function computeExpected(array $definitions, array $attributes): array
     {
-        $byDepth = [];
-        foreach ($definitions as $definition) {
-            $byDepth[$definition->getEntityHierarchyDepth()][] = $definition;
-        }
-
         $expected = [];
         foreach ($attributes as $source) {
             $sourceDefinition = $source->getDefinition();
@@ -201,22 +198,62 @@ final class HierarchyAttributeFiller
                 continue;
             }
 
-            $ancestor = $entity->getParent();
-            while (null !== $ancestor) {
-                if (!$ancestor->isPlaceholder() && null !== $ancestor->getHierarchyDepth()) {
-                    foreach ($byDepth[$ancestor->getHierarchyDepth()] ?? [] as $target) {
-                        if ($target === $sourceDefinition || !$this->isInBranch($ancestor, $target)) {
-                            continue;
-                        }
-                        $expected[$target->getId()][$ancestor->getId()]['entity'] = $ancestor;
-                        $expected[$target->getId()][$ancestor->getId()]['sources'][] = $source;
+            // Closest first
+            $ancestors = [];
+            for ($ancestor = $entity->getParent(); null !== $ancestor; $ancestor = $ancestor->getParent()) {
+                if (!$ancestor->isPlaceholder()) {
+                    $ancestors[] = $ancestor;
+                }
+            }
+
+            foreach ($definitions as $target) {
+                if ($target === $sourceDefinition) {
+                    continue;
+                }
+                $inRange = array_values(array_filter($ancestors, fn (AttributeEntity $a): bool => $target->acceptsHierarchyDepth($a->getHierarchyDepth())));
+                if (empty($inRange)) {
+                    continue;
+                }
+
+                $closest = $inRange[0];
+                $item = &$expected[$target->getId()][$closest->getId()];
+                $item['entity'] = $closest;
+                $item['sources'][] = $source;
+                foreach ($inRange as $a) {
+                    $item['accepted'][$a->getId()] = true;
+                }
+                unset($item);
+            }
+        }
+
+        // An ancestor implied by a closer one (France by Paris along Île-de-France) is no value of its own
+        foreach ($expected as $definitionId => $items) {
+            foreach (array_keys($items) as $entityId) {
+                foreach ($expected[$definitionId] as $otherId => $other) {
+                    if ($otherId !== $entityId && isset($other['accepted'][$entityId])) {
+                        array_push($expected[$definitionId][$otherId]['sources'], ...$expected[$definitionId][$entityId]['sources']);
+                        unset($expected[$definitionId][$entityId]);
+                        break;
                     }
                 }
-                $ancestor = $ancestor->getParent();
             }
         }
 
         return $expected;
+    }
+
+    /**
+     * @param array<string, array{accepted: array<string, true>}> $expected of a definition
+     */
+    private static function isAccepted(array $expected, ?string $entityId): bool
+    {
+        foreach ($expected as $item) {
+            if (isset($item['accepted'][$entityId ?? ''])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -244,7 +281,7 @@ final class HierarchyAttributeFiller
             }
 
             foreach ($this->getAttributesOf($attributes, $definition) as $existing) {
-                if (Attribute::ORIGIN_HIERARCHY !== $existing->getOrigin() && !isset($expected[$definitionId][$existing->getValue()])) {
+                if (Attribute::ORIGIN_HIERARCHY !== $existing->getOrigin() && !self::isAccepted($expected[$definitionId], $existing->getValue())) {
                     $conflicts[] = new HierarchyConflict($definition, $existing, $entities, $sources);
                 }
             }
@@ -295,8 +332,8 @@ final class HierarchyAttributeFiller
     /**
      * Brings the "hierarchy" values of the definition to the expected ancestors.
      *
-     * @param Attribute[]                                                         $attributes
-     * @param array<string, array{entity: AttributeEntity, sources: Attribute[]}> $expected
+     * @param Attribute[]                                                                                        $attributes
+     * @param array<string, array{entity: AttributeEntity, sources: Attribute[], accepted: array<string, true>}> $expected
      */
     private function sync(string $assetId, ?string $locale, AttributeDefinition $definition, array $attributes, array $expected, HierarchyFillReport $report): void
     {
@@ -311,7 +348,8 @@ final class HierarchyAttributeFiller
             }
         }
 
-        $missing = array_diff_key($expected, $manualValues);
+        // Satisfied by a manual value of the branch
+        $missing = array_filter($expected, fn (array $item): bool => empty(array_intersect_key($item['accepted'], $manualValues)));
         if (!$definition->isMultiple() && !empty($manualValues)) {
             $missing = [];
         }
@@ -362,16 +400,6 @@ final class HierarchyAttributeFiller
     private function getAttributesOf(array $attributes, AttributeDefinition $definition): array
     {
         return array_values(array_filter($attributes, fn (Attribute $a): bool => $a->getDefinition() === $definition));
-    }
-
-    private function isInBranch(AttributeEntity $entity, AttributeDefinition $definition): bool
-    {
-        $branch = $definition->getEntityHierarchyBranch();
-        if (null === $branch) {
-            return true;
-        }
-
-        return \in_array($branch->getId(), $entity->getAncestorIds(), true);
     }
 
     private function findEntity(?string $id): ?AttributeEntity

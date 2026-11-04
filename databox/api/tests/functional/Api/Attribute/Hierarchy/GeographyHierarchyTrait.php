@@ -12,7 +12,7 @@ use App\Entity\Core\EntityList;
 /**
  * The geography of the study:
  *
- *   Monde (root, 0)
+ *   Monde (0)
  *   └─ Europe (1)
  *      ├─ France (2)
  *      │  ├─ Île-de-France (3) ─ Paris (4) ─ 16e (5) ─ Rue Victor Hugo (6)
@@ -40,7 +40,6 @@ trait GeographyHierarchyTrait
         $this->geo = $this->createEntityList(['name' => 'Géographie']);
 
         $this->e['monde'] = $this->node('Monde', null);
-        $this->geo->setRootEntity($this->e['monde']);
         $this->e['europe'] = $this->node('Europe', 'monde');
         $this->e['france'] = $this->node('France', 'europe');
         $this->e['idf'] = $this->node('Île-de-France', 'france');
@@ -73,7 +72,8 @@ trait GeographyHierarchyTrait
                 'multiple' => $multiple[$key] ?? false,
                 'no_flush' => true,
             ]);
-            $definition->setEntityHierarchyDepth($depth);
+            $definition->setEntityHierarchyDepthMin($depth);
+            $definition->setEntityHierarchyDepthMax($depth);
             $definition->setAutoFillParents(true);
             $this->defs[$key] = $definition;
         }

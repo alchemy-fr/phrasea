@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * Answers the import report: {applied, rejected: [{line, entity, reason}], rootEntityId}.
+ * Answers the import report: {applied, rejected: [{line, entity, reason}]}.
  */
 final class ImportEntityHierarchyProcessor implements ProcessorInterface
 {

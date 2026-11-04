@@ -11,7 +11,7 @@ function node(
     index: number,
     ancestorIds: string[]
 ): TargetData {
-    return {kind: 'node', entity: e, index, ancestorIds, isRoot: false};
+    return {kind: 'node', entity: e, index, ancestorIds};
 }
 
 // world > europe > [france, italy, spain]
@@ -124,33 +124,40 @@ describe('resolveDrop', () => {
         ).toMatchObject({parentId: 'france', position: 1, reparent: true});
     });
 
-    it('places an unclassified entity in the tree', () => {
+    it('places an entity of the top level in a branch', () => {
         expect(
             resolveDrop(
-                {entity: entity('portugal', null)},
+                {entity: entity('portugal', null), index: 3},
                 node(spain, 2, ancestors),
                 'after'
             )
         ).toMatchObject({parentId: 'europe', position: 3, reparent: true});
     });
 
-    it('takes a branch out of the hierarchy, not an unclassified entity', () => {
+    it('reorders the top level', () => {
+        const world = entity('world', null);
         expect(
             resolveDrop(
-                {entity: france, index: 0},
-                {kind: 'unclassified'},
-                'inside'
+                {entity: entity('atlantis', null), index: 0},
+                node(world, 1, []),
+                'after'
             )
+        ).toMatchObject({parentId: null, position: 1, reparent: false});
+    });
+
+    it('moves a branch to the end of the top level', () => {
+        expect(
+            resolveDrop({entity: france, index: 0}, {kind: 'top'}, 'inside')
         ).toEqual({
             entity: france,
             parentId: null,
-            position: 0,
+            position: Number.MAX_SAFE_INTEGER,
             reparent: true,
         });
         expect(
             resolveDrop(
-                {entity: entity('portugal', null)},
-                {kind: 'unclassified'},
+                {entity: entity('portugal', null), index: 0},
+                {kind: 'top'},
                 'inside'
             )
         ).toBeUndefined();

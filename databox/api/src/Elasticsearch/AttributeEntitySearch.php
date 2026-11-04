@@ -39,13 +39,14 @@ class AttributeEntitySearch extends AbstractSearch
         if (null !== $criteria->depth) {
             $filterQuery->addFilter(new Query\Term(['depth' => $criteria->depth]));
         }
+        if (null !== $criteria->minDepth || null !== $criteria->maxDepth) {
+            $filterQuery->addFilter(new Query\Range('depth', array_filter([
+                'gte' => $criteria->minDepth,
+                'lte' => $criteria->maxDepth,
+            ], fn (?int $v): bool => null !== $v)));
+        }
         if (null !== $criteria->branchId) {
             $filterQuery->addFilter(new Query\Term(['ancestorIds' => $criteria->branchId]));
-        }
-        if (true === $criteria->unclassified) {
-            $filterQuery->addMustNot(new Query\Exists('depth'));
-        } elseif (false === $criteria->unclassified) {
-            $filterQuery->addFilter(new Query\Exists('depth'));
         }
         if (true === $criteria->placeholder) {
             $filterQuery->addFilter(new Query\Term(['placeholder' => true]));

@@ -4,21 +4,46 @@ import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {FormRow, Input} from '@/components/ui/input';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
-import {AttributeEntitySelect} from '@/components/form/selects';
-import {getAttributeEntities, getEntityList} from '@/lib/api/metadata';
+import {getAttributeEntities} from '@/lib/api/metadata';
 import {idFromIri} from '@/lib/utils/iri';
 
 export type HierarchyBindingValue = {
-    /** Empty: not bound to the hierarchy */
-    depth: string;
-    branchId: string;
+    /** Empty: no lower bound */
+    depthMin: string;
+    /** Empty: no upper bound */
+    depthMax: string;
     autoFillParents: boolean;
 };
 
+export function isHierarchyBound(value: HierarchyBindingValue): boolean {
+    return value.depthMin !== '' || value.depthMax !== '';
+}
+
+/** Both bounds set and in the wrong order */
+export function isHierarchyRangeInvalid(value: HierarchyBindingValue): boolean {
+    return (
+        value.depthMin !== '' &&
+        value.depthMax !== '' &&
+        Number(value.depthMin) > Number(value.depthMax)
+    );
+}
+
+/** "2", "1–3", "≥ 2" or "≤ 3" */
+export function formatDepthRange(
+    min: number | null | undefined,
+    max: number | null | undefined
+): string {
+    if (min != null && max != null) {
+        return min === max ? String(min) : `${min}–${max}`;
+    }
+
+    return min != null ? `≥ ${min}` : max != null ? `≤ ${max}` : '';
+}
+
 /**
- * Binds an entity attribute to a depth of its list hierarchy: the attribute
- * then only accepts the entities of that level (same concept), and a value may
- * fill the attributes bound to the levels above.
+ * Binds an entity attribute to a range of depths of its list hierarchy: the
+ * attribute then only accepts the entities between those levels, and a value
+ * may fill the attributes bound to the levels above.
  */
 export function HierarchyBindingFields({
     entityList,
@@ -32,12 +57,81 @@ export function HierarchyBindingFields({
 }) {
     const {t} = useTranslation();
     const listId = entityList ? idFromIri(entityList) : undefined;
-    const list = useQuery({
-        queryKey: ['entity-list', listId],
-        queryFn: () => getEntityList(listId!),
-        enabled: !!listId,
-    });
-    const depth = value.depth === '' ? undefined : Number(value.depth);
+
+    if (!listId) {
+        return null;
+    }
+
+    const set = (patch: Partial<HierarchyBindingValue>) => {
+        const next = {...value, ...patch};
+        onChange(
+            isHierarchyBound(next) ? next : {...next, autoFillParents: false}
+        );
+    };
+
+    return (
+        <>
+            <div className="grid grid-cols-2 gap-3">
+                <DepthField
+                    listId={listId}
+                    label={t(
+                        'attribute_def.hierarchy.depth_min',
+                        'Minimum hierarchy level'
+                    )}
+                    value={value.depthMin}
+                    onChange={depthMin => set({depthMin})}
+                />
+                <DepthField
+                    listId={listId}
+                    label={t(
+                        'attribute_def.hierarchy.depth_max',
+                        'Maximum hierarchy level'
+                    )}
+                    value={value.depthMax}
+                    onChange={depthMax => set({depthMax})}
+                />
+            </div>
+            {isHierarchyRangeInvalid(value) ? (
+                <p className="text-sm text-destructive">
+                    {t(
+                        'attribute_def.hierarchy.depth_order',
+                        'The minimum level must not exceed the maximum one'
+                    )}
+                </p>
+            ) : null}
+            {isHierarchyBound(value) ? (
+                <LabeledControl
+                    label={t(
+                        'attribute_def.hierarchy.auto_fill',
+                        'Fill the attributes of the levels above'
+                    )}
+                >
+                    <Checkbox
+                        checked={value.autoFillParents}
+                        onCheckedChange={v =>
+                            set({autoFillParents: v === true})
+                        }
+                    />
+                </LabeledControl>
+            ) : null}
+        </>
+    );
+}
+
+/** A bound, with a few entities of its level as help */
+function DepthField({
+    listId,
+    label,
+    value,
+    onChange,
+}: {
+    listId: string;
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+}) {
+    const {t} = useTranslation();
+    const depth = value === '' ? undefined : Number(value);
     const samples = useQuery({
         queryKey: ['attribute-entities', 'level-samples', listId, depth],
         queryFn: () =>
@@ -48,89 +142,37 @@ export function HierarchyBindingFields({
                 limit: 4,
                 order: {position: 'asc'},
             }),
-        enabled: !!listId && depth !== undefined,
+        enabled: depth !== undefined,
     });
 
-    if (!listId || !list.data?.rootEntityId) {
-        return list.data ? (
-            <p className="text-xs text-muted-foreground sm:col-span-2">
-                {t(
-                    'attribute_def.hierarchy.no_root',
-                    'The entity list has no hierarchy: set its root entity to bind this attribute to a level.'
-                )}
-            </p>
-        ) : null;
-    }
-
-    const set = (patch: Partial<HierarchyBindingValue>) =>
-        onChange({...value, ...patch});
-
     return (
-        <>
-            <FormRow
-                label={t('attribute_def.hierarchy.depth', 'Hierarchy level')}
-                help={
-                    depth !== undefined
-                        ? samples.data && samples.data.items.length > 0
-                            ? t('attribute_def.hierarchy.depth_samples', {
-                                  defaultValue: 'e.g. {{samples}}',
-                                  samples: samples.data.items
-                                      .map(e => e.value)
-                                      .join(', '),
-                              })
-                            : t(
-                                  'attribute_def.hierarchy.depth_empty',
-                                  'No entity at this level yet'
-                              )
+        <FormRow
+            label={label}
+            help={
+                depth !== undefined
+                    ? samples.data && samples.data.items.length > 0
+                        ? t('attribute_def.hierarchy.depth_samples', {
+                              defaultValue: 'e.g. {{samples}}',
+                              samples: samples.data.items
+                                  .map(e => e.value)
+                                  .join(', '),
+                          })
                         : t(
-                              'attribute_def.hierarchy.depth_help',
-                              'Empty: any entity of the list (0 is the root)'
+                              'attribute_def.hierarchy.depth_empty',
+                              'No entity at this level yet'
                           )
-                }
-            >
-                <Input
-                    type="number"
-                    min={0}
-                    value={value.depth}
-                    onChange={e =>
-                        set({
-                            depth: e.target.value,
-                            ...(e.target.value === ''
-                                ? {autoFillParents: false, branchId: ''}
-                                : {}),
-                        })
-                    }
-                />
-            </FormRow>
-            {depth !== undefined ? (
-                <>
-                    <FormRow
-                        label={t(
-                            'attribute_def.hierarchy.branch',
-                            'Restrict to the branch'
-                        )}
-                    >
-                        <AttributeEntitySelect
-                            listId={listId}
-                            value={value.branchId || undefined}
-                            onChange={v => set({branchId: v ?? ''})}
-                        />
-                    </FormRow>
-                    <LabeledControl
-                        label={t(
-                            'attribute_def.hierarchy.auto_fill',
-                            'Fill the attributes of the levels above'
-                        )}
-                    >
-                        <Checkbox
-                            checked={value.autoFillParents}
-                            onCheckedChange={v =>
-                                set({autoFillParents: v === true})
-                            }
-                        />
-                    </LabeledControl>
-                </>
-            ) : null}
-        </>
+                    : t(
+                          'attribute_def.hierarchy.depth_help',
+                          'Empty: no bound (0: the top level). Both empty: any entity of the list'
+                      )
+            }
+        >
+            <Input
+                type="number"
+                min={0}
+                value={value}
+                onChange={e => onChange(e.target.value)}
+            />
+        </FormRow>
     );
 }

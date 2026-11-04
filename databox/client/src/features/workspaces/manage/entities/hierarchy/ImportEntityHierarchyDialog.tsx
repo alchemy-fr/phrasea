@@ -14,7 +14,7 @@ import {Button} from '@/components/ui/button';
 import {FormRow, Textarea} from '@/components/ui/input';
 import {FormDialog} from '@/components/modals/FormDialog';
 import type {ModalProps} from '@/components/modals/ModalProvider';
-import {hierarchyQueryKey} from './EntityHierarchyDialog';
+import {hierarchyQueryKey} from './EntityTree';
 
 /**
  * Places existing entities from a CSV (entity_external_id, parent_external_id,
@@ -87,7 +87,7 @@ export function ImportEntityHierarchyDialog({
                 label="CSV"
                 help={t(
                     'entity_hierarchy.import_help',
-                    'Columns: entity_external_id, parent_external_id (empty for the root), position. Entities without external ID may be referenced by their ID.'
+                    'Columns: entity_external_id, parent_external_id (empty: the top level), position. Entities without external ID may be referenced by their ID.'
                 )}
             >
                 <Textarea

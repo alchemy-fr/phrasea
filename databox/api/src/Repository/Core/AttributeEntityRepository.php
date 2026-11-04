@@ -162,7 +162,6 @@ class AttributeEntityRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('e')
             ->andWhere('e.list = :list')
-            ->andWhere('e.hierarchyDepth IS NOT NULL')
             ->setParameter('list', $listId)
             ->addOrderBy('e.hierarchyDepth', 'ASC')
             ->addOrderBy('e.position', 'ASC')

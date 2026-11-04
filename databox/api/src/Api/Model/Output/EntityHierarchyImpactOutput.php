@@ -39,7 +39,7 @@ final class EntityHierarchyImpactOutput
     /**
      * Definitions bound to the list hierarchy: {id, name, depth, autoFillParents}.
      *
-     * @var list<array{id: string, name: ?string, depth: ?int, autoFillParents: bool}>
+     * @var list<array{id: string, name: ?string, depthMin: ?int, depthMax: ?int, autoFillParents: bool}>
      */
     #[Groups([self::GROUP_READ])]
     public array $definitions = [];

@@ -380,7 +380,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
-     * Entity definitions bound to a depth of their list hierarchy.
+     * Entity definitions bound to depths of their list hierarchy.
      *
      * @return AttributeDefinition[]
      */
@@ -391,7 +391,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->andWhere('d.workspace = :workspace')
             ->andWhere('d.type = :t')
             ->andWhere('d.entityList IS NOT NULL')
-            ->andWhere('d.entityHierarchyDepth IS NOT NULL')
+            ->andWhere('d.entityHierarchyDepthMin IS NOT NULL OR d.entityHierarchyDepthMax IS NOT NULL')
             ->setParameter('workspace', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName());
         if (null !== $entityListId) {

@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
-import {MoveIcon, UndoIcon} from 'lucide-react';
+import {MoveIcon} from 'lucide-react';
 import type {AttributeEntity, EntityList} from '@/types/api';
 import {
     getEntityHierarchyImpact,
@@ -14,14 +14,15 @@ import {InlineLoader} from '@/components/ui/loader';
 import {AttributeEntitySelect} from '@/components/form/selects';
 import {FormDialog} from '@/components/modals/FormDialog';
 import type {ModalProps} from '@/components/modals/ModalProvider';
+import {formatDepthRange} from '@/features/attributes/hierarchy/HierarchyBindingFields';
 
 /**
  * Moves an entity (and its branch) under another parent, after showing what
  * the move affects: the "hierarchy" values of the assets holding the branch
  * are recomputed, the values entered by users are kept.
  *
- * A drop gives the parent and the position; a null parent takes the branch
- * out of the hierarchy.
+ * A drop gives the parent and the position; no parent moves the branch to
+ * the top level.
  */
 export function MoveEntityDialog({
     open,
@@ -40,10 +41,10 @@ export function MoveEntityDialog({
     onMoved: () => unknown;
 }) {
     const {t} = useTranslation();
-    const detach = droppedParentId === null;
     const [parentId, setParentId] = useState<string | undefined>(
         droppedParentId ?? undefined
     );
+    const toTop = !parentId;
     const impact = useQuery({
         queryKey: ['entity-hierarchy-impact', entity.id],
         queryFn: () => getEntityHierarchyImpact(entity.id),
@@ -54,50 +55,45 @@ export function MoveEntityDialog({
             open={open}
             onOpenChange={onOpenChange}
             size="md"
-            title={
-                detach
-                    ? t('entity_hierarchy.detach_title', 'Detach "{{value}}"', {
-                          value: entity.value,
-                      })
-                    : t('entity_hierarchy.move_title', 'Move "{{value}}"', {
-                          value: entity.value,
-                      })
+            title={t('entity_hierarchy.move_title', 'Move "{{value}}"', {
+                value: entity.value,
+            })}
+            submitLabel={t('entity_hierarchy.move_submit', 'Move')}
+            submitIcon={<MoveIcon />}
+            canSubmit={
+                parentId !== entity.id &&
+                (parentId ?? null) !== (entity.parentId ?? null)
             }
-            submitLabel={
-                detach
-                    ? t('entity_hierarchy.detach_submit', 'Detach')
-                    : t('entity_hierarchy.move_submit', 'Move')
-            }
-            submitIcon={detach ? <UndoIcon /> : <MoveIcon />}
-            canSubmit={detach || (!!parentId && parentId !== entity.id)}
             onSubmit={async () => {
                 await moveAttributeEntity(
                     entity.id,
-                    detach ? null : parentId!,
+                    parentId ?? null,
                     // Another parent than the dropped one: at the end
-                    parentId === droppedParentId && position !== undefined
+                    (parentId ?? null) === (droppedParentId ?? null) &&
+                        position !== undefined
                         ? position
                         : Number.MAX_SAFE_INTEGER
                 );
                 await onMoved();
             }}
         >
-            {detach ? (
-                <p className="text-sm">
-                    {t(
-                        'entity_hierarchy.detach_description',
-                        'The entity and its branch leave the hierarchy: they become unclassified and the hierarchical attributes no longer propose them.'
-                    )}
-                </p>
-            ) : (
-                <FormRow label={t('entity_hierarchy.new_parent', 'New parent')}>
-                    <AttributeEntitySelect
-                        listId={list.id}
-                        value={parentId}
-                        onChange={setParentId}
-                    />
-                </FormRow>
-            )}
+            <FormRow
+                label={t('entity_hierarchy.new_parent', 'New parent')}
+                help={
+                    toTop
+                        ? t(
+                              'entity_hierarchy.to_top',
+                              'No parent: the entity and its branch move to the top level.'
+                          )
+                        : undefined
+                }
+            >
+                <AttributeEntitySelect
+                    listId={list.id}
+                    value={parentId}
+                    onChange={setParentId}
+                />
+            </FormRow>
             {impact.data ? (
                 <div className="space-y-1 rounded-md border bg-muted/30 p-3 text-sm">
                     <p>
@@ -124,7 +120,10 @@ export function MoveEntityDialog({
                                 'Recomputed attributes: {{names}}. Values entered by users are kept; remaining inconsistencies are reported.',
                                 {
                                     names: impact.data.definitions
-                                        .map(d => `${d.name} (${d.depth})`)
+                                        .map(
+                                            d =>
+                                                `${d.name} (${formatDepthRange(d.depthMin, d.depthMax)})`
+                                        )
                                         .join(', '),
                                 }
                             )}

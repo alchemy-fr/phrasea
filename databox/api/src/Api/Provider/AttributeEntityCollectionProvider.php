@@ -71,19 +71,18 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
      */
     private function preloadHierarchy(array $entities): void
     {
-        $classified = array_values(array_filter($entities, fn (AttributeEntity $e): bool => null !== $e->getParent() || $e->isClassified()));
-        if (empty($classified)) {
+        if (empty($entities)) {
             return;
         }
 
-        $ids = array_map(fn (AttributeEntity $e): string => $e->getId(), $classified);
+        $ids = array_map(fn (AttributeEntity $e): string => $e->getId(), $entities);
         $ancestorIds = array_values(array_unique(array_merge(...array_values($this->attributeEntityRepository->getAncestorIds($ids)))));
         if (!empty($ancestorIds)) {
             $this->attributeEntityRepository->findBy(['id' => $ancestorIds]);
         }
 
         $childCounts = $this->attributeEntityRepository->countChildren($ids);
-        foreach ($classified as $entity) {
+        foreach ($entities as $entity) {
             $entity->setChildCount($childCounts[$entity->getId()] ?? 0);
         }
     }

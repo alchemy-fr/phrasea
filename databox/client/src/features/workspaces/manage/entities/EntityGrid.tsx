@@ -14,8 +14,10 @@ import {
     EraserIcon,
     ListPlusIcon,
     MergeIcon,
+    ListTreeIcon,
     MoreVerticalIcon,
     PlusIcon,
+    TableIcon,
     ThumbsDownIcon,
     ThumbsUpIcon,
     Trash2Icon,
@@ -27,6 +29,7 @@ import {AttributeEntityStatus} from '@/types/api';
 import {
     type AttributeEntitySortField,
     clearEntityList,
+    exportEntityHierarchy,
     deleteAttributeEntity,
     deleteAttributeEntityImage,
     getAttributeEntity,
@@ -54,6 +57,7 @@ import type {CellPosition} from '@/components/ui/data-table/types';
 import {useDebouncedValue} from '@/hooks/useDebouncedValue';
 import {useRoutePath} from '@/lib/navigation/routePath';
 import {toastError} from '@/lib/utils/errors';
+import {downloadUrl} from '@/lib/utils/misc';
 import {cn} from '@/lib/utils/cn';
 import {
     checkUploadFile,
@@ -67,6 +71,8 @@ import {EntityCellEditor} from './EntityCellEditor';
 import {EntityFormDialog} from './EntityFormDialog';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityAssetsPreviewDialog} from './EntityAssetsPreviewDialog';
+import {EntityTree, hierarchyQueryKey} from './hierarchy/EntityTree';
+import {ImportEntityHierarchyDialog} from './hierarchy/ImportEntityHierarchyDialog';
 import {
     ExportEntitiesDialog,
     ImportEntitiesDialog,
@@ -105,10 +111,13 @@ async function inBatches<T>(
     return results;
 }
 
+type EntityView = 'tree' | 'table';
+
 /**
- * The values of an entity list as a spreadsheet: inline edition, moderation
- * (status chips, approve / reject, one by one or the selection), server-side
- * sort and filters, infinite loading.
+ * The values of an entity list, either as a tree (the hierarchy, organized by
+ * drag & drop) or as a spreadsheet: inline edition, moderation (status chips,
+ * approve / reject, one by one or the selection), server-side sort and
+ * filters, infinite loading. Both share the menu of a value.
  *
  * The value edited in the full form is in the URL (`useRoutePath`):
  * `:entityId` or `new`.
@@ -130,6 +139,15 @@ export function EntityGrid({
         [workspace.enabledLocales]
     );
 
+    // Both views stay mounted: switching keeps the open nodes, the selection
+    // and the scroll
+    const [view, setView] = useState<EntityView>('tree');
+    const viewRef = useRef(view);
+    viewRef.current = view;
+    // Changed from the other view: reloaded on demand only
+    const [outdated, setOutdated] = useState<ReadonlySet<EntityView>>(
+        () => new Set()
+    );
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebouncedValue(search.trim(), 250);
     const [statusFilter, setStatusFilter] = useState<EntityStatusFilter>('all');
@@ -171,10 +189,41 @@ export function EntityGrid({
         },
     });
     const pending = usePendingCount(list.id);
-    const refreshPending = () =>
+    const refreshView = (v: EntityView) => {
+        if (v === 'tree') {
+            void queryClient.invalidateQueries({
+                queryKey: hierarchyQueryKey(list.id),
+            });
+        } else {
+            void grid.refetch();
+        }
+        setOutdated(s => {
+            if (!s.has(v)) {
+                return s;
+            }
+            const next = new Set(s);
+            next.delete(v);
+
+            return next;
+        });
+    };
+    /**
+     * After a change the given views do not show yet: the displayed one is
+     * refreshed, the other one offers a reload. The table applies most changes
+     * to its rows itself, hence only the tree by default.
+     */
+    const dataChanged = (...views: EntityView[]) => {
         void queryClient.invalidateQueries({
             queryKey: pendingCountQueryKey(list.id),
         });
+        (views.length > 0 ? views : (['tree'] as EntityView[])).forEach(v => {
+            if (v === viewRef.current) {
+                refreshView(v);
+            } else {
+                setOutdated(s => new Set(s).add(v));
+            }
+        });
+    };
     const data = useMemo(
         () => [...drafts, ...grid.items],
         [drafts, grid.items]
@@ -240,7 +289,7 @@ export function EntityGrid({
                     rowIndex: drafts.filter(d => d.id !== row.id).length,
                     columnId: 'value',
                 });
-                refreshPending();
+                dataChanged();
             } catch (e) {
                 toastError(e);
             }
@@ -261,9 +310,7 @@ export function EntityGrid({
         try {
             const saved = await putAttributeEntity(row.id, patch);
             grid.replaceEntity(saved);
-            if ('status' in patch) {
-                refreshPending();
-            }
+            dataChanged();
         } catch (e) {
             grid.patchEntity(row.id, previous);
             toastError(e);
@@ -309,7 +356,7 @@ export function EntityGrid({
                       })
             );
         }
-        refreshPending();
+        dataChanged();
         setRowSelection({});
     };
 
@@ -344,14 +391,11 @@ export function EntityGrid({
                         })
                     );
                 }
-                refreshPending();
+                dataChanged();
             },
         });
 
-    const reload = () => {
-        void grid.refetch();
-        refreshPending();
-    };
+    const reload = () => dataChanged('tree', 'table');
 
     const openMerge = (entities: AttributeEntity[]) =>
         openModal(MergeEntitiesDialog, {
@@ -382,6 +426,7 @@ export function EntityGrid({
             grid.replaceEntity(
                 await uploadAttributeEntityImage(entity.id, file)
             );
+            dataChanged();
         } catch (e: any) {
             toast.error(
                 t(
@@ -406,6 +451,7 @@ export function EntityGrid({
         try {
             await deleteAttributeEntityImage(entity.id);
             grid.patchEntity(entity.id, {image: null, thumbnail: null});
+            dataChanged();
         } catch (e) {
             toastError(e);
         }
@@ -478,6 +524,26 @@ export function EntityGrid({
         [menuActions, list, locales, t, uploadingImageIds]
     );
 
+    /** Shows a view, offering to reload it when the other one changed its data */
+    const switchView = (v: EntityView) => {
+        if (v === view) {
+            return;
+        }
+        setView(v);
+        if (outdated.has(v)) {
+            openModal(ConfirmDialog, {
+                title: t('entity.reload_title', 'Reload the values?'),
+                description: t(
+                    'entity.reload_hint',
+                    'Values were changed in the other view.'
+                ),
+                confirmLabel: t('entity.reload', 'Reload'),
+                cancelLabel: t('entity.reload_keep', 'Keep the display'),
+                onConfirm: () => refreshView(v),
+            });
+        }
+    };
+
     const chips: {id: EntityStatusFilter; label: string}[] = [
         {id: 'all', label: t('entity.filter.all', 'All')},
         {id: 'pending', label: t('entity.pending', 'Pending')},
@@ -493,44 +559,27 @@ export function EntityGrid({
                 </Button>
                 <h3 className="text-sm font-semibold">{list.name}</h3>
                 <ExploreEntityListButton listId={list.id} />
-                <FilterInput
-                    value={search}
-                    onValueChange={setSearch}
-                    placeholder={t('common.search', 'Search…')}
-                    className="w-56"
-                    data-testid="entity-search"
-                />
-                <div className="flex items-center gap-1" role="group">
-                    {chips.map(c => (
-                        <Button
-                            key={c.id}
-                            size="sm"
-                            variant={
-                                statusFilter === c.id ? 'secondary' : 'ghost'
-                            }
-                            aria-pressed={statusFilter === c.id}
-                            data-testid={`entity-filter-${c.id}`}
-                            onClick={() => {
-                                setStatusFilter(c.id);
-                                setRowSelection({});
-                            }}
-                        >
-                            {c.label}
-                            {c.id === 'pending' && pending.data ? (
-                                <Badge
-                                    variant="warning"
-                                    data-testid="entity-pending-count"
-                                    title={t(
-                                        'entity.pending_count',
-                                        '{{count}} pending',
-                                        {count: pending.data}
-                                    )}
-                                >
-                                    {pending.data}
-                                </Badge>
-                            ) : null}
-                        </Button>
-                    ))}
+                <div className="flex items-center gap-0.5" role="group">
+                    <Button
+                        size="icon-sm"
+                        variant={view === 'tree' ? 'secondary' : 'ghost'}
+                        aria-pressed={view === 'tree'}
+                        title={t('entity.view.tree', 'Tree')}
+                        data-testid="entity-view-tree"
+                        onClick={() => switchView('tree')}
+                    >
+                        <ListTreeIcon />
+                    </Button>
+                    <Button
+                        size="icon-sm"
+                        variant={view === 'table' ? 'secondary' : 'ghost'}
+                        aria-pressed={view === 'table'}
+                        title={t('entity.view.table', 'Table')}
+                        data-testid="entity-view-table"
+                        onClick={() => switchView('table')}
+                    >
+                        <TableIcon />
+                    </Button>
                 </div>
                 <Button
                     size="sm"
@@ -540,72 +589,118 @@ export function EntityGrid({
                 >
                     <PlusIcon /> {t('entity.create', 'New value')}
                 </Button>
-                <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={addRow}
-                    data-testid="entity-add-row"
-                >
-                    <ListPlusIcon /> {t('entity.add_row', 'Add row')}
-                </Button>
-                {selected.length > 0 ? (
+                {view === 'table' ? (
                     <>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                                void setStatus(
-                                    selected,
-                                    AttributeEntityStatus.Approved
-                                )
-                            }
-                            data-testid="entity-approve-selected"
-                        >
-                            <ThumbsUpIcon />{' '}
-                            {t(
-                                'entity.approve_selected',
-                                'Approve {{count}} values',
-                                {
-                                    count: selected.length,
-                                }
-                            )}
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                                void setStatus(
-                                    selected,
-                                    AttributeEntityStatus.Rejected
-                                )
-                            }
-                            data-testid="entity-reject-selected"
-                        >
-                            <ThumbsDownIcon />{' '}
-                            {t(
-                                'entity.reject_selected',
-                                'Reject {{count}} values',
-                                {
-                                    count: selected.length,
-                                }
-                            )}
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={selected.length < 2}
-                            onClick={() => openMerge(selected)}
-                        >
-                            <MergeIcon /> {t('entity.merge', 'Merge')}
-                        </Button>
+                        <FilterInput
+                            value={search}
+                            onValueChange={setSearch}
+                            placeholder={t('common.search', 'Search…')}
+                            className="w-56"
+                            data-testid="entity-search"
+                        />
+                        <div className="flex items-center gap-1" role="group">
+                            {chips.map(c => (
+                                <Button
+                                    key={c.id}
+                                    size="sm"
+                                    variant={
+                                        statusFilter === c.id
+                                            ? 'secondary'
+                                            : 'ghost'
+                                    }
+                                    aria-pressed={statusFilter === c.id}
+                                    data-testid={`entity-filter-${c.id}`}
+                                    onClick={() => {
+                                        setStatusFilter(c.id);
+                                        setRowSelection({});
+                                    }}
+                                >
+                                    {c.label}
+                                    {c.id === 'pending' && pending.data ? (
+                                        <Badge
+                                            variant="warning"
+                                            data-testid="entity-pending-count"
+                                            title={t(
+                                                'entity.pending_count',
+                                                '{{count}} pending',
+                                                {count: pending.data}
+                                            )}
+                                        >
+                                            {pending.data}
+                                        </Badge>
+                                    ) : null}
+                                </Button>
+                            ))}
+                        </div>
                         <Button
                             size="sm"
                             variant="ghost"
-                            className="text-destructive"
-                            onClick={() => confirmDelete(selected)}
+                            onClick={addRow}
+                            data-testid="entity-add-row"
                         >
-                            <Trash2Icon /> {t('common.delete', 'Delete')}
+                            <ListPlusIcon /> {t('entity.add_row', 'Add row')}
                         </Button>
+                        {selected.length > 0 ? (
+                            <>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                        void setStatus(
+                                            selected,
+                                            AttributeEntityStatus.Approved
+                                        )
+                                    }
+                                    data-testid="entity-approve-selected"
+                                >
+                                    <ThumbsUpIcon />{' '}
+                                    {t(
+                                        'entity.approve_selected',
+                                        'Approve {{count}} values',
+                                        {
+                                            count: selected.length,
+                                        }
+                                    )}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                        void setStatus(
+                                            selected,
+                                            AttributeEntityStatus.Rejected
+                                        )
+                                    }
+                                    data-testid="entity-reject-selected"
+                                >
+                                    <ThumbsDownIcon />{' '}
+                                    {t(
+                                        'entity.reject_selected',
+                                        'Reject {{count}} values',
+                                        {
+                                            count: selected.length,
+                                        }
+                                    )}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={selected.length < 2}
+                                    onClick={() => openMerge(selected)}
+                                >
+                                    <MergeIcon /> {t('entity.merge', 'Merge')}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-destructive"
+                                    onClick={() => confirmDelete(selected)}
+                                >
+                                    <Trash2Icon />{' '}
+                                    {t('common.delete', 'Delete')}
+                                </Button>
+                            </>
+                        ) : null}
                     </>
                 ) : null}
                 <span className="ml-auto text-xs text-muted-foreground">
@@ -648,6 +743,38 @@ export function EntityGrid({
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
+                            onSelect={async () => {
+                                try {
+                                    const {blob, filename} =
+                                        await exportEntityHierarchy(list.id);
+                                    downloadUrl(
+                                        URL.createObjectURL(blob),
+                                        filename
+                                    );
+                                } catch (e) {
+                                    toastError(e);
+                                }
+                            }}
+                        >
+                            <DownloadIcon />{' '}
+                            {t(
+                                'entity_hierarchy.export',
+                                'Export the hierarchy'
+                            )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={() =>
+                                openModal(ImportEntityHierarchyDialog, {list})
+                            }
+                        >
+                            <UploadIcon />{' '}
+                            {t(
+                                'entity_hierarchy.import',
+                                'Import the hierarchy…'
+                            )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                             variant="destructive"
                             onSelect={() =>
                                 openModal(ConfirmDialog, {
@@ -671,48 +798,83 @@ export function EntityGrid({
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <DataTable<AttributeEntity>
-                data={data}
-                columns={columns}
-                getRowId={e => e.id}
-                sorting={sorting}
-                onSortingChange={setSorting}
-                columnFilters={columnFilters}
-                onColumnFiltersChange={setColumnFilters}
-                rowSelection={rowSelection}
-                onRowSelectionChange={setRowSelection}
-                onCellCommit={commitCell}
-                renderEditor={p => <EntityCellEditor {...p} />}
-                rowClassName={e =>
-                    cn(
-                        e.status === AttributeEntityStatus.Pending &&
-                            !isDraft(e) &&
-                            'bg-warning/10',
-                        e.status === AttributeEntityStatus.Rejected &&
-                            'opacity-60',
-                        // Its context menu is open
-                        'data-[state=open]:bg-accent'
-                    )
-                }
-                rowWrapper={(entity, rowElement) => (
-                    <EntityRowContextMenu
-                        entity={entity}
+            <div className="relative min-h-0 flex-1">
+                {/* Hidden, not unmounted: it keeps its state and its scroll */}
+                <div
+                    className={cn(
+                        'absolute inset-0 flex flex-col',
+                        view !== 'tree' && 'invisible'
+                    )}
+                    inert={view !== 'tree'}
+                >
+                    <EntityTree
                         list={list}
-                        actions={menuActions}
-                        getTargets={menuTargets}
-                    >
-                        {rowElement}
-                    </EntityRowContextMenu>
-                )}
-                loading={grid.isLoading}
-                loadingMore={grid.isFetchingNextPage}
-                hasMore={grid.hasNextPage}
-                onReachEnd={() => void grid.fetchNextPage()}
-                emptyLabel={t('entity.empty', 'No value')}
-                requestFocus={requestFocus}
-                data-testid="entity-grid"
-                className="min-h-0 flex-1"
-            />
+                        className="min-h-0 flex-1"
+                        onOpen={e => navigate([e.id])}
+                        onCreated={() => dataChanged('table')}
+                        wrapRow={(entity, row) => (
+                            <EntityRowContextMenu
+                                entity={entity}
+                                list={list}
+                                actions={menuActions}
+                                getTargets={e => [e]}
+                            >
+                                {row}
+                            </EntityRowContextMenu>
+                        )}
+                    />
+                </div>
+                <div
+                    className={cn(
+                        'absolute inset-0 flex flex-col',
+                        view !== 'table' && 'invisible'
+                    )}
+                    inert={view !== 'table'}
+                >
+                    <DataTable<AttributeEntity>
+                        data={data}
+                        columns={columns}
+                        getRowId={e => e.id}
+                        sorting={sorting}
+                        onSortingChange={setSorting}
+                        columnFilters={columnFilters}
+                        onColumnFiltersChange={setColumnFilters}
+                        rowSelection={rowSelection}
+                        onRowSelectionChange={setRowSelection}
+                        onCellCommit={commitCell}
+                        renderEditor={p => <EntityCellEditor {...p} />}
+                        rowClassName={e =>
+                            cn(
+                                e.status === AttributeEntityStatus.Pending &&
+                                    !isDraft(e) &&
+                                    'bg-warning/10',
+                                e.status === AttributeEntityStatus.Rejected &&
+                                    'opacity-60',
+                                // Its context menu is open
+                                'data-[state=open]:bg-accent'
+                            )
+                        }
+                        rowWrapper={(entity, rowElement) => (
+                            <EntityRowContextMenu
+                                entity={entity}
+                                list={list}
+                                actions={menuActions}
+                                getTargets={menuTargets}
+                            >
+                                {rowElement}
+                            </EntityRowContextMenu>
+                        )}
+                        loading={grid.isLoading}
+                        loadingMore={grid.isFetchingNextPage}
+                        hasMore={grid.hasNextPage}
+                        onReachEnd={() => void grid.fetchNextPage()}
+                        emptyLabel={t('entity.empty', 'No value')}
+                        requestFocus={requestFocus}
+                        data-testid="entity-grid"
+                        className="min-h-0 flex-1"
+                    />
+                </div>
+            </div>
             <input
                 ref={imageInput}
                 type="file"
@@ -743,7 +905,7 @@ export function EntityGrid({
                     } else {
                         grid.insertEntity(saved);
                     }
-                    refreshPending();
+                    dataChanged();
                     navigate([]);
                 }}
             />

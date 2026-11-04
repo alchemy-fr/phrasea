@@ -90,9 +90,9 @@ final class AssetEntityBranchSearchTest extends AbstractSearchTestCase
             $buckets[$bucket['key']['label']] = [$bucket['doc_count'], $bucket['key']['item']['parentId']];
         }
 
-        // The root is left out: it holds every asset
         $this->assertEquals([
-            'Europe' => [3, null],
+            'Monde' => [3, null],
+            'Europe' => [3, $this->e['monde']->getId()],
             'France' => [2, $this->e['europe']->getId()],
             'Île-de-France' => [1, $this->e['france']->getId()],
             'Paris' => [1, $this->e['idf']->getId()],

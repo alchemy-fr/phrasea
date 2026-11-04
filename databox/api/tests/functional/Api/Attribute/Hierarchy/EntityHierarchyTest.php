@@ -11,7 +11,7 @@ use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Attribute\AttributeApiTestTrait;
 
 /**
- * Structure of an entity list hierarchy: root, parents, depths, filters, import and export.
+ * Structure of an entity list hierarchy (a forest): parents, depths, filters, import and export.
  */
 final class EntityHierarchyTest extends AbstractDataboxTestCase
 {
@@ -34,28 +34,36 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
         return $em->find(AttributeEntity::class, $id);
     }
 
-    public function testRootAndChildrenGetTheirDepth(): void
+    public function testEntitiesGetTheirDepth(): void
     {
         $this->workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
         $list = $this->createEntityList(['name' => 'Geo']);
-        $root = $this->createEntity($list, 'World');
-        $unclassified = $this->createEntity($list, 'Atlantis');
-
-        $this->api('PATCH', '/entity-lists/'.$list->getId(), self::USER, [
-            'rootEntity' => '/attribute-entities/'.$root->getId(),
-        ]);
-        $this->assertResponseIsSuccessful();
-        $this->assertSame(0, $this->find($root->getId())->getHierarchyDepth());
+        $world = $this->createEntity($list, 'World');
+        $atlantis = $this->createEntity($list, 'Atlantis');
 
         $child = $this->api('POST', '/attribute-entities', self::USER, [
             'list' => '/entity-lists/'.$list->getId(),
             'value' => 'Europe',
-            'parent' => '/attribute-entities/'.$root->getId(),
+            'parent' => '/attribute-entities/'.$world->getId(),
         ])->toArray();
         $this->assertSame(1, $child['hierarchyDepth']);
-        $this->assertSame($root->getId(), $child['parentId']);
+        $this->assertSame($world->getId(), $child['parentId']);
 
-        $this->assertNull($this->find($unclassified->getId())->getHierarchyDepth());
+        // Any entity without parent is at the top level, and takes children
+        $this->assertSame(0, $this->find($atlantis->getId())->getHierarchyDepth());
+        $this->api('PATCH', '/attribute-entities/'.$child['id'], self::USER, [
+            'parent' => '/attribute-entities/'.$atlantis->getId(),
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame($atlantis->getId(), $this->find($child['id'])->getParentId());
+
+        // Back to the top level
+        $this->api('PATCH', '/attribute-entities/'.$child['id'], self::USER, [
+            'parent' => null,
+            'position' => 0,
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(0, $this->find($child['id'])->getHierarchyDepth());
     }
 
     public function testCyclesAndForeignParentsAreRefused(): void
@@ -113,7 +121,7 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
         $this->assertSame(0, $impact['humanAttributeCount']);
         $this->assertSame(
             ['Continent' => 1, 'Pays' => 2, 'Region' => 3, 'Ville' => 4, 'Arrondissement' => 5, 'Rue' => 6],
-            array_column($impact['definitions'], 'depth', 'name'),
+            array_column($impact['definitions'], 'depthMin', 'name'),
         );
     }
 
@@ -134,8 +142,8 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
         $this->assertCount(2, $streets);
         $paths = array_map(fn (array $s): string => implode(' / ', array_column($s['path'], 'value')), $streets);
         $this->assertEqualsCanonicalizing([
-            'Europe / France / Île-de-France / Paris / 16e',
-            'Europe / France / Indre-et-Loire / Tours',
+            'Monde / Europe / France / Île-de-France / Paris / 16e',
+            'Monde / Europe / France / Indre-et-Loire / Tours',
         ], $paths);
 
         // Placeholders are never proposed
@@ -144,10 +152,10 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
         ]])->toArray()['member'];
         $this->assertSame(['16e'], array_column($levels, 'value'));
 
-        $unclassified = $this->createEntity(self::getEntityManager()->find(EntityList::class, $this->geo->getId()), 'Atlantis');
-        $this->assertSame([$unclassified->getId()], self::ids($this->api('GET', '/attribute-entities', self::USER, options: ['query' => [
+        $atlantis = $this->createEntity(self::getEntityManager()->find(EntityList::class, $this->geo->getId()), 'Atlantis');
+        $this->assertEqualsCanonicalizing([$this->e['monde']->getId(), $atlantis->getId()], self::ids($this->api('GET', '/attribute-entities', self::USER, options: ['query' => [
             'list' => $this->geo->getId(),
-            'unclassified' => 'true',
+            'depth' => 0,
         ]])));
     }
 
@@ -168,7 +176,7 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
 
         $em = self::getEntityManager();
         $em->clear();
-        $this->assertNull($em->getRepository(AttributeEntity::class)->findOneBy(['externalId' => 'fr'])->getHierarchyDepth());
+        $this->assertNull($em->getRepository(AttributeEntity::class)->findOneBy(['externalId' => 'fr'])->getParent());
 
         $this->api('POST', '/entity-lists/'.$list->getId().'/hierarchy-import', self::USER, ['data' => $csv]);
         $this->assertResponseIsSuccessful();

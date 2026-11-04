@@ -26,8 +26,8 @@ import {SortableOverlay, sortableMeasuring} from '@/components/ui/sortable';
 export type DropZone = 'before' | 'inside' | 'after';
 
 /**
- * A move resulting from a drop: the new parent (null: out of the hierarchy)
- * and the position among the siblings, counted without the moved entity.
+ * A move resulting from a drop: the new parent (null: the top level) and the
+ * position among the siblings, counted without the moved entity.
  */
 export type HierarchyDrop = {
     entity: AttributeEntity;
@@ -39,8 +39,8 @@ export type HierarchyDrop = {
 
 export type SourceData = {
     entity: AttributeEntity;
-    /** Position among the siblings, for the entities placed in the tree */
-    index?: number;
+    /** Position among the siblings */
+    index: number;
 };
 
 export type TargetData =
@@ -50,21 +50,20 @@ export type TargetData =
           index: number;
           /** Rendered ancestors: a branch cannot go under itself */
           ancestorIds: string[];
-          isRoot: boolean;
       }
-    | {kind: 'unclassified'};
+    | {kind: 'top'};
 
 type DropTarget = {id: string; zone: DropZone; drop: HierarchyDrop};
 
-const unclassifiedId = 'unclassified';
+const topId = 'top';
 const nodeId = (id: string) => `node:${id}`;
 
 const DropTargetContext = createContext<DropTarget | undefined>(undefined);
 
 /**
- * Drag & drop of the hierarchy dialog: the nodes of the tree and the
- * unclassified entities are dragged onto a node (before, inside or after it)
- * or onto the unclassified panel, which takes them out of the hierarchy.
+ * Drag & drop of the hierarchy tree: a node is dragged onto another one
+ * (before, inside or after it) or onto the free space of the tree, which puts
+ * it at the end of the top level.
  */
 export function HierarchyDndProvider({
     onDrop,
@@ -135,8 +134,7 @@ function locate({
     }
 
     let zone: DropZone = 'inside';
-    // The root has no siblings
-    if (data.kind === 'node' && !data.isRoot) {
+    if (data.kind === 'node') {
         const start = getEventCoordinates(activatorEvent);
         if (start) {
             const ratio =
@@ -154,12 +152,16 @@ export function resolveDrop(
     target: TargetData,
     zone: DropZone
 ): HierarchyDrop | undefined {
-    const inTree = index !== undefined;
     const currentParentId = entity.parentId ?? null;
 
-    if (target.kind === 'unclassified') {
-        return inTree
-            ? {entity, parentId: null, position: 0, reparent: true}
+    if (target.kind === 'top') {
+        return currentParentId !== null
+            ? {
+                  entity,
+                  parentId: null,
+                  position: Number.MAX_SAFE_INTEGER,
+                  reparent: true,
+              }
             : undefined;
     }
     if (
@@ -170,7 +172,7 @@ export function resolveDrop(
     }
 
     if (zone === 'inside') {
-        return inTree && currentParentId === target.entity.id
+        return currentParentId === target.entity.id
             ? undefined
             : {
                   entity,
@@ -182,7 +184,7 @@ export function resolveDrop(
 
     const parentId = target.entity.parentId ?? null;
     let position = target.index + (zone === 'after' ? 1 : 0);
-    const sameParent = inTree && currentParentId === parentId;
+    const sameParent = currentParentId === parentId;
     if (sameParent) {
         // The API counts the siblings without the moved entity
         if (index < position) {
@@ -197,19 +199,17 @@ export function resolveDrop(
 }
 
 /**
- * A row of the tree: dragged by its handle (but the root), and the drop zone
- * under the pointer when it is the target.
+ * A row of the tree: dragged by its handle, and the drop zone under the
+ * pointer when it is the target.
  */
 export function useHierarchyNode({
     entity,
     index,
     ancestorIds,
-    isRoot,
 }: {
     entity: AttributeEntity;
     index: number;
     ancestorIds: string[];
-    isRoot: boolean;
 }) {
     const id = nodeId(entity.id);
     const droppable = useDroppable({
@@ -219,13 +219,11 @@ export function useHierarchyNode({
             entity,
             index,
             ancestorIds,
-            isRoot,
         } satisfies TargetData,
     });
     const draggable = useDraggable({
         id,
         data: {entity, index} satisfies SourceData,
-        disabled: isRoot,
     });
     const target = useContext(DropTargetContext);
 
@@ -240,29 +238,15 @@ export function useHierarchyNode({
     };
 }
 
-/** An unclassified entity, dragged into the tree */
-export function useUnclassifiedEntityDrag(
-    entity: AttributeEntity,
-    disabled = false
-) {
-    const {setNodeRef, attributes, listeners, isDragging} = useDraggable({
-        id: `unclassified:${entity.id}`,
-        data: {entity} satisfies SourceData,
-        disabled,
-    });
-
-    return {setNodeRef, handle: {...attributes, ...listeners}, isDragging};
-}
-
-/** The unclassified panel, which takes the dropped branches out of the tree */
-export function useUnclassifiedDrop() {
+/** The free space of the tree, which moves the dropped branch to the top level */
+export function useTopLevelDrop() {
     const {setNodeRef} = useDroppable({
-        id: unclassifiedId,
-        data: {kind: 'unclassified'} satisfies TargetData,
+        id: topId,
+        data: {kind: 'top'} satisfies TargetData,
     });
     const target = useContext(DropTargetContext);
 
-    return {setNodeRef, isOver: target?.id === unclassifiedId};
+    return {setNodeRef, isOver: target?.id === topId};
 }
 
 /** Marks where the dragged entity will land on a row */

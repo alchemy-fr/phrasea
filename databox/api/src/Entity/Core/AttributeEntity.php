@@ -147,17 +147,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                 ),
                 'depth' => new QueryParameter(
                     schema: ['type' => 'integer'],
-                    description: 'Entities at this depth of the list hierarchy (0 is the root entity)',
+                    description: 'Entities at this depth of the list hierarchy (0: the entities without parent)',
                     castToArray: false,
                 ),
                 'branch' => new QueryParameter(
                     schema: ['type' => 'string'],
                     description: 'Descendants of this entity (ID)',
-                    castToArray: false,
-                ),
-                'unclassified' => new QueryParameter(
-                    schema: ['type' => 'boolean'],
-                    description: 'Entities placed in no hierarchy (true) or placed ones (false)',
                     castToArray: false,
                 ),
                 'placeholder' => new QueryParameter(
@@ -167,7 +162,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                 ),
                 'definition' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Entities accepted by this attribute definition (ID): its hierarchy depth and branch when it is bound to one',
+                    description: 'Entities accepted by this attribute definition (ID): its hierarchy depths when it is bound to them',
                     castToArray: false,
                 ),
                 'limit' => new QueryParameter(
@@ -309,7 +304,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     private int $position = 0;
 
     /**
-     * Parent in the list hierarchy; null for the root entity and the unclassified ones.
+     * Parent in the list hierarchy; null at the top level (depth 0).
      * Moved by AttributeEntityHierarchyProcessor (EntityHierarchyManager).
      */
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
@@ -324,13 +319,13 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     private Collection $children;
 
     /**
-     * Absolute depth in the list hierarchy (0 = root entity), null when the entity is not classified.
+     * Absolute depth in the list hierarchy (0: no parent).
      * Maintained by EntityHierarchyManager, never written from the input.
      */
-    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: false, options: ['default' => 0])]
     #[Groups([self::GROUP_LIST])]
     #[ApiProperty(writable: false)]
-    private ?int $hierarchyDepth = null;
+    private int $hierarchyDepth = 0;
 
     /**
      * Fills an empty level of the hierarchy (e.g. no district between a city and its streets):
@@ -608,7 +603,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     }
 
     /**
-     * From the parent up to the root. Used by ES.
+     * From the parent up to the top level. Used by ES.
      *
      * @return string[]
      */
@@ -632,22 +627,14 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         return $this->children;
     }
 
-    public function getHierarchyDepth(): ?int
+    public function getHierarchyDepth(): int
     {
         return $this->hierarchyDepth;
     }
 
-    public function setHierarchyDepth(?int $hierarchyDepth): void
+    public function setHierarchyDepth(int $hierarchyDepth): void
     {
         $this->hierarchyDepth = $hierarchyDepth;
-    }
-
-    /**
-     * Whether the entity is placed in the hierarchy of its list (the root included).
-     */
-    public function isClassified(): bool
-    {
-        return null !== $this->hierarchyDepth;
     }
 
     public function isPlaceholder(): bool
@@ -661,7 +648,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     }
 
     /**
-     * Ancestors from the top (root and placeholders left out): tells homonyms apart, e.g. "16e / Paris / Île-de-France".
+     * Ancestors from the top (placeholders left out): tells homonyms apart, e.g. "16e / Paris / Île-de-France".
      * The collection provider preloads the ancestors of a page.
      *
      * @return list<array{id: string, value: ?string, translations: ?array}>
@@ -672,7 +659,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         $path = [];
         $ancestor = $this->parent;
         while (null !== $ancestor && \count($path) < 100) {
-            if (!$ancestor->isPlaceholder() && 0 !== $ancestor->getHierarchyDepth()) {
+            if (!$ancestor->isPlaceholder()) {
                 array_unshift($path, [
                     'id' => $ancestor->getId(),
                     'value' => $ancestor->getValue(),
@@ -686,7 +673,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     }
 
     /**
-     * The entity and its ancestors (root and placeholders left out): indexed with the attribute values,
+     * The entity and its ancestors (placeholders left out): indexed with the attribute values,
      * so that searching an entity also finds the assets holding one of its descendants.
      *
      * @return string[]
@@ -715,16 +702,6 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
         if ($this->parent->getListId() !== $this->getListId()) {
             $context->buildViolation('The parent must belong to the same list')->atPath('parent')->addViolation();
-
-            return;
-        }
-        if ($this->list?->getRootEntity() === $this) {
-            $context->buildViolation('The root entity cannot have a parent')->atPath('parent')->addViolation();
-
-            return;
-        }
-        if (!$this->parent->isClassified()) {
-            $context->buildViolation('The parent is not placed in the hierarchy')->atPath('parent')->addViolation();
 
             return;
         }

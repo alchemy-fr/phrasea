@@ -40,24 +40,21 @@ import {RenditionPicker} from '@/features/integrations/config/pickers/RenditionP
 import {
     HierarchyBindingFields,
     type HierarchyBindingValue,
+    isHierarchyBound,
+    isHierarchyRangeInvalid,
 } from '@/features/attributes/hierarchy/HierarchyBindingFields';
 
 /**
- * The hierarchy binding sent with an entity definition (the branch as an IRI).
+ * The hierarchy binding sent with an entity definition.
  */
 function hierarchyBindingData(
     h: HierarchyBindingValue
 ): Partial<AttributeDefinition> {
-    const bound = h.depth !== '';
-
     return {
-        entityHierarchyDepth: bound ? Number(h.depth) : null,
-        autoFillParents: bound && h.autoFillParents,
-        entityHierarchyBranch:
-            bound && h.branchId
-                ? iri(EntityName.AttributeEntity, h.branchId)
-                : null,
-    } as Partial<AttributeDefinition>;
+        entityHierarchyDepthMin: h.depthMin !== '' ? Number(h.depthMin) : null,
+        entityHierarchyDepthMax: h.depthMax !== '' ? Number(h.depthMax) : null,
+        autoFillParents: isHierarchyBound(h) && h.autoFillParents,
+    };
 }
 
 export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
@@ -189,8 +186,8 @@ function DefinitionForm({
                 ? d.entityList
                 : (d?.entityList?.['@id'] ?? ''),
         hierarchy: {
-            depth: d?.entityHierarchyDepth?.toString() ?? '',
-            branchId: d?.entityHierarchyBranchId ?? '',
+            depthMin: d?.entityHierarchyDepthMin?.toString() ?? '',
+            depthMax: d?.entityHierarchyDepthMax?.toString() ?? '',
             autoFillParents: d?.autoFillParents ?? false,
         } as HierarchyBindingValue,
         target: String(d?.target ?? AssetType.Asset),
@@ -555,7 +552,11 @@ function DefinitionForm({
                 <Button
                     onClick={save}
                     loading={saving}
-                    disabled={!form.name.trim()}
+                    disabled={
+                        !form.name.trim() ||
+                        (form.type === AttributeType.Entity &&
+                            isHierarchyRangeInvalid(form.hierarchy))
+                    }
                 >
                     <SaveIcon /> {t('common.save', 'Save')}
                 </Button>

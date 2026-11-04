@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api\Attribute\Hierarchy;
 
+use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Workspace;
@@ -218,6 +219,74 @@ final class HierarchyAttributeFillTest extends AbstractDataboxTestCase
 
         $this->set(['arrondissement' => 'tours_none']);
         $this->assertResponseStatusCodeSame(422);
+    }
+
+    private function addLieu(?int $min, ?int $max): void
+    {
+        $definition = $this->createAttributeDefinition([
+            'name' => 'Lieu',
+            'slug' => 'lieu',
+            'type' => EntityAttributeType::NAME,
+            'list' => $this->geo,
+            'no_flush' => true,
+        ]);
+        $definition->setEntityHierarchyDepthMin($min);
+        $definition->setEntityHierarchyDepthMax($max);
+        $this->defs['lieu'] = $definition;
+        self::getEntityManager()->flush();
+    }
+
+    public function testRangeAcceptsEveryLevelBetweenItsBounds(): void
+    {
+        $this->setUpScene();
+        $this->addLieu(2, 3);
+
+        foreach (['france' => true, 'idf' => true, 'europe' => false, 'paris' => false] as $key => $accepted) {
+            $this->set(['lieu' => $key]);
+            $this->assertResponseStatusCodeSame($accepted ? 201 : 422, $key);
+        }
+
+        $accepted = $this->api('GET', '/attribute-entities', self::USER, options: ['query' => [
+            'definition' => $this->defs['lieu']->getId(),
+            'limit' => 50,
+        ]])->toArray()['member'];
+        $values = array_column($accepted, 'value');
+        sort($values);
+        $this->assertSame(['Belgique', 'France', 'Indre-et-Loire', 'Italie', 'Latium', 'Île-de-France'], $values);
+    }
+
+    public function testRangeIsFilledWithTheClosestAncestor(): void
+    {
+        $this->setUpScene();
+        $this->addLieu(1, 3);
+
+        $this->set(['ville' => 'paris']);
+        $this->assertResponseIsSuccessful();
+
+        $this->assertSame(['Île-de-France' => 'hierarchy'], $this->values()['lieu']);
+    }
+
+    public function testFartherAncestorInTheRangeIsConsistent(): void
+    {
+        $this->setUpScene();
+        $this->addLieu(1, 3);
+
+        $this->set(['lieu' => 'france']);
+        $this->set(['ville' => 'paris']);
+        $this->assertResponseIsSuccessful();
+
+        $this->assertSame(['France' => 'human'], $this->values()['lieu']);
+    }
+
+    public function testRangeBoundsMustBeOrdered(): void
+    {
+        $this->setUpScene();
+        $this->addLieu(1, 3);
+
+        $this->api('PATCH', '/attribute-definitions/'.$this->defs['lieu']->getId(), self::USER, [
+            'entityHierarchyDepthMin' => 4,
+        ]);
+        $this->assertResponseStatusCodeSame(400);
     }
 
     public function testMovingABranchRecomputesOnlyFilledValues(): void

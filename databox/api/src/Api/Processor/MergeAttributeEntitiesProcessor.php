@@ -64,7 +64,7 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
             }
 
             $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $entity);
-            if ($entity === $mainEntity->getList()->getRootEntity() || !$entity->getChildren()->isEmpty()) {
+            if (!$entity->getChildren()->isEmpty()) {
                 throw new UnprocessableEntityHttpException(sprintf('Entity "%s" is a node of the hierarchy and cannot be merged', $entity->getValue()));
             }
             $synonyms = $this->mergeSynonyms($synonyms, $entity);

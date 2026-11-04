@@ -1,8 +1,10 @@
 # Entity hierarchies
 
-The values of an entity list (`AttributeEntity`) can be organized in a tree. Entity
-attributes are then bound to a level of that tree: Continent, Country, Region, City,
-District and Street all use the same "Geography" list, each one at its own depth.
+The values of an entity list (`AttributeEntity`) can be organized in a forest: every entity
+without parent is at the top level (depth 0), and any entity can take children. Entity
+attributes are then bound to levels of that forest: Continent, Country, Region, City,
+District and Street all use the same "Geography" list, each one at its own depth, while
+a "Place" attribute may accept any level from Country to City.
 Selecting a deep value fills the levels above it (City = Paris fills Region, Country
 and Continent), while a general level can still be entered alone (Country without City).
 
@@ -12,13 +14,13 @@ Nothing changes for lists without a hierarchy, nor for the attributes not bound 
 
 | Object                | Field                     | Role                                                                              |
 |-----------------------|---------------------------|-----------------------------------------------------------------------------------|
-| `EntityList`          | `rootEntity`              | Top of the hierarchy (depth 0). Null: the list is flat.                           |
-| `AttributeEntity`     | `parent`                  | Single parent; null for the root and the unclassified entities.                   |
-|                       | `hierarchyDepth`          | Absolute depth, maintained by the API; null = not classified.                     |
+| `AttributeEntity`     | `parent`                  | Single parent; null at the top level.                                             |
+|                       | `hierarchyDepth`          | Absolute depth, maintained by the API; 0 = no parent.                             |
 |                       | `placeholder`             | Fills an empty level; never proposed nor written in an attribute.                 |
 |                       | `position`                | Order among the siblings.                                                         |
-| `AttributeDefinition` | `entityHierarchyDepth`    | Level whose entities the attribute accepts. Null: any entity of the list.         |
-|                       | `entityHierarchyBranch`   | Optional: only the descendants of this entity.                                    |
+| `AttributeDefinition` | `entityHierarchyDepthMin` | Lowest level whose entities the attribute accepts (included). Null: no bound.     |
+|                       | `entityHierarchyDepthMax` | Deepest level whose entities the attribute accepts (included). Null: no bound.    |
+|                       |                           | Both null: any entity of the list (not bound to the hierarchy).                   |
 |                       | `autoFillParents`         | A value fills the attributes bound to the ancestor levels.                        |
 
 **Same concept, same depth.** All the entities of a concept (every street) are at the
@@ -31,37 +33,36 @@ Monde (0) ─ Europe (1) ─ France (2) ─ Île-de-France (3) ─ Paris (4) ─
 ```
 
 Integrity (validated by the API on every creation and move): the parent belongs to the
-same list and is itself placed in the hierarchy, no cycle, the root has no parent, an
-entity having children cannot be removed nor merged. An entity is placed at most once
-(it has a single `parent` column).
+same list, no cycle, an entity having children cannot be removed nor merged. An entity is
+placed at most once (it has a single `parent` column).
 
-Unclassified entities (no parent, not the root) remain available to the attributes that
-are not bound to the hierarchy: lists can be migrated progressively.
+A flat list is a forest of single entities at depth 0: lists can be organized progressively.
 
 ## API
 
-- `PATCH /entity-lists/{id}` `{"rootEntity": "/attribute-entities/{id}"}`: sets the root.
 - `POST /attribute-entities` `{"list": …, "value": …, "parent": "/attribute-entities/{id}", "placeholder": false}`.
-- `PATCH /attribute-entities/{id}` `{"parent": …, "position": n}`: moves a branch; the depth of the
-  whole subtree is shifted (`EntityHierarchyManager`).
+- `PATCH /attribute-entities/{id}` `{"parent": …, "position": n}`: moves a branch (`"parent": null`:
+  to the top level); the depth of the whole subtree is shifted (`EntityHierarchyManager`).
 - `GET /attribute-entities/{id}/hierarchy-impact`: entities of the branch, attribute values referencing
   them (and how many were entered by users), bound definitions — shown before a move.
-- `GET /attribute-entities` parameters: `parent` (children, by position), `depth`, `branch`
-  (descendants), `unclassified`, `placeholder`, and `definition`, which applies the depth, the branch
-  and excludes the placeholders of a definition. Each entity has `parentId`, `hierarchyDepth`,
-  `placeholder`, `childCount` and `path` (the ancestors, root and placeholders left out), which tells
+- `GET /attribute-entities` parameters: `parent` (children, by position), `depth` (`0`: the top
+  level), `branch` (descendants), `placeholder`, and `definition`, which applies the depth range of a
+  definition and excludes the placeholders. Each entity has `parentId`, `hierarchyDepth`,
+  `placeholder`, `childCount` and `path` (the ancestors, placeholders left out), which tells
   homonyms apart: "Rue Victor Hugo — 16e / Paris / Île-de-France".
 - `POST /entity-lists/{id}/hierarchy-import` `{"data": "<csv>", "dryRun": true}`: places existing
-  entities from a CSV `entity_external_id,parent_external_id,position` (empty parent: the root). Labels,
-  translations and synonyms are never changed. Answers `{applied, rejected: [{line, entity, reason}], rootEntityId}`;
-  unknown entities, duplicates, cycles and rows not attached to the root are rejected.
-- `POST /entity-lists/{id}/hierarchy-export`: the same CSV, depth first.
+  entities from a CSV `entity_external_id,parent_external_id,position` (empty parent: the top level).
+  Labels, translations and synonyms are never changed. Answers `{applied, rejected: [{line, entity, reason}]}`;
+  unknown entities, duplicates and cycles are rejected.
+- `POST /entity-lists/{id}/hierarchy-export`: the same CSV, depth first, from every entity of the top level.
 
 ## Upward filling
 
 `HierarchyAttributeFiller`. For each asset, the values of the definitions having `autoFillParents`
-(the *sources*, any origin but `hierarchy`) walk up the tree; every ancestor fills the definitions
-bound to its depth (and branch). Multi-valued sources fill multi-valued parents, deduplicated by entity
+(the *sources*, any origin but `hierarchy`) walk up the tree; every other definition of the list is
+filled with the closest ancestor within its depth range (Paris fills a Place bound to levels 1 to 3 with
+Île-de-France). A value of another origin holding a farther ancestor of that range (Place = France) is
+consistent: it is kept, and nothing is filled. Multi-valued sources fill multi-valued parents, deduplicated by entity
 (Paris + Rome give France + Italie). Filled values get the `hierarchy` origin.
 
 The `hierarchy` values follow their sources: they are added, updated and removed when the sources
@@ -110,3 +111,13 @@ Search and facets need nothing specific: filled values are real attributes.
 **Upgrade:** the `attribute_entity` index gets new fields (`parentId`, `ancestorIds`, `depth`,
 `placeholder`). Populate it again once deployed (`bin/console fos:elastica:populate --index=attribute_entity`),
 otherwise the search-as-you-type of hierarchical attributes finds nothing.
+
+**Upgrade (forest):** `Version20261103100000` drops `entity_list.root_entity_id` and gives every
+entity without parent the depth 0 (the former unclassified entities join the top level, the former
+roots stay at 0). Populate `attribute_entity` and `asset` again: the depths and the indexed branches
+change (the former roots now appear in the paths and the branches).
+
+**Upgrade (depth range):** `Version20261104100000` turns `entity_hierarchy_depth` into
+`entity_hierarchy_depth_min` = `entity_hierarchy_depth_max` (same behavior) and drops
+`entity_hierarchy_branch_id`: the attributes restricted to a branch accept every entity of their levels.
+The workspace templates exported with `entityHierarchyDepth` are still imported.

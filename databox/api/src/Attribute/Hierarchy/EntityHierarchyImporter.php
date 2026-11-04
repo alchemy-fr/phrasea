@@ -9,7 +9,8 @@ use App\Entity\Core\EntityList;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Places existing entities in the list hierarchy from a CSV (entity_external_id, parent_external_id, position).
+ * Places existing entities in the list hierarchy from a CSV (entity_external_id, parent_external_id, position):
+ * an empty parent puts the entity at the top level.
  * Labels, translations and synonyms are never changed. Rows that cannot be applied are reported.
  */
 final readonly class EntityHierarchyImporter
@@ -26,7 +27,7 @@ final readonly class EntityHierarchyImporter
     }
 
     /**
-     * @return array{applied: int, rejected: list<array{line: int, entity: ?string, reason: string}>, rootEntityId: ?string}
+     * @return array{applied: int, rejected: list<array{line: int, entity: ?string, reason: string}>}
      */
     public function import(EntityList $list, string $csv, bool $dryRun): array
     {
@@ -55,7 +56,6 @@ final readonly class EntityHierarchyImporter
             $positionOf[$id] = (int) $e['position'];
         }
 
-        $rootId = $list->getRootEntityId();
         $placed = [];
         $lineOf = [];
         foreach ($rows as $line => $row) {
@@ -72,12 +72,6 @@ final readonly class EntityHierarchyImporter
 
             $parentKey = $row[self::COL_PARENT];
             if ('' === $parentKey) {
-                if (null === $rootId) {
-                    $rootId = $entityId;
-                } elseif ($rootId !== $entityId) {
-                    $rejected[] = ['line' => $line, 'entity' => $entityKey, 'reason' => 'Ambiguous root: the list already has another root entity'];
-                    continue;
-                }
                 $parentOf[$entityId] = null;
             } else {
                 $parentId = $byKey[$parentKey] ?? null;
@@ -105,26 +99,13 @@ final readonly class EntityHierarchyImporter
             $lineOf[$entityId] = $line;
         }
 
-        if (null === $rootId) {
-            $rejected[] = ['line' => 0, 'entity' => null, 'reason' => 'The list has no root entity: add a row without parent'];
-
-            return ['applied' => 0, 'rejected' => $rejected, 'rootEntityId' => null];
-        }
-
-        $depthOf = $this->computeDepths($rootId, $parentOf);
-        foreach ($placed as $entityId => $_) {
-            if (!isset($depthOf[$entityId])) {
-                $rejected[] = ['line' => $lineOf[$entityId], 'entity' => $rows[$lineOf[$entityId]][self::COL_ENTITY], 'reason' => 'Not attached to the root entity'];
-                unset($placed[$entityId]);
-            }
-        }
         usort($rejected, fn (array $a, array $b): int => $a['line'] <=> $b['line']);
 
         if (!$dryRun) {
-            $this->apply($list, $rootId, $parentOf, $depthOf, $positionOf);
+            $this->apply($parentOf, $this->computeDepths($parentOf), $positionOf);
         }
 
-        return ['applied' => \count($placed), 'rejected' => $rejected, 'rootEntityId' => $rootId];
+        return ['applied' => \count($placed), 'rejected' => $rejected];
     }
 
     /**
@@ -132,27 +113,20 @@ final readonly class EntityHierarchyImporter
      * @param array<string, int>     $depthOf
      * @param array<string, int>     $positionOf
      */
-    private function apply(EntityList $list, string $rootId, array $parentOf, array $depthOf, array $positionOf): void
+    private function apply(array $parentOf, array $depthOf, array $positionOf): void
     {
-        $this->em->wrapInTransaction(function () use ($list, $rootId, $parentOf, $depthOf, $positionOf): void {
-            $root = $this->em->getReference(AttributeEntity::class, $rootId);
-            if ($list->getRootEntityId() !== $rootId) {
-                $list->setRootEntity($root);
-                $this->em->persist($list);
-            }
-
+        $this->em->wrapInTransaction(function () use ($parentOf, $depthOf, $positionOf): void {
             foreach (array_chunk(array_keys($parentOf), self::BATCH_SIZE) as $ids) {
                 /** @var AttributeEntity[] $entities */
                 $entities = $this->em->getRepository(AttributeEntity::class)->findBy(['id' => $ids]);
                 foreach ($entities as $entity) {
                     $id = $entity->getId();
-                    // Not attached to the root: unclassified
-                    $parentId = isset($depthOf[$id]) ? $parentOf[$id] : null;
+                    $parentId = $parentOf[$id];
                     $parent = null !== $parentId ? $this->em->getReference(AttributeEntity::class, $parentId) : null;
                     if ($entity->getParentId() !== $parentId) {
                         $entity->setParent($parent);
                     }
-                    $entity->setHierarchyDepth($depthOf[$id] ?? null);
+                    $entity->setHierarchyDepth($depthOf[$id] ?? 0);
                     $entity->setPosition($positionOf[$id] ?? 0);
                 }
                 $this->em->flush();
@@ -181,19 +155,22 @@ final readonly class EntityHierarchyImporter
     /**
      * @param array<string, ?string> $parentOf
      *
-     * @return array<string, int> the entities attached to the root
+     * @return array<string, int>
      */
-    private function computeDepths(string $rootId, array $parentOf): array
+    private function computeDepths(array $parentOf): array
     {
         $children = [];
+        $depthOf = [];
+        $queue = [];
         foreach ($parentOf as $id => $parentId) {
             if (null !== $parentId) {
                 $children[$parentId][] = $id;
+            } else {
+                $depthOf[$id] = 0;
+                $queue[] = $id;
             }
         }
 
-        $depthOf = [$rootId => 0];
-        $queue = [$rootId];
         while (!empty($queue)) {
             $id = array_shift($queue);
             foreach ($children[$id] ?? [] as $child) {

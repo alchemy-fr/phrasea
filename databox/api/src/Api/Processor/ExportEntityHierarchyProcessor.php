@@ -41,12 +41,11 @@ final class ExportEntityHierarchyProcessor implements ProcessorInterface
             $children[$entity->getParentId() ?? ''][] = $entity;
         }
 
-        return new StreamedResponse(function () use ($list, $children): void {
+        return new StreamedResponse(function () use ($children): void {
             $out = fopen('php://output', 'w');
             fputcsv($out, [EntityHierarchyImporter::COL_ENTITY, EntityHierarchyImporter::COL_PARENT, EntityHierarchyImporter::COL_POSITION, 'value', 'placeholder'], escape: '');
-            $root = $list->getRootEntity();
-            if (null !== $root) {
-                $this->write($out, $root, null, $children);
+            foreach ($children[''] ?? [] as $top) {
+                $this->write($out, $top, null, $children);
             }
             fclose($out);
         }, Response::HTTP_OK, [

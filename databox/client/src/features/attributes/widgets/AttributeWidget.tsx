@@ -229,7 +229,9 @@ export function AttributeWidget(props: AttributeWidgetProps) {
                     ? idFromIri(definition.entityList)
                     : definition.entityList.id
                 : undefined;
-            const hierarchical = definition.entityHierarchyDepth != null;
+            const hierarchical =
+                definition.entityHierarchyDepthMin != null ||
+                definition.entityHierarchyDepthMax != null;
             // A new value would not be placed in the hierarchy
             const allowNew =
                 !hierarchical &&

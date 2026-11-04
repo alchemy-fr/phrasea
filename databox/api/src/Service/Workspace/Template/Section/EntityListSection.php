@@ -62,7 +62,6 @@ final class EntityListSection extends AbstractTemplateSection
                 'hierarchyDepth' => $entity->getHierarchyDepth(),
                 'placeholder' => $entity->isPlaceholder(),
             ], $entities);
-            $item['rootEntity'] = $list->getRootEntityId();
 
             $o[] = $item;
         }
@@ -97,7 +96,7 @@ final class EntityListSection extends AbstractTemplateSection
             foreach ($item['entities'] ?? [] as $entityItem) {
                 $this->importEntity($list, $entityItem, $context);
             }
-            $this->importHierarchy($list, $item, $context);
+            $this->importHierarchy($item, $context);
         }
     }
 
@@ -141,22 +140,17 @@ final class EntityListSection extends AbstractTemplateSection
     }
 
     /**
-     * Once all the entities of the list are known: the root, the parents and the depths.
+     * Once all the entities of the list are known: the parents and the depths.
      */
-    private function importHierarchy(EntityList $list, array $item, TemplateImportContext $context): void
+    private function importHierarchy(array $item, TemplateImportContext $context): void
     {
-        if (empty($item['rootEntity'])) {
-            return;
-        }
-
-        $list->setRootEntity($context->get(self::ENTITY_SECTION, $item['rootEntity'], AttributeEntity::class));
         foreach ($item['entities'] ?? [] as $entityItem) {
             $entity = $context->get(self::ENTITY_SECTION, $entityItem['id'] ?? null, AttributeEntity::class);
             if (!$entity instanceof AttributeEntity) {
                 continue;
             }
             $entity->setParent($context->get(self::ENTITY_SECTION, $entityItem['parent'] ?? null, AttributeEntity::class));
-            $entity->setHierarchyDepth($entityItem['hierarchyDepth'] ?? null);
+            $entity->setHierarchyDepth($entityItem['hierarchyDepth'] ?? 0);
         }
     }
 }

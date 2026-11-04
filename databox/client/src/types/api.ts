@@ -355,10 +355,9 @@ export interface BaseAttributeDefinition extends Entity {
     searchable: boolean;
     sortable: boolean;
     entityList?: EntityList | string | null;
-    /** Depth of the entity list hierarchy whose entities are accepted (0 = root) */
-    entityHierarchyDepth?: number | null;
-    /** Only the descendants of this entity are accepted */
-    entityHierarchyBranchId?: string | null;
+    /** Depths of the entity list hierarchy whose entities are accepted, bounds included (0: the top level; null: open bound) */
+    entityHierarchyDepthMin?: number | null;
+    entityHierarchyDepthMax?: number | null;
     /** A value fills the attributes bound to the ancestor depths */
     autoFillParents?: boolean;
     multiple: boolean;
@@ -473,11 +472,11 @@ export interface AttributeEntity extends HydraObject, Entity {
     /** Order among the siblings of the hierarchy */
     position?: number;
     parentId?: string | null;
-    /** Depth in the list hierarchy (0 = root), null when not classified */
-    hierarchyDepth?: number | null;
+    /** Depth in the list hierarchy (0: no parent) */
+    hierarchyDepth?: number;
     /** Fills an empty level of the hierarchy: never selectable */
     placeholder?: boolean;
-    /** Ancestors from the top (root and placeholders left out) */
+    /** Ancestors from the top (placeholders left out) */
     path?: AttributeEntityPathItem[];
     /** Direct children, in listings */
     childCount?: number | null;
@@ -500,8 +499,6 @@ export interface EntityList extends HydraObject, Entity {
     withColors?: boolean;
     withImages?: boolean;
     workspace?: Workspace | string;
-    /** Top of the hierarchy, none while the list is flat */
-    rootEntityId?: string | null;
     createdAt: string;
     updatedAt: string;
 }

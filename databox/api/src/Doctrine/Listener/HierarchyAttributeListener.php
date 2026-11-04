@@ -62,7 +62,7 @@ final class HierarchyAttributeListener
                 }
             } elseif ($entity instanceof AttributeDefinition && null !== $entity->getEntityList()) {
                 $changeSet = $uow->getEntityChangeSet($entity);
-                foreach (['entityHierarchyDepth', 'entityHierarchyBranch', 'autoFillParents', 'entityList', 'multiple'] as $field) {
+                foreach (['entityHierarchyDepthMin', 'entityHierarchyDepthMax', 'autoFillParents', 'entityList', 'multiple'] as $field) {
                     if (\array_key_exists($field, $changeSet)) {
                         $this->postFlushStack->addBusMessage(new EntityHierarchyChanged($entity->getWorkspaceId(), $entity->getEntityList()->getId()));
                         break;

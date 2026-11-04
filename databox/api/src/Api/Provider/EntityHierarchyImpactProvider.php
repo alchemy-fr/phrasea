@@ -52,7 +52,8 @@ final class EntityHierarchyImpactProvider implements ProviderInterface
                 $output->definitions[] = [
                     'id' => $definition->getId(),
                     'name' => $definition->getName(),
-                    'depth' => $definition->getEntityHierarchyDepth(),
+                    'depthMin' => $definition->getEntityHierarchyDepthMin(),
+                    'depthMax' => $definition->getEntityHierarchyDepthMax(),
                     'autoFillParents' => $definition->isAutoFillParents(),
                 ];
             }

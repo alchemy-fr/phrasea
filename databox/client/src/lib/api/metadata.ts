@@ -301,12 +301,10 @@ export async function getAttributeEntities(options: {
     usage?: boolean;
     /** Direct children of this entity */
     parent?: string;
-    /** Entities at this depth of the hierarchy */
+    /** Entities at this depth of the hierarchy (0: the top level) */
     depth?: number;
     /** Descendants of this entity */
     branch?: string;
-    /** Entities placed in no hierarchy (true) or placed ones (false) */
-    unclassified?: boolean;
     placeholder?: boolean;
     /** Entities accepted by this attribute definition (its depth and branch) */
     definition?: string;
@@ -332,7 +330,6 @@ export async function getAttributeEntities(options: {
                           parent: options.parent,
                           depth: options.depth,
                           branch: options.branch,
-                          unclassified: options.unclassified,
                           placeholder: options.placeholder,
                           definition: options.definition,
                           limit: options.limit,
@@ -362,7 +359,7 @@ export function postAttributeEntity(
 }
 
 /**
- * Moves an entity in the hierarchy of its list (null: unclassified), at a
+ * Moves an entity in the hierarchy of its list (null: the top level), at a
  * position among its new siblings.
  */
 export function moveAttributeEntity(
@@ -385,7 +382,8 @@ export type EntityHierarchyImpact = {
     definitions: {
         id: string;
         name: string;
-        depth: number | null;
+        depthMin: number | null;
+        depthMax: number | null;
         autoFillParents: boolean;
     }[];
 };
@@ -398,25 +396,13 @@ export function getEntityHierarchyImpact(
     );
 }
 
-export function setEntityListRoot(
-    listId: string,
-    rootEntityId: string | null
-): Promise<EntityList> {
-    return api.patch<EntityList>(`/${EntityName.EntityList}/${listId}`, {
-        rootEntity: rootEntityId
-            ? `/${EntityName.AttributeEntity}/${rootEntityId}`
-            : null,
-    });
-}
-
 export type EntityHierarchyImportReport = {
     applied: number;
     rejected: {line: number; entity: string | null; reason: string}[];
-    rootEntityId: string | null;
 };
 
 /**
- * CSV: entity_external_id, parent_external_id (empty for the root), position.
+ * CSV: entity_external_id, parent_external_id (empty: the top level), position.
  */
 export function importEntityHierarchy(
     listId: string,

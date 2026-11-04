@@ -10,8 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
 /**
- * A definition bound to a hierarchy depth only accepts the entities of its list at that depth (same concept),
- * in its branch, placeholders excepted.
+ * A definition bound to hierarchy depths only accepts the entities of its list within those depths,
+ * placeholders excepted.
  */
 final readonly class EntityHierarchyValueValidator
 {
@@ -42,12 +42,8 @@ final readonly class EntityHierarchyValueValidator
         if ($entity->isPlaceholder()) {
             return ['A hierarchy placeholder cannot be selected'];
         }
-        if ($entity->getHierarchyDepth() !== $definition->getEntityHierarchyDepth()) {
-            return [sprintf('"%s" is not at the hierarchy level of attribute "%s"', $entity->getValue(), $definition->getName())];
-        }
-        $branch = $definition->getEntityHierarchyBranch();
-        if (null !== $branch && !\in_array($branch->getId(), $entity->getAncestorIds(), true)) {
-            return [sprintf('"%s" is outside the hierarchy branch of attribute "%s"', $entity->getValue(), $definition->getName())];
+        if (!$definition->acceptsHierarchyDepth($entity->getHierarchyDepth())) {
+            return [sprintf('"%s" is not at the hierarchy levels of attribute "%s"', $entity->getValue(), $definition->getName())];
         }
 
         return null;

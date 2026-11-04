@@ -294,18 +294,14 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     protected ?EntityList $entityList = null;
 
     /**
-     * Depth of the entity list hierarchy whose entities this attribute accepts (0 = root entity).
-     * Null: any entity of the list (no hierarchy binding).
+     * Depths of the entity list hierarchy whose entities this attribute accepts (0: the entities without parent),
+     * bounds included. A null bound is open; both null: any entity of the list (no hierarchy binding).
      */
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
-    private ?int $entityHierarchyDepth = null;
+    private ?int $entityHierarchyDepthMin = null;
 
-    /**
-     * Restricts the accepted entities to the descendants of this one.
-     */
-    #[ORM\ManyToOne(targetEntity: AttributeEntity::class)]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?AttributeEntity $entityHierarchyBranch = null;
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $entityHierarchyDepthMax = null;
 
     /**
      * A value of this attribute fills the attributes bound to the ancestor depths of the same list.
@@ -776,24 +772,33 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         $this->suggest = $suggest;
     }
 
-    public function getEntityHierarchyDepth(): ?int
+    public function getEntityHierarchyDepthMin(): ?int
     {
-        return $this->entityHierarchyDepth;
+        return $this->entityHierarchyDepthMin;
     }
 
-    public function setEntityHierarchyDepth(?int $entityHierarchyDepth): void
+    public function setEntityHierarchyDepthMin(?int $entityHierarchyDepthMin): void
     {
-        $this->entityHierarchyDepth = $entityHierarchyDepth;
+        $this->entityHierarchyDepthMin = $entityHierarchyDepthMin;
     }
 
-    public function getEntityHierarchyBranch(): ?AttributeEntity
+    public function getEntityHierarchyDepthMax(): ?int
     {
-        return $this->entityHierarchyBranch;
+        return $this->entityHierarchyDepthMax;
     }
 
-    public function setEntityHierarchyBranch(?AttributeEntity $entityHierarchyBranch): void
+    public function setEntityHierarchyDepthMax(?int $entityHierarchyDepthMax): void
     {
-        $this->entityHierarchyBranch = $entityHierarchyBranch;
+        $this->entityHierarchyDepthMax = $entityHierarchyDepthMax;
+    }
+
+    /**
+     * Whether an entity at this depth is accepted (always when the attribute is not bound to the hierarchy).
+     */
+    public function acceptsHierarchyDepth(int $depth): bool
+    {
+        return (null === $this->entityHierarchyDepthMin || $depth >= $this->entityHierarchyDepthMin)
+            && (null === $this->entityHierarchyDepthMax || $depth <= $this->entityHierarchyDepthMax);
     }
 
     public function isAutoFillParents(): bool
@@ -807,11 +812,11 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     }
 
     /**
-     * Whether the attribute is bound to a depth of its entity list hierarchy.
+     * Whether the attribute is bound to depths of its entity list hierarchy.
      */
     public function isHierarchical(): bool
     {
-        return null !== $this->entityHierarchyDepth && null !== $this->entityList;
+        return (null !== $this->entityHierarchyDepthMin || null !== $this->entityHierarchyDepthMax) && null !== $this->entityList;
     }
 
     public function getEntityList(): ?EntityList

@@ -57,12 +57,15 @@ final readonly class AttributeEntityHierarchyExtension implements QueryCollectio
         if (null !== $criteria->depth) {
             $queryBuilder->andWhere(sprintf('%s.hierarchyDepth = :h_depth', $alias))->setParameter('h_depth', $criteria->depth);
         }
+        if (null !== $criteria->minDepth) {
+            $queryBuilder->andWhere(sprintf('%s.hierarchyDepth >= :h_min_depth', $alias))->setParameter('h_min_depth', $criteria->minDepth);
+        }
+        if (null !== $criteria->maxDepth) {
+            $queryBuilder->andWhere(sprintf('%s.hierarchyDepth <= :h_max_depth', $alias))->setParameter('h_max_depth', $criteria->maxDepth);
+        }
         if (null !== $criteria->branchId) {
             $descendantIds = $this->repository->getDescendantIds([$criteria->branchId], includeSelf: false);
             $queryBuilder->andWhere(sprintf('%s.id IN (:h_branch)', $alias))->setParameter('h_branch', $descendantIds ?: ['00000000-0000-0000-0000-000000000000']);
-        }
-        if (null !== $criteria->unclassified) {
-            $queryBuilder->andWhere(sprintf($criteria->unclassified ? '%s.hierarchyDepth IS NULL' : '%s.hierarchyDepth IS NOT NULL', $alias));
         }
         if (null !== $criteria->placeholder) {
             $queryBuilder->andWhere(sprintf('%s.placeholder = :h_placeholder', $alias))->setParameter('h_placeholder', $criteria->placeholder);

@@ -136,7 +136,7 @@ final class EntityAttributeType extends TextAttributeType
                 'item' => [
                     ...$this->normalizeEntity($entity),
                     'translatedValue' => $translatedValue,
-                    // Nests the buckets of a hierarchical list (root and placeholders left out)
+                    // Nests the buckets of a hierarchical list (placeholders left out)
                     'parentId' => [] !== $path ? $path[\count($path) - 1]['id'] : null,
                 ],
             ];

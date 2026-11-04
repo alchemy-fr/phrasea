@@ -28,11 +28,6 @@ final readonly class DeleteAttributeEntityProcessor implements ProcessorInterfac
     {
         $this->hierarchyManager->assertRemovable($data);
 
-        $list = $data->getList();
-        if ($list->getRootEntity() === $data) {
-            $list->setRootEntity(null);
-        }
-
         $this->em->remove($data);
         $this->em->flush();
 

@@ -24,7 +24,6 @@ final readonly class EntityHierarchyCriteriaResolver
             parentId: self::getParameterId($operation, 'parent'),
             depth: self::toInt(self::getParameterValue($operation, 'depth')),
             branchId: self::getParameterId($operation, 'branch'),
-            unclassified: self::toBool(self::getParameterValue($operation, 'unclassified')),
             placeholder: self::toBool(self::getParameterValue($operation, 'placeholder')),
         );
 
@@ -51,11 +50,9 @@ final readonly class EntityHierarchyCriteriaResolver
             return;
         }
 
-        $criteria->depth = $definition->getEntityHierarchyDepth();
+        $criteria->minDepth = $definition->getEntityHierarchyDepthMin();
+        $criteria->maxDepth = $definition->getEntityHierarchyDepthMax();
         $criteria->placeholder = false;
-        if (null !== $branch = $definition->getEntityHierarchyBranch()) {
-            $criteria->branchId = $branch->getId();
-        }
     }
 
     private static function toInt(mixed $value): ?int

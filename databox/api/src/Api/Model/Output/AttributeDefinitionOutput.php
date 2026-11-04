@@ -52,10 +52,10 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?EntityList $entityList = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
-    public ?int $entityHierarchyDepth = null;
+    public ?int $entityHierarchyDepthMin = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
-    public ?string $entityHierarchyBranchId = null;
+    public ?int $entityHierarchyDepthMax = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
     public bool $autoFillParents = false;
