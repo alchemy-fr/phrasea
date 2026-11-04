@@ -220,42 +220,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             );
         }
 
-        if ($nextClientId = EnvHelper::getEnv('UPLOADER_NEXT_CLIENT_ID')) {
-            // Public client of the Next.js Uploader client (same scopes as the other front-ends)
-            $this->configureClient(
-                $nextClientId,
-                null,
-                EnvHelper::getEnvOrThrow('UPLOADER_NEXT_CLIENT_URL'),
-                [
-                    'serviceAccountsEnabled' => false,
-                ]
-            );
-        }
-
-        if ($nextClientId = EnvHelper::getEnv('EXPOSE_NEXT_CLIENT_ID')) {
-            // Public client of the Next.js Expose client (same scopes as the other front-ends)
-            $this->configureClient(
-                $nextClientId,
-                null,
-                EnvHelper::getEnvOrThrow('EXPOSE_NEXT_CLIENT_URL'),
-                [
-                    'serviceAccountsEnabled' => false,
-                ]
-            );
-        }
-
-        if ($nextClientId = EnvHelper::getEnv('DASHBOARD_NEXT_CLIENT_ID')) {
-            // Public client of the Next.js Dashboard client (same scopes as the other front-ends)
-            $this->configureClient(
-                $nextClientId,
-                null,
-                EnvHelper::getEnvOrThrow('DASHBOARD_NEXT_CLIENT_URL'),
-                [
-                    'serviceAccountsEnabled' => false,
-                ]
-            );
-        }
-
         if (EnvHelper::getEnv('INDEXER_DATABOX_CLIENT_ID')) {
             $clientData = $this->keycloakManager->createClient(
                 EnvHelper::getEnvOrThrow('INDEXER_DATABOX_CLIENT_ID'),
