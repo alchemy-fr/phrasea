@@ -1,14 +1,12 @@
 #!/bin/sh
+#
+# Deprecated: kept for the deployments that still call it, use bin/lifecycle.sh.
 
 set -e
 
-BASEDIR=$(dirname $0)
+BASEDIR=$(dirname "$0")
 
-if [ ! -d "${BASEDIR}/../vendor" ]; then
-  (cd "${BASEDIR}/.." && composer install)
-fi
+echo "bin/setup.sh is deprecated, use bin/lifecycle.sh pre-install then post-install" >&2
 
-"${BASEDIR}/console" doctrine:database:create --if-not-exists
-"${BASEDIR}/console" doctrine:schema:update -f
-"${BASEDIR}/console" doctrine:migrations:sync-metadata-storage
-"${BASEDIR}/console" doctrine:migrations:version --add --all -n
+"${BASEDIR}/lifecycle.sh" pre-install
+"${BASEDIR}/lifecycle.sh" post-install

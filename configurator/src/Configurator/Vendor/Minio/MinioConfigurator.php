@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\Minio;
 
 use App\Configurator\ConfiguratorInterface;
+use App\Configurator\ConfigureContext;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -22,7 +23,7 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
         return 'minio';
     }
 
-    public function configure(OutputInterface $output, array $presets): void
+    public function configure(OutputInterface $output, ConfigureContext $context): void
     {
         $bucketName = EnvHelper::getEnv('INDEXER_BUCKET_NAME');
         if (!$bucketName) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\Database;
 
 use App\Configurator\ConfiguratorInterface;
+use App\Configurator\ConfigureContext;
 use App\Util\EnvHelper;
 use App\Util\HttpClientUtil;
 use Doctrine\DBAL\Connection;
@@ -29,11 +30,11 @@ final readonly class DatabaseConfigurator implements ConfiguratorInterface
         return 'database';
     }
 
-    public function configure(OutputInterface $output, array $presets): void
+    public function configure(OutputInterface $output, ConfigureContext $context): void
     {
         HttpClientUtil::waitForHostPort($output, EnvHelper::getEnvOrThrow('POSTGRES_HOST'), (int) EnvHelper::getEnvOrThrow('POSTGRES_PORT'));
 
-        $databases = $this->getDatabases($presets);
+        $databases = $this->getDatabases($context);
         $roles = $this->getRoles($databases);
 
         $admin = $this->getConnection(self::CONFIGURATOR_CONNECTION);
@@ -73,7 +74,7 @@ final readonly class DatabaseConfigurator implements ConfiguratorInterface
      *
      * @return array<string, array{rolePrefix: string, api: bool}>
      */
-    private function getDatabases(array $presets): array
+    private function getDatabases(ConfigureContext $context): array
     {
         $databases = [
             'databox' => ['rolePrefix' => 'DATABOX', 'api' => true],
@@ -83,7 +84,7 @@ final readonly class DatabaseConfigurator implements ConfiguratorInterface
             'keycloak' => ['rolePrefix' => 'KEYCLOAK', 'api' => false],
         ];
 
-        if (in_array('dev', $presets, true)) {
+        if ($context->hasPreset('dev')) {
             $databases['keycloak2'] = ['rolePrefix' => 'KEYCLOAK', 'api' => false];
         }
 

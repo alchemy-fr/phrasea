@@ -1,33 +1,19 @@
 #!/bin/sh
-
-BASEDIR=$(dirname $0)
-
-if [ ! -d "${BASEDIR}/../vendor" ]; then
-  (cd "${BASEDIR}/.." && composer install)
-fi
-
-max_retries=30
-count=0
-until nc -z $POSTGRES_HOST $POSTGRES_PORT; do
-  count=$((count+1))
-  if [ $count -ge $max_retries ]; then
-    echo "Server did not become ready in time."
-    exit 1
-  fi
-  echo "Waiting for database $count/$max_retries..."
-  sleep 1
-done
+#
+# Deprecated: kept for the deployments that still call it, use bin/lifecycle.sh
+# with CONFIGURATOR_PRESETS instead of the positional presets.
+#
+# Usage: bin/setup.sh [preset...]
 
 set -e
 
-"${BASEDIR}/console" doctrine:database:create --if-not-exists
-"${BASEDIR}/console" doctrine:migrations:sync-metadata-storage
+BASEDIR=$(dirname "$0")
 
-PRESETS=""
-for p in $@; do
-  PRESETS="${PRESETS} --preset $p"
-done
+echo "bin/setup.sh is deprecated, use bin/lifecycle.sh pre-install then post-install" >&2
 
-"${BASEDIR}/console" configure -vvv$PRESETS
+if [ $# -gt 0 ]; then
+    export CONFIGURATOR_PRESETS="$*"
+fi
 
-"${BASEDIR}/console" doctrine:migrations:migrate --no-interaction
+"${BASEDIR}/lifecycle.sh" pre-install
+"${BASEDIR}/lifecycle.sh" post-install

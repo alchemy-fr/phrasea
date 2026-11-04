@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\RabbitMq;
 
 use App\Configurator\ConfiguratorInterface;
+use App\Configurator\ConfigureContext;
 use App\Service\ServiceWaiter;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,7 +28,7 @@ final readonly class RabbitMqConfigurator implements ConfiguratorInterface
         return 'rabbitmq';
     }
 
-    public function configure(OutputInterface $output, array $presets): void
+    public function configure(OutputInterface $output, ConfigureContext $context): void
     {
         $this->synchronize($output);
     }

@@ -106,6 +106,10 @@ Hub, `publish-dockerhub` (`release.yaml`) checks that every pulled
 `*-api-php` and `*-worker` image has `PHRASEA_VERSION` equal to the tag name,
 and fails otherwise: rerun the release workflow on the tag.
 
+Right after `bin/setup.sh test`, the `setup` job runs `bin/migrate.sh` once: an
+upgrade of an up-to-date stack must converge without migrating or breaking
+anything (see [Install and upgrade lifecycle](../Deployment/lifecycle.md)).
+
 ### Keycloak and report-api in CI
 
 The Keycloak and report-api images are built outside this repository and are

@@ -29,6 +29,7 @@ services:
     Alchemy\CoreBundle\Listener\ServerTimingListener: ~
     Alchemy\CoreBundle\Cache\TemporaryCacheFactory: ~
     Alchemy\CoreBundle\Command\DocumentationDumperCommand: ~
+    Alchemy\CoreBundle\Command\LifecycleStateCommand: ~
     Alchemy\CoreBundle\Upload\MultipartUploader: ~
     Alchemy\CoreBundle\Env\OriginEnvVarProcessor: ~
     Alchemy\CoreBundle\Controller\VersionAction: ~

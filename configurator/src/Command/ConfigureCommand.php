@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Configurator\Configurator;
+use App\Configurator\ConfigureContext;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -29,8 +30,15 @@ final class ConfigureCommand extends Command
         array $presets = [],
         #[Option(name: 'filter')]
         array $filters = [],
+        #[Option('Fresh installation: also create the one-time resources (default admin user)')]
+        bool $install = false,
     ): int {
-        $this->configurator->configure($output, $presets, filters: $filters);
+        $context = new ConfigureContext(
+            presets: $presets,
+            install: $install,
+        );
+
+        $this->configurator->configure($output, $context, filters: $filters);
 
         return Command::SUCCESS;
     }

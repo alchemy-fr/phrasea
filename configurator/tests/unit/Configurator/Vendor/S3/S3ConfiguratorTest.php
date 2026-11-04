@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Configurator\Vendor\S3;
 
+use App\Configurator\ConfigureContext;
 use App\Configurator\Vendor\S3\S3Configurator;
 use App\Configurator\Vendor\S3\S3Manager;
 use App\Service\ServiceWaiter;
@@ -72,7 +73,7 @@ final class S3ConfiguratorTest extends TestCase
 
     public function testDedicatedStaticBucketIsMadePublic(): void
     {
-        $this->createConfigurator()->configure(new NullOutput(), []);
+        $this->createConfigurator()->configure(new NullOutput(), new ConfigureContext());
 
         $this->assertSame([
             'CreateBucket databox',
@@ -90,7 +91,7 @@ final class S3ConfiguratorTest extends TestCase
         $this->setEnv('CONFIGURATOR_S3_BUCKET_NAME', self::ENV[$variable]);
 
         try {
-            $this->createConfigurator()->configure(new NullOutput(), []);
+            $this->createConfigurator()->configure(new NullOutput(), new ConfigureContext());
             $this->fail('A static bucket shared with an application must be refused.');
         } catch (\RuntimeException $e) {
             $this->assertStringContainsString($variable, $e->getMessage());
