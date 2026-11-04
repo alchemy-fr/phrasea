@@ -28,7 +28,7 @@ class DownloadRequestVoter extends AbstractVoter
     {
         return match ($attribute) {
             self::LIST_DOWNLOAD_REQUESTS, self::READ, self::EDIT, self::DELETE => $this->hasScope(ScopeInterface::SCOPE_PUBLISH, '', false)
-                    || $this->isAdmin(),
+                    || $this->isAdmin($token),
             default => false,
         };
     }

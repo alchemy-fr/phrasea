@@ -72,7 +72,7 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
 
         return match ($attribute) {
             // Create a new Workspace
-            AbstractVoter::CREATE => $this->isAdmin(),
+            AbstractVoter::CREATE => $this->isAdmin($token),
             self::CREATE_COLLECTION => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CREATE,
