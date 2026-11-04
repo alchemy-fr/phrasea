@@ -29,6 +29,11 @@ final readonly class RabbitMqConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output, array $presets): void
     {
+        $this->synchronize($output);
+    }
+
+    public function synchronize(OutputInterface $output): void
+    {
         $this->rabbitMqManager->awaitService($output);
         $rabbitConsoleUrl = EnvHelper::getEnvOrThrow('RABBITMQ_CONSOLE_URL');
         $this->serviceWaiter->waitForService($output, $rabbitConsoleUrl);
