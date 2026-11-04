@@ -1,4 +1,5 @@
 import type {AuthUser} from './oidc';
+import {DEFINITIONS_CACHE_KEY} from '@/features/attributes/definitionsCacheKey';
 
 /**
  * Admins can act as another user to test permissions. The admin keeps their
@@ -12,8 +13,11 @@ import type {AuthUser} from './oidc';
 export const IMPERSONATION_STORAGE_KEY = 'dbx.impersonation';
 export const IMPERSONATION_HEADER = 'X-Impersonate-User';
 
-/** Session-scoped caches of the previous user (see features/preferences/store.ts) */
-const USER_SESSION_KEYS = ['dbx.prefs'];
+/**
+ * Session-scoped caches of the previous user (see features/preferences/store.ts,
+ * features/attributes/definitionsCache.ts)
+ */
+const USER_SESSION_KEYS = ['dbx.prefs', DEFINITIONS_CACHE_KEY];
 
 export type ImpersonatedUser = AuthUser;
 

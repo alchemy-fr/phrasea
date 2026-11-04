@@ -25,6 +25,7 @@ import {
 import {toastError} from '@/lib/utils/errors';
 import {getImpersonationIdentity} from '@/lib/api/impersonation';
 import {isApiError} from '@/lib/api/http';
+import {clearDefinitionsCache} from '@/features/attributes/definitionsCache';
 
 export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 
@@ -184,6 +185,7 @@ export function AuthProvider({children}: PropsWithChildren) {
 
     const logout = useCallback(() => {
         clearImpersonation();
+        clearDefinitionsCache();
         void getAuthClient().logout();
     }, []);
 
