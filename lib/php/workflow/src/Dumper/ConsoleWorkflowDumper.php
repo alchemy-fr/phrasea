@@ -45,7 +45,7 @@ class ConsoleWorkflowDumper implements WorkflowDumperInterface
 
         $table = $io->createTable();
         $table->setHeaders([
-            'Stage', 'Job', 'Step', 'Status',
+            'Stage', 'Job', 'Step', 'Status', 'Skip reason',
         ]);
 
         foreach ($plan->getStages() as $stageIndex => $stage) {
@@ -63,6 +63,7 @@ class ConsoleWorkflowDumper implements WorkflowDumperInterface
                         0 === $stepIndex ? $jobId : '',
                         $step->getName(),
                         $jobState && $jobState->getStatus() ? self::STATUSES[$jobState->getStatus()] : '-',
+                        0 === $stepIndex ? $jobState?->getSkipReason() ?? '' : '',
                     ]);
                 }
             }

@@ -14,7 +14,7 @@ import {
 } from './shared';
 import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
-import Yaml from 'js-yaml';
+import {dump} from 'js-yaml';
 
 enum RenditionBuildMode {
     COPY_ASSET_FILE = 1,
@@ -90,6 +90,13 @@ export async function addMissingRenditionsConf(
     const subdefs =
         await phraseanetClient.getSubdefsStruct(phraseanetDataboxId);
 
+    const TARGET_ASSETS_ONLY = 1;
+    const TARGET_ASSETS_AND_STORIES = 3;
+    const target =
+        dm.importStories === true
+            ? TARGET_ASSETS_AND_STORIES
+            : TARGET_ASSETS_ONLY;
+
     dm.sourceFile = 'document';
 
     // import all subdefs from phraseanet
@@ -98,6 +105,7 @@ export async function addMissingRenditionsConf(
             useAsMain: true,
             buildMode: RenditionBuildMode.COPY_ASSET_FILE,
             policy: 'main',
+            target,
         } as ConfigPhraseanetSubdef,
     };
 
@@ -111,6 +119,7 @@ export async function addMissingRenditionsConf(
                 useAsThumbnail: sd.name === 'thumbnail' ? true : undefined,
                 useAsAnimatedThumbnail:
                     sd.name === 'thumbnailgif' ? true : undefined,
+                target,
                 builders: {},
             };
         }
@@ -127,6 +136,8 @@ export async function addMissingAttributeDefinitionsConf(
 ) {
     const metaStructure =
         await phraseanetClient.getMetaStruct(phraseanetDataboxId);
+
+    const target = dm.importStories === true ? 3 : 1;
 
     if (!dm.fieldMap) {
         dm.fieldMap = {}; //Record<string, FieldMap>
@@ -150,6 +161,7 @@ export async function addMissingAttributeDefinitionsConf(
                     DataboxAttributeType.GeoPoint,
                     DataboxAttributeType.Ip,
                 ].includes(databoxType),
+                target,
                 labels: metaStructure[name].labels,
                 values: [
                     {
@@ -169,6 +181,7 @@ export async function addMissingAttributeDefinitionsConf(
         readonly: true,
         translatable: false,
         allowInvalid: false,
+        target,
         labels: {},
         values: [
             {
@@ -179,6 +192,27 @@ export async function addMissingAttributeDefinitionsConf(
         attributeDefinition: {} as AttributeDefinition,
     };
 
+    if (dm.importStories === true) {
+        dm.fieldMap['phr_story_id'] = {
+            id: 'phr_story_id',
+            position: 0,
+            type: DataboxAttributeType.Number,
+            multivalue: false,
+            readonly: true,
+            translatable: false,
+            allowInvalid: false,
+            target: 2, // story-only
+            labels: {},
+            values: [
+                {
+                    type: 'template',
+                    value: '{{record.story_id}}',
+                },
+            ],
+            attributeDefinition: {} as AttributeDefinition,
+        };
+    }
+
     dm.fieldMap['phr_created_on'] = {
         id: 'phr_created_on',
         position: 0,
@@ -187,6 +221,7 @@ export async function addMissingAttributeDefinitionsConf(
         readonly: true,
         translatable: false,
         allowInvalid: false,
+        target,
         labels: {},
         values: [
             {
@@ -227,6 +262,7 @@ export async function importSubdefsStructure(
             types: Record<string, PhraseanetSubdefStruct>;
             policy: string | null;
             labels: Record<string, string>;
+            target?: number;
         }
     > = {};
 
@@ -259,6 +295,9 @@ export async function importSubdefsStructure(
                 types: {} as Record<string, PhraseanetSubdefStruct>,
                 policy: rendition['policy'] ?? null,
                 labels: {},
+                ...(rendition.target !== undefined
+                    ? {target: Number(rendition.target)}
+                    : {}),
             };
         }
 
@@ -379,7 +418,8 @@ export async function importSubdefsStructure(
                 labels: {
                     phraseanetDefinition: sd.labels,
                 },
-                definition: Yaml.dump(jsConf, {lineWidth: 100}).trim(),
+                definition: dump(jsConf, {lineWidth: 100}).trim(),
+                ...(sd.target !== undefined ? {target: Number(sd.target)} : {}),
             });
     }
 
@@ -463,6 +503,7 @@ export async function importMetadataStructure({
                 labels: fm.labels,
                 translatable: fm.translatable,
                 allowInvalid: fm.allowInvalid,
+                ...(fm.target !== undefined ? {target: Number(fm.target)} : {}),
             };
             logger.info(`  Creating "${name}" attribute definition`);
             attributeDefinitionIndex[name] =
@@ -655,19 +696,24 @@ function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
     }
 
     if (null !== sd.options['acodec']) {
-        const audioCodecs = [
-            'libfaac',
-            'libvo_aacenc',
-            'libmp3lame',
-            'libvorbis',
-            'libfdk_aac',
-        ];
-        if (!audioCodecs.includes(sd.options['acodec'])) {
+        // Phraseanet may reference AAC encoders that the databox ffmpeg build does
+        // not ship (libfdk_aac is non-free, libfaac/libvo_aacenc were removed):
+        // map them to the native "aac" encoder.
+        const audioCodecMap: Record<string, string> = {
+            libfaac: 'aac',
+            libvo_aacenc: 'aac',
+            libfdk_aac: 'aac',
+            aac: 'aac',
+            libmp3lame: 'libmp3lame',
+            libvorbis: 'libvorbis',
+        };
+        const audioCodec = audioCodecMap[sd.options['acodec']];
+        if (!audioCodec) {
             throw new Error(
                 `Unsupported audio codec: ${sd.options['acodec']} for subdef video: ${sd.name}`
             );
         }
-        ffmpegModuleOptions['audio_codec'] = sd.options['acodec'];
+        ffmpegModuleOptions['audio_codec'] = audioCodec;
     }
 
     const audioSamplerate = sd.options['audiosamplerate'] ?? 0;

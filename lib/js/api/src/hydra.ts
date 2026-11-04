@@ -3,17 +3,19 @@ import {HydraCollectionResponse, NormalizedCollectionResponse} from './types';
 export function getHydraCollection<T, E extends {} = {}>(
     response: HydraCollectionResponse<T, E>
 ): NormalizedCollectionResponse<T, {}> {
+    // Tolerate both API Platform 4 (un-prefixed) and legacy "hydra:"-prefixed keys
+    const legacy = response as unknown as Record<string, any>;
     const res: NormalizedCollectionResponse<T, {}> = {
-        total: response['hydra:totalItems'],
-        result: response['hydra:member'],
+        total: response.totalItems ?? legacy['hydra:totalItems'],
+        result: response.member ?? legacy['hydra:member'],
     };
 
-    const hydraView = response['hydra:view'];
-    if (hydraView) {
-        res.first = hydraView['hydra:first'];
-        res.previous = hydraView['hydra:previous'];
-        res.next = hydraView['hydra:next'];
-        res.last = hydraView['hydra:last'];
+    const view = response.view ?? legacy['hydra:view'];
+    if (view) {
+        res.first = view.first ?? view['hydra:first'];
+        res.previous = view.previous ?? view['hydra:previous'];
+        res.next = view.next ?? view['hydra:next'];
+        res.last = view.last ?? view['hydra:last'];
     }
 
     return res;

@@ -28,7 +28,7 @@ services:
         class: Alchemy\Workflow\Validator\EventValidator
 
     alchemy.workflow.state_repository:
-        class: Alchemy\Workflow\State\Repository\DoctrineStateRepository
+        class: Alchemy\WorkflowBundle\Doctrine\DoctrineStateRepository
 
     alchemy.workflow.job_trigger:
         class: Alchemy\Workflow\Trigger\MessengerJobTrigger
@@ -44,9 +44,6 @@ services:
         tags:
             - { name: alchemy_workflow.executor }
     Alchemy\Workflow\Executor\Adapter\PhpExecutor:
-        tags:
-            - { name: alchemy_workflow.executor }
-    Alchemy\Workflow\Executor\Adapter\Service\ServiceExecutor:
         tags:
             - { name: alchemy_workflow.executor }
 

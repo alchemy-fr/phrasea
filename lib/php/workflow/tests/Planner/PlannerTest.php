@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\Tests\Planner;
 
 use Alchemy\Workflow\Planner\Stage;
-use Alchemy\Workflow\Tests\AbstractWorkflowTest;
+use Alchemy\Workflow\Tests\AbstractWorkflowTestCase;
 
-class PlannerTest extends AbstractWorkflowTest
+class PlannerTest extends AbstractWorkflowTestCase
 {
     public function testBuildStages(): void
     {

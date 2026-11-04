@@ -10,9 +10,13 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use PHPExiftool\Exiftool;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class ExtractEmbeddedPreviewTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'extract_embedded_preview';
+
     public function __construct(
         private readonly LoggerInterface $logger,
     ) {
@@ -20,7 +24,7 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
 
     public static function getName(): string
     {
-        return 'extract_embedded_preview';
+        return self::NAME;
     }
 
     public function getDocumentation(): Documentation
@@ -149,6 +153,19 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
 
         if ($selected) {
             $this->logger->info(sprintf('Embedded preview found for file %s, returning extracted preview size=%s', $inputFile->getPath(), $size));
+
+            $copyOrientationCmd = [
+                '-TagsFromFile',
+                $pathFile,
+                '-Orientation',
+                $selected,
+            ];
+
+            try {
+                $exiftool->executeCommand($copyOrientationCmd);
+            } catch (\Exception $e) {
+                $this->logger->warning(sprintf('Failed copying orientation for file %s: %s', $inputFile->getPath(), $e->getMessage()));
+            }
 
             return new OutputFile(
                 $selected,

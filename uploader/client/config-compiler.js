@@ -1,4 +1,4 @@
-(function (config, env) {
+(function (stackConfig, env) {
     const normalizeTypes = value => {
         if (!value) {
             return {};
@@ -51,9 +51,6 @@
         return undefined;
     }
 
-    const stackConfig = JSON.parse(
-        require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8')
-    );
     const customHTML = {};
     customHTML['__MUI_THEME__'] = '';
     if (stackConfig.theme) {
@@ -78,14 +75,14 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         devMode: castBoolean(env.DEV_MODE),
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_CLIENT_URL,
+        notifications: castBoolean(env.NOTIFICATIONS_ENABLED),
+        pusherHost: env.SOCKUDO_HOST,
+        pusherKey: env.SOCKUDO_KEY,
         appId: env.APP_ID || 'uploader',
         sentryDsn: env.SENTRY_DSN,
         sentryEnvironment: env.SENTRY_ENVIRONMENT,
         sentryRelease: env.SENTRY_RELEASE,
         upload: {
-            minChunkSize: castInteger(env.S3_MULTIPART_MIN_CHUNK_SIZE),
-            maxChunkSize: castInteger(env.S3_MULTIPART_MAX_CHUNK_SIZE),
-            maxPartNumber: castInteger(env.S3_MULTIPART_MAX_PART_NUMBER),
             maxFileSize:
                 castInteger(uploaderConfig.max_upload_file_size) ??
                 castInteger(env.S3_MAX_OBJECT_SIZE),

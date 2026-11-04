@@ -8,9 +8,9 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\CoreBundle\Util\LocaleUtil;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter as OrmPartialSearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter as OrmSortFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -18,11 +18,20 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
+use App\Api\Filter\InIdsFilter;
+use App\Api\Filter\PartialSearchFilter;
+use App\Api\Filter\SortFilter;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Processor\AddAttributeEntityProcessor;
+use App\Api\Processor\DeleteAttributeEntityImageProcessor;
 use App\Api\Processor\MergeAttributeEntitiesProcessor;
+use App\Api\Processor\UploadAttributeEntityImageProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
+use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Validator\SameWorkspaceConstraint;
@@ -36,15 +45,93 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'attribute-entity',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        // Moving a value to another list takes the edition of both lists
+        new Patch(
+            security: 'is_granted("EDIT", object)',
+            securityPostDenormalize: self::LIST_CHANGE_SECURITY,
+        ),
         new GetCollection(
             normalizationContext: [
                 'groups' => [
                     self::GROUP_LIST,
                 ],
+            ],
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'workspaceId'],
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'list' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'list',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'listId'],
+                ),
+                'list[]' => new QueryParameter(property: 'list', openApi: false),
+                'ids' => new QueryParameter(
+                    filter: InIdsFilter::class,
+                    property: 'id',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'id'],
+                    hydra: false,
+                ),
+                'value' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'value',
+                    schema: ['type' => 'string'],
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw'],
+                    castToArray: false,
+                ),
+                'status' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'status',
+                    schema: ['type' => 'integer'],
+                    description: 'Approved (0), pending (1) or rejected (2) values only, one value or a list (status[]=0&status[]=1); ignored on a "query" search',
+                    castToArray: false,
+                ),
+                'status[]' => new QueryParameter(property: 'status', openApi: false),
+                'note' => new QueryParameter(
+                    filter: new OrmPartialSearchFilter(),
+                    property: 'note',
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the note (ignored on a "query" search)',
+                    castToArray: false,
+                ),
+                'usage' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Also counts the attribute values referencing each entity ("usage")',
+                    castToArray: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new SuggestQueryFilter(),
+                    schema: ['type' => 'string'],
+                    description: 'Search-as-you-type on the value (switches the search to Elasticsearch)',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value'],
+                    castToArray: false,
+                ),
+                'order[value]' => new QueryParameter(
+                    filter: new SortFilter(),
+                    property: 'value',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw'],
+                    castToArray: false,
+                ),
+                // createdAt, updatedAt, status, note and position are not indexed: ORM only (ignored on a "query" search)
+                'order[createdAt]' => new QueryParameter(filter: new OrmSortFilter(), property: 'createdAt', castToArray: false),
+                'order[updatedAt]' => new QueryParameter(filter: new OrmSortFilter(), property: 'updatedAt', castToArray: false),
+                'order[status]' => new QueryParameter(filter: new OrmSortFilter(), property: 'status', castToArray: false),
+                'order[note]' => new QueryParameter(filter: new OrmSortFilter(), property: 'note', castToArray: false),
+                'order[position]' => new QueryParameter(filter: new OrmSortFilter(), property: 'position', castToArray: false),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50 on a "query" search)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(
@@ -57,6 +144,20 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'entities_merge',
             processor: MergeAttributeEntitiesProcessor::class,
         ),
+        new Post(
+            uriTemplate: '/attribute-entities/{id}/image',
+            security: 'is_granted("EDIT", object)',
+            input: false,
+            throwOnNotFound: true,
+            processor: UploadAttributeEntityImageProcessor::class,
+            name: 'upload_image',
+        ),
+        new Delete(
+            uriTemplate: '/attribute-entities/{id}/image',
+            security: 'is_granted("EDIT", object)',
+            processor: DeleteAttributeEntityImageProcessor::class,
+            name: 'delete_image',
+        ),
     ],
     normalizationContext: [
         'groups' => [
@@ -68,23 +169,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, properties: [
-    'workspace' => 'exact',
-    'list' => 'exact',
-    'value' => 'ipartial',
-])]
-#[ApiFilter(filterClass: OrderFilter::class, properties: [
-    'value',
-    'createdAt',
-    'position',
-])]
 #[ORM\Index(columns: ['list_id'], name: 'entity_list_idx')]
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
 )]
-#[UniqueConstraint(name: 'list_value_uniq', fields: ['list', 'value'])]
 #[UniqueConstraint(name: 'list_external_id_uniq', fields: ['list', 'externalId'])]
-#[UniqueEntity(fields: ['list', 'value'], message: 'This value already exists in the list', errorPath: 'value')]
 #[UniqueEntity(fields: ['list', 'externalId'], message: 'This external ID already exists in the list', errorPath: 'externalId')]
 class AttributeEntity extends AbstractUuidEntity implements \Stringable
 {
@@ -94,6 +183,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
+    private const string LIST_CHANGE_SECURITY = 'object.getListId() == previous_object.getListId() or (is_granted("EDIT", previous_object.getList()) and is_granted("EDIT", object.getList()))';
 
     final public const int STATUS_APPROVED = 0;
     final public const int STATUS_PENDING = 1;
@@ -140,17 +230,50 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $externalId = null;
 
+    /**
+     * Free text telling apart the values sharing the same name (homonyms).
+     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Groups([
+        self::GROUP_LIST,
+        ResolveEntitiesOutput::GROUP_READ,
+        Asset::GROUP_LIST,
+    ])]
+    #[Assert\Length(max: 255)]
+    private ?string $note = null;
+
+    /**
+     * Number of attribute values referencing the entity, computed on demand by the collection
+     * provider ("usage" parameter): {attributes: int, humanAttributes: int}.
+     *
+     * @var array{attributes: int, humanAttributes: int}|null
+     */
+    #[Groups([self::GROUP_LIST])]
+    #[ApiProperty(writable: false)]
+    private ?array $usage = null;
+
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
 
+    /**
+     * Only the list moderators (its editors) change the status: a change by anyone else is reverted.
+     */
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[Groups([
         self::GROUP_LIST,
     ])]
+    #[ApiProperty(securityPostDenormalize: 'is_granted("EDIT", object.getList())')]
     private int $status = self::STATUS_APPROVED;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $data = null;
+
+    /**
+     * Exposed as "image" and "thumbnail" URLs by AttributeEntityNormalizer.
+     */
+    #[ORM\OneToOne(targetEntity: ImageSet::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?ImageSet $image = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([
@@ -160,7 +283,11 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     ])]
     private ?array $translations = null;
 
+    /**
+     * Set on creation (AddAttributeEntityProcessor), never from the input.
+     */
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    #[ApiProperty(writable: false)]
     protected ?string $creatorId = null;
 
     public function getValue(): ?string
@@ -282,7 +409,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         return self::STATUS_APPROVED === $this->status;
     }
 
-    #[Groups([self::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
     #[Assert\Length(min: 1, max: 1, countUnit: Assert\Length::COUNT_GRAPHEMES)]
     public function getEmoji(): ?string
     {
@@ -298,7 +425,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         }
     }
 
-    #[Groups([self::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
     #[Assert\CssColor]
     public function getColor(): ?string
     {
@@ -314,9 +441,46 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         }
     }
 
+    public function getImage(): ?ImageSet
+    {
+        return $this->image;
+    }
+
+    public function setImage(?ImageSet $image): void
+    {
+        $this->image = $image;
+    }
+
     public function __toString(): string
     {
         return $this->value ?? $this->getId() ?? '';
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): void
+    {
+        $note = null !== $note ? trim($note) : null;
+        $this->note = '' !== $note ? $note : null;
+    }
+
+    /**
+     * @return array{attributes: int, humanAttributes: int}|null
+     */
+    public function getUsage(): ?array
+    {
+        return $this->usage;
+    }
+
+    /**
+     * @param array{attributes: int, humanAttributes: int}|null $usage
+     */
+    public function setUsage(?array $usage): void
+    {
+        $this->usage = $usage;
     }
 
     public function getExternalId(): ?string

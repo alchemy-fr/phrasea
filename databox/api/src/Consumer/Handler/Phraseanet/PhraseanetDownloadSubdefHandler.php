@@ -58,9 +58,11 @@ readonly class PhraseanetDownloadSubdefHandler
             null,
             null
         );
+        $file = $rendition->getFile();
+        $file->setImportPending(File::STORAGE_URL === $file->getStorage());
 
         $this->em->flush();
 
-        $this->messageBus->dispatch(new ImportFile($rendition->getFile()->getId()));
+        $this->messageBus->dispatch(new ImportFile($file->getId()));
     }
 }

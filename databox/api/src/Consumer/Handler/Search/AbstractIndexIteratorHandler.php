@@ -4,25 +4,19 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
-use Alchemy\ESBundle\Indexer\EntityGroup;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 abstract readonly class AbstractIndexIteratorHandler
 {
     public function __construct(
         private SearchIndexer $searchIndexer,
         protected EntityManagerInterface $em,
-        protected MessageBusInterface $bus,
     ) {
     }
 
-    /**
-     * @param array<string, EntityGroup> $parents
-     */
-    protected function indexObjects(string $class, iterable $iterator, ?\Closure $onFlush = null, array $parents = []): void
+    protected function indexObjects(string $class, iterable $iterator): void
     {
         $chunkSize = 1000;
         $i = 0;
@@ -33,15 +27,13 @@ abstract readonly class AbstractIndexIteratorHandler
             if (++$i > $chunkSize) {
                 $this->searchIndexer->flush();
                 $i = 0;
-                $this->searchIndexer->scheduleObjectsIndex($class, $ids, Operation::Upsert, $parents);
-                $onFlush && $onFlush($ids);
+                $this->searchIndexer->scheduleObjectsIndex($class, $ids, Operation::Upsert);
                 $ids = [];
             }
         }
 
         if (!empty($ids)) {
-            $this->searchIndexer->scheduleObjectsIndex($class, $ids, Operation::Upsert, $parents);
-            $onFlush && $onFlush($ids);
+            $this->searchIndexer->scheduleObjectsIndex($class, $ids, Operation::Upsert);
         }
     }
 }

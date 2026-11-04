@@ -34,7 +34,6 @@ final class Version20211005153148 extends AbstractServiceContainerMigration
         DeferredIndexListener::disable();
 
         $em = $this->getEntityManager();
-        $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         /** @var Document[] $documents */
         $documents = $em->createQueryBuilder()

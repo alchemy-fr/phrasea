@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use App\Entity\SubDefinition;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class SubDefinitionVoter extends AbstractVoter
 {
@@ -23,7 +24,7 @@ class SubDefinitionVoter extends AbstractVoter
     /**
      * @param SubDefinition $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return match ($attribute) {
             self::READ => $this->security->isGranted(AbstractVoter::READ, $subject->getAsset()),

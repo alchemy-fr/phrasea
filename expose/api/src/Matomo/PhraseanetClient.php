@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Matomo;
 
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -13,6 +14,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class PhraseanetClient
 {
     public function __construct(
+        #[Target]
         private HttpClientInterface $phraseanetClient,
         private string $phraseanetAuthToken,
     ) {

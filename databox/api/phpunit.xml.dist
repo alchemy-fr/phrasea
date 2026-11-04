@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" backupGlobals="false" colors="true"
-         bootstrap="tests/bootstrap.php">
-    <coverage processUncoveredFiles="true">
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-    </coverage>
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" backupGlobals="false" colors="true"
+         bootstrap="tests/bootstrap.php" cacheDirectory=".phpunit.cache">
     <php>
         <ini name="error_reporting" value="-1"/>
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
@@ -15,12 +10,29 @@
         <server name="APP_ENV" value="test" force="true"/>
         <server name="SHELL_VERBOSITY" value="-1"/>
     </php>
+    <!--
+        Two suites, selected with the testsuite option (unit or functional):
+
+        - tests/unit: plain PHPUnit TestCase classes that need no service at
+          all (no database, no Elasticsearch, no Redis, no S3). Played by the
+          `quick` tier (composer test:quick) on every push, without the stack.
+        - tests/functional: everything else (kernel boot, SQLite,
+          Elasticsearch, Redis, minio).
+    -->
     <testsuites>
-        <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+        <testsuite name="functional">
+            <directory>tests/functional</directory>
         </testsuite>
     </testsuites>
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
-    </listeners>
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
+    <extensions>
+        <bootstrap class="Symfony\Bridge\PhpUnit\SymfonyExtension"/>
+    </extensions>
 </phpunit>

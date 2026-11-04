@@ -11,7 +11,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Template\AssetDataTemplate;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class AttributeOutput extends AbstractUuidOutput
 {
@@ -56,7 +56,7 @@ class AttributeOutput extends AbstractUuidOutput
     /**
      * "human" or "machine".
      */
-    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
+    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ, Asset::GROUP_READ])]
     public ?string $origin = null;
 
     #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
@@ -96,6 +96,6 @@ class AttributeOutput extends AbstractUuidOutput
     #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
     public $status;
 
-    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
+    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ, Asset::GROUP_READ])]
     public $confidence;
 }

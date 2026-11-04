@@ -10,7 +10,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class RenditionDefinitionOutput extends AbstractUuidOutput
 {
@@ -50,6 +50,15 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
         AssetRendition::GROUP_LIST,
     ])]
     public bool $substitutable;
+
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    public bool $writeMetadata;
+
+    /**
+     * @var array<string, string>|null
+     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    public ?array $metadata = null;
 
     #[Groups([RenditionDefinition::GROUP_READ])]
     public ?array $labels = null;

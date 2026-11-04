@@ -14,3 +14,5 @@ api_platform:
         csv:      ['text/csv']
         html:     ['text/html']
         multipart: ['multipart/form-data']
+    patch_formats:
+        json: ['application/merge-patch+json']

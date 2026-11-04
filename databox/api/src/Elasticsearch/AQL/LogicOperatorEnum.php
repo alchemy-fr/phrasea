@@ -8,4 +8,5 @@ enum LogicOperatorEnum: string
 {
     case AND = 'AND';
     case OR = 'OR';
+    case NOT = 'NOT';
 }

@@ -4,14 +4,22 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
+/**
+ * Maps the realm roles of the identity provider to Symfony roles.
+ *
+ * Only mapped roles reach the application: an application extends the default
+ * mapping with its own roles through the `alchemy_auth.role_mapping` configuration.
+ */
 final readonly class RoleMapper
 {
+    final public const array DEFAULT_MAPPING = [
+        'admin' => JwtUser::ROLE_ADMIN,
+        'tech' => JwtUser::ROLE_TECH,
+    ];
+
     public function __construct(
         private string $appName,
-        private array $mapping = [
-            'admin' => JwtUser::ROLE_ADMIN,
-            'tech' => JwtUser::ROLE_TECH,
-        ],
+        private array $mapping = self::DEFAULT_MAPPING,
     ) {
     }
 

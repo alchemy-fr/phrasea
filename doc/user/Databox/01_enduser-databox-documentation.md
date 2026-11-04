@@ -255,7 +255,7 @@ It is from this window that conditions must be added:
 * Selection of a field to search in:  
   * Either a so-called technical field (collection, dates, file size or type, tags, etc.)  
   * Or among your attributes (credit field, title, caption, country, city, keywords, etc.)  
-* Selection of the operator: After choosing the field, choose the operator ("starts with", "exists", "contains", "is equal to", etc.; these operators change depending on the chosen condition).  
+* Selection of the operator: After choosing the field, choose the operator ("is", "is any of", "is empty", "contains", "starts with", "ends with", "is before", etc.; these operators change depending on the type of the chosen field).  
 * Selection of the value: Finally, enter a value: a term, a date, etc.
 
 You can then launch the search by clicking the **"Add"** button, or add one or more other conditions, as well as one or more groups of conditions to combine search filters on specific fields.

@@ -1,0 +1,114 @@
+automation:
+    report:
+        email:
+            subject_new: '{0}No new asset in %savedSearchName% (%automationName%)|{1}1 new asset in %savedSearchName% (%automationName%)|]1,Inf[%count% new assets in %savedSearchName% (%automationName%)'
+            subject_all: '{0}No asset in %savedSearchName% (%automationName%)|{1}1 asset in %savedSearchName% (%automationName%)|]1,Inf[%count% assets in %savedSearchName% (%automationName%)'
+            greeting: 'Hi %recipient%,'
+            intro_new: '{0}The automation <strong>%automationName%</strong> found no new asset in the saved search <a href="%url%">%savedSearchName%</a>.|{1}The automation <strong>%automationName%</strong> found 1 new asset in the saved search <a href="%url%">%savedSearchName%</a>:|]1,Inf[The automation <strong>%automationName%</strong> found %count% new assets in the saved search <a href="%url%">%savedSearchName%</a>:'
+            intro_all: '{0}The automation <strong>%automationName%</strong> found no asset in the saved search <a href="%url%">%savedSearchName%</a>.|{1}The automation <strong>%automationName%</strong> handled 1 asset of the saved search <a href="%url%">%savedSearchName%</a>:|]1,Inf[The automation <strong>%automationName%</strong> handled %count% assets of the saved search <a href="%url%">%savedSearchName%</a>:'
+            open_search: 'Open the saved search'
+        in_app:
+            subject_new: '{0}No new asset in %savedSearchName%|{1}1 new asset in %savedSearchName%|]1,Inf[%count% new assets in %savedSearchName%'
+            subject_all: '{0}No asset in %savedSearchName%|{1}1 asset in %savedSearchName%|]1,Inf[%count% assets in %savedSearchName%'
+            body_new: '{0}%automationName%: no new asset in %savedSearchName%.|{1}%automationName%: 1 new asset in %savedSearchName%:|]1,Inf[%automationName%: %count% new assets in %savedSearchName%:'
+            body_all: '{0}%automationName%: no asset in %savedSearchName%.|{1}%automationName%: 1 asset handled in %savedSearchName%:|]1,Inf[%automationName%: %count% assets handled in %savedSearchName%:'
+        more: '…and %count% more.'
+        untitled: 'Untitled'
+asset:
+    new_comment:
+        email:
+            action: 'View the comment'
+            subject: 'New comment on %name%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> commented on <a href="%url%">%name%</a>.</p>'
+        email_digest:
+            subject: '%count% new comments on your assets'
+            group: '<p><strong>%authors%</strong> commented on <a href="%url%">%name%</a>.</p>|<p><strong>%count%</strong> new comments on <a href="%url%">%name%</a> by %authors%.</p>'
+        in_app:
+            subject: 'New comment'
+            body: '%author% commented on %name%.'
+        sms:
+            body: '%author% commented on %name%.'
+    delete:
+        email:
+            subject: 'Asset deleted: %name%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> deleted <em>%name%</em>.</p>'
+        in_app:
+            subject: 'Asset deleted'
+            body: '%author% deleted %name%.'
+        sms:
+            body: '%author% deleted %name%.'
+    update:
+        email:
+            action: 'View the asset'
+            subject: 'Asset updated: %name%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> updated <a href="%url%">%name%</a>.</p>'
+            body_with_collection: '<p>Hi %recipient%,</p><p><strong>%author%</strong> updated <a href="%url%">%name%</a> in <em>%collection%</em>.</p>'
+        in_app:
+            subject: 'Asset updated'
+            body: '%author% updated %name%.'
+        sms:
+            body: '%author% updated %name%.'
+collection:
+    asset_add:
+        email:
+            action: 'View the asset'
+            subject: 'New asset in %collectionName%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> added <a href="%url%">%assetName%</a> to <em>%collectionName%</em>.</p>'
+        email_digest:
+            subject: '%count% assets added to your collections'
+            group: '<p>%count% asset added to <a href="%url%"><em>%collectionName%</em></a>:</p>|<p>%count% assets added to <a href="%url%"><em>%collectionName%</em></a>:</p>'
+            item: '<strong>%assetName%</strong> — added by %author%'
+        in_app:
+            subject: 'New asset in %collectionName%'
+            body: '%author% added <strong>%assetName%</strong> to %collectionName%.'
+        sms:
+            body: '%author% added %assetName% to %collectionName%.'
+    asset_remove:
+        email:
+            subject: 'Asset removed from %collectionName%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> removed <em>%assetName%</em> from <em>%collectionName%</em>.</p>'
+        email_digest:
+            subject: '%count% assets removed from your collections'
+            group: '<p>%count% asset removed from <a href="%url%"><em>%collectionName%</em></a>:</p>|<p>%count% assets removed from <a href="%url%"><em>%collectionName%</em></a>:</p>'
+            item: '<strong>%assetName%</strong> — removed by %author%'
+        in_app:
+            subject: 'Asset removed'
+            body: '%author% removed %assetName% from %collectionName%.'
+        sms:
+            body: '%author% removed %assetName% from %collectionName%.'
+discussion:
+    new_comment:
+        email:
+            action: 'View the discussion'
+            subject: 'New comment on %object%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> commented on <a href="%url%">%object%</a>.</p>'
+        email_digest:
+            subject: '%count% new comments'
+            group: '<p><strong>%authors%</strong> commented on <a href="%url%">%object%</a>.</p>|<p><strong>%count%</strong> new comments on <a href="%url%">%object%</a> by %authors%.</p>'
+        in_app:
+            subject: 'New comment'
+            body: '%author% commented on %object%.'
+        sms:
+            body: '%author% commented on %object%.'
+entity_list:
+    pending_value:
+        email:
+            action: 'Review the value'
+            subject: 'New value awaiting approval in %listName%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> added the value <strong>%value%</strong> to <a href="%url%"><em>%listName%</em></a>. It is awaiting your approval.</p>'
+        in_app:
+            subject: 'New value awaiting approval in %listName%'
+            body: '%author% added <strong>%value%</strong> to %listName%. It is awaiting your approval.'
+        sms:
+            body: '%author% added %value% to %listName%. It is awaiting your approval.'
+notification_digest:
+    greeting: '<p>Hi %recipient%,</p>'
+    more: '<p>…and %count% more.</p>'
+    more_items: '…and %count% more'
+user:
+    exception:
+        email:
+            subject: 'An error occurred'
+            greeting: 'Hi %recipient%,'
+        in_app:
+            subject: 'An error occurred'

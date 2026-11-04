@@ -15,7 +15,6 @@ use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Consumer\Handler\Asset\AttributeChanged;
-use App\Consumer\Handler\Search\IndexAssetAttributes;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -133,6 +132,11 @@ class BatchAttributeManager
                         if (!$definition->isEditable()) {
                             throw new BadRequestHttpException(sprintf('Attribute "%s" is not editable in action #%d', $definition->getSlug(), $i));
                         }
+                        // validate() only checks the attribute policy of "add" and "set" actions
+                        if (!$definition->getPolicy()->isEditable()
+                            && !$this->security->isGranted(PermissionInterface::EDIT, $definition->getPolicy())) {
+                            throw new AccessDeniedHttpException(sprintf('Unauthorized to edit attribute "%s" in action #%d', $definition->getSlug(), $i));
+                        }
                         $changedAttributeDefinitions[$definition->getId()] = true;
                     } else {
                         $changedAttributeDefinitions['*'] = true;
@@ -165,7 +169,8 @@ class BatchAttributeManager
                             if ($action->id) {
                                 try {
                                     $attribute = $this->em->find(Attribute::class, $action->id);
-                                    if (!$attribute instanceof Attribute) {
+                                    // Only the attributes of the assets being edited (whose rights were checked)
+                                    if (!$attribute instanceof Attribute || !in_array($attribute->getAsset()->getId(), $ids, true)) {
                                         throw new BadRequestHttpException(sprintf('Attribute "%s" not found in action #%d', $action->id, $i));
                                     }
                                     $def = $attribute->getDefinition();
@@ -275,7 +280,6 @@ class BatchAttributeManager
                 foreach ($updatedAssetIds as $assetId) {
                     // Force assets to be re-indexed
                     $this->deferredIndexListener->scheduleForUpdate($this->em->getReference(Asset::class, $assetId));
-                    $this->postFlushStack->addBusMessage(new IndexAssetAttributes($assetId));
 
                     if ($dispatchUpdateEvent) {
                         $this->postFlushStack->addBusMessage(new AttributeChanged(

@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
+use App\Documentation\ConfigurationReferenceDumper;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Config\ConfigSchemaCustomizerInterface;
+use App\Integration\Config\ConfigSchemaDumper;
 use App\Integration\Env\EnvResolver;
 use App\Security\Voter\WorkspaceIntegrationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\NodeInterface;
 use Symfony\Component\Config\Definition\Processor;
@@ -26,6 +28,8 @@ readonly class IntegrationManager
         private EntityManagerInterface $em,
         private EnvResolver $envResolver,
         private Security $security,
+        private ConfigurationReferenceDumper $referenceDumper,
+        private ConfigSchemaDumper $schemaDumper,
     ) {
     }
 
@@ -119,15 +123,24 @@ readonly class IntegrationManager
 
     public function getIntegrationReference(IntegrationInterface $integration): string
     {
-        $node = $this->buildConfiguration($integration);
-        $dumper = new YamlReferenceDumper();
+        $treeBuilder = new TreeBuilder('root');
+        $integration->buildConfiguration($treeBuilder->getRootNode()->children());
 
-        $output = $dumper->dumpNode($node);
-        $output = preg_replace("#^root:(\n( {4})?|\s+\[])#", '', (string) $output);
-        $output = preg_replace("#\n {4}#", "\n", (string) $output);
-        $output = preg_replace("#\n\n#", "\n", (string) $output);
+        return $this->referenceDumper->dumpTree($treeBuilder);
+    }
 
-        return trim(ltrim((string) $output, "\n"));
+    /**
+     * The configuration tree described for the client form.
+     */
+    public function getIntegrationSchema(IntegrationInterface $integration): array
+    {
+        $schema = $this->schemaDumper->dump($this->buildConfiguration($integration));
+
+        if ($integration instanceof ConfigSchemaCustomizerInterface) {
+            $schema = $integration->customizeConfigSchema($schema);
+        }
+
+        return $schema;
     }
 
     private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): IntegrationConfig

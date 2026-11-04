@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Output;
 
 use ApiPlatform\Metadata\ApiProperty;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 abstract class AbstractUuidOutput
 {

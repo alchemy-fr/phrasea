@@ -7,6 +7,7 @@ namespace App\Api\Model\Input;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Validator\TwigConstraint;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -66,6 +67,11 @@ class AttributeDefinitionInput
     public $suggest;
 
     /**
+     * Whether the GUI lets users draw annotations on the asset for a value of this attribute.
+     */
+    public ?bool $annotationsEnabled = null;
+
+    /**
      * @var bool
      */
     public $facetEnabled;
@@ -117,9 +123,35 @@ class AttributeDefinitionInput
     public $fallback;
 
     /**
+     * Language-indexed Twig templates resolved to initialize the attribute.
+     *
      * @var string[]
      */
+    #[Assert\All([
+        new TwigConstraint(),
+    ])]
     public $initialValues;
+
+    /**
+     * Ordered list of metadata tag names to read to initialize the attribute (first found wins).
+     *
+     * @var string[]|null
+     */
+    public ?array $readFromMetadata = null;
+
+    /**
+     * List of metadata tag names into which the attribute value is written on export.
+     *
+     * @var string[]|null
+     */
+    public ?array $writeMetadata = null;
+
+    /**
+     * Restricts the renditions the attribute is written into. Empty (or null) means all of them.
+     *
+     * @var RenditionDefinition[]|null
+     */
+    public ?array $writeMetadataRenditions = null;
 
     /**
      * @var string|null

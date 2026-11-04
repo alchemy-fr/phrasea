@@ -19,7 +19,7 @@ return [
     Hautelook\AliceBundle\HautelookAliceBundle::class => ['dev' => true, 'test' => true],
     Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
-    Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
+    Alchemy\NotifierBundle\AlchemyNotifierBundle::class => ['all' => true],
     Alchemy\AuthBundle\AlchemyAuthBundle::class => ['all' => true],
     Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],

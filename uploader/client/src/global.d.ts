@@ -5,7 +5,6 @@ declare global {
         requestSignatureTtl: Readonly<string>;
         disableIndexPage: Readonly<string>;
         globalCSS: Readonly<string | undefined>;
-        zippyEnabled?: Readonly<boolean>;
         maxCommitSize: Readonly<number>;
         maxFileCount: Readonly<number>;
         client?: {

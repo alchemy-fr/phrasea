@@ -18,3 +18,6 @@ export {
 export * from './src/types';
 export * from './src/utils';
 export * from './src/hydra';
+// Transport-agnostic multipart upload engine (the axios adapter stays in
+// src/axiosMultipartUpload.ts so that this entry point does not pull @alchemy/core)
+export * from './src/multiPartUpload';

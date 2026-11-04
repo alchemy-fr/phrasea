@@ -8,8 +8,8 @@ use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
-use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -44,18 +44,29 @@ class RenditionDefinitionRepository extends ServiceEntityRepository
                 ->addGroupBy($rootAlias.'.id')
                 ->addGroupBy('acl_c.id')
                 ->addGroupBy('acl_w.id')
-                ->addGroupBy('acl_c.id')
-                ->addGroupBy('ap_ace.id')
+                ->addGroupBy('rp_ace.id')
+                ->addGroupBy('rp_child_ace.id')
                 ->addGroupBy('w_ace.id');
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                AttributePolicy::OBJECT_TYPE,
+                RenditionPolicy::OBJECT_TYPE,
                 'acl_c',
                 PermissionInterface::VIEW,
                 false,
-                'ap_ace'
+                'rp_ace'
+            );
+            AccessControlEntryRepository::joinAcl(
+                $queryBuilder,
+                $userId,
+                $groupIds,
+                RenditionPolicy::OBJECT_TYPE,
+                'acl_c',
+                PermissionInterface::CHILD_VIEW,
+                false,
+                'rp_child_ace',
+                paramPrefix: 'rpc',
             );
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
@@ -70,7 +81,7 @@ class RenditionDefinitionRepository extends ServiceEntityRepository
             );
             $queryBuilder->setParameter('uid', $userId);
             if ($withConditions) {
-                $queryBuilder->andWhere('acl_c.public = true OR ap_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('acl_c.public = true OR rp_ace.id IS NOT NULL OR rp_child_ace.id IS NOT NULL');
                 $queryBuilder->andWhere('acl_w.public = true OR acl_w.ownerId = :uid OR w_ace.id IS NOT NULL');
             }
         } else {

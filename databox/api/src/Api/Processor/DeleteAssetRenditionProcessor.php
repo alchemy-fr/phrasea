@@ -31,7 +31,8 @@ final readonly class DeleteAssetRenditionProcessor implements ProcessorInterface
             'rendition-update',
             [
                 'assetId' => $data->getAsset()->getId(),
-                'definition' => $data->getDefinition()->getId(),
+                'definition' => $data->getDefinition()?->getId(),
+                'name' => $data->getName(),
             ]
         ));
 

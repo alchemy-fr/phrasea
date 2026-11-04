@@ -8,25 +8,30 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
-use App\Api\Filter\InWorkspacesFilter;
-use App\Api\Filter\PartialSearchFilter;
-use App\Api\Filter\SearchFilter;
+use App\Api\Filter\InIdsFilter;
+use App\Api\Filter\TranslatedTextSearchFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
-use App\Controller\Core\RenditionDefinitionSortAction;
+use App\Api\Processor\DuplicateRenditionDefinitionProcessor;
+use App\Api\Processor\InputMapperProcessor;
+use App\Api\Processor\Sort\RenditionDefinitionSortProcessor;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\RenditionDefinitionRepository;
+use App\Security\Voter\AbstractVoter;
 use App\Validator as CustomAssert;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -45,24 +50,51 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("READ", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
             security: 'is_granted("EDIT", object)',
             input: RenditionDefinitionInput::class,
+            processor: InputMapperProcessor::class,
         ),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Post(
+            uriTemplate: '/rendition-definitions/{id}/duplicate',
+            normalizationContext: [
+                'groups' => [RenditionDefinition::GROUP_READ],
+            ],
+            throwOnNotFound: true,
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: false,
+            processor: DuplicateRenditionDefinitionProcessor::class,
+            name: 'duplicate_rendition_definition',
+        ),
         new GetCollection(
             parameters: [
                 'name' => new QueryParameter(
-                    filter: PartialSearchFilter::class,
+                    filter: new PartialSearchFilter(),
                     property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new TranslatedTextSearchFilter(),
+                    properties: ['name'],
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the name or any translation of the name',
+                    castToArray: false,
+                    hydra: false,
                 ),
                 'workspaceId' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'workspace'),
+                    filter: new ExactFilter(),
+                    property: 'workspace',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
                 'workspaceIds' => new QueryParameter(
-                    filter: InWorkspacesFilter::class,
+                    filter: InIdsFilter::class,
                     property: 'workspace',
                 ),
                 'target' => new QueryParameter(
@@ -75,16 +107,18 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/rendition-definitions/sort',
-            controller: RenditionDefinitionSortAction::class,
-            openapiContext: [
-                'summary' => 'Reorder items',
-                'description' => 'Reorder items',
-                'requestBody' => [
-                    'content' => [
+            status: 200,
+            processor: RenditionDefinitionSortProcessor::class,
+            openapi: new OpenApiOperation(
+                summary: 'Reorder items',
+                description: 'Reorder items',
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
                                 'description' => 'Ordered list of IDs',
@@ -92,9 +126,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 'items' => ['type' => 'string'],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             input: false,
             output: false,
             read: false,
@@ -109,8 +143,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     input: RenditionDefinitionInput::class,
     output: RenditionDefinitionOutput::class,
-    order: ['priority' => 'DESC'],
-    paginationClientItemsPerPage: true,
+    order: ['priority' => 'DESC', 'name' => 'ASC', 'id' => 'ASC'],
 )]
 #[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
 #[ORM\UniqueConstraint(name: 'uniq_rend_def_ws_key', columns: ['workspace_id', 'key'])]
@@ -148,6 +181,17 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     final public const string GROUP_LIST = 'renddef:i';
     final public const string GROUP_WRITE = 'renddef:w';
 
+    /**
+     * Config key: whether the asset attribute values (attribute definitions "writeMetadata")
+     * should be embedded into the rendition file on export.
+     */
+    final public const string CONFIG_WRITE_METADATA = 'write_metadata';
+
+    /**
+     * Config key: hardcoded metadata (tag group id => value) written into the exported rendition file.
+     */
+    final public const string CONFIG_METADATA = 'metadata';
+
     final public const string TR_FIELD_NAME = 'name';
 
     /**
@@ -183,6 +227,12 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $substitutable = true;
 
+    /**
+     * Arbitrary configuration for the rendition definition (e.g. metadata).
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $config = null;
+
     #[ORM\Column(type: Types::SMALLINT)]
     private int $buildMode = self::BUILD_MODE_NONE;
 
@@ -215,11 +265,54 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     #[ORM\OneToMany(mappedBy: 'definition', targetEntity: AssetRendition::class, cascade: ['remove'])]
     protected ?DoctrineCollection $renditions = null;
 
+    /**
+     * The attribute definitions explicitly scoped to this rendition (inverse side).
+     *
+     * @var DoctrineCollection<int, AttributeDefinition>
+     */
+    #[ORM\ManyToMany(targetEntity: AttributeDefinition::class, mappedBy: 'writeMetadataRenditions')]
+    private DoctrineCollection $writeMetadataAttributes;
+
     public function __construct()
     {
         parent::__construct();
 
         $this->renditions = new ArrayCollection();
+        $this->writeMetadataAttributes = new ArrayCollection();
+    }
+
+    /**
+     * @return DoctrineCollection<int, AttributeDefinition>
+     */
+    public function getWriteMetadataAttributes(): DoctrineCollection
+    {
+        return $this->writeMetadataAttributes;
+    }
+
+    /**
+     * @param iterable<AttributeDefinition> $attributeDefinitions
+     */
+    public function setWriteMetadataAttributes(iterable $attributeDefinitions): void
+    {
+        $wanted = [];
+        foreach ($attributeDefinitions as $attributeDefinition) {
+            $wanted[$attributeDefinition->getId()] = $attributeDefinition;
+        }
+
+        // the owning side is AttributeDefinition: drive it, and keep the inverse in sync
+        foreach ($this->writeMetadataAttributes->toArray() as $attributeDefinition) {
+            if (!isset($wanted[$attributeDefinition->getId()])) {
+                $attributeDefinition->removeWriteMetadataRendition($this);
+                $this->writeMetadataAttributes->removeElement($attributeDefinition);
+            }
+        }
+
+        foreach ($wanted as $attributeDefinition) {
+            $attributeDefinition->addWriteMetadataRendition($this);
+            if (!$this->writeMetadataAttributes->contains($attributeDefinition)) {
+                $this->writeMetadataAttributes->add($attributeDefinition);
+            }
+        }
     }
 
     public function getName(): string
@@ -359,6 +452,49 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     public function setSubstitutable(bool $substitutable): void
     {
         $this->substitutable = $substitutable;
+    }
+
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?array $config): void
+    {
+        $this->config = $config;
+    }
+
+    public function isWriteMetadata(): bool
+    {
+        return $this->config[self::CONFIG_WRITE_METADATA] ?? false;
+    }
+
+    public function setWriteMetadata(bool $writeMetadata): void
+    {
+        $this->config[self::CONFIG_WRITE_METADATA] = $writeMetadata;
+    }
+
+    /**
+     * @return array<string, string> Map of metadata tag group id (e.g. "IPTC:CopyrightNotice") to hardcoded value
+     */
+    #[CustomAssert\ValidRenditionMetadataConstraint]
+    public function getMetadata(): array
+    {
+        return $this->config[self::CONFIG_METADATA] ?? [];
+    }
+
+    /**
+     * @param array<string, string>|null $metadata
+     */
+    public function setMetadata(?array $metadata): void
+    {
+        if (empty($metadata)) {
+            unset($this->config[self::CONFIG_METADATA]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_METADATA] = $metadata;
     }
 
     public function getParent(): ?self

@@ -141,7 +141,7 @@ Les paramètres définis dans le “Target Parameter Editor” prévalent sur le
 
 ## Notifications possibles
 
-Il est possible de notifier l’émetteur via Uploader. Comme les autres modules, le module “Uploader” intègre Novu pour la gestion des notifications.
+Il est possible de notifier l’émetteur via Uploader. Comme les autres modules, le module “Uploader” envoie des notifications (email et in-app) via le notifier bundle.
 
 ## FAQ
 

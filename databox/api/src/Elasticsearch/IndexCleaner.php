@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use Elastic\Elasticsearch\Traits\EndpointTrait;
 use Elastica\Index;
-use FOS\ElasticaBundle\Elastica\Client;
 
 readonly class IndexCleaner
 {
-    use EndpointTrait;
-
     public function __construct(
-        private Client $client,
         private Index $assetIndex,
         private Index $collectionIndex,
     ) {
@@ -22,41 +17,34 @@ readonly class IndexCleaner
     public function removeWorkspaceFromIndex(string $workspaceId): void
     {
         foreach ([$this->assetIndex, $this->collectionIndex] as $index) {
-            $indexName = $index->getName();
-
-            $request = $this->createRequest(
-                'POST',
-                $indexName.'/_delete_by_query',
-                [
-                    'Content-Type' => 'application/json',
+            $this->deleteByQuery($index, [
+                'term' => [
+                    'workspaceId' => $workspaceId,
                 ],
-                [
-                    'query' => [
-                        'term' => [
-                            'workspaceId' => $workspaceId,
-                        ],
-                    ],
-                ]
-            );
-
-            $this->client->sendRequest($request);
+            ]);
         }
     }
 
     public function removeCollectionFromIndex(string $collectionId): void
     {
-        $request = $this->createRequest('POST', $this->assetIndex->getName().'/_delete_by_query',
-            [
-                'Content-Type' => 'application/json',
+        $this->deleteByQuery($this->assetIndex, [
+            'term' => [
+                'referenceCollectionId' => $collectionId,
             ],
-            [
-                'query' => [
-                    'term' => [
-                        'referenceCollectionId' => $collectionId,
-                    ],
-                ],
-            ]
-        );
-        $this->client->sendRequest($request);
+        ]);
+    }
+
+    /**
+     * Cleaning up an index is best-effort: the entity is already gone from the
+     * database. `ignore_unavailable` covers an index that was never created (or
+     * already dropped) and `conflicts=proceed` covers documents concurrently
+     * reindexed — neither should abort a deletion.
+     */
+    private function deleteByQuery(Index $index, array $query): void
+    {
+        $index->deleteByQuery(['query' => $query], [
+            'conflicts' => 'proceed',
+            'ignore_unavailable' => true,
+        ]);
     }
 }

@@ -1,0 +1,24 @@
+{% block subject %}
+{%- if customSubject|default -%}
+    {{ customSubject|raw }}
+{%- else -%}
+    {{ ('automation.report.in_app.subject_' ~ (scope == 'all' ? 'all' : 'new'))|trans({
+        '%count%': count,
+        '%savedSearchName%': savedSearchName|default(''),
+    }, 'notifications')|raw }}
+{%- endif -%}
+{% endblock %}
+
+{% block body %}
+{{- ('automation.report.in_app.body_' ~ (scope == 'all' ? 'all' : 'new'))|trans({
+    '%count%': count,
+    '%automationName%': automationName|e,
+    '%savedSearchName%': savedSearchName|default('')|e,
+}, 'notifications')|raw }}
+{%- set listed = assets|slice(0, 5) %}
+{%- if listed|length > 0 %} {% for asset in listed %}{{ asset.title|default('automation.report.untitled'|trans({}, 'notifications')) }}{% if not loop.last %}, {% endif %}{% endfor %}
+{%- if count > listed|length %} {{ 'automation.report.more'|trans({'%count%': count - listed|length}, 'notifications') }}{% endif %}
+{%- endif %}
+{%- endblock %}
+
+{% block uri %}{{ url|default('') }}{% endblock %}

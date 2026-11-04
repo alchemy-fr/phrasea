@@ -9,4 +9,9 @@ use Alchemy\AclBundle\Repository\GroupRepositoryInterface as AclGroupRepositoryI
 interface GroupRepositoryInterface extends AclGroupRepositoryInterface
 {
     public function getGroups(array $options = []): array;
+
+    /**
+     * @return string[] IDs of the enabled direct members of the group
+     */
+    public function getGroupMemberIds(string $groupId): array;
 }

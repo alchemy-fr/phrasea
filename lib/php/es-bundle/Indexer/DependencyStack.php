@@ -2,7 +2,7 @@
 
 namespace Alchemy\ESBundle\Indexer;
 
-use Doctrine\Common\Util\ClassUtils;
+use Alchemy\ESBundle\Util\ClassUtil;
 
 class DependencyStack
 {
@@ -50,7 +50,7 @@ class DependencyStack
 
     public function addDependency(string $class, string $id, Operation $operation = Operation::Upsert): self
     {
-        $class = ClassUtils::getRealClass($class);
+        $class = ClassUtil::getRealClass($class);
         if (
             (isset($this->parents[$class]) && $this->parents[$class]->has($id))
             || $this->isInBatch($class, $id)
@@ -91,7 +91,7 @@ class DependencyStack
 
     public function addParent(string $class, string $id): void
     {
-        $class = ClassUtils::getRealClass($class);
+        $class = ClassUtil::getRealClass($class);
         $this->parents[$class] ??= new EntityGroup();
         $this->parents[$class]->add($id);
     }

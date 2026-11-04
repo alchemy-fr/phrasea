@@ -1,0 +1,117 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Api\Mapper\Input;
+
+use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
+use App\Api\Model\Input\Attribute\AttributeInput;
+use App\Api\Model\Input\Template\TemplateAttributeInput;
+use App\Api\Processor\AttributeInputProcessorInterface;
+use App\Attribute\AttributeValidator;
+use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\Workspace;
+use App\Entity\Template\AssetDataTemplate;
+use App\Entity\Template\TemplateAttribute;
+use App\Repository\Core\AttributeDefinitionRepository;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Contracts\Service\Attribute\Required;
+
+/**
+ * @extends AbstractInputMapper
+ */
+trait AttributeInputTrait
+{
+    private AttributeValidator $attributeValidator;
+    private AttributeDefinitionRepository $attributeDefinitionRepository;
+
+    #[Required]
+    public function setAttributeValidator(AttributeValidator $attributeValidator): void
+    {
+        $this->attributeValidator = $attributeValidator;
+    }
+
+    #[Required]
+    public function setAttributeDefinitionRepository(AttributeDefinitionRepository $attributeDefinitionRepository): void
+    {
+        $this->attributeDefinitionRepository = $attributeDefinitionRepository;
+    }
+
+    protected function getAttributeDefinitionFromInput(AbstractBaseAttributeInput $data, ?Workspace $workspace, array $context): AttributeDefinition
+    {
+        $definition = null;
+        if (isset($context[AttributeInputProcessorInterface::ATTRIBUTE_DEFINITION])) {
+            $definition = $context[AttributeInputProcessorInterface::ATTRIBUTE_DEFINITION];
+        } elseif ($data->definitionId) {
+            $definition = $this->attributeDefinitionRepository->find($data->definitionId);
+        } elseif ($data->name && null !== $workspace) {
+            $definition = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($workspace->getId(), $data->name);
+        }
+
+        if (!$definition instanceof AttributeDefinition) {
+            throw new BadRequestHttpException('Missing Attribute definition');
+        }
+        if (null !== $workspace && $definition->getWorkspaceId() !== $workspace->getId()) {
+            throw new BadRequestHttpException('Workspace inconsistency');
+        }
+
+        return $definition;
+    }
+
+    /**
+     * @param AbstractBaseAttributeInput[] $attributes
+     */
+    protected function assignAttributes(
+        string $workspaceId,
+        AbstractInputMapper $attributeInputProcessor,
+        Asset|AssetDataTemplate $object,
+        iterable $attributes,
+        array $context,
+    ): void {
+        $this->attributeValidator->validateAttributeInputs($workspaceId, $attributes, 'attributes');
+
+        foreach ($attributes as $attribute) {
+            if (null === $attribute->value) {
+                continue;
+            }
+
+            if ($attribute instanceof AttributeInput) {
+                $attribute->asset = $object;
+            } elseif ($attribute instanceof TemplateAttributeInput) {
+                $attribute->template = $object;
+            }
+
+            $definition = $this->getAttributeDefinitionFromInput($attribute, $object->getWorkspace(), $context);
+
+            $subContext = array_merge($context, [
+                AttributeInputProcessorInterface::ATTRIBUTE_DEFINITION => $definition,
+            ]);
+
+            if (is_array($attribute->value)) {
+                if ($definition->isMultiple()) {
+                    foreach ($attribute->value as $value) {
+                        $attr = clone $attribute;
+                        $attr->value = $value;
+
+                        /** @var Attribute|TemplateAttribute $returnedAttribute */
+                        $returnedAttribute = $attributeInputProcessor->map($attr, null, $subContext);
+                        if (null !== $returnedAttribute) {
+                            $object->addAttribute($returnedAttribute);
+                        }
+                    }
+
+                    continue;
+                }
+                // else add single attr below
+            }
+
+            /** @var Attribute|TemplateAttribute $returnedAttribute */
+            $returnedAttribute = $attributeInputProcessor->map($attribute, null, $subContext);
+            if (null !== $returnedAttribute) {
+                $object->addAttribute($returnedAttribute);
+            }
+        }
+    }
+}

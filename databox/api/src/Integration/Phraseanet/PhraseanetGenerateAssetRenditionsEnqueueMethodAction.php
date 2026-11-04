@@ -57,12 +57,8 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
     }
 
     #[\Override]
-    protected function shouldRun(Asset $asset): bool
+    protected function getSkipReason(Asset $asset): ?string
     {
-        if (null === $asset->getSource()) {
-            return false;
-        }
-
-        return true;
+        return null === $asset->getSource() ? self::SKIP_NO_SOURCE : null;
     }
 }

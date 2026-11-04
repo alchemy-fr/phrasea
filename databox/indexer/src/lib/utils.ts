@@ -5,9 +5,13 @@ export function forceArray<D = any, T = undefined | null>(
         return object;
     }
 
+    // typeof null is 'object', and the signature advertises a passthrough.
+    if (null === object || undefined === object) {
+        return object as T;
+    }
+
     if (typeof object === 'object') {
-        // @ts-expect-error object can be null
-        return Object.keys(object).map(k => object[k]);
+        return Object.keys(object).map(k => (object as any)[k]);
     }
 
     return object;

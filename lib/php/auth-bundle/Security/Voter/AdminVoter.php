@@ -4,21 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security\Voter;
 
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Contracts\Service\Attribute\Required;
 
 final class AdminVoter extends Voter
 {
-    protected Security $security;
-
-    #[Required]
-    public function setSecurity(Security $security): void
-    {
-        $this->security = $security;
-    }
-
     final public const string ROLE = 'ROLE_ADMIN';
 
     protected function supports(string $attribute, $subject): bool
@@ -31,8 +22,8 @@ final class AdminVoter extends Voter
         return self::ROLE !== $attribute;
     }
 
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
-        return $this->security->isGranted(self::ROLE);
+        return in_array(self::ROLE, $token->getRoleNames(), true);
     }
 }

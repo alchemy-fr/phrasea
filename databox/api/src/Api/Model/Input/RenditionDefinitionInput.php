@@ -52,6 +52,23 @@ class RenditionDefinitionInput
     public $substitutable;
 
     /**
+     * Whether the asset attribute values are embedded into the rendition file on export.
+     *
+     * @var bool
+     */
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public $writeMetadata;
+
+    /**
+     * Map of metadata tag group id (e.g. "IPTC:CopyrightNotice") to hardcoded value,
+     * written into the exported rendition file.
+     *
+     * @var array<string, string>|null
+     */
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public $metadata;
+
+    /**
      * @var int
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]

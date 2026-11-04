@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+
+#[AsTaggedItem(index: self::NAME)]
 final class BooleanAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'boolean';

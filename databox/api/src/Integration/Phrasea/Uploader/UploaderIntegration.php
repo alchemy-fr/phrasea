@@ -5,13 +5,19 @@ declare(strict_types=1);
 namespace App\Integration\Phrasea\Uploader;
 
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
+#[AsTaggedItem(index: self::NAME)]
 class UploaderIntegration extends AbstractIntegration
 {
+    public const string NAME = 'phrasea.uploader';
+
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {
@@ -27,10 +33,12 @@ class UploaderIntegration extends AbstractIntegration
             ->end()
             ->scalarNode('collectionId')
                 ->info('The collection target')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Collection->value)
             ->end()
             ->scalarNode('securityKey')
                 ->cannotBeEmpty()
                 ->info('The security key to authenticate Uploader requests')
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end()
         ;
     }
@@ -41,6 +49,17 @@ class UploaderIntegration extends AbstractIntegration
         $userConfig['securityKey'] ??= bin2hex(random_bytes(32));
 
         return $userConfig;
+    }
+
+    /**
+     * A security key must not be shared by two integrations.
+     */
+    #[\Override]
+    public function prepareDuplicateConfiguration(array $config): array
+    {
+        unset($config['securityKey']);
+
+        return $this->generateConfigurationDefaults($config);
     }
 
     public function validateConfiguration(IntegrationConfig $config): void
@@ -79,8 +98,15 @@ class UploaderIntegration extends AbstractIntegration
         return 'Uploader';
     }
 
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ingest,
+        ];
+    }
+
     public static function getName(): string
     {
-        return 'phrasea.uploader';
+        return self::NAME;
     }
 }

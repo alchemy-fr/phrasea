@@ -54,7 +54,8 @@ export function normalizeHTMLLocale(l: string): string {
 }
 
 export function setHtmlLangAttr(lng: string | undefined): void {
-    if (lng) {
+    // No-op during server-side rendering
+    if (lng && typeof document !== 'undefined') {
         document.documentElement.setAttribute('lang', normalizeHTMLLocale(lng));
     }
 }

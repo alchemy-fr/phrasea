@@ -1,0 +1,943 @@
+'use client';
+
+import {useEffect, useMemo, useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {useDropzone} from 'react-dropzone';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {
+    FileIcon,
+    ImageIcon,
+    LinkIcon,
+    PlusIcon,
+    SquareDashedIcon,
+    UploadCloudIcon,
+    XIcon,
+} from 'lucide-react';
+import {toast} from 'sonner';
+import type {
+    Asset,
+    AssetDataTemplate,
+    CollectionPrivacyInfo,
+    Privacy,
+    Tag,
+} from '@/types/api';
+import {AssetTypeFilter, EntityName} from '@/types/api';
+import type {ModalProps} from '@/components/modals/ModalProvider';
+import {FormDialog} from '@/components/modals/FormDialog';
+import {Button} from '@/components/ui/button';
+import {FormRow, Input, Textarea} from '@/components/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
+import {SimpleSelect} from '@/components/ui/select';
+import {
+    Tabs,
+    TabsList,
+    TabsTrigger,
+    Badge,
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@/components/ui/misc';
+import {
+    CollectionTreePicker,
+    TreeSelection,
+} from '@/components/form/CollectionTreePicker';
+import {PrivacyField} from '@/components/form/PrivacyField';
+import {TagSelect} from '@/components/form/selects';
+import {useConfig} from '@/lib/config/ConfigProvider';
+import {toDropzoneAccept} from '@/lib/utils/mime';
+import {formatFileSize} from '@/lib/utils/format';
+import {cn} from '@/lib/utils/cn';
+import {
+    destinationToAssetProps,
+    extractNameFromUrl,
+    getAssetNameFromFile,
+    importAssetsFromUrls,
+    postAsset,
+    setStoryCover,
+    uploadAsset,
+} from '@/lib/api/assets';
+import {getCollectionPrivacyInfo} from '@/lib/api/collections';
+import {getAssetDataTemplates} from '@/lib/api/metadata';
+import {useUploadStore} from './uploadStore';
+import {uniqueId, runWithConcurrency} from '@/lib/utils/misc';
+import {useAttributeEditor} from '@/features/attributes/editor/useAttributeEditor';
+import {AttributesEditor} from '@/features/attributes/editor/AttributesEditor';
+import {indexToCreateActions} from '@/features/attributes/editor/attributeEditorModel';
+import {useWorkspace} from '@/features/collections/collectionStore';
+import {iri} from '@/lib/utils/iri';
+import {useOptionalResults} from '@/features/search/useOptionalResults';
+import {SaveAsTemplateSection} from './SaveAsTemplateSection';
+import {AssetDataTemplateSelect} from './AssetDataTemplateSelect';
+import {
+    AssetEvent,
+    EventCategory,
+    StoryEvent,
+    track,
+} from '@/lib/analytics/events';
+
+type Props = ModalProps & {
+    files?: File[];
+    workspaceId?: string;
+    collectionId?: string;
+    onUploaded?: (assets: Asset[]) => void;
+};
+
+/** `none` creates a single asset (or an empty story) without any file */
+type Source = 'files' | 'urls' | 'none';
+
+export function UploadDialog({
+    open,
+    onOpenChange,
+    files: initialFiles,
+    workspaceId: initialWorkspaceId,
+    collectionId,
+    onUploaded,
+}: Props) {
+    const {t, i18n} = useTranslation();
+    const config = useConfig();
+    const queryClient = useQueryClient();
+    const results = useOptionalResults();
+    const [files, setFiles] = useState<File[]>(initialFiles ?? []);
+    const [source, setSource] = useState<Source>(
+        initialFiles?.length ? 'files' : 'files'
+    );
+    const [urls, setUrls] = useState('');
+    const [assetName, setAssetName] = useState('');
+    const [importFiles, setImportFiles] = useState(true);
+    const [destination, setDestination] = useState<TreeSelection | undefined>(
+        () =>
+            collectionId && initialWorkspaceId
+                ? {
+                      iri: iri(EntityName.Collection, collectionId),
+                      workspaceId: initialWorkspaceId,
+                      collectionId,
+                      label: '',
+                  }
+                : initialWorkspaceId
+                  ? {
+                        iri: iri(EntityName.Workspace, initialWorkspaceId),
+                        workspaceId: initialWorkspaceId,
+                        label: '',
+                    }
+                  : undefined
+    );
+    const [privacy, setPrivacy] = useState<Privacy | undefined>(undefined);
+    const [tags, setTags] = useState<string[]>([]);
+    const [quiet, setQuiet] = useState(false);
+    const [isStory, setIsStory] = useState(false);
+    const [storyTitle, setStoryTitle] = useState('');
+    const [storyTags, setStoryTags] = useState<string[]>([]);
+    const [coverFile, setCoverFile] = useState<File>();
+    const [coverUrl, setCoverUrl] = useState<string>();
+    const [templateIds, setTemplateIds] = useState<string[]>([]);
+    const [appliedTemplates, setAppliedTemplates] = useState<
+        Record<string, AssetDataTemplate>
+    >({});
+    const uploadStore = useUploadStore();
+    const workspaceId = destination?.workspaceId;
+    const workspace = useWorkspace(workspaceId);
+
+    const assetEditor = useAttributeEditor({
+        workspaceId,
+        target: AssetTypeFilter.Asset,
+    });
+    const storyEditor = useAttributeEditor({
+        workspaceId,
+        target: AssetTypeFilter.Story,
+    });
+
+    const privacyInfo = useQuery<CollectionPrivacyInfo>({
+        queryKey: ['collection-privacy', destination?.collectionId],
+        queryFn: () => getCollectionPrivacyInfo(destination!.collectionId!),
+        enabled: !!destination?.collectionId,
+    });
+
+    // Whether there is any template to offer
+    const templates = useQuery({
+        queryKey: [
+            'asset-data-templates',
+            workspaceId,
+            destination?.collectionId,
+            'any',
+        ],
+        queryFn: () =>
+            getAssetDataTemplates({
+                workspace: workspaceId!,
+                collection: destination?.collectionId,
+                limit: 1,
+            }),
+        enabled: !!workspaceId,
+    });
+
+    const {
+        getRootProps,
+        getInputProps,
+        isDragActive,
+        open: openFilePicker,
+    } = useDropzone({
+        onDrop: accepted => setFiles(prev => [...prev, ...accepted]),
+        noClick: true,
+        accept: toDropzoneAccept(config.upload.allowedTypes),
+    });
+
+    const urlList = useMemo(
+        () =>
+            urls
+                .split('\n')
+                .map(u => u.trim())
+                .filter(Boolean),
+        [urls]
+    );
+    const invalidUrls = urlList.filter(u => !/^https?:\/\/.+/.test(u));
+    // The first item is the cover until another one is chosen
+    const coverFileIndex = Math.max(
+        0,
+        coverFile ? files.indexOf(coverFile) : 0
+    );
+    const coverUrlIndex = Math.max(0, coverUrl ? urlList.indexOf(coverUrl) : 0);
+    const count =
+        source === 'files'
+            ? files.length
+            : source === 'urls'
+              ? urlList.length
+              : 0;
+    const canSubmit =
+        !!destination &&
+        (!isStory || !!storyTitle.trim()) &&
+        (source === 'none'
+            ? isStory || !!assetName.trim()
+            : count > 0 && invalidUrls.length === 0);
+
+    useEffect(() => {
+        if (privacyInfo.data && !privacyInfo.data.canEditAssetPrivacy) {
+            setPrivacy(undefined);
+        }
+    }, [privacyInfo.data]);
+
+    const applyStoryCover = async (storyAsset: Asset, cover?: Asset) => {
+        if (!cover) {
+            return;
+        }
+        try {
+            await setStoryCover(storyAsset.id, cover.id);
+        } catch (e: any) {
+            toast.error(
+                t('upload.story_cover_failed', 'Could not set the story cover'),
+                {description: e?.message}
+            );
+        }
+    };
+
+    const submit = async () => {
+        if (!destination) {
+            return false;
+        }
+        const attributes = indexToCreateActions(
+            assetEditor.attributes,
+            assetEditor.definitions
+        );
+        const storyAttributes = indexToCreateActions(
+            storyEditor.attributes,
+            storyEditor.definitions
+        );
+        const baseAsset = {
+            privacy,
+            tags: tags.map(id => iri(EntityName.Tag, id)),
+            attributes: attributes.length > 0 ? attributes : undefined,
+        };
+        const story = isStory
+            ? {
+                  name: storyTitle.trim(),
+                  tags: storyTags.map(id => iri(EntityName.Tag, id)),
+                  attributes:
+                      storyAttributes.length > 0 ? storyAttributes : undefined,
+              }
+            : undefined;
+
+        let created: Asset[] = [];
+        if (source === 'none') {
+            const destinationProps = destinationToAssetProps(destination.iri);
+            const asset = await postAsset(
+                story
+                    ? {isStory: true, ...story, ...destinationProps}
+                    : {
+                          ...baseAsset,
+                          name: assetName.trim(),
+                          ...destinationProps,
+                      },
+                {quiet}
+            );
+            created = story ? [] : [asset];
+            if (story) {
+                track(EventCategory.Story, StoryEvent.Create, {name: 'upload'});
+            } else {
+                track(EventCategory.Asset, AssetEvent.Create, {value: 1});
+            }
+            toast.success(
+                story
+                    ? t('upload.story_created', 'Story created')
+                    : t('upload.created', 'Asset created')
+            );
+        } else if (source === 'urls') {
+            created = await importAssetsFromUrls(
+                urlList.map(url => ({
+                    url,
+                    importFile: importFiles,
+                    asset: {
+                        ...baseAsset,
+                        name: extractNameFromUrl(url),
+                        ...destinationToAssetProps(destination.iri),
+                    },
+                })),
+                {quiet, story}
+            );
+            if (story) {
+                const [storyAsset, ...items] = created;
+                created = items;
+                await applyStoryCover(storyAsset, items[coverUrlIndex]);
+            }
+            track(EventCategory.Asset, AssetEvent.ImportUrls, {
+                name: story ? 'story' : undefined,
+                value: created.length,
+            });
+            toast.success(
+                t('upload.imported', '{{count}} assets imported', {
+                    count: created.length,
+                })
+            );
+        } else {
+            let destinationProps = destinationToAssetProps(destination.iri);
+            let storyAsset: Asset | undefined;
+            if (story) {
+                storyAsset = await postAsset(
+                    {isStory: true, ...story, ...destinationProps},
+                    {quiet}
+                );
+                destinationProps = {
+                    collection: storyAsset.storyCollection!['@id'],
+                };
+            }
+            const pending = files.map(file => ({id: uniqueId(), file}));
+            const coverPending = pending[coverFileIndex];
+            let coverAsset: Asset | undefined;
+            pending.forEach(p =>
+                uploadStore.add({id: p.id, file: p.file, progress: 0})
+            );
+            onOpenChange(false);
+            created = (
+                await runWithConcurrency(
+                    pending.map(p => async () => {
+                        try {
+                            const asset = await uploadAsset(
+                                p.file,
+                                {
+                                    ...baseAsset,
+                                    name: getAssetNameFromFile(p.file),
+                                    ...destinationProps,
+                                },
+                                {
+                                    quiet,
+                                    onProgress: pr =>
+                                        uploadStore.setProgress(
+                                            p.id,
+                                            pr.loaded / pr.total
+                                        ),
+                                }
+                            );
+                            uploadStore.setProgress(p.id, 1);
+                            if (p === coverPending) {
+                                coverAsset = asset;
+                            }
+
+                            return asset;
+                        } catch (e: any) {
+                            uploadStore.setError(p.id, e?.message ?? String(e));
+
+                            return undefined;
+                        }
+                    }),
+                    2
+                )
+            ).filter((a): a is Asset => !!a);
+            if (storyAsset) {
+                await applyStoryCover(storyAsset, coverAsset);
+            }
+            if (created.length > 0) {
+                track(EventCategory.Asset, AssetEvent.Upload, {
+                    name: story ? 'story' : undefined,
+                    value: created.length,
+                });
+                toast.success(
+                    t('upload.done', '{{count}} assets uploaded', {
+                        count: created.length,
+                    })
+                );
+            }
+        }
+        onUploaded?.(created);
+        void results?.reload();
+    };
+
+    return (
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            size="xl"
+            className="h-[90dvh]"
+            title={t('upload.title', 'Add assets')}
+            submitLabel={
+                source === 'none'
+                    ? isStory
+                        ? t('upload.create_story', 'Create the story')
+                        : t('upload.create_asset', 'Create the asset')
+                    : t('upload.submit', 'Upload {{count}} files', {
+                          count,
+                      })
+            }
+            submitIcon={source === 'none' ? <PlusIcon /> : <UploadCloudIcon />}
+            canSubmit={canSubmit}
+            dirty={files.length > 0 || !!urls || !!assetName || !!storyTitle}
+            onSubmit={submit}
+        >
+            <div className="grid gap-6 lg:grid-cols-2">
+                <div className="space-y-4">
+                    <Tabs
+                        value={source}
+                        onValueChange={v => setSource(v as Source)}
+                    >
+                        <TabsList>
+                            <TabsTrigger value="files">
+                                <UploadCloudIcon /> {t('upload.files', 'Files')}
+                                {files.length > 0 ? (
+                                    <Badge variant="muted">
+                                        {files.length}
+                                    </Badge>
+                                ) : null}
+                            </TabsTrigger>
+                            <TabsTrigger value="urls">
+                                <LinkIcon /> {t('upload.urls', 'URLs')}
+                                {urlList.length > 0 ? (
+                                    <Badge variant="muted">
+                                        {urlList.length}
+                                    </Badge>
+                                ) : null}
+                            </TabsTrigger>
+                            <TabsTrigger value="none">
+                                <SquareDashedIcon />{' '}
+                                {t('upload.no_file', 'No file')}
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                    {source === 'none' ? (
+                        <div className="space-y-3 rounded-lg border-2 border-dashed p-4">
+                            <p className="text-sm text-muted-foreground">
+                                {isStory
+                                    ? t(
+                                          'upload.no_file_story_help',
+                                          'The story is created empty: assets can be added to it later.'
+                                      )
+                                    : t(
+                                          'upload.no_file_help',
+                                          'The asset is created without any file: one can be attached later.'
+                                      )}
+                            </p>
+                            {!isStory ? (
+                                <FormRow
+                                    label={t(
+                                        'upload.asset_title',
+                                        'Asset title'
+                                    )}
+                                >
+                                    <Input
+                                        value={assetName}
+                                        onChange={e =>
+                                            setAssetName(e.target.value)
+                                        }
+                                        maxLength={255}
+                                        autoFocus
+                                        data-testid="upload-asset-title"
+                                    />
+                                </FormRow>
+                            ) : null}
+                        </div>
+                    ) : source === 'files' ? (
+                        <div
+                            {...getRootProps({
+                                className: cn(
+                                    'rounded-lg border-2 border-dashed p-4 transition-colors',
+                                    isDragActive &&
+                                        'border-primary bg-primary/5'
+                                ),
+                            })}
+                        >
+                            <input {...getInputProps()} />
+                            {files.length === 0 ? (
+                                <button
+                                    type="button"
+                                    className="flex w-full flex-col items-center gap-2 py-8 text-sm text-muted-foreground"
+                                    onClick={openFilePicker}
+                                >
+                                    <UploadCloudIcon className="size-8" />
+                                    {t(
+                                        'upload.drop_or_browse',
+                                        'Drop files here or click to browse'
+                                    )}
+                                </button>
+                            ) : (
+                                <>
+                                    <ul className="max-h-72 space-y-1 overflow-y-auto">
+                                        {files.map((f, i) => (
+                                            <FileRow
+                                                key={`${f.name}-${i}`}
+                                                file={f}
+                                                lang={i18n.language}
+                                                cover={
+                                                    isStory
+                                                        ? i === coverFileIndex
+                                                        : undefined
+                                                }
+                                                onSetCover={() =>
+                                                    setCoverFile(f)
+                                                }
+                                                onRemove={() =>
+                                                    setFiles(prev =>
+                                                        prev.filter(
+                                                            (_, j) => j !== i
+                                                        )
+                                                    )
+                                                }
+                                            />
+                                        ))}
+                                    </ul>
+                                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                                        <span>
+                                            {t(
+                                                'upload.file_count',
+                                                '{{count}} files',
+                                                {count: files.length}
+                                            )}
+                                        </span>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={openFilePicker}
+                                            >
+                                                {t(
+                                                    'upload.add_more',
+                                                    'Add more'
+                                                )}
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setFiles([])}
+                                            >
+                                                {t('common.reset', 'Reset')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            <Textarea
+                                value={urls}
+                                onChange={e => setUrls(e.target.value)}
+                                placeholder={
+                                    'https://example.com/image.jpg\nhttps://example.com/video.mp4'
+                                }
+                                className={cn(
+                                    'min-h-40 font-mono text-xs',
+                                    invalidUrls.length > 0 &&
+                                        'border-destructive'
+                                )}
+                                spellCheck={false}
+                            />
+                            {invalidUrls.length > 0 ? (
+                                <p className="text-xs text-destructive">
+                                    {t(
+                                        'upload.invalid_urls',
+                                        '{{count}} invalid URLs',
+                                        {count: invalidUrls.length}
+                                    )}
+                                </p>
+                            ) : null}
+                            <LabeledControl
+                                label={t(
+                                    'upload.import_files',
+                                    'Import the files',
+                                    {count: urlList.length}
+                                )}
+                                description={t(
+                                    'upload.import_files_help',
+                                    'Copy the file into the storage instead of referencing the remote URL.'
+                                )}
+                            >
+                                <Checkbox
+                                    checked={importFiles}
+                                    onCheckedChange={v =>
+                                        setImportFiles(v === true)
+                                    }
+                                />
+                            </LabeledControl>
+                        </div>
+                    )}
+                    <div>
+                        <p className="mb-1.5 text-sm font-medium">
+                            {t('upload.destination', 'Destination')}
+                        </p>
+                        <CollectionTreePicker
+                            value={destination}
+                            onChange={d => setDestination(d)}
+                            requireCapability="createAsset"
+                            allowCreate
+                            showSelection
+                        />
+                    </div>
+                    <LabeledControl
+                        label={t(
+                            'upload.quiet',
+                            'Quiet (no notification, no webhook)'
+                        )}
+                    >
+                        <Switch checked={quiet} onCheckedChange={setQuiet} />
+                    </LabeledControl>
+                </div>
+
+                <div className="space-y-4">
+                    {workspaceId &&
+                    templates.data &&
+                    templates.data.items.length > 0 ? (
+                        <AssetDataTemplateSelect
+                            workspaceId={workspaceId}
+                            collectionId={destination?.collectionId}
+                            value={templateIds}
+                            onChange={setTemplateIds}
+                            onApply={tpl => {
+                                setAppliedTemplates(prev => ({
+                                    ...prev,
+                                    [tpl.id]: tpl,
+                                }));
+                                if (
+                                    tpl.privacy !== undefined &&
+                                    tpl.privacy !== null
+                                ) {
+                                    setPrivacy(tpl.privacy);
+                                }
+                                if (tpl.tags) {
+                                    setTags(prev => [
+                                        ...new Set([
+                                            ...prev,
+                                            ...(tpl.tags as Tag[]).map(
+                                                tg => tg.id
+                                            ),
+                                        ]),
+                                    ]);
+                                }
+                                if (tpl.attributes) {
+                                    assetEditor.setAttributes(prev => {
+                                        const next = {...prev};
+                                        (tpl.attributes as any[]).forEach(a => {
+                                            const defId =
+                                                a.definition?.id ??
+                                                a.definitionId;
+                                            if (
+                                                !defId ||
+                                                !assetEditor.definitions[defId]
+                                            ) {
+                                                return;
+                                            }
+                                            const locale = a.locale ?? '_';
+                                            const v = {
+                                                id: `new-${uniqueId()}`,
+                                                value: a.value,
+                                            };
+                                            next[defId] = {
+                                                ...(next[defId] ?? {}),
+                                                [locale]: assetEditor
+                                                    .definitions[defId].multiple
+                                                    ? [
+                                                          ...(((next[defId]?.[
+                                                              locale
+                                                          ] as any[]) ??
+                                                              []) as any[]),
+                                                          v,
+                                                      ]
+                                                    : v,
+                                            };
+                                        });
+
+                                        return next;
+                                    });
+                                }
+                            }}
+                        />
+                    ) : null}
+                    <PrivacyField
+                        value={privacy}
+                        onChange={setPrivacy}
+                        allowUnset
+                        inheritedPrivacy={privacyInfo.data?.computedPrivacy}
+                        disabled={
+                            privacyInfo.data
+                                ? !privacyInfo.data.canEditAssetPrivacy
+                                : false
+                        }
+                    />
+                    <FormRow label={t('common.tags', 'Tags')}>
+                        <TagSelect
+                            multiple
+                            workspaceId={workspaceId}
+                            value={tags}
+                            onChange={setTags}
+                            disabled={!workspaceId}
+                        />
+                    </FormRow>
+                    <LabeledControl
+                        label={
+                            source === 'none'
+                                ? t('upload.as_empty_story', 'Create a story')
+                                : t(
+                                      'upload.as_story',
+                                      'Create a story with these files'
+                                  )
+                        }
+                    >
+                        <Switch
+                            checked={isStory}
+                            onCheckedChange={setIsStory}
+                        />
+                    </LabeledControl>
+                    {isStory ? (
+                        <div className="space-y-3 rounded-md border p-3">
+                            <FormRow
+                                label={t('upload.story_title', 'Story title')}
+                            >
+                                <Input
+                                    value={storyTitle}
+                                    onChange={e =>
+                                        setStoryTitle(e.target.value)
+                                    }
+                                />
+                            </FormRow>
+                            {source !== 'none' ? (
+                                <FormRow
+                                    label={t(
+                                        'upload.story_cover',
+                                        'Story cover'
+                                    )}
+                                >
+                                    <SimpleSelect
+                                        value={
+                                            count > 0
+                                                ? String(
+                                                      source === 'files'
+                                                          ? coverFileIndex
+                                                          : coverUrlIndex
+                                                  )
+                                                : undefined
+                                        }
+                                        onValueChange={v => {
+                                            const i = Number(v);
+                                            if (source === 'files') {
+                                                setCoverFile(files[i]);
+                                            } else {
+                                                setCoverUrl(urlList[i]);
+                                            }
+                                        }}
+                                        options={(source === 'files'
+                                            ? files.map(f => f.name)
+                                            : urlList
+                                        ).map((label, i) => ({
+                                            value: String(i),
+                                            label,
+                                        }))}
+                                        placeholder={t(
+                                            'upload.story_cover_empty',
+                                            'Add files to choose the cover'
+                                        )}
+                                        disabled={count === 0}
+                                    />
+                                </FormRow>
+                            ) : null}
+                            <FormRow
+                                label={t('upload.story_tags', 'Story tags')}
+                            >
+                                <TagSelect
+                                    multiple
+                                    workspaceId={workspaceId}
+                                    value={storyTags}
+                                    onChange={setStoryTags}
+                                    disabled={!workspaceId}
+                                />
+                            </FormRow>
+                            {workspaceId ? (
+                                <AttributesEditor
+                                    attributes={storyEditor.attributes}
+                                    hasMore={storyEditor.hasMore}
+                                    onLoadMore={storyEditor.loadMore}
+                                    loadingMore={storyEditor.loadingMore}
+                                    definitions={storyEditor.definitions}
+                                    onChange={storyEditor.onChange}
+                                    target={AssetTypeFilter.Story}
+                                    workspaceId={workspaceId}
+                                    workspaceLocales={workspace?.enabledLocales}
+                                />
+                            ) : null}
+                        </div>
+                    ) : null}
+                    <Accordion
+                        type="single"
+                        collapsible
+                        defaultValue="attributes"
+                    >
+                        <AccordionItem value="attributes">
+                            <AccordionTrigger>
+                                {t('upload.attributes', 'Attributes')}
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                {workspaceId ? (
+                                    <AttributesEditor
+                                        attributes={assetEditor.attributes}
+                                        hasMore={assetEditor.hasMore}
+                                        onLoadMore={assetEditor.loadMore}
+                                        loadingMore={assetEditor.loadingMore}
+                                        definitions={assetEditor.definitions}
+                                        onChange={assetEditor.onChange}
+                                        target={AssetTypeFilter.Asset}
+                                        workspaceId={workspaceId}
+                                        workspaceLocales={
+                                            workspace?.enabledLocales
+                                        }
+                                    />
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">
+                                        {t(
+                                            'upload.select_destination_first',
+                                            'Select a destination to edit attributes.'
+                                        )}
+                                    </p>
+                                )}
+                            </AccordionContent>
+                        </AccordionItem>
+                        {workspaceId ? (
+                            <AccordionItem value="template">
+                                <AccordionTrigger>
+                                    {t(
+                                        'upload.save_as_template',
+                                        'Save as template'
+                                    )}
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <SaveAsTemplateSection
+                                        workspaceId={workspaceId}
+                                        collectionId={destination?.collectionId}
+                                        privacy={privacy}
+                                        tags={tags}
+                                        attributes={indexToCreateActions(
+                                            assetEditor.attributes,
+                                            assetEditor.definitions
+                                        )}
+                                        appliedTemplate={
+                                            templateIds.length === 1
+                                                ? appliedTemplates[
+                                                      templateIds[0]
+                                                  ]
+                                                : undefined
+                                        }
+                                        onSaved={() =>
+                                            queryClient.invalidateQueries({
+                                                queryKey: [
+                                                    'asset-data-templates',
+                                                ],
+                                            })
+                                        }
+                                    />
+                                </AccordionContent>
+                            </AccordionItem>
+                        ) : null}
+                    </Accordion>
+                </div>
+            </div>
+        </FormDialog>
+    );
+}
+
+function FileRow({
+    file,
+    lang,
+    cover,
+    onSetCover,
+    onRemove,
+}: {
+    file: File;
+    lang: string;
+    /** Whether the file is the story cover, undefined when no story is created */
+    cover?: boolean;
+    onSetCover: () => void;
+    onRemove: () => void;
+}) {
+    const {t} = useTranslation();
+    const [preview, setPreview] = useState<string>();
+    useEffect(() => {
+        if (!file.type.startsWith('image/')) {
+            return;
+        }
+        const url = URL.createObjectURL(file);
+        setPreview(url);
+
+        return () => URL.revokeObjectURL(url);
+    }, [file]);
+
+    return (
+        <li className="flex items-center gap-2 rounded-md border bg-card px-2 py-1.5 text-sm">
+            <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded bg-media-bg">
+                {preview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                        src={preview}
+                        alt=""
+                        className="size-full object-cover"
+                    />
+                ) : (
+                    <FileIcon className="size-4 text-muted-foreground" />
+                )}
+            </span>
+            <span className="min-w-0 flex-1 truncate" title={file.name}>
+                {file.name}
+            </span>
+            <span className="text-xs text-muted-foreground">
+                {file.type || '—'}
+            </span>
+            <span className="text-xs text-muted-foreground">
+                {formatFileSize(file.size, true, lang)}
+            </span>
+            {cover ? (
+                <Badge data-testid="upload-story-cover">
+                    {t('upload.cover', 'Cover')}
+                </Badge>
+            ) : cover === false ? (
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={onSetCover}
+                    title={t('upload.set_as_cover', 'Use as story cover')}
+                    aria-label={t('upload.set_as_cover', 'Use as story cover')}
+                >
+                    <ImageIcon />
+                </Button>
+            ) : null}
+            <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={onRemove}
+                aria-label="Remove"
+            >
+                <XIcon />
+            </Button>
+        </li>
+    );
+}

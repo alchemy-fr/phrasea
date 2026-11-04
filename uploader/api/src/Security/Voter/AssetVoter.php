@@ -9,6 +9,7 @@ use App\Entity\Asset;
 use App\Security\Authentication\AssetToken;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class AssetVoter extends Voter
@@ -30,7 +31,7 @@ class AssetVoter extends Voter
      * @param AssetToken $token
      * @param Asset      $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (null === $subject->getToken()) {
             return false;

@@ -1,0 +1,16 @@
+download:
+    link:
+        email:
+            action: 'Download'
+            subject: 'Your download is ready'
+            body: '<p>Your download is ready.</p><p>This link is valid for a limited time.</p>'
+        sms:
+            body: 'Your download is ready: %url%'
+    archive_link:
+        email:
+            action: 'Download the archive'
+            subject: 'Your archive is ready'
+            body: '<p>Your archive is ready to download.</p>'
+            validity: 'This link is valid for %count% day.|This link is valid for %count% days.'
+        sms:
+            body: 'Your archive is ready (%count% day): %url%|Your archive is ready (%count% days): %url%'

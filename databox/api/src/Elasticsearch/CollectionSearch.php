@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use ApiPlatform\Metadata\Operation;
+use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Core\Collection;
 use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
@@ -28,39 +30,62 @@ class CollectionSearch extends AbstractSearch
         ?string $userId,
         array $groupIds,
         array $options = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $maxLimit = 50;
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
 
         $filterQuery = new Query\BoolQuery();
         $this->applyFilters($filterQuery, $userId, $groupIds, $options);
 
+        $searchQuery = new SearchQuery($filterQuery);
+        $this->applyParameters($searchQuery, Collection::class, $operation, $options);
+
         $query = new Query();
         $query->setQuery($filterQuery);
         $query->setTrackTotalHits();
-        $query->setSort([
+        $query->setSort($searchQuery->hasSort() ? $searchQuery->getSort() : [
             'sortName' => ['order' => 'asc'],
         ]);
 
         if (!empty($options['query'])) {
+            $parsed = $this->queryStringParser->parseQuery((string) $options['query']);
+            $partialMatch = new Query\MultiMatch();
+            $partialMatch->setQuery(implode(' ', [$parsed['should'], ...$parsed['must']]));
+            $partialMatch->setFields(['name.suggest', 'translatedNames.suggest']);
+            $partialHighlightQuery = $partialMatch->toArray();
+
             $query->setHighlight([
                 'pre_tags' => ['[hl]'],
                 'post_tags' => ['[/hl]'],
                 'fields' => [
+                    // Only the typed part of the words, from the edge n-grams of the name
+                    // (see CollectionOutputMapper::getNameHighlight())
+                    'name.suggest' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 1,
+                        'highlight_query' => $partialHighlightQuery,
+                    ],
+                    'translatedNames.suggest' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 0,
+                        'highlight_query' => $partialHighlightQuery,
+                    ],
                     'name' => [
                         'fragment_size' => 255,
                         'number_of_fragments' => 1,
+                    ],
+                    // one fragment per matching translation, to pick the one of the displayed name
+                    'translatedNames' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 0,
                     ],
                 ],
             ]);
         }
 
         $data = $this->finder->findPaginated($query);
-        $data->setMaxPerPage((int) $limit);
-        $data->setCurrentPage((int) ($options['page'] ?? 1));
+        self::applyPagination($data, $options, $maxLimit);
+        $this->executeSearch($data->getCurrentPageResults(...));
 
         return $data;
     }
@@ -73,17 +98,18 @@ class CollectionSearch extends AbstractSearch
     ): void {
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
 
-        $queryString = trim($options['query'] ?? '');
+        $queryString = trim((string) ($options['query'] ?? ''));
         $parsed = $this->queryStringParser->parseQuery($queryString);
-        $deep = $options['deep'] ?? !empty($queryString);
+        // "deep" is a boolean parameter on the API; callers from PHP may pass any truthy/falsy value
+        $deep = filter_var($options['deep'] ?? !empty($queryString), FILTER_VALIDATE_BOOLEAN);
 
         if (!empty($parsed['should'])) {
             $searchBool = new Query\BoolQuery();
-            $searchBool->addShould(new Query\MatchQuery('name', $parsed['should']));
+            $searchBool->addShould(self::createNameMatch($parsed['should']));
             $boolQuery->addMust($searchBool);
         }
         foreach ($parsed['must'] as $must) {
-            $boolQuery->addMust(new Query\MatchQuery('name', $must));
+            $boolQuery->addMust(self::createNameMatch($must));
         }
 
         $includeDeleted = false;
@@ -113,8 +139,8 @@ class CollectionSearch extends AbstractSearch
             $options['parents'] = [$options['parent']];
         }
 
-        if (!empty($options['parents'])) {
-            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
+        if (!empty($parentIds = self::toIdList($options['parents'] ?? null))) {
+            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $parentIds);
             $parentsBoolQuery = new Query\BoolQuery();
             array_map(function (Collection $parentCollection) use ($parentsBoolQuery, $deep): void {
                 $q = new Query\BoolQuery();
@@ -129,15 +155,29 @@ class CollectionSearch extends AbstractSearch
             }, $parentCollections);
 
             $boolQuery->addFilter($parentsBoolQuery);
-        } else {
+        } elseif (!$deep) {
             $boolQuery->addFilter(new Query\Term(['pathDepth' => 0]));
         }
 
-        if (isset($options['workspaces'])) {
+        if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
             $boolQuery->addFilter(
-                new Query\Terms('workspaceId', $options['workspaces'])
+                new Query\Terms('workspaceId', $workspaceIds)
             );
         }
+    }
+
+    /**
+     * Matches the name or any of its translations, the last word being a prefix (search-as-you-type).
+     */
+    private static function createNameMatch(string $text): Query\MultiMatch
+    {
+        $match = new Query\MultiMatch();
+        $match->setQuery($text);
+        $match->setType(Query\MultiMatch::TYPE_BOOL_PREFIX);
+        $match->setOperator(Query\MultiMatch::OPERATOR_AND);
+        $match->setFields(['name', 'translatedNames']);
+
+        return $match;
     }
 
     protected function getAdminScope(): ?string

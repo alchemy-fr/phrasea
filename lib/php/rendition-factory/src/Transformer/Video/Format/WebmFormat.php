@@ -5,9 +5,13 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use FFMpeg\Format\Video\WebM;
 use FFMpeg\Format\VideoInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::FORMAT)]
 class WebmFormat implements FormatInterface
 {
+    public const string FORMAT = 'video-webm';
+
     private VideoInterface $format;
 
     public function __construct()
@@ -27,7 +31,7 @@ class WebmFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'video-webm';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

@@ -1,0 +1,76 @@
+{
+    "databox": {
+        "url": "%env(DATABOX_API_URL)%",
+        "clientId": "%env(DATABOX_CLIENT_ID)%",
+        "clientSecret": "%env(DATABOX_CLIENT_SECRET)%",
+        "ownerId": "%env(DATABOX_OWNER_ID)%",
+        "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%",
+        "concurrency": "%env(int:DATABOX_CONCURRENCY)%"
+    },
+    "whitelist": ["\\.(jpe?g|png|txt)$"],
+    "blacklist": ["(^|/)\\..+$"],
+    "alternateUrls": [
+        {
+            "name": "global",
+            "pathPattern": "global://${path}"
+        }
+    ],
+    "locations": [
+        {
+            "name": "fs_test",
+            "type": "fs",
+            "options": {
+                "dir": "%env(WATCH_DIR)%",
+                "dirPrefix": "%env(WATCH_DIR_PREFIX)%",
+                "sourceDir": "%env(WATCH_SOURCE_DIR)%",
+                "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%",
+                "createNewWorkspace": true
+            },
+            "alternateUrls": [
+                {
+                    "name": "indexer",
+                    "pathPattern": "indexer://${sourcePath}"
+                }
+            ]
+        },
+        {
+            "name": "s3_test",
+            "type": "s3_amqp",
+            "options": {
+                "amqp": {
+                    "dsn": "%env(AMQP_DSN)%"
+                },
+                "s3": {
+                    "endpoint": "%env(S3_ENDPOINT)%",
+                    "bucketNames": "%env(BUCKET_NAMES)%",
+                    "accessKey": "%env(S3_ACCESS_KEY)%",
+                    "secretKey": "%env(S3_SECRET_KEY)%"
+                },
+                "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
+            }
+        },
+        {
+            "name": "fs_served",
+            "type": "fs",
+            "options": {
+                "dir": "%env(SERVED_DIR)%",
+                "dirPrefix": "served",
+                "workspaceSlug": "served-ws"
+            }
+        },
+        {
+            "name": "unset_test",
+            "type": "fs",
+            "options": {
+                "dir": "/unset",
+                "emptyEnv": "%env(AN_ENV_VAR_THAT_IS_NOT_SET)%",
+                "zeroInt": "%env(int:ZERO_INT)%",
+                "falsyBool": "%env(bool:FALSY_BOOL)%",
+                "nested": {
+                    "list": ["%env(WATCH_DIR_PREFIX)%", "literal", 42, true]
+                },
+                "workspaceSlug": "unset-ws"
+            }
+        }
+    ]
+}

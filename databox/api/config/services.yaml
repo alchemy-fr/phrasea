@@ -6,6 +6,8 @@
 parameters:
     default_locale: 'en'
     env(VERIFY_SSL): true
+    # Above it, an import of assets must use the NDJSON format (read line by line)
+    env(ASSET_IMPORT_JSON_MAX_SIZE): '52428800'
     stof_doctrine_extensions.listener.softdeleteable.class: App\Doctrine\Listener\SoftDeleteableListener
 
 services:
@@ -15,7 +17,6 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             string $defaultLocale: '%default_locale%'
-            string $zippyBaseUrl: '%env(ZIPPY_URL)%'
             string $databoxBaseUrl: '%env(DATABOX_API_URL)%'
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
             string $matomoSiteId: '%env(MATOMO_SITE_ID)%'
@@ -24,9 +25,10 @@ services:
             ApiPlatform\State\ProviderInterface $collectionProvider: '@api_platform.doctrine.orm.state.collection_provider'
             bool $useAlias: '%elastica.use_alias%'
             string $kernelEnv: '%kernel.environment%'
+            string $redisDsn: '%env(REDIS_URL)%'
             Elastica\Index $assetIndex: '@fos_elastica.index.asset'
             Elastica\Index $collectionIndex: '@fos_elastica.index.collection'
-            Elastica\Index $attributeIndex: '@fos_elastica.index.attribute'
+            Elastica\Index $attributeEntityIndex: '@fos_elastica.index.attribute_entity'
 
     _instanceof:
         Alchemy\Workflow\Executor\Action\ActionInterface:
@@ -42,6 +44,9 @@ services:
         Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface:
             tags:
                 - name: !php/const Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface::TAG
+        Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface:
+            tags:
+                - name: !php/const Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface::TAG
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -53,7 +58,6 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'
             - '../src/Api/Model/'
-            - '../src/Serializer/' # Should be explicitly declared
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -80,12 +84,6 @@ services:
             - ~ # options
         calls:
             - [setPropertyAccessor, ['@fos_elastica.property_accessor']]
-
-    hydra_meta.normalizer:
-        class:  App\Serializer\HydraMetaNormalizer
-        public: true
-
-    App\Serializer\Normalizer\OperationTaskNormalizer: ~
 
     App\Api\Serializer\GroupNormalizerContextBuilder:
         decorates: 'alchemy_webhook.normalizer.context_builder'
@@ -120,3 +118,28 @@ services:
     App\Validator\ValidRenditionDefinitionConstraintValidator: ~
 
     Alchemy\CoreBundle\Documentation\ApiDocumentationGenerator: ~
+
+when@test:
+    services:
+        # Object storage is not reachable from the test runner: store files locally.
+        test.storage.local_adapter:
+            class: League\Flysystem\Local\LocalFilesystemAdapter
+            arguments:
+                - '%kernel.cache_dir%/storage'
+
+        test.storage.local_filesystem:
+            class: League\Flysystem\Filesystem
+            arguments:
+                - '@test.storage.local_adapter'
+
+        Alchemy\StorageBundle\Storage\FileStorageManager:
+            arguments:
+                $filesystem: '@test.storage.local_filesystem'
+
+        # The API container only receives the public key, but tests encrypt and
+        # decrypt in the same process: use a test-only key pair.
+        App\Security\Secrets\SecretsManager:
+            autowire: true
+            arguments:
+                $publicKey: 'Tj67E7MRejEITBQBsU5nV42RoZeQV4z1LcsdG11InEs='
+                $secretKey: 'JXeTGRSzXJNwKx6TCxSo/3f38CwuVN08hnHPxD8VSpQ='

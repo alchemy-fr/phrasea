@@ -11,8 +11,13 @@ use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
+use App\Security\Voter\AbstractVoter;
+use App\Service\Image\ImageSetManager;
 use Ramsey\Uuid\Uuid;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 final class EntityAttributeType extends TextAttributeType
 {
     use UserLocaleTrait;
@@ -21,6 +26,8 @@ final class EntityAttributeType extends TextAttributeType
 
     public function __construct(
         private readonly AttributeEntityRepository $repository,
+        private readonly Security $security,
+        private readonly ImageSetManager $imageSetManager,
     ) {
     }
 
@@ -33,6 +40,10 @@ final class EntityAttributeType extends TextAttributeType
     #[\Override]
     public function validate(mixed $value): ?array
     {
+        // The denormalized form (see denormalizeValue) carries the ID
+        if (\is_array($value)) {
+            $value = $value['id'] ?? null;
+        }
         if (!is_string($value) || !Uuid::isValid($value)) {
             return ['Invalid entity ID'];
         }
@@ -100,6 +111,7 @@ final class EntityAttributeType extends TextAttributeType
     public function normalizeBuckets(array $buckets): array
     {
         $entities = DoctrineUtil::getIndexFromIds($this->repository, array_map(fn ($b) => $b['key'], $buckets));
+        $this->imageSetManager->preload(array_map(fn (AttributeEntity $entity) => $entity->getImage(), array_values($entities)));
 
         return array_map(function (array $bucket) use ($entities): ?array {
             $entity = $entities[$bucket['key']] ?? null;
@@ -124,12 +136,24 @@ final class EntityAttributeType extends TextAttributeType
 
     private function normalizeEntity(AttributeEntity $entity): array
     {
+        $canSeeValue = $this->canSeeValue($entity);
+
         return [
             'id' => $entity->getId(),
-            'value' => $entity->isApproved() ? $this->getTranslatedValue($entity) : null,
+            'value' => $canSeeValue ? $this->getTranslatedValue($entity) : null,
+            'note' => $entity->getNote(),
             'emoji' => $entity->getEmoji(),
             'color' => $entity->getColor(),
+            'thumbnail' => $canSeeValue ? $this->imageSetManager->resolveThumbnailUrl($entity->getImage()) : null,
         ];
+    }
+
+    /**
+     * A pending value is only shown to whoever may edit it: the managers of the list and its creator.
+     */
+    private function canSeeValue(AttributeEntity $entity): bool
+    {
+        return $entity->isApproved() || $this->security->isGranted(AbstractVoter::EDIT, $entity);
     }
 
     protected function getTranslatedValue(AttributeEntity $entity, ?string $locale = null): ?string
@@ -156,7 +180,33 @@ final class EntityAttributeType extends TextAttributeType
         return parent::convertToDbValue($value);
     }
 
-    private function getEntityFromValue(?string $value): ?AttributeEntity
+    /**
+     * Labels of the entity for the search suggestions: for each locale, the translation
+     * (LocaleUtil::getBestLocale() rules) falling back to the base value. It does not depend on
+     * the user locale, so it can run at index time.
+     *
+     * @param string[] $locales
+     *
+     * @return array<string, string> locale => label, empty when the entity is not approved
+     */
+    public function getSuggestionLabels(AttributeEntity $entity, array $locales): array
+    {
+        if (!$entity->isApproved()) {
+            return [];
+        }
+
+        $labels = [];
+        foreach ($locales as $locale) {
+            $label = $this->getTranslatedValue($entity, $locale);
+            if (null !== $label && '' !== $label) {
+                $labels[$locale] = $label;
+            }
+        }
+
+        return $labels;
+    }
+
+    public function getEntityFromValue(?string $value): ?AttributeEntity
     {
         if (null === $value) {
             return null;

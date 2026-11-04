@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class RunContext
 {
     private ProgressBar $progressBar;
+    private bool $completionDeferred = false;
 
     public function __construct(
         private OperationTask $taskEntity,
@@ -20,6 +21,25 @@ final class RunContext
         private OutputInterface $progressBarOutput,
     ) {
         $this->progressBar = new ProgressBar($this->progressBarOutput);
+    }
+
+    public function getTaskId(): string
+    {
+        return $this->taskEntity->getId();
+    }
+
+    /**
+     * Signal that the task fans out its work over asynchronous sub-messages:
+     * the manager must not mark it COMPLETED, its sub-messages will.
+     */
+    public function deferCompletion(): void
+    {
+        $this->completionDeferred = true;
+    }
+
+    public function isCompletionDeferred(): bool
+    {
+        return $this->completionDeferred;
     }
 
     public function start(int $total): void

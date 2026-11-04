@@ -1,0 +1,51 @@
+/* Mapbox popups follow the app theme. Unlayered and scoped by `.dbx-map`:
+   wins over both the Tailwind layers and the Mapbox stylesheet. */
+.dbx-map .mapboxgl-popup {
+    z-index: 10;
+}
+
+.dbx-map .mapboxgl-popup-content {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.2);
+    font: inherit;
+}
+
+.dbx-map .mapboxgl-popup-close-button {
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: calc(var(--radius) - 2px);
+    color: var(--muted-foreground);
+    font-size: 1.125rem;
+    line-height: 1;
+}
+
+.dbx-map .mapboxgl-popup-close-button:hover {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.dbx-map .mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+.dbx-map .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+.dbx-map .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+    border-bottom-color: var(--popover);
+}
+
+.dbx-map .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+.dbx-map .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+.dbx-map .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+    border-top-color: var(--popover);
+}
+
+.dbx-map .mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+    border-right-color: var(--popover);
+}
+
+.dbx-map .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+    border-left-color: var(--popover);
+}

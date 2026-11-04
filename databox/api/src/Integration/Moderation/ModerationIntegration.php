@@ -8,21 +8,29 @@ use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Email;
 
+#[AsTaggedItem(index: self::NAME)]
 class ModerationIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'core.moderation';
+
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
             ->arrayNode('emails')
                 ->isRequired()
-                ->scalarPrototype()->end()
+                ->scalarPrototype()
+                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Email->value)
+                ->end()
                 ->info('People to notify when new asset comes in')
             ->end()
         ;
@@ -60,8 +68,16 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
         return 'Moderation';
     }
 
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Automation,
+            IntegrationCategory::Ingest,
+        ];
+    }
+
     public static function getName(): string
     {
-        return 'core.moderation';
+        return self::NAME;
     }
 }

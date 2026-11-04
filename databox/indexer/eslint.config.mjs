@@ -5,6 +5,7 @@ import tseslint from 'typescript-eslint';
 import {reactRefresh} from 'eslint-plugin-react-refresh';
 
 export default defineConfig(
+    {ignores: ['config/**']},
     /* Main config */
     reactRefresh.configs.recommended(),
     eslint.configs.recommended,

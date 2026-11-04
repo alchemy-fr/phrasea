@@ -26,16 +26,14 @@ export default function App({}: Props) {
         EXPOSE_CLIENT_URL,
         UPLOADER_CLIENT_URL,
         STACK_NAME,
-        DEV_MODE,
         STACK_VERSION,
         PGADMIN_URL,
-        ELASTICHQ_URL,
-        MAILHOG_URL,
+        MAILPIT_URL,
         MATOMO_URL,
         PHPMYADMIN_URL,
         RABBITMQ_CONSOLE_URL,
         TRAEFIK_CONSOLE_URL,
-        SOKETI_USAGE_URL,
+        SOCKUDO_USAGE_URL,
     } = config.env;
 
     const roles = user?.roles ?? [];
@@ -65,7 +63,7 @@ export default function App({}: Props) {
                 ) : null}
             </Box>
 
-            {user && isLarge && DEV_MODE && (
+            {user && isLarge && config.devMode && (
                 <Alert
                     sx={{
                         mt: 2,
@@ -177,25 +175,14 @@ export default function App({}: Props) {
                             </Link>
                         </Grid>
                     )}
-                    {ELASTICHQ_URL && (
+                    {MAILPIT_URL && (
                         <Grid>
                             <Link
-                                href={ELASTICHQ_URL}
+                                href={MAILPIT_URL}
                                 target={'_blank'}
                                 rel={'noreferrer noopener'}
                             >
-                                ElasticHQ
-                            </Link>
-                        </Grid>
-                    )}
-                    {MAILHOG_URL && (
-                        <Grid>
-                            <Link
-                                href={MAILHOG_URL}
-                                target={'_blank'}
-                                rel={'noreferrer noopener'}
-                            >
-                                MailHog
+                                Mailpit
                             </Link>
                         </Grid>
                     )}
@@ -232,14 +219,14 @@ export default function App({}: Props) {
                             </Link>
                         </Grid>
                     )}
-                    {SOKETI_USAGE_URL && (
+                    {SOCKUDO_USAGE_URL && (
                         <Grid>
                             <Link
-                                href={SOKETI_USAGE_URL}
+                                href={SOCKUDO_USAGE_URL}
                                 target={'_blank'}
                                 rel={'noreferrer noopener'}
                             >
-                                Soketi Usage
+                                Sockudo Usage
                             </Link>
                         </Grid>
                     )}

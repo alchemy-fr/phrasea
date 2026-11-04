@@ -11,7 +11,7 @@ final readonly class AttributeEntityDelete
 {
     public function __construct(
         private string $id,
-        private string $typeId,
+        private string $listId,
         private string $workspaceId,
     ) {
     }
@@ -21,9 +21,9 @@ final readonly class AttributeEntityDelete
         return $this->id;
     }
 
-    public function getTypeId(): string
+    public function getListId(): string
     {
-        return $this->typeId;
+        return $this->listId;
     }
 
     public function getWorkspaceId(): string

@@ -33,10 +33,6 @@ class JwtOauthClient implements JwtInterface
         return $this->clientId;
     }
 
-    public function eraseCredentials(): void
-    {
-    }
-
     public function getJwt(): string
     {
         return $this->jwt;

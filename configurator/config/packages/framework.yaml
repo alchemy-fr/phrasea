@@ -28,9 +28,6 @@ framework:
             rabbitmq.client:
                 base_uri: '%env(RABBITMQ_CONSOLE_URL)%/api/'
                 auth_basic: '%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%'
-            minio.client:
-                base_uri: '%env(MINIO_CONSOLE_URL)%/api/v1/'
-                auth_basic: '%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%'
 
     php_errors:
         log: true

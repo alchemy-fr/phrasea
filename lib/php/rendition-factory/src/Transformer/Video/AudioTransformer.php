@@ -25,8 +25,9 @@ class AudioTransformer
         if (!method_exists($commonArgs->getOutputFormat(), 'getFFMpegFormat')) {
             throw new \InvalidArgumentException(sprintf('format %s does not declare FFMpeg format', $format));
         }
+        // The output formats are shared services: the settings below must not leak to the next renditions
         /** @var FFMpegFormatInterface $FFMpegFormat */
-        $FFMpegFormat = $commonArgs->getOutputFormat()->getFFMpegFormat();
+        $FFMpegFormat = clone $commonArgs->getOutputFormat()->getFFMpegFormat();
 
         /** @var Audio $audio */
         $audio = $commonArgs->getFFMpeg()->open($inputFile->getPath());
@@ -34,6 +35,11 @@ class AudioTransformer
         $resolverContext = $transformationContext->getTemplatingContext();
 
         if ($audioCodec = $this->optionsResolver->resolveOption($options['audio_codec'] ?? null, $resolverContext)) {
+            $normalizedCodec = AudioCodecNormalizer::normalize($audioCodec);
+            if ($normalizedCodec !== $audioCodec) {
+                $transformationContext->log(sprintf('Audio codec "%s" is not available, using "%s"', $audioCodec, $normalizedCodec));
+                $audioCodec = $normalizedCodec;
+            }
             if (!in_array($audioCodec, $FFMpegFormat->getAvailableAudioCodecs())) {
                 throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }

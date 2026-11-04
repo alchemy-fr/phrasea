@@ -6,19 +6,24 @@ namespace App\Integration\ToastUi;
 
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\FileUserActionsTrait;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
 use App\Integration\PusherTrait;
 use App\Integration\UserActionsIntegrationInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+#[AsTaggedItem(index: self::NAME)]
 class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
     use PusherTrait;
     use FileUserActionsTrait;
+
+    public const string NAME = 'tui.photo-editor';
 
     private const string ACTION_SAVE = 'save';
     private const string ACTION_DELETE = 'delete';
@@ -69,12 +74,19 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActio
 
     public static function getName(): string
     {
-        return 'tui.photo-editor';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string
     {
         return 'Toast UI Photo Editor';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Editor,
+        ];
     }
 
     #[\Override]

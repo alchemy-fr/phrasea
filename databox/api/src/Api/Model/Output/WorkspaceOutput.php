@@ -13,7 +13,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class WorkspaceOutput extends AbstractUuidOutput
 {
@@ -81,6 +81,36 @@ class WorkspaceOutput extends AbstractUuidOutput
 
     #[Groups([Workspace::GROUP_READ])]
     public ?UserOutput $owner = null;
+
+    #[Groups([Workspace::GROUP_READ])]
+    public ?WorkspaceTermsOutput $terms = null;
+
+    /**
+     * Whether the current user still has to sign the workspace
+     * Terms & Conditions to access its content.
+     */
+    #[Groups([
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+    ])]
+    public ?bool $termsUnsigned = null;
+
+    #[Groups([
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+    ])]
+    public ?string $logo = null;
+
+    /**
+     * Whether the workspace computes the embeddings its assets are
+     * searched by visual similarity with (`@similar`).
+     */
+    #[Groups([
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+        Asset::GROUP_LIST,
+    ])]
+    public ?bool $similarity = null;
 
     public function getName(): string
     {

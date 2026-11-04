@@ -1,5 +1,9 @@
 import {IndexIterator} from '../../indexers';
-import {createAsset, createS3ClientFromConfig} from './shared';
+import {
+    createAsset,
+    createS3ClientFromConfig,
+    parseBucketNames,
+} from './shared';
 import {S3AmqpConfig} from './types';
 import {streamify} from '../../lib/streamify';
 import {getStrict} from '../../configLoader';
@@ -15,7 +19,7 @@ export const s3AmqpIterator: IndexIterator<S3AmqpConfig> = async function* (
         getStrict('workspaceSlug', config)
     );
 
-    const buckets = config.s3.bucketNames.split(',');
+    const buckets = parseBucketNames(config.s3.bucketNames);
 
     for (const bucket of buckets) {
         logger.info(`Start Indexing S3 bucket "${bucket}"`);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Client;
 
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -16,8 +17,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class KeycloakClient
 {
     public function __construct(
+        #[Target]
         private HttpClientInterface $keycloakClient,
         private KeycloakUrlGenerator $urlGenerator,
+        #[Target]
         private CacheInterface $keycloakRealmCache,
         private string $clientId,
         private string $clientSecret,
@@ -92,9 +95,10 @@ final readonly class KeycloakClient
         }
 
         $users = $this->getUsers($accessToken, [
-            'limit' => 1,
             'query' => [
                 'username' => $data['username'],
+                'exact' => 'true',
+                'max' => 1,
             ],
         ]);
 
@@ -150,6 +154,30 @@ final readonly class KeycloakClient
         return $indexedUsers;
     }
 
+    /**
+     * Effective realm roles of the user (composites and group roles included).
+     */
+    public function getUserEffectiveRealmRoles(string $accessToken, string $userId): array
+    {
+        return $this->get(sprintf('%s/%s/role-mappings/realm/composite', $this->urlGenerator->getUsersApiUrl(), $userId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'true',
+            ],
+        ]);
+    }
+
+    public function getUserGroups(string $accessToken, string $userId): array
+    {
+        return $this->get(sprintf('%s/%s/groups', $this->urlGenerator->getUsersApiUrl(), $userId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'true',
+                'max' => 1000,
+            ],
+        ]);
+    }
+
     public function getGroups(string $accessToken, array $options = []): array
     {
         return $this->get($this->urlGenerator->getGroupsApiUrl(), [
@@ -173,6 +201,21 @@ final readonly class KeycloakClient
 
             throw $e;
         }
+    }
+
+    /**
+     * Direct members of the group (not the members of its subgroups).
+     */
+    public function getGroupMembers(string $accessToken, string $groupId, int $first, int $max): array
+    {
+        return $this->get(sprintf('%s/%s/members', $this->urlGenerator->getGroupsApiUrl(), $groupId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'true',
+                'first' => $first,
+                'max' => $max,
+            ],
+        ]);
     }
 
     private function get(string $path, array $options = []): array
@@ -200,16 +243,6 @@ final readonly class KeycloakClient
         if (isset($options['access_token'])) {
             $requestOptions['headers'] ??= [];
             $requestOptions['headers']['Authorization'] = 'Bearer '.$options['access_token'];
-        }
-
-        foreach ([
-            'limit',
-            'offset',
-        ] as $key) {
-            if (isset($options[$key])) {
-                $requestOptions['query'] ??= [];
-                $requestOptions['query'][$key] = $options[$key];
-            }
         }
 
         return $requestOptions;

@@ -5,9 +5,13 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use FFMpeg\Format\Audio\Mp3;
 use FFMpeg\Format\AudioInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::FORMAT)]
 class Mp3Format implements FormatInterface
 {
+    public const string FORMAT = 'audio-mp3';
+
     private AudioInterface $format;
 
     public function __construct()
@@ -27,7 +31,7 @@ class Mp3Format implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'audio-mp3';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

@@ -1,0 +1,68 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Elasticsearch\BuiltInAttribute;
+
+use App\Attribute\Type\PrivacyAttributeType;
+use App\Entity\Core\Asset;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+#[AsTaggedItem(index: self::KEY)]
+final class PrivacyBuiltInAttribute extends AbstractLabelledBuiltInAttribute
+{
+    public const string KEY = '@privacy';
+
+    public function __construct(private readonly TranslatorInterface $translator)
+    {
+    }
+
+    /**
+     * @param int $value
+     */
+    #[\Override]
+    public function resolveLabel($value): string
+    {
+        return $this->translator->trans(sprintf('privacy.%s', WorkspaceItemPrivacyInterface::KEYS[$value]));
+    }
+
+    #[\Override]
+    public function getType(): string
+    {
+        return PrivacyAttributeType::NAME;
+    }
+
+    #[\Override]
+    protected function resolveKey($value): string
+    {
+        return (string) $value;
+    }
+
+    public static function getName(): string
+    {
+        return 'privacy';
+    }
+
+    public static function getKey(): string
+    {
+        return self::KEY;
+    }
+
+    public function getValueFromAsset(Asset $asset): mixed
+    {
+        return $asset->getPrivacy();
+    }
+
+    protected function getAggregationTranslationKey(): string
+    {
+        return 'privacy';
+    }
+
+    #[\Override]
+    protected function getAggregationSize(): int
+    {
+        return count(WorkspaceItemPrivacyInterface::KEYS);
+    }
+}

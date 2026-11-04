@@ -20,12 +20,10 @@
 /bin
 /cypress
 /dashboard/client/index.html
-/databox/client/index.html
 /expose/client/index.html
 /uploader/client/index.html
 /doc
 /infra
-/novu
 /report
 /tmp
 phrasea-manifest.json

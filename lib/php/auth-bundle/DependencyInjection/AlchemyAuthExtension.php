@@ -5,14 +5,16 @@ namespace Alchemy\AuthBundle\DependencyInjection;
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Listener\LogoutListener;
+use Alchemy\AuthBundle\Security\Impersonator;
 use Alchemy\AuthBundle\Security\JwtExtractor;
 use Alchemy\AuthBundle\Security\JwtUserProvider;
 use Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator;
+use Alchemy\AuthBundle\Security\RoleMapper;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
  * This is the class that loads and manages your bundle configuration.
@@ -50,6 +52,12 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
 
         $def = $container->findDefinition(OAuthAuthorizationAuthenticator::class);
         $def->setArgument('$clientId', $config['client_id']);
+
+        $def = $container->findDefinition(Impersonator::class);
+        $def->setArgument('$requiredRoles', $config['required_roles']);
+
+        $def = $container->findDefinition(RoleMapper::class);
+        $def->setArgument('$mapping', array_merge(RoleMapper::DEFAULT_MAPPING, $config['role_mapping']));
 
         $bundles = $container->getParameter('kernel.bundles');
         if (isset($bundles['AlchemyAclBundle'])) {

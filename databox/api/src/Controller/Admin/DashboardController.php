@@ -8,6 +8,8 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
+use Alchemy\ESBundle\Admin\ESAdminMenu;
+use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
 use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookLogCrudController;
@@ -61,12 +63,17 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(AssetPolicyCrudController::class, 'Asset Policy'),
             MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policy'),
             MenuItem::linkTo(TagCrudController::class, 'Tag'),
-            MenuItem::linkTo(TagFilterRuleCrudController::class, 'Tag Filter Rule'),
+            MenuItem::linkTo(AttributeFilterRuleCrudController::class, 'Attribute Filter Rule'),
             MenuItem::linkTo(AssetRenditionCrudController::class, 'Asset Rendition'),
+            MenuItem::linkTo(AssetEmbeddingCrudController::class, 'Asset Embedding'),
             MenuItem::linkTo(RenditionDefinitionCrudController::class, 'Rendition Definition'),
             MenuItem::linkTo(RenditionPolicyCrudController::class, 'Rendition Policy'),
             MenuItem::linkTo(AlternateUrlCrudController::class, 'Alternate URL'),
             MenuItem::linkTo(ShareCrudController::class, 'Share'),
+        ];
+
+        $exports = [
+            MenuItem::linkTo(AssetExportCrudController::class, 'Asset Export', 'fa fa-file'),
         ];
 
         $pages = [
@@ -82,6 +89,8 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(ProfileCrudController::class, 'Profiles'),
             MenuItem::linkTo(ProfileItemCrudController::class, 'Lists Items'),
             MenuItem::linkTo(SavedSearchCrudController::class, 'Saved Searches'),
+            MenuItem::linkTo(SavedSearchAutomationCrudController::class, 'Saved Search Automations'),
+            MenuItem::linkTo(AutomationRunCrudController::class, 'Automation Runs'),
         ];
 
         $submenuTemplates = [
@@ -93,7 +102,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenuAdmin = [
             MenuItem::linkTo(OperationTaskCrudController::class, 'Operation Task'),
             MenuItem::linkTo(PopulatePassCrudController::class, 'Populate Pass'),
-            MenuItem::linkTo(ESIndexStateCrudController::class, 'ES Index State'),
+            ESAdminMenu::createMenuItem(),
         ];
 
         $submenuIntegration = [
@@ -126,6 +135,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenuPerms);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenuCore);
+        yield MenuItem::subMenu('Export', 'fas fa-file')->setSubItems($exports);
         yield MenuItem::subMenu('Page', 'fas fa-file')->setSubItems($pages);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
         yield MenuItem::subMenu('Lists', 'fas fa-list')->setSubItems($lists);
@@ -136,7 +146,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
         yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
-        yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
+        yield NotifierAdminMenu::createMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }

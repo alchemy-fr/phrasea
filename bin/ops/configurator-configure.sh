@@ -30,7 +30,7 @@ echo "Running bin/console configure..."
   && cd /tmp/phrasea-helm-configure \
   && helm pull https://github.com/alchemy-fr/phrasea-helm-charts/releases/download/phrasea-${CHART_VERSION}/phrasea-${CHART_VERSION}.tgz \
   && helm -n ${NS} get values ${RELEASE_NAME} -o yaml > .current-values.yaml \
-  && (kubectl -n ${NS} delete job configurator-configure || true) \
+  && (kubectl -n ${NS} delete job configurator-synchronize || true) \
   && helm template ${RELEASE_NAME} ./phrasea-${CHART_VERSION}.tgz -f .current-values.yaml \
-    -s templates/configurator/configure-job.yaml | kubectl -n ${NS} apply -f -
+    -s templates/configurator/configurator-synchronize-job.yaml | kubectl -n ${NS} apply -f -
 )

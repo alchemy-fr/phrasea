@@ -8,3 +8,14 @@ exercise_html_purifier:
                 Core.Encoding: 'UTF-8'
                 HTML.Allowed: 'a[href|target],p,br,div[style],img[src|alt|width|height]'
                 Attr.AllowedFrameTargets: '_blank'
+
+when@dev:
+    exercise_html_purifier:
+        default_cache_serializer_path: null
+        html_profiles:
+            default:
+                config:
+                    # Disable the filesystem definition cache in dev: the base directory
+                    # only exists after a successful cache warmup, and HTMLPurifier never
+                    # creates it itself (triggers "Base directory ... does not exist").
+                    Cache.DefinitionImpl: null

@@ -14,7 +14,6 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $zippyBaseUrl: '%env(ZIPPY_URL)%'
             ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
             ApiPlatform\State\ProviderInterface $itemsProvider: '@api_platform.doctrine.orm.state.collection_provider'
             string $matomoSiteId: '%env(MATOMO_SITE_ID)%'
@@ -66,24 +65,6 @@ services:
                 outdoors-v11: Outdoors
                 satellite-v9: Satellite
 
-    app.zippy_client:
-        class: GuzzleHttp\Client
-        arguments:
-            -
-                base_uri: '%env(ZIPPY_URL)%'
-                verify: '%env(bool:VERIFY_SSL)%'
-                headers:
-                    Authorization: '%env(ZIPPY_CLIENT_ID)%:%env(ZIPPY_CLIENT_SECRET)%'
-                options:
-                    timeout: 10
-                    http_errors: false
-                    headers:
-                        Accept: "application/json"
-
-    App\ZippyManager:
-        arguments:
-            $client: '@app.zippy_client'
-
     App\DataPersister\ExposeDataPersister:
         decorates: api_platform.doctrine.orm.state.persist_processor
         arguments:
@@ -91,19 +72,6 @@ services:
 
     App\Admin\ClientUrlGenerator:
         arguments:
-            $clientBaseUrl: '%env(EXPOSE_CLIENT_URL)%'
-
-    app.proxy_purge_client:
-        class: GuzzleHttp\Client
-        arguments:
-            -
-                base_uri: 'http://expose-api-nginx'
-                http_errors: false
-                timeout: 10
-
-    App\Http\Cache\ProxyCachePurger:
-        arguments:
-            $client: '@app.proxy_purge_client'
             $clientBaseUrl: '%env(EXPOSE_CLIENT_URL)%'
 
     Aws\CloudFront\CloudFrontClient:

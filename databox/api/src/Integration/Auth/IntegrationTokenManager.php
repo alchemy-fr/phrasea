@@ -25,24 +25,35 @@ final readonly class IntegrationTokenManager
             throw new \InvalidArgumentException('Token was expired');
         }
 
-        $tokens = $integrationToken->getToken();
-
-        if (isset($tokens['refresh_token']) && $tokens['expires_at'] < time()) {
-            try {
-                $data = $onRenew($tokens['refresh_token'], $integrationToken);
-            } catch (ClientExceptionInterface $e) {
-                if (400 === $e->getCode()) {
-                    $this->em->remove($integrationToken);
-                    $this->em->flush();
-                }
-
-                throw $e;
-            }
-
-            $integrationToken = $this->refreshToken($integrationToken, $data);
+        if ($integrationToken->hasRefreshToken() && $integrationToken->isAccessTokenExpired()) {
+            $integrationToken = $this->renewToken($integrationToken, $onRenew);
         }
 
         return $integrationToken->getToken()['access_token'];
+    }
+
+    /**
+     * Exchanges the refresh token for a new token set and persists it.
+     * A refresh token rejected by the provider (400 or 401) removes the token from database.
+     *
+     * @param \Closure(string $refreshToken, IntegrationToken $token): array $onRenew
+     */
+    public function renewToken(IntegrationToken $integrationToken, \Closure $onRenew): IntegrationToken
+    {
+        $tokens = $integrationToken->getToken();
+
+        try {
+            $data = $onRenew($tokens['refresh_token'], $integrationToken);
+        } catch (ClientExceptionInterface $e) {
+            if (in_array($e->getCode(), [400, 401], true)) {
+                $this->em->remove($integrationToken);
+                $this->em->flush();
+            }
+
+            throw $e;
+        }
+
+        return $this->refreshToken($integrationToken, $data);
     }
 
     private function refreshToken(IntegrationToken $integrationToken, array $data): IntegrationToken

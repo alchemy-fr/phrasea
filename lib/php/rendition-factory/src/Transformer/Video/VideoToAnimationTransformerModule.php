@@ -18,12 +18,16 @@ use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
 use FFMpeg;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class VideoToAnimationTransformerModule implements TransformerModuleInterface
 {
-    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+    public const string NAME = 'video_to_animation';
+
+    public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {
@@ -31,7 +35,7 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
 
     public static function getName(): string
     {
-        return 'video_to_animation';
+        return self::NAME;
     }
 
     private static function getSupportedOutputFormats(): array

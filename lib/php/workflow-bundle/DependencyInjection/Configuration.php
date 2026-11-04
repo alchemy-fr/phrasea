@@ -2,8 +2,8 @@
 
 namespace Alchemy\WorkflowBundle\DependencyInjection;
 
-use Alchemy\Workflow\Doctrine\Entity\JobState;
-use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
+use Alchemy\WorkflowBundle\Entity\JobState;
+use Alchemy\WorkflowBundle\Entity\WorkflowState;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 

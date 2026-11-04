@@ -47,7 +47,7 @@ export type UnauthorizedPublication = Partial<Publication> & BasePublication;
 export type PublicationConfig = {
     enabled: boolean;
     downloadViaEmail: boolean;
-    includeDownloadTermsInZippy: boolean;
+    includeDownloadTermsInArchive: boolean;
     css: string | undefined;
     layout: LayoutEnum | undefined;
     theme: string | undefined;

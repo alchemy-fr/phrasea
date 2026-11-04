@@ -6,13 +6,22 @@ namespace App\Integration\Core\Watermark;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
+    public const string NAME = 'core.watermark';
+
     final public const string VERSION = '1.0';
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -21,6 +30,7 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
             ->scalarNode('attributeName')
                 ->isRequired()
                 ->cannotBeEmpty()
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
             ->end()
             ->booleanNode('regenerateOnUpdate')
                 ->defaultTrue()
@@ -29,6 +39,7 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
                 ->isRequired()
                 ->requiresAtLeastOneElement()
                     ->scalarPrototype()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
                     ->end()
             ->end()
             ->scalarNode('fontSize')
@@ -61,11 +72,23 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
 
     public static function getName(): string
     {
-        return 'core.watermark';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string
     {
         return 'Watermark';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Processing,
+        ];
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return ['applyToRenditions'];
     }
 }

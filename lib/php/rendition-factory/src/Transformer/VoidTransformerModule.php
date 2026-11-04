@@ -6,12 +6,16 @@ use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class VoidTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'void';
+
     public static function getName(): string
     {
-        return 'void';
+        return self::NAME;
     }
 
     public function getDocumentation(): Documentation

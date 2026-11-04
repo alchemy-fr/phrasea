@@ -1,0 +1,280 @@
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {I18nextProvider} from 'react-i18next';
+import {createI18n} from '@/i18n';
+import {
+    defaultDisplayPreferences,
+    usePreferencesStore,
+} from '@/features/preferences/store';
+import type {Asset} from '@/types/api';
+import {AssetThumb, similarityScoreLevel} from './AssetThumb';
+
+const api = vi.hoisted(() => ({
+    getStoryThumbnails: vi.fn(() =>
+        Promise.resolve(['http://x/t1.jpg', 'http://x/t2.jpg'])
+    ),
+}));
+vi.mock('@/lib/api/assets', () => api);
+vi.mock('@/features/assets/player/AudioPlayer', () => ({
+    AudioPlayer: ({
+        controls,
+        playing,
+    }: {
+        controls?: boolean;
+        playing?: boolean;
+    }) => (
+        <div
+            data-testid="audio-player"
+            data-controls={controls ? '1' : '0'}
+            data-playing={playing ? '1' : '0'}
+        />
+    ),
+}));
+
+const play = vi.fn(() => Promise.resolve());
+const pause = vi.fn();
+Object.defineProperty(HTMLMediaElement.prototype, 'play', {value: play});
+Object.defineProperty(HTMLMediaElement.prototype, 'pause', {value: pause});
+
+function fakeAsset(extra: Partial<Asset>): Asset {
+    return {
+        id: 'a1',
+        name: 'Asset',
+        capabilities: {},
+        workspace: {id: 'ws'},
+        ...extra,
+    } as unknown as Asset;
+}
+
+function setPlayOnHover(playOnHover: boolean) {
+    usePreferencesStore.setState({
+        preferences: {display: {...defaultDisplayPreferences, playOnHover}},
+    });
+}
+
+function renderThumb(asset: Asset, score?: number) {
+    const i18n = createI18n('en');
+    const client = new QueryClient();
+
+    return render(
+        <I18nextProvider i18n={i18n}>
+            <QueryClientProvider client={client}>
+                <AssetThumb asset={asset} size={200} score={score} />
+            </QueryClientProvider>
+        </I18nextProvider>
+    );
+}
+
+describe('AssetThumb', () => {
+    beforeEach(() => {
+        play.mockClear();
+        pause.mockClear();
+        api.getStoryThumbnails.mockClear();
+        setPlayOnHover(true);
+    });
+
+    it('shows the similarity score as a percentage', () => {
+        renderThumb(fakeAsset({}), 0.8749);
+
+        expect(
+            screen.getByTestId('asset-similarity-score').textContent?.trim()
+        ).toBe('87%');
+    });
+
+    it('colors the similarity score by level', () => {
+        expect(similarityScoreLevel(0.95)).toBe('high');
+        expect(similarityScoreLevel(0.9)).toBe('high');
+        expect(similarityScoreLevel(0.85)).toBe('medium');
+        expect(similarityScoreLevel(0.8)).toBe('medium');
+        expect(similarityScoreLevel(0.79)).toBe('low');
+
+        renderThumb(fakeAsset({}), 0.92);
+        expect(screen.getByTestId('asset-similarity-score').dataset.level).toBe(
+            'high'
+        );
+    });
+
+    it('shows no similarity score without one', () => {
+        renderThumb(fakeAsset({}));
+
+        expect(screen.queryByTestId('asset-similarity-score')).toBeNull();
+    });
+
+    it('plays a video thumbnail only while hovered', () => {
+        const {container} = renderThumb(
+            fakeAsset({
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/v.mp4', type: 'video/mp4'},
+                } as any,
+            })
+        );
+        const video = container.querySelector('video')!;
+        expect(video).toBeTruthy();
+        expect(video.hasAttribute('autoplay')).toBe(false);
+        expect(play).not.toHaveBeenCalled();
+
+        fireEvent.mouseEnter(container.firstElementChild!);
+        expect(play).toHaveBeenCalledTimes(1);
+        fireEvent.mouseLeave(container.firstElementChild!);
+        expect(pause).toHaveBeenCalled();
+    });
+
+    it('keeps a video thumbnail still when playing on hover is off', () => {
+        setPlayOnHover(false);
+        const {container} = renderThumb(
+            fakeAsset({
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/v.mp4', type: 'video/mp4'},
+                } as any,
+            })
+        );
+
+        fireEvent.mouseEnter(container.firstElementChild!);
+        expect(play).not.toHaveBeenCalled();
+    });
+
+    it('plays an audio thumbnail only while hovered', () => {
+        const {container} = renderThumb(
+            fakeAsset({
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/a.mp3', type: 'audio/mp3'},
+                } as any,
+                source: {id: 's', type: 'audio/mp3', extension: 'mp3'} as any,
+            })
+        );
+        const player = screen.getByTestId('audio-player');
+        expect(player.dataset.controls).toBe('0');
+        expect(player.dataset.playing).toBe('0');
+        expect(container.querySelector('img')).toBeNull();
+
+        fireEvent.mouseEnter(container.firstElementChild!);
+        expect(screen.getByTestId('audio-player').dataset.playing).toBe('1');
+        fireEvent.mouseLeave(container.firstElementChild!);
+        expect(screen.getByTestId('audio-player').dataset.playing).toBe('0');
+    });
+
+    it('shows a static waveform when playing on hover is off', () => {
+        setPlayOnHover(false);
+        const {container} = renderThumb(
+            fakeAsset({
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/a.mp3', type: 'audio/mp3'},
+                } as any,
+                source: {id: 's', type: 'audio/mp3', extension: 'mp3'} as any,
+            })
+        );
+
+        fireEvent.mouseEnter(container.firstElementChild!);
+        expect(screen.getByTestId('audio-player').dataset.playing).toBe('0');
+    });
+
+    it('loads and shows the story carousel on hover', async () => {
+        const {container} = renderThumb(
+            fakeAsset({
+                storyCollection: {id: 'c'} as any,
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/t.jpg', type: 'image/jpeg'},
+                } as any,
+            })
+        );
+        const strip = screen.getByTestId('story-thumb');
+        expect(strip.className).toContain('opacity-0');
+        expect(api.getStoryThumbnails).not.toHaveBeenCalled();
+
+        fireEvent.mouseEnter(container.firstElementChild!);
+        expect(strip.className).toContain('opacity-100');
+        expect(api.getStoryThumbnails).toHaveBeenCalledWith('a1');
+        await waitFor(() =>
+            expect(strip.querySelectorAll('img')).toHaveLength(2)
+        );
+    });
+
+    describe('story with a contact sheet', () => {
+        const storyWithSheet = () =>
+            fakeAsset({
+                storyCollection: {id: 'c'} as any,
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/t.jpg', type: 'image/jpeg'},
+                } as any,
+                animatedThumbnail: {
+                    id: 's',
+                    file: {
+                        id: 'fs',
+                        url: 'http://x/sheet.webp',
+                        type: 'image/webp',
+                    },
+                } as any,
+            });
+
+        function renderSheetStory() {
+            const view = renderThumb(storyWithSheet());
+            const box = view.container.firstElementChild as HTMLElement;
+            box.getBoundingClientRect = () =>
+                ({width: 200, height: 200, left: 0, top: 0}) as DOMRect;
+
+            return {...view, box};
+        }
+
+        it('shows the sheet, not the carousel, while the pointer stays still', () => {
+            const {container, box} = renderSheetStory();
+            const strip = screen.getByTestId('story-thumb');
+
+            fireEvent.mouseEnter(box, {clientX: 50});
+            expect(container.querySelector('img')!.getAttribute('src')).toBe(
+                'http://x/sheet.webp'
+            );
+            expect(strip.className).toContain('opacity-0');
+            expect(api.getStoryThumbnails).not.toHaveBeenCalled();
+
+            // Below 15% of the width
+            fireEvent.mouseMove(box, {clientX: 70});
+            expect(strip.className).toContain('opacity-0');
+        });
+
+        it('shows the carousel after a horizontal move', async () => {
+            const {box} = renderSheetStory();
+            const strip = screen.getByTestId('story-thumb');
+
+            fireEvent.mouseEnter(box, {clientX: 50});
+            fireEvent.mouseMove(box, {clientX: 90});
+            expect(strip.className).toContain('opacity-100');
+            expect(api.getStoryThumbnails).toHaveBeenCalledWith('a1');
+            await waitFor(() =>
+                expect(strip.querySelectorAll('img')).toHaveLength(2)
+            );
+
+            // Back to the sheet on the next hover
+            fireEvent.mouseLeave(box);
+            fireEvent.mouseEnter(box, {clientX: 90});
+            expect(strip.className).toContain('opacity-0');
+        });
+
+        it('shows the carousel right away without a sheet', () => {
+            const {container} = renderThumb(
+                fakeAsset({
+                    storyCollection: {id: 'c'} as any,
+                    thumbnail: {
+                        id: 'r',
+                        file: {
+                            id: 'f',
+                            url: 'http://x/t.jpg',
+                            type: 'image/jpeg',
+                        },
+                    } as any,
+                })
+            );
+
+            fireEvent.mouseEnter(container.firstElementChild!, {clientX: 50});
+            expect(screen.getByTestId('story-thumb').className).toContain(
+                'opacity-100'
+            );
+        });
+    });
+});

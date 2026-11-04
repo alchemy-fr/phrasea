@@ -15,6 +15,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class UploadManager
 {
+    /**
+     * Part URLs are handed out all at once when the upload is created, so they
+     * must outlive the whole transfer (clients refresh them past this point).
+     */
+    public const string PART_URL_TTL = '+3 hours';
+
     public function __construct(
         private S3Client $client,
         private string $uploadBucket,
@@ -47,18 +53,34 @@ final readonly class UploadManager
 
     public function getSignedUrl(string $uploadId, string $path, int $partNumber): string
     {
-        $params = [
-            'Bucket' => $this->uploadBucket,
-            'Key' => $this->pathPrefix.$path,
-            'PartNumber' => $partNumber,
-            'UploadId' => $uploadId,
-        ];
+        return $this->getSignedUrls($uploadId, $path, $partNumber, $partNumber)[$partNumber];
+    }
 
-        $cmd = $this->client->getCommand('UploadPart', $params);
+    /**
+     * Presigned PUT URLs for parts $from..$to (inclusive), keyed by part number.
+     * Signing is local (no S3 round trip), so handing out thousands is cheap.
+     *
+     * @return array<int, string>
+     */
+    public function getSignedUrls(string $uploadId, string $path, int $from, int $to): array
+    {
+        if ($from < 1 || $to < $from) {
+            throw new \InvalidArgumentException(sprintf('Invalid part range %d..%d', $from, $to));
+        }
 
-        $request = $this->client->createPresignedRequest($cmd, '+30 minutes');
+        $urls = [];
+        for ($partNumber = $from; $partNumber <= $to; ++$partNumber) {
+            $cmd = $this->client->getCommand('UploadPart', [
+                'Bucket' => $this->uploadBucket,
+                'Key' => $this->pathPrefix.$path,
+                'PartNumber' => $partNumber,
+                'UploadId' => $uploadId,
+            ]);
 
-        return (string) $request->getUri();
+            $urls[$partNumber] = (string) $this->client->createPresignedRequest($cmd, self::PART_URL_TTL)->getUri();
+        }
+
+        return $urls;
     }
 
     /**
@@ -66,6 +88,9 @@ final readonly class UploadManager
      */
     public function markComplete(string $uploadId, string $filename, array $parts): void
     {
+        // S3 requires the parts in ascending PartNumber order.
+        usort($parts, fn (PartInput $a, PartInput $b): int => (int) $a->PartNumber <=> (int) $b->PartNumber);
+
         $params = [
             'Bucket' => $this->uploadBucket,
             'Key' => $this->pathPrefix.$filename,
@@ -73,7 +98,7 @@ final readonly class UploadManager
                 'Parts' => array_map(function (PartInput $part): array {
                     return [
                         'ETag' => $part->ETag,
-                        'PartNumber' => $part->PartNumber,
+                        'PartNumber' => (int) $part->PartNumber,
                     ];
                 }, $parts),
             ],

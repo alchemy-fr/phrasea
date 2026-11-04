@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Rekognition;
 
+use Alchemy\RenditionFactory\Config\YamlLoader;
+use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\UserActionsIntegrationInterface;
@@ -23,13 +29,19 @@ use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsTaggedItem(index: self::NAME)]
 class AwsRekognitionIntegration extends AbstractAwsIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use FileUserActionsTrait;
+    use RenditionConfigNormalizerTrait;
+
+    public const string NAME = 'aws.rekognition';
 
     private const string ACTION_ANALYZE = 'analyze';
 
@@ -43,10 +55,111 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         self::FACES => RekognitionFacesAction::class,
     ];
 
+    /**
+     * Rekognition rejects Image.Bytes above 5 MiB. A JPEG bounded by this
+     * dimension (inset) stays comfortably below that limit.
+     */
+    final public const int MAX_RENDITION_DIMENSION = 3000;
+
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly RenditionManager $renditionManager,
+        private readonly YamlLoader $renditionDefinitionLoader,
     ) {
+    }
+
+    #[\Override]
+    public function validateConfiguration(IntegrationConfig $config): void
+    {
+        $workspaceIntegration = $config->getWorkspaceIntegration();
+
+        foreach (array_keys(self::CATEGORIES) as $category) {
+            if (!($config[$category]['enabled'] ?? false)) {
+                continue;
+            }
+
+            $rendition = $config[$category]['rendition'] ?? null;
+            if (empty($rendition)) {
+                continue;
+            }
+
+            if (!$this->needsRenditionIntegration($workspaceIntegration)) {
+                throw self::createRenditionException($category, sprintf('"%s" uses the rendition "%s" but this integration does not declare the "%s" integration in its needs: the rendition would not be built before the analysis', $category, $rendition, RenditionIntegration::getDisplayName()));
+            }
+
+            try {
+                $definition = $this->renditionManager->getRenditionDefinitionByName($config->getWorkspaceId(), $rendition);
+            } catch (\InvalidArgumentException $e) {
+                throw self::createRenditionException($category, sprintf('"%s": rendition "%s" not found in the workspace', $category, $rendition), $e);
+            }
+
+            $this->validateRenditionSize($category, $definition);
+        }
+    }
+
+    private static function createRenditionException(string $category, string $message, ?\Throwable $previous = null): InvalidConfigurationException
+    {
+        $e = new InvalidConfigurationException($message, 0, $previous);
+        $e->setPath(sprintf('root.%s.rendition', $category));
+
+        return $e;
+    }
+
+    private function needsRenditionIntegration(WorkspaceIntegration $workspaceIntegration): bool
+    {
+        foreach ($workspaceIntegration->getNeeds() as $need) {
+            if (RenditionIntegration::getName() === $need->getIntegration()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The rendition sent to AWS must be a built image bounded by a thumbnail/resize
+     * filter, otherwise the source (or an unbounded image) may exceed the 5 MiB limit.
+     */
+    private function validateRenditionSize(string $category, RenditionDefinition $definition): void
+    {
+        $prefix = sprintf('"%s": rendition "%s"', $category, $definition->getName());
+
+        if (RenditionDefinition::BUILD_MODE_CUSTOM !== $definition->getBuildMode() || empty($definition->getDefinition())) {
+            throw self::createRenditionException($category, sprintf('%s must be a built rendition (not the source file) so its size can be bounded', $prefix));
+        }
+
+        try {
+            $buildConfig = $this->renditionDefinitionLoader->parse($definition->getDefinition());
+        } catch (\Throwable $e) {
+            throw self::createRenditionException($category, sprintf('%s has an invalid definition: %s', $prefix, $e->getMessage()), $e);
+        }
+
+        $imageConfig = $buildConfig->getFamily(FamilyEnum::Image);
+        if (null === $imageConfig) {
+            throw self::createRenditionException($category, sprintf('%s has no "image" transformations', $prefix));
+        }
+
+        $maxDimension = null;
+        foreach ($imageConfig->getEnabledTransformations() as $transformation) {
+            if ('imagine' !== $transformation->getModule()) {
+                continue;
+            }
+            $filters = $transformation->getOptions()['filters'] ?? [];
+            foreach (['thumbnail', 'resize'] as $filter) {
+                $size = $filters[$filter]['size'] ?? null;
+                if (is_array($size) && !empty($size)) {
+                    $maxDimension = max($maxDimension ?? 0, ...array_map(intval(...), $size));
+                }
+            }
+        }
+
+        if (null === $maxDimension) {
+            throw self::createRenditionException($category, sprintf('%s must resize the image (imagine "thumbnail" or "resize" filter) to at most %dpx so it fits the AWS Rekognition 5 MiB limit', $prefix, self::MAX_RENDITION_DIMENSION));
+        }
+
+        if ($maxDimension > self::MAX_RENDITION_DIMENSION) {
+            throw self::createRenditionException($category, sprintf('%s is resized to %dpx, which may exceed the AWS Rekognition 5 MiB limit: use at most %dpx', $prefix, $maxDimension, self::MAX_RENDITION_DIMENSION));
+        }
     }
 
     protected function getSupportedRegions(): array
@@ -77,6 +190,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
                     ->scalarNode('rendition')
                         ->defaultNull()
                         ->info('Send rendition instead of source to AWS')
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
                     ->end()
                     ->booleanNode('processIncoming')
                         ->defaultFalse()
@@ -98,7 +212,13 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
                         ->info('Save results in attributes (multi-valued string)')
                         ->prototype('array')
                             ->children()
-                                ->scalarNode('name')->isRequired()->cannotBeEmpty()->info('Attribute slug')->end()
+                                ->scalarNode('name')
+                                    ->isRequired()
+                                    ->cannotBeEmpty()
+                                    ->info('Attribute slug')
+                                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
+                                    ->attribute(ConfigWidget::ATTR_WIDGET_OPTIONS, ['multiple' => true])
+                                ->end()
                                 ->floatNode('threshold')->example('.5')->info('Minimum confidence to be saved into attribute')->end()
                             ->end()
                         ->end()
@@ -162,12 +282,20 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
 
     public static function getName(): string
     {
-        return 'aws.rekognition';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string
     {
         return 'AWS Rekognition';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+            IntegrationCategory::Processing,
+        ];
     }
 
     #[\Override]
@@ -205,5 +333,10 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         }
 
         return null;
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return array_map(fn (string $category): string => $category.'.rendition', array_keys(self::CATEGORIES));
     }
 }

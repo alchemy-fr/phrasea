@@ -14,12 +14,20 @@ You can add a `.env.local` file at the root of this project and define a command
 # ~/.bashrc or ~/.zshrc
 function dc() {
     if [ -f .env.local ]; then
-        docker compose --env-file=.env --env-file=.env.local $@
+        docker compose --env-file=.env.local --env-file=.env --env-file=.env.local "$@"
     else
-        docker compose $@
+        docker compose "$@"
     fi
 }
 ```
+
+`.env.local` is passed twice on purpose. Docker Compose interpolates each env file as it reads it, so
+derived values such as `DASHBOARD_CLIENT_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}`
+are expanded while `.env` is parsed. Loading `.env.local` first makes `PHRASEA_DOMAIN` (or
+`HTTPS_PORT_PREFIX`) available at that point, and loading it again last restores the plain
+overrides (e.g. `TRAEFIK_HTTPS_PORT`) that `.env` would otherwise reset. Variables exported in the
+shell still take precedence over both files. The `load-env` function in `bin/functions.sh` uses the
+same order.
 
 ## Installation
 
@@ -79,11 +87,38 @@ By default, Let's Encrypt's staging environment is used. To get a production cer
 LETS_ENCRYPT_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory
 ```
 
-### Setup cron jobs
+### Periodic tasks
 
-You may want to setup cron jobs to run periodic tasks (like cleaning old data).
-If you plan to deploy the stack with docker-compose on a single host machine,
-you can use the provided `bin/ops/cron-script.sh` script to add cron jobs to your host machine.
+The periodic tasks of databox and uploader are planned by Symfony Scheduler and
+consumed by dedicated containers, `databox-scheduler` and `uploader-scheduler`.
+They run the worker image with `WORKER_PRIORITIES` restricted to the
+`scheduler_main` transport (a single process running the tasks of the `main`
+schedule one after the other), while the `*-worker` services only consume the
+RabbitMQ queues.
+
+Keep **exactly one replica** of each scheduler container and never scale them:
+scale the `*-worker` services instead.
+
+| Application | Task                                                                                         | Frequency    |
+|-------------|----------------------------------------------------------------------------------------------|--------------|
+| databox     | trigger the due automations of the saved searches                                            | every minute |
+| databox     | `alchemy:notifier:digest:flush` (notification digests whose window has elapsed)              | hourly       |
+| databox     | `app:integration:renew-tokens` (integration tokens about to expire)                          | hourly       |
+| databox     | `app:file:unblock-analyses` (stuck file analyses, see `doc/tech/Databox/FileAnalyzers.mdx`) | hourly       |
+| databox     | `app:trash:empty`                                                                            | daily        |
+| uploader    | `app:asset:clean-expired` (retention `ASSET_DAYS_RETENTION`, 31 days by default)             | daily        |
+
+Hourly and daily tasks start at a fixed minute derived from the task (daily
+ones between 00:00 and 02:59), to spread the load. The commands can still be
+run by hand; `bin/console app:automation:run-due` triggers the due automations
+once, for development.
+
+`SCHEDULER_OFFSET` (in seconds, `0` by default, negative to run earlier) shifts
+every task of both schedulers (with `600`, each hourly and daily task runs 10
+minutes later). Give each stack sharing the same resources its own offset so
+that they do not run their tasks at the same time.
+
+No host cron is needed: every periodic task runs in the scheduler containers.
 
 ### Changing ports
 
@@ -95,8 +130,11 @@ You may want to populate databases with a set of fixtures:
 
 ```bash
 # Warning! This will empty the databases, insert fixtures, and run bin/setup.sh again.
-bin/install-fixtures.sh
+bin/dev/reset-db-fixtures.sh
 ```
+
+The databox fixtures (three business workspaces, their users and rules) are described in
+[Databox fixtures](./Databox/fixtures.md).
 
 * Read the documentation for each group of services to customize environment variables:
     * [databox](./Databox/01_intro.md)

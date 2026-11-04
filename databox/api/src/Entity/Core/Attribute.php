@@ -6,19 +6,19 @@ namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Api\Processor\BatchAttributeUpdateProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AttributeCollectionProvider;
 use App\Attribute\AttributeInterface;
 use App\Entity\Traits\AssetAnnotationsTrait;
@@ -32,13 +32,50 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'attribute',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
-        new GetCollection(),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
+        new GetCollection(
+            parameters: [
+                'asset' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'asset',
+                ),
+                'asset[]' => new QueryParameter(property: 'asset', openApi: false),
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory without "definition", "asset" is accepted as well)',
+                    castToArray: false,
+                ),
+                'definition' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Attribute definition ID(s) or IRI(s): the values of these definitions across the assets the user can read; "asset" then becomes optional. The pagination applies to the assets (newest first): each page holds every matching value of its assets, and "totalItems" counts the assets',
+                ),
+                'definition[]' => new QueryParameter(property: 'definition', openApi: false),
+                'value' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Exact value(s), with "definition" only',
+                ),
+                'value[]' => new QueryParameter(property: 'value', openApi: false),
+                'origin' => new QueryParameter(
+                    schema: ['type' => 'string', 'enum' => ['machine', 'human', 'fallback', 'initial']],
+                    description: 'Origin of the values, with "definition" only',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Number of assets per page (max 100), with "definition" only',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
+            ],
+        ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/attributes/batch-update',
@@ -59,7 +96,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
 #[UniqueAttributeConstraint]
 class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDependencyInterface
 {
@@ -72,6 +108,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     final public const int ORIGIN_HUMAN = 1;
     final public const int ORIGIN_FALLBACK = 2;
     final public const int ORIGIN_INITIAL = 3;
+    final public const int ORIGIN_FALLBACK_PERSISTED = 4;
 
     final public const array ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
@@ -128,6 +165,15 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
 
     #[ORM\Column(type: Types::FLOAT, nullable: false)]
     private float $confidence = 1.0;
+
+    /**
+     * Signature of the annotated region ({m: model, v: float[]}), e.g. the face embedding behind a
+     * person value. Never exposed by the API nor indexed.
+     *
+     * @var array{m: string, v: float[]}|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $embedding = null;
 
     public ?AttributeBatchUpdateInput $batchUpdate = null;
 
@@ -234,6 +280,22 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
         $this->confidence = $confidence;
     }
 
+    /**
+     * @return array{m: string, v: float[]}|null
+     */
+    public function getEmbedding(): ?array
+    {
+        return $this->embedding;
+    }
+
+    /**
+     * @param array{m: string, v: float[]}|null $embedding
+     */
+    public function setEmbedding(?array $embedding): void
+    {
+        $this->embedding = $embedding;
+    }
+
     public function getIndexableDeleteDependencies(): array
     {
         return [
@@ -269,7 +331,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
 
         $enabledLocales = $this->getWorkspace()->getEnabledLocales();
 
-        return LocaleUtil::getBestLocale($enabledLocales, [$this->locale]) ?? AttributeInterface::NO_LOCALE;
+        return LocaleUtil::getBestLocale($enabledLocales, [$this->locale]) ?? $this->locale;
     }
 
     public function getWorkspace(): Workspace

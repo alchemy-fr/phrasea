@@ -8,21 +8,29 @@ use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Doctrine\Listener\CollectionListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
+use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetImport;
+use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
+use App\Entity\Core\AttributeFilterRule;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
+use App\Entity\Core\ImageSet;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
-use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationToken;
+use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
+use App\Service\Import\AssetImportManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -34,6 +42,7 @@ final readonly class WorkspaceDelete
         private IndexCleaner $indexCleaner,
         private SoftDeleteToggler $softDeleteToggler,
         private CollectionListener $collectionListener,
+        private AssetImportManager $assetImportManager,
         private LoggerInterface $logger,
     ) {
     }
@@ -61,9 +70,6 @@ final readonly class WorkspaceDelete
 
         $this->em->beginTransaction();
 
-        $configuration = $this->em->getConnection()->getConfiguration();
-        $sqlLogger = $configuration->getSQLLogger();
-        $configuration->setSQLLogger();
         try {
             // first, delete story collections to avoid "collection not found" later
             $storyCollections = $this->em->getRepository(Collection::class)
@@ -99,14 +105,19 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
             $this->deleteDependencies(RenditionPolicy::class, $workspaceId);
             $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
-            $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
+            $this->deleteDependencies(AssetPolicy::class, $workspaceId);
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributePolicy::class, $workspaceId);
+            $this->deleteAssetImports($workspaceId);
+            $this->deleteIntegrationChildren($workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
+            $this->deleteDependencies(WorkspaceEnv::class, $workspaceId);
+            $this->deleteDependencies(AlternateUrl::class, $workspaceId);
             $this->deleteDependencies(AttributeEntity::class, $workspaceId);
             $this->deleteDependencies(EntityList::class, $workspaceId);
-            $this->deleteDependencies(TagFilterRule::class, $workspaceId);
+            $this->deleteDependencies(ImageSet::class, $workspaceId);
+            $this->deleteDependencies(AttributeFilterRule::class, $workspaceId);
 
             $nFiles = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')
@@ -143,7 +154,35 @@ final readonly class WorkspaceDelete
             DeferredIndexListener::enable();
             $this->softDeleteToggler->enable();
             $this->collectionListener->softDeleteEnabled = true;
-            $configuration->setSQLLogger($sqlLogger);
+        }
+    }
+
+    private function deleteAssetImports(string $workspaceId): void
+    {
+        $this->logger->debug('Deleting AssetImport(s)');
+
+        $imports = $this->em->getRepository(AssetImport::class)->findBy([
+            'workspace' => $workspaceId,
+        ]);
+        foreach ($imports as $import) {
+            $this->assetImportManager->scheduleFileDeletion($import);
+            $this->em->remove($import);
+        }
+        $this->em->flush();
+        $this->em->clear();
+    }
+
+    private function deleteIntegrationChildren(string $workspaceId): void
+    {
+        foreach ([IntegrationToken::class, IntegrationData::class] as $entityClass) {
+            $this->em->createQueryBuilder()
+                ->delete($entityClass, 'c')
+                ->andWhere('c.integration IN (
+                    SELECT wi.id FROM '.WorkspaceIntegration::class.' wi WHERE wi.workspace = :ws
+                )')
+                ->setParameter('ws', $workspaceId)
+                ->getQuery()
+                ->execute();
         }
     }
 

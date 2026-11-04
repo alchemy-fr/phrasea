@@ -18,7 +18,7 @@ class UserRepository extends AbstractKeycloakRepository implements UserRepositor
             return $this->oauthClient->getUsers($accessToken, $options);
         }
 
-        return $this->keycloakRealmCache->get('users', function () use ($options): array {
+        return $this->keycloakRealmCache->get('users_'.md5(json_encode($options, JSON_THROW_ON_ERROR)), function () use ($options): array {
             return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUsers($accessToken, $options));
         });
     }
@@ -62,6 +62,32 @@ class UserRepository extends AbstractKeycloakRepository implements UserRepositor
         return $this->keycloakRealmCache->get('u_'.$userId, function () use ($userId): ?array {
             return $this->executeWithAccessToken(fn (string $accessToken): ?array => $this->oauthClient->getUser($accessToken, $userId));
         });
+    }
+
+    /**
+     * Not cached: used to impersonate the user, whose permissions must be
+     * exactly the current ones.
+     *
+     * @return string[] effective realm role names
+     */
+    public function getUserRoles(string $userId): array
+    {
+        $roles = $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUserEffectiveRealmRoles($accessToken, $userId));
+
+        return array_values(array_map(fn (array $role): string => $role['name'], $roles));
+    }
+
+    /**
+     * Not cached: used to impersonate the user, whose permissions must be
+     * exactly the current ones.
+     *
+     * @return string[]
+     */
+    public function getUserGroupIds(string $userId): array
+    {
+        $groups = $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUserGroups($accessToken, $userId));
+
+        return array_values(array_map(fn (array $group): string => $group['id'], $groups));
     }
 
     /**

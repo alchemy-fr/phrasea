@@ -10,6 +10,7 @@ use Alchemy\Workflow\State\JobState;
 use App\Border\FileAnalyzer;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\AssetStatusEnum;
+use App\Entity\Core\File;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 
@@ -45,27 +46,56 @@ final class FileAnalyzerAction extends AbstractIntegrationAction implements IfAc
             }
         }
 
+        if (($config['skipNonSourceFiles'] ?? false) && $file->getId() !== $asset->getSource()?->getId()) {
+            $file->setAnalysisResult(File::ANALYSIS_SKIPPED, message: 'File analysis skipped because the file is not the source file of the asset.');
+            $this->em->persist($file);
+            $this->em->flush();
+            $context->setOutput('analyzed', false);
+
+            return;
+        }
+
         $analyzersConfig = [
             'analyzers' => $config['analyzers'] ?? [],
         ];
 
-        if ($this->fileAnalyzer->preAnalyzeFile($file, $analyzersConfig, force: $force)) {
-            $this->fileAnalyzer->analyzeFile($file, $analyzersConfig, force: $force);
+        $actions = [];
+
+        $shouldAnalyze = $this->fileAnalyzer->shouldAnalyze($file, $analyzersConfig, force: $force);
+        if ($shouldAnalyze) {
+            if ($this->fileAnalyzer->preAnalyzeFile($file, $analyzersConfig)) {
+                $this->fileAnalyzer->analyzeFile($file, $analyzersConfig);
+            }
+
+            $this->em->persist($file);
+
+            $analysis = $file->getAnalysis();
+            foreach ($analysis?->getResults() ?? [] as $analyzerOutput) {
+                if (!empty($analyzerOutput['actions'])) {
+                    $actions = array_merge(array_map(fn (string $a): FileAnalyzerAssetActionEnum => FileAnalyzerAssetActionEnum::from($a), $actions), $analyzerOutput['actions']);
+                    break;
+                }
+            }
+
+            $context->setOutput('analysis', $analysis?->toArray());
         }
-
-        $this->em->persist($file);
-
-        $context->setOutput('analysis', $file->getAnalysis());
+        $context->setOutput('analyzed', $shouldAnalyze);
 
         if ($file->isAccepted()) {
-            if (AssetStatusEnum::Pending === $asset->getStatus()) {
+            if (AssetStatusEnum::Accepted !== $asset->getStatus()) {
                 $asset->setStatus(AssetStatusEnum::Accepted);
                 $this->em->persist($asset);
             }
         } else {
             $context->setEndStatus(JobState::STATUS_FAILURE);
 
-            foreach ($config['actions_on_reject'] ?? [] as $action) {
+            $actionsOnReject = array_merge($actions, $config['actions_on_reject'] ?? []);
+
+            if (in_array(FileAnalyzerAssetActionEnum::DELETE->value, $actionsOnReject, true)) {
+                $actionsOnReject = [FileAnalyzerAssetActionEnum::DELETE];
+            }
+
+            foreach ($actionsOnReject as $action) {
                 $action = FileAnalyzerAssetActionEnum::from($action);
 
                 switch ($action) {

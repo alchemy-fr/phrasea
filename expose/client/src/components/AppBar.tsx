@@ -1,5 +1,6 @@
 import React, {PropsWithChildren} from 'react';
-import {config, keycloakClient} from '../init.ts';
+import {apiClient, config, keycloakClient} from '../init.ts';
+import {registerWs} from '../lib/pusher.ts';
 import {appLocales} from '../i18n.ts';
 import {
     AppLogo,
@@ -23,6 +24,8 @@ export default function AppBar({children}: Props) {
             commonMenuProps={{
                 keycloakClient,
                 appLocales,
+                apiClient,
+                registerNotificationRealtime: registerWs,
             }}
             config={config}
         >

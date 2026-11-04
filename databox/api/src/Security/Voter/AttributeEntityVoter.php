@@ -6,6 +6,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Core\AttributeEntity;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AttributeEntityVoter extends AbstractVoter
 {
@@ -25,7 +26,7 @@ class AttributeEntityVoter extends AbstractVoter
     /**
      * @param AttributeEntity $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
@@ -39,11 +40,16 @@ class AttributeEntityVoter extends AbstractVoter
 
             return null !== $userId && $userId === $subject->getCreatorId();
         };
+        // Whoever may set attribute values in the workspace may pick its pending values too
+        $isAttributeEditor = fn (): bool => AttributeEntity::STATUS_PENDING === $subject->getStatus()
+            && null !== $subject->getWorkspace()
+            && $this->security->isGranted(AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => $isTypeEditor() || $subject->getList()->isAllowNewValues(),
+            // An open list takes new values from its readers, not from anyone
+            self::CREATE => $isTypeEditor() || ($subject->getList()->isAllowNewValues() && $isTypeReader()),
             self::EDIT, self::DELETE => $isTypeEditor() || ($isCreator() && !$subject->isApproved()),
-            self::READ => $isTypeReader() && ($subject->isApproved() || $isCreator()),
+            self::READ => $isTypeEditor() || ($isTypeReader() && ($subject->isApproved() || $isCreator() || $isAttributeEditor())),
             default => false,
         };
     }

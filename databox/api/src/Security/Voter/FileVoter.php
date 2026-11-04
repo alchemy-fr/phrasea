@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class FileVoter extends AbstractVoter
 {
@@ -24,7 +25,7 @@ class FileVoter extends AbstractVoter
     /**
      * @param File $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $rows = $this->em->createQueryBuilder()
             ->select('a.id')

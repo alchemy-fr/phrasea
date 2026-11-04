@@ -13,13 +13,19 @@ use App\Attribute\BatchAttributeManager;
 use App\Border\UriDownloader;
 use App\Entity\Core\Attribute;
 use App\Integration\Aws\AbstractAwsIntegration;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class AwsTranscribeIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'aws.transcribe';
+
     private const string VERSION = '1.0';
     final public const string SNS_PREFIX = 'databox:integration:transcribe:';
 
@@ -40,15 +46,19 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
                 ->children()
                     ->scalarNode('language')
                         ->cannotBeEmpty()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
                     ->end()
                     ->scalarNode('vtt')
                         ->cannotBeEmpty()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
                     ->end()
                     ->scalarNode('srt')
                         ->cannotBeEmpty()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
                     ->end()
                     ->scalarNode('transcript')
                         ->cannotBeEmpty()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
                     ->end()
                 ->end()
             ->end()
@@ -128,7 +138,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
                 'srt' => 'srt',
             ];
             foreach ($subtitles['SubtitleFileUris'] as $subtitleUri) {
-                $extension = FileUtil::getExtensionFromPath($subtitleUri);
+                $extension = FileUtil::getExtensionFromPath($subtitleUri) ?? '';
                 $format = $formatAttrs[$extension];
                 if (!empty($attributesConfig[$format])) {
                     $subtitleFile = $this->fileDownloader->download($subtitleUri);
@@ -174,11 +184,19 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
 
     public static function getName(): string
     {
-        return 'aws.transcribe';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string
     {
         return 'AWS Transcribe';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+            IntegrationCategory::Processing,
+        ];
     }
 }

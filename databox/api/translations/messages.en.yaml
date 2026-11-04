@@ -16,6 +16,7 @@ field_type:
         number: Number
         text: Text
         textarea: Textarea
+        web_vtt: WebVTT subtitles
         id: ID
         privacy: Privacy
         asset_status: Asset status
@@ -31,6 +32,13 @@ asset_status:
     accepted: Accepted
     pending: Pending
     quarantined: Quarantined
+
+file_family:
+    image: Image
+    audio: Audio
+    video: Video
+    document: Document
+    other: Other
 
 facet:
     collections:
@@ -57,6 +65,8 @@ facet:
         name: Stories
     file_type:
         name: File Type
+    file_family:
+        name: File Family
     file_extension:
         name: File Extension
     has_source_file:
@@ -65,6 +75,8 @@ facet:
         name: Asset Status
 
 built_in_attribute:
+    collectionPositions:
+        name: Position
     _score:
         name: Score
     _id:
@@ -73,6 +85,8 @@ built_in_attribute:
         name: Name
     collectionPaths:
         name: Collections
+        raw:
+            name: Direct Collections
     workspaceId:
         name: Workspace
     ownerId:
@@ -93,6 +107,8 @@ built_in_attribute:
         name: Created At
     fileType:
         name: File Type
+    fileFamily:
+        name: File Family
     fileMimeType:
         name: File MIME Type
     fileExtension:
@@ -101,12 +117,18 @@ built_in_attribute:
         name: File Size
     fileName:
         name: File Name
+    checksum:
+        name: Checksum
+    docUniqueId:
+        name: Document Unique ID
     hasSourceFile:
         name: Has Source File
     deleted:
         name: Deleted
     assetStatus:
         name: Asset Status
+    similar:
+        name: Similar to
 
 search:
     suggestion:

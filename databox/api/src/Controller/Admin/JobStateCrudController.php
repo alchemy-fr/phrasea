@@ -8,10 +8,10 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
-use Alchemy\Workflow\Doctrine\Entity\JobState;
 use Alchemy\Workflow\State\JobState as JobStateModel;
 use Alchemy\Workflow\State\JobState as ModelJobState;
 use Alchemy\Workflow\WorkflowOrchestrator;
+use Alchemy\WorkflowBundle\Entity\JobState;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -74,6 +74,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         return $this->returnToReferer($context);
     }
 
+    #[AdminRoute(path: 'job-state/cancel')]
     public function cancelJob(AdminContext $context): RedirectResponse
     {
         /** @var JobState $jobState */
@@ -154,6 +155,8 @@ class JobStateCrudController extends AbstractAdminCrudController
 
         yield DateTimeField::new('endedAt', 'Ended At');
         yield TextField::new('durationString', 'Duration');
+        yield TextField::new('skipReason', 'Skip reason')
+            ->hideOnIndex();
         yield ArrayField::new('errors')
             ->hideOnIndex();
         yield ArrayObjectField::new('inputs')

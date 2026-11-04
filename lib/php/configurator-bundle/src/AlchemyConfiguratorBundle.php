@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\ConfiguratorBundle;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\ConfiguratorBundle\Command\PushConfigToBucketCommand;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
 use Alchemy\ConfiguratorBundle\Documentation\AppConfigDocumentationGenerator;
@@ -12,12 +13,14 @@ use Alchemy\ConfiguratorBundle\Dumper\JsonDumper;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntryRepository;
 use Alchemy\ConfiguratorBundle\Form\Type\ConfigurationKeyType;
 use Alchemy\ConfiguratorBundle\Message\DeployConfigHandler;
+use Alchemy\ConfiguratorBundle\Notifier\GlobalConfigEmailLogoProvider;
 use Alchemy\ConfiguratorBundle\Pusher\BucketPusher;
 use Alchemy\ConfiguratorBundle\Schema\GlobalConfigurationSchema;
 use Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface;
 use Alchemy\ConfiguratorBundle\Service\ConfigurationReference;
 use Alchemy\ConfiguratorBundle\Validator\ValidConfigurationEntryConstraintValidator;
 use Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface;
+use Alchemy\NotifierBundle\Email\EmailLogoProviderInterface;
 use Aws\S3\S3Client;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -114,13 +117,16 @@ class AlchemyConfiguratorBundle extends AbstractBundle
         $storage = $config['storage'];
         $s3ClientId = 'alchemy_configurator.s3_client';
 
-        $services->set(ConfiguratorEntryCrudController::class)->public();
+        // The admin CRUD (and its form type) needs alchemy/admin-bundle, which only the APIs install
+        if (class_exists(AbstractAdminCrudController::class)) {
+            $services->set(ConfiguratorEntryCrudController::class)->public();
+            $services->set(ConfigurationKeyType::class);
+        }
 
         $services->set(ConfiguratorEntryRepository::class);
         $services->set(PushConfigToBucketCommand::class);
         $services->set(ValidConfigurationEntryConstraintValidator::class);
         $services->set(JsonDumper::class);
-        $services->set(ConfigurationKeyType::class);
         $services->set(ConfigurationReference::class);
         $services->set(GlobalConfigurationSchema::class)
             ->tag(SchemaProviderInterface::TAG)
@@ -134,6 +140,10 @@ class AlchemyConfiguratorBundle extends AbstractBundle
 
         if (class_exists(AsMessageHandler::class)) {
             $services->set(DeployConfigHandler::class);
+        }
+
+        if (interface_exists(EmailLogoProviderInterface::class)) {
+            $services->set(GlobalConfigEmailLogoProvider::class);
         }
 
         $services->set($s3ClientId, S3Client::class)

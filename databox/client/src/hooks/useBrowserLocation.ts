@@ -1,70 +1,37 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
+import {toast} from 'sonner';
 
-const defaultSettings: PositionOptions = {
-    enableHighAccuracy: false,
-    timeout: Infinity,
-    maximumAge: 0,
-};
+export type LatLng = {lat: number; lng: number};
 
-type Position = {
-    timestamp: EpochTimeStamp;
-} & Omit<GeolocationCoordinates, 'toJSON'>;
+export function useBrowserLocation() {
+    const [loading, setLoading] = useState(false);
 
-export const useBrowserPosition = (
-    enabled: boolean,
-    watch = false,
-    userSettings: PositionOptions = {}
-) => {
-    const settings: PositionOptions = {
-        ...defaultSettings,
-        ...userSettings,
-    };
+    const requestLocation = useCallback((): Promise<LatLng | undefined> => {
+        if (typeof navigator === 'undefined' || !navigator.geolocation) {
+            toast.error('Geolocation is not available in this browser');
 
-    const [position, setPosition] = useState<Position>();
-    const [error, setError] = useState<string | undefined>();
-
-    const onChange = ({coords, timestamp}: GeolocationPosition) => {
-        setPosition({
-            accuracy: coords.accuracy,
-            altitude: coords.altitude,
-            altitudeAccuracy: coords.altitudeAccuracy,
-            heading: coords.heading,
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            speed: coords.speed,
-            timestamp,
-        });
-    };
-
-    const onError: PositionErrorCallback = error => {
-        setError(error.message);
-    };
-
-    useEffect(() => {
-        if (!enabled) {
-            return;
+            return Promise.resolve(undefined);
         }
-        if (!navigator || !navigator.geolocation) {
-            setError('Geolocation is not supported');
-            return;
-        }
+        setLoading(true);
 
-        if (watch) {
-            const watcher = navigator.geolocation.watchPosition(
-                onChange,
-                onError,
-                settings
+        return new Promise(resolve => {
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    setLoading(false);
+                    resolve({
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                    });
+                },
+                err => {
+                    setLoading(false);
+                    toast.error(err.message);
+                    resolve(undefined);
+                },
+                {timeout: 10_000, maximumAge: 60_000}
             );
-            return () => navigator.geolocation.clearWatch(watcher);
-        }
+        });
+    }, []);
 
-        navigator.geolocation.getCurrentPosition(onChange, onError, settings);
-    }, [
-        enabled,
-        settings.enableHighAccuracy,
-        settings.timeout,
-        settings.maximumAge,
-    ]);
-
-    return {position, error};
-};
+    return {requestLocation, loading};
+}

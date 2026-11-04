@@ -27,7 +27,7 @@ readonly class PostIndexMappingListener implements EventSubscriberInterface
         $event->setMapping($mapping);
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PostIndexMappingBuildEvent::class => 'configureIndex',

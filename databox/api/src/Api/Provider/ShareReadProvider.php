@@ -9,23 +9,35 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\ShareAlternateUrlOutput;
+use App\Api\Model\Output\ShareAttachmentOutput;
+use App\Api\Model\Output\ShareTermsOutput;
 use App\Api\Traits\ItemProviderAwareTrait;
+use App\Api\Traits\UserLocaleTrait;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
+use App\Entity\Core\TermsVersion;
 use App\Repository\Core\AssetRenditionRepository;
-use App\Security\Voter\AbstractVoter;
-use App\Service\Storage\RenditionManager;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
+use App\Service\Asset\FileUrlResolver;
+use App\Service\Workspace\LogoManager;
+use App\Service\Workspace\TermsManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class ShareReadProvider implements ProviderInterface
 {
     use ItemProviderAwareTrait;
     use SecurityAwareTrait;
+    use UserLocaleTrait;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly RenditionManager $renditionManager,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly TermsManager $termsManager,
+        private readonly LogoManager $logoManager,
+        private readonly FileUrlResolver $fileUrlResolver,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
@@ -41,10 +53,37 @@ final class ShareReadProvider implements ProviderInterface
 
     public function provideShare(Share $item): Share
     {
-        $asset = $item->getAsset();
+        $item->alternateUrls = [];
+        $item->attachments = [];
 
+        foreach ($item->getDeliverableAssets() as $asset) {
+            $this->provideAssetAlternateUrls($item, $asset);
+            $this->provideAssetAttachments($item, $asset);
+        }
+
+        $workspace = $item->getWorkspace();
+        if (null !== $workspace) {
+            $item->logo = $this->logoManager->resolveLogoUrl($workspace);
+
+            $terms = $this->termsManager->getCurrentTerms($workspace);
+            if (null !== $terms) {
+                $item->terms = new ShareTermsOutput(
+                    $terms->hasFile() ? null : $terms->getTranslatedField(TermsVersion::TR_FIELD_TEXT, $this->getPreferredLocales($workspace), $terms->getText()),
+                    $terms->getVersion(),
+                    $workspace->getName(),
+                    $terms->hasFile() ? $this->fileUrlResolver->resolveUrl($terms->getFile()) : null,
+                );
+            }
+        }
+
+        return $item;
+    }
+
+    private function provideAssetAlternateUrls(Share $item, Asset $asset): void
+    {
         $options = [
             AssetRenditionRepository::OPT_WITH_FILE => true,
+            AssetRenditionRepository::OPT_EXCLUDE_DEFINITIONS => $this->assetPolicyManager->getPolicyApplicationFilter($asset)->getFilteredRenditions(),
         ];
 
         /** @var AssetRendition[] $renditions */
@@ -52,19 +91,63 @@ final class ShareReadProvider implements ProviderInterface
 
         foreach ($renditions as $rendition) {
             $definition = $rendition->getDefinition();
-            if ($this->isGranted(AbstractVoter::READ, $rendition)) {
+            if (null !== $definition && self::isRenditionShared($item, $rendition)) {
+                $file = $rendition->getFile();
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),
                     $this->urlGenerator->generate('share_public_rendition', [
                         'id' => $item->getId(),
+                        'asset' => $asset->getId(),
                         'rendition' => $definition->getId(),
                         'token' => $item->getToken(),
                     ], UrlGeneratorInterface::ABS_URL),
-                    $rendition->getFile()->getType(),
+                    $file->getType(),
+                    $asset->getId(),
+                    $rendition->getId(),
+                    $definition->getId(),
+                    $definition->getTranslatedField(RenditionDefinition::TR_FIELD_NAME, $this->getPreferredLocales($definition->getWorkspace()), $definition->getName()),
+                    null !== $file->getSize() ? (int) $file->getSize() : null,
                 );
             }
         }
+    }
 
-        return $item;
+    /**
+     * Whether a share link exposes this rendition: a definition of a public
+     * policy, in the selection of the link if any. A link is opened anonymously
+     * with its token: the rule must only depend on the share and the rendition
+     * definition, never on the rights of the current user.
+     */
+    public static function isRenditionShared(Share $share, AssetRendition $rendition): bool
+    {
+        $definition = $rendition->getDefinition();
+
+        return null !== $definition
+            && true === $definition->getPolicy()?->isPublic()
+            && $share->isRenditionDefinitionShared($definition);
+    }
+
+    private function provideAssetAttachments(Share $item, Asset $asset): void
+    {
+        foreach ($asset->getAttachments() as $attachment) {
+            $attachedAsset = $attachment->getAttachment();
+            $file = $attachedAsset?->getSource();
+            if (null === $file) {
+                continue;
+            }
+
+            $item->attachments[] = new ShareAttachmentOutput(
+                $attachment->getId(),
+                $attachment->getName() ?? $file->getFileName(),
+                $asset->getId(),
+                $this->urlGenerator->generate('share_public_attachment', [
+                    'id' => $item->getId(),
+                    'attachment' => $attachment->getId(),
+                    'token' => $item->getToken(),
+                ], UrlGeneratorInterface::ABS_URL),
+                $file->getType(),
+                null !== $file->getSize() ? (int) $file->getSize() : null,
+            );
+        }
     }
 }

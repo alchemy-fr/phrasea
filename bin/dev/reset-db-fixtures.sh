@@ -23,6 +23,7 @@ done
 
 echo "## Setting up databox..."
 docker compose run --rm databox-api-php /bin/ash -c 'bin/console hautelook:fixtures:load --no-interaction \
+&& php -d memory_limit=2G bin/console app:workspace:ingest-assets \
 && bin/console fos:elastica:populate'
 
 echo "## Setting up expose..."

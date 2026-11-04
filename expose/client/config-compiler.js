@@ -1,4 +1,4 @@
-(function (config, env) {
+(function (stackConfig, env) {
     function castBoolean(value) {
         if (typeof value === 'boolean') {
             return value;
@@ -12,7 +12,6 @@
 
         return false;
     }
-    config = config || {};
 
     const analytics = {};
 
@@ -24,9 +23,6 @@
         };
     }
 
-    const stackConfig = JSON.parse(
-        require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8')
-    );
     const customHTML = {};
     customHTML['__MUI_THEME__'] = '';
     if (stackConfig.theme) {
@@ -49,6 +45,9 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
             : 86400,
         disableIndexPage: castBoolean(env.DISABLE_INDEX_PAGE),
         analytics,
+        notifications: castBoolean(env.NOTIFICATIONS_ENABLED),
+        pusherHost: env.SOCKUDO_HOST,
+        pusherKey: env.SOCKUDO_KEY,
         appId: env.APP_ID || 'expose',
         sentryDsn: env.SENTRY_DSN,
         sentryEnvironment: env.SENTRY_ENVIRONMENT,

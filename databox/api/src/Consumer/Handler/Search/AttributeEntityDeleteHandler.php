@@ -28,7 +28,7 @@ final readonly class AttributeEntityDeleteHandler
 
         $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity(
             $message->getWorkspaceId(),
-            $message->getTypeId(),
+            $message->getListId(),
         );
 
         if (empty($definitions)) {
@@ -36,8 +36,14 @@ final readonly class AttributeEntityDeleteHandler
         }
 
         $fields = [];
-        $calls = [];
-        $params = [];
+        $calls = [
+            AttributeEntitySuggestionsScript::CALL,
+        ];
+        $params = [
+            '_entityIds' => [$id],
+            // No label left: the suggestions of the entity are removed
+            '_labels' => AttributeEntitySuggestionsScript::labels([]),
+        ];
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
@@ -51,7 +57,7 @@ final readonly class AttributeEntityDeleteHandler
         $this->attributeRepository->deleteByAttributeEntity(
             $message->getId(),
             $message->getWorkspaceId(),
-            $message->getTypeId()
+            $message->getListId()
         );
 
         $this->elasticSearchClient->updateByQuery(
@@ -66,23 +72,33 @@ final readonly class AttributeEntityDeleteHandler
                 ],
             ],
             [
+                // "attrs" is null for an asset without any attribute (see AssetPostTransformListener)
+                // and a locale node may be missing: guard every dereference, a painless NPE
+                // fails the whole update_by_query with a bare "runtime error".
                 'source' => <<<EOF
-void del(HashMap c, String name, String id) {
-    if (c instanceof Map) {
-        for (def entry : c.entrySet()) {
-            String locale = entry.getKey();
-
-            def field = c[locale].get(name);
-            if (field instanceof List) {
-                field.removeIf(item -> item['id'] == id);
-            } else if (field instanceof Map) {
-                c[locale].remove(name);
-            }
+void del(def attrs, String name, String id) {
+    if (!(attrs instanceof List) || attrs.isEmpty()) {
+        return;
+    }
+    def c = attrs[0];
+    if (!(c instanceof Map)) {
+        return;
+    }
+    for (def entry : c.entrySet()) {
+        def node = entry.getValue();
+        if (!(node instanceof Map)) {
+            continue;
+        }
+        def field = node.get(name);
+        if (field instanceof List) {
+            field.removeIf(item -> item instanceof Map && item['id'] == id);
+        } else if (field instanceof Map && field.id == id) {
+            node.remove(name);
         }
     }
 }
 
-EOF.implode("\n", $calls),
+EOF.AttributeEntitySuggestionsScript::declaration().implode("\n", $calls),
                 'params' => array_merge($params, [
                     '_id' => $id,
                 ]),

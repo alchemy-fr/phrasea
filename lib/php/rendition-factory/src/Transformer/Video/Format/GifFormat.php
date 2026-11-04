@@ -3,9 +3,13 @@
 namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::FORMAT)]
 class GifFormat implements FormatInterface
 {
+    public const string FORMAT = 'image-gif';
+
     public static function getAllowedExtensions(): array
     {
         return ['gif'];
@@ -18,7 +22,7 @@ class GifFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'image-gif';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

@@ -17,6 +17,17 @@ class ApiMetaWrapperOutput implements \IteratorAggregate
         return $this->result;
     }
 
+    /**
+     * The same metadata over another result.
+     */
+    public function withResult(\Traversable $result): self
+    {
+        $wrapper = new self($result);
+        $wrapper->meta = $this->meta;
+
+        return $wrapper;
+    }
+
     public function getMeta(): array
     {
         return $this->meta;

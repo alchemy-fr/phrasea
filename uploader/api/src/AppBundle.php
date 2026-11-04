@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class AppBundle extends Bundle
 {
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         $container->setParameter('app.upload.max_file_size', StackConfig::generateConfigEnvKey('uploader.max_upload_file_size', ''));
         $container->setParameter('app.upload.max_commit_size', StackConfig::generateConfigEnvKey('uploader.max_upload_commit_size', ''));

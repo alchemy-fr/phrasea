@@ -18,7 +18,7 @@ export default function RemoteErrors({errors}: Props) {
                 <Alert key={i} severity="error">
                     <div
                         style={{
-                            whiteSpace: 'pre',
+                            whiteSpace: 'pre-wrap',
                         }}
                     >
                         {nl2br(e)}

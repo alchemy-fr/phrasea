@@ -6,7 +6,7 @@ namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -16,7 +16,7 @@ final readonly class FacetHandler
     public const string MISSING_SUFFIX = '::missing';
 
     public function __construct(
-        private BuiltInAttributeRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInAttributeRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private TranslatorInterface $translator,
     ) {
@@ -24,7 +24,7 @@ final readonly class FacetHandler
 
     public function addBuiltInFacets(Query $query): void
     {
-        foreach ($this->builtInFieldRegistry->getAll() as $item) {
+        foreach ($this->builtInAttributeRegistry->getAll() as $item) {
             if (!$item->isFacet()) {
                 continue;
             }
@@ -50,12 +50,12 @@ final readonly class FacetHandler
                 continue;
             }
 
-            $builtInField = $this->builtInFieldRegistry->getBuiltInField($k);
-            if ($builtInField) {
+            $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($k);
+            if ($builtInAttribute) {
                 try {
-                    $f['buckets'] = array_values(array_filter($builtInField->normalizeBuckets($f['buckets']), fn ($value): bool => null !== $value));
+                    $f['buckets'] = array_values(array_filter($builtInAttribute->normalizeBuckets($f['buckets']), fn ($value): bool => null !== $value));
                 } catch (\Throwable $e) {
-                    throw new \Exception(sprintf('Error normalizing buckets with "%s" facet: %s', $builtInField::getKey(), $e->getMessage()), 0, $e);
+                    throw new \Exception(sprintf('Error normalizing buckets with "%s" facet: %s', $builtInAttribute::getKey(), $e->getMessage()), 0, $e);
                 }
             }
 
@@ -63,7 +63,7 @@ final readonly class FacetHandler
             try {
                 $f['buckets'] = array_values(array_filter($type->normalizeBuckets($f['buckets']), fn ($value): bool => null !== $value));
             } catch (\Throwable $e) {
-                throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $builtInField::getKey(), $e->getMessage()), 0, $e);
+                throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $builtInAttribute::getKey(), $e->getMessage()), 0, $e);
             }
 
             if (ESFacetInterface::TYPE_TEXT !== $widget = $type->getFacetType()) {

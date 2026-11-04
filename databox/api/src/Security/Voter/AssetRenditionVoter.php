@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\AssetRendition;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class AssetRenditionVoter extends AbstractVoter
@@ -34,19 +35,30 @@ class AssetRenditionVoter extends AbstractVoter
     /**
      * @param AssetRendition $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return $this->cache->get(sprintf('%s,%s,%s', $attribute, $subject->getId(), spl_object_id($token)), fn () => $this->doVote($attribute, $subject, $token));
     }
 
     private function doVote(string $attribute, AssetRendition $subject, TokenInterface $token): bool
     {
-        $renditionPolicy = $subject->getDefinition()->getPolicy();
+        $definition = $subject->getDefinition();
+        if (null === $definition) {
+            return match ($attribute) {
+                self::READ => $this->security->isGranted(AbstractVoter::READ, $subject->getAsset()),
+                self::CREATE,
+                self::EDIT,
+                self::DELETE => $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),
+                default => false,
+            };
+        }
+
+        $renditionPolicy = $definition->getPolicy();
         $isRead = fn (): bool => $renditionPolicy->isPublic() || $this->hasAcl(PermissionInterface::CHILD_VIEW, $renditionPolicy, $token);
         $isEditable = fn (): bool => $renditionPolicy->isEditable() || $this->hasAcl(PermissionInterface::CHILD_EDIT, $renditionPolicy, $token);
 
         return match ($attribute) {
-            self::READ => $isRead(),
+            self::READ => $isRead() && $this->security->isGranted(self::READ, $subject->getAsset()),
             self::CREATE,
             self::EDIT,
             self::DELETE => $isEditable() && $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),

@@ -52,6 +52,15 @@ export function dataURLtoFile(dataurl: string, filename: string): File {
     return new File([u8arr], filename, {type: mime});
 }
 
+export function getExtensionFromFilename(filename: string): string | undefined {
+    const parts = filename.split('.');
+    if (parts.length > 1) {
+        return parts.pop()?.toLowerCase();
+    }
+
+    return undefined;
+}
+
 export function validateUrl(value: string): boolean {
     try {
         new URL(value);
@@ -59,4 +68,28 @@ export function validateUrl(value: string): boolean {
     } catch {
         return false;
     }
+}
+
+export function downloadUrl(
+    url: string,
+    filename?: string,
+    isBlob: boolean = false
+): void {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    if (filename) {
+        a.download = filename;
+    }
+    a.style.display = 'none';
+    document.body.append(a);
+    a.click();
+
+    setTimeout(() => {
+        a.remove();
+        if (isBlob) {
+            URL.revokeObjectURL(url);
+        }
+    }, 100);
 }

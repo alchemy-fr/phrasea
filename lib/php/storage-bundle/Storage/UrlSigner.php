@@ -18,6 +18,14 @@ final readonly class UrlSigner
     ) {
     }
 
+    /**
+     * Validity (in seconds) of the URLs produced by getSignedUrl() when no "ttl" option is given.
+     */
+    public function getTtl(): int
+    {
+        return $this->ttl;
+    }
+
     public function getSignedUrl(string $path, array $options = []): string
     {
         if ($this->cloudFrontUrlGenerator->isEnabled()) {

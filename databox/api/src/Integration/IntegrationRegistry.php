@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 class IntegrationRegistry
 {
@@ -14,7 +14,7 @@ class IntegrationRegistry
     private array $integrations;
 
     public function __construct(
-        #[TaggedIterator(tag: 'app.integration', defaultIndexMethod: 'getName')]
+        #[AutowireIterator(tag: 'app.integration', indexAttribute: 'key')]
         iterable $integrations,
     ) {
         $this->integrations = $integrations instanceof \Traversable ? iterator_to_array($integrations) : $integrations;

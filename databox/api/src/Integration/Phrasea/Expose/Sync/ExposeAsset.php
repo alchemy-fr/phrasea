@@ -17,6 +17,8 @@ final readonly class ExposeAsset
          * @var array<ExposeSubDefinition>
          */
         public array $subDefinitions,
+        /** Hash of the clip the published file was cut to */
+        public ?string $clipHash = null,
     ) {
     }
 }

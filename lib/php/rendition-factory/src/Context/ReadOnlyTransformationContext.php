@@ -2,6 +2,7 @@
 
 namespace Alchemy\RenditionFactory\Context;
 
+use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Psr\Log\LoggerInterface;
@@ -12,7 +13,14 @@ final readonly class ReadOnlyTransformationContext implements TransformationCont
         private MimeTypeGuesser $mimeTypeGuesser,
         private LoggerInterface $logger,
         private ?MetadataContainerInterface $metadata = null,
+        /** @var InputFileInterface[] */
+        private array $inputFiles = [],
     ) {
+    }
+
+    public function getInputFiles(): array
+    {
+        return $this->inputFiles;
     }
 
     public function createTmpFilePath(?string $extension): string

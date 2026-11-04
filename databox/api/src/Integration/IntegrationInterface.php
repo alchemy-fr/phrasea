@@ -7,6 +7,7 @@ namespace App\Integration;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 interface IntegrationInterface
 {
@@ -16,16 +17,33 @@ interface IntegrationInterface
 
     public static function getDisplayName(): string;
 
+    /**
+     * A short sentence describing what the integration does, shown in the catalog.
+     */
+    public static function getDescription(): TranslatableInterface;
+
+    /**
+     * The catalog categories, the first one being the main one.
+     *
+     * @return IntegrationCategory[]
+     */
+    public static function getCategories(): array;
+
     public function buildConfiguration(NodeBuilder $builder): void;
 
     public function generateConfigurationDefaults(array $userConfig): array;
 
+    /**
+     * Prepares the (normalized) configuration of an integration copy, e.g. to renew its secrets.
+     */
+    public function prepareDuplicateConfiguration(array $config): array;
+
     public function validateConfiguration(IntegrationConfig $config): void;
 
     // Normalize configuration to be persisted to database
-    public function normalizeConfiguration(array $config, Workspace $workspace): array;
+    public function normalizeConfiguration(array $config, ?Workspace $workspace): array;
 
-    public function denormalizeConfiguration(array $config, Workspace $workspace): array;
+    public function denormalizeConfiguration(array $config, ?Workspace $workspace): array;
 
     public function getConfigurationInfo(IntegrationConfig $config): array;
 

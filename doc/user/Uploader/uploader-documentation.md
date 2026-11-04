@@ -141,7 +141,7 @@ Parameters defined in the “Target Parameter Editor” take precedence over inf
 
 ## Possible Notifications
 
-It is possible to notify the sender via Uploader. Like other modules, the “Uploader” module integrates Novu for notification management.
+It is possible to notify the sender via Uploader. Like other modules, the “Uploader” module sends notifications (email and in-app) through the notifier bundle.
 
 ## FAQ
 

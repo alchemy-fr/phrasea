@@ -6,16 +6,22 @@ namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
+#[AsTaggedItem(index: self::NAME)]
 class PhraseanetRenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'phraseanet.renditions';
+
     final public const string METHOD_ENQUEUE = 'enqueue';
     final public const string METHOD_API = 'api';
 
@@ -56,6 +62,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
                 ->defaultValue('${PHRASEANET_API_TOKEN}')
                 ->cannotBeEmpty()
                 ->info('The Phraseanet API key')
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end()
         ;
     }
@@ -133,8 +140,15 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         return 'Phraseanet Renditions';
     }
 
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Processing,
+        ];
+    }
+
     public static function getName(): string
     {
-        return 'phraseanet.renditions';
+        return self::NAME;
     }
 }

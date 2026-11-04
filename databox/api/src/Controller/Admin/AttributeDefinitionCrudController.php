@@ -100,10 +100,22 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield BooleanField::new('suggest')
             ->hideOnIndex()
             ->renderAsSwitch(false);
+        yield BooleanField::new('annotationsEnabled')
+            ->hideOnIndex()
+            ->renderAsSwitch(false);
         yield IntegerField::new('searchBoost')
             ->hideOnIndex();
         yield TextareaField::new('initialValuesAll')
             ->hideOnIndex();
+        yield ArrayField::new('readFromMetadata')
+            ->hideOnIndex()
+            ->setHelp('Ordered list of metadata tag names to read to initialize the attribute (first found wins), e.g. IPTC:Keywords');
+        yield ArrayField::new('writeMetadata')
+            ->hideOnIndex()
+            ->setHelp('Metadata tag names into which the attribute value is written on export, e.g. IPTC:Keywords');
+        yield AssociationField::new('writeMetadataRenditions')
+            ->hideOnIndex()
+            ->setHelp('Renditions the attribute is written into. Leave empty to write it into every rendition.');
         yield TextareaField::new('fallbackAll')
             ->hideOnIndex()
             ->setHelp('e.g. twig variable: {{file.type}} {{file.size}} {{file.checksum}} {{file.originalName}} {{file.extension}} {{asset.name}} {{attr.photographer}}');

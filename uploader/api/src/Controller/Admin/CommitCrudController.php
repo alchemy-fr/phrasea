@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Consumer\Handler\AssetConsumerNotify;
 use App\Entity\Commit;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -100,6 +101,7 @@ class CommitCrudController extends AbstractAdminCrudController
             ->hideOnForm();
     }
 
+    #[AdminRoute(path: '/{entityId}/trigger-again', name: 'trigger_again')]
     public function triggerAgain(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator)
     {
         $commit = $adminContext->getEntity()->getInstance();

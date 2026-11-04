@@ -9,17 +9,27 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\InIdsFilter;
+use App\Api\Filter\TranslatedTextSearchFilter;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
-use App\Controller\Core\FlushWorkspaceAction;
-use App\Controller\Core\GetWorkspaceBySlugAction;
+use App\Api\Processor\DeleteWorkspaceLogoProcessor;
+use App\Api\Processor\DeleteWorkspaceTermsPdfProcessor;
+use App\Api\Processor\FlushWorkspaceProcessor;
+use App\Api\Processor\InputMapperProcessor;
+use App\Api\Processor\SignWorkspaceTermsProcessor;
+use App\Api\Processor\UploadWorkspaceLogoProcessor;
+use App\Api\Processor\UploadWorkspaceTermsPdfProcessor;
+use App\Api\Provider\WorkspaceBySlugProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -39,22 +49,83 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'workspace',
     operations: [
         new Get(
-            security: 'is_granted("READ", object)'
+            security: 'is_granted("READ_NO_TERMS", object)'
         ),
-        new Put(
-            securityPostDenormalize: 'is_granted("EDIT", object)'
+        new Patch(
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("EDIT", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Post(
             uriTemplate: '/workspaces/{id}/flush',
-            controller: FlushWorkspaceAction::class,
+            throwOnNotFound: true,
             security: 'is_granted("EDIT", object)',
-            read: true,
+            input: false,
+            processor: FlushWorkspaceProcessor::class,
             name: 'flush'
         ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/terms/sign',
+            throwOnNotFound: true,
+            security: 'is_granted("READ_NO_TERMS", object)',
+            input: false,
+            processor: SignWorkspaceTermsProcessor::class,
+            name: 'sign_terms'
+        ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/terms',
+            security: 'is_granted("EDIT", object)',
+            input: false,
+            throwOnNotFound: true,
+            processor: UploadWorkspaceTermsPdfProcessor::class,
+            name: 'upload_terms_pdf'
+        ),
+        new Delete(
+            uriTemplate: '/workspaces/{id}/terms',
+            security: 'is_granted("EDIT", object)',
+            processor: DeleteWorkspaceTermsPdfProcessor::class,
+            name: 'delete_terms_pdf'
+        ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/logo',
+            security: 'is_granted("EDIT", object)',
+            input: false,
+            throwOnNotFound: true,
+            processor: UploadWorkspaceLogoProcessor::class,
+            name: 'upload_logo'
+        ),
+        new Delete(
+            uriTemplate: '/workspaces/{id}/logo',
+            security: 'is_granted("EDIT", object)',
+            processor: DeleteWorkspaceLogoProcessor::class,
+            name: 'delete_logo'
+        ),
         new GetCollection(
+            order: ['name' => 'ASC', 'id' => 'ASC'],
             normalizationContext: [
                 'groups' => [self::GROUP_LIST],
+            ],
+            parameters: [
+                'name' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new TranslatedTextSearchFilter(),
+                    properties: ['name'],
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the name or any translation of the name',
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'ids' => new QueryParameter(
+                    filter: InIdsFilter::class,
+                    property: 'id',
+                    hydra: false,
+                ),
             ],
         ),
         new Get(
@@ -62,11 +133,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriVariables: [
                 'slug' => 'slug',
             ],
-            controller: GetWorkspaceBySlugAction::class,
+            security: 'is_granted("READ_NO_TERMS", object)',
+            provider: WorkspaceBySlugProvider::class,
             name: 'get_by_slug'
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -98,6 +171,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private const string CONFIG_TRASH_RETENTION_DELAY = 'trashRetentionDelay';
     private const string CONFIG_ASSET_DEFAULT_STATUS = 'assetDefaultStatus';
     private const string CONFIG_FILE_ANALYSIS_REQUIRED = 'fileAnalysisRequired';
+    private const string CONFIG_ATTACH_TERMS_TO_EXPORTS = 'attachTermsToExports';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -168,6 +242,10 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
      */
     #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: File::class)]
     protected ?DoctrineCollection $files = null;
+
+    #[ORM\OneToOne(targetEntity: ImageSet::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?ImageSet $logo = null;
 
     public function __construct()
     {
@@ -260,6 +338,32 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         }
 
         $this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED] = $required;
+    }
+
+    public function isAttachTermsToExports(): bool
+    {
+        return $this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS] ?? false;
+    }
+
+    public function setAttachTermsToExports(?bool $attach): void
+    {
+        if (true !== $attach) {
+            unset($this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS] = true;
+    }
+
+    public function getLogo(): ?ImageSet
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(?ImageSet $logo): void
+    {
+        $this->logo = $logo;
     }
 
     public function getEnabledLocales(): array

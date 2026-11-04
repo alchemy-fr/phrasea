@@ -1,0 +1,5 @@
+generate:
+    input: thumbnail
+    transformations:
+        - module: contact_sheet
+          options: {grid: 2, size: 400, gap: 2, format: webp}

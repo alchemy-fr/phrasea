@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Alchemy\ESBundle\Indexer;
 
 use Alchemy\ESBundle\Message\ESIndex;
-use Doctrine\Common\Util\ClassUtils;
+use Alchemy\ESBundle\Util\ClassUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
@@ -30,7 +30,7 @@ final class SearchIndexer
         private readonly EntityManagerInterface $em,
         private LoggerInterface $logger,
         private readonly IndexPersister $indexPersister,
-        #[TaggedIterator(IndexableDependenciesResolverInterface::TAG)]
+        #[AutowireIterator(IndexableDependenciesResolverInterface::TAG)]
         private readonly iterable $dependenciesResolvers,
         private readonly bool $direct,
         private readonly int $maxDependencyStacksCount = 5,
@@ -107,7 +107,7 @@ final class SearchIndexer
 
     private function indexClass(string $class, array $ids, Operation $operation, int $depth, array $currentBatch, array $parents): void
     {
-        $class = ClassUtils::getRealClass($class);
+        $class = ClassUtil::getRealClass($class);
         $ids = array_unique($ids);
 
         $this->logger->debug(sprintf('ES index %s %s: ("%s")', $class, $operation->name, implode('", "', $ids)));
@@ -127,19 +127,21 @@ final class SearchIndexer
                     ->getQuery()
                     ->getResult();
 
-                if (empty($objects)) {
-                    $this->logger->alert('No document found for index', [
+                // Entities may legitimately disappear between the scheduling of the
+                // indexation and its consumption (asset or workspace deleted meanwhile):
+                // make the index converge by removing their documents instead of alerting.
+                $foundIds = array_map(fn (object $object): string => (string) $object->getId(), $objects);
+                $missingIds = array_values(array_diff(array_map(strval(...), $ids), $foundIds));
+                if (!empty($missingIds)) {
+                    $this->logger->info(empty($objects) ? 'No document found for index' : 'Some documents were not found for index', [
                         'class' => $class,
-                        'ids' => implode(', ', $ids),
+                        'ids' => implode(', ', $missingIds),
                     ]);
-
-                    return;
+                    $this->indexPersister->deleteManyByIdentifiers($class, $missingIds);
                 }
 
-                if (count($objects) !== count($ids)) {
-                    $this->logger->alert('Some documents were not found for index', [
-                        'class' => $class,
-                    ]);
+                if (empty($objects)) {
+                    return;
                 }
 
                 if (Operation::Insert === $operation) {
@@ -209,7 +211,7 @@ final class SearchIndexer
             if (is_array($entity)) {
                 [$class, $id] = $entity;
             } else {
-                $class = ClassUtils::getRealClass($entity::class);
+                $class = ClassUtil::getRealClass($entity::class);
                 $id = $entity->getId();
             }
 

@@ -11,6 +11,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Template\AssetDataTemplate;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetDataTemplateVoter;
@@ -18,6 +19,7 @@ use Doctrine\ORM\QueryBuilder;
 
 class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     public function applyToCollection(
@@ -27,10 +29,10 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        $this->addWhere($queryBuilder, $resourceClass, $context);
+        $this->addWhere($queryBuilder, $resourceClass, $operation);
     }
 
-    private function addWhere(QueryBuilder $queryBuilder, string $resourceClass, array $context): void
+    private function addWhere(QueryBuilder $queryBuilder, string $resourceClass, ?Operation $operation): void
     {
         if (AssetDataTemplate::class !== $resourceClass) {
             return;
@@ -57,11 +59,11 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
             }
         }
 
-        $filters = $context['filters'] ?? [];
-        if (isset($filters['collection'])) {
+        $collectionId = null !== $operation ? self::getParameterValue($operation, 'collection') : null;
+        if (\is_string($collectionId) && '' !== $collectionId) {
             $queryBuilder
                 ->andWhere(sprintf('%1$s.collection = :colId OR %1$s.collection IS NULL', $rootAlias))
-                ->setParameter('colId', $filters['collection'])
+                ->setParameter('colId', basename($collectionId))
             ;
         } else {
             $queryBuilder->andWhere(sprintf('%1$s.collection IS NULL', $rootAlias));

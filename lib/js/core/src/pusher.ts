@@ -6,24 +6,70 @@ function normalizeChannel(channel: string): string {
     return channel.replace(/[^a-z0-9_\-=@,.;]/gi, '.');
 }
 
+export type ChannelAuthorizationData = {
+    auth: string;
+    channel_data?: string;
+    shared_secret?: string;
+};
+
+/**
+ * Authorizes a subscription to a private/presence channel. Given the connection
+ * socket id and the channel name, it must resolve to the signature returned by
+ * the backend auth endpoint. Only called by pusher-js for `private-`/`presence-`
+ * prefixed channels; public channels never trigger it.
+ */
+export type ChannelAuthorizer = (params: {
+    socketId: string;
+    channelName: string;
+}) => Promise<ChannelAuthorizationData>;
+
 export function createPusher({
     key,
     host,
     onConnectionError,
+    authorize,
     options,
 }: {
     key: string;
     host: string;
     onConnectionError?: (error: any) => void;
+    authorize?: ChannelAuthorizer;
     options?: Partial<Options>;
 }): Pusher {
+    // The host carries the public port when the stack is not served on 443.
+    const [wsHost, port] = host.split(':');
+    const wsPort = port ? Number(port) : 443;
+
     const pusher = new Pusher(key, {
-        wsHost: host,
-        wsPort: 443,
+        wsHost,
+        wsPort,
+        wssPort: wsPort,
         forceTLS: true,
         disableStats: true,
         enabledTransports: ['ws'],
         cluster: '',
+        ...(authorize
+            ? {
+                  channelAuthorization: {
+                      // `transport`/`endpoint` are required by the type but
+                      // ignored when a customHandler is provided.
+                      transport: 'ajax',
+                      endpoint: '',
+                      customHandler: ({socketId, channelName}, callback) => {
+                          authorize({socketId, channelName})
+                              .then(data => callback(null, data))
+                              .catch(err =>
+                                  callback(
+                                      err instanceof Error
+                                          ? err
+                                          : new Error(String(err)),
+                                      null
+                                  )
+                              );
+                      },
+                  },
+              }
+            : {}),
         ...(options ?? {}),
     });
 

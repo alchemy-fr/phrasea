@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\ProfileItemInput;
 use App\Api\Model\Output\ProfileItemOutput;
 use App\Api\Processor\PutProfileItemProcessor;
+use App\Api\Provider\ProfileItemCollectionProvider;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
@@ -23,7 +24,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ApiResource(
     uriTemplate: '/profiles/{id}/items',
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            provider: ProfileItemCollectionProvider::class,
+        ),
         new Put(
             uriTemplate: '/profiles/{id}/items/{itemId}',
             security: 'is_granted("'.AbstractVoter::EDIT.'", object.getProfile())',
@@ -48,11 +51,34 @@ class ProfileItem extends AbstractUuidEntity
 {
     final public const int SECTION_ATTRIBUTES = 0;
     final public const int SECTION_FACETS = 1;
+    final public const int SECTION_GRID = 2;
+    final public const int SECTION_FILTERS = 3;
 
     final public const int TYPE_ATTR_DEF = 0;
     final public const int TYPE_BUILT_IN = 1;
     final public const int TYPE_DIVIDER = 2;
     final public const int TYPE_SPACER = 3;
+
+    /**
+     * Grid card regions (stored in options.placement.region).
+     */
+    final public const string REGION_OVER = 'over';
+    final public const string REGION_BELOW = 'below';
+
+    final public const array REGIONS = [
+        self::REGION_OVER,
+        self::REGION_BELOW,
+    ];
+
+    /**
+     * Valid anchors per region (stored in options.placement.anchor).
+     * The over top corners (tl, tr) are reserved for the item controls and
+     * the bottom-right one (br) for the file type chip.
+     */
+    final public const array ANCHORS = [
+        self::REGION_OVER => ['tc', 'ml', 'cc', 'mr', 'bl', 'bc'],
+        self::REGION_BELOW => ['l', 'c', 'r'],
+    ];
 
     final public const array TYPES = [
         'Attribute Definition' => self::TYPE_ATTR_DEF,
@@ -63,6 +89,31 @@ class ProfileItem extends AbstractUuidEntity
     final public const array SECTIONS = [
         'Attributes' => self::SECTION_ATTRIBUTES,
         'Facets' => self::SECTION_FACETS,
+        'Grid' => self::SECTION_GRID,
+        'Filters' => self::SECTION_FILTERS,
+    ];
+
+    /**
+     * Sections listing attributes only (no divider nor spacer).
+     */
+    final public const array ATTRIBUTE_ONLY_SECTIONS = [
+        self::SECTION_FACETS,
+        self::SECTION_FILTERS,
+    ];
+
+    /**
+     * How a pinned search filter picks a boolean value (stored in options.widget):
+     * a dropdown menu, radio buttons in a popover, or radio buttons laid out
+     * in the search bar.
+     */
+    final public const string WIDGET_SELECT = 'select';
+    final public const string WIDGET_RADIO = 'radio';
+    final public const string WIDGET_INLINE = 'inline';
+
+    final public const array WIDGETS = [
+        self::WIDGET_SELECT,
+        self::WIDGET_RADIO,
+        self::WIDGET_INLINE,
     ];
 
     #[ORM\ManyToOne(targetEntity: Profile::class, inversedBy: 'items')]
@@ -173,13 +224,203 @@ class ProfileItem extends AbstractUuidEntity
 
     public function setFormat(?string $format): void
     {
-        if (null === $format) {
+        if (null === $format || '' === $format) {
             unset($this->options['format']);
 
             return;
         }
 
         $this->options['format'] = $format;
+    }
+
+    /**
+     * @return array{region: string, anchor: string, order?: int}|null
+     */
+    public function getPlacement(): ?array
+    {
+        return $this->options['placement'] ?? null;
+    }
+
+    /**
+     * @param array{region: string, anchor: string, order?: int}|null $placement
+     */
+    public function setPlacement(?array $placement): void
+    {
+        if (null === $placement) {
+            unset($this->options['placement']);
+
+            return;
+        }
+
+        $this->options['placement'] = $placement;
+    }
+
+    public function getVariant(): ?string
+    {
+        return $this->options['variant'] ?? null;
+    }
+
+    public function setVariant(?string $variant): void
+    {
+        if (null === $variant) {
+            unset($this->options['variant']);
+
+            return;
+        }
+
+        $this->options['variant'] = $variant;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->options['color'] ?? null;
+    }
+
+    public function setColor(?string $color): void
+    {
+        if (null === $color || '' === $color) {
+            unset($this->options['color']);
+
+            return;
+        }
+
+        $this->options['color'] = $color;
+    }
+
+    public function getSize(): ?string
+    {
+        return $this->options['size'] ?? null;
+    }
+
+    public function setSize(?string $size): void
+    {
+        if (null === $size || '' === $size) {
+            unset($this->options['size']);
+
+            return;
+        }
+
+        $this->options['size'] = $size;
+    }
+
+    public function isShowLabel(): ?bool
+    {
+        return $this->options['showLabel'] ?? null;
+    }
+
+    public function setShowLabel(?bool $showLabel): void
+    {
+        if (null === $showLabel) {
+            unset($this->options['showLabel']);
+
+            return;
+        }
+
+        $this->options['showLabel'] = $showLabel;
+    }
+
+    public function isShowIcon(): ?bool
+    {
+        return $this->options['showIcon'] ?? null;
+    }
+
+    public function setShowIcon(?bool $showIcon): void
+    {
+        if (null === $showIcon) {
+            unset($this->options['showIcon']);
+
+            return;
+        }
+
+        $this->options['showIcon'] = $showIcon;
+    }
+
+    public function getWidget(): ?string
+    {
+        return $this->options['widget'] ?? null;
+    }
+
+    public function setWidget(?string $widget): void
+    {
+        if (null === $widget || '' === $widget) {
+            unset($this->options['widget']);
+
+            return;
+        }
+
+        $this->options['widget'] = $widget;
+    }
+
+    public function getTrueLabel(): ?string
+    {
+        return $this->options['trueLabel'] ?? null;
+    }
+
+    public function setTrueLabel(?string $trueLabel): void
+    {
+        $this->setLabelOption('trueLabel', $trueLabel);
+    }
+
+    public function getFalseLabel(): ?string
+    {
+        return $this->options['falseLabel'] ?? null;
+    }
+
+    public function setFalseLabel(?string $falseLabel): void
+    {
+        $this->setLabelOption('falseLabel', $falseLabel);
+    }
+
+    private function setLabelOption(string $name, ?string $label): void
+    {
+        $label = null !== $label ? trim($label) : null;
+        if (null === $label || '' === $label) {
+            unset($this->options[$name]);
+
+            return;
+        }
+
+        $this->options[$name] = $label;
+    }
+
+    /**
+     * Whether a boolean filter offers "false" first.
+     */
+    public function isReversed(): bool
+    {
+        return $this->options['reversed'] ?? false;
+    }
+
+    public function setReversed(?bool $reversed): void
+    {
+        if (!$reversed) {
+            unset($this->options['reversed']);
+
+            return;
+        }
+
+        $this->options['reversed'] = true;
+    }
+
+    /**
+     * The AQL condition a pinned search filter applies by default, until the
+     * user picks another value or clears it.
+     */
+    public function getDefaultQuery(): ?string
+    {
+        return $this->options['defaultQuery'] ?? null;
+    }
+
+    public function setDefaultQuery(?string $defaultQuery): void
+    {
+        $defaultQuery = null !== $defaultQuery ? trim($defaultQuery) : null;
+        if (null === $defaultQuery || '' === $defaultQuery) {
+            unset($this->options['defaultQuery']);
+
+            return;
+        }
+
+        $this->options['defaultQuery'] = $defaultQuery;
     }
 
     #[Assert\Callback]
@@ -212,6 +453,43 @@ class ProfileItem extends AbstractUuidEntity
                         ->addViolation();
                 }
                 break;
+        }
+
+        if (in_array($this->section, self::ATTRIBUTE_ONLY_SECTIONS, true)
+            && in_array($this->type, [self::TYPE_DIVIDER, self::TYPE_SPACER], true)) {
+            $context->buildViolation('Only attributes are allowed in this section.')
+                ->atPath('type')
+                ->addViolation();
+        }
+
+        $widget = $this->getWidget();
+        if (null !== $widget && !in_array($widget, self::WIDGETS, true)) {
+            $context->buildViolation(sprintf('Invalid widget "%s".', $widget))
+                ->atPath('widget')
+                ->addViolation();
+        }
+
+        if (self::SECTION_GRID === $this->section) {
+            $placement = $this->getPlacement();
+            if (null === $placement) {
+                $context->buildViolation('A placement is required for grid items.')
+                    ->atPath('placement')
+                    ->addViolation();
+
+                return;
+            }
+
+            $region = $placement['region'] ?? null;
+            $anchor = $placement['anchor'] ?? null;
+            if (!in_array($region, self::REGIONS, true)) {
+                $context->buildViolation(sprintf('Invalid grid region "%s".', (string) $region))
+                    ->atPath('placement')
+                    ->addViolation();
+            } elseif (!in_array($anchor, self::ANCHORS[$region], true)) {
+                $context->buildViolation(sprintf('Invalid anchor "%s" for region "%s".', (string) $anchor, $region))
+                    ->atPath('placement')
+                    ->addViolation();
+            }
         }
     }
 }

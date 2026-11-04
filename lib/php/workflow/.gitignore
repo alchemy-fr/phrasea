@@ -3,6 +3,7 @@
 /.php_cs.cache
 .phpunit
 .phpunit.result.cache
+/.phpunit.cache/
 /phpunit.xml
 /.php-cs-fixer.php
 /.php-cs-fixer.cache

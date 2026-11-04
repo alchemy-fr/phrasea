@@ -14,7 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PublicationConfigType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('enabled', TrueFalseNullChoiceType::class)
@@ -39,7 +39,7 @@ class PublicationConfigType extends AbstractType
             ->add('downloadViaEmail', TrueFalseNullChoiceType::class)
             ->add('downloadTerms', TermsConfigType::class)
             ->add('terms', TermsConfigType::class)
-            ->add('includeDownloadTermsInZippy', TrueFalseNullChoiceType::class)
+            ->add('includeDownloadTermsInArchive', TrueFalseNullChoiceType::class)
             ->add('mapOptions', MapOptionsType::class)
         ;
     }

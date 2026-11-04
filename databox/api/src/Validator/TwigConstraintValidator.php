@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Validator;
 
+use App\Service\Asset\Attribute\TemplateResolver;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Twig\Environment;
 use Twig\Error\SyntaxError;
-use Twig\Loader\ArrayLoader;
-use Twig\Source;
+use Twig\Sandbox\SecurityError;
 
 class TwigConstraintValidator extends ConstraintValidator
 {
@@ -23,17 +22,22 @@ class TwigConstraintValidator extends ConstraintValidator
             return;
         }
 
-        $twig = new Environment(new ArrayLoader());
+        $twig = TemplateResolver::createEnvironment();
 
         try {
-            $source = new Source((string) $value, 'template');
-
-            $stream = $twig->tokenize($source);
-            $twig->parse($stream);
+            // Checks the tags and functions against the sandbox policy (usually done on render)
+            $twig->createTemplate((string) $value)->unwrap()->ensureSecurityChecked();
         } catch (SyntaxError $e) {
             $this->context
                 ->buildViolation(sprintf(
                     'Twig syntax error: %s',
+                    $e->getMessage()
+                ))
+                ->addViolation();
+        } catch (SecurityError $e) {
+            $this->context
+                ->buildViolation(sprintf(
+                    'Twig template not allowed: %s',
                     $e->getMessage()
                 ))
                 ->addViolation();

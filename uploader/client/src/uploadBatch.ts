@@ -1,4 +1,5 @@
-import axios, {AxiosProgressEvent} from 'axios';
+import axios from 'axios';
+import {MultipartUploadProgress} from '@alchemy/api/src/multiPartUpload';
 import {apiClient, oauthClient} from './init.ts';
 import {
     AbortableFile,
@@ -325,7 +326,7 @@ export default class UploadBatch {
         this.completeListeners = [];
     }
 
-    onUploadProgress(event: AxiosProgressEvent, index: number) {
+    onUploadProgress(event: MultipartUploadProgress, index: number) {
         this.progresses[index] = event.loaded;
 
         let totalLoaded = 0;

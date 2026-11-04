@@ -1,0 +1,3 @@
+{% block subject %}{{ 'commit.acknowledged.in_app.subject'|trans({}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'commit.acknowledged.in_app.body'|trans({'%count%': assetCount}, 'notifications')|raw }}{% endblock %}

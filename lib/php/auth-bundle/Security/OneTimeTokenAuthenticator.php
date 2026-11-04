@@ -4,6 +4,7 @@ namespace Alchemy\AuthBundle\Security;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\RandomUtil;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -12,7 +13,10 @@ final class OneTimeTokenAuthenticator
 {
     use SecurityAwareTrait;
 
+    private const string CACHE_KEY_PREFIX = 'ott.';
+
     public function __construct(
+        #[Target]
         private readonly CacheInterface $oneTimeTokenCache,
     ) {
     }
@@ -23,7 +27,7 @@ final class OneTimeTokenAuthenticator
 
         $token = RandomUtil::generateString(128);
 
-        $this->oneTimeTokenCache->get($token, function (ItemInterface $item) use ($userOrClient) {
+        $this->oneTimeTokenCache->get(self::CACHE_KEY_PREFIX.$token, function (ItemInterface $item) use ($userOrClient) {
             $item->expiresAfter(60 * 5);
 
             if ($userOrClient instanceof JwtUser) {
@@ -52,11 +56,11 @@ final class OneTimeTokenAuthenticator
 
     public function consumeToken(string $token): JwtInterface
     {
-        $user = $this->oneTimeTokenCache->get($token, function (): never {
+        $user = $this->oneTimeTokenCache->get(self::CACHE_KEY_PREFIX.$token, function (): never {
             throw new AuthenticationException();
         });
 
-        $this->oneTimeTokenCache->delete($token);
+        $this->oneTimeTokenCache->delete(self::CACHE_KEY_PREFIX.$token);
 
         if ('client' === $user['type']) {
             return new JwtOauthClient(

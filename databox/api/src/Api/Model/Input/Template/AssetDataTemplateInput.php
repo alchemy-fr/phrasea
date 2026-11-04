@@ -8,11 +8,9 @@ use App\Api\Model\Input\AbstractOwnerIdInput;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class AssetDataTemplateInput extends AbstractOwnerIdInput
 {
-    #[Assert\NotBlank]
     public ?string $name = null;
 
     public ?bool $public = null;
@@ -26,7 +24,6 @@ class AssetDataTemplateInput extends AbstractOwnerIdInput
     /**
      * @var Workspace
      */
-    #[Assert\NotNull]
     public $workspace;
 
     /**

@@ -9,24 +9,26 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
-use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
-use App\Api\Filter\InWorkspacesFilter;
-use App\Api\Filter\PartialSearchFilter;
-use App\Api\Filter\SearchFilter;
+use App\Api\Filter\InIdsFilter;
+use App\Api\Filter\TranslatedTextSearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
+use App\Api\Processor\DuplicateAttributeDefinitionProcessor;
+use App\Api\Processor\InputMapperProcessor;
+use App\Api\Processor\Sort\AttributeDefinitionSortProcessor;
 use App\Attribute\AttributeInterface;
-use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
@@ -35,6 +37,8 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Validator\SameWorkspaceConstraint;
+use App\Validator\TwigConstraint;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -42,7 +46,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'attribute-definition',
@@ -51,30 +54,113 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)'
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
+        new Post(
+            uriTemplate: '/attribute-definitions/{id}/duplicate',
+            throwOnNotFound: true,
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: false,
+            processor: DuplicateAttributeDefinitionProcessor::class,
+            name: 'duplicate_attribute_definition',
         ),
-        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(
-            order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC'],
+            order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC', 'id' => 'ASC'],
             normalizationContext: [
                 'groups' => [AttributeDefinition::GROUP_LIST],
             ],
             parameters: [
                 'searchable' => new QueryParameter(
-                    filter: BooleanFilter::class,
+                    filter: new ExactFilter(),
                     property: 'searchable',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'facetEnabled' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'facetEnabled',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'translatable' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'translatable',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'multiple' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'multiple',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'enabled' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'enabled',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'sortable' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'sortable',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                    hydra: false,
                 ),
                 'name' => new QueryParameter(
-                    filter: PartialSearchFilter::class,
+                    filter: new PartialSearchFilter(),
                     property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new TranslatedTextSearchFilter(),
+                    properties: ['name', 'slug'],
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the name, the slug or any translation of the name',
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'ids' => new QueryParameter(
+                    filter: InIdsFilter::class,
+                    property: 'id',
+                    hydra: false,
+                ),
+                'slugs' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'slug',
+                    schema: ['type' => 'array', 'items' => ['type' => 'string']],
+                    hydra: false,
+                ),
+                'entityListId' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'entityList',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
                 ),
                 'type' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'type'),
+                    filter: new ExactFilter(),
+                    property: 'type',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
                 'workspaceId' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'workspace'),
+                    filter: new ExactFilter(),
+                    property: 'workspace',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
                 'workspaceIds' => new QueryParameter(
-                    filter: InWorkspacesFilter::class,
+                    filter: InIdsFilter::class,
                     property: 'workspace',
                 ),
                 'target' => new QueryParameter(
@@ -85,16 +171,18 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         ),
         new Post(
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/attribute-definitions/sort',
-            controller: AttributeDefinitionSortAction::class,
-            openapiContext: [
-                'summary' => 'Reorder items',
-                'description' => 'Reorder items',
-                'requestBody' => [
-                    'content' => [
+            status: 200,
+            processor: AttributeDefinitionSortProcessor::class,
+            openapi: new OpenApiOperation(
+                summary: 'Reorder items',
+                description: 'Reorder items',
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
                                 'description' => 'Ordered list of IDs',
@@ -102,9 +190,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                                 'items' => ['type' => 'string'],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             input: false,
             output: false,
@@ -132,13 +220,13 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     properties: [
         'workspace',
         'policy.workspace',
+        'entityList.workspace',
     ],
 )]
 #[UniqueEntity(
     fields: ['workspace', 'name'],
     errorPath: 'name',
 )]
-#[ApiFilter(BooleanFilter::class, properties: ['searchable', 'facetEnabled', 'translatable', 'multiple', 'enabled'])]
 class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
@@ -156,6 +244,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private const string OPT_MIN_LENGTH = 'min-length';
     private const string OPT_MAX_LENGTH = 'max-length';
     private const string OPT_REQUIRED = 'req';
+    private const string OPT_ANNOTATIONS = 'annotations';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -241,15 +330,45 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?int $searchBoost = null;
 
     /**
-     * Initialize attributes after asset creation; key=locale.
+     * Initialize attributes after asset creation from a Twig template; key=locale, value=Twig code.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Assert\All([new TwigConstraint()])]
     private ?array $initialValues = null;
+
+    /**
+     * Ordered list of metadata tag names to read from the source file to initialize
+     * the attribute. The first tag found in the file metadata is used.
+     *
+     * @var string[]|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $readFromMetadata = null;
+
+    /**
+     * List of metadata tag names into which the attribute value is written when the
+     * asset (or its rendition) is exported.
+     *
+     * @var string[]|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $writeMetadata = null;
+
+    /**
+     * Restricts the renditions this attribute is written into. An empty collection means
+     * every rendition whose definition has "writeMetadata" enabled.
+     *
+     * @var DoctrineCollection<int, RenditionDefinition>
+     */
+    #[ORM\ManyToMany(targetEntity: RenditionDefinition::class, inversedBy: 'writeMetadataAttributes')]
+    #[ORM\JoinTable(name: 'attribute_definition_write_rendition')]
+    private DoctrineCollection $writeMetadataRenditions;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Assert\All([new TwigConstraint()])]
     private ?array $fallback = null;
 
     /**
@@ -269,6 +388,13 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => true])]
     private bool $enabled = true;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->writeMetadataRenditions = new ArrayCollection();
+    }
 
     public function getName(): ?string
     {
@@ -483,6 +609,113 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         }
     }
 
+    /**
+     * @return string[]|null
+     */
+    public function getReadFromMetadata(): ?array
+    {
+        return $this->readFromMetadata;
+    }
+
+    /**
+     * @param string[]|null $readFromMetadata
+     */
+    public function setReadFromMetadata(?array $readFromMetadata): void
+    {
+        $this->readFromMetadata = self::normalizeMetadataList($readFromMetadata);
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getWriteMetadata(): ?array
+    {
+        return $this->writeMetadata;
+    }
+
+    /**
+     * @param string[]|null $writeMetadata
+     */
+    public function setWriteMetadata(?array $writeMetadata): void
+    {
+        $this->writeMetadata = self::normalizeMetadataList($writeMetadata);
+    }
+
+    /**
+     * @return DoctrineCollection<int, RenditionDefinition>
+     */
+    public function getWriteMetadataRenditions(): DoctrineCollection
+    {
+        return $this->writeMetadataRenditions;
+    }
+
+    /**
+     * @param iterable<RenditionDefinition> $renditionDefinitions
+     */
+    public function setWriteMetadataRenditions(iterable $renditionDefinitions): void
+    {
+        $wanted = [];
+        foreach ($renditionDefinitions as $renditionDefinition) {
+            $wanted[$renditionDefinition->getId()] = $renditionDefinition;
+        }
+
+        // remove/add rather than clear/add: a cleared owning collection is scheduled for
+        // deletion, and Doctrine then drops the inserts made in the same flush
+        foreach ($this->writeMetadataRenditions->toArray() as $renditionDefinition) {
+            if (!isset($wanted[$renditionDefinition->getId()])) {
+                $this->writeMetadataRenditions->removeElement($renditionDefinition);
+            }
+        }
+
+        foreach ($wanted as $renditionDefinition) {
+            $this->addWriteMetadataRendition($renditionDefinition);
+        }
+    }
+
+    public function addWriteMetadataRendition(RenditionDefinition $renditionDefinition): void
+    {
+        if (!$this->writeMetadataRenditions->contains($renditionDefinition)) {
+            $this->writeMetadataRenditions->add($renditionDefinition);
+        }
+    }
+
+    public function removeWriteMetadataRendition(RenditionDefinition $renditionDefinition): void
+    {
+        $this->writeMetadataRenditions->removeElement($renditionDefinition);
+    }
+
+    /**
+     * Whether this attribute is written into the given rendition. A dynamic rendition has no
+     * definition: only unscoped attributes reach it.
+     */
+    public function isWrittenIntoRendition(?RenditionDefinition $renditionDefinition): bool
+    {
+        if ($this->writeMetadataRenditions->isEmpty()) {
+            return true;
+        }
+
+        return null !== $renditionDefinition && $this->writeMetadataRenditions->contains($renditionDefinition);
+    }
+
+    /**
+     * @param string[]|null $list
+     *
+     * @return string[]|null
+     */
+    private static function normalizeMetadataList(?array $list): ?array
+    {
+        if (null === $list) {
+            return null;
+        }
+
+        $list = array_values(array_filter(
+            array_map('trim', $list),
+            static fn (string $s): bool => '' !== $s,
+        ));
+
+        return [] === $list ? null : $list;
+    }
+
     public function isSortable(): bool
     {
         return $this->sortable;
@@ -501,6 +734,16 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     public function setLabels(?array $labels): void
     {
         $this->labels = $labels;
+    }
+
+    public function getOptions(): ?array
+    {
+        return $this->options;
+    }
+
+    public function setOptions(?array $options): void
+    {
+        $this->options = $options;
     }
 
     public function isSuggest(): bool
@@ -595,6 +838,25 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         return $this->options[self::OPT_REQUIRED] ?? false;
     }
 
+    /**
+     * Whether the GUI lets users draw annotations on the asset for a value of this attribute.
+     */
+    public function isAnnotationsEnabled(): bool
+    {
+        return $this->options[self::OPT_ANNOTATIONS] ?? false;
+    }
+
+    public function setAnnotationsEnabled(bool $enabled): void
+    {
+        if (!$enabled) {
+            unset($this->options[self::OPT_ANNOTATIONS]);
+
+            return;
+        }
+
+        $this->options[self::OPT_ANNOTATIONS] = true;
+    }
+
     public function setRequired(bool $required): void
     {
         if (!$required) {
@@ -604,46 +866,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         }
 
         $this->options[self::OPT_REQUIRED] = true;
-    }
-
-    #[Assert\Callback]
-    public function validateInitialValues(ExecutionContextInterface $context): void
-    {
-        if (empty($this->initialValues)) {
-            return;
-        }
-
-        foreach ($this->initialValues as $locale => $value) {
-            $data = json_decode((string) $value, true);
-            if (JSON_ERROR_NONE !== json_last_error()) {
-                $context->buildViolation('The initial value for locale "%locale%" is not valid JSON.')
-                    ->setParameter('%locale%', $locale)
-                    ->atPath('initialValues')
-                    ->addViolation();
-                continue;
-            }
-
-            if (!is_array($data)) {
-                $context->buildViolation('The initial value for locale "%locale%" must be an array.')
-                    ->setParameter('%locale%', $locale)
-                    ->atPath('initialValues')
-                    ->addViolation();
-                continue;
-            }
-
-            foreach ([
-                'type',
-                'value',
-            ] as $key) {
-                if (!isset($data[$key])) {
-                    $context->buildViolation('The initial value for locale "%locale%" must contain a "%key%" key.')
-                        ->setParameter('%locale%', $locale)
-                        ->setParameter('%key%', $key)
-                        ->atPath('initialValues')
-                        ->addViolation();
-                }
-            }
-        }
     }
 
     public function isUseAsName(): bool

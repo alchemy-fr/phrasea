@@ -7,16 +7,22 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Exception\UnsupportedSourceFileException;
 use Alchemy\RenditionFactory\MimeType\ImageFormatGuesser;
 use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Imagine\Exception\RuntimeException as ImagineRuntimeException;
 use Liip\ImagineBundle\Model\FileBinary;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class ImagineTransformerModule implements TransformerModuleInterface, BuildHashDiffInterface
 {
+    public const string NAME = 'imagine';
+
     public function __construct(
         private ImagineFilterFactory $filterFactory,
     ) {
@@ -24,7 +30,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
 
     public static function getName(): string
     {
-        return 'imagine';
+        return self::NAME;
     }
 
     public function getDocumentation(): Documentation
@@ -138,6 +144,27 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                     ->end()
                                 ->end()
                             ->end()
+                            ->arrayNode('relative_crop')
+                                ->info('filter crops a rectangle given relatively to the image size (0..1, measured when the filter runs: put it after "auto_rotate")')
+                                ->children()
+                                    ->floatNode('x')
+                                        ->info('Left edge of the rectangle, from 0 to 1')
+                                        ->example(0.1)
+                                    ->end()
+                                    ->floatNode('y')
+                                        ->info('Top edge of the rectangle, from 0 to 1')
+                                        ->example(0.2)
+                                    ->end()
+                                    ->floatNode('width')
+                                        ->info('Width of the rectangle, from 0 to 1')
+                                        ->example(0.5)
+                                    ->end()
+                                    ->floatNode('height')
+                                        ->info('Height of the rectangle, from 0 to 1')
+                                        ->example(0.5)
+                                    ->end()
+                                ->end()
+                            ->end()
                             ->arrayNode('watermark')
                                 ->info('filter adds a watermark to an existing image')
                                 ->children()
@@ -159,6 +186,9 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                             ->end()
                             ->scalarNode('strip')
                                 ->info(' filter performs file transformations (which includes metadata removal)')
+                            ->end()
+                            ->scalarNode('grayscale')
+                                ->info('filter performs color transformations (converts the image to grayscale)')
                             ->end()
                             ->arrayNode('scale')
                                 ->info('filter performs sizing transformations (specifically image scaling)')
@@ -348,7 +378,14 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
         $type = (2 === count($t) && 'image' === $t[0]) ? $t[1] : null;
 
         $image = new FileBinary($inputFile->getPath(), $inputFile->getType(), $type);
-        $output = $filterManager->apply($image, $options);
+
+        try {
+            $output = $filterManager->apply($image, $options);
+        } catch (ImagineRuntimeException $e) {
+            // ImageMagick has no delegate for this file: the source is unusable,
+            // re-running the job would fail the same way.
+            throw new UnsupportedSourceFileException($inputFile->getPath(), $inputFile->getType(), $e);
+        }
 
         $extension = $output->getFormat();
         if (empty($extension)) {

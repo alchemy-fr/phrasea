@@ -2,7 +2,7 @@ nelmio_cors:
     defaults:
         allow_origin: ['*']
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
-        allow_headers: ['Content-Type', 'Authorization', 'X-Notification-Disabled', 'X-Webhook-Disabled', 'X-Data-Locale']
+        allow_headers: ['Content-Type', 'Authorization', 'X-Notification-Disabled', 'X-Webhook-Disabled', 'X-Data-Locale', 'X-Impersonate-User']
         expose_headers: ['Link', 'Content-Disposition']
         max_age: 3600
     paths:

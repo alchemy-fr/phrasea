@@ -10,6 +10,12 @@ final readonly class CreateRenditionOptions
         private ?string $workingDirectory = null,
         private ?string $cacheDirectory = null,
         private ?MetadataContainerInterface $metadataContainer = null,
+        /**
+         * The files fed to a generator module (see BuildConfig::getGenerate()).
+         *
+         * @var InputFileInterface[]
+         */
+        private array $inputFiles = [],
     ) {
     }
 
@@ -26,5 +32,13 @@ final readonly class CreateRenditionOptions
     public function getMetadataContainer(): ?MetadataContainerInterface
     {
         return $this->metadataContainer;
+    }
+
+    /**
+     * @return InputFileInterface[]
+     */
+    public function getInputFiles(): array
+    {
+        return $this->inputFiles;
     }
 }

@@ -7,7 +7,7 @@ namespace App\Api\Model\Output;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\Workspace;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 final class AssetPolicyOutput extends AbstractUuidOutput
 {

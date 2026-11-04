@@ -6,178 +6,93 @@ namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\GeoPointAttributeType;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
-use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
-use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
+use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\CustomFilterQueryBuiltInAttributeInterface;
+use App\Elasticsearch\BuiltInAttribute\CustomSortBuiltInAttributeInterface;
+use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
+use App\Elasticsearch\Geo\GeoCluster;
+use App\Elasticsearch\Geo\GeoClusterResult;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
-use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\SavedSearch\SavedSearchRepository;
-use App\Security\TagFilterManager;
+use App\Security\AttributeFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Asset\AssetSortGroupMapper;
+use App\Service\Vector\AssetSimilarityScorer;
+use Elastica\Aggregation;
+use Elastica\Index;
 use Elastica\Query;
+use Elastica\Result;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetSearch extends AbstractSearch
 {
+    final public const int MAX_GEO_CLUSTERS = 2000;
+
+    /**
+     * Marks an order resolved from a saved search, whose fields may have disappeared since it was saved.
+     */
+    private const string OPT_SAVED_SORT = '_savedSearchSort';
+
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset')]
         private readonly PaginatedFinderInterface $finder,
-        private readonly TagFilterManager $tagFilterManager,
+        #[Autowire(service: 'fos_elastica.index.asset')]
+        private readonly Index $index,
+        private readonly AttributeFilterManager $attributeFilterManager,
+        private readonly LoggerInterface $logger,
         private readonly AttributeSearch $attributeSearch,
         private readonly QueryStringParser $queryStringParser,
         private readonly FacetHandler $facetHandler,
-        private readonly DeletedBuiltInField $deletedBuiltInField,
-        private readonly AssetStatusBuiltInField $assetStatusBuiltInField,
+        private readonly DeletedBuiltInAttribute $deletedBuiltInAttribute,
+        private readonly AssetStatusBuiltInAttribute $assetStatusBuiltInAttribute,
         private readonly CollectionRepository $collectionRepository,
         private readonly SavedSearchRepository $savedSearchRepository,
         private readonly AssetSortGroupMapper $assetSortGroupMapper,
+        private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
+        private readonly AssetSimilarityScorer $assetSimilarityScorer,
     ) {
     }
 
+    private function isScoreBasedCondition(string $condition): bool
+    {
+        foreach ($this->builtInAttributeRegistry->getAll() as $attribute) {
+            if ($attribute instanceof CustomFilterQueryBuiltInAttributeInterface
+                && $attribute->isScoreBasedQuery()
+                && str_starts_with($condition, $attribute::getKey())
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the results, the facets, the ES query, the search time and, for a `@similar`
+     * search, the similarity score of each asset of the page by asset ID (null otherwise).
+     */
     public function search(
         ?string $userId,
         array $groupIds,
         array $options = [],
     ): array {
-        $maxLimit = 50;
-        $options['userId'] = $userId;
-        $options['groupIds'] = $groupIds;
-
-        if (isset($options['savedSearch'])) {
-            /** @var SavedSearch $savedSearch */
-            $savedSearch = DoctrineUtil::findStrictByRepo($this->savedSearchRepository, $options['savedSearch']);
-            $options = array_merge($options, $savedSearch->getData());
-        }
-
-        $filterQueries = [];
-
-        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        if (null !== $aclBoolQuery) {
-            $filterQueries[] = $aclBoolQuery;
-        }
-
-        if (isset($options['parent'])) {
-            $options['parents'] = [$options['parent']];
-        }
-
-        if (isset($options['story'])) {
-            $filterQueries[] = new Query\Term(['stories' => $options['story']]);
-        }
-
-        if (isset($options['parents'])) {
-            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
-            $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
-
-            if (empty($paths)) {
-                throw new NotFoundHttpException('Collections not found');
-            }
-
-            $filterQueries[] = new Query\Terms('collectionPaths', $paths);
-        }
-
-        if (isset($options['ids'])) {
-            $filterQueries[] = new Query\Terms('_id', $options['ids']);
-            $maxLimit = 500;
-        }
-
-        if (isset($options['workspaces'])) {
-            $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
-        }
-
-        if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
-            $tagsBoolQuery = new Query\BoolQuery();
-            $filterQueries[] = $tagsBoolQuery;
-
-            if (isset($options['tags_must'])) {
-                foreach ($options['tags_must'] as $tag) {
-                    $tagsBoolQuery->addMust(new Query\Term(['tags' => $tag]));
-                }
-            }
-
-            if (isset($options['tags_must_not'])) {
-                foreach ($options['tags_must_not'] as $tag) {
-                    $tagsBoolQuery->addMustNot(new Query\Term(['tags' => $tag]));
-                }
-            }
-        }
-
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
-
-        $hasDeletedFilter = false;
-        $hasStatusFilter = false;
-        if (null !== $conditions = ($options['conditions'] ?? null)) {
-            foreach ($conditions as $condition) {
-                if (is_array($condition)) {
-                    if ($condition['disabled'] ?? false) {
-                        continue;
-                    }
-                    $condition = $condition['query'] ?? '';
-                }
-
-                if (str_starts_with((string) $condition, DeletedBuiltInField::getKey())) {
-                    $hasDeletedFilter = true;
-                }
-                if (str_starts_with((string) $condition, AssetStatusBuiltInField::getKey())) {
-                    $hasStatusFilter = true;
-                }
-                $filterQueries[] = $this->attributeSearch->buildConditionQuery(
-                    $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
-                    $condition,
-                    $options
-                );
-            }
-        }
-
-        if (!$hasDeletedFilter) {
-            $filterQueries[] = $this->deletedBuiltInField->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
-        }
-
-        if (!$hasStatusFilter) {
-            $filterQueries[] = $this->assetStatusBuiltInField->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
-        }
-
-        $filterQuery = new Query\BoolQuery();
-        foreach ($filterQueries as $query) {
-            $filterQuery->addFilter($query);
-        }
-
-        if (null !== $tagQuery = $this->buildTagFilterQuery($userId, $groupIds)) {
-            $filterQuery->addFilter($tagQuery);
-        }
-
-        $queryString = trim($options['query'] ?? '');
-        $parsed = $this->queryStringParser->parseQuery($queryString);
-
-        if (!empty($parsed['should'])) {
-            $multiMatch = $this->attributeSearch->buildAttributeQuery(
-                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds), $parsed['should'], $options);
-            $filterQuery->addMust($multiMatch);
-        }
-        foreach ($parsed['must'] as $must) {
-            $multiMatch = $this->attributeSearch->buildAttributeQuery(
-                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds), $must, array_merge($options, [
-                    AttributeSearch::OPT_STRICT_PHRASE => true,
-                ]));
-            $filterQuery->addMust($multiMatch);
-        }
-
-        $query = new Query();
-        $query->setTrackTotalHits();
-        $query->setQuery($filterQuery);
+        [$query, $limit, $options] = $this->buildQuery($userId, $groupIds, $options);
 
         $this->applySort($query, $options);
 
@@ -208,7 +123,8 @@ class AssetSearch extends AbstractSearch
             $result->setCurrentPage((int) $options['page']);
         }
         $start = microtime(true);
-        $result->getCurrentPageResults(); // Force query to ensure adapter will run it just once.
+        // Force query to ensure adapter will run it just once.
+        $this->executeSearch($result->getCurrentPageResults(...));
         $searchTime = microtime(true) - $start;
 
         $facets = $adapter->getAggregations();
@@ -221,30 +137,413 @@ class AssetSearch extends AbstractSearch
             $this->assetSortGroupMapper->resolveSortGroups($result, $groupByKey);
         }
 
-        return [$result, $facets, $esQuery, $searchTime];
+        $scores = null;
+        if (null !== $referenceId = $this->assetSimilarityScorer->getReferenceAssetId($options['conditions'] ?? [])) {
+            $scores = $this->assetSimilarityScorer->score($referenceId, array_map(
+                static fn (Asset $asset): string => $asset->getId(),
+                [...$result->getCurrentPageResults()],
+            ));
+        }
+
+        return [$result, $facets, $esQuery, $searchTime, $scores];
     }
 
-    private function buildTagFilterQuery(?string $userId, array $groupIds): ?Query\BoolQuery
-    {
-        $ruleSet = $this->tagFilterManager->getUserRules($userId, $groupIds);
+    /**
+     * Iterates over the IDs of every asset matching the search, beyond the page size
+     * and the result window of the paginated search, on a consistent snapshot of the index.
+     *
+     * Only the Elasticsearch ACL applies: the caller still has to check READ on each asset.
+     * The sort options are ignored.
+     *
+     * @return \Generator<int, string[]> batches of asset IDs
+     */
+    public function iterateIds(
+        ?string $userId,
+        array $groupIds,
+        array $options = [],
+        int $batchSize = 500,
+    ): \Generator {
+        try {
+            [$query] = $this->buildQuery($userId, $groupIds, $options);
+        } catch (NoWorkspaceAllowedException) {
+            return;
+        }
 
+        $query->setSize($batchSize);
+        $query->setSource(false);
+        $query->setSort(['_doc']);
+
+        $scroll = $this->index->createSearch($query)->scroll('2m');
+        try {
+            foreach ($scroll as $resultSet) {
+                $ids = array_map(static fn (Result $result): string => (string) $result->getId(), $resultSet->getResults());
+                if (!empty($ids)) {
+                    yield $ids;
+                }
+            }
+        } finally {
+            $scroll->clear();
+        }
+    }
+
+    /**
+     * Clusters the geolocated assets matching the search on a tile grid.
+     *
+     * @param string                                                           $field     the geo point attribute key (e.g. "location_geo-point_s")
+     * @param int                                                              $precision the tile zoom level (0-29)
+     * @param array{top: float, left: float, bottom: float, right: float}|null $bounds    the area to cluster, the whole world when null
+     */
+    public function geoClusters(
+        ?string $userId,
+        array $groupIds,
+        string $field,
+        int $precision,
+        ?array $bounds,
+        array $options = [],
+    ): GeoClusterResult {
+        try {
+            $fieldInfo = $this->attributeSearch->getESFieldInfo($field);
+        } catch (\InvalidArgumentException $e) {
+            throw new BadRequestHttpException(sprintf('Invalid geo field "%s"', $field), $e);
+        }
+        if ($fieldInfo->builtIn || GeoPointAttributeType::getName() !== $fieldInfo->type::getName()) {
+            throw new BadRequestHttpException(sprintf('Field "%s" is not a geo point attribute', $field));
+        }
+
+        [$query] = $this->buildQuery($userId, $groupIds, $options);
+        $query->setSize(0);
+
+        $geoFilter = new Query\BoolQuery();
+        $geoFilter->addFilter(new Query\Exists($fieldInfo->name));
+        if (null !== $workspaceRestriction = $this->createFieldWorkspaceRestriction($userId, $groupIds, $fieldInfo->name)) {
+            $geoFilter->addFilter($workspaceRestriction);
+        }
+
+        $tiles = new Aggregation\GeotileGridAggregation('tiles', $fieldInfo->name);
+        $tiles->setPrecision(max(0, min(29, $precision)));
+        $tiles->setSize(self::MAX_GEO_CLUSTERS);
+        if (null !== $bounds) {
+            $tiles->setParam('bounds', [
+                'top_left' => ['lat' => $bounds['top'], 'lon' => $bounds['left']],
+                'bottom_right' => ['lat' => $bounds['bottom'], 'lon' => $bounds['right']],
+            ]);
+        }
+        $tiles->addAggregation(new Aggregation\GeoCentroid('centroid', $fieldInfo->name));
+        $tiles->addAggregation(new Aggregation\GeoBounds('bounds', $fieldInfo->name));
+        $sample = new Aggregation\TopHits('sample');
+        $sample->setSize(1);
+        $sample->setSource(false);
+        $tiles->addAggregation($sample);
+
+        $geo = new Aggregation\Filter('geo', $geoFilter);
+        $geo->addAggregation(new Aggregation\GeoBounds('bounds', $fieldInfo->name));
+        $geo->addAggregation($tiles);
+        $query->addAggregation($geo);
+
+        $resultSet = $this->index->search($query);
+        $geoAgg = $resultSet->getAggregation('geo');
+
+        $clusters = [];
+        foreach ($geoAgg['tiles']['buckets'] as $bucket) {
+            $clusters[] = new GeoCluster(
+                key: $bucket['key'],
+                count: $bucket['doc_count'],
+                lat: $bucket['centroid']['location']['lat'],
+                lng: $bucket['centroid']['location']['lon'],
+                bounds: self::normalizeGeoBounds($bucket['bounds']['bounds']),
+                assetId: 1 === $bucket['doc_count'] ? ($bucket['sample']['hits']['hits'][0]['_id'] ?? null) : null,
+            );
+        }
+
+        return new GeoClusterResult(
+            total: $resultSet->getTotalHits(),
+            geolocated: $geoAgg['doc_count'],
+            bounds: isset($geoAgg['bounds']['bounds']) ? self::normalizeGeoBounds($geoAgg['bounds']['bounds']) : null,
+            clusters: $clusters,
+        );
+    }
+
+    /**
+     * @return array{top: float, left: float, bottom: float, right: float}
+     */
+    private static function normalizeGeoBounds(array $bounds): array
+    {
+        return [
+            'top' => $bounds['top_left']['lat'],
+            'left' => $bounds['top_left']['lon'],
+            'bottom' => $bounds['bottom_right']['lat'],
+            'right' => $bounds['bottom_right']['lon'],
+        ];
+    }
+
+    /**
+     * Restricts an attribute field to the workspaces where the user may read it.
+     * Null when the user may read it everywhere.
+     */
+    private function createFieldWorkspaceRestriction(?string $userId, array $groupIds, string $fieldName): ?Query\AbstractQuery
+    {
+        $workspaceIds = [];
+        foreach ($this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds) as $cluster) {
+            if (!isset($cluster['fields'][$fieldName])) {
+                continue;
+            }
+            if (empty($cluster['w'])) {
+                return null;
+            }
+            array_push($workspaceIds, ...$cluster['w']);
+        }
+
+        if (empty($workspaceIds)) {
+            return new Query\MatchNone();
+        }
+
+        return new Query\Terms('workspaceId', array_values(array_unique($workspaceIds)));
+    }
+
+    /**
+     * The filtered query shared by the asset searches: ACL, conditions and full-text query.
+     *
+     * @return array{Query, int, array} the query, the page size and the resolved options
+     */
+    private function buildQuery(
+        ?string $userId,
+        array $groupIds,
+        array $options,
+    ): array {
+        $maxLimit = 50;
+        $options['userId'] = $userId;
+        $options['groupIds'] = $groupIds;
+
+        if (isset($options['savedSearch'])) {
+            $options = $this->applySavedSearch($options);
+        }
+
+        $filterQueries = [];
+
+        if (isset($options['parent'])) {
+            $options['parents'] = [$options['parent']];
+        }
+
+        if (isset($options['story'])) {
+            $filterQueries[] = new Query\Term(['stories' => $options['story']]);
+        }
+
+        if (isset($options['collection'])) {
+            // Exact membership: unlike "parents", this does not span the sub-tree.
+            // collectionPaths is path-hierarchy analyzed, its "raw" sub-field holds the full paths.
+            $collection = DoctrineUtil::findStrictByRepo($this->collectionRepository, $options['collection'], throw404: true);
+            $filterQueries[] = new Query\Term(['collectionPaths.raw' => $collection->getAbsolutePath()]);
+        }
+
+        if (!empty($parentIds = self::toIdList($options['parents'] ?? null))) {
+            $paths = $this->resolveCollectionPaths($parentIds);
+
+            $filterQueries[] = new Query\Terms(CollectionBuiltInAttribute::getName(), $paths);
+        }
+
+        if (isset($options['directCollections'])) {
+            $filterQueries[] = new Query\Terms(
+                DirectCollectionBuiltInAttribute::getName(),
+                $this->resolveCollectionPaths($options['directCollections'])
+            );
+        }
+
+        if (!empty($assetIds = self::toIdList($options['ids'] ?? null))) {
+            $filterQueries[] = new Query\Terms('_id', $assetIds);
+            $maxLimit = 500;
+        }
+
+        if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
+            $filterQueries[] = new Query\Terms('workspaceId', $workspaceIds);
+        }
+
+        if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
+            $tagsBoolQuery = new Query\BoolQuery();
+            $filterQueries[] = $tagsBoolQuery;
+
+            if (isset($options['tags_must'])) {
+                foreach ($options['tags_must'] as $tag) {
+                    $tagsBoolQuery->addMust(new Query\Term(['tags' => $tag]));
+                }
+            }
+
+            if (isset($options['tags_must_not'])) {
+                foreach ($options['tags_must_not'] as $tag) {
+                    $tagsBoolQuery->addMustNot(new Query\Term(['tags' => $tag]));
+                }
+            }
+        }
+
+        $limit = $options['limit'] ?? $maxLimit;
+        if ($limit > $maxLimit) {
+            $limit = $maxLimit;
+        }
+
+        $hasDeletedFilter = false;
+        $hasStatusFilter = false;
+        $mustQueries = [];
+        if (null !== $conditions = ($options['conditions'] ?? null)) {
+            foreach ($conditions as $condition) {
+                if (is_array($condition)) {
+                    if ($condition['disabled'] ?? false) {
+                        continue;
+                    }
+                    $query = $condition['query'] ?? '';
+                    $condition = ($condition['inversed'] ?? false) ? sprintf('NOT (%s)', $query) : $query;
+                }
+
+                // An inverted condition still targets the attribute it negates
+                $subject = (string) preg_replace('/^(?:NOT\b\s*|\(\s*)+/', '', (string) $condition);
+                if (str_starts_with($subject, DeletedBuiltInAttribute::getKey())) {
+                    $hasDeletedFilter = true;
+                }
+                if (str_starts_with($subject, AssetStatusBuiltInAttribute::getKey())) {
+                    $hasStatusFilter = true;
+                }
+                $conditionQuery = $this->attributeSearch->buildConditionQuery(
+                    $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
+                    $condition,
+                    $options
+                );
+
+                if ($this->isScoreBasedCondition((string) $condition)) {
+                    // e.g. knn must run in a scoring context so results are ranked by similarity
+                    $mustQueries[] = $conditionQuery;
+                } else {
+                    $filterQueries[] = $conditionQuery;
+                }
+            }
+        }
+
+        $filterQueries = array_merge($this->createBaseFilterQueries(
+            $userId,
+            $groupIds,
+            $options,
+            filterDeleted: !$hasDeletedFilter,
+            filterStatus: !$hasStatusFilter && !$hasDeletedFilter,
+        ), $filterQueries);
+
+        $filterQuery = new Query\BoolQuery();
+        foreach ($filterQueries as $query) {
+            $filterQuery->addFilter($query);
+        }
+        foreach ($mustQueries as $query) {
+            $filterQuery->addMust($query);
+        }
+
+        $queryString = trim($options['query'] ?? '');
+        $parsed = $this->queryStringParser->parseQuery($queryString);
+
+        if (!empty($parsed['should'])) {
+            $multiMatch = $this->attributeSearch->buildAttributeQuery(
+                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds), $parsed['should'], $options);
+            $filterQuery->addMust($multiMatch);
+        }
+        foreach ($parsed['must'] as $must) {
+            $multiMatch = $this->attributeSearch->buildAttributeQuery(
+                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds), $must, array_merge($options, [
+                    AttributeSearch::OPT_STRICT_PHRASE => true,
+                ]));
+            $filterQuery->addMust($multiMatch);
+        }
+
+        $query = new Query();
+        $query->setTrackTotalHits();
+        $query->setQuery($filterQuery);
+
+        return [$query, (int) $limit, $options];
+    }
+
+    /**
+     * Filters shared by every search on the asset index: ACL, tag filter rules and, unless the
+     * caller filters on them itself, "not deleted" and "accepted" status.
+     * When the caller does filter on them, the deleted and quarantined assets stay restricted
+     * to the users the AssetVoter lets read them: the caller's conditions cannot widen that.
+     *
+     * @return Query\AbstractQuery[]
+     *
+     * @throws NoWorkspaceAllowedException
+     */
+    public function createBaseFilterQueries(
+        ?string $userId,
+        array $groupIds,
+        array $options = [],
+        bool $filterDeleted = true,
+        bool $filterStatus = true,
+    ): array {
+        $options['userId'] = $userId;
+        $options['groupIds'] = $groupIds;
+
+        $filterQueries = [];
+        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds)) {
+            $filterQueries[] = $aclBoolQuery;
+        }
+
+        if (null !== $attrFilterQuery = $this->buildAttributeFilterQuery($userId, $groupIds, $options)) {
+            $filterQueries[] = $attrFilterQuery;
+        }
+        $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery($filterDeleted ? false : null, ConditionOperatorEnum::EQUALS, $options);
+        $filterQueries[] = $filterStatus
+            ? $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options)
+            : $this->assetStatusBuiltInAttribute->createVisibleFilterQuery($options);
+
+        return $filterQueries;
+    }
+
+    /**
+     * @param string|string[] $collectionIds
+     *
+     * @return string[] the absolute path of each requested collection
+     */
+    private function resolveCollectionPaths(array|string $collectionIds): array
+    {
+        $collections = DoctrineUtil::getFromIds($this->collectionRepository, self::toIdList($collectionIds));
+        $paths = array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections);
+
+        if (empty($paths)) {
+            throw new NotFoundHttpException('Collections not found');
+        }
+
+        return $paths;
+    }
+
+    private function buildAttributeFilterQuery(?string $userId, array $groupIds, array $options): ?Query\BoolQuery
+    {
+        $ruleSet = $this->attributeFilterManager->getUserRules($userId, $groupIds);
+        if (empty($ruleSet)) {
+            return null;
+        }
+
+        $attributeGroups = $this->attributeSearch->buildAllAttributeDefinitionsGroups();
         $query = new Query\BoolQuery();
         $hasConditions = false;
 
-        foreach ($ruleSet as $wId => $rules) {
-            if (empty($rules['include']) && empty($rules['exclude'])) {
-                continue;
-            }
-            $workspace = $this->workspaceRepository->find($wId);
-            if ($workspace instanceof Workspace) {
-                if (!empty($rules['include'])) {
-                    $query->addMust($this->createIncludeQuery('workspaceId', $workspace->getId(), $rules['include']));
-                    $hasConditions = true;
+        foreach ($ruleSet as $wId => $conditions) {
+            foreach ($conditions as $condition) {
+                try {
+                    $conditionQuery = $this->attributeSearch->buildConditionQuery(
+                        $attributeGroups,
+                        $condition,
+                        $options
+                    );
+                } catch (\Throwable $e) {
+                    // Fail-closed: hide the whole workspace rather than breaking search or leaking assets
+                    $this->logger->error('Invalid attribute filter rule condition', [
+                        'workspaceId' => $wId,
+                        'condition' => $condition,
+                        'error' => $e->getMessage(),
+                    ]);
+                    $conditionQuery = new Query\MatchNone();
                 }
-                if (!empty($rules['exclude'])) {
-                    $query->addMustNot($this->createExcludeQuery('workspaceId', $workspace->getId(), $rules['exclude']));
-                    $hasConditions = true;
-                }
+
+                $scoped = new Query\BoolQuery();
+                $notWorkspace = new Query\BoolQuery();
+                $notWorkspace->addMustNot(new Query\Term(['workspaceId' => $wId]));
+                $scoped->addShould($notWorkspace);
+                $scoped->addShould($conditionQuery);
+
+                $query->addMust($scoped);
+                $hasConditions = true;
             }
         }
 
@@ -255,26 +554,125 @@ class AssetSearch extends AbstractSearch
         return $query;
     }
 
+    /**
+     * Applies a saved search as the base of the search: the request refines it but cannot widen it.
+     * Only the query, conditions and sort of its data are used.
+     */
+    private function applySavedSearch(array $options): array
+    {
+        /** @var SavedSearch $savedSearch */
+        $savedSearch = DoctrineUtil::findStrictByRepo($this->savedSearchRepository, $options['savedSearch'], throw404: true);
+        $this->denyAccessUnlessGranted(AbstractVoter::READ, $savedSearch);
+
+        $data = $savedSearch->getData();
+
+        if ('' === trim($options['query'] ?? '') && is_string($data['query'] ?? null)) {
+            $options['query'] = $data['query'];
+        }
+
+        $conditions = array_merge(
+            array_values((array) ($data['conditions'] ?? [])),
+            array_values((array) ($options['conditions'] ?? [])),
+        );
+        if (!empty($conditions)) {
+            $options['conditions'] = $conditions;
+        }
+
+        if (!isset($options['order']) && is_array($data['sortBy'] ?? null)) {
+            $order = [];
+            $group = null;
+            foreach ($data['sortBy'] as $sortBy) {
+                if (!is_array($sortBy) || !is_string($sortBy['a'] ?? null)) {
+                    continue;
+                }
+                $order[$sortBy['a']] = 1 === ($sortBy['w'] ?? 0) ? 'desc' : 'asc';
+                if (null === $group && ($sortBy['g'] ?? false)) {
+                    $group = $sortBy['a'];
+                }
+            }
+
+            if (!empty($order)) {
+                $options['order'] = $order;
+                $options[self::OPT_SAVED_SORT] = true;
+                if (null !== $group && !isset($options['group']) && $this->isKnownField($group)) {
+                    $options['group'] = [$group];
+                }
+            }
+        }
+
+        return $options;
+    }
+
+    private function isKnownField(string $field): bool
+    {
+        try {
+            $this->attributeSearch->getESFieldInfo($field);
+
+            return true;
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+    }
+
     private function applySort(Query $query, array $options): void
     {
+        // A saved search must stay usable once a field it sorts on is gone: its invalid fields are skipped
+        $lenient = $options[self::OPT_SAVED_SORT] ?? false;
         $sort = [];
         if (isset($options['order'])) {
+            if (!is_array($options['order'])) {
+                throw new BadRequestHttpException('Invalid sort: expected order[<field>]=asc|desc');
+            }
             foreach ($options['order'] as $field => $way) {
                 if (!is_string($field)) {
+                    if ($lenient) {
+                        continue;
+                    }
                     throw new BadRequestHttpException(sprintf('Invalid sort field "%s"', $field));
                 }
                 $w = strtoupper((string) $way);
                 if (!in_array($w, ['ASC', 'DESC'], true)) {
+                    if ($lenient) {
+                        continue;
+                    }
                     throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
+                }
+
+                $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($field);
+                if (null !== $builtInAttribute && !$builtInAttribute->isSortable()) {
+                    if ($lenient) {
+                        continue;
+                    }
+                    throw new BadRequestHttpException(sprintf('Attribute "%s" is not sortable', $field));
+                }
+                if ($builtInAttribute instanceof CustomSortBuiltInAttributeInterface) {
+                    try {
+                        $sort[] = $builtInAttribute->createSortClause($w, $options);
+                    } catch (BadRequestHttpException $e) {
+                        if (!$lenient) {
+                            throw $e;
+                        }
+                    }
+
+                    continue;
                 }
 
                 try {
                     $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
                 } catch (\InvalidArgumentException $e) {
+                    if ($lenient) {
+                        continue;
+                    }
                     throw new BadRequestHttpException(sprintf('Invalid sort attribute "%s". Did you forget prefixing with "@" for built-in or use "field_type_s" format', $field), $e);
                 }
                 if (!$esFieldInfo->enabled) {
                     continue;
+                }
+                if (!$esFieldInfo->builtIn && false === $this->attributeSearch->isSortableAttributeKey($field)) {
+                    if ($lenient) {
+                        continue;
+                    }
+                    throw new BadRequestHttpException(sprintf('Attribute "%s" is not sortable', $field));
                 }
 
                 $fieldName = $esFieldInfo->name;
@@ -282,9 +680,18 @@ class AssetSearch extends AbstractSearch
                     $fieldName .= '.'.$esFieldInfo->type->getElasticSearchSortSubField();
                 }
 
-                $sort[] = [$fieldName => $w];
+                if ($esFieldInfo->builtIn) {
+                    $sort[] = [$fieldName => $w];
+                } else {
+                    $sort[] = [$fieldName => [
+                        'order' => $w,
+                        'unmapped_type' => 'keyword',
+                    ]];
+                }
             }
-        } else {
+        }
+
+        if (!isset($options['order']) || ($lenient && empty($sort))) {
             $sort[] = [
                 '_score' => 'DESC',
                 'createdAt' => 'DESC',
@@ -295,32 +702,6 @@ class AssetSearch extends AbstractSearch
         $sort[] = ['sequence' => 'ASC'];
 
         $query->setSort($sort);
-    }
-
-    private function createIncludeQuery(string $termCol, string $termValue, array $include): Query\BoolQuery
-    {
-        $query = new Query\BoolQuery();
-
-        $notMatch = new Query\BoolQuery();
-        $notMatch->addMustNot(new Query\Term([$termCol => $termValue]));
-        $query->addShould($notMatch);
-
-        $bool = new Query\BoolQuery();
-        foreach ($include as $tag) {
-            $bool->addFilter(new Query\Term(['tags' => $tag]));
-        }
-        $query->addShould($bool);
-
-        return $query;
-    }
-
-    private function createExcludeQuery(string $termCol, string $termValue, array $exclude): Query\BoolQuery
-    {
-        $query = new Query\BoolQuery();
-        $query->addFilter(new Query\Term([$termCol => $termValue]));
-        $query->addFilter(new Query\Terms('tags', $exclude));
-
-        return $query;
     }
 
     protected function getAdminScope(): ?string

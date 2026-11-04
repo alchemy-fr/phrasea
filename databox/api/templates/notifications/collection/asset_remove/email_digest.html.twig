@@ -1,0 +1,21 @@
+{% block subject %}{{ 'collection.asset_remove.email_digest.subject'|trans({'%count%': count}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'notification_digest.greeting'|trans({'%recipient%': (recipient.displayName|default(recipient.email))|e}, 'notifications')|raw }}
+{%- for group in byObject %}
+{{ 'collection.asset_remove.email_digest.group'|trans({
+    '%count%': group|length,
+    '%collectionName%': (group|first).params.collectionName|e,
+    '%url%': (notification_url((group|first).params.url|default(null))|default('#'))|e('html_attr'),
+}, 'notifications')|raw }}
+<ul>
+{%- for event in group|slice(0, 10) %}
+    <li>{{ 'collection.asset_remove.email_digest.item'|trans({'%assetName%': event.params.assetName|e, '%author%': event.params.author|e}, 'notifications')|raw }}</li>
+{%- endfor %}
+{%- if group|length > 10 %}
+    <li>{{ 'notification_digest.more_items'|trans({'%count%': group|length - 10}, 'notifications')|raw }}</li>
+{%- endif %}
+</ul>
+{%- endfor %}
+{%- if overflowCount > 0 %}
+{{ 'notification_digest.more'|trans({'%count%': overflowCount}, 'notifications')|raw }}
+{%- endif %}{% endblock %}

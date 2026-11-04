@@ -6,13 +6,19 @@ namespace App\Integration\Core\Test;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class TestAssetOperationIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'test.asset_operation';
+
     final public const string VERSION = '1.0';
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -21,6 +27,7 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Workf
             ->scalarNode('attribute')
                 ->defaultValue('test')
                 ->cannotBeEmpty()
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
             ->end()
         ;
     }
@@ -35,11 +42,18 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Workf
 
     public static function getName(): string
     {
-        return 'test.asset_operation';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string
     {
         return 'Test asset operation';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Other,
+        ];
     }
 }

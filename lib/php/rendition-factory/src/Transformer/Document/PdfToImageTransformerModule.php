@@ -13,12 +13,16 @@ use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Spatie\PdfToImage\Enums\OutputFormat;
 use Spatie\PdfToImage\Pdf;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class PdfToImageTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'pdf_to_image';
+
     public static function getName(): string
     {
-        return 'pdf_to_image';
+        return self::NAME;
     }
 
     public function getDocumentation(): Documentation

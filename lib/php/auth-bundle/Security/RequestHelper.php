@@ -16,7 +16,7 @@ abstract class RequestHelper
         ) {
             return preg_replace('#^'.$authType.'\s+#', '', $accessToken);
         } elseif ($allowGET) {
-            return $request->get($getParam);
+            return $request->query->get($getParam);
         }
 
         return null;

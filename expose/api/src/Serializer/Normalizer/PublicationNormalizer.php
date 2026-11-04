@@ -14,11 +14,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
 {
-    private readonly bool $zippyEnabled;
-
-    public function __construct(private readonly Security $security, ?string $zippyBaseUrl)
+    public function __construct(private readonly Security $security)
     {
-        $this->zippyEnabled = !empty($zippyBaseUrl);
     }
 
     /**
@@ -53,9 +50,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
         }
 
-        if ($this->zippyEnabled) {
-            $object->setArchiveDownloadUrl($this->generateDownloadViaZippyUrl($object));
-        }
+        $object->setArchiveDownloadUrl($this->generateArchiveDownloadUrl($object));
 
         if (!empty($css = $object->getCss())) {
             $object->setCssLink($this->urlGenerator->generate('publication_css', [
@@ -77,9 +72,9 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         ]);
     }
 
-    protected function generateDownloadViaZippyUrl(Publication $publication): string
+    protected function generateArchiveDownloadUrl(Publication $publication): string
     {
-        $uri = $this->urlGenerator->generate(!$publication->isDownloadViaEmail() ? 'archive_download' : 'download_zippy_request_create', [
+        $uri = $this->urlGenerator->generate(!$publication->isDownloadViaEmail() ? 'archive_download' : 'archive_download_request_create', [
             'id' => $publication->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 

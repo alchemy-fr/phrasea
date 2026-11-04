@@ -20,6 +20,15 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('async')
                     ->defaultTrue()
                 ->end()
+                ->arrayNode('admin')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('index_prefix')
+                            ->defaultValue('')
+                            ->info('Only physical indices and aliases whose name starts with this prefix are shown and manageable in the EasyAdmin screens (empty: everything). Typically the same prefix as your FOS Elastica index names, e.g. "%env(ELASTICSEARCH_INDEX_PREFIX)%".')
+                        ->end()
+                    ->end()
+                ->end()
             ->end()
         ;
 

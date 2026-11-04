@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\Attribute;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AttributeVoter extends AbstractVoter
 {
@@ -24,12 +25,9 @@ class AttributeVoter extends AbstractVoter
     /**
      * @param Attribute $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $attributeDefinition = $subject->getDefinition();
-        if (!$attributeDefinition->isEditable()) {
-            return false;
-        }
 
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset())
@@ -37,7 +35,8 @@ class AttributeVoter extends AbstractVoter
                     $attributeDefinition->getPolicy()->isPublic()
                     || $this->hasAcl(PermissionInterface::VIEW, $attributeDefinition->getPolicy(), $token)
                 ),
-            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
+            self::CREATE, self::EDIT, self::DELETE => $attributeDefinition->isEditable()
+                && $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
                 && (
                     $attributeDefinition->getPolicy()->isEditable()
                     || $this->hasAcl(PermissionInterface::EDIT, $attributeDefinition->getPolicy(), $token)

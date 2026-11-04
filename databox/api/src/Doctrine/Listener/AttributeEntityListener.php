@@ -7,15 +7,15 @@ namespace App\Doctrine\Listener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Attribute\AttributeInterface;
 use App\Consumer\Handler\Search\AttributeEntityDelete;
+use App\Consumer\Handler\Search\AttributeEntityStatusChanged;
 use App\Consumer\Handler\Search\AttributeEntityUpdate;
 use App\Entity\Core\AttributeEntity;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
-final class AttributeEntityListener implements EventSubscriber
+final class AttributeEntityListener
 {
     public bool $disabled = false;
 
@@ -41,23 +41,21 @@ final class AttributeEntityListener implements EventSubscriber
                 }
                 if ($changeSet['translations'] ?? false) {
                     [$old, $new] = $changeSet['translations'];
-                    foreach ($new as $l => $v) {
-                        if (isset($old[$l]) && $old[$l] !== $v) {
-                            $locales[$l] = true;
-                        }
-                    }
+                    $locales += $this->getChangedLocales($old, $new, strict: true);
                 }
                 if ($changeSet['synonyms'] ?? false) {
                     [$old, $new] = $changeSet['synonyms'];
-                    foreach (($new ?? []) as $l => $v) {
-                        if (isset($old[$l]) && $old[$l] != $v) {
-                            $locales[$l] = true;
-                        }
-                    }
-                    foreach (($old ?? []) as $l => $v) {
-                        if (isset($new[$l]) && $new[$l] != $v) {
-                            $locales[$l] = true;
-                        }
+                    $locales += $this->getChangedLocales($old, $new, strict: false);
+                }
+                if ($changeSet['status'] ?? false) {
+                    [$old, $new] = $changeSet['status'];
+                    // Pending and rejected values are both left out of the asset documents
+                    if ((AttributeEntity::STATUS_APPROVED === $old) !== (AttributeEntity::STATUS_APPROVED === $new)) {
+                        $this->postFlushStack->addBusMessage(new AttributeEntityStatusChanged(
+                            $entityUpdate->getId(),
+                            $entityUpdate->getList()->getId(),
+                            $entityUpdate->getWorkspaceId(),
+                        ));
                     }
                 }
                 if (!empty($locales)) {
@@ -80,10 +78,23 @@ final class AttributeEntityListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents(): array
+    /**
+     * Locales whose entry differs between the two maps, added and removed ones included.
+     *
+     * @return array<string, true>
+     */
+    private function getChangedLocales(?array $old, ?array $new, bool $strict): array
     {
-        return [
-            Events::onFlush,
-        ];
+        $locales = [];
+        foreach (array_unique([...array_keys($old ?? []), ...array_keys($new ?? [])]) as $locale) {
+            $changed = $strict
+                ? ($old[$locale] ?? null) !== ($new[$locale] ?? null)
+                : ($old[$locale] ?? null) != ($new[$locale] ?? null);
+            if ($changed) {
+                $locales[$locale] = true;
+            }
+        }
+
+        return $locales;
     }
 }

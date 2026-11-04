@@ -210,7 +210,6 @@ class SearchIndexerTest extends TestCase
      */
     private function createIndexer(array $store, iterable $dependenciesResolvers): array
     {
-        $bus = $this->createMock(MessageBusInterface::class);
         $em = $this->createMock(EntityManagerInterface::class);
         $queryBuilderMock = new QueryBuilderMock($em, $store);
         $em->method('createQueryBuilder')->willReturn($queryBuilderMock);
@@ -220,7 +219,7 @@ class SearchIndexerTest extends TestCase
         $testLogger = new TestLogger();
 
         $searchIndexer = new SearchIndexer(
-            $bus,
+            $this->createStub(MessageBusInterface::class),
             $em,
             $testLogger,
             $indexPersister,

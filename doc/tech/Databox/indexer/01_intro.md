@@ -26,11 +26,14 @@ dc run --rm databox-indexer pnpm build
 # Index a location
 dc run --rm databox-indexer index <location-name>
 
-# Watch a location for changes
-dc run --rm databox-indexer watch <location-name>
+# Watch configured locations for changes
+dc run --rm databox-indexer watch
 
 # List all locations
 dc run --rm databox-indexer list
+
+# Optional: index all configured locations in one batch
+dc run --rm databox-indexer index-all
 ```
 
 ## Development Workflow
@@ -60,4 +63,6 @@ Each location is described in a `config.json` file and referenced by its `name` 
 
 ### Supported Location Types
 
+- `fs`: local filesystem source ([details](./02_fs_s3.md))
+- `s3_amqp`: S3 event source consumed through AMQP ([details](./02_fs_s3.md))
 - `phraseanet`: [See Phraseanet configuration details](./conf_phraseanet.md)

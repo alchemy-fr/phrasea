@@ -8,10 +8,9 @@ declare global {
             DATABOX_CLIENT_URL: Readonly<string>;
             DEV_MODE: Readonly<string>;
             DISPLAY_SERVICES_MENU: Readonly<string>;
-            ELASTICHQ_URL: Readonly<string>;
             EXPOSE_API_URL: Readonly<string>;
             EXPOSE_CLIENT_URL: Readonly<string>;
-            MAILHOG_URL: Readonly<string>;
+            MAILPIT_URL: Readonly<string>;
             MATOMO_URL: Readonly<string>;
             MATOMO_SITE_ID: Readonly<string>;
             MATOMO_MEDIA_PLUGIN_ENABLED: Readonly<boolean>;
@@ -26,9 +25,7 @@ declare global {
             TRAEFIK_CONSOLE_URL: Readonly<string>;
             UPLOADER_API_URL: Readonly<string>;
             UPLOADER_CLIENT_URL: Readonly<string>;
-            ZIPPY_URL: Readonly<string>;
-            SOKETI_USAGE_URL: Readonly<string>;
-            NOVU_BRIDGE_URL: Readonly<string>;
+            SOCKUDO_USAGE_URL: Readonly<string>;
         };
     }
 }

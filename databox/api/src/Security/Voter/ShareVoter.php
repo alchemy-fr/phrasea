@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Share;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class ShareVoter extends AbstractVoter
 {
@@ -30,25 +31,49 @@ class ShareVoter extends AbstractVoter
     /**
      * @param Share $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        $asset = $subject->getAsset();
+        $assets = $subject->getAssetsList();
+
+        $canShareAllAssets = function () use ($assets): bool {
+            if (empty($assets)) {
+                return false;
+            }
+
+            foreach ($assets as $asset) {
+                if (!$this->security->isGranted(AssetVoter::SHARE, $asset)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        $canReadAllAssets = function () use ($assets): bool {
+            foreach ($assets as $asset) {
+                if (!$this->security->isGranted(AssetVoter::READ, $asset)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
 
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated()
-                && $this->security->isGranted(AssetVoter::READ, $asset)
-                && $this->security->isGranted(AssetVoter::SHARE, $asset)
+                && $canReadAllAssets()
+                && $canShareAllAssets()
             ,
             self::READ => $isOwner()
-                || $this->security->isGranted(AssetVoter::SHARE, $asset)
-                || $this->hasValidToken($subject),
+                || $this->hasValidToken($subject)
+                || $canShareAllAssets(),
             self::EDIT,
             self::DELETE => $isOwner()
-                || $this->security->isGranted(AssetVoter::SHARE, $asset),
+                || $canShareAllAssets(),
             default => false,
         };
     }
@@ -63,8 +88,8 @@ class ShareVoter extends AbstractVoter
             return false;
         }
 
-        $token = $this->requestStack->getCurrentRequest()?->get('token');
+        $token = $this->requestStack->getCurrentRequest()?->query->get('token');
 
-        return $token && $token === $share->getToken();
+        return $token && hash_equals($share->getToken() ?? '', (string) $token);
     }
 }

@@ -36,7 +36,6 @@ class AssetInput extends AbstractOwnerIdInput
     /**
      * @var Workspace
      */
-    #[Assert\NotNull]
     public $workspace;
 
     public ?Collection $collection = null;
@@ -64,5 +63,18 @@ class AssetInput extends AbstractOwnerIdInput
 
     public ?bool $isStory = null;
 
-    public ?array $story = null;
+    public ?AssetStoryInput $story = null;
+
+    /**
+     * Story creation only: IDs of existing assets added to the story, in this order.
+     *
+     * @var string[]|null
+     */
+    #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
+    public ?array $storyAssets = null;
+
+    /**
+     * Story creation only: ID of the asset (one of storyAssets) whose source file becomes the story cover.
+     */
+    public ?string $storyCover = null;
 }

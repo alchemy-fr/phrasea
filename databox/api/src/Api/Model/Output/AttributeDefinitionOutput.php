@@ -14,7 +14,7 @@ use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class AttributeDefinitionOutput extends AbstractUuidOutput
 {
@@ -61,6 +61,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public bool $suggest = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    public bool $annotationsEnabled = false;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $facetEnabled = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
@@ -82,10 +85,30 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?array $fallback = null;
 
     /**
-     * To create initial attribute value(s) (tag name or twig template).
+     * Language-indexed Twig templates resolved to create initial attribute value(s).
      */
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?array $initialValues = null;
+
+    /**
+     * Ordered list of metadata tag names read to initialize the attribute (first found wins).
+     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?array $readFromMetadata = null;
+
+    /**
+     * List of metadata tag names into which the attribute value is written on export.
+     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?array $writeMetadata = null;
+
+    /**
+     * IRIs of the renditions the attribute is written into. Empty means all of them.
+     *
+     * @var string[]
+     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public array $writeMetadataRenditions = [];
 
     /**
      * Unique key by workspace. Used to prevent duplicates.

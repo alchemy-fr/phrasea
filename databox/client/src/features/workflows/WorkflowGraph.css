@@ -1,0 +1,123 @@
+/*
+ * Theme of the React Flow chrome of the workflow graph. The rules of
+ * `reactflow/dist/base.css` are outside any cascade layer: they win over the
+ * Tailwind utilities, so they are overridden here, also unlayered and with a
+ * higher specificity.
+ */
+.workflow-graph .react-flow__edge-path {
+    stroke: var(--muted-foreground);
+    stroke-opacity: 0.6;
+    stroke-width: 1.25;
+}
+
+.workflow-graph .react-flow__edge.job-edge-active .react-flow__edge-path {
+    stroke: var(--primary);
+    stroke-opacity: 1;
+    stroke-width: 2;
+}
+
+.workflow-graph .react-flow__handle {
+    width: 8px;
+    height: 8px;
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid var(--foreground);
+    border-radius: 9999px;
+    background-color: var(--card);
+}
+
+.workflow-graph .react-flow__handle.job-handle-disabled {
+    border-color: var(--destructive);
+}
+
+.workflow-graph .react-flow__node {
+    cursor: pointer;
+}
+
+.workflow-graph .react-flow__node-stage {
+    cursor: default;
+    pointer-events: none;
+}
+
+.workflow-graph .react-flow__node:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+}
+
+.workflow-graph .react-flow__background circle {
+    fill: var(--border);
+}
+
+.workflow-graph .react-flow__controls {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+
+.workflow-graph .react-flow__controls-button {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    color: var(--card-foreground);
+    fill: currentColor;
+}
+
+.workflow-graph .react-flow__controls-button:last-child {
+    border-bottom: none;
+}
+
+.workflow-graph .react-flow__controls-button:hover {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.workflow-graph .react-flow__minimap {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    background-color: var(--card);
+}
+
+.workflow-graph .react-flow__minimap-mask {
+    fill: var(--muted);
+    fill-opacity: 0.6;
+}
+
+.workflow-graph .react-flow__minimap-node {
+    fill: var(--muted-foreground);
+    fill-opacity: 0.35;
+}
+
+.workflow-graph .react-flow__minimap-node.minimap-stage {
+    fill: transparent;
+}
+
+.workflow-graph .react-flow__minimap-node.minimap-success {
+    fill: var(--success);
+    fill-opacity: 1;
+}
+
+.workflow-graph .react-flow__minimap-node.minimap-failure,
+.workflow-graph .react-flow__minimap-node.minimap-error {
+    fill: var(--destructive);
+    fill-opacity: 1;
+}
+
+.workflow-graph .react-flow__minimap-node.minimap-running {
+    fill: var(--warning);
+    fill-opacity: 1;
+}
+
+.workflow-graph .react-flow__minimap-node.minimap-triggered {
+    fill: oklch(0.75 0.183 55.934);
+    fill-opacity: 1;
+}
+
+.workflow-graph .react-flow__attribution {
+    background: color-mix(in oklab, var(--background) 60%, transparent);
+}
+
+.workflow-graph .react-flow__attribution a {
+    color: var(--muted-foreground);
+}

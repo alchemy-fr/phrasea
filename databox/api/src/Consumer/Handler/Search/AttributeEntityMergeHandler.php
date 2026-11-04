@@ -6,13 +6,18 @@ namespace App\Consumer\Handler\Search;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\AttributeEntity;
+use App\Integration\Core\FaceRecognition\FaceRecognitionConfigResolver;
+use App\Integration\Core\FaceRecognition\Message\FaceRecognitionPhoto;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Repository\Core\AttributeRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 final readonly class AttributeEntityMergeHandler
@@ -23,6 +28,9 @@ final readonly class AttributeEntityMergeHandler
         private AttributeEntityRepository $attributeEntityRepository,
         private AttributeRepository $attributeRepository,
         private FieldNameResolver $fieldNameResolver,
+        private EntityAttributeType $entityAttributeType,
+        private FaceRecognitionConfigResolver $faceRecognitionConfigResolver,
+        private MessageBusInterface $bus,
     ) {
     }
 
@@ -46,12 +54,23 @@ final readonly class AttributeEntityMergeHandler
             $merged,
         );
 
-        $this->updateAttributeIndex($mainEntity, $merged);
+        // The faces of the merged persons are the main one's now: it may get its photo from them
+        $faceRecognitionConfig = $this->faceRecognitionConfigResolver->getConfigOfList($mainEntity->getList());
+        if (null !== $faceRecognitionConfig) {
+            $this->bus->dispatch(new FaceRecognitionPhoto($mainEntity->getId(), $faceRecognitionConfig->getIntegrationId()));
+        }
 
         $fields = [];
-        $calls = [];
+        $calls = [
+            'suggestions' => AttributeEntitySuggestionsScript::CALL,
+        ];
         $params = [
             'merged' => $merged,
+            '_entityIds' => array_merge($merged, [$id]),
+            '_labels' => AttributeEntitySuggestionsScript::labels($this->entityAttributeType->getSuggestionLabels(
+                $mainEntity,
+                SuggestionLocales::ofWorkspace($mainEntity->getWorkspace()),
+            )),
         ];
         $locales = $message->getLocales();
         foreach ($definitions as $definition) {
@@ -80,7 +99,7 @@ final readonly class AttributeEntityMergeHandler
             'asset',
             [
                 'bool' => [
-                    'must' => [
+                    'filter' => [
                         [
                             'term' => [
                                 'workspaceId' => $workspaceId,
@@ -92,6 +111,7 @@ final readonly class AttributeEntityMergeHandler
                             $field.'.id' => array_merge([$id], $merged),
                         ],
                     ], array_keys($fields)),
+                    'minimum_should_match' => 1,
                 ],
             ],
             [
@@ -173,31 +193,11 @@ void merge(HashMap src, String locale, String name, String id, List merged, Stri
     }
 }
 
-EOF, AttributeInterface::ATTRIBUTES_FIELD).implode("\n", $calls),
+EOF, AttributeInterface::ATTRIBUTES_FIELD).AttributeEntitySuggestionsScript::declaration().implode("\n", $calls),
                 'params' => array_merge($params, [
                     '_id' => $id,
                 ]),
                 'lang' => 'painless',
-            ]
-        );
-    }
-
-    private function updateAttributeIndex(AttributeEntity $mainEntity, array $merged): void
-    {
-        $this->elasticSearchClient->updateByQuery(
-            'attribute',
-            [
-                'terms' => [
-                    'entityId' => array_merge([$mainEntity->getId()], $merged),
-                ],
-            ],
-            [
-                'source' => 'ctx._source.entityId = params.id; ctx._source.suggestion = params.value;',
-                'lang' => 'painless',
-                'params' => [
-                    'id' => $mainEntity->getId(),
-                    'value' => $mainEntity->getValue(),
-                ],
             ]
         );
     }

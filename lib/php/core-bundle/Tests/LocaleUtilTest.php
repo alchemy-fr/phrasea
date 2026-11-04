@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace Alchemy\CoreBundle\Tests;
 
 use Alchemy\CoreBundle\Util\LocaleUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class LocaleUtilTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testBestLocale(?string $expectedLocale, array $available, array $locales): void
     {
         $this->assertEquals($expectedLocale, LocaleUtil::getBestLocale($available, $locales));
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         $availableLocales = [
             'fr',

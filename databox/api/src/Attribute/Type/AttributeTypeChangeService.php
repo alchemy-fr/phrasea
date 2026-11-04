@@ -22,6 +22,7 @@ readonly class AttributeTypeChangeService
             CodeAttributeType::NAME,
             HtmlAttributeType::NAME,
             JsonAttributeType::NAME,
+            WebVttAttributeType::NAME,
         ];
 
         $text = [
@@ -72,6 +73,9 @@ readonly class AttributeTypeChangeService
                 ...$longText,
             ],
             JsonAttributeType::NAME => [
+                ...$longText,
+            ],
+            WebVttAttributeType::NAME => [
                 ...$longText,
             ],
             IpAttributeType::NAME => [

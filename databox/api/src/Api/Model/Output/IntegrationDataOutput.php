@@ -6,7 +6,7 @@ namespace App\Api\Model\Output;
 
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class IntegrationDataOutput extends AbstractUuidOutput
 {

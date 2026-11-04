@@ -10,7 +10,7 @@ use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Profile\Profile;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class ProfileOutput extends AbstractUuidOutput
 {
@@ -53,6 +53,6 @@ class ProfileOutput extends AbstractUuidOutput
     #[Groups([Profile::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?bool $public = null;
 
-    #[Groups([Profile::GROUP_READ])]
+    #[Groups([Profile::GROUP_LIST, Profile::GROUP_READ])]
     public ?UserOutput $owner = null;
 }

@@ -9,8 +9,8 @@ use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 class WorkspaceIntegrationOutput extends AbstractUuidOutput
 {
@@ -39,6 +39,12 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     public ?string $configYaml = null;
+
+    /**
+     * The stored configuration, as configYaml but structured.
+     */
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    public ?array $configValues = null;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     public ?array $configInfo = null;

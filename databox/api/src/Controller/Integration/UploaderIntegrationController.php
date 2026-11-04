@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/integrations/uploader', name: 'integration_uploader_')]
 class UploaderIntegrationController extends AbstractController
@@ -32,7 +32,7 @@ class UploaderIntegrationController extends AbstractController
 
         $integration = $integrationManager->loadIntegration($integrationId);
         $config = $integrationManager->getIntegrationConfiguration($integration);
-        if ($config['securityKey'] !== $authToken) {
+        if (!hash_equals((string) $config['securityKey'], $authToken)) {
             throw new AccessDeniedHttpException('Invalid token');
         }
 

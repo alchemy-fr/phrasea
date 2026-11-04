@@ -27,6 +27,9 @@ framework:
                 base_uri: '%env(MATOMO_URL)%'
             phraseanet.client:
                 base_uri: '%env(PHRASEANET_URL)%'
+            cache_purger.client:
+                base_uri: 'http://expose-api-nginx'
+                timeout: 5
 
 when@dev:
     framework:

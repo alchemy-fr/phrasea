@@ -11,8 +11,9 @@ use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
+use App\Entity\Core\FileAnalysisStateEnum;
 use App\Entity\Core\Share;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class FileOutput extends AbstractUuidOutput
 {
@@ -27,6 +28,7 @@ class FileOutput extends AbstractUuidOutput
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST,
         AssetFileVersion::GROUP_LIST,
+        Share::GROUP_READ,
         Share::GROUP_PUBLIC_READ,
         AssetAttachment::GROUP_LIST,
     ];
@@ -34,7 +36,7 @@ class FileOutput extends AbstractUuidOutput
     /**
      * The MIME type.
      */
-    #[Groups(self::COMMON_GROUPS)]
+    #[Groups([...self::COMMON_GROUPS, ResolveEntitiesOutput::GROUP_READ])]
     private ?string $type = null;
 
     #[Groups(self::COMMON_GROUPS)]
@@ -46,10 +48,16 @@ class FileOutput extends AbstractUuidOutput
     #[Groups(self::COMMON_GROUPS)]
     private ?int $size = null;
 
+    #[Groups(self::COMMON_GROUPS)]
+    public ?string $checksum = null;
+
+    #[Groups(self::COMMON_GROUPS)]
+    public ?string $docUniqueId = null;
+
     /**
      * Signed URL.
      */
-    #[Groups(self::COMMON_GROUPS)]
+    #[Groups([...self::COMMON_GROUPS, ResolveEntitiesOutput::GROUP_READ])]
     private ?string $url = null;
 
     /**
@@ -85,8 +93,57 @@ class FileOutput extends AbstractUuidOutput
     ])]
     public ?bool $accepted = null;
 
+    /**
+     * What the analysis produced. Orthogonal to `$analysisEnforced`, which says
+     * whether that result actually blocks the file.
+     */
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
+    public FileAnalysisStateEnum $analysisState = FileAnalysisStateEnum::NotAnalyzed;
+
+    /**
+     * Whether the workspace requires the file analysis, i.e. whether a failed
+     * analysis blocks the file or is merely informative.
+     */
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
+    public bool $analysisEnforced = false;
+
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
+    public ?\DateTimeImmutable $analyzedAt = null;
+
     #[Groups([File::GROUP_METADATA])]
     public ?array $metadata = null;
+
+    /**
+     * Where this file is referenced: asset source, asset file version or asset rendition.
+     *
+     * @var array<int, array{type: string, assetId: string, assetTitle: ?string, name?: ?string}>|null
+     */
+    #[Groups([File::GROUP_LIST, File::GROUP_READ])]
+    public ?array $usages = null;
 
     public function getUrl(): ?string
     {

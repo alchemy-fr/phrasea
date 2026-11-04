@@ -8,14 +8,11 @@ use App\Api\Model\Input\ExportEntitiesInput;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Service\Asset\Attribute\AttributeEntity\Importer\CsvAttributeEntityImporter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'csv')]
 final readonly class CsvAttributeEntityExporter extends AbstractAttributeEntityExporter
 {
-    public static function getName(): string
-    {
-        return 'csv';
-    }
-
     public function export(EntityList $entityList, ExportEntitiesInput $options): callable
     {
         $headers = [

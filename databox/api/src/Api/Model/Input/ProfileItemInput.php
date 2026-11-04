@@ -16,6 +16,35 @@ final class ProfileItemInput
     public ?bool $displayEmpty = null;
     public ?string $format = null;
 
+    /**
+     * Grid placement: ['region' => ..., 'anchor' => ..., 'order' => ...].
+     *
+     * @var array{region: string, anchor: string, order?: int}|null
+     */
+    public ?array $placement = null;
+    public ?string $variant = null;
+    // One of the theme chip colors; empty string clears it.
+    #[Assert\Length(max: 30)]
+    public ?string $color = null;
+    // 'small' | 'medium' | 'large'; empty string clears it.
+    #[Assert\Choice(choices: ['small', 'medium', 'large', ''])]
+    public ?string $size = null;
+    public ?bool $showLabel = null;
+    public ?bool $showIcon = null;
+    // How a pinned boolean filter is picked; empty string clears it.
+    #[Assert\Choice(choices: [...ProfileItem::WIDGETS, ''])]
+    public ?string $widget = null;
+    // Labels of a pinned boolean filter values; empty string clears them.
+    #[Assert\Length(max: 100)]
+    public ?string $trueLabel = null;
+    #[Assert\Length(max: 100)]
+    public ?string $falseLabel = null;
+    // Offers "false" first.
+    public ?bool $reversed = null;
+    // AQL condition a pinned filter applies by default; empty string clears it.
+    #[Assert\Length(max: 4000)]
+    public ?string $defaultQuery = null;
+
     #[Assert\NotNull]
     #[Assert\Choice(choices: ProfileItem::SECTIONS)]
     public ?int $section = null;
@@ -54,6 +83,35 @@ final class ProfileItemInput
                         ->addViolation();
                 }
                 break;
+        }
+
+        if (in_array($this->section, ProfileItem::ATTRIBUTE_ONLY_SECTIONS, true)
+            && in_array($this->type, [ProfileItem::TYPE_DIVIDER, ProfileItem::TYPE_SPACER], true)) {
+            $context->buildViolation('Only attributes are allowed in this section.')
+                ->atPath('type')
+                ->addViolation();
+        }
+
+        if (ProfileItem::SECTION_GRID === $this->section) {
+            if (null === $this->placement) {
+                $context->buildViolation('A placement is required for grid items.')
+                    ->atPath('placement')
+                    ->addViolation();
+
+                return;
+            }
+
+            $region = $this->placement['region'] ?? null;
+            $anchor = $this->placement['anchor'] ?? null;
+            if (!in_array($region, ProfileItem::REGIONS, true)) {
+                $context->buildViolation(sprintf('Invalid grid region "%s".', (string) $region))
+                    ->atPath('placement')
+                    ->addViolation();
+            } elseif (!in_array($anchor, ProfileItem::ANCHORS[$region], true)) {
+                $context->buildViolation(sprintf('Invalid anchor "%s" for region "%s".', (string) $anchor, $region))
+                    ->atPath('placement')
+                    ->addViolation();
+            }
         }
     }
 }

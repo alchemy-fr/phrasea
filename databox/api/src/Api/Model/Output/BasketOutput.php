@@ -10,7 +10,7 @@ use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Basket\Basket;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class BasketOutput extends AbstractUuidOutput
 {
@@ -53,6 +53,9 @@ class BasketOutput extends AbstractUuidOutput
 
     #[Groups([Basket::GROUP_READ])]
     public ?UserOutput $owner = null;
+
+    #[Groups([Basket::GROUP_LIST, Basket::GROUP_READ])]
+    public bool $isArchived = false;
 
     public function getCapabilities(): array
     {
@@ -102,5 +105,10 @@ class BasketOutput extends AbstractUuidOutput
     public function setOwner(?UserOutput $owner): void
     {
         $this->owner = $owner;
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->isArchived;
     }
 }

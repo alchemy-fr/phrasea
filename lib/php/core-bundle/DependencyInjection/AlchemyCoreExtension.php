@@ -9,8 +9,7 @@ use Alchemy\CoreBundle\Message\Debug\SentryDebugHandler;
 use Alchemy\CoreBundle\Message\PusherHandler;
 use Alchemy\CoreBundle\Pusher\PusherFactory;
 use Alchemy\CoreBundle\Pusher\PusherManager;
-use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
-use ApiPlatform\Symfony\Validator\Exception\ValidationException as DeprecatedValidationException;
+use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Validator\Exception\ValidationException;
 use Doctrine\DBAL\Types\ConversionException;
 use Monolog\Processor\PsrLogMessageProcessor;
@@ -22,10 +21,10 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -36,6 +35,8 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\RejectRedeliveredMessageException;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\Exception\UnexpectedValueException as SerializerUnexpectedValueException;
 use Symfony\Component\Serializer\Exception\UnsupportedFormatException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -91,6 +92,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $def = $container->getDefinition(PusherManager::class);
             $def->setArgument('$disabled', $config['pusher']['disabled']);
 
+            $container->setParameter('alchemy_core.pusher.channel_prefix', $config['pusher']['channel_prefix']);
+
             $this->loadPusher($container, $config['pusher']);
         }
 
@@ -118,6 +121,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             '$secret' => $config['secret'],
             '$appId' => $config['appId'],
             '$verifySsl' => $config['verifySsl'],
+            '$port' => $config['port'],
+            '$scheme' => $config['scheme'],
         ]);
         $def->setFactory([PusherFactory::class, 'create']);
         $container->setDefinition(Pusher::class, $def);
@@ -180,6 +185,20 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         'status_code' => 404,
                         'log_level' => 'debug',
                     ],
+                    // A malformed request body or filter is the client's problem: it
+                    // already gets a 4xx, so keep it out of the error log (and out of
+                    // Sentry, whose Monolog handler only listens from ERROR up).
+                    BadRequestHttpException::class => [
+                        'log_level' => 'info',
+                    ],
+                    NotEncodableValueException::class => [
+                        'status_code' => 400,
+                        'log_level' => 'info',
+                    ],
+                    SerializerUnexpectedValueException::class => [
+                        'status_code' => 400,
+                        'log_level' => 'info',
+                    ],
                 ],
             ]);
         }
@@ -207,7 +226,6 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         NotFoundHttpException::class,
                         AccessDeniedHttpException::class,
                         UnsupportedFormatException::class,
-                        DeprecatedValidationException::class,
                         ValidationException::class,
                         UnauthorizedHttpException::class,
                         AccessDeniedException::class,

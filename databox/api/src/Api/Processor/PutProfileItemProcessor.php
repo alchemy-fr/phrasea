@@ -26,8 +26,8 @@ class PutProfileItemProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): ProfileItem
     {
-        $profileId = $uriVariables['id'];
-        $itemId = $uriVariables['itemId'];
+        $profileId = (string) $uriVariables['id'];
+        $itemId = (string) $uriVariables['itemId'];
 
         $item = $this->em->getRepository(ProfileItem::class)->findOneBy([
             'id' => $itemId,
@@ -46,6 +46,39 @@ class PutProfileItemProcessor implements ProcessorInterface
         }
         if (null !== $data->format) {
             $item->setFormat($data->format);
+        }
+        if (null !== $data->placement) {
+            $item->setPlacement($data->placement);
+        }
+        if (null !== $data->variant) {
+            $item->setVariant($data->variant);
+        }
+        if (null !== $data->color) {
+            $item->setColor($data->color);
+        }
+        if (null !== $data->size) {
+            $item->setSize($data->size);
+        }
+        if (null !== $data->showLabel) {
+            $item->setShowLabel($data->showLabel);
+        }
+        if (null !== $data->showIcon) {
+            $item->setShowIcon($data->showIcon);
+        }
+        if (null !== $data->widget) {
+            $item->setWidget($data->widget);
+        }
+        if (null !== $data->trueLabel) {
+            $item->setTrueLabel($data->trueLabel);
+        }
+        if (null !== $data->falseLabel) {
+            $item->setFalseLabel($data->falseLabel);
+        }
+        if (null !== $data->reversed) {
+            $item->setReversed($data->reversed);
+        }
+        if (null !== $data->defaultQuery) {
+            $item->setDefaultQuery($data->defaultQuery);
         }
 
         $this->em->persist($item);

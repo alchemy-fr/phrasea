@@ -5,6 +5,7 @@ namespace Alchemy\MetadataManipulatorBundle;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\TagGroupInterface;
+use PHPExiftool\Exception\ExceptionInterface as PHPExiftoolExceptionInterface;
 use PHPExiftool\PHPExiftool;
 use PHPExiftool\Writer;
 use Psr\Log\LoggerInterface;
@@ -12,12 +13,15 @@ use Psr\Log\NullLogger;
 
 class MetadataManipulator
 {
-    private static ?array $knownTagGroups = null;  // cache
+    private ?array $knownTagGroups = null;  // cache
     private readonly PHPExiftool $phpExifTool;
     private readonly LoggerInterface $logger;
 
-    public function __construct(string $classesDirectory, ?LoggerInterface $logger = null, private readonly bool $debug = false)
-    {
+    public function __construct(
+        string $classesDirectory,
+        ?LoggerInterface $logger = null,
+        bool $debug = false,
+    ) {
         $this->phpExifTool = new PHPExiftool($classesDirectory);
         $this->logger = $logger ?? new NullLogger();
 
@@ -26,13 +30,12 @@ class MetadataManipulator
         }
     }
 
-    public static function getKnownTagGroups(): array
+    /**
+     * @return string[] The known tag group ids (e.g. "IPTC:Keywords"), naturally sorted
+     */
+    public function getKnownTagGroups(): array
     {
-        if (null === self::$knownTagGroups) {
-            self::$knownTagGroups = PHPExiftool::getKnownTagGroups();
-        }
-
-        return self::$knownTagGroups;
+        return $this->knownTagGroups ??= array_keys($this->phpExifTool->getFactory()->getHelper()::getIndex());
     }
 
     public function createTagGroup(string $tagGroupName): TagGroupInterface
@@ -51,7 +54,18 @@ class MetadataManipulator
 
         $reader->files($file->getRealPath());
 
-        return $reader->first()->getMetadatas();
+        try {
+            return $reader->first()->getMetadatas();
+        } catch (PHPExiftoolExceptionInterface $e) {
+            // exiftool exits with an error (and no output) on empty, truncated or
+            // unknown files: treat it as "no metadata" rather than failing the caller.
+            $this->logger->warning('Unable to read metadata with exiftool, returning an empty bag', [
+                'file' => $file->getRealPath(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return new MetadataBag();
+        }
     }
 
     public function createWriter(): Writer

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
-use App\Entity\Admin\PopulatePass;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Elasticsearch\Listener\PopulatePassListener;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -17,7 +16,7 @@ final readonly class ESPopulateHandler
 {
     public function __construct(
         private KernelInterface $kernel,
-        private EntityManagerInterface $em,
+        private PopulatePassListener $populatePassListener,
     ) {
     }
 
@@ -26,21 +25,16 @@ final readonly class ESPopulateHandler
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
 
-        $input = new ArrayInput([
-            'command' => 'fos:elastica:populate',
-        ]);
+        $arguments = ['command' => 'fos:elastica:populate'];
+        if (null !== $message->index) {
+            $arguments['--index'] = $message->index;
+        }
+        $input = new ArrayInput($arguments);
         $code = $application->run($input, new NullOutput());
 
         if (0 !== $code) {
-            $unterminated = $this->em->getRepository(PopulatePass::class)->findBy([
-                'endedAt' => null,
-            ]);
-            foreach ($unterminated as $pp) {
-                $pp->setError(sprintf('Unexpected command return code %d (expected 0)', $code));
-                $pp->setEndedAt(new \DateTimeImmutable());
-                $this->em->persist($pp);
-            }
-            $this->em->flush();
+            // Only the passes started by this very run: other workers may be populating other indices
+            $this->populatePassListener->markPendingPassesAsFailed(sprintf('Unexpected command return code %d (expected 0)', $code));
         }
     }
 }

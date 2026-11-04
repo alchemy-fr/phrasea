@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Phrasea\Expose;
 
+use Alchemy\CoreBundle\Upload\MultipartUploader;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
@@ -16,10 +17,11 @@ use App\Entity\Integration\IntegrationToken;
 use App\Http\LocaleContext;
 use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
+use App\Model\BasketClip;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use App\Service\Clip\MediaClipper;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -32,12 +34,8 @@ final readonly class ExposeClient
         private AttributesResolver $attributesResolver,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private LocaleContext $localeContext,
-        #[Autowire(env: 'int:S3_MULTIPART_MIN_CHUNK_SIZE')]
-        private ?int $minChunkSize,
-        #[Autowire(env: 'int:S3_MULTIPART_MAX_CHUNK_SIZE')]
-        private ?int $maxChunkSize,
-        #[Autowire(env: 'int:S3_MULTIPART_MAX_PART_NUMBER')]
-        private ?int $maxPartNumber,
+        private MultipartUploader $multipartUploader,
+        private MediaClipper $mediaClipper,
     ) {
     }
 
@@ -230,86 +228,25 @@ final readonly class ExposeClient
         string $publicationId,
         Asset $asset,
         array $properties,
+        ?BasketClip $clip = null,
     ): string {
         $source = $asset->getSource();
         $fetchedFilePath = $this->fileFetcher->getFile($source);
-        $fileSize = filesize($fetchedFilePath);
-
-        // @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
-        $partSize = 500 * 1024 * 1024; // 500Mb
-        if (null !== $this->minChunkSize) {
-            $partSize = max($partSize, $this->minChunkSize);
-        }
-        if (null !== $this->maxChunkSize) {
-            $partSize = min($partSize, $this->maxChunkSize);
-        }
-        if (null !== $this->maxPartNumber && ceil($fileSize / $partSize) > $this->maxPartNumber) {
-            $partSize = (int) ceil($fileSize / $this->maxPartNumber);
-        }
 
         try {
-            $uploadsData = [
-                'filename' => $source->getOriginalName() ?? 'file',
-                'type' => $source->getType(),
-                'size' => (int) $source->getSize(),
-            ];
+            $file = $this->mediaClipper->apply($fetchedFilePath, $source->getType(), $clip);
 
-            $resUploads = $this->create($config, $integrationToken)
-                ->request('POST', '/uploads', [
-                    'json' => $uploadsData,
-                ])
-                ->toArray();
-
-            $mUploadId = $resUploads['id'];
-
-            $parts['Parts'] = [];
-
-            try {
-                $fd = fopen($fetchedFilePath, 'r');
-                $alreadyUploaded = 0;
-
-                $partNumber = 1;
-
-                $retryCount = 3;
-
-                while (($fileSize - $alreadyUploaded) > 0) {
-                    $resUploadPart = $this->create($config, $integrationToken)
-                        ->request('POST', '/uploads/'.$mUploadId.'/part', [
-                            'json' => ['part' => $partNumber],
-                        ])
-                        ->toArray();
-
-                    if (($fileSize - $alreadyUploaded) < $partSize) {
-                        $partSize = $fileSize - $alreadyUploaded;
-                    }
-
-                    $headerPutPart = $this->putPart($resUploadPart['url'], $fd, $partSize, $retryCount);
-
-                    $alreadyUploaded += $partSize;
-
-                    $parts['Parts'][$partNumber] = [
-                        'PartNumber' => $partNumber,
-                        'ETag' => current($headerPutPart['etag']),
-                    ];
-
-                    ++$partNumber;
-                }
-
-                fclose($fd);
-            } catch (\Throwable  $e) {
-                $this->create($config, $integrationToken)
-                    ->request('DELETE', '/uploads/'.$mUploadId);
-
-                throw $e;
-            }
+            $multipart = $this->multipartUploader->upload(
+                $this->create($config, $integrationToken),
+                $file->path,
+                $file->renameFile($source->getOriginalName() ?? 'file'),
+                $file->mimeType,
+            );
 
             $data = array_merge([
                 'publication_id' => $publicationId,
                 'asset_id' => $asset->getId(),
-                'multipart' => [
-                    'uploadId' => $mUploadId,
-                    'parts' => $parts['Parts'],
-                ],
+                'multipart' => $multipart,
             ], $properties);
 
             $pubAsset = $this->create($config, $integrationToken)
@@ -317,9 +254,9 @@ final readonly class ExposeClient
                     'json' => $data,
                 ])
                 ->toArray();
-
         } finally {
             @unlink($fetchedFilePath);
+            $this->mediaClipper->cleanUp();
         }
 
         return $pubAsset['id'];
@@ -332,7 +269,10 @@ final readonly class ExposeClient
         array $data,
     ): array {
         return $this->create($config, $integrationToken)
-            ->request('PUT', '/assets/'.$assetId, [
+            ->request('PATCH', '/assets/'.$assetId, [
+                'headers' => [
+                    'Content-Type' => 'application/merge-patch+json',
+                ],
                 'json' => $data,
             ])
             ->toArray();
@@ -345,10 +285,14 @@ final readonly class ExposeClient
         string $renditionName,
         AssetRendition $rendition,
         array $extraData = [],
+        ?BasketClip $clip = null,
     ): void {
         $file = $rendition->getFile();
         $subDefFetchedFile = $this->fileFetcher->getFile($file);
         try {
+            $clipped = $this->mediaClipper->apply($subDefFetchedFile, $file->getType(), $clip);
+            $size = $clipped->transformed ? filesize($clipped->path) : $file->getSize();
+
             $subDefResponse = $this->create($config, $integrationToken)
                 ->request('POST', '/sub-definitions', [
                     'json' => [
@@ -358,9 +302,9 @@ final readonly class ExposeClient
                         'use_as_thumbnail' => 'thumbnail' === $renditionName,
                         'use_as_poster' => 'poster' === $renditionName,
                         'upload' => [
-                            'type' => $file->getType(),
-                            'size' => $file->getSize(),
-                            'name' => $file->getOriginalName(),
+                            'type' => $clipped->mimeType,
+                            'size' => $size,
+                            'name' => $clipped->renameFile($file->getOriginalName()),
                         ],
                         ...$extraData,
                     ],
@@ -369,13 +313,14 @@ final readonly class ExposeClient
 
             $this->uploadClient->request('PUT', $subDefResponse['uploadURL'], [
                 'headers' => [
-                    'Content-Type' => $file->getType(),
-                    'Content-Length' => filesize($subDefFetchedFile),
+                    'Content-Type' => $clipped->mimeType,
+                    'Content-Length' => filesize($clipped->path),
                 ],
-                'body' => fopen($subDefFetchedFile, 'r'),
+                'body' => fopen($clipped->path, 'r'),
             ]);
         } finally {
             @unlink($subDefFetchedFile);
+            $this->mediaClipper->cleanUp();
         }
     }
 
@@ -392,36 +337,5 @@ final readonly class ExposeClient
     ): void {
         $this->create($config, $integrationToken)
             ->request('DELETE', '/sub-definitions/'.$subDefinitionId);
-    }
-
-    private function putPart(string $url, mixed &$handleFile, int $partSize, int $retryCount): array
-    {
-        if ($retryCount > 0) {
-            --$retryCount;
-            try {
-                $maxToRead = $partSize;
-                $alreadyRead = 0;
-
-                return $this->uploadClient->request('PUT', $url, [
-                    'headers' => [
-                        'Content-Length' => $partSize,
-                    ],
-                    'body' => function ($size) use (&$handleFile, $maxToRead, &$alreadyRead): mixed {
-                        $toRead = min($size, $maxToRead - $alreadyRead);
-                        $alreadyRead += $toRead;
-
-                        return fread($handleFile, $toRead);
-                    },
-                ])->getHeaders();
-            } catch (\Throwable $e) {
-                if (0 == $retryCount) {
-                    throw $e;
-                }
-
-                return $this->putPart($url, $handleFile, $partSize, $retryCount);
-            }
-        } else {
-            return [];
-        }
     }
 }

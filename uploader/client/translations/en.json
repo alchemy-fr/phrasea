@@ -65,6 +65,10 @@
         "form_editor": "Form Editor",
         "target_data_editor": "Target Data Editor"
     },
+    "require_login": {
+        "intro": "Please log in to access this page.",
+        "log_in": "Log In"
+    },
     "target_param": {
         "create": {
             "title": "Creating New Target Params"
@@ -91,7 +95,8 @@
         "none_available": "You don't have access to any upload target."
     },
     "upload": {
-        "cancelConfirmation": "Are you sure you want to cancel current upload?"
+        "cancelConfirmation": "Are you sure you want to cancel current upload?",
+        "retry_warning": "Upload failed. Retrying attempt {{retryCount}} in {{delay}}s..."
     },
     "upload_done": {
         "all_files_have_been_uploaded": "All files have been uploaded.",

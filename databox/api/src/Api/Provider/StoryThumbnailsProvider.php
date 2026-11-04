@@ -14,6 +14,7 @@ use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
+use App\Service\Asset\StoryRenditionPreference;
 use App\Service\Storage\RenditionManager;
 
 class StoryThumbnailsProvider implements ProviderInterface
@@ -30,7 +31,7 @@ class StoryThumbnailsProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $storyAsset = $this->assetRepository->find($uriVariables['id']);
+        $storyAsset = $this->assetRepository->find((string) $uriVariables['id']);
         if (!$storyAsset instanceof Asset) {
             return null;
         }
@@ -43,13 +44,12 @@ class StoryThumbnailsProvider implements ProviderInterface
         $userId = $user instanceof JwtUser ? $user->getId() : null;
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
-        $options = $context['filters'] ?? [];
-        $options['story'] = $storyAsset->getId();
-
-        [$result] = $this->assetSearch->search($userId, $groupIds, $options);
+        [$result] = $this->assetSearch->search($userId, $groupIds, [
+            'story' => $storyAsset->getId(),
+        ]);
         $thumbnails = [];
         foreach ($result as $asset) {
-            $renditions = $this->renditionManager->getAssetRenditionsUsedAs('thumbnail', $asset->getId());
+            $renditions = StoryRenditionPreference::sort($asset, 'thumbnail', $this->renditionManager->getAssetRenditionsUsedAs('thumbnail', $asset->getId()));
             foreach ($renditions as $rendition) {
                 if (str_starts_with($rendition->getFile()?->getType() ?? '', 'image/')) {
                     if ($this->isGranted(AbstractVoter::READ, $rendition)) {

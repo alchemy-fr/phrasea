@@ -1,0 +1,43 @@
+{% extends '@AlchemyES/admin/_layout.html.twig' %}
+{% import '@AlchemyES/admin/_layout.html.twig' as es %}
+
+{% block content_title %}Index <code>{{ name }}</code>{% endblock %}
+
+{% block es_main %}
+    <p>
+        <a href="{{ path(es_route ~ 'index') }}" class="btn btn-secondary btn-sm"><i class="fa fa-arrow-left"></i> Back to indices</a>
+        {{ es.confirm_form(
+            path(es_route ~ 'index_refresh', {name: name}),
+            'es-refresh', 'Refresh', 'secondary',
+            'Refresh index "' ~ name ~ '"?', 'Makes all recent operations visible to search. Harmless.', 'fa fa-rotate-right'
+        ) }}
+        {{ es.confirm_form(
+            path(es_route ~ 'index_delete', {name: name}),
+            'es-delete', 'Delete', 'danger',
+            'Permanently delete index "' ~ name ~ '"?',
+            'All documents and the aliases of this index will be lost. This cannot be undone.', 'fa fa-trash'
+        ) }}
+    </p>
+
+    <dl class="row">
+        <dt class="col-sm-2">Aliases</dt>
+        <dd class="col-sm-10">
+            {% for a in details.aliases %}<code>{{ a }}</code>{% if not loop.last %}, {% endif %}{% else %}<span class="text-muted">none</span>{% endfor %}
+        </dd>
+        <dt class="col-sm-2">Documents</dt>
+        <dd class="col-sm-10">{{ details.stats.docs.count|default('?') }} ({{ details.stats.docs.deleted|default(0) }} deleted)</dd>
+        <dt class="col-sm-2">Store size</dt>
+        <dd class="col-sm-10">{{ (details.stats.store.size_in_bytes|default(0) / 1024)|round(1) }} kB</dd>
+        <dt class="col-sm-2">Created</dt>
+        <dd class="col-sm-10">{{ details.settings.index.creation_date is defined ? (details.settings.index.creation_date // 1000)|date('Y-m-d H:i:s') : '?' }}</dd>
+    </dl>
+
+    <h3>Settings</h3>
+    <pre class="border p-2 bg-light" style="max-height: 30em; overflow: auto">{{ json.settings }}</pre>
+
+    <h3>Mappings</h3>
+    <pre class="border p-2 bg-light" style="max-height: 40em; overflow: auto">{{ json.mappings }}</pre>
+
+    <h3>Stats</h3>
+    <pre class="border p-2 bg-light" style="max-height: 30em; overflow: auto">{{ json.stats }}</pre>
+{% endblock %}

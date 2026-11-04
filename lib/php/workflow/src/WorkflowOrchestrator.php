@@ -287,7 +287,7 @@ final class WorkflowOrchestrator
      */
     private function getNextJob(Plan $plan, WorkflowState $state): array
     {
-        $statuses = [];
+        $satisfiedNeeds = [];
         $hasFailedJob = false;
 
         $workflowComplete = true;
@@ -304,14 +304,18 @@ final class WorkflowOrchestrator
 
                 $jobState = $this->stateRepository->getLastJobState($state->getId(), $jobId);
                 if (null === $jobState) {
-                    if ($this->satisfiesAllNeeds($statuses, $job)) {
+                    if ($this->satisfiesAllNeeds($satisfiedNeeds, $job)) {
                         return [$jobId, null];
                     }
                     continue;
 
                 }
 
-                $statuses[$jobId] = $jobState->getStatus();
+                $status = $jobState->getStatus();
+                if (JobState::STATUS_SUCCESS === $status
+                    || (JobState::STATUS_SKIPPED === $status && $job->isContinueOnSkip())) {
+                    $satisfiedNeeds[$jobId] = true;
+                }
 
                 if (JobState::STATUS_FAILURE === $jobState->getStatus()) {
                     $hasFailedJob = true;
@@ -337,10 +341,13 @@ final class WorkflowOrchestrator
         return $workflowComplete ? [null, $hasFailedJob ? WorkflowState::STATUS_FAILURE : WorkflowState::STATUS_SUCCESS] : [null, null];
     }
 
-    private function satisfiesAllNeeds(array $states, Job $job): bool
+    /**
+     * @param array<string, true> $satisfiedNeeds
+     */
+    private function satisfiesAllNeeds(array $satisfiedNeeds, Job $job): bool
     {
         foreach ($job->getNeeds() as $need) {
-            if (!isset($states[$need]) || JobState::STATUS_SUCCESS !== $states[$need]) {
+            if (!isset($satisfiedNeeds[$need])) {
                 return false;
             }
         }

@@ -9,10 +9,14 @@ use App\OperationTask\OperationTaskInterface;
 use App\OperationTask\RunContext;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class SwitchAttributeLocalesTask implements OperationTaskInterface
 {
+    public const string NAME = 'switch_attribute_locales';
+
     public function __construct(
         private EntityManagerInterface $em,
         private AttributeDefinitionRepository $attributeDefinitionRepository,
@@ -21,7 +25,7 @@ final readonly class SwitchAttributeLocalesTask implements OperationTaskInterfac
 
     public static function getName(): string
     {
-        return 'switch_attribute_locales';
+        return self::NAME;
     }
 
     public function validate(array $payload): void

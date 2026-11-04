@@ -10,7 +10,7 @@ use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\SavedSearch\SavedSearch;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class SavedSearchOutput extends AbstractUuidOutput
 {
@@ -24,6 +24,7 @@ class SavedSearchOutput extends AbstractUuidOutput
             'edit' => 'boolean',
             'delete' => 'boolean',
             'editPermissions' => 'boolean',
+            'manageAutomations' => 'boolean',
         ],
     ])]
     #[Groups([SavedSearch::GROUP_LIST, SavedSearch::GROUP_READ])]
@@ -32,8 +33,12 @@ class SavedSearchOutput extends AbstractUuidOutput
     #[Groups([SavedSearch::GROUP_LIST, SavedSearch::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?string $name = null;
 
+    #[ApiProperty(jsonSchemaContext: [
+        'type' => 'integer',
+        'enum' => [0, 1, 2],
+    ])]
     #[Groups([SavedSearch::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
-    public ?bool $public = null;
+    public ?int $privacy = null;
 
     #[Groups([SavedSearch::GROUP_READ])]
     public ?UserOutput $owner = null;

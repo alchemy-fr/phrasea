@@ -13,6 +13,10 @@ class JwtUser implements JwtInterface, JwtUserInterface
     final public const string IS_AUTHENTICATED_FULLY = 'IS_AUTHENTICATED_FULLY';
     final public const string ROLE_ADMIN = 'ROLE_ADMIN';
     final public const string ROLE_TECH = 'ROLE_TECH';
+    /**
+     * Granted by the Keycloak "impersonation" role of the "realm-management" client.
+     */
+    final public const string ROLE_IMPERSONATOR = 'ROLE_IMPERSONATOR';
 
     private ?string $refreshToken = null;
 
@@ -23,7 +27,21 @@ class JwtUser implements JwtInterface, JwtUserInterface
         private readonly array $roles = [],
         private readonly array $groups = [],
         private readonly array $scopes = [],
+        private readonly ?string $impersonatorId = null,
     ) {
+    }
+
+    /**
+     * ID of the admin acting as this user, when the request is impersonated.
+     */
+    public function getImpersonatorId(): ?string
+    {
+        return $this->impersonatorId;
+    }
+
+    public function isImpersonated(): bool
+    {
+        return null !== $this->impersonatorId;
     }
 
     public function getId(): string
@@ -64,10 +82,6 @@ class JwtUser implements JwtInterface, JwtUserInterface
     public function getEmail(): string
     {
         return $this->username;
-    }
-
-    public function eraseCredentials(): void
-    {
     }
 
     public function getJwt(): string

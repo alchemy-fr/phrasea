@@ -75,6 +75,22 @@ class AssetAnnotationsFaker extends BaseProvider
         ];
     }
 
+    public function assetAnnotationsFace(): array
+    {
+        $x = random_int(0, 80) / 100;
+        $y = random_int(0, 80) / 100;
+
+        return [
+            [
+                'type' => AssetAnnotationsInterface::TYPE_FACE,
+                'x' => $x,
+                'y' => $y,
+                'w' => min(random_int(5, 20) / 100, 1 - $x),
+                'h' => min(random_int(5, 20) / 100, 1 - $y),
+            ],
+        ];
+    }
+
     private function randomColor(): string
     {
         $rouge = dechex(random_int(0, 255));

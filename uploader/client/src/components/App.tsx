@@ -10,7 +10,8 @@ import RouteProxy from './RouteProxy.tsx';
 import React from 'react';
 import {VerticalMenuLayout} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
-import {config, keycloakClient} from '../init.ts';
+import {apiClient, config, keycloakClient} from '../init.ts';
+import {registerWs} from '../lib/pusher.ts';
 import {defaultLocales as appLocales, rootDefaultLocale} from '@alchemy/i18n';
 import Menu from './Menu.tsx';
 
@@ -47,6 +48,8 @@ function WrapperComponent({children}: RouteWrapperProps) {
                         keycloakClient,
                         appLocales,
                         defaultLocale: rootDefaultLocale,
+                        apiClient,
+                        registerNotificationRealtime: registerWs,
                     }}
                     menuChildren={<Menu />}
                 >

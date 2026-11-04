@@ -1,0 +1,672 @@
+'use client';
+
+import {ReactNode, useMemo, useRef, useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {useTranslation} from 'react-i18next';
+import {
+    CopyIcon,
+    GripVerticalIcon,
+    MoreHorizontalIcon,
+    PlusIcon,
+    Trash2Icon,
+} from 'lucide-react';
+import {
+    closestCenter,
+    DndContext,
+    DragEndEvent,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {toast} from 'sonner';
+import {Button} from '@/components/ui/button';
+import {FilterInput} from '@/components/ui/filter-input';
+import {Skeleton, EmptyState} from '@/components/ui/misc';
+import {useModals} from '@/components/modals/ModalProvider';
+import {ConfirmDialog} from '@/components/ui/confirm';
+import {LoadError} from '@/components/modals/LoadPlaceholder';
+import {isApiError} from '@/lib/api/http';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/menu';
+import {cn} from '@/lib/utils/cn';
+import {
+    overlayRow,
+    SortableOverlay,
+    SortableRow,
+    sortableMeasuring,
+    useSortableRow,
+} from '@/components/ui/sortable';
+import {
+    confirmLeave,
+    UnsavedChangesScope,
+    useUnsavedChangesChildScope,
+} from '@/lib/navigation/unsavedChanges';
+import {NestedRoutePath, useRoutePath} from '@/lib/navigation/routePath';
+import {useFocusFirstField} from '@/hooks/useFocusFirstField';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
+
+export type DefinitionItem = {id: string};
+
+type Props<D extends DefinitionItem> = {
+    items: D[] | undefined;
+    loading?: boolean;
+    /** Error of the list load, shown in place of the list while it is empty */
+    error?: unknown;
+    /** Render the list row (title, badges...) */
+    renderItem: (item: D) => ReactNode;
+    /** Render the edit / create form. `onSaved` must be called with the saved item. */
+    renderForm: (
+        item: D | undefined,
+        onSaved: (item: D) => void,
+        onCancel: () => void
+    ) => ReactNode;
+    onDelete?: (item: D) => Promise<void>;
+    /** Creates a copy of the item (server side), which is then selected */
+    onDuplicate?: (item: D) => Promise<D>;
+    onSort?: (ids: string[]) => Promise<void>;
+    onChanged: () => void;
+    filter?: (item: D, query: string) => boolean;
+    createLabel?: string;
+    emptyLabel?: string;
+    /** Extra content rendered in the list toolbar */
+    toolbar?: ReactNode;
+    /**
+     * Render a nested management panel for the selected item (e.g. entities
+     * of a list). It gets the URL below `:id/manage` (`useRoutePath`).
+     */
+    renderManage?: (item: D, back: () => void) => ReactNode;
+    manageLabel?: string;
+    /** Extra actions of a row, next to the manage button */
+    renderRowActions?: (item: D) => ReactNode;
+    /** Take the whole height of the parent (a flex column); both panes scroll */
+    fill?: boolean;
+    /** More items to load (`onReachEnd`) after `items` */
+    hasMore?: boolean;
+    loadingMore?: boolean;
+    /** Called when the end of the list is scrolled into view */
+    onReachEnd?: () => void;
+    /** Search done by the API, controlled: `filter` is then ignored */
+    query?: string;
+    onQueryChange?: (query: string) => void;
+    /** Loads the item of the URL when it is not in the loaded pages */
+    getItem?: (id: string) => Promise<D>;
+    /** Query key prefix of `getItem` */
+    itemQueryKey?: unknown[];
+    /**
+     * Every item is loaded (no next page, no search): reordering needs the
+     * whole list. Defaults to true.
+     */
+    complete?: boolean;
+    /** Loads the remaining pages, offered to reorder an incomplete list */
+    onLoadAll?: () => Promise<void>;
+};
+
+/** Path segment of the item being created */
+const NEW = 'new';
+/** Path segment of the nested management panel, below the item id */
+const MANAGE = 'manage';
+
+/**
+ * Generic master / detail manager used for workspace definitions (tags,
+ * attribute definitions, rendition definitions, policies, integrations...):
+ * filterable, sortable list on the left, form on the right.
+ *
+ * What is shown lives in the URL (`useRoutePath`), so that a refresh or a
+ * shared link lands on it: `:id` (edited), `new`, `:id/manage/…` (the nested
+ * panel).
+ */
+export function DefinitionManager<D extends DefinitionItem>({
+    items,
+    loading,
+    error,
+    renderItem,
+    renderForm,
+    onDelete,
+    onDuplicate,
+    onSort,
+    onChanged,
+    filter,
+    createLabel,
+    emptyLabel,
+    toolbar,
+    renderManage,
+    manageLabel,
+    renderRowActions,
+    fill,
+    hasMore,
+    loadingMore,
+    onReachEnd,
+    query: serverQuery,
+    onQueryChange,
+    getItem,
+    itemQueryKey = ['definition-item'],
+    complete = true,
+    onLoadAll,
+}: Props<D>) {
+    const {t} = useTranslation();
+    const {openModal} = useModals();
+    const [localQuery, setLocalQuery] = useState('');
+    const serverSearch = onQueryChange !== undefined;
+    const query = serverSearch ? (serverQuery ?? '') : localQuery;
+    const setQuery = serverSearch ? onQueryChange : setLocalQuery;
+    const listRef = useRef<HTMLUListElement>(null);
+    const sentinelRef = useInfiniteScroll(
+        listRef,
+        onReachEnd,
+        !!hasMore && !loadingMore && !!onReachEnd
+    );
+    const [loadingAll, setLoadingAll] = useState(false);
+    const {segments, navigate} = useRoutePath();
+    const selected: string | null = segments[0] ?? null;
+    const managing = segments[1] === MANAGE ? selected : null;
+    const formPane = useRef<HTMLDivElement>(null);
+    useFocusFirstField(formPane, selected === NEW);
+    // Just created: shown until the refreshed items include it
+    const [created, setCreated] = useState<D>();
+    // The form pane: leaving the item being edited asks first when it is dirty
+    const formScope = useUnsavedChangesChildScope();
+    const leaveForm = (next: () => void) => {
+        void confirmLeave(formScope).then(leave => leave && next());
+    };
+    const select = (id: string | null) => {
+        if (id !== selected) {
+            leaveForm(() => navigate(id ? [id] : []));
+        }
+    };
+    const sensors = useSensors(
+        useSensor(PointerSensor, {activationConstraint: {distance: 4}})
+    );
+    // The item being duplicated
+    const [duplicating, setDuplicating] = useState<string | null>(null);
+    const duplicate = onDuplicate
+        ? (item: D) =>
+              leaveForm(async () => {
+                  setDuplicating(item.id);
+                  try {
+                      const copy = await onDuplicate(item);
+                      onChanged();
+                      setCreated(copy);
+                      navigate([copy.id]);
+                      toast.success(t('definition.duplicated', 'Copy created'));
+                  } catch (e: any) {
+                      toast.error(e?.message);
+                  } finally {
+                      setDuplicating(null);
+                  }
+              })
+        : undefined;
+    // Optimistic order, kept until the refreshed items arrive
+    const [order, setOrder] = useState<{
+        of: D[] | undefined;
+        ids: string[];
+    } | null>(null);
+
+    const ordered = useMemo(() => {
+        if (!items || order?.of !== items) {
+            return items;
+        }
+
+        return order.ids
+            .map(id => items.find(i => i.id === id))
+            .filter((i): i is D => !!i);
+    }, [items, order]);
+
+    const visible = useMemo(() => {
+        if (!ordered) {
+            return [];
+        }
+        if (!query || !filter || serverSearch) {
+            return ordered;
+        }
+
+        return ordered.filter(i => filter(i, query.toLowerCase()));
+    }, [ordered, query, filter, serverSearch]);
+
+    const listed =
+        selected === NEW ? undefined : items?.find(i => i.id === selected);
+    const justCreated = created?.id === selected ? created : undefined;
+    // In the URL, not in the loaded pages: loaded by id
+    const fetched = useQuery({
+        queryKey: [...itemQueryKey, selected],
+        queryFn: () => getItem!(selected!),
+        enabled:
+            !!getItem &&
+            !!items &&
+            selected !== null &&
+            selected !== NEW &&
+            !listed &&
+            !justCreated,
+        retry: false,
+    });
+    const current = listed ?? justCreated ?? fetched.data;
+    // An id in the URL that is not (or no longer) in the list
+    const missing = selected !== null && selected !== NEW && !current;
+    // Why it is missing: its own load failed, or the list's (no item to look in)
+    const missingError = fetched.error ?? (items ? undefined : error);
+    const fetchingMissing = missing && !!getItem && !fetched.isError;
+    const listFailed = !!error && !items?.length;
+    const sortable = !!onSort && !query && complete;
+    const managed = managing ? current : undefined;
+
+    const onDragEnd = async (e: DragEndEvent) => {
+        const {active, over} = e;
+        if (!over || active.id === over.id || !ordered || !onSort) {
+            return;
+        }
+        const ids = arrayMove(
+            ordered.map(i => i.id),
+            ordered.findIndex(i => i.id === active.id),
+            ordered.findIndex(i => i.id === over.id)
+        );
+        setOrder({of: items, ids});
+        try {
+            await onSort(ids);
+            onChanged();
+        } catch (err: any) {
+            setOrder(null);
+            toast.error(err?.message);
+        }
+    };
+
+    if (managed && renderManage) {
+        return (
+            <NestedRoutePath prefix={[managed.id, MANAGE]}>
+                {renderManage(managed, () => navigate([managed.id]))}
+            </NestedRoutePath>
+        );
+    }
+
+    return (
+        <div
+            className={cn(
+                // minmax(0, …): wide content (YAML, references) must not widen the columns
+                'grid gap-4 lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]',
+                fill && 'min-h-0 flex-1 lg:grid-rows-[minmax(0,1fr)]'
+            )}
+        >
+            <div
+                className={cn(
+                    'min-w-0 space-y-2',
+                    fill && 'flex min-h-0 flex-col'
+                )}
+            >
+                <div className="flex items-center gap-2">
+                    <FilterInput value={query} onValueChange={setQuery} />
+                    <Button
+                        size="sm"
+                        data-testid="definition-create"
+                        variant={selected === NEW ? 'default' : 'outline'}
+                        onClick={() => select(NEW)}
+                    >
+                        <PlusIcon />{' '}
+                        {createLabel ?? t('common.create', 'Create')}
+                    </Button>
+                </div>
+                {toolbar}
+                {onSort && !complete && !query && !loading ? (
+                    <div
+                        className="flex items-center gap-2 text-xs text-muted-foreground"
+                        data-testid="definition-sort-incomplete"
+                    >
+                        <span className="flex-1">
+                            {t(
+                                'definition.sort_needs_all',
+                                'Reordering needs the whole list.'
+                            )}
+                        </span>
+                        {onLoadAll ? (
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 text-xs"
+                                loading={loadingAll}
+                                onClick={async () => {
+                                    setLoadingAll(true);
+                                    try {
+                                        await onLoadAll();
+                                    } finally {
+                                        setLoadingAll(false);
+                                    }
+                                }}
+                            >
+                                {t(
+                                    'definition.load_all_to_sort',
+                                    'Load all to reorder'
+                                )}
+                            </Button>
+                        ) : null}
+                    </div>
+                ) : null}
+                {loading ? (
+                    <div className="space-y-1">
+                        {[...Array(4)].map((_, i) => (
+                            <Skeleton key={i} className="h-9" />
+                        ))}
+                    </div>
+                ) : listFailed ? (
+                    <LoadError error={error} className="py-6" />
+                ) : visible.length === 0 ? (
+                    <p className="py-6 text-center text-sm text-muted-foreground">
+                        {emptyLabel ??
+                            t('common.empty_list', 'Nothing here yet')}
+                    </p>
+                ) : (
+                    <DndContext
+                        measuring={sortableMeasuring}
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={onDragEnd}
+                    >
+                        <SortableContext
+                            items={visible.map(i => i.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <ul
+                                ref={listRef}
+                                className={cn(
+                                    'space-y-1 overflow-y-auto pr-1',
+                                    fill ? 'min-h-0 flex-1' : 'max-h-[60vh]'
+                                )}
+                            >
+                                {visible.map(item => (
+                                    <Row
+                                        key={item.id}
+                                        id={item.id}
+                                        sortable={sortable}
+                                        active={selected === item.id}
+                                        onClick={() => select(item.id)}
+                                        onManage={
+                                            renderManage
+                                                ? () =>
+                                                      leaveForm(() =>
+                                                          navigate([
+                                                              item.id,
+                                                              MANAGE,
+                                                          ])
+                                                      )
+                                                : undefined
+                                        }
+                                        manageLabel={manageLabel}
+                                        actions={renderRowActions?.(item)}
+                                        onDuplicate={
+                                            duplicate
+                                                ? () => duplicate(item)
+                                                : undefined
+                                        }
+                                        duplicating={duplicating === item.id}
+                                        onDelete={
+                                            onDelete
+                                                ? () =>
+                                                      openModal(ConfirmDialog, {
+                                                          title: t(
+                                                              'definition.delete.title',
+                                                              'Delete this item?'
+                                                          ),
+                                                          destructive: true,
+                                                          onConfirm:
+                                                              async () => {
+                                                                  await onDelete(
+                                                                      item
+                                                                  );
+                                                                  if (
+                                                                      selected ===
+                                                                      item.id
+                                                                  ) {
+                                                                      navigate(
+                                                                          [],
+                                                                          {
+                                                                              replace: true,
+                                                                          }
+                                                                      );
+                                                                  }
+                                                                  onChanged();
+                                                              },
+                                                      })
+                                                : undefined
+                                        }
+                                    >
+                                        {renderItem(item)}
+                                    </Row>
+                                ))}
+                                {hasMore ? (
+                                    <li
+                                        className="list-none py-1"
+                                        data-testid="definition-more"
+                                    >
+                                        <div ref={sentinelRef}>
+                                            {loadingMore ? (
+                                                <Skeleton className="h-9" />
+                                            ) : null}
+                                        </div>
+                                    </li>
+                                ) : null}
+                            </ul>
+                        </SortableContext>
+                        <SortableOverlay>
+                            {id => {
+                                const item = visible.find(i => i.id === id);
+
+                                return item ? (
+                                    // The same buttons, doing nothing
+                                    <RowView
+                                        drag={overlayRow}
+                                        sortable
+                                        active={selected === item.id}
+                                        onManage={
+                                            renderManage ? noop : undefined
+                                        }
+                                        manageLabel={manageLabel}
+                                        actions={renderRowActions?.(item)}
+                                        onDuplicate={
+                                            onDuplicate ? noop : undefined
+                                        }
+                                        onDelete={onDelete ? noop : undefined}
+                                    >
+                                        {renderItem(item)}
+                                    </RowView>
+                                ) : null;
+                            }}
+                        </SortableOverlay>
+                    </DndContext>
+                )}
+            </div>
+            <div
+                ref={formPane}
+                className={cn(
+                    'min-h-64 min-w-0 rounded-md border p-4',
+                    fill && 'lg:overflow-y-auto'
+                )}
+            >
+                {missing && !missingError && (!items || fetchingMissing) ? (
+                    <Skeleton className="h-32" />
+                ) : missing &&
+                  missingError &&
+                  !isApiError(missingError, 404) ? (
+                    <LoadError error={missingError} />
+                ) : missing ? (
+                    <EmptyState
+                        title={t(
+                            'definition.not_found',
+                            'This item does not exist anymore.'
+                        )}
+                        className="h-full"
+                    />
+                ) : selected === null ? (
+                    <EmptyState
+                        title={t(
+                            'definition.select_hint',
+                            'Select an item to edit it, or create a new one.'
+                        )}
+                        className="h-full"
+                    />
+                ) : (
+                    <UnsavedChangesScope.Provider value={formScope}>
+                        <div key={selected}>
+                            {renderForm(
+                                current,
+                                saved => {
+                                    onChanged();
+                                    setCreated(saved);
+                                    // Created: `new` would open a blank form
+                                    navigate([saved.id], {
+                                        replace: selected === NEW,
+                                    });
+                                },
+                                () => select(null)
+                            )}
+                        </div>
+                    </UnsavedChangesScope.Provider>
+                )}
+            </div>
+        </div>
+    );
+}
+
+type RowProps = {
+    id: string;
+    sortable: boolean;
+    active: boolean;
+    onClick: () => void;
+    onDelete?: () => void;
+    onDuplicate?: () => void;
+    duplicating?: boolean;
+    onManage?: () => void;
+    manageLabel?: string;
+    actions?: ReactNode;
+    children: ReactNode;
+};
+
+const noop = () => undefined;
+
+function Row({id, sortable, ...props}: RowProps) {
+    const drag = useSortableRow(id, !sortable);
+
+    return (
+        <RowView
+            {...props}
+            testId="definition-item"
+            drag={drag}
+            sortable={sortable}
+        />
+    );
+}
+
+/** A row of the list, also rendered as the copy following the pointer */
+function RowView({
+    drag,
+    testId,
+    sortable,
+    active,
+    onClick,
+    onDelete,
+    onDuplicate,
+    duplicating,
+    onManage,
+    manageLabel,
+    actions,
+    children,
+}: Omit<RowProps, 'id' | 'onClick'> & {
+    drag: SortableRow;
+    testId?: string;
+    onClick?: () => void;
+}) {
+    const {t} = useTranslation();
+
+    return (
+        <li
+            data-testid={testId}
+            ref={drag.nodeRef}
+            style={drag.style}
+            className={cn(
+                'group/def flex list-none items-center gap-1 rounded-md border bg-card pr-1 text-sm',
+                active && 'border-primary bg-primary/5',
+                drag.className
+            )}
+        >
+            {sortable ? (
+                <button
+                    type="button"
+                    className="cursor-grab px-1 text-muted-foreground"
+                    {...drag.handle}
+                    aria-label="Drag"
+                >
+                    <GripVerticalIcon className="size-4" />
+                </button>
+            ) : null}
+            <button
+                type="button"
+                className="min-w-0 flex-1 px-2 py-2 text-left"
+                onClick={onClick}
+            >
+                {children}
+            </button>
+            {actions ? (
+                // Acting on the row must not select it
+                <span
+                    className="flex items-center"
+                    onClick={e => e.stopPropagation()}
+                >
+                    {actions}
+                </span>
+            ) : null}
+            {onManage ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={onManage}
+                >
+                    {manageLabel}
+                </Button>
+            ) : null}
+            {onDelete ? (
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className="text-destructive opacity-0 group-hover/def:opacity-100"
+                    onClick={onDelete}
+                    aria-label="Delete"
+                >
+                    <Trash2Icon />
+                </Button>
+            ) : null}
+            {onDuplicate ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className={cn(
+                                'opacity-0 group-hover/def:opacity-100 data-[state=open]:opacity-100',
+                                duplicating && 'opacity-100'
+                            )}
+                            aria-label={t('common.more', 'More')}
+                            data-testid="definition-menu"
+                        >
+                            <MoreHorizontalIcon />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                            onSelect={onDuplicate}
+                            disabled={duplicating}
+                            data-testid="definition-duplicate"
+                        >
+                            <CopyIcon />{' '}
+                            {t('definition.duplicate', 'Duplicate')}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : null}
+        </li>
+    );
+}

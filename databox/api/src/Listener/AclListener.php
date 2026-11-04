@@ -11,7 +11,7 @@ use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
-use App\Api\OutputTransformer\CollectionOutputTransformer;
+use App\Api\Mapper\Output\CollectionOutputMapper;
 use App\Consumer\Handler\Search\AclAddUserToCollection;
 use App\Consumer\Handler\Search\AclAddUserToCollectionAssets;
 use App\Consumer\Handler\Search\AclAddUserToWorkspaceAssets;
@@ -21,9 +21,11 @@ use App\Consumer\Handler\Search\ComputeWorkspaceCollections;
 use App\Consumer\Handler\Search\IndexAllAssets;
 use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
+use App\Entity\Basket\Basket;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Entity\Template\AssetDataTemplate;
 use App\Security\Voter\DataboxExtraPermissionInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -208,7 +210,7 @@ readonly class AclListener
 
     private function indexObject(string $objectType, ?string $objectId, bool $assetsHandled, bool $collectionsHandled, bool $computeCollectionBranch): void
     {
-        $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
+        $this->collectionCache->invalidateTags([CollectionOutputMapper::COLLECTION_CACHE_NS]);
 
         $objectClass = $this->objectMapping->getClassName($objectType);
 
@@ -247,6 +249,8 @@ readonly class AclListener
                 }
                 break;
             case Asset::class:
+            case Basket::class:
+            case AssetDataTemplate::class:
                 $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
                 break;
             case Collection::class:

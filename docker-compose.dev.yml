@@ -12,7 +12,7 @@ services:
   dashboard-client:
     extends:
       service: a_client
-    image: ${REGISTRY_NAMESPACE}dashboard-dev:${DOCKER_TAG}
+    image: localhost:5000/dashboard-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
@@ -24,22 +24,24 @@ services:
   uploader-client:
     extends:
       service: a_client
-    image: ${REGISTRY_NAMESPACE}uploader-client-dev:${DOCKER_TAG}
+    image: localhost:5000/uploader-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
       - ./uploader/client:/srv/workspace/phrasea/uploader/client:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
     environment:
       - WDS_SOCKET_PORT=443
 
   expose-client:
     extends:
       service: a_client
-    image: ${REGISTRY_NAMESPACE}expose-client-dev:${DOCKER_TAG}
+    image: localhost:5000/expose-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
       - ./expose/client:/srv/workspace/phrasea/expose/client:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -48,11 +50,10 @@ services:
       service: a_client
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
-      target: client-build
+      target: client-dev
     volumes:
       - ./databox/client:/srv/workspace/phrasea/databox/client:rw
-    environment:
-      - WDS_SOCKET_PORT=443
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
 
   expose-api-php:
     environment:
@@ -71,6 +72,8 @@ services:
       - ./expose/api/docker/nginx/entrypoint.sh:/entrypoint.sh
 
   expose-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./expose/api:/srv/app
       - ./lib/php:/lib/php
@@ -86,6 +89,15 @@ services:
       - ./lib/php:/lib/php
 
   uploader-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
+    volumes:
+      - ./uploader/api:/srv/app
+      - ./lib/php:/lib/php
+
+  uploader-scheduler:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./uploader/api:/srv/app
       - ./lib/php:/lib/php
@@ -112,6 +124,15 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
+    volumes:
+      - ./databox/api:/srv/app
+      - ./lib/php:/lib/php
+
+  databox-scheduler:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./databox/api:/srv/app
       - ./lib/php:/lib/php
@@ -120,17 +141,25 @@ services:
     ports:
       - ${DEV_ELASTICSEARCH_PORT}:9200
 
+  similarity-embedder:
+    ports:
+      - ${DEV_SIMILARITY_EMBEDDER_PORT}:8000
+
+  face-recognition:
+    ports:
+      - ${DEV_FACE_RECOGNITION_PORT}:8000
+
   dev:
     build:
       context: infra/docker/dev
       network: host
+      entitlements:
+        - network.host
     networks:
       - internal
     stdin_open: true
     tty: true
     hostname: local
-    ports:
-      - "0.0.0.0:4000:4000"
     environment:
       - APP_ENV
       - SYMFONY_DEPRECATIONS_HELPER=disabled
@@ -149,6 +178,8 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - ELASTICSEARCH_URL
+      - ELASTICSEARCH_USERNAME
+      - ELASTICSEARCH_PASSWORD
       - ELASTICSEARCH_INDEX_PREFIX
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
@@ -175,6 +206,7 @@ services:
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
       - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
+      - NOTIFICATIONS_ENABLED
       - MAILER_DSN
       - MAIL_FROM
       - MAIL_FROM_DISPLAY_NAME
@@ -229,10 +261,10 @@ services:
       - MATOMO_MEDIA_PLUGIN_ENABLED
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
-      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
-      - SOKETI_APP_ID
-      - SOKETI_KEY
-      - SOKETI_SECRET
+      - SOCKUDO_HOST=ws.${PHRASEA_DOMAIN}
+      - SOCKUDO_APP_ID
+      - SOCKUDO_KEY
+      - SOCKUDO_SECRET
       - KC_REALM_SUPPORTED_LOCALES
       - KC_REALM_DEFAULT_LOCALE
       - KC_REALM_HTML_DISPLAY_NAME
@@ -267,12 +299,8 @@ services:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-
-  report-api:
-    volumes:
-      - ./report/src:/usr/app
+      - ws.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   configurator:
     volumes:

@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Page\Page;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class PageVoter extends AbstractVoter
 {
@@ -27,7 +28,7 @@ class PageVoter extends AbstractVoter
     /**
      * @param Page $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;

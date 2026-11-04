@@ -17,7 +17,7 @@ final readonly class ElasticSearchClient
         private Client $client,
         private Index $assetIndex,
         private Index $collectionIndex,
-        private Index $attributeIndex,
+        private Index $attributeEntityIndex,
     ) {
     }
 
@@ -55,6 +55,7 @@ final readonly class ElasticSearchClient
             $path,
             [
                 'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
             ],
             $data
         );

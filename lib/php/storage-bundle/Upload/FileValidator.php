@@ -55,17 +55,17 @@ final class FileValidator
             return;
         }
 
-        $extension = strtolower(FileUtil::getExtensionFromPath($path));
+        $extension = FileUtil::getExtensionFromPath($path);
         if (null === $type) {
             $type = FileUtil::getTypeFromExtension($extension);
         }
 
         if (!$this->hasValidType($type)) {
-            throw $this->createException($type, $this->allowedTypes, 'type');
+            throw $this->createException($type, array_keys($this->allowedTypes), 'type');
         }
 
-        if (!$this->hasValidExtension($extension)) {
-            throw $this->createException($extension, $this->getAllowedExtensions(), 'extension');
+        if (!$this->hasValidExtension($extension ?? '')) {
+            throw $this->createException($extension ?? '', $this->getAllowedExtensions(), 'extension');
         }
     }
 

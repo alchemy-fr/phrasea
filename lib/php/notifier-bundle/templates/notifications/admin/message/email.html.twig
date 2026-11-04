@@ -1,0 +1,9 @@
+{# Built-in template of the `admin:message` topic: the content is composed in
+   the admin and delivered as-is. #}
+{% block subject %}{{ subject|default('')|raw }}{% endblock %}
+
+{% block body %}
+{{ body|default('')|raw }}
+{% endblock %}
+
+{% block uri %}{{ url|default('')|raw }}{% endblock %}

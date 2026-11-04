@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class JobExecutionContext
 {
+    private ?string $skipReason = null;
+
     public function __construct(
         private readonly WorkflowState $workflowState,
         private readonly JobState $jobState,
@@ -48,5 +50,18 @@ class JobExecutionContext
     public function replaceInputs(Inputs $inputs): void
     {
         $this->inputs = $inputs;
+    }
+
+    /**
+     * Lets a callable of the job `if` explain why it rejects the job.
+     */
+    public function setSkipReason(string $skipReason): void
+    {
+        $this->skipReason = $skipReason;
+    }
+
+    public function getSkipReason(): ?string
+    {
+        return $this->skipReason;
     }
 }

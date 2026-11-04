@@ -8,6 +8,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class EditThreadMessageInput
 {
-    #[Assert\NotBlank]
+    /**
+     * Unchanged when null. May be blank when the message keeps attachments.
+     */
     public ?string $content = null;
+
+    /**
+     * Attachments to remove, by the `id` of their JSON content (a file, an
+     * annotation…).
+     *
+     * @var string[]|null
+     */
+    #[Assert\All([new Assert\Type('string')])]
+    public ?array $removeAttachments = null;
 }

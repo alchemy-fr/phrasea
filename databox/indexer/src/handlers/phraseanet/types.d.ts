@@ -17,6 +17,7 @@ export type FieldMap = {
     readonly?: boolean;
     translatable?: boolean;
     allowInvalid?: boolean;
+    target?: number;
     labels: Record<string, string>;
     values: FieldMapValue[];
     attributeDefinition: AttributeDefinition;
@@ -34,6 +35,7 @@ export type ConfigPhraseanetSubdef = {
     buildMode?: number;
     policy?: string;
     parent?: string | null;
+    target?: number;
     builders: Record<string, ConfigRenditionBuilder>;
 };
 
@@ -191,8 +193,32 @@ export type PhraseanetStory = {
     created_on: string;
     updated_on: string;
     children_total: number;
+    cover_record_id?: number | null;
     subdefs: PhraseanetSubdef[];
     status: PhraseanetStatusBit[];
     metadata: PhraseanetMetadata[];
     children: PhraseanetRecord[];
+};
+
+export type PhraseanetEmbed = {
+    name: string;
+    substituted: boolean;
+    created_on: string;
+    updated_on: string;
+    permalink: {
+        created_on: string;
+        id: number;
+        is_activated: boolean;
+        label: string;
+        updated_on: string;
+        page_url: string;
+        url: string;
+        download_url: string;
+    };
+    height: number;
+    width: number;
+    filesize: number;
+    devices: string[];
+    player_type: string;
+    mime_type: string;
 };

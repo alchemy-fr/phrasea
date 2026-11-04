@@ -6,7 +6,7 @@ namespace App\Configurator;
 
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
@@ -18,7 +18,7 @@ final readonly class Configurator
     private iterable $configurators;
 
     public function __construct(
-        #[TaggedIterator('app.configurator', defaultPriorityMethod: 'getPriority')]
+        #[AutowireIterator('app.configurator')]
         iterable $configurators,
     ) {
         $this->configurators = $configurators;

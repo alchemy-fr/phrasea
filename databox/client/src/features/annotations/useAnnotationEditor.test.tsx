@@ -1,0 +1,388 @@
+import {describe, expect, it, vi} from 'vitest';
+import {act, renderHook} from '@testing-library/react';
+import type {AnnotationTarget} from './AnnotationsProvider';
+import {useAnnotationEditor} from './useAnnotationEditor';
+import {
+    AnnotationType,
+    type AssetAnnotation,
+    type TextAnnotation,
+} from './types';
+
+vi.mock('react-i18next', () => ({
+    useTranslation: () => ({
+        t: (
+            _key: string,
+            defaultValue: string,
+            options?: Record<string, unknown>
+        ) =>
+            defaultValue.replace(/{{(\w+)}}/g, (_m, name) =>
+                String(options?.[name])
+            ),
+    }),
+}));
+
+const media = {width: 1000, height: 500};
+
+/** A target whose list follows the edits, like a component owning it */
+function setup(initial: AssetAnnotation[] = [], editable = true) {
+    const onChange = vi.fn();
+    let target: AnnotationTarget = {
+        key: 'k',
+        annotations: initial,
+        editable,
+        onChange,
+    };
+    const hook = renderHook(
+        ({target}: {target: AnnotationTarget}) =>
+            useAnnotationEditor(target, undefined),
+        {initialProps: {target}}
+    );
+    act(() => hook.result.current.setMedia(media));
+    const sync = () => {
+        const next = onChange.mock.lastCall?.[0];
+        if (next) {
+            target = {...target, annotations: next};
+            hook.rerender({target});
+        }
+    };
+
+    return {hook, onChange, sync, editor: () => hook.result.current};
+}
+
+const rect: AssetAnnotation = {
+    id: 'r1',
+    type: AnnotationType.Rect,
+    x: 0.1,
+    y: 0.1,
+    w: 0.2,
+    h: 0.2,
+    c: '#000000',
+    s: 0.002,
+};
+
+describe('useAnnotationEditor', () => {
+    it('adds a named shape, selects it and sends the list', () => {
+        const {editor, onChange, sync} = setup();
+        let created: AssetAnnotation | undefined;
+        act(() => {
+            created = editor().add({
+                type: AnnotationType.Circle,
+                x: 0.5,
+                y: 0.5,
+                r: 0.1,
+            });
+        });
+        expect(created?.id).toMatch(/^annotation-/);
+        expect(created?.name).toBe('Circle #1');
+        expect(onChange).toHaveBeenCalledWith([created]);
+        sync();
+        expect(editor().selectedId).toBe(created!.id);
+        expect(editor().selected).toEqual(created);
+    });
+
+    it('gives the shapes of integrations an id and keeps it once edited', () => {
+        const {editor, onChange} = setup([
+            {type: AnnotationType.Rect, x: 0, y: 0, w: 1, h: 1},
+        ]);
+        expect(editor().annotations[0].id).toBe('k-0');
+        act(() => editor().rename('k-0', 'Face'));
+        expect(onChange).toHaveBeenCalledWith([
+            expect.objectContaining({id: 'k-0', name: 'Face'}),
+        ]);
+    });
+
+    it('applies the options to the selected shape and remembers them for its kind', () => {
+        const {editor, onChange, sync} = setup([rect]);
+        act(() => editor().select('r1'));
+        expect(editor().options).toEqual({
+            color: '#000000',
+            size: 2,
+            fillColor: undefined,
+        });
+        act(() =>
+            editor().setOptions({
+                color: '#ff0000',
+                size: 10,
+                fillColor: '#00ff00',
+            })
+        );
+        expect(onChange).toHaveBeenLastCalledWith([
+            expect.objectContaining({
+                id: 'r1',
+                c: '#ff0000',
+                s: 0.01,
+                f: '#00ff00',
+            }),
+        ]);
+        sync();
+        // Picking the tool again starts with the last options of the kind
+        act(() => editor().setTool(AnnotationType.Rect));
+        expect(editor().options).toEqual({
+            color: '#ff0000',
+            size: 10,
+            fillColor: '#00ff00',
+        });
+        expect(editor().selectedId).toBeUndefined();
+    });
+
+    it('removes, duplicates and nudges the selection', () => {
+        const {editor, onChange, sync} = setup([rect]);
+        act(() => editor().select('r1'));
+        act(() => editor().nudge(100, 50));
+        expect(onChange).toHaveBeenLastCalledWith([
+            expect.objectContaining({id: 'r1', x: 0.2, y: 0.2}),
+        ]);
+        sync();
+        act(() => editor().duplicate('r1'));
+        const copy = onChange.mock.lastCall![0][1];
+        expect(copy.id).not.toBe('r1');
+        expect(copy.name).toBe('Rectangle #2');
+        sync();
+        expect(editor().selectedId).toBe(copy.id);
+        act(() => editor().remove(copy.id));
+        expect(onChange).toHaveBeenLastCalledWith([
+            expect.objectContaining({id: 'r1'}),
+        ]);
+        sync();
+        expect(editor().selectedId).toBeUndefined();
+    });
+
+    it('creates a text once typed, updates an edited one and removes an emptied one', () => {
+        const {editor, onChange, sync} = setup();
+        const text = {
+            type: AnnotationType.Text,
+            x: 0.5,
+            y: 0.5,
+            text: '',
+            s: 0.03,
+        } as const;
+        act(() => editor().editText({annotation: text}));
+        act(() => editor().commitText('  '));
+        expect(onChange).not.toHaveBeenCalled();
+        act(() => editor().editText({annotation: text}));
+        act(() => editor().commitText(' Hello '));
+        const created = onChange.mock.lastCall![0][0];
+        expect(created).toMatchObject({text: 'Hello'});
+        expect(created.name).toBeUndefined();
+        sync();
+        act(() => editor().editText({id: created.id, annotation: created}));
+        act(() => editor().commitText('Bye'));
+        expect(onChange).toHaveBeenLastCalledWith([
+            expect.objectContaining({id: created.id, text: 'Bye'}),
+        ]);
+        sync();
+        act(() =>
+            editor().editText({
+                id: created.id,
+                annotation: editor().annotations[0] as TextAnnotation,
+            })
+        );
+        act(() => editor().commitText(''));
+        expect(onChange).toHaveBeenLastCalledWith([]);
+        expect(editor().textEdit).toBeUndefined();
+    });
+
+    it('follows the target: its highlighted shape, the tools reset', () => {
+        const {hook, editor} = setup([rect]);
+        act(() => editor().setTool(AnnotationType.Draw));
+        hook.rerender({
+            target: {
+                key: 'other',
+                annotations: [rect],
+                selectedId: 'r1',
+                editable: false,
+            },
+        });
+        expect(editor().tool).toBeUndefined();
+        expect(editor().selectedId).toBe('r1');
+        expect(editor().active).toBe(false);
+    });
+
+    it('leaves nothing selected once annotating stops', () => {
+        const {editor} = setup([rect]);
+        act(() => editor().select('r1'));
+        expect(editor().selectedId).toBe('r1');
+
+        act(() => editor().setAnnotate(false));
+        expect(editor().annotate).toBe(false);
+        expect(editor().active).toBe(false);
+        expect(editor().selectedId).toBeUndefined();
+    });
+
+    it('keeps the shapes of the other pages out of the layer', () => {
+        const hook = renderHook(() =>
+            useAnnotationEditor(
+                {
+                    key: 'doc',
+                    annotations: [
+                        {...rect, id: 'p1', page: 1},
+                        {...rect, id: 'p2', page: 2},
+                        {...rect, id: 'any'},
+                    ],
+                },
+                2
+            )
+        );
+        expect(hook.result.current.pageAnnotations.map(a => a.id)).toEqual([
+            'p2',
+        ]);
+    });
+
+    it('puts the shapes without a page on the first one', () => {
+        const hook = renderHook(() =>
+            useAnnotationEditor(
+                {
+                    key: 'doc',
+                    annotations: [
+                        {...rect, id: 'p2', page: 2},
+                        {...rect, id: 'any'},
+                    ],
+                },
+                1
+            )
+        );
+        expect(hook.result.current.pageAnnotations.map(a => a.id)).toEqual([
+            'any',
+        ]);
+    });
+
+    it('shows every shape of an image, whatever their page', () => {
+        const {editor} = setup([
+            {...rect, id: 'p2', page: 2},
+            {...rect, id: 'any'},
+        ]);
+        expect(editor().page).toBeUndefined();
+        expect(editor().pageAnnotations.map(a => a.id)).toEqual(['p2', 'any']);
+    });
+
+    it('keeps a shape drawn on a page of a document there', () => {
+        const {editor, onChange, sync} = setup();
+        act(() => {
+            editor().add({...rect, id: undefined, page: 2});
+        });
+        const [created] = onChange.mock.lastCall![0];
+        expect(created.page).toBe(2);
+        expect(created.name).toBe('Rectangle #1');
+        sync();
+        // Numbered among the shapes of its page
+        act(() => {
+            editor().add({...rect, id: undefined, page: 3});
+        });
+        expect(onChange.mock.lastCall![0][1]).toMatchObject({
+            page: 3,
+            name: 'Rectangle #1',
+        });
+    });
+
+    it('puts a shape added without a page on the page of the editor', () => {
+        const onChange = vi.fn();
+        const hook = renderHook(() =>
+            useAnnotationEditor(
+                {key: 'doc', annotations: [], editable: true, onChange},
+                4
+            )
+        );
+        act(() => {
+            hook.result.current.add({...rect, id: undefined});
+        });
+        expect(onChange.mock.lastCall![0][0].page).toBe(4);
+    });
+
+    it('measures a shape against the size of its page', () => {
+        const {editor, onChange} = setup([
+            {...rect, id: 'p1', page: 1},
+            {...rect, id: 'p2', page: 2},
+        ]);
+        act(() => {
+            editor().setMedia({width: 100, height: 100}, 1);
+            editor().setMedia({width: 2000, height: 1000}, 2);
+        });
+        expect(editor().mediaOf(2)).toEqual({width: 2000, height: 1000});
+        // Not reported by a layer: the size of the media without a page
+        expect(editor().mediaOf(3)).toEqual(media);
+
+        act(() => editor().select('p2'));
+        act(() => editor().nudge(200, 100));
+        expect(onChange).toHaveBeenLastCalledWith([
+            expect.objectContaining({id: 'p1', x: 0.1}),
+            expect.objectContaining({id: 'p2', x: 0.2, y: 0.2}),
+        ]);
+    });
+});
+
+describe('useAnnotationEditor of a video', () => {
+    const shapes: AssetAnnotation[] = [
+        {...rect, id: 'still'},
+        {...rect, id: 'at5', t: 5},
+        {...rect, id: 'at9', t: 9},
+        {id: 'cue', type: AnnotationType.Cue, t: 5},
+    ];
+
+    function setupVideo(time: number | undefined, now = time ?? 0) {
+        const onChange = vi.fn();
+        const hook = renderHook(
+            ({time}: {time: number | undefined}) =>
+                useAnnotationEditor(
+                    {key: 'v', annotations: shapes, editable: true, onChange},
+                    undefined,
+                    {time, tolerance: 0.04, now: () => now}
+                ),
+            {initialProps: {time}}
+        );
+
+        return {hook, onChange, editor: () => hook.result.current};
+    }
+
+    it('keeps the shapes of the frame shown within a frame, and the ones without a time', () => {
+        const {editor, hook} = setupVideo(5.03);
+        const ids = () => editor().pageAnnotations.map(a => a.id);
+        expect(ids()).toEqual(['still', 'at5', 'cue']);
+        expect(editor().isAtTime(shapes[2])).toBe(false);
+
+        hook.rerender({time: 5.05});
+        expect(ids()).toEqual(['still']);
+
+        hook.rerender({time: 9});
+        expect(ids()).toEqual(['still', 'at9']);
+    });
+
+    it('keeps the shapes without a time only while playing', () => {
+        const {editor} = setupVideo(undefined);
+        expect(editor().pageAnnotations.map(a => a.id)).toEqual(['still']);
+        expect(editor().timeline?.time).toBeUndefined();
+    });
+
+    it('puts a shape created on the current time of the video', () => {
+        const {editor, onChange} = setupVideo(7.25);
+        act(() => {
+            editor().add({...rect, id: undefined});
+        });
+        expect(onChange.mock.lastCall![0][4]).toMatchObject({
+            type: AnnotationType.Rect,
+            t: 7.25,
+        });
+        expect(onChange.mock.lastCall![0][4]).not.toHaveProperty('page');
+    });
+
+    it('keeps the time of a cue, named after its type', () => {
+        const {editor, onChange} = setupVideo(undefined, 12);
+        act(() => {
+            editor().add({type: AnnotationType.Cue, t: 3.5});
+        });
+        expect(onChange.mock.lastCall![0][4]).toMatchObject({
+            type: AnnotationType.Cue,
+            t: 3.5,
+            name: 'Cue #2',
+        });
+    });
+
+    it('does not time the shapes of an image', () => {
+        const {editor, onChange} = setup();
+        expect(editor().timeline).toBeUndefined();
+        expect(editor().isAtTime({...rect, t: 3})).toBe(true);
+        act(() => {
+            editor().add({...rect, id: undefined});
+        });
+        expect(onChange.mock.lastCall![0][0]).not.toHaveProperty('t');
+    });
+});

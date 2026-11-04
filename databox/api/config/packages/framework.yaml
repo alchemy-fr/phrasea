@@ -23,10 +23,10 @@ framework:
             remove_bg.client:
                 base_uri: https://api.remove.bg
                 verify_peer: true
-            zippy.client:
-                base_uri: '%env(ZIPPY_URL)%'
-                headers:
-                    Authorization: '%env(ZIPPY_CLIENT_ID)%:%env(ZIPPY_CLIENT_SECRET)%'
+            similarity_embedder.client:
+                base_uri: '%env(SIMILARITY_EMBEDDER_URL)%'
+            face_recognition.client:
+                base_uri: '%env(FACE_RECOGNITION_URL)%'
 
 when@test:
     framework:

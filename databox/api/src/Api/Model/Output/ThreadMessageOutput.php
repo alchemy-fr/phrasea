@@ -9,7 +9,7 @@ use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Discussion\Message;
 use App\Entity\Discussion\Thread;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class ThreadMessageOutput extends AbstractUuidOutput
 {

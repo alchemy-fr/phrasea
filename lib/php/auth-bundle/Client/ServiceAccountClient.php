@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Client;
 
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -14,6 +15,7 @@ final class ServiceAccountClient
 
     public function __construct(
         private readonly KeycloakClient $serviceClient,
+        #[Target]
         private readonly CacheInterface $keycloakRealmCache,
     ) {
     }

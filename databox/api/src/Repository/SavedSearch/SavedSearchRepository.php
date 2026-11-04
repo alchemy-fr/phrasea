@@ -7,6 +7,7 @@ namespace App\Repository\SavedSearch;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\SavedSearch\SavedSearch;
+use App\Model\SavedSearchPrivacyEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -36,10 +37,11 @@ class SavedSearchRepository extends ServiceEntityRepository
                 false,
             );
             $queryBuilder->setParameter('uid', $userId);
-            $queryBuilder->andWhere('t.public = true OR t.ownerId = :uid OR ace.id IS NOT NULL');
+            $queryBuilder->andWhere('t.privacy = :publicPrivacy OR t.ownerId = :uid OR ace.id IS NOT NULL');
         } else {
-            $queryBuilder->andWhere('t.public = true');
+            $queryBuilder->andWhere('t.privacy = :publicPrivacy');
         }
+        $queryBuilder->setParameter('publicPrivacy', SavedSearchPrivacyEnum::Public->value);
 
         return $queryBuilder;
     }

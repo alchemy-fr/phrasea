@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -27,9 +27,18 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("EDIT_TARGET_DATA")'),
         new Delete(security: 'is_granted("EDIT_TARGET_DATA")'),
-        new Put(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new Patch(security: 'is_granted("EDIT_TARGET_DATA")'),
         new Post(security: 'is_granted("EDIT_TARGET_DATA")'),
-        new GetCollection(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new GetCollection(
+            security: 'is_granted("EDIT_TARGET_DATA")',
+            parameters: [
+                'target' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'target',
+                ),
+                'target[]' => new QueryParameter(property: 'target', openApi: false),
+            ],
+        ),
     ],
     normalizationContext: [
         'groups' => [self::GROUP_INDEX],
@@ -56,7 +65,6 @@ class TargetParams implements AclObjectInterface
     #[ORM\JoinColumn(nullable: false)]
     #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     #[Assert\NotNull]
-    #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     private ?Target $target = null;
 
     #[ORM\Column(type: Types::JSON)]

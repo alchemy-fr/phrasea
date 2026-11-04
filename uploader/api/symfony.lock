@@ -20,6 +20,9 @@
     "alchemy/messenger-bundle": {
         "version": "dev-arthem-to-messenger"
     },
+    "alchemy/notifier-bundle": {
+        "version": "dev-notifier"
+    },
     "alchemy/notify-bundle": {
         "version": "dev-main"
     },
@@ -63,9 +66,6 @@
     },
     "composer/xdebug-handler": {
         "version": "1.4.0"
-    },
-    "doctrine/cache": {
-        "version": "v1.8.0"
     },
     "doctrine/collections": {
         "version": "v1.6.1"
@@ -322,6 +322,9 @@
     "psr/log": {
         "version": "1.1.0"
     },
+    "pusher/pusher-php-server": {
+        "version": "7.3.0"
+    },
     "ralouphie/getallheaders": {
         "version": "2.0.5"
     },
@@ -535,6 +538,18 @@
     "symfony/http-kernel": {
         "version": "v4.2.5"
     },
+    "symfony/mailer": {
+        "version": "7.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.3",
+            "ref": "09051cfde49476e3c12cd3a0e44289ace1c75a4f"
+        },
+        "files": [
+            "config/packages/mailer.yaml"
+        ]
+    },
     "symfony/maker-bundle": {
         "version": "1.0",
         "recipe": {
@@ -583,15 +598,6 @@
             "config/packages/notifier.yaml"
         ]
     },
-    "symfony/novu-notifier": {
-        "version": "6.4",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "6.4",
-            "ref": "fec78b082c512ab8ddd97d26dfb48f8a6080d099"
-        }
-    },
     "symfony/options-resolver": {
         "version": "v4.2.5"
     },
@@ -617,9 +623,6 @@
         "version": "v1.18.0"
     },
     "symfony/polyfill-mbstring": {
-        "version": "v1.11.0"
-    },
-    "symfony/polyfill-php72": {
         "version": "v1.11.0"
     },
     "symfony/polyfill-php80": {
@@ -651,6 +654,18 @@
         "files": [
             "config/packages/routing.yaml",
             "config/routes.yaml"
+        ]
+    },
+    "symfony/scheduler": {
+        "version": "8.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.2",
+            "ref": "caea3c928ee9e1b21288fd76aef36f16ea355515"
+        },
+        "files": [
+            "src/Schedule.php"
         ]
     },
     "symfony/security-bundle": {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\Core\Workspace;
+use App\Service\Workspace\Template\WorkspaceTemplateOptions;
 use App\Service\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -30,6 +31,8 @@ class ExportWorkspaceCommand extends Command
         $this
             ->setDescription('Export a workspace as a template.')
             ->addArgument('workspace', InputOption::VALUE_REQUIRED, 'Workspace ID to export')
+            ->addOption('with-access', null, InputOption::VALUE_NONE, 'Include owners, ACEs, user/group targets and private data templates (only meaningful on the same instance)')
+            ->addOption('with-secrets', null, InputOption::VALUE_NONE, 'Include the encrypted secret values (only importable on the same instance)')
         ;
     }
 
@@ -41,8 +44,13 @@ class ExportWorkspaceCommand extends Command
             throw new \InvalidArgumentException(sprintf('Workspace "%s" not found', $input->getArgument('workspace')));
         }
 
+        $options = new WorkspaceTemplateOptions(
+            withAccessControl: $input->getOption('with-access'),
+            withSecrets: $input->getOption('with-secrets'),
+        );
+
         $output->writeln(
-            json_encode($this->workspaceTemplater->export($workspace), JSON_PRETTY_PRINT)
+            json_encode($this->workspaceTemplater->export($workspace, $options), JSON_PRETTY_PRINT)
         );
 
         return 0;

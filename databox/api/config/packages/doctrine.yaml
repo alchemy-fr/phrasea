@@ -9,13 +9,12 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
         types:
             !php/const MartinGeorgiev\Doctrine\DBAL\Type::LTREE: MartinGeorgiev\Doctrine\DBAL\Types\Ltree
+            !php/const MartinGeorgiev\Doctrine\DBAL\Type::INET: MartinGeorgiev\Doctrine\DBAL\Types\Inet
         mapping_types:
             ltree: !php/const MartinGeorgiev\Doctrine\DBAL\Type::LTREE
+            inet: !php/const MartinGeorgiev\Doctrine\DBAL\Type::INET
     orm:
         connection: default
-        auto_generate_proxy_classes: true
-        enable_lazy_ghost_objects: true
-        report_fields_where_declared: true
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: true
@@ -28,8 +27,9 @@ doctrine:
                 alias: App
         dql:
             string_functions:
-                replace: DoctrineExtensions\Query\Mysql\Replace
-                regexp_replace: \DoctrineExtensions\Query\Postgresql\RegexpReplace
+                replace: App\Doctrine\Query\Replace
+                regexp_replace: App\Doctrine\Query\RegexpReplace
+                translation_values: App\Doctrine\Query\TranslationValues
                 CONTAINS: MartinGeorgiev\Doctrine\ORM\Query\AST\Functions\Contains # @>
                 IS_CONTAINED_BY: MartinGeorgiev\Doctrine\ORM\Query\AST\Functions\IsContainedBy # <@
 
@@ -37,14 +37,19 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            driver: 'sqlite'
-            url: 'sqlite:///%kernel.cache_dir%/data.db'
+            connections:
+                default:
+                    driver: 'sqlite'
+                    url: 'sqlite:///%kernel.cache_dir%/data.db'
+                # The configurator bundle points this connection to the shared
+                # configurator database: tests must not touch it.
+                configurator:
+                    driver: 'sqlite'
+                    url: 'sqlite:///%kernel.cache_dir%/configurator.db'
 
 when@prod:
     doctrine:
         orm:
-            auto_generate_proxy_classes: false
-            proxy_dir: '%kernel.build_dir%/doctrine/orm/Proxies'
             query_cache_driver:
                 type: pool
                 pool: doctrine.system_cache_pool

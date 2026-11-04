@@ -18,7 +18,7 @@ class TransformerConfigHelper
             ->children()
                 ->scalarNode('module')
                     ->isRequired()
-                    ->defaultValue($name)
+                    ->example($name)
                 ->end()
                 ->scalarNode('description')
                     ->info('Description of the module action')

@@ -73,6 +73,14 @@ final readonly class JobExecutor
 
             $jobId = $job->getId();
 
+            if (null === $jobState) {
+                // The state was removed while the job message was in flight
+                // (e.g. workflow deleted along with its subject): nothing left to run.
+                $this->logger->warning(sprintf('Job state "%s" of job "%s" not found for workflow "%s", skipping', $jobStateId, $jobId, $workflowId));
+
+                return null;
+            }
+
             try {
                 $status = $jobState->getStatus();
                 if (JobState::STATUS_TRIGGERED !== $status) {
@@ -111,6 +119,7 @@ final readonly class JobExecutor
 
                 if ($shouldBeSkipped) {
                     $jobState->setStatus(JobState::STATUS_SKIPPED);
+                    $jobState->setSkipReason($context->getSkipReason() ?? sprintf('Condition not met: %s', $job->getIf()));
                     $this->jobStateManager->persistJobState($jobState);
 
                     return null;
@@ -181,17 +190,17 @@ final readonly class JobExecutor
                     $endStatus = $runContext->getEndStatus();
                 }
             } catch (\Throwable $e) {
-                $endStatus = JobState::STATUS_FAILURE;
-                $jobState->addException($e);
-
                 if ($e instanceof JobSkipExceptionInterface && $e->shouldSkipJob()) {
                     $endStatus = JobState::STATUS_SKIPPED;
+                    $jobState->setSkipReason($e->getMessage());
                     $this->logger->info(sprintf('Skipping job <info>%s</info>: %s', $job->getId(), $e->getMessage()), [
                         'exception' => $e,
                         'step' => $step->getId(),
                         'job' => $job->getId(),
                     ]);
                 } else {
+                    $endStatus = JobState::STATUS_FAILURE;
+                    $jobState->addException($e);
                     $this->logger->error($e->getMessage(), [
                         'exception' => $e,
                         'step' => $step->getId(),

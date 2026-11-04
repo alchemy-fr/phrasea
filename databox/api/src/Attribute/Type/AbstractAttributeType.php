@@ -35,11 +35,11 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
             return $value ? 'true' : 'false';
         }
 
-        try {
+        if (\is_scalar($value) || $value instanceof \Stringable) {
             return (string) $value;
-        } catch (\Throwable) {
-            return null;
         }
+
+        return null;
     }
 
     public function denormalizeValue(?string $value): mixed

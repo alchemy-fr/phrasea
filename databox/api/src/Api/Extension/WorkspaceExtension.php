@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
@@ -16,7 +17,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\QueryBuilder;
 
-final class WorkspaceExtension implements QueryCollectionExtensionInterface
+final class WorkspaceExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
     use SecurityAwareTrait;
 
@@ -30,11 +31,38 @@ final class WorkspaceExtension implements QueryCollectionExtensionInterface
         $this->addWhere($queryBuilder, $resourceClass);
     }
 
+    public function applyToItem(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        array $identifiers,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
+        if (Workspace::class !== $resourceClass) {
+            return;
+        }
+
+        // Access is checked by the voter, only hide the soft-deleted workspaces
+        $this->excludeSoftDeleted($queryBuilder);
+    }
+
+    /**
+     * A soft-deleted workspace is waiting for its hard delete (DeleteWorkspace
+     * message): it must not be reachable anymore, even by the admins.
+     */
+    private function excludeSoftDeleted(QueryBuilder $queryBuilder): void
+    {
+        $queryBuilder->andWhere(sprintf('%s.deletedAt IS NULL', $queryBuilder->getRootAliases()[0]));
+    }
+
     private function addWhere(QueryBuilder $queryBuilder, string $resourceClass): void
     {
         if (Workspace::class !== $resourceClass) {
             return;
         }
+
+        $this->excludeSoftDeleted($queryBuilder);
 
         if (
             $this->isAdmin()

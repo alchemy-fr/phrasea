@@ -1,0 +1,267 @@
+'use client';
+
+import {useMemo, useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {
+    EyeIcon,
+    EyeOffIcon,
+    GripVerticalIcon,
+    RotateCcwIcon,
+} from 'lucide-react';
+import {
+    closestCenter,
+    DndContext,
+    DragEndEvent,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import type {Facets} from '@/types/api';
+import type {ModalProps} from '@/components/modals/ModalProvider';
+import {FormDialog} from '@/components/modals/FormDialog';
+import {Button} from '@/components/ui/button';
+import {useConfirm} from '@/components/ui/confirm';
+import {
+    FacetPreference,
+    usePreferencesStore,
+} from '@/features/preferences/store';
+import {cn} from '@/lib/utils/cn';
+import {
+    overlayRow,
+    SortableOverlay,
+    SortableRow,
+    sortableMeasuring,
+    useSortableRow,
+} from '@/components/ui/sortable';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+
+type Row = {name: string; label: string; hidden: boolean};
+
+const EMPTY_FACETS: never[] = [];
+export function FacetSettingsDialog({
+    open,
+    onOpenChange,
+    facets,
+}: ModalProps & {facets: Facets}) {
+    const {t} = useTranslation();
+    const confirm = useConfirm();
+    const prefs =
+        usePreferencesStore(s => s.preferences.facets) ?? EMPTY_FACETS;
+    const updatePreference = usePreferencesStore(s => s.updatePreference);
+
+    const initial = useMemo<Row[]>(() => {
+        const names = new Set([
+            ...Object.keys(facets),
+            ...prefs.map(p => p.name),
+        ]);
+        const rows = [...names].map(name => {
+            const pref = prefs.find(p => p.name === name);
+
+            return {
+                name,
+                label: facets[name]?.meta.displayName ?? name,
+                hidden: !!pref?.hidden,
+                order: pref?.order ?? 999999,
+            };
+        });
+        rows.sort(
+            (a, b) => a.order - b.order || a.label.localeCompare(b.label)
+        );
+
+        return rows;
+    }, [facets, prefs]);
+
+    const [rows, setRows] = useState<Row[]>(initial);
+    const {dirty} = useDirtyState(
+        rows.map(r => ({name: r.name, hidden: r.hidden}))
+    );
+    const sensors = useSensors(
+        useSensor(PointerSensor, {activationConstraint: {distance: 4}})
+    );
+
+    const onDragEnd = (e: DragEndEvent) => {
+        const {active, over} = e;
+        if (over && active.id !== over.id) {
+            setRows(prev =>
+                arrayMove(
+                    prev,
+                    prev.findIndex(r => r.name === active.id),
+                    prev.findIndex(r => r.name === over.id)
+                )
+            );
+        }
+    };
+
+    const save = async () => {
+        const next: FacetPreference[] = rows.map((r, i) =>
+            r.hidden ? {name: r.name, hidden: true} : {name: r.name, order: i}
+        );
+        await updatePreference('facets', next);
+    };
+
+    const visibleRows = rows.filter(r => !r.hidden);
+    const hiddenRows = rows.filter(r => r.hidden);
+
+    return (
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={t('facets.settings', 'Facet settings')}
+            description={t(
+                'facets.settings_help',
+                'Drag to reorder facets, toggle their visibility.'
+            )}
+            bodyClassName="space-y-3"
+            footerStart={
+                <Button
+                    variant="ghost"
+                    // Not returned: the confirm dialog shows the request
+                    // spinner, this button must not spin while it is open
+                    onClick={() => {
+                        void confirm({
+                            title: t(
+                                'facets.reset.title',
+                                'Reset facets to default?'
+                            ),
+                            onConfirm: () => updatePreference('facets', []),
+                        }).then(done => {
+                            if (done) {
+                                onOpenChange(false);
+                            }
+                        });
+                    }}
+                >
+                    <RotateCcwIcon /> {t('facets.reset', 'Reset to default')}
+                </Button>
+            }
+            dirty={dirty}
+            onSubmit={save}
+        >
+            <DndContext
+                measuring={sortableMeasuring}
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={onDragEnd}
+            >
+                <SortableContext
+                    items={visibleRows.map(r => r.name)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <ul className="space-y-1">
+                        {visibleRows.map(r => (
+                            <FacetRow
+                                key={r.name}
+                                row={r}
+                                onToggle={() =>
+                                    setRows(prev =>
+                                        prev.map(x =>
+                                            x.name === r.name
+                                                ? {...x, hidden: true}
+                                                : x
+                                        )
+                                    )
+                                }
+                            />
+                        ))}
+                    </ul>
+                </SortableContext>
+                <SortableOverlay>
+                    {id => {
+                        const row = visibleRows.find(r => r.name === id);
+
+                        return row ? (
+                            <FacetRowView
+                                row={row}
+                                drag={overlayRow}
+                                onToggle={() => undefined}
+                            />
+                        ) : null;
+                    }}
+                </SortableOverlay>
+            </DndContext>
+            {hiddenRows.length > 0 ? (
+                <div>
+                    <h4 className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
+                        {t('facets.hidden_section', 'Hidden')}
+                    </h4>
+                    <ul className="space-y-1">
+                        {hiddenRows.map(r => (
+                            <li
+                                key={r.name}
+                                className="flex items-center gap-2 rounded-md border px-2 py-1 text-sm text-muted-foreground"
+                            >
+                                <span className="flex-1 truncate">
+                                    {r.label}
+                                </span>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={() =>
+                                        setRows(prev =>
+                                            prev.map(x =>
+                                                x.name === r.name
+                                                    ? {
+                                                          ...x,
+                                                          hidden: false,
+                                                      }
+                                                    : x
+                                            )
+                                        )
+                                    }
+                                >
+                                    <EyeIcon />
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            ) : null}
+        </FormDialog>
+    );
+}
+
+function FacetRow({row, onToggle}: {row: Row; onToggle: () => void}) {
+    const drag = useSortableRow(row.name);
+
+    return <FacetRowView row={row} drag={drag} onToggle={onToggle} />;
+}
+
+/** A facet of the list, also rendered as the copy following the pointer */
+function FacetRowView({
+    row,
+    drag,
+    onToggle,
+}: {
+    row: Row;
+    drag: SortableRow;
+    onToggle: () => void;
+}) {
+    return (
+        <li
+            ref={drag.nodeRef}
+            style={drag.style}
+            className={cn(
+                'flex list-none items-center gap-2 rounded-md border bg-background px-2 py-1 text-sm',
+                drag.className
+            )}
+        >
+            <button
+                type="button"
+                className="cursor-grab text-muted-foreground"
+                {...drag.handle}
+                aria-label="Drag"
+            >
+                <GripVerticalIcon className="size-4" />
+            </button>
+            <span className="flex-1 truncate">{row.label}</span>
+            <Button variant="ghost" size="icon-xs" onClick={onToggle}>
+                <EyeOffIcon />
+            </Button>
+        </li>
+    );
+}

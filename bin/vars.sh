@@ -1,9 +1,16 @@
 #!/bin/sh
 
 SYMFONY_PROJECTS="
+configurator
 databox/api
 expose/api
 uploader/api
+"
+
+# Symfony projects that only get static checks (no PHPUnit suite, no bin/setup.sh
+# run by bin/setup.sh through the SYMFONY_PROJECTS loop).
+SYMFONY_LINT_ONLY_PROJECTS="
+configurator
 "
 
 CLIENT_PROJECTS="
@@ -26,7 +33,7 @@ lib/php/core-bundle
 lib/php/es-bundle
 lib/php/messenger-bundle
 lib/php/metadata-manipulator-bundle
-lib/php/notify-bundle
+lib/php/notifier-bundle
 lib/php/rendition-factory
 lib/php/rendition-factory-bundle
 lib/php/report-bundle

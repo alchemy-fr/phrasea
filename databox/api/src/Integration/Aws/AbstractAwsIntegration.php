@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Aws;
 
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 abstract class AbstractAwsIntegration extends AbstractIntegration
@@ -40,6 +41,7 @@ abstract class AbstractAwsIntegration extends AbstractIntegration
                 ->defaultValue('${AWS_ACCESS_KEY_SECRET}')
                 ->cannotBeEmpty()
                 ->info('The AWS IAM Access Key Secret')
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end();
     }
 

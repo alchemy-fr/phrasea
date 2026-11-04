@@ -2,7 +2,12 @@
 
 namespace Alchemy\ESBundle\Tests;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 
 class QueryBuilderMock extends QueryBuilder
@@ -19,23 +24,24 @@ class QueryBuilderMock extends QueryBuilder
         parent::__construct($em);
     }
 
-    public function from($from, $alias, $indexBy = null)
+    public function from(string $from, string $alias, ?string $indexBy = null): static
     {
         $this->class = $from;
 
         return parent::from($from, $alias, $indexBy);
     }
 
-    public function setParameters($parameters)
+    public function setParameters(ArrayCollection $parameters): static
     {
-        if (isset($parameters['ids'])) {
-            $this->ids = $parameters['ids'];
+        $ids = $parameters->findFirst(static fn (int $i, Parameter $parameter): bool => 'ids' === $parameter->getName());
+        if (null !== $ids) {
+            $this->ids = $ids->getValue();
         }
 
         return parent::setParameters($parameters);
     }
 
-    public function setParameter($key, $value, $type = null)
+    public function setParameter(string|int $key, mixed $value, ParameterType|ArrayParameterType|string|int|null $type = null): static
     {
         if ('ids' === $key) {
             $this->ids = $value;
@@ -44,7 +50,7 @@ class QueryBuilderMock extends QueryBuilder
         return parent::setParameter($key, $value, $type);
     }
 
-    public function getQuery()
+    public function getQuery(): Query
     {
         $repo = $this->store[$this->class];
         $filtered = array_map(fn (string $id) => $repo[$id], $this->ids);

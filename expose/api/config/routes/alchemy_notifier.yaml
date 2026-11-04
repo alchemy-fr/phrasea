@@ -1,0 +1,5 @@
+# Only the public logo of the notification emails: this application exposes no
+# in-app notification endpoint
+alchemy_notifier_email_logo:
+  resource: '@AlchemyNotifierBundle/src/Controller/EmailLogoController.php'
+  type: attribute

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Filter\Group;
 
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 readonly class GroupValue
 {

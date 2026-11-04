@@ -15,16 +15,20 @@ use PHPExiftool\Exiftool;
 use PHPExiftool\Writer;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class SetDpiTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'set_dpi';
+
     public function __construct(private LoggerInterface $logger)
     {
     }
 
     public static function getName(): string
     {
-        return 'set_dpi';
+        return self::NAME;
     }
 
     public function getDocumentation(): Documentation

@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Asset;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Service\Asset\StoryContactSheetScheduler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
 #[AsMessageHandler]
 readonly class AssetMoveHandler
@@ -18,6 +20,7 @@ readonly class AssetMoveHandler
     public function __construct(
         private IriConverterInterface $iriConverter,
         private EntityManagerInterface $em,
+        private StoryContactSheetScheduler $contactSheetScheduler,
     ) {
     }
 
@@ -27,6 +30,10 @@ readonly class AssetMoveHandler
 
         $asset = DoctrineUtil::findStrict($this->em, Asset::class, $message->getId());
         $destination = $this->iriConverter->getResourceFromIri($dest);
+        // Checked by MoveAssetProcessor: an asset never leaves its workspace
+        if ($destination instanceof Collection && $destination->getWorkspaceId() !== $asset->getWorkspaceId()) {
+            throw new UnrecoverableMessageHandlingException(sprintf('Asset "%s" cannot be moved to another workspace', $asset->getId()));
+        }
 
         $this->em->wrapInTransaction(function () use ($asset, $destination): void {
             $from = $asset->getReferenceCollection();
@@ -35,6 +42,11 @@ readonly class AssetMoveHandler
                 $this->em
                     ->getRepository(CollectionAsset::class)
                     ->deleteCollectionAsset($asset->getId(), $from->getId());
+
+                // A DQL delete triggers no Doctrine listener
+                if (null !== $storyAsset = $from->getStoryAsset()) {
+                    $this->contactSheetScheduler->schedule($storyAsset->getId());
+                }
             }
 
             if ($destination instanceof Collection) {

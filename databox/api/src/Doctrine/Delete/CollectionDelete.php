@@ -40,10 +40,6 @@ final readonly class CollectionDelete
                 return;
             }
 
-            $configuration = $this->em->getConnection()->getConfiguration();
-            $logger = $configuration->getSQLLogger();
-            $configuration->setSQLLogger();
-
             DeferredIndexListener::disable();
             $this->collectionListener->softDeleteEnabled = false;
 
@@ -57,7 +53,6 @@ final readonly class CollectionDelete
             } finally {
                 DeferredIndexListener::enable();
                 $this->collectionListener->softDeleteEnabled = true;
-                $configuration->setSQLLogger($logger);
             }
         } else {
             $this->doDelete($collectionId);
@@ -82,7 +77,10 @@ final readonly class CollectionDelete
         /** @var Collection $collection */
         $collection = $this->em->find(Collection::class, $collectionId);
         if (!$collection instanceof Collection) {
-            throw new \InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
+            // Already removed (concurrent deletion or replayed job): nothing left to do.
+            $this->logger->notice(sprintf('Collection "%s" not found for deletion, skipping', $collectionId));
+
+            return;
         }
 
         if ($collection->isStory()) {

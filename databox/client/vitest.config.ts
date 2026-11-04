@@ -1,14 +1,17 @@
-import {defineConfig, mergeConfig} from 'vitest/config';
-import viteConfig from './vite.config';
+import {defineConfig} from 'vitest/config';
+import path from 'node:path';
 
-export default mergeConfig(
-    viteConfig,
-    defineConfig({
-        test: {
-            environment: 'jsdom',
-            globals: true,
-            setupFiles: ['./vitest.setup.ts'],
-            css: true,
+export default defineConfig({
+    esbuild: {jsx: 'automatic'},
+    test: {
+        environment: 'jsdom',
+        globals: true,
+        include: ['src/**/*.test.{ts,tsx}'],
+    },
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+            'server-only': path.resolve(__dirname, './src/test/server-only.ts'),
         },
-    })
-);
+    },
+});

@@ -23,6 +23,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     public const string OPT_TYPES = 'types';
     public const string OPT_FACET_ENABLED = 'facet_enabled';
     public const string OPT_SUGGEST_ENABLED = 'suggest_enabled';
+    public const string OPT_IDS = 'ids';
 
     private CacheInterface $cache;
 
@@ -160,6 +161,50 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Returns every searchable attribute definition, regardless of user permissions.
+     * Filter rule conditions are authored by workspace admins and must resolve
+     * even when the target user cannot read the referenced attributes.
+     */
+    public function getAllSearchableAttributes(): iterable
+    {
+        $queryBuilder = $this
+            ->createQueryBuilder('t')
+            ->innerJoin('t.workspace', 'w')
+            ->select('t.type')
+            ->addSelect('t.slug')
+            ->addSelect('t.multiple')
+            ->addSelect('t.searchBoost')
+            ->addSelect('t.translatable')
+            ->addSelect('w.id AS workspaceId')
+            ->addSelect('w.enabledLocales AS enabledLocales')
+            ->andWhere('t.searchable = true')
+        ;
+
+        foreach ($queryBuilder
+                     ->getQuery()
+                     ->toIterable() as $row) {
+            $row['allowed'] = true;
+
+            yield $row;
+        }
+    }
+
+    /**
+     * @return iterable<array{slug: string, type: string, multiple: bool, sortable: bool}>
+     */
+    public function getSortabilityRows(): iterable
+    {
+        return $this
+            ->createQueryBuilder('t')
+            ->select('t.slug')
+            ->addSelect('t.type')
+            ->addSelect('t.multiple')
+            ->addSelect('t.sortable')
+            ->getQuery()
+            ->toIterable();
+    }
+
+    /**
      * @return AttributeDefinition[]
      */
     public function getSearchableAttributes(?string $userId, array $groupIds, array $options = []): array
@@ -179,6 +224,12 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             $queryBuilder
                 ->andWhere('t.suggest = :suggest')
                 ->setParameter('suggest', $options[self::OPT_SUGGEST_ENABLED]);
+        }
+
+        if (!empty($options[self::OPT_IDS])) {
+            $queryBuilder
+                ->andWhere('t.id IN (:ids)')
+                ->setParameter('ids', $options[self::OPT_IDS]);
         }
 
         if ($options[self::OPT_FACET_ENABLED] ?? null) {
@@ -261,8 +312,39 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         return $this
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
-            ->andWhere('d.initialValues IS NOT NULL')
+            ->andWhere('d.initialValues IS NOT NULL OR d.readFromMetadata IS NOT NULL')
             ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    /**
+     * @param string|null $renditionDefinitionId the rendition being written, if any. Definitions
+     *                                           scoped to other renditions are left out; a null id
+     *                                           (dynamic rendition) only matches unscoped ones.
+     *
+     * @return AttributeDefinition[]
+     */
+    public function getWorkspaceWriteMetadataDefinitions(string $workspaceId, ?string $renditionDefinitionId = null): array
+    {
+        $qb = $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.writeMetadata IS NOT NULL')
+            ->setParameter('workspace', $workspaceId);
+
+        if (null === $renditionDefinitionId) {
+            $qb->andWhere('SIZE(d.writeMetadataRenditions) = 0');
+        } else {
+            $qb
+                ->andWhere('SIZE(d.writeMetadataRenditions) = 0 OR :renditionDefinition MEMBER OF d.writeMetadataRenditions')
+                ->setParameter('renditionDefinition', $renditionDefinitionId);
+        }
+
+        return $qb
             ->getQuery()
             ->getResult();
     }
@@ -289,10 +371,10 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
             ->andWhere('d.type = :t')
-            ->andWhere('d.entityList = :etype')
+            ->andWhere('d.entityList = :listId')
             ->setParameter('workspace', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())
-            ->setParameter('etype', $entityListId)
+            ->setParameter('listId', $entityListId)
             ->getQuery()
             ->getResult();
     }

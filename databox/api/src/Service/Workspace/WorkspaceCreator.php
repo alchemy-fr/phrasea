@@ -25,7 +25,7 @@ final readonly class WorkspaceCreator
     ) {
     }
 
-    public function createWorkspace(Workspace $workspace): void
+    public function createWorkspace(Workspace $workspace): WorkspaceDefaults
     {
         $renditionPolicy = new RenditionPolicy();
         $renditionPolicy->setWorkspace($workspace);
@@ -34,19 +34,23 @@ final readonly class WorkspaceCreator
         $renditionPolicy->setEditable(true);
         $this->em->persist($renditionPolicy);
 
-        $previousRendition = null;
         $renditionDefs = [];
-        foreach (['main', 'preview', 'thumbnail'] as $renditionName) {
+        foreach ([
+            'main' => null,
+            'preview' => 'main',
+            'thumbnail' => 'preview',
+            'animatedThumbnail' => 'preview',
+        ] as $renditionName => $parentName) {
             $rendition = new RenditionDefinition();
-            $rendition->setParent($previousRendition);
+            $rendition->setParent(null !== $parentName ? $renditionDefs[$parentName] : null);
             $renditionDefs[$renditionName] = $rendition;
-            $previousRendition = $rendition;
             $rendition->setName(ucfirst($renditionName));
             $rendition->setPolicy($renditionPolicy);
             $rendition->setWorkspace($workspace);
             $rendition->setUseAsMain('main' === $renditionName);
             $rendition->setUseAsPreview('preview' === $renditionName);
             $rendition->setUseAsThumbnail('thumbnail' === $renditionName);
+            $rendition->setUseAsAnimatedThumbnail('animatedThumbnail' === $renditionName);
             $buildFile = __DIR__.'/renditions/'.$renditionName.'.yaml';
             if (file_exists($buildFile)) {
                 $rendition->setBuildMode(RenditionDefinition::BUILD_MODE_CUSTOM);
@@ -59,6 +63,21 @@ final readonly class WorkspaceCreator
             $rendition->setSubstitutable(true);
             $this->em->persist($rendition);
         }
+
+        // Thumbnail of the stories without cover, hover image of all stories
+        $contactSheet = new RenditionDefinition();
+        $contactSheet->setName('StoryContactSheet');
+        $contactSheet->setKey('storyContactSheet');
+        $contactSheet->setPolicy($renditionPolicy);
+        $contactSheet->setWorkspace($workspace);
+        $contactSheet->setTarget(AssetTypeEnum::Story);
+        $contactSheet->setBuildMode(RenditionDefinition::BUILD_MODE_CUSTOM);
+        $contactSheet->setDefinition(file_get_contents(__DIR__.'/renditions/storyContactSheet.yaml'));
+        $contactSheet->setUseAsThumbnail(true);
+        $contactSheet->setUseAsAnimatedThumbnail(true);
+        $contactSheet->setSubstitutable(true);
+        $this->em->persist($contactSheet);
+        $renditionDefs['storyContactSheet'] = $contactSheet;
 
         $attributePolicy = new AttributePolicy();
         $attributePolicy->setWorkspace($workspace);
@@ -95,6 +114,11 @@ final readonly class WorkspaceCreator
         $renditionIntegration->setWorkspace($workspace);
         $renditionIntegration->setIntegration(RenditionIntegration::getName());
 
+        $integrations = [
+            'readMetadata' => $readMetadataIntegration,
+            'rendition' => $renditionIntegration,
+        ];
+
         if ($workspace->isFileAnalysisRequired()) {
             $fileAnalyzerIntegration = new WorkspaceIntegration();
             $fileAnalyzerIntegration->setOwnerId($workspace->getOwnerId());
@@ -116,11 +140,22 @@ final readonly class WorkspaceCreator
 
             $renditionIntegration->getNeeds()->add($fileAnalyzerIntegration);
             $renditionIntegration->getNeeds()->add($renditionBaseIntegration);
+
+            $integrations['fileAnalyzer'] = $fileAnalyzerIntegration;
+            $integrations['baseRenditions'] = $renditionBaseIntegration;
         }
 
         $this->em->persist($renditionIntegration);
 
         $this->em->persist($nameAttribute);
         $this->em->persist($workspace);
+
+        return new WorkspaceDefaults(
+            $renditionPolicy,
+            $renditionDefs,
+            $attributePolicy,
+            $nameAttribute,
+            $integrations,
+        );
     }
 }

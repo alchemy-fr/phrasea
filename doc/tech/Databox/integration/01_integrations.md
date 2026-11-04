@@ -15,6 +15,8 @@ They provide practical value by:
 - Normalizing data exchanged between Phrasea and external services.
 - Keeping synchronized states between Phrasea objects and external resources.
 
+Rendition references in integration configurations (`rendition`, `renditions`, `applyToRenditions`, `labels.rendition`...) are written by name in YAML but persisted as rendition definition IDs (see `RenditionConfigNormalizer`): renaming a rendition definition does not break the integrations using it, and the YAML shown back to users still displays names.
+
 ## Rendition integration (core.rendition)
 
 Display name: Rendition
@@ -96,6 +98,25 @@ Operational notes:
 - Uses an ApiKey authorization scheme.
 - Security key must match on both Phrasea and uploader configurations.
 
+## Asset import integration (core.asset_import)
+
+Display name: Asset import
+
+This integration exposes a webhook receiving import instructions (JSON or NDJSON, one entry per asset):
+the assets are created and their files downloaded from URLs. See [Import of assets](../import.md).
+
+Main behavior:
+
+- `POST /integrations/asset-import/{integrationId}/imports`, authenticated by the `Authorization: ApiKey <securityKey>` header; the format is given by the `Content-Type` (`application/x-ndjson`, `application/json`).
+- Answers 202 with the ID of the created import, followed in the Imports tab of the workspace (`GET /asset-imports/{id}`).
+- The entries are imported as the owner of the integration, in the configured `collectionId` (the workspace root otherwise) with the configured default `privacy`.
+- Generates the security key at creation, and a new one when the integration is duplicated.
+
+Operational notes:
+
+- Requires a workspace; the `collectionId` must belong to it.
+- 401 without the ApiKey header, 403 on a wrong key, 404 for an unknown or disabled integration, 415 on an unsupported Content-Type.
+
 ## Toast UI Photo Editor integration (tui.photo-editor)
 
 Display name: Toast UI Photo Editor
@@ -116,6 +137,99 @@ Operational notes:
 - Save and delete actions require valid user context and integration data identifiers.
 - Unsupported actions are rejected.
 
+## Similarity integration (core.similarity)
+
+Display name: Similarity
+
+This integration computes a visual embedding (CLIP vector) for each ingested asset and stores it in the asset Elasticsearch document (dense_vector field).
+It powers the "Similar assets" panel and the "Find similar" action of the asset view, through a kNN search that enforces the same ACL filters as the regular search.
+
+Main behavior:
+
+- Adds a workflow job on asset ingest, depending on the configured rendition job (default: preview) and on the thumbnail rendition jobs.
+- Sends the rendition image to the similarity-embedder service (self-hosted, CLIP) to compute the vector. When the configured rendition is not an image (the preview of a document is a PDF, the one of a video is a video), the thumbnail rendition (`useAsThumbnail`) is used instead: documents and videos are searchable by similarity too.
+- Stores the vector in database (asset_embedding table) and reindexes the asset in Elasticsearch.
+- Similar assets are served by `GET /assets/{id}/similar` using an Elasticsearch kNN query filtered by permissions.
+
+Operational notes:
+
+- Requires the `similarity-embedder` (maintained in [alchemy-fr/phrasea-similarity-embedder](https://github.com/alchemy-fr/phrasea-similarity-embedder)) and `elasticsearch` (>= 8.12) services.
+- Backfill existing assets with `bin/console app:similarity:index` (assets already embedded are skipped unless `--force`).
+
+## Face Recognition integration (core.face_recognition)
+
+Display name: Face Recognition
+
+This integration detects the faces of image assets and recognizes the persons that users have already named, through a self-hosted service (no data leaves the platform).
+It is the self-hosted counterpart of the "faces" category of AWS Rekognition, with recognition on top of detection.
+
+There is no face-specific data model nor API: **a face is a value of the configured entity attribute** of the asset (`attribute`), and **a person is an entity** of the list that attribute is bound to. Each face value carries the person (the entity ID), the box of the face as a `face` annotation (an oval drawn by the client), the detection or recognition confidence, and the face embedding (`attribute.embedding`, never exposed by the API nor indexed). Everything else goes through the generic attribute and entity APIs.
+
+Main behavior:
+
+- Sends the configured rendition (default: preview, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence and a 512-d ArcFace embedding.
+- Runs on asset ingest when `processIncoming` is enabled (workflow job depending on the rendition job), or on demand from the asset view ("Detect faces", user action `analyze`).
+- Each detected face is recognized among the faces of the workspace (cosine similarity, `matchThreshold`): it joins the person of the closest face a user named, or else the closest face of a person nobody has named yet. Otherwise it starts a new **pending entity** ("Unknown person · 3f2a", `unknownLabel`): the pending persons are the groups of look-alikes still to be named; being pending, they never show up in the search facets, and they are removed as soon as no face references them any more. Only the faces named by users (`origin: human`) are references: a recognized face never becomes one, so that the recognition cannot drift.
+- Users name a face by changing the value of its attribute (`PATCH /attributes/{id}`, `/attributes/batch-update`), to an existing entity or to one they create (`POST /attribute-entities`): the face becomes a reference of the person (`origin: human`, `originUserId`, confidence 1) and, when `autoPropagate` is enabled, the person is propagated asynchronously to the similar faces of the workspace that no user named. Deleting the value (`DELETE /attributes/{id}`) forgets the face.
+- Users name a whole unknown group by renaming and approving its pending entity (`PATCH /attribute-entities/{id}` with `value`, `note` and `status: 0`): its most confident face becomes the reference and is propagated. Attaching the group to an existing person is the entities merge (`PUT /attribute-entities/{id}/merge`), which re-points its faces. Two persons with the same name are told apart by their `note` (the same value may appear twice in a list).
+- In the client, faces are named from the asset view (face recognition panel). The persons are managed from the exploration page of their entity list (`/entity-lists/{id}/explore`, "Explore" on the list in the workspace entities, under an entity facet or in an entity pinned filter): each person with a few of the assets showing it, renamed (`value`, `note`) or merged into another one by the list editors; the values grid of the list (workspace management, entities) covers the rest (approval, bulk edits). Both are built on `GET /attribute-entities?list=…&status=…&usage=1` (with the number of faces, `usage`) and, for the pending persons, which are not indexed, `GET /attributes?definition[]=…&value=…`. Pending persons are listed to the users who may edit the attributes of the workspace, so that they can name them. In the values of an asset, the name of a pending person is only sent to the managers of the entity list and to its creator (the users who may edit the entity); the others get a null value, shown as "Pending".
+- Permissions are those of the attributes and the entity lists: reading the faces of an asset requires reading its face attribute (asset readable, attribute policy public or granted), naming requires editing it, creating or renaming a person requires the rights on the list.
+- Re-running the detection on an asset keeps the person of the faces that overlap a previous detection (what users said included). Replay the recognition after a change of `matchThreshold` with `bin/console app:face-recognition:relink` (no detection involved).
+- When `autoPhoto` is enabled, every person with a face, unknown and pending ones included, gets the photo of its best face (the entity image shown by the chips, the exploration cards and the facets): the most confident face, so a face named by a user first, cropped on the server from the file the detection ran on (configured rendition or source, EXIF-oriented) with the framing of the client (a square centered on the box, 1.8 times its longest side, shifted inside the image at its edges), then processed like an uploaded image. It is asked for asynchronously (`FaceRecognitionPhoto` message, p2) after a detection, when a user names, moves or deletes a face, approves a pending person, after a merge and after a relink.
+- An automatic photo remembers the face it was cropped from (`image_set.source_attribute_id`). It is replaced only when that face no longer shows the person (deleted, moved to another person, or its asset deleted), or when it comes from a recognized face and the person now has a face named by a user: a more confident recognized face alone does not replace it. A photo uploaded by a user is never replaced; once a user deletes it, the next of these events gives the person an automatic one. Disabling `autoPhoto` keeps the existing automatic photos.
+
+Configuration:
+
+| Key | Default | Description |
+| --- | --- | --- |
+| attribute | (required) | Slug of a multi-valued attribute of type `entity`, receiving one value per detected face; its entity list holds the persons |
+| unknownLabel | Unknown person | Name of a person nobody has named yet (a short code is appended) |
+| rendition | preview | Rendition sent to the service (must be an image) |
+| maxImageSize | 2048 | Longest side (pixels) of the downscaled JPEG copy actually sent to the service |
+| processIncoming | false | Detect faces on all incoming assets |
+| minConfidence | 0.5 | Minimum detection confidence for a face to be kept |
+| matchThreshold | 0.5 | Minimum cosine similarity with a known face to recognize the same person (0 disables recognition: every face is a new unknown person) |
+| autoPropagate | true | Apply a newly named person to the similar faces of the workspace |
+| autoPhoto | true | Give the persons without a photo the photo of their best face, cropped from its asset (a photo uploaded by a user is never replaced) |
+
+Operational notes:
+
+- Requires the `face-recognition` service (maintained in [alchemy-fr/phrasea-face-recognition](https://github.com/alchemy-fr/phrasea-face-recognition), InsightFace `buffalo_l` model pack on CPU; image `FACE_RECOGNITION_IMAGE`, `face-recognition` Docker Compose profile). Databox reaches it through `FACE_RECOGNITION_URL`.
+- Backfill existing assets with `bin/console app:face-recognition:index` (add `--sync` to run in the foreground).
+- Give the existing persons their photo with `bin/console app:face-recognition:photos` (`--workspace` to limit it to a workspace): it queues the persons that have no photo or an automatic one, in the integrations having `autoPhoto` enabled.
+
+## Configuration form & schema
+
+The workspace administration (`/workspaces/:id/manage/integrations`) configures an integration with a **form generated from its configuration tree**, the YAML editor remaining available as an advanced mode (the two are converted into each other on the client, and both `config` and `configYaml` are accepted by the API).
+
+`GET /integration-types/{id}` exposes the tree built by `buildConfiguration(NodeBuilder)` as a `schema` (`ConfigSchemaDumper`), inspired by JSON Schema without following it: a root `object` whose `properties` are the configuration keys, each node carrying a `type` (`string`, `integer`, `float`, `boolean`, `enum`, `object`, `list`, `any`), its `label`, `info`, `example`, `required`, `default`, `min`/`max`, `values`, `items` and `minItems`. An object with an `enabled` boolean (`canBeEnabled()` / `canBeDisabled()`) gets `toggle: "enabled"`; a `variableNode` or an array without definition is `any` and stays edited as YAML.
+
+The UI hints are declared **on the tree itself** with `NodeDefinition::attribute()` and the keys of `App\Integration\Config\ConfigWidget`:
+
+```php
+use App\Integration\Config\ConfigWidget;
+
+ConfigWidget::apply($builder->scalarNode('attribute'), ConfigWidget::Attribute, [
+    'type' => 'entity',
+    'multiple' => true,
+    'entityList' => true,
+])
+    ->isRequired()
+->end()
+->scalarNode('rendition')
+    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
+->end()
+->scalarNode('apiKey')
+    ->attribute(ConfigWidget::ATTR_SECRET, true)
+->end();
+```
+
+- `widget` (`ConfigWidget`): `attribute` (slug of an attribute definition of the workspace, with `widgetOptions` restricting its `type`, `multiple` and `entityList`; the picker offers to **create** the attribute, and the entity list it needs, right from the form), `rendition` (name of a rendition definition), `collection` (collection ID), `email`, `language`. On a prototype (`scalarPrototype()`), the widget applies to the items of the list (multiple picker, chips).
+- `secret`: the form masks the value (with a "show" button). The API does not redact it: `configYaml` and `configValues` are only given to who may edit the integration.
+- An integration whose tree does not tell the whole story implements `ConfigSchemaCustomizerInterface::customizeConfigSchema(array $schema): array`: `core.file_analyzer` replaces the items of `analyzers` by `{type: object, discriminator: name, variants: {<analyzer>: …}}`, one variant per registered analyzer.
+
+`GET /integrations/{id}` returns the stored configuration twice to its editors: `configYaml` and `configValues` (the same values, structured), so that an integration written in YAML reopens in the form with its values. A configuration refused by the tree (or by `validateConfiguration()` when it sets the path of its `InvalidConfigurationException`, e.g. `root.attribute`) answers a 422 whose violation `propertyPath` points to the option (`config.minConfidence`, `config.analyzers.0.name`), reported under the matching field.
+
 ## Exhaustive integration list
 
 The table below is the exhaustive integration list currently available in Databox codebase.
@@ -126,6 +240,7 @@ The table below is the exhaustive integration list currently available in Databo
 | phrasea.expose | Expose | Basket publication synchronization with Expose | No |
 | core.read_metadata | Read Metadata | Asset source metadata extraction and normalization | No |
 | phrasea.uploader | Uploader | External upload/webhook integration for Phrasea | No |
+| core.asset_import | Asset import | Webhook receiving JSON/NDJSON asset import instructions | No |
 | tui.photo-editor | Toast UI Photo Editor | Asset view editing integration | No |
 | core.moderation | Moderation | Workflow moderation step for assets | No |
 | core.watermark | Watermark | Workflow watermark generation | No |
@@ -138,6 +253,8 @@ The table below is the exhaustive integration list currently available in Databo
 | remove.bg | Remove BG | Asset view background removal | Yes |
 | phraseanet.renditions | Phraseanet Renditions | Workflow rendition synchronization with Phraseanet | No |
 | core.test_asset_operation | Test Asset Operation | Test-only workflow integration | No |
+| similarity | Similarity | Workflow embedding generation for similarity search | No |
+| core.face_recognition | Face Recognition | Face detection and recognition (asset view and workflow) | No |
 
 Note: for integrations marked Yes in the External service column, some assets, metadata, or derived content will necessarily be submitted to these external services for processing.
 

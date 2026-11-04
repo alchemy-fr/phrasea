@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
+use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -44,7 +45,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Uploads', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Data', 'fas fa-folder-open')->setSubItems($submenu3);
-        yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
+        yield NotifierAdminMenu::createMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }

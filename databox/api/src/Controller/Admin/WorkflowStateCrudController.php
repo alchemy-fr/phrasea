@@ -10,6 +10,7 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Workflow\WorkflowState;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -36,6 +37,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         return WorkflowState::class;
     }
 
+    #[AdminRoute(path: '/workflow-state/{id}/cancel', name: 'cancelWorkflow')]
     public function cancelWorkflow(AdminContext $context): RedirectResponse
     {
         /** @var WorkflowState $workflowState */
@@ -50,7 +52,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     {
         $viewWorkflow = Action::new('viewWorkflow', 'View', 'fa fa-eye')
             ->setHtmlAttributes(['target' => '_blank'])
-            ->linkToUrl(fn (WorkflowState $entity): string => sprintf('%s/?_m=%s', $this->databoxClientBaseUrl, urlencode(sprintf('/workflows/%s', $entity->getId()))));
+            ->linkToUrl(fn (WorkflowState $entity): string => sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId()));
 
         $cancel = Action::new('cancelWorkflow', 'Cancel Workflow', 'fas fa-ban')
             ->displayIf(fn (WorkflowState $entity) => ModelWorkflowState::STATUS_STARTED === $entity->getStatus())

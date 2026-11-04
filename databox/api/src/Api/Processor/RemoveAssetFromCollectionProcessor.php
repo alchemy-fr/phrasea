@@ -27,7 +27,7 @@ class RemoveAssetFromCollectionProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         $assetCollection = $this->em->getRepository(CollectionAsset::class)
-            ->findOneBy(['asset' => $data->getId(), 'collection' => $uriVariables['collectionId']]);
+            ->findOneBy(['asset' => $data->getId(), 'collection' => (string) $uriVariables['collectionId']]);
 
         if ($assetCollection instanceof CollectionAsset) {
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $assetCollection->getCollection());

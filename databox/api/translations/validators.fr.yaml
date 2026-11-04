@@ -1,0 +1,5 @@
+rendition_metadata:
+    invalid_tag: 'La clé de metadata "{{ tag }}" doit être un tag préfixé par son groupe (ex. "IPTC:CopyrightNotice").'
+    unknown_tag: 'Tag de metadata inconnu : "{{ tag }}".'
+    not_writable_tag: 'Le tag de metadata "{{ tag }}" n''est pas inscriptible.'
+    invalid_value: 'La valeur de metadata pour "{{ tag }}" doit être un scalaire.'

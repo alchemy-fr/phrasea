@@ -4,41 +4,100 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Entity;
 
-use Alchemy\StorageBundle\Controller\MultipartUploadCancelAction;
-use Alchemy\StorageBundle\Controller\MultipartUploadPartAction;
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadPartsOutput;
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadPartUrlOutput;
+use Alchemy\StorageBundle\Api\Processor\MultipartUploadCancelProcessor;
+use Alchemy\StorageBundle\Api\Processor\MultipartUploadPartsProcessor;
+use Alchemy\StorageBundle\Api\Processor\MultipartUploadPartUrlProcessor;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
+use ApiPlatform\OpenApi\Model\RequestBody as OpenApiRequestBody;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     shortName: 'Upload',
     operations: [
-        new Get(),
-        new Post(openapiContext: ['summary' => 'Create a multi part upload.']),
+        new Get(security: 'is_granted("IS_AUTHENTICATED_FULLY")'),
+        new Post(
+            normalizationContext: ['groups' => ['upload:read', 'upload:urls']],
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            openapi: new OpenApiOperation(
+                summary: 'Create a multi part upload.',
+                description: 'The server decides the part size ("chunkSize") from the file size and returns the presigned PUT URLs of every part ("urls", keyed by part number). URLs are valid for 3 hours; ask "/uploads/{id}/parts" for fresh ones.',
+            ),
+        ),
+        new Post(
+            uriTemplate: '/uploads/{id}/parts',
+            throwOnNotFound: true,
+            status: 200,
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            input: false,
+            normalizationContext: ['groups' => ['upload:parts']],
+            output: MultipartUploadPartsOutput::class,
+            processor: MultipartUploadPartsProcessor::class,
+            openapi: new OpenApiOperation(
+                summary: 'Get the presigned upload URLs of all the remaining parts.',
+                description: 'Returns the part size, the number of parts and the presigned PUT URLs of the parts from "from" (default 1) to the last one. Used to resume an upload or to refresh expired URLs.',
+                parameters: [
+                    new OpenApiParameter(
+                        name: 'id',
+                        in: 'path',
+                        description: 'The upload ID',
+                        required: true,
+                        schema: ['type' => 'string'],
+                    ),
+                ],
+                requestBody: new OpenApiRequestBody(
+                    content: new \ArrayObject([
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'from' => [
+                                        'type' => 'integer',
+                                        'description' => 'First part number to return (>= 1)',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ]),
+                    required: false,
+                ),
+            ),
+        ),
         new Post(
             uriTemplate: '/uploads/{id}/part',
-            controller: MultipartUploadPartAction::class,
-            openapiContext: [
-                'summary' => 'Get next upload URL for the next part of file to upload.',
-                'parameters' => [
-                    [
-                        'in' => 'path',
-                        'name' => 'id',
-                        'type' => 'string',
-                        'description' => 'The upload ID',
-                    ],
+            throwOnNotFound: true,
+            status: 200,
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            input: false,
+            normalizationContext: ['groups' => ['upload:part_url']],
+            output: MultipartUploadPartUrlOutput::class,
+            processor: MultipartUploadPartUrlProcessor::class,
+            deprecationReason: 'Use the "urls" returned when creating the upload, or POST /uploads/{id}/parts.',
+            openapi: new OpenApiOperation(
+                summary: 'Get the upload URL for a single part of the file to upload.',
+                parameters: [
+                    new OpenApiParameter(
+                        name: 'id',
+                        in: 'path',
+                        description: 'The upload ID',
+                        required: true,
+                        schema: ['type' => 'string'],
+                    ),
                 ],
-                'requestBody' => [
-                    'required' => true,
-                    'content' => [
+                requestBody: new OpenApiRequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
                                 'type' => 'object',
@@ -49,31 +108,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-                'responses' => [
-                    '200' => [
-                        'description' => 'An object containing signed URL for direct upload to S3',
-                        'content' => [
-                            'application/json' => [
-                                'schema' => [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'url' => [
-                                            'type' => 'string',
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ]],
-                ],
-            ]),
+                    ]),
+                    required: true,
+                ),
+            ),
+        ),
         new Delete(
-            controller: MultipartUploadCancelAction::class,
-            openapiContext: [
-                'summary' => 'Cancel an upload',
-                'description' => 'Cancel an upload.',
-            ]
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            processor: MultipartUploadCancelProcessor::class,
+            openapi: new OpenApiOperation(
+                summary: 'Cancel an upload',
+                description: 'Cancel an upload.',
+            ),
         ),
 
         new GetCollection(security: 'is_granted(\'ROLE_ADMIN\')'),
@@ -100,6 +146,25 @@ class MultipartUpload
 
     #[ORM\Column(name: 'size', type: 'bigint', options: ['unsigned' => true])]
     private ?string $sizeAsString = null;
+
+    /**
+     * Part size decided by the server when the upload was created. Persisted
+     * so that a resumed upload keeps slicing the file the same way even if the
+     * multipart limits were reconfigured in between.
+     */
+    #[ApiProperty(writable: false)]
+    #[ORM\Column(name: 'chunk_size', type: 'bigint', nullable: true, options: ['unsigned' => true])]
+    private ?string $chunkSizeAsString = null;
+
+    /**
+     * Presigned PUT URL of every part, keyed by part number. Not persisted:
+     * only filled (and exposed) in the response of the creation request.
+     *
+     * @var array<int, string>
+     */
+    #[ApiProperty(writable: false)]
+    #[Groups(['upload:urls'])]
+    private array $urls = [];
 
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: Types::STRING, length: 150)]
@@ -200,5 +265,32 @@ class MultipartUpload
     public function setSize(int $size): void
     {
         $this->sizeAsString = (string) $size;
+    }
+
+    #[Groups('upload:read')]
+    public function getChunkSize(): ?int
+    {
+        return null !== $this->chunkSizeAsString ? (int) $this->chunkSizeAsString : null;
+    }
+
+    public function setChunkSize(int $chunkSize): void
+    {
+        $this->chunkSizeAsString = (string) $chunkSize;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getUrls(): array
+    {
+        return $this->urls;
+    }
+
+    /**
+     * @param array<int, string> $urls
+     */
+    public function setUrls(array $urls): void
+    {
+        $this->urls = $urls;
     }
 }

@@ -8,7 +8,9 @@ use App\Configurator\ConfiguratorInterface;
 use App\Service\ServiceWaiter;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(priority: -100)]
 final readonly class KeycloakConfigurator implements ConfiguratorInterface
 {
     public function __construct(
@@ -22,11 +24,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     public static function getName(): string
     {
         return 'keycloak';
-    }
-
-    public static function getPriority(): int
-    {
-        return -100;
     }
 
     public function configure(OutputInterface $output, array $presets): void

@@ -1,18 +1,44 @@
-import {Inbox, InboxContent} from '@novu/react';
-import {Popover, PopoverProps, useTheme} from '@mui/material';
 import React from 'react';
-import {NotificationUriHandler} from '../types';
+import {Badge, Popover, PopoverActions, PopoverProps} from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import {inboxDarkTheme} from '@novu/react/themes';
+import type {HttpClient} from '@alchemy/api';
+import {
+    NotificationChannel,
+    NotificationUriHandler,
+    RegisterNotificationRealtime,
+} from '../types';
+import {useNotifications} from '../useNotifications';
+import NotificationList from './NotificationList';
+import NotificationPreferences from './NotificationPreferences';
 
 type Props = {
-    appIdentifier: string;
-    socketUrl: string;
-    apiUrl: string;
+    /**
+     * Authenticated HTTP client pointing at the backend that serves the
+     * notifier API (`/notifications`, `/notifications/unread-count`, ...).
+     */
+    apiClient: HttpClient;
     userId: string;
     uriHandler?: NotificationUriHandler;
+    /**
+     * Subscribes to the real-time channel to receive live notifications.
+     * When omitted, the component still works but only refreshes on open.
+     */
+    registerRealtime?: RegisterNotificationRealtime;
+    realtimeChannelPrefix?: string;
+    realtimeEvent?: string;
+    locale?: string;
+    /**
+     * When `true` (default), a settings icon in the list header lets the user
+     * open the notification preferences panel inside the popover. Set to
+     * `false` to hide it (e.g. when preferences live on a dedicated page).
+     */
+    preferences?: boolean;
+    /** Optional display-name overrides for the preferences panel. */
+    topicLabel?: (topic: string) => string;
+    channelLabel?: (channel: NotificationChannel) => string;
     children: (props: {
         open: boolean;
+        unreadCount: number;
         bellIcon: React.ReactNode;
         onClick: (event: React.MouseEvent<HTMLElement>) => void;
     }) => React.ReactNode;
@@ -21,78 +47,121 @@ type Props = {
 };
 
 export default function Notifications({
-    appIdentifier,
-    socketUrl,
-    apiUrl,
+    apiClient,
     userId,
     uriHandler,
+    registerRealtime,
+    realtimeChannelPrefix,
+    realtimeEvent,
+    locale,
+    preferences = true,
+    topicLabel,
+    channelLabel,
     children,
     popoverId = 'notifications-popover',
     popoverProps,
 }: Props) {
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+    const open = Boolean(anchorEl);
+    const [showPreferences, setShowPreferences] = React.useState(false);
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+    // The popover computes its position from the content size at open time.
+    // When the view is swapped (list <-> preferences) or the preferences panel
+    // grows after its data loads, the content can extend past the bottom of the
+    // viewport. Repositioning re-clamps the popover back inside the viewport
+    // (moving it up when needed).
+    const popoverActionRef = React.useRef<PopoverActions | null>(null);
+    const repositionPopover = React.useCallback(() => {
+        popoverActionRef.current?.updatePosition();
+    }, []);
+
+    React.useEffect(() => {
+        repositionPopover();
+    }, [showPreferences, repositionPopover]);
+
+    const notifications = useNotifications({
+        apiClient,
+        userId,
+        registerRealtime,
+        realtimeChannelPrefix,
+        realtimeEvent,
+        active: open,
+    });
+
+    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
-    const handlePopoverClose = () => {
+    const handleClose = () => {
         setAnchorEl(null);
+        // Reset to the list view for the next time the popover opens.
+        setShowPreferences(false);
     };
-    const open = Boolean(anchorEl);
 
-    const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
+    const bellIcon = (
+        <Badge badgeContent={notifications.unreadCount} color="error" max={99}>
+            <NotificationsIcon />
+        </Badge>
+    );
 
     return (
         <>
-            <Inbox
-                applicationIdentifier={appIdentifier}
-                subscriber={userId}
-                socketUrl={socketUrl}
-                backendUrl={apiUrl}
-                routerPush={uriHandler}
-                appearance={{
-                    baseTheme: isDarkMode ? inboxDarkTheme : undefined,
-                }}
-            >
-                {children({
-                    open,
-                    bellIcon: <NotificationsIcon />,
-                    onClick: handlePopoverOpen,
-                })}
+            {children({
+                open,
+                unreadCount: notifications.unreadCount,
+                bellIcon,
+                onClick: handleOpen,
+            })}
 
-                <Popover
-                    id={popoverId}
-                    open={open}
-                    anchorEl={anchorEl}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                    }}
-                    transformOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                    }}
-                    onClose={handlePopoverClose}
-                    slotProps={{
-                        paper: {
-                            sx: {
-                                'minWidth': {
-                                    xs: '100vw',
-                                    sm: 500,
-                                },
-                                '.novu': {
-                                    width: '100%',
-                                },
+            <Popover
+                id={popoverId}
+                action={popoverActionRef}
+                open={open}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                onClose={handleClose}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            minWidth: {
+                                xs: '100vw',
+                                sm: 420,
                             },
+                            maxWidth: '100vw',
                         },
-                    }}
-                    {...popoverProps}
-                >
-                    <InboxContent />
-                </Popover>
-            </Inbox>
+                    },
+                }}
+                {...popoverProps}
+            >
+                {preferences && showPreferences ? (
+                    <NotificationPreferences
+                        apiClient={apiClient}
+                        active={open}
+                        topicLabel={topicLabel}
+                        channelLabel={channelLabel}
+                        onBack={() => setShowPreferences(false)}
+                        onResize={repositionPopover}
+                    />
+                ) : (
+                    <NotificationList
+                        state={notifications}
+                        uriHandler={uriHandler}
+                        locale={locale}
+                        onOpenPreferences={
+                            preferences
+                                ? () => setShowPreferences(true)
+                                : undefined
+                        }
+                    />
+                )}
+            </Popover>
         </>
     );
 }

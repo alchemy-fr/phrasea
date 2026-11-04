@@ -1,0 +1,179 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Api\Mapper\Output;
+
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
+use App\Api\Model\Output\AlternateUrlOutput;
+use App\Api\Model\Output\FileOutput;
+use App\Entity\Core\AlternateUrl;
+use App\Entity\Core\Asset;
+use App\Entity\Core\AssetFileVersion;
+use App\Entity\Core\AssetRendition;
+use App\Entity\Core\File;
+use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AssetNameResolver;
+use App\Service\Asset\FileUrlResolver;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Contracts\Cache\CacheInterface;
+
+#[AsTaggedItem(index: FileOutput::class)]
+class FileOutputMapper implements OutputMapperInterface
+{
+    use SecurityAwareTrait;
+    use GroupsHelperTrait;
+
+    private CacheInterface $cache;
+
+    public function __construct(
+        private readonly FileUrlResolver $fileUrlResolver,
+        private readonly EntityManagerInterface $em,
+        private readonly AssetNameResolver $assetNameResolver,
+        TemporaryCacheFactory $temporaryCacheFactory,
+    ) {
+        $this->cache = $temporaryCacheFactory->createCache();
+    }
+
+    public function supports(object $data): bool
+    {
+        return $data instanceof File;
+    }
+
+    /**
+     * @param File $data
+     */
+    public function map(object $data, array $context = []): object
+    {
+        $output = new FileOutput();
+        $output->setCreatedAt($data->getCreatedAt());
+        $output->setUpdatedAt($data->getUpdatedAt());
+        $output->setId($data->getId());
+        $output->setType($data->getType());
+        $output->extension = $data->getExtension();
+        $output->fileName = $data->getFileName();
+        $output->setSize((int) $data->getSize());
+        $output->checksum = $data->getChecksum();
+        $output->docUniqueId = $data->getDocUniqueId();
+        $output->analysisState = $data->getAnalysisState();
+        $output->analysisEnforced = $data->getWorkspace()->isFileAnalysisRequired();
+        $output->analyzedAt = $data->getAnalyzedAt();
+
+        // Kept for backward compatibility with `accepted`/`analysisPending`:
+        // `null` still means "pending". Acceptance stays owned by File::isAccepted(),
+        // the same method the analyzer workflow uses, so the two cannot drift.
+        if ($output->analysisEnforced) {
+            if ($data->isAnalyzed()) {
+                $output->accepted = $data->isAccepted();
+            }
+        } else {
+            $output->accepted = true;
+        }
+
+        if ($this->hasGroup(File::GROUP_METADATA, $context)) {
+            $output->metadata = $data->getMetadata();
+        }
+
+        // The full report is only worth its payload on the single-file views
+        // (GET /files/{id} normalizes with GROUP_LIST), or when embedded in an
+        // asset/rendition that has something to report.
+        if ($this->hasGroup([File::GROUP_LIST, File::GROUP_READ, File::GROUP_METADATA], $context)
+            || !$data->isAccepted()
+        ) {
+            $output->analysis = $data->getAnalysis()?->toArray();
+        }
+
+        // Only resolved when the file is the root resource (GET /files/{id}),
+        // not when embedded in asset/rendition outputs.
+        if ($this->hasGroup(File::GROUP_LIST, $context) || $this->hasGroup(File::GROUP_READ, $context)) {
+            $output->usages = $this->resolveUsages($data);
+        }
+
+        if ($data->isPathPublic()) {
+            $output->setUrl($this->fileUrlResolver->resolveUrl($data));
+        }
+
+        $urls = [];
+        if (null !== $data->getAlternateUrls()) {
+            foreach ($data->getAlternateUrls() as $type => $url) {
+                $urls[] = new AlternateUrlOutput($type, $url, $this->resolveAlternateUrlLabel(
+                    $data->getWorkspaceId(),
+                    $type
+                ));
+            }
+        }
+
+        $output->setAlternateUrls($urls);
+
+        return $output;
+    }
+
+    private function resolveUsages(File $file): array
+    {
+        $usages = [];
+
+        /** @var Asset[] $assets */
+        $assets = $this->em->getRepository(Asset::class)->findBy(['source' => $file->getId()]);
+        foreach ($assets as $asset) {
+            if (!$this->isGranted(AbstractVoter::READ, $asset)) {
+                continue;
+            }
+
+            $usages[] = [
+                'type' => 'source',
+                'assetId' => $asset->getId(),
+                'assetTitle' => $this->assetNameResolver->resolveNameAsString($asset),
+            ];
+        }
+
+        /** @var AssetFileVersion[] $versions */
+        $versions = $this->em->getRepository(AssetFileVersion::class)->findBy(['file' => $file->getId()]);
+        foreach ($versions as $version) {
+            $asset = $version->getAsset();
+            if (null === $asset || !$this->isGranted(AbstractVoter::READ, $asset)) {
+                continue;
+            }
+
+            $usages[] = [
+                'type' => 'version',
+                'assetId' => $asset->getId(),
+                'assetTitle' => $this->assetNameResolver->resolveNameAsString($asset),
+                'name' => $version->getName(),
+            ];
+        }
+
+        /** @var AssetRendition[] $renditions */
+        $renditions = $this->em->getRepository(AssetRendition::class)->findBy(['file' => $file->getId()]);
+        foreach ($renditions as $rendition) {
+            $asset = $rendition->getAsset();
+            if (!$this->isGranted(AbstractVoter::READ, $asset)) {
+                continue;
+            }
+
+            $usages[] = [
+                'type' => 'rendition',
+                'assetId' => $asset->getId(),
+                'assetTitle' => $this->assetNameResolver->resolveNameAsString($asset),
+                'name' => $rendition->getName(),
+            ];
+        }
+
+        return $usages;
+    }
+
+    private function resolveAlternateUrlLabel(string $workspaceId, string $type): ?string
+    {
+        return $this->cache->get(sprintf('a.%s_%s', $workspaceId, $type), function () use ($workspaceId, $type): ?string {
+            /** @var AlternateUrl|null $label */
+            $label = $this->em->getRepository(AlternateUrl::class)
+                ->findOneBy([
+                    'workspace' => $workspaceId,
+                    'type' => $type,
+                ]);
+
+            return $label?->getLabel();
+        });
+    }
+}

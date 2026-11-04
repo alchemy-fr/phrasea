@@ -11,7 +11,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
-use App\Controller\CreateSubDefinitionAction;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
+use App\Api\Processor\CreateSubDefinitionProcessor;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Repository\SubDefinitionRepository;
 use Doctrine\DBAL\Types\Types;
@@ -29,8 +31,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Get(),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Post(
-            defaults: ['_api_receive' => false],
-            controller: CreateSubDefinitionAction::class,
+            deserialize: false,
+            processor: CreateSubDefinitionProcessor::class,
         ),
         new GetCollection(),
     ],
@@ -43,11 +45,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new GetCollection(),
         new Post(
-            defaults: ['_api_receive' => false],
-            controller: CreateSubDefinitionAction::class,
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            // The processor resolves the asset itself (see the asset sub-resource POST).
+            read: false,
+            deserialize: false,
+            processor: CreateSubDefinitionProcessor::class,
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Multipart upload' => [
@@ -160,9 +164,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ]
+                    ]),
+                ),
+            )
         ),
     ],
     uriVariables: [

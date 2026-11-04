@@ -1,4 +1,4 @@
-(function (config, env) {
+(function (stackConfig, env) {
     function castBoolean(value) {
         if (typeof value === 'boolean') {
             return value;
@@ -13,8 +13,6 @@
         return false;
     }
 
-    config = config || {};
-
     const analytics = {};
 
     if (env.MATOMO_URL && env.MATOMO_SITE_ID) {
@@ -28,13 +26,12 @@
     const whiteList = [
         'DATABOX_API_URL',
         'DATABOX_CLIENT_URL',
-        'DEV_MODE',
         'DISPLAY_SERVICES_MENU',
         'ELASTICHQ_URL',
         'EXPOSE_API_URL',
         'EXPOSE_CLIENT_URL',
         'KEYCLOAK_URL',
-        'MAILHOG_URL',
+        'MAILPIT_URL',
         'MATOMO_URL',
         'PGADMIN_URL',
         'PHPMYADMIN_URL',
@@ -47,8 +44,7 @@
         'TRAEFIK_CONSOLE_URL',
         'UPLOADER_API_URL',
         'UPLOADER_CLIENT_URL',
-        'ZIPPY_URL',
-        'SOKETI_USAGE_URL',
+        'SOCKUDO_USAGE_URL',
     ];
 
     const e = {};
@@ -59,9 +55,6 @@
         }
     });
 
-    const stackConfig = JSON.parse(
-        require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8')
-    );
     const customHTML = {};
     customHTML['__MUI_THEME__'] = '';
     if (stackConfig.theme) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Security\Voter;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
@@ -21,7 +22,7 @@ final class ScopeVoter extends Voter
         return null === $subject && str_starts_with($attribute, self::PREFIX);
     }
 
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return $this->hasScope(substr($attribute, strlen(self::PREFIX)), $token);
     }

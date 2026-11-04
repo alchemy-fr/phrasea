@@ -6,13 +6,19 @@ namespace App\Integration\Aws\Translate;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\Aws\AbstractAwsIntegration;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class AwsTranslateIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'aws.translate';
+
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
@@ -31,17 +37,20 @@ class AwsTranslateIntegration extends AbstractAwsIntegration implements Workflow
                 ->isRequired()
                 ->cannotBeEmpty()
                 ->info('The language for the attribute no language (NO_LOCALE)')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Language->value)
             ->end()
             ->arrayNode('preferredSourceLanguages')
                 ->isRequired()
                 ->info('The language codes of the preferred source languages to translate from')
                 ->scalarPrototype()
+                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Language->value)
                 ->end()
             ->end()
             ->arrayNode('translatedLanguages')
                 ->isRequired()
                 ->info('The language codes of the destination to translate to')
                 ->scalarPrototype()
+                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Language->value)
                 ->end()
             ->end()
         ;
@@ -71,8 +80,15 @@ class AwsTranslateIntegration extends AbstractAwsIntegration implements Workflow
         return 'AWS Translate';
     }
 
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+        ];
+    }
+
     public static function getName(): string
     {
-        return 'aws.translate';
+        return self::NAME;
     }
 }

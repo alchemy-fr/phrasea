@@ -6,13 +6,12 @@ namespace Alchemy\ReportSDK\Tests;
 
 use Alchemy\ReportSDK\Exception\InvalidLogException;
 use Alchemy\ReportSDK\LogValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class LogValidatorTest extends TestCase
 {
-    /**
-     * @dataProvider invalidLogData
-     */
+    #[DataProvider('invalidLogData')]
     public function testInvalidLog(array $data): void
     {
         $validator = new LogValidator();
@@ -21,7 +20,7 @@ class LogValidatorTest extends TestCase
         $validator->validate($data);
     }
 
-    public function invalidLogData(): array
+    public static function invalidLogData(): array
     {
         return [
             [[]],

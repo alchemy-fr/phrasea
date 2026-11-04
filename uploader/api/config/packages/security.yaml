@@ -37,6 +37,7 @@ security:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/_healthcheck, roles: PUBLIC_ACCESS }
+        - { path: ^/notifications/email-logo$, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

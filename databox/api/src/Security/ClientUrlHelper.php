@@ -18,9 +18,10 @@ final readonly class ClientUrlHelper
     public function generateAssetUrl(Asset $asset): string
     {
         return sprintf(
-            '%s/assets?_m=%s',
+            '%s/assets/%s/%s',
             $this->databoxClientBaseUrl,
-            urlencode(sprintf('/assets/%s/%s', $asset->getId(), self::UNKNOWN_RENDITION))
+            $asset->getId(),
+            self::UNKNOWN_RENDITION
         );
     }
 }

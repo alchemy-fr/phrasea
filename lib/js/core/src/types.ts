@@ -9,9 +9,6 @@ export type AnalyticsConfig = {
 };
 
 export type UploadConfig = {
-    minChunkSize?: Readonly<number>;
-    maxChunkSize?: Readonly<number>;
-    maxPartNumber?: Readonly<number>;
     allowedTypes: Readonly<Accept | undefined>;
     maxFileSize?: Readonly<number>;
 };
@@ -39,13 +36,7 @@ export interface WindowConfigBase {
         src?: Readonly<string>;
         style?: Readonly<string>;
     };
-    notifications?:
-        | {
-              appIdentifier: Readonly<string>;
-              socketUrl: Readonly<string>;
-              apiUrl: Readonly<string>;
-          }
-        | undefined;
+    notifications?: Readonly<boolean> | undefined;
 }
 
 declare global {

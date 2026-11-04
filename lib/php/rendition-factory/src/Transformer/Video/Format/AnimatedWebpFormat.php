@@ -3,9 +3,13 @@
 namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::FORMAT)]
 class AnimatedWebpFormat implements FormatInterface
 {
+    public const string FORMAT = 'animated-webp';
+
     public static function getAllowedExtensions(): array
     {
         return ['webp'];
@@ -18,7 +22,7 @@ class AnimatedWebpFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'animated-webp';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

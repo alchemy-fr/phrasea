@@ -10,12 +10,14 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AssetVoter extends AbstractVoter
 {
     final public const string EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
     final public const string SHARE = 'SHARE';
     final public const string QUARANTINE = 'QUARANTINE';
+    final public const string QUARANTINE_BYPASS = 'QUARANTINE_BYPASS';
 
     final public const string SCOPE_PREFIX = 'asset:';
 
@@ -42,7 +44,7 @@ class AssetVoter extends AbstractVoter
     /**
      * @param Asset $subject
      */
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
@@ -69,8 +71,7 @@ class AssetVoter extends AbstractVoter
                     $isOwner()
                     || $isWorkspaceOwnerFast()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->hasAcl([
                         PermissionInterface::VIEW,
                         PermissionInterface::OWNER,
@@ -114,6 +115,8 @@ class AssetVoter extends AbstractVoter
                 ], $subject, $token)
                 || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_QUARANTINE, $subject, $token)
                 || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_QUARANTINE),
+            self::QUARANTINE_BYPASS => $this->security->isGranted(self::QUARANTINE, $subject)
+                && $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_QUARANTINE_BYPASS),
             AbstractVoter::OWNER => $isOwner()
                 || $isWorkspaceOwnerFast()
                 || $this->hasAcl([

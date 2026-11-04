@@ -5,19 +5,51 @@ declare(strict_types=1);
 namespace App\Integration\Core\Rendition;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
+use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Service\Asset\FileFetcher;
 use App\Service\Asset\RenditionBuilder;
 
 final class RenditionBuildAction extends AbstractIntegrationAction implements IfActionInterface
 {
     final public const string JOB_ID = 'build';
 
+    private const string SKIP_NOT_A_STORY = 'Asset is not a story';
+
     public function __construct(
         private readonly RenditionBuilder $renditionBuilder,
+        private readonly FileFetcher $fileFetcher,
     ) {
+    }
+
+    #[\Override]
+    protected function getJobSkipReason(Asset $asset, JobExecutionContext $context): ?string
+    {
+        $definitionId = $context->getInputs()['definition'] ?? null;
+        $renditionDefinition = null !== $definitionId ? $this->em->find(RenditionDefinition::class, $definitionId) : null;
+        if ($renditionDefinition instanceof RenditionDefinition && $this->renditionBuilder->isGenerateDefinition($renditionDefinition)) {
+            // Built from the story items renditions, not from the asset source
+            return $asset->isStory() ? null : self::SKIP_NOT_A_STORY;
+        }
+
+        return $this->getSkipReason($asset);
+    }
+
+    #[\Override]
+    protected function getSkipReason(Asset $asset): ?string
+    {
+        $source = $asset->getSource();
+        if (null === $source) {
+            return self::SKIP_NO_SOURCE;
+        }
+
+        // Renditions are derived from the source content: a private remote source
+        // (FileSourceInput::isPrivate) cannot be downloaded, skip the job.
+        return $this->fileFetcher->isFetchable($source) ? null : self::SKIP_PRIVATE_SOURCE;
     }
 
     public function doHandle(RunContext $context): void

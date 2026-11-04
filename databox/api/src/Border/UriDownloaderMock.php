@@ -15,13 +15,13 @@ readonly class UriDownloaderMock extends UriDownloader
      * @return string The temporary file path
      */
     #[\Override]
-    public function download(string $uri, array &$headers = []): string
+    public function download(string $uri, array &$headers = [], ?string $path = null): string
     {
-        $tmpFile = sys_get_temp_dir().'/'.uniqid('incoming-file');
-        $fileHandler = fopen($tmpFile, 'w');
+        $path ??= sys_get_temp_dir().'/'.uniqid('incoming-file');
+        $fileHandler = fopen($path, 'w');
         fwrite($fileHandler, 'foo');
         fclose($fileHandler);
 
-        return $tmpFile;
+        return $path;
     }
 }

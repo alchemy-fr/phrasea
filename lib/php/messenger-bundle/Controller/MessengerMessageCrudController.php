@@ -9,6 +9,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Voter\AdminVoter;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -52,6 +53,7 @@ class MessengerMessageCrudController extends AbstractCrudController
         ;
     }
 
+    #[AdminRoute(path: '/messenger-message/retry')]
     public function retry(AdminContext $context): RedirectResponse
     {
         /** @var MessengerMessage $message */

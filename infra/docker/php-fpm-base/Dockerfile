@@ -1,6 +1,9 @@
-FROM php:8.5.1-fpm-alpine3.22
+FROM php:8.5.12-fpm-alpine3.24
 
-RUN apk add --no-cache --virtual .persistent-deps \
+# brotli-libs >= 1.2.1: CVE-2026-111497
+RUN apk upgrade --no-cache musl \
+    && apk add --no-cache 'brotli-libs>=1.2.1' \
+    && apk add --no-cache --virtual .persistent-deps \
         fcgi \
 		git \
 		icu-libs \
@@ -14,6 +17,8 @@ RUN apk add --no-cache --virtual .persistent-deps \
 
 ENV APP_ENV=prod \
     PHP_MEMORY_LIMIT=132M \
+    LOG_ACTION_LEVEL=error \
+    WORKER_VERBOSITY= \
     APCU_VERSION=5.1.28 \
     AMQP_VERSION=2.2.0 \
     XDEBUG_VERSION=3.5.0 \
@@ -68,6 +73,9 @@ RUN export NR_INSTALL_USE_CP_NOT_LN=1 \
 COPY --from=composer:2.9.3 /usr/bin/composer /usr/bin/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
+    # The session upload progress handler is exploitable before any authentication
+    # (CVE-2026-109618, CVE-2026-109619) and no application relies on it.
+    && printf "session.upload_progress.enabled = Off\n" > $PHP_INI_DIR/conf.d/zz-session-upload-progress.ini \
     # Increase process-timeout for "composer test" which downloads phpunit
     && composer config --global process-timeout 2000 \
     && adduser -D -u 1000 app \
@@ -75,6 +83,9 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     && wget -O /usr/local/bin/php-fpm-healthcheck https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/v0.5.0/php-fpm-healthcheck \
     && chmod +x /usr/local/bin/php-fpm-healthcheck \
     && printf "pm.status_path = /status\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
+    # Keep the FPM access log for real traffic only: the container healthcheck polls
+    # /status every minute and NGINX already logs everything else.
+    && printf "access.suppress_path[] = /status\naccess.suppress_path[] = /ping\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
     && mkdir -p /docker/entrypoint.d \
       /docker/app/conf.d \
       /etc/supervisor.d \
@@ -86,6 +97,7 @@ COPY entrypoint.sh /docker/entrypoint.sh
 COPY entrypoint.d/*.sh /docker/entrypoint.d/
 COPY supervisor/* /etc/supervisor.d/
 COPY worker/* /docker/worker/
+COPY bin/* /usr/local/bin/
 
 ENV SUPERVISOR_START_SECS=2 \
     SUPERVISOR_START_RETRIES=10 \

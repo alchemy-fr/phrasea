@@ -12,13 +12,16 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\SavedSearchInput;
 use App\Api\Model\Output\SavedSearchOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\SavedSearchCollectionProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
+use App\Model\SavedSearchPrivacyEnum;
 use App\Repository\SavedSearch\SavedSearchRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
@@ -32,14 +35,33 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             normalizationContext: [
                 'groups' => [self::GROUP_LIST],
-            ]),
-        new Get(),
+            ],
+            parameters: [
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the name',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (default 30, max 100)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
+            ],
+        ),
+        new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
-        new Put(
+        new Patch(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Post(
-            securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY_POST_VALIDATION => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -66,8 +88,8 @@ class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, Ac
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    private bool $public = false;
+    #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: SavedSearchPrivacyEnum::class, options: ['default' => SavedSearchPrivacyEnum::Secret->value])]
+    private SavedSearchPrivacyEnum $privacy = SavedSearchPrivacyEnum::Secret;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $data = [];
@@ -107,13 +129,13 @@ class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, Ac
         return $this->getName() ?? 'SavedSearch - '.$this->getId();
     }
 
-    public function isPublic(): bool
+    public function getPrivacy(): SavedSearchPrivacyEnum
     {
-        return $this->public;
+        return $this->privacy;
     }
 
-    public function setPublic(bool $public): void
+    public function setPrivacy(SavedSearchPrivacyEnum $privacy): void
     {
-        $this->public = $public;
+        $this->privacy = $privacy;
     }
 }

@@ -5,9 +5,13 @@ namespace App\OperationTask\Task;
 use App\Elasticsearch\AssetIndexer;
 use App\OperationTask\OperationTaskInterface;
 use App\OperationTask\RunContext;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class IndexAssetsTask implements OperationTaskInterface
 {
+    public const string NAME = 'index_assets';
+
     public function __construct(
         private AssetIndexer $assetIndexer,
     ) {
@@ -15,7 +19,7 @@ final readonly class IndexAssetsTask implements OperationTaskInterface
 
     public static function getName(): string
     {
-        return 'index_assets';
+        return self::NAME;
     }
 
     public function validate(array $payload): void

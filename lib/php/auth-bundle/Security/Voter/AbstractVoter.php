@@ -73,9 +73,14 @@ abstract class AbstractVoter extends Voter
         return false;
     }
 
-    protected function isAdmin(): bool
+    /**
+     * Reads the roles of the voted token instead of calling Security::isGranted():
+     * a nested decision shares the outer AccessDecision, so its RoleVoter reasons
+     * ("The user doesn't have ROLE_ADMIN.") would end up in every denial message.
+     */
+    protected function isAdmin(TokenInterface $token): bool
     {
-        return $this->security->isGranted(JwtUser::ROLE_ADMIN);
+        return in_array(JwtUser::ROLE_ADMIN, $token->getRoleNames(), true);
     }
 
     protected function isAuthenticated(): bool

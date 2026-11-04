@@ -1,0 +1,108 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Api\Mapper\Input;
+
+use App\Api\Model\Input\RenditionDefinitionInput;
+use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\Workspace;
+use App\Model\AssetTypeEnum;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+
+#[AsTaggedItem(index: RenditionDefinitionInput::class)]
+class RenditionDefinitionInputMapper extends AbstractInputMapper implements InputMapperInterface
+{
+    /**
+     * @param RenditionDefinitionInput $data
+     */
+    public function map(object $data, ?object $target, array $context = []): ?object
+    {
+        $isNew = null === $target;
+        /** @var RenditionDefinition $object */
+        $object = $target ?? new RenditionDefinition();
+
+        $workspace = null;
+        if ($data->workspace) {
+            $workspace = $data->workspace;
+        }
+
+        if ($isNew) {
+            if (!$workspace instanceof Workspace) {
+                throw new BadRequestHttpException('Missing workspace');
+            }
+
+            if ($data->key) {
+                $rendDef = $this->em->getRepository(RenditionDefinition::class)
+                    ->findOneBy([
+                        'key' => $data->key,
+                        'workspace' => $workspace->getId(),
+                    ]);
+
+                if ($rendDef) {
+                    $isNew = false;
+                    $object = $rendDef;
+                }
+            }
+        }
+
+        if ($isNew) {
+            $object->setWorkspace($workspace);
+            $object->setKey($data->key);
+        }
+
+        $object->setParent($data->parent);
+        if (null !== $data->target) {
+            $object->setTarget(AssetTypeEnum::tryFrom($data->target) ?? AssetTypeEnum::Asset);
+        }
+
+        if (null !== $data->name) {
+            $object->setName($data->name);
+        }
+        if (null !== $data->policy) {
+            $object->setPolicy($data->policy);
+        }
+        if (null !== $data->download) {
+            $object->setDownload($data->download);
+        }
+        if (null !== $data->substitutable) {
+            $object->setSubstitutable($data->substitutable);
+        }
+        if (null !== $data->writeMetadata) {
+            $object->setWriteMetadata($data->writeMetadata);
+        }
+        if (null !== $data->metadata) {
+            $object->setMetadata($data->metadata);
+        }
+        if (null !== $data->buildMode) {
+            $object->setBuildMode($data->buildMode);
+        }
+        if (null !== $data->useAsMain) {
+            $object->setUseAsMain($data->useAsMain);
+        }
+        if (null !== $data->useAsPreview) {
+            $object->setUseAsPreview($data->useAsPreview);
+        }
+        if (null !== $data->useAsThumbnail) {
+            $object->setUseAsThumbnail($data->useAsThumbnail);
+        }
+        if (null !== $data->useAsAnimatedThumbnail) {
+            $object->setUseAsAnimatedThumbnail($data->useAsAnimatedThumbnail);
+        }
+        if (null !== $data->definition) {
+            $object->setDefinition($data->definition);
+        }
+        if (null !== $data->priority) {
+            $object->setPriority($data->priority);
+        }
+        if (null !== $data->labels) {
+            $object->setLabels($data->labels);
+        }
+        if (null !== $data->translations) {
+            $object->setTranslations($data->translations);
+        }
+
+        return $object;
+    }
+}

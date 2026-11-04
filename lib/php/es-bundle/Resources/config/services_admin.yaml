@@ -1,0 +1,13 @@
+# EasyAdmin screens (loaded only when easycorp/easyadmin-bundle is installed in the application).
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\ESBundle\Admin\ESIndexAdmin:
+        arguments:
+            $indexPrefix: '%alchemy_es.admin.index_prefix%'
+
+    Alchemy\ESBundle\Controller\Admin\ESIndexAdminController:
+        public: true
+        tags: ['controller.service_arguments']

@@ -44,10 +44,12 @@ export default class PhraseanetClient {
 
     constructor(options: PhraseanetConfig, logger: winston.Logger) {
         this.client = createPhraseanetClient(options);
-        const [f, o] = (options.searchOrder ?? '').split(',');
+        // ''.split(',') is [''], never [], so the fields are empty strings
+        // rather than undefined and `??` would never fire.
+        const [f, o] = (options.searchOrder || '').split(',');
 
-        this.sortField = f ?? 'record_id';
-        this.sortOrder = (o ?? 'asc').toLowerCase();
+        this.sortField = f || 'record_id';
+        this.sortOrder = (o || 'asc').toLowerCase();
 
         if (
             this.sortField != 'record_id' ||
@@ -170,6 +172,8 @@ export default class PhraseanetClient {
                             'results.records.stories',
                             'results.stories.metadata',
                             'results.stories.status',
+                            'results.stories.children',
+                            'results.stories.children.subdefs',
                         ],
                         sort: this.sortField,
                         ord: this.sortOrder,
@@ -325,5 +329,30 @@ export default class PhraseanetClient {
         });
 
         return subdefs;
+    }
+
+    async getRecordEmbeds(
+        databoxId: string | number,
+        recordId: string | number
+    ): Promise<any> {
+        let last_error: any = null;
+        for (let ttry = 1; ttry <= 3; ttry++) {
+            try {
+                this.logger.info(
+                    `Fetching embeds for record ${databoxId}/${recordId}`
+                );
+                const res = await this.client.get(
+                    `/api/v1/records/${databoxId}/${recordId}/embed/`
+                );
+                return res.data;
+            } catch (e: any) {
+                last_error = e;
+                this.logger.warn(
+                    `Failed ${ttry}/3 to fetch record embeds (${e.message})`
+                );
+                await new Promise(resolve => setTimeout(resolve, 1000 * ttry));
+            }
+        }
+        throw last_error;
     }
 }

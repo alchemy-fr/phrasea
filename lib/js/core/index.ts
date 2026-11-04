@@ -5,22 +5,8 @@ import {deepEquals, forceObject} from './src/objectUtils';
 import {parseInlineStyle} from './src/style';
 import {isObject, mergeDeep} from './src/merge';
 import {resolveSx, sumSpacing} from './src/sxUtils';
-import {
-    dataURLtoFile,
-    getFileTypeFromMIMEType,
-    validateUrl,
-} from './src/fileUtils';
-import {
-    createStrictDimensions,
-    getRatioDimensions,
-    getSizeCase,
-} from './src/sizeUtils';
-
-import {getExtensionFromMIMEType, getMimeTypesMap} from './src/mimeTypes';
 
 export {
-    getMimeTypesMap,
-    getExtensionFromMIMEType,
     initSentry,
     logError,
     ErrorBoundary,
@@ -33,13 +19,10 @@ export {
     mergeDeep,
     isObject,
     resolveSx,
-    getFileTypeFromMIMEType,
-    dataURLtoFile,
-    validateUrl,
-    getSizeCase,
-    getRatioDimensions,
-    createStrictDimensions,
     sumSpacing,
 };
+export * from './src/mimeTypes';
+export * from './src/sizeUtils';
+export * from './src/fileUtils';
 export * from './src/types';
 export * from './src/utils';

@@ -22,7 +22,7 @@ class BasketAssetCollectionProvider extends AbstractCollectionProvider
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
-        $basket = DoctrineUtil::findStrictByRepo($this->repository, $uriVariables['id']);
+        $basket = DoctrineUtil::findStrictByRepo($this->repository, (string) $uriVariables['id']);
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $basket);
 
         return $this->collectionProvider->provide($operation, $uriVariables, $context);

@@ -10,7 +10,6 @@ use App\Entity\Publication;
 use App\Entity\PublicationProfile;
 use App\Http\Cache\ProxyCachePurger;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
@@ -20,7 +19,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 #[AsDoctrineListener(Events::postUpdate)]
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::preRemove)]
-final readonly class EntityHttpCacheListener implements EventSubscriber
+final readonly class EntityHttpCacheListener
 {
     public function __construct(private ProxyCachePurger $proxyCachePurger)
     {
@@ -33,14 +32,36 @@ final readonly class EntityHttpCacheListener implements EventSubscriber
         if ($entity instanceof EnvVar) {
             $this->proxyCachePurger->purgeRoute('global_config');
         } elseif ($entity instanceof Publication) {
-            $this->invalidatePublicationAndAssetsCache($entity);
+            $this->invalidatePublicationTreeCache($entity);
         } elseif ($entity instanceof Asset) {
             $this->invalidateAssetCache($entity);
             $this->invalidatePublicationCache($entity->getPublication());
         } elseif ($entity instanceof PublicationProfile) {
             foreach ($entity->getPublications() as $publication) {
-                $this->invalidatePublicationAndAssetsCache($publication);
+                $this->invalidatePublicationTreeCache($publication);
             }
+        }
+    }
+
+    /**
+     * Children inherit the security method of their ancestors and embed their parent,
+     * which embeds its children in turn.
+     */
+    private function invalidatePublicationTreeCache(Publication $publication): void
+    {
+        if (null !== $parent = $publication->getParent()) {
+            $this->invalidatePublicationCache($parent);
+        }
+
+        $this->invalidateDescendantsCache($publication);
+    }
+
+    private function invalidateDescendantsCache(Publication $publication): void
+    {
+        $this->invalidatePublicationAndAssetsCache($publication);
+
+        foreach ($publication->getChildren() as $child) {
+            $this->invalidateDescendantsCache($child);
         }
     }
 
@@ -75,6 +96,15 @@ final readonly class EntityHttpCacheListener implements EventSubscriber
     public function postUpdate(PostUpdateEventArgs $args): void
     {
         $this->handle($args);
+
+        $entity = $args->getObject();
+        if ($entity instanceof Publication) {
+            // The moved publication now exposes its new parent: the old one is only in the change set.
+            $oldParent = $args->getObjectManager()->getUnitOfWork()->getEntityChangeSet($entity)['parent'][0] ?? null;
+            if ($oldParent instanceof Publication) {
+                $this->invalidatePublicationCache($oldParent);
+            }
+        }
     }
 
     public function postPersist(PostPersistEventArgs $args): void
@@ -85,14 +115,5 @@ final readonly class EntityHttpCacheListener implements EventSubscriber
     public function preRemove(PreRemoveEventArgs $args): void
     {
         $this->handle($args);
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postUpdate,
-            Events::postPersist,
-            Events::preRemove,
-        ];
     }
 }

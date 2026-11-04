@@ -11,8 +11,10 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
+use App\Service\Asset\StoryContactSheetScheduler;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
+use Ramsey\Uuid\Uuid;
 
 final class RenditionManager
 {
@@ -23,6 +25,7 @@ final class RenditionManager
         private readonly FileManager $fileManager,
         private readonly PusherManager $pusherManager,
         private readonly PostFlushStack $postFlushStack,
+        private readonly StoryContactSheetScheduler $contactSheetScheduler,
     ) {
     }
 
@@ -94,7 +97,50 @@ final class RenditionManager
             ]
         ));
 
+        // The contact sheets of the stories containing the asset are made of these renditions
+        if ($definition->isUseAsThumbnail() || $definition->isUseAsPreview()) {
+            $this->contactSheetScheduler->scheduleForStoriesContaining($asset->getId());
+        }
+
         return $rendition;
+    }
+
+    public function removeRendition(AssetRendition $rendition): void
+    {
+        $this->em->remove($rendition);
+        $this->pushRenditionUpdate($rendition);
+    }
+
+    /**
+     * Attach a built file to an existing (dynamic) rendition and notify clients.
+     */
+    public function attachRenditionFile(
+        AssetRendition $rendition,
+        File $file,
+        ?string $buildHash,
+        ?array $moduleHashes,
+        ?bool $projection = null,
+    ): void {
+        $rendition->setFile($file);
+        $rendition->setBuildHash($buildHash);
+        $rendition->setModuleHashes($moduleHashes);
+        $rendition->setProjection($projection);
+        $this->em->persist($rendition);
+
+        $this->pushRenditionUpdate($rendition);
+    }
+
+    public function pushRenditionUpdate(AssetRendition $rendition): void
+    {
+        $this->postFlushStack->addBusMessage($this->pusherManager->createBusMessage(
+            'assets',
+            'rendition-update',
+            [
+                'assetId' => $rendition->getAsset()->getId(),
+                'definition' => $rendition->getDefinition()?->getId(),
+                'name' => $rendition->getName(),
+            ]
+        ));
     }
 
     public function validateSubstitution(
@@ -161,19 +207,22 @@ final class RenditionManager
         return null;
     }
 
+    /**
+     * @param string $renditionName the rendition definition name, or its ID (integration configurations store IDs)
+     */
     public function getAssetRenditionByName(string $assetId, string $renditionName): ?AssetRendition
     {
+        $byId = Uuid::isValid($renditionName);
+
         return $this->em
             ->createQueryBuilder()
             ->select('r')
             ->from(AssetRendition::class, 'r')
             ->innerJoin('r.definition', 'd')
             ->andWhere('r.asset = :asset')
-            ->andWhere('d.name = :name')
-            ->setParameters([
-                'asset' => $assetId,
-                'name' => $renditionName,
-            ])
+            ->andWhere($byId ? 'd.id = :name' : 'd.name = :name')
+            ->setParameter('asset', $assetId)
+            ->setParameter('name', $renditionName)
             ->getQuery()
             ->getOneOrNullResult();
     }
@@ -189,10 +238,8 @@ final class RenditionManager
             ->andWhere('r.asset = :asset')
             ->andWhere('p.public = true')
             ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
-            ->setParameters([
-                'asset' => $assetId,
-                'as' => true,
-            ])
+            ->setParameter('asset', $assetId)
+            ->setParameter('as', true)
             ->addOrderBy('d.priority', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
@@ -213,17 +260,22 @@ final class RenditionManager
             ->andWhere('r.asset = :asset')
             ->andWhere('p.public = true')
             ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
-            ->setParameters([
-                'asset' => $assetId,
-                'as' => true,
-            ])
+            ->setParameter('asset', $assetId)
+            ->setParameter('as', true)
             ->addOrderBy('d.priority', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
+    /**
+     * @param string $name the rendition definition name, or its ID (integration configurations store IDs)
+     */
     public function getRenditionDefinitionByName(string $workspaceId, string $name): RenditionDefinition
     {
+        if (Uuid::isValid($name)) {
+            return $this->getRenditionDefinitionById($workspaceId, $name);
+        }
+
         $definition = $this
             ->em
             ->getRepository(RenditionDefinition::class)
@@ -249,6 +301,24 @@ final class RenditionManager
             ->getRepository(RenditionDefinition::class)
             ->findBy([
                 'workspace' => $workspaceId,
+            ]);
+    }
+
+    /**
+     * @param string $as main, preview, thumbnail, animatedThumbnail
+     *
+     * @return RenditionDefinition[] the highest priority first
+     */
+    public function getRenditionDefinitionsUsedAs(string $as, string $workspaceId): array
+    {
+        return $this
+            ->em
+            ->getRepository(RenditionDefinition::class)
+            ->findBy([
+                'workspace' => $workspaceId,
+                'useAs'.ucfirst($as) => true,
+            ], [
+                'priority' => 'DESC',
             ]);
     }
 

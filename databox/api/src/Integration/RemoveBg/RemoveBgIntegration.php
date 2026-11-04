@@ -7,6 +7,8 @@ namespace App\Integration\RemoveBg;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\FileUserActionsTrait;
+use App\Integration\Config\ConfigWidget;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
@@ -16,14 +18,18 @@ use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsTaggedItem(index: self::NAME)]
 class RemoveBgIntegration extends AbstractIntegration implements IntegrationDataTransformerInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use PusherTrait;
     use FileUserActionsTrait;
+
+    public const string NAME = 'remove.bg';
     private const string ACTION_PROCESS = 'process';
 
     public function __construct(
@@ -38,6 +44,7 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
             ->scalarNode('apiKey')
                 ->defaultValue('${REMOVE_BG_API_KEY}')
                 ->cannotBeEmpty()
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end()
             ->booleanNode('processIncoming')
                 ->defaultFalse()
@@ -75,12 +82,20 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
 
     public static function getName(): string
     {
-        return 'remove.bg';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string
     {
         return 'Remove BG';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+            IntegrationCategory::Editor,
+        ];
     }
 
     #[\Override]

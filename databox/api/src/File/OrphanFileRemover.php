@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\File;
 
 use App\Entity\Core\File;
+use App\Entity\Core\FileDuplicate;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
@@ -37,9 +38,7 @@ final class OrphanFileRemover
                     ->addSelect('1')
                     ->from($cnx->quoteIdentifier($table))
                     ->andWhere(sprintf('%s = :id', $cnx->quoteIdentifier($col)))
-                    ->setParameters([
-                        'id' => $fileId,
-                    ])
+                    ->setParameter('id', $fileId)
                     ->setMaxResults(1)
                     ->executeQuery();
 
@@ -64,6 +63,11 @@ final class OrphanFileRemover
 
             $this->columns = [];
             foreach ($allMeta as $metadata) {
+                if (FileDuplicate::class === $metadata->getName()) {
+                    // Duplicate links must not prevent orphan removal; they are cleaned up by DB cascade.
+                    continue;
+                }
+
                 foreach ($metadata->getAssociationMappings() as $mapping) {
                     if ($metadata->isSingleValuedAssociation($mapping['fieldName'])
                         && !$metadata->isAssociationInverseSide($mapping['fieldName'])) {

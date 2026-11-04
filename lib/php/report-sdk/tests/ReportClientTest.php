@@ -6,6 +6,7 @@ namespace Alchemy\ReportSDK\Tests;
 
 use Alchemy\ReportSDK\Exception\InvalidLogException;
 use Alchemy\ReportSDK\ReportClient;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
@@ -24,9 +25,7 @@ class ReportClientTest extends TestCase
         $this->assertEquals(1, $client->getRequestsCount());
     }
 
-    /**
-     * @dataProvider pushLogErrorData
-     */
+    #[DataProvider('pushLogErrorData')]
     public function testPushLogErrors(array $args): void
     {
         $client = new MockHttpClient([]);
@@ -38,7 +37,7 @@ class ReportClientTest extends TestCase
         call_user_func_array($reportClient->pushLog(...), $args);
     }
 
-    public function pushLogErrorData(): array
+    public static function pushLogErrorData(): array
     {
         return [
             [['']],

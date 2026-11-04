@@ -18,6 +18,7 @@ class Job
     private array $outputs = [];
     private ?string $result = null;
     private bool $continueOnError = false;
+    private bool $continueOnSkip = false;
     private bool $disabled = false;
     private ?string $disabledReason = null;
     private array $metadata = [];
@@ -79,6 +80,20 @@ class Job
     public function setContinueOnError(bool $continueOnError): void
     {
         $this->continueOnError = $continueOnError;
+    }
+
+    /**
+     * Whether the jobs needing this one still run when it is skipped (by its "if").
+     * By default, a skipped need never lets its dependents run.
+     */
+    public function isContinueOnSkip(): bool
+    {
+        return $this->continueOnSkip;
+    }
+
+    public function setContinueOnSkip(bool $continueOnSkip): void
+    {
+        $this->continueOnSkip = $continueOnSkip;
     }
 
     public function getOutputs(): array

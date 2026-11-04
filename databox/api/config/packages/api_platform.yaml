@@ -12,3 +12,9 @@ api_platform:
         - '%kernel.project_dir%/src/Api/Model/Output'
     patch_formats:
         json: ['application/merge-patch+json']
+    defaults:
+        pagination_client_items_per_page: true
+        pagination_maximum_items_per_page: 100
+    collection:
+        pagination:
+            items_per_page_parameter_name: limit

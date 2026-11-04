@@ -4,6 +4,5 @@ declare global {
     interface WindowConfig extends WindowConfigBase {
         requestSignatureTtl: Readonly<string>;
         disableIndexPage: Readonly<boolean | undefined>;
-        zippyEnabled: Readonly<boolean | undefined>;
     }
 }

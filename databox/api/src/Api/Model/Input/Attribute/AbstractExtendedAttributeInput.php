@@ -23,14 +23,19 @@ abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
     public ?string $originVendorContext = null;
 
     /**
-     * @var array
+     * Shapes drawn over the asset for this value (see AssetAnnotationsInterface).
+     * Null leaves the stored annotations untouched, an empty list removes them.
+     *
+     * @var array|null
      */
-    #[Assert\Collection(
-        fields: [
-            'type' => new Assert\Choice(AssetAnnotationsInterface::TYPES),
-        ],
-        allowExtraFields: true,
-    )]
+    #[Assert\All([
+        new Assert\Collection(
+            fields: [
+                'type' => new Assert\Choice(choices: AssetAnnotationsInterface::TYPES),
+            ],
+            allowExtraFields: true,
+        ),
+    ])]
     public $annotations;
 
     /**
@@ -44,4 +49,11 @@ abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
      * @var float
      */
     public $confidence;
+
+    /**
+     * Signature of the annotated region ({m: model, v: float[]}), kept with the value but never exposed.
+     *
+     * @var array{m: string, v: float[]}|null
+     */
+    public ?array $embedding = null;
 }

@@ -4,6 +4,7 @@ namespace Alchemy\RenditionFactory\Config;
 
 use Alchemy\RenditionFactory\DTO\BuildConfig\BuildConfig;
 use Alchemy\RenditionFactory\DTO\BuildConfig\FamilyBuildConfig;
+use Alchemy\RenditionFactory\DTO\BuildConfig\GenerateConfig;
 use Alchemy\RenditionFactory\DTO\BuildConfig\Transformation;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\Exception\ModelException;
@@ -34,12 +35,15 @@ final readonly class YamlLoader implements FileLoaderInterface
 
     private function parseConfig(array $data): BuildConfig
     {
-        if (isset($data['generate'])) {
-            if (!is_array($data['generate'])) {
+        if (array_key_exists(BuildConfig::GENERATE, $data)) {
+            if (!is_array($data[BuildConfig::GENERATE])) {
                 throw new ModelException('Invalid generate configuration. Array expected');
             }
+            if (count($data) > 1) {
+                throw new ModelException(sprintf('"%s" cannot be combined with file type families', BuildConfig::GENERATE));
+            }
 
-            return new BuildConfig([], $data['generate']);
+            return new BuildConfig([], $this->parseGenerateConfig($data[BuildConfig::GENERATE]));
         }
 
         $families = [];
@@ -62,16 +66,40 @@ final readonly class YamlLoader implements FileLoaderInterface
 
     private function parseFamilyConfig(array $data): FamilyBuildConfig
     {
+        return new FamilyBuildConfig($this->parseTransformations($data), $data['normalization'] ?? []);
+    }
+
+    private function parseGenerateConfig(array $data): GenerateConfig
+    {
+        $input = $data['input'] ?? null;
+        if (null !== $input && !is_string($input)) {
+            throw new ModelException('Invalid generate input. String expected');
+        }
+
+        return new GenerateConfig($this->parseTransformations($data), $data['normalization'] ?? [], $input);
+    }
+
+    /**
+     * @return Transformation[]
+     */
+    private function parseTransformations(array $data): array
+    {
         if (empty($data['transformations'])) {
             throw new ModelException('Missing transformations');
+        }
+        if (!is_array($data['transformations'])) {
+            throw new ModelException('Invalid transformations. Array expected');
         }
 
         $transformations = [];
         foreach ($data['transformations'] as $transformation) {
+            if (!is_array($transformation) || !isset($transformation['module'])) {
+                throw new ModelException('Invalid transformation. A "module" is expected');
+            }
             $transformations[] = $this->parseTransformation($transformation);
         }
 
-        return new FamilyBuildConfig($transformations, $data['normalization'] ?? []);
+        return $transformations;
     }
 
     private function parseTransformation(array $transformation): Transformation

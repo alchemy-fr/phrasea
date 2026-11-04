@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use ApiPlatform\Metadata\Operation;
+use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Basket\Basket;
 use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
@@ -11,9 +13,19 @@ use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class BasketSearch extends AbstractSearch
 {
+    /**
+     * Most recently created baskets first.
+     */
+    final public const string ORDER_CREATED_AT = 'createdAt';
+
+    final public const array ORDERS = [
+        self::ORDER_CREATED_AT,
+    ];
+
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.basket')]
         private readonly PaginatedFinderInterface $finder,
@@ -25,6 +37,7 @@ class BasketSearch extends AbstractSearch
         string $userId,
         array $groupIds,
         array $options = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $filterQueries = [];
 
@@ -33,18 +46,24 @@ class BasketSearch extends AbstractSearch
             $filterQueries[] = $aclBoolQuery;
         }
 
-        $maxLimit = 30;
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
+        $isArchived = filter_var($options['archived'] ?? null, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+
+        if (filter_var($options['includeArchived'] ?? null, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false) {
+            $isArchived = null;
         }
+
+        if (null !== $isArchived) {
+            $filterQueries[] = new Query\Term(['isArchived' => $isArchived]);
+        }
+
+        $maxLimit = 30;
 
         $rootQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $rootQuery->addFilter($query);
         }
 
-        $queryString = trim($options['query'] ?? '');
+        $queryString = trim((string) ($options['query'] ?? ''));
 
         if (!empty($queryString)) {
             $searchQuery = new Query\BoolQuery();
@@ -67,9 +86,17 @@ class BasketSearch extends AbstractSearch
             $rootQuery->addMust($searchQuery);
         }
 
+        $searchQuery = new SearchQuery($rootQuery);
+        $this->applyParameters($searchQuery, Basket::class, $operation, $options);
+
         $query = new Query();
         $query->setTrackTotalHits();
         $query->setQuery($rootQuery);
+        if ($searchQuery->hasSort()) {
+            $query->setSort($searchQuery->getSort());
+        } else {
+            $this->applySort($query, $options);
+        }
 
         $query->setHighlight([
             'pre_tags' => ['[hl]'],
@@ -89,14 +116,31 @@ class BasketSearch extends AbstractSearch
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(fn (Basket $basket): bool => $this->isGranted(AbstractVoter::READ, $basket), $adapter));
-        $result->setMaxPerPage((int) $limit);
-        if ($options['page'] ?? false) {
-            $result->setAllowOutOfRangePages(true);
-            $result->setCurrentPage((int) $options['page']);
-        }
-        $result->getCurrentPageResults();
+        self::applyPagination($result, $options, $maxLimit);
+        $this->executeSearch($result->getCurrentPageResults(...));
 
         return $result;
+    }
+
+    private function applySort(Query $query, array $options): void
+    {
+        $order = trim((string) ($options['order'] ?? ''));
+        if ('' === $order) {
+            return;
+        }
+
+        if (!in_array($order, self::ORDERS, true)) {
+            throw new BadRequestHttpException(sprintf('Invalid order "%s". Supported values are: "%s"', $order, implode('", "', self::ORDERS)));
+        }
+
+        $query->setSort([
+            [
+                'createdAt' => [
+                    'order' => 'desc',
+                    'missing' => '_last',
+                ],
+            ],
+        ]);
     }
 
     private function createBasketACLBoolQuery(string $userId, array $groupIds): ?Query\BoolQuery

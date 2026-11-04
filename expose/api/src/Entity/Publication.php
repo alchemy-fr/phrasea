@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
+use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
+use App\Api\Processor\SortAssetsProcessor;
 use App\Api\Provider\PublicationProvider;
-use App\Controller\GetPublicationSlugAvailabilityAction;
-use App\Controller\SortAssetsAction;
+use App\Api\Provider\PublicationSlugAvailabilityProvider;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Filter\PublicationFilter;
@@ -30,6 +33,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -46,19 +50,55 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             name: self::GET_PUBLICATION_ROUTE_NAME,
             provider: PublicationProvider::class,
         ),
-        new Put(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
         new Delete(security: 'is_granted("'.PublicationVoter::DELETE.'", object)'),
         new Post(
             uriTemplate: '/publications/{id}/sort-assets',
-            defaults: [
-                '_api_receive' => false,
-                '_api_respond' => true,
-            ],
-            controller: SortAssetsAction::class
+            security: 'is_granted("'.PublicationVoter::EDIT.'", object)',
+            throwOnNotFound: true,
+            deserialize: false,
+            validate: false,
+            processor: SortAssetsProcessor::class,
         ),
         new GetCollection(
             normalizationContext: [
                 'groups' => [self::GROUP_INDEX],
+            ],
+            parameters: [
+                'order[title]' => new QueryParameter(filter: new SortFilter(), property: 'title', castToArray: false),
+                'order[createdAt]' => new QueryParameter(filter: new SortFilter(), property: 'createdAt', castToArray: false),
+                'flatten' => new QueryParameter(
+                    filter: PublicationFilter::class,
+                    property: 'flatten',
+                    // Applies the "root publications only" default
+                    default: false,
+                ),
+                'parentId' => new QueryParameter(filter: PublicationFilter::class, property: 'parentId'),
+                'profileId' => new QueryParameter(filter: PublicationFilter::class, property: 'profileId'),
+                'mine' => new QueryParameter(filter: PublicationFilter::class, property: 'mine'),
+                'editable' => new QueryParameter(filter: PublicationFilter::class, property: 'editable'),
+                'expired' => new QueryParameter(filter: PublicationFilter::class, property: 'expired'),
+                'empty' => new QueryParameter(filter: PublicationFilter::class, property: 'empty'),
+                'disabled' => new QueryParameter(filter: PublicationFilter::class, property: 'disabled'),
+                'title' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'title',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                ),
+                'description' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'description',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'title',
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the title',
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(
@@ -66,30 +106,30 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         ),
         new GetCollection(
             uriTemplate: '/publications/slug-availability/{slug}',
-            defaults: ['_api_receive' => false, 'input' => false, 'output' => false],
-            controller: GetPublicationSlugAvailabilityAction::class,
-            openapiContext: [
-                'summary' => 'Check whether a slug is available or not.',
-                'description' => 'Check whether a slug is available or not.',
-                'responses' => [
-                    '200' => [
-                        'content' => [
+            uriVariables: [],
+            output: false,
+            provider: PublicationSlugAvailabilityProvider::class,
+            openapi: new OpenApiOperation(
+                responses: [
+                    '200' => new OpenApiResponse(
+                        content: new \ArrayObject([
                             'application/json' => [
                                 'schema' => ['type' => 'boolean'],
                             ],
-                        ],
-                    ],
+                        ]),
+                    ),
                 ],
-                'parameters' => [
-                    [
-                        'in' => 'path',
-                        'name' => 'slug',
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'The slug to verify',
-                    ],
+                summary: 'Check whether a slug is available or not.',
+                description: 'Check whether a slug is available or not.',
+                parameters: [
+                    new OpenApiParameter(
+                        name: 'slug',
+                        in: 'path',
+                        description: 'The slug to verify',
+                        required: true,
+                    ),
                 ],
-            ],
+            ),
             paginationEnabled: false,
             normalizationContext: [
                 'groups' => [self::GROUP_INDEX],
@@ -106,10 +146,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     order: ['title' => 'ASC']
 )]
 #[ORM\Entity]
-#[ApiFilter(filterClass: OrderFilter::class, properties: ['title' => 'ASC', 'createdAt' => 'DESC', 'updatedAt' => 'DESC'], arguments: ['orderParameterName' => 'order'])]
-#[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
-#[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['title' => 'ipartial', 'description' => 'ipartial'])]
+#[UniqueEntity(fields: ['slug'], message: 'This slug is already used by another publication.')]
 class Publication implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
@@ -234,11 +271,11 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $cssLink = null;
 
-    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
-    private ?string $zippyId = null;
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $archivePath = null;
 
     #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
-    private ?string $zippyHash = null;
+    private ?string $archiveHash = null;
 
     public function __construct()
     {
@@ -587,14 +624,14 @@ class Publication implements AclObjectInterface, \Stringable
     }
 
     #[Groups([self::GROUP_READ])]
-    public function isIncludeDownloadTermsInZippy(): bool
+    public function isIncludeDownloadTermsInArchive(): bool
     {
-        if (null !== $this->config->getIncludeDownloadTermsInZippy()) {
-            return $this->config->getIncludeDownloadTermsInZippy();
+        if (null !== $this->config->getIncludeDownloadTermsInArchive()) {
+            return $this->config->getIncludeDownloadTermsInArchive();
         }
 
         if ($this->profile) {
-            return $this->profile->getConfig()->getIncludeDownloadTermsInZippy() ?? false;
+            return $this->profile->getConfig()->getIncludeDownloadTermsInArchive() ?? false;
         }
 
         return false;
@@ -676,24 +713,24 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->getOwnerId() ?? '';
     }
 
-    public function getZippyId(): ?string
+    public function getArchivePath(): ?string
     {
-        return $this->zippyId;
+        return $this->archivePath;
     }
 
-    public function setZippyId(?string $zippyId): void
+    public function setArchivePath(?string $archivePath): void
     {
-        $this->zippyId = $zippyId;
+        $this->archivePath = $archivePath;
     }
 
-    public function getZippyHash(): ?string
+    public function getArchiveHash(): ?string
     {
-        return $this->zippyHash;
+        return $this->archiveHash;
     }
 
-    public function setZippyHash(?string $zippyHash): void
+    public function setArchiveHash(?string $archiveHash): void
     {
-        $this->zippyHash = $zippyHash;
+        $this->archiveHash = $archiveHash;
     }
 
     /**

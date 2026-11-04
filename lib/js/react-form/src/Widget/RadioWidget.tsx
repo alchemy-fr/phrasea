@@ -30,7 +30,7 @@ type Props<TFieldValues extends FieldValues> = {
 
 type RadioOption = {
     label: ReactNode;
-    value: string;
+    value: string | number;
     icon?: React.ElementType;
     disabled?: boolean;
 };
@@ -58,6 +58,7 @@ export default function RadioWidget<TFieldValues extends FieldValues>({
                         {...field}
                         sx={theme => ({
                             'flexDirection': 'row',
+                            'flexWrap': 'nowrap',
                             'gap': 2,
                             '> label': {
                                 'minWidth': 150,

@@ -6,7 +6,7 @@ namespace App\Api\Model\Output;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Core\Asset;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource]
 class MultipleAssetOutput

@@ -8,14 +8,11 @@ use App\Entity\Core\File;
 use Twig\Error\SyntaxError;
 
 /**
- * allows calling File methods from AttributeDefinition fallback (twig), even if (asset.)file is null.
+ * Allows calling File methods from AttributeDefinition fallback (twig), even if (asset.)file is null.
  */
-class FileMetadataAccessorWrapper
+final readonly class FileMetadataAccessorWrapper
 {
-    /** @var false|array|null */
-    private $meta = false;      // false = initially unknown
-
-    public function __construct(private readonly ?File $file)
+    public function __construct(private ?File $file)
     {
     }
 
@@ -24,31 +21,44 @@ class FileMetadataAccessorWrapper
      */
     public function __call($method, $args)
     {
-        if (!method_exists(File::class, $method)) {
-            // unknow method : fatal
-            throw new SyntaxError(sprintf('Unknown function "%s"', $method));
-        }
-        if ($this->file) {
-            return call_user_func_array([$this->file, $method], $args);
+        if ('metadata' === $method) {
+            return isset($args[0]) ? $this->getMetadata((string) $args[0]) : null;
         }
 
-        // no (asset.)file ? be nice, don't crash twig
+        // Templates may only read the file: its setters are never reachable
+        $methods = [
+            'get'.ucfirst($method),
+            'is'.ucfirst($method),
+        ];
+        if (preg_match('#^(get|is|has)[A-Z0-9_]#', $method)) {
+            array_unshift($methods, $method);
+        }
+
+        $resolved = null;
+        foreach ($methods as $m) {
+            if (method_exists(File::class, $m)) {
+                $resolved = $m;
+                break;
+            }
+        }
+
+        if (null === $resolved) {
+            throw new SyntaxError(sprintf('Unknown method "%s" on file', $method));
+        }
+
+        if ($this->file) {
+            return call_user_func_array([$this->file, $resolved], $args);
+        }
+
         return null;
     }
 
-    public function getMetadata(string $id)
+    public function getMetadata(string $id): ?StringableMetadataValue
     {
         if ($this->file) {
-            // call file.getMetadata() only once; initial (false) means unread
-            if (false === $this->meta) {
-                $this->meta = $this->file->getMetadata();   // array|null
-            }
-
-            if (is_array($this->meta) && array_key_exists($id, $this->meta) && array_key_exists('values', $this->meta[$id])) {
-                // "value" is not included in persisted normalization (for smaller json)
-                $this->meta[$id]['value'] = implode(' ; ', $this->meta[$id]['values']);
-
-                return $this->meta[$id];
+            $values = $this->file->getMetadataNameValues($id);
+            if (null !== $values) {
+                return new StringableMetadataValue($values);
             }
         }
 

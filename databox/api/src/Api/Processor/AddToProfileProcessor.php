@@ -6,7 +6,7 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\AddToProfileInput;
@@ -38,7 +38,7 @@ class AddToProfileProcessor implements ProcessorInterface
     {
         $user = $this->getStrictUser();
         if (isset($uriVariables['id'])) {
-            $profileId = $uriVariables['id'];
+            $profileId = (string) $uriVariables['id'];
             $profile = DoctrineUtil::findStrictByRepo($this->profileRepository, $profileId);
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $profile);
         } else {
@@ -60,25 +60,24 @@ class AddToProfileProcessor implements ProcessorInterface
 
         foreach ($data->items as $i) {
             $item = new ProfileItem();
-            $item->setDisplayEmpty(true);
+            // Grid items default to hiding empty values (a "—" per empty field
+            // would clutter the thumbnail); other sections keep the legacy default.
+            $item->setDisplayEmpty(
+                ProfileItem::SECTION_GRID === $i->section
+                    ? ($i->displayEmpty ?? false)
+                    : true
+            );
             $item->setProfile($profile);
             $item->setSection($i->section);
             $item->setType($i->type);
             $item->setPosition($position++);
-
-            if (ProfileItem::SECTION_FACETS === $item->getSection() && in_array($i->type, [
-                ProfileItem::TYPE_DIVIDER,
-                ProfileItem::TYPE_SPACER,
-            ], true)) {
-                throw new \InvalidArgumentException(sprintf('Type "%d" is not allowed in section "%d"', $i->type, $i->section));
-            }
 
             switch ($i->type) {
                 case ProfileItem::TYPE_ATTR_DEF:
                     $definition = DoctrineUtil::findStrictByRepo($this->attributeDefinitionRepository, $i->definition);
                     $this->denyAccessUnlessGranted(AbstractVoter::READ, $definition);
                     $item->setDefinition($definition);
-                    if ($this->profileRepository->hasDefinition($profile->getId(), $definition->getId())) {
+                    if ($this->profileRepository->hasDefinition($profile->getId(), $definition->getId(), $i->section)) {
                         continue 2;
                     }
                     break;
@@ -91,6 +90,23 @@ class AddToProfileProcessor implements ProcessorInterface
                 default:
                     throw new \InvalidArgumentException(sprintf('Unsupported type "%d"', $i->type));
             }
+
+            if (ProfileItem::SECTION_GRID === $i->section) {
+                $item->setPlacement($i->placement);
+                $item->setVariant($i->variant);
+                $item->setColor($i->color);
+                $item->setSize($i->size);
+                $item->setShowLabel($i->showLabel);
+                $item->setShowIcon($i->showIcon);
+            }
+            if (ProfileItem::SECTION_FILTERS === $i->section) {
+                $item->setWidget($i->widget);
+                $item->setTrueLabel($i->trueLabel);
+                $item->setFalseLabel($i->falseLabel);
+                $item->setReversed($i->reversed);
+                $item->setDefaultQuery($i->defaultQuery);
+            }
+
             $this->em->persist($item);
         }
 

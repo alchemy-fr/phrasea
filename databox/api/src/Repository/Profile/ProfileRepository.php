@@ -22,22 +22,20 @@ class ProfileRepository extends ServiceEntityRepository
 
     public function removeFromProfile(string $profileId, array $itemIds): void
     {
-        $this->_em->createQueryBuilder()
+        $this->getEntityManager()->createQueryBuilder()
             ->delete()
             ->from(ProfileItem::class, 't')
             ->andWhere('t.profile = :pid')
             ->andWhere('t.id IN (:ids)')
-            ->setParameters([
-                'pid' => $profileId,
-                'ids' => $itemIds,
-            ])
+            ->setParameter('pid', $profileId)
+            ->setParameter('ids', $itemIds)
             ->getQuery()
             ->execute();
     }
 
     public function getMaxPosition(string $profileId): int
     {
-        return $this->_em->createQueryBuilder()
+        return $this->getEntityManager()->createQueryBuilder()
             ->select('MAX(t.position) as m')
             ->from(ProfileItem::class, 't')
             ->andWhere('t.profile = :l')
@@ -46,23 +44,28 @@ class ProfileRepository extends ServiceEntityRepository
             ->getSingleScalarResult() ?? 0;
     }
 
-    public function hasDefinition(string $profileId, string $definitionId): bool
+    public function hasDefinition(string $profileId, string $definitionId, ?int $section = null): bool
     {
-        return null !== $this->_em->createQueryBuilder()
+        $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('1')
             ->setMaxResults(1)
             ->from(ProfileItem::class, 't')
             ->andWhere('t.profile = :l')
             ->andWhere('t.definition = :d')
             ->setParameter('l', $profileId)
-            ->setParameter('d', $definitionId)
-            ->getQuery()
-            ->getOneOrNullResult();
+            ->setParameter('d', $definitionId);
+
+        if (null !== $section) {
+            $qb->andWhere('t.section = :s')
+                ->setParameter('s', $section);
+        }
+
+        return null !== $qb->getQuery()->getOneOrNullResult();
     }
 
     public function getItemsIterator(string $profileId): iterable
     {
-        return $this->_em->createQueryBuilder()
+        return $this->getEntityManager()->createQueryBuilder()
             ->select('t')
             ->from(ProfileItem::class, 't')
             ->andWhere('t.profile = :l')
@@ -74,7 +77,7 @@ class ProfileRepository extends ServiceEntityRepository
 
     public function getItem(string $profileId, string $itemId): ?ProfileItem
     {
-        return $this->_em->getRepository(ProfileItem::class)
+        return $this->getEntityManager()->getRepository(ProfileItem::class)
             ->findOneBy([
                 'id' => $itemId,
                 'profile' => $profileId,

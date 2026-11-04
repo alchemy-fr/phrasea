@@ -9,24 +9,32 @@ use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\UserActionsTrait;
+use App\Integration\Auth\IntegrationTokenRenewerInterface;
 use App\Integration\Auth\IntegrationTokenTrait;
 use App\Integration\BasketUpdateHandlerIntegrationInterface;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
 use App\Integration\Phrasea\Expose\Message\SyncBasket;
+use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Integration\UserActionsIntegrationInterface;
+use App\Security\Voter\AbstractVoter;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
-class ExposeIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface, BasketUpdateHandlerIntegrationInterface
+#[AsTaggedItem(index: self::NAME)]
+class ExposeIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface, BasketUpdateHandlerIntegrationInterface, IntegrationTokenRenewerInterface
 {
     use IntegrationTokenTrait;
     use UserActionsTrait;
+
+    public const string NAME = 'phrasea.expose';
     private const string DATA_PUBLICATION_ID = 'publication_id';
     private const string DATA_PUBLICATION = 'publication';
 
@@ -34,7 +42,13 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ExposeClient $exposeClient,
         private readonly MessageBusInterface $bus,
+        private readonly PhraseaClientFactory $clientFactory,
     ) {
+    }
+
+    public function renewIntegrationToken(IntegrationConfig $config, string $refreshToken): array
+    {
+        return $this->clientFactory->createTokenRenewer($config['baseUrl'], $config['clientId'])($refreshToken);
     }
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -72,6 +86,8 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 $basket = DoctrineUtil::findStrict($this->em, Basket::class, $data['basketId']);
+                // The basket assets are published: it must be one the user can read
+                $this->denyAccessUnlessGranted(AbstractVoter::READ, $basket);
                 $response = $this->exposeClient->createPublication($config, $integrationToken, $data);
 
                 $publicationId = $response['id'];
@@ -187,9 +203,16 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         return 'Expose';
     }
 
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Publication,
+        ];
+    }
+
     public static function getName(): string
     {
-        return 'phrasea.expose';
+        return self::NAME;
     }
 
     #[\Override]

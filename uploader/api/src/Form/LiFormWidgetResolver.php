@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Form\Resolver\WidgetResolverInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LiFormWidgetResolver
@@ -16,7 +16,7 @@ class LiFormWidgetResolver
     private iterable $resolvers;
 
     public function __construct(
-        #[TaggedIterator(WidgetResolverInterface::TAG)]
+        #[AutowireIterator(WidgetResolverInterface::TAG)]
         iterable $resolvers,
     ) {
         $this->resolvers = $resolvers;

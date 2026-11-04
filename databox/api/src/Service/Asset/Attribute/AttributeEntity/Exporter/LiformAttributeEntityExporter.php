@@ -7,14 +7,11 @@ namespace App\Service\Asset\Attribute\AttributeEntity\Exporter;
 use App\Api\Model\Input\ExportEntitiesInput;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'liform')]
 final readonly class LiformAttributeEntityExporter extends AbstractAttributeEntityExporter
 {
-    public static function getName(): string
-    {
-        return 'liform';
-    }
-
     public function export(EntityList $entityList, ExportEntitiesInput $options): callable
     {
         return function () use ($entityList, $options) {

@@ -2,18 +2,28 @@
 
 namespace App\Border;
 
-use App\Border\Analyzer\AnalyzerInterface;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use App\Border\FileAnalyzer\AnalyzerInterface;
+use App\Border\FileAnalyzer\FileAnalyzerConfigHelper;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class FileAnalyzerRegistry
 {
     public function __construct(
-        #[AutowireLocator(services: AnalyzerInterface::TAG, defaultIndexMethod: 'getName')]
-        private ContainerInterface $analyzers,
+        #[AutowireLocator(services: AnalyzerInterface::TAG)]
+        private ServiceLocator $analyzers,
     ) {
+    }
+
+    /**
+     * @return iterable<string, AnalyzerInterface>
+     */
+    public function getAnalyzers(): iterable
+    {
+        foreach ($this->analyzers->getProvidedServices() as $name => $fqcn) {
+            yield $name => $this->getAnalyzer($name);
+        }
     }
 
     public function getAnalyzer(string $name): AnalyzerInterface
@@ -28,19 +38,8 @@ final readonly class FileAnalyzerRegistry
 
     public function processConfiguration(AnalyzerInterface $analyzer, array $config): array
     {
-        $treeBuilder = new TreeBuilder('root');
+        $treeBuilder = FileAnalyzerConfigHelper::createBaseTree($analyzer::getName());
         $children = $treeBuilder->getRootNode()->children();
-        // @formatter:off
-        $children
-            ->scalarNode('name')
-                ->cannotBeEmpty()
-                ->isRequired()
-            ->end()
-            ->enumNode('severity')
-                ->defaultValue('error')
-                ->values(['warning', 'error', 'critical'])
-            ->end();
-        // @formatter:on
 
         $analyzer->buildConfiguration($children);
 

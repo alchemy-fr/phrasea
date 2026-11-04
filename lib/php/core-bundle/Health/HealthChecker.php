@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\CoreBundle\Health;
 
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 readonly class HealthChecker
 {
@@ -12,7 +12,7 @@ readonly class HealthChecker
      * @param HealthCheckerInterface[] $checkers
      */
     public function __construct(
-        #[TaggedIterator(HealthCheckerInterface::TAG)]
+        #[AutowireIterator(HealthCheckerInterface::TAG)]
         private iterable $checkers,
     ) {
     }

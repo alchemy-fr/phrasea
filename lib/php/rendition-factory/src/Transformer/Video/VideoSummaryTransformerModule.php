@@ -26,12 +26,16 @@ use Imagine\Image\ImagineInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
-    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+    public const string NAME = 'video_summary';
+
+    public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private ImagineInterface $imagine,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
@@ -40,7 +44,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
 
     public static function getName(): string
     {
-        return 'video_summary';
+        return self::NAME;
     }
 
     private static function getSupportedOutputFormats(): array
@@ -147,13 +151,15 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
         $startAsTimecode = FFMpegHelper::optionAsTimecode($start);
         if (null === $startAsTimecode || ($start = FFMpegHelper::timecodeToseconds($startAsTimecode)) < 0) {
-            throw new \InvalidArgumentException('Invalid start');
+            throw new \InvalidArgumentException(sprintf('Invalid start for module "%s": got %s, should be >=0', self::getName(), json_encode($start)));
         }
 
         $clipDuration = $this->optionsResolver->resolveOption($options['duration'] ?? 0, $resolverContext);
         $clipDurationAsTimecode = FFMpegHelper::optionAsTimecode($clipDuration);
         if (null === $clipDurationAsTimecode || ($clipDuration = FFMpegHelper::timecodeToseconds($clipDurationAsTimecode)) <= 0 || $clipDuration >= $period) {
-            throw new \InvalidArgumentException('Invalid duration, should be >0 and <period');
+            // Name the values: without them the rendition definition at fault is
+            // impossible to identify from the log alone.
+            throw new \InvalidArgumentException(sprintf('Invalid duration for module "%s": got %s, should be >0 and <period (%s)', self::getName(), json_encode($clipDuration), json_encode($period)));
         }
 
         $context->log(sprintf('  start=%s (%.02f), period=%s (%.02f), duration=%s (%.02f)', $startAsTimecode, $start, $periodAsTimecode, $period, $clipDurationAsTimecode, $clipDuration));
@@ -161,8 +167,9 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         $inputDuration = $video->getFFProbe()->format($inputFile->getPath())->get('duration');
 
         if (FamilyEnum::Video === $outputFormat->getFamily()) {
+            // The output formats are shared services: the settings below must not leak to the next renditions
             /** @var VideoInterface $FFMpegOutputFormat */
-            $FFMpegOutputFormat = $outputFormat->getFFMpegFormat();
+            $FFMpegOutputFormat = clone $outputFormat->getFFMpegFormat();
             if ($videoCodec = $this->optionsResolver->resolveOption($options['video_codec'] ?? null, $resolverContext)) {
                 if (!in_array($videoCodec, $FFMpegOutputFormat->getAvailableVideoCodecs())) {
                     throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
@@ -170,6 +177,11 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                 $FFMpegOutputFormat->setVideoCodec($videoCodec);
             }
             if ($audioCodec = $this->optionsResolver->resolveOption($options['audio_codec'] ?? null, $resolverContext)) {
+                $normalizedCodec = AudioCodecNormalizer::normalize($audioCodec);
+                if ($normalizedCodec !== $audioCodec) {
+                    $context->log(sprintf('Audio codec "%s" is not available, using "%s"', $audioCodec, $normalizedCodec));
+                    $audioCodec = $normalizedCodec;
+                }
                 if (!in_array($audioCodec, $FFMpegOutputFormat->getAvailableAudioCodecs())) {
                     throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
                 }

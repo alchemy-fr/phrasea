@@ -15,6 +15,7 @@ use App\Security\PasswordSecurityMethodInterface;
 use App\Security\PasswordTokenExtractor;
 use App\Security\ScopeInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class PublicationVoter extends AbstractVoter
 {
@@ -42,7 +43,7 @@ class PublicationVoter extends AbstractVoter
     /**
      * @param Publication|null $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $isAdmin = $this->hasScope(ScopeInterface::SCOPE_PUBLISH, '', false)
             || $this->security->isGranted(JwtUser::ROLE_ADMIN);

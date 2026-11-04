@@ -20,8 +20,12 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use App\Api\Filter\Group\GroupValue;
+use App\Api\Model\Input\AddAssetsToCollectionInput;
+use App\Api\Model\Input\AssetAddAsVersionInput;
 use App\Api\Model\Input\AssetInput;
+use App\Api\Model\Input\AssetPositionInput;
 use App\Api\Model\Input\AssetsDeleteInput;
 use App\Api\Model\Input\AssetsRestoreInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
@@ -31,32 +35,44 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Input\ResolveEntitiesInput;
+use App\Api\Model\Input\StoryCoverInput;
+use App\Api\Model\Output\AssetDuplicateOutput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
+use App\Api\Processor\AddAsAssetVersionProcessor;
+use App\Api\Processor\AddAssetsToCollectionProcessor;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\AssetsDeleteProcessor;
 use App\Api\Processor\AssetsRestoreProcessor;
+use App\Api\Processor\BypassQuarantineProcessor;
 use App\Api\Processor\CopyAssetProcessor;
+use App\Api\Processor\CreateAssetProcessor;
 use App\Api\Processor\DeleteAssetProcessor;
+use App\Api\Processor\DeleteAssetsByKeysProcessor;
 use App\Api\Processor\FollowProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
+use App\Api\Processor\SetAssetPositionProcessor;
+use App\Api\Processor\SetStoryCoverProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
+use App\Api\Provider\AssetDuplicatesProvider;
+use App\Api\Provider\AssetGeoClusterProvider;
 use App\Api\Provider\AssetMetricsProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
+use App\Api\Provider\SimilarAssetCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
-use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
@@ -76,7 +92,7 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -90,6 +106,75 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             name: 'suggestions',
             provider: SearchSuggestionCollectionProvider::class,
+            parameters: [
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Text to complete',
+                    castToArray: false,
+                ),
+                'definition' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Attribute definition ID(s), comma-separated: suggest the values of these attributes only',
+                    castToArray: false,
+                ),
+                'workspaces' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Workspaces ID',
+                ),
+            ],
+        ),
+        new GetCollection(
+            uriTemplate: '/assets/geo-clusters',
+            description: 'Clusters the geolocated assets matching the search on a tile grid',
+            name: 'geo_clusters',
+            provider: AssetGeoClusterProvider::class,
+            parameters: [
+                'field' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Geo point attribute key (e.g. "location_geo-point_s")',
+                    required: true,
+                    castToArray: false,
+                ),
+                'precision' => new QueryParameter(
+                    schema: ['type' => 'integer', 'minimum' => 0, 'maximum' => 29],
+                    description: 'Tile zoom level of the clusters',
+                    castToArray: false,
+                ),
+                'bounds' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Area to cluster: "top,left,bottom,right" (latitudes and longitudes)',
+                    castToArray: false,
+                ),
+                'collection' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Collection the assets directly belong to',
+                ),
+                'conditions' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Use AQL condition to filter assets',
+                ),
+                'workspaces' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Workspaces ID',
+                ),
+                'parents' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Parent collections ID (recursive)',
+                ),
+                'story' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Story asset ID',
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query',
+                ),
+                'savedSearch' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Saved search ID: its query (unless one is given) and conditions (combined with the given ones) apply',
+                    castToArray: false,
+                ),
+            ],
         ),
         new Get(
             normalizationContext: [
@@ -110,6 +195,17 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: StoryThumbnailsOutput::class,
             name: 'story-thumbnails',
             provider: StoryThumbnailsProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/assets/{id}/similar',
+            uriVariables: [
+                'id' => new Link(fromClass: Asset::class, identifiers: ['id']),
+            ],
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+            name: 'similar_assets',
+            provider: SimilarAssetCollectionProvider::class,
         ),
         new Get(
             uriTemplate: '/assets/{id}/metrics',
@@ -142,15 +238,54 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: RemoveAssetFromCollectionProcessor::class,
         ),
         new Delete(
-            security: 'is_granted("DELETE", object)',
+            security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
             processor: DeleteAssetProcessor::class,
         ),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
+        ),
         new Put(
             uriTemplate: '/assets/{id}/trigger-workflow',
+            input: false,
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             processor: TriggerAssetWorkflowProcessor::class,
+        ),
+        new Put(
+            uriTemplate: '/assets/{id}/position',
+            description: 'Move the asset to a given rank inside a collection or a story',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AssetPositionInput::class,
+            name: 'asset_set_position',
+            processor: SetAssetPositionProcessor::class,
+        ),
+        new Put(
+            uriTemplate: '/assets/{id}/story-cover',
+            description: 'Make one of the story items the cover of the story',
+            input: StoryCoverInput::class,
+            name: 'story_cover',
+            processor: SetStoryCoverProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/quarantine-bypass',
+            input: false,
+            name: 'quarantine_bypass',
+            processor: BypassQuarantineProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/add-as-version',
+            input: AssetAddAsVersionInput::class,
+            name: 'add_as_version',
+            processor: AddAsAssetVersionProcessor::class,
+        ),
+        new Get(
+            uriTemplate: '/assets/{id}/duplicates',
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST, 'dates'],
+            ],
+            output: AssetDuplicateOutput::class,
+            name: 'duplicates',
+            provider: AssetDuplicatesProvider::class,
         ),
         new Post(
             uriTemplate: '/assets/{id}/attributes',
@@ -162,7 +297,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_LIST],
             ],
             parameters: [
-                'collection' => new QueryParameter(),
+                'collection' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Collection the assets directly belong to (use "parent" to span the sub-tree)',
+                ),
                 'conditions' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
                     description: 'Use AQL condition to filter assets',
@@ -181,21 +319,65 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'parents' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
-                    description: 'Parent collections',
+                    description: 'Parent collections ID. Recursive: also matches assets belonging to any descendant collection',
                 ),
                 'parent' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Parent collection',
+                    description: 'Parent collection ID. Recursive: also matches assets belonging to any descendant collection',
+                ),
+                'directCollections' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Collections ID. Matches assets directly belonging to at least one of these collections, excluding their descendant collections. Equivalent to the "@directCollection IN (...)" AQL condition',
+                ),
+                'story' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Story asset ID',
                 ),
                 'query' => new QueryParameter(
                     schema: ['type' => 'string'],
                     description: 'Search query',
                 ),
+                'savedSearch' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Saved search ID: its query (unless one is given), conditions (combined with the given ones) and order (unless one is given) apply',
+                    castToArray: false,
+                ),
+                'order' => new QueryParameter(
+                    schema: ['type' => 'object', 'additionalProperties' => ['type' => 'string', 'enum' => ['asc', 'desc', 'ASC', 'DESC']]],
+                    description: 'Sort: order[<attribute slug or @built-in>]=asc|desc',
+                    openApi: new OpenApiParameter(name: 'order', in: 'query', style: 'deepObject', explode: true, schema: ['type' => 'object', 'additionalProperties' => ['type' => 'string', 'enum' => ['asc', 'desc']]]),
+                ),
+                'group' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Attribute slug or @built-in to group the sorted results by',
+                ),
+                'tags_must' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Tags ID the assets must have',
+                ),
+                'tags_must_not' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Tags ID the assets must not have',
+                ),
+                'context' => new QueryParameter(
+                    schema: ['type' => 'object', 'properties' => ['position' => ['type' => 'string']]],
+                    description: 'Search context: context[position]=<collection or story ID> for the @position sort',
+                    openApi: new OpenApiParameter(name: 'context', in: 'query', style: 'deepObject', explode: true, schema: ['type' => 'object', 'properties' => ['position' => ['type' => 'string']]]),
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50, 500 with "ids")',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ]
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)',
-            validate: true,
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: CreateAssetProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/multiple',
@@ -239,9 +421,17 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'post_copy',
             processor: CopyAssetProcessor::class,
         ),
+        new Post(
+            uriTemplate: '/assets/add-to-collection',
+            description: 'Add multiple assets to a collection or a story. Assets already in the destination are ignored.',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AddAssetsToCollectionInput::class,
+            name: 'asset_add_to_collection',
+            processor: AddAssetsToCollectionProcessor::class,
+        ),
         new Delete(
             uriTemplate: '/assets-by-keys',
-            controller: DeleteAssetByKeysAction::class,
+            processor: DeleteAssetsByKeysProcessor::class,
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             name: 'asset_delete_by_key',
         ),
@@ -269,6 +459,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/assets/{id}/es-document-sync',
+            input: false,
             name: 'asset_sync_es_document',
             processor: ItemElasticsearchDocumentSyncProcessor::class,
         ),
@@ -297,6 +488,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Index(columns: ['created_at'], name: 'asset_created_at_idx')]
+#[ORM\Index(columns: ['created_at', 'id'], name: 'asset_created_at_id_idx')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
 {
@@ -318,9 +510,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     final public const string GROUP_LIST = 'asset:i';
     final public const string GROUP_WRITE = 'asset:w';
 
-    final public const string EVENT_UPDATE = 'update';
-    final public const string EVENT_DELETE = 'delete';
-    final public const string EVENT_NEW_COMMENT = 'new_comment';
+    final public const string EVENT_UPDATE = 'asset:update';
+    final public const string EVENT_DELETE = 'asset:delete';
+    final public const string EVENT_NEW_COMMENT = 'asset:new_comment';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;
@@ -697,20 +889,18 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->microseconds;
     }
 
-    public function getTopicKeys(): array
+    public function getFollowEvents(): array
     {
-        $id = $this->getId();
-
         return [
-            self::getTopicKey(self::EVENT_UPDATE, $id),
-            self::getTopicKey(self::EVENT_DELETE, $id),
-            self::getTopicKey(self::EVENT_NEW_COMMENT, $id),
+            self::EVENT_UPDATE,
+            self::EVENT_DELETE,
+            self::EVENT_NEW_COMMENT,
         ];
     }
 
-    public static function getTopicKey(string $event, string $id): string
+    public function getObjectType(): string
     {
-        return 'asset:'.$id.':'.$event;
+        return self::OBJECT_TYPE;
     }
 
     /**
@@ -756,6 +946,30 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function getSourceFileExtension(): ?string
     {
         return $this->source?->getExtension();
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceFileFamily(): ?string
+    {
+        return $this->source?->getFamily()->value;
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceChecksum(): ?string
+    {
+        return $this->source?->getChecksum();
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceDocUniqueId(): ?string
+    {
+        return $this->source?->getDocUniqueId();
     }
 
     public function isDeleted(): bool

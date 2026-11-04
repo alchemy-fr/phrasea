@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\SearchType;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class NumberAttributeType extends AbstractAttributeType
 {
     public const string NAME = 'number';

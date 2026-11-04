@@ -315,7 +315,7 @@ If `fieldMap` or `renditions` is missing in a databox mapping, the indexer logs 
 
 1. In your location config, keep at least `databox` and `workspaceSlug` in the target `databoxMapping` item.
 2. Remove (or do not set) `fieldMap` and/or `renditions`.
-3. Build the indexer:
+3. launch the indexer:
 
 ```bash
 dc run --rm databox-indexer pnpm build

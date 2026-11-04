@@ -20,13 +20,17 @@ use Alchemy\RenditionFactory\Transformer\Video\Format\PngFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\TiffFormat;
 use FFMpeg\Media\Audio;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
+#[AsTaggedItem(index: self::NAME)]
 final readonly class AlbumArtworkTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'album_artwork';
+
     public function __construct(
-        #[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+        #[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {
@@ -34,7 +38,7 @@ final readonly class AlbumArtworkTransformerModule implements TransformerModuleI
 
     public static function getName(): string
     {
-        return 'album_artwork';
+        return self::NAME;
     }
 
     private static function getSupportedOutputFormats(): array

@@ -1,0 +1,47 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Elasticsearch\BuiltInAttribute;
+
+use App\Attribute\Type\BooleanAttributeType;
+use App\Entity\Core\Asset;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+
+#[AsTaggedItem(index: self::KEY)]
+final class HasSourceFileBuiltInAttribute extends AbstractBuiltInAttribute
+{
+    public const string KEY = '@hasSource';
+
+    protected function getAggregationTranslationKey(): string
+    {
+        return 'has_source_file';
+    }
+
+    public static function getName(): string
+    {
+        return 'hasSourceFile';
+    }
+
+    public static function getKey(): string
+    {
+        return self::KEY;
+    }
+
+    public function getValueFromAsset(Asset $asset): mixed
+    {
+        return null !== $asset->getSource();
+    }
+
+    #[\Override]
+    public function getType(): string
+    {
+        return BooleanAttributeType::getName();
+    }
+
+    #[\Override]
+    public function isFacet(): bool
+    {
+        return true;
+    }
+}

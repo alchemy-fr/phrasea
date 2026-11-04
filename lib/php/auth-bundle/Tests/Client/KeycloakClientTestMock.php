@@ -22,11 +22,18 @@ class KeycloakClientTestMock implements HttpClientInterface
     final public const string USER_UID = '12345678-fc1a-492b-9e76-c2e8e6979786';
     final public const string OTHER_USER_UID = '99999999-fc1a-492b-9e76-c2e8e6979786';
     final public const string ADMIN_UID = '42424242-fc1a-492b-9e76-c2e8e6979786';
+    /**
+     * A user disabled in the IdP: it cannot log in nor be impersonated.
+     */
+    final public const string DISABLED_USER_UID = '00000000-fc1a-492b-9e76-c2e8e6979786';
 
     final public const array USERS = [
         self::ADMIN_UID => [
             'username' => 'admin',
             'roles' => ['admin', 'databox', 'expose', 'uploader'],
+            'resource_access' => [
+                'realm-management' => ['roles' => ['impersonation']],
+            ],
         ],
         self::OTHER_USER_UID => [
             'username' => 'other_user',
@@ -38,7 +45,24 @@ class KeycloakClientTestMock implements HttpClientInterface
         ],
     ];
 
-    public static function getJwtFor(string $userId): string
+    final public const string GROUP_UID = '77777777-fc1a-492b-9e76-c2e8e6979786';
+
+    /**
+     * Members of the groups, as returned by the IdP.
+     */
+    final public const array GROUP_MEMBERS = [
+        self::GROUP_UID => [
+            ['id' => self::USER_UID, 'username' => 'user', 'enabled' => true],
+            ['id' => self::OTHER_USER_UID, 'username' => 'other_user', 'enabled' => true],
+            ['id' => self::DISABLED_USER_UID, 'username' => 'disabled_user', 'enabled' => false],
+        ],
+    ];
+
+    /**
+     * @param string[]      $extraRoles realm roles granted on top of the user's ones (e.g. an application role)
+     * @param string[]|null $groups     the user's groups, instead of its ones in USERS
+     */
+    public static function getJwtFor(string $userId, array $extraRoles = [], ?array $groups = null): string
     {
         $configuration = Configuration::forAsymmetricSigner(
             new Sha256(),
@@ -58,8 +82,9 @@ class KeycloakClientTestMock implements HttpClientInterface
             ->relatedTo($userId)
             ->withClaim('azp', 'test')
             ->withClaim('preferred_username', self::USERS[$userId]['username'])
-            ->withClaim('roles', self::USERS[$userId]['roles'] ?? [])
-            ->withClaim('groups', self::USERS[$userId]['groups'] ?? [])
+            ->withClaim('roles', array_values(array_unique([...(self::USERS[$userId]['roles'] ?? []), ...$extraRoles])))
+            ->withClaim('groups', $groups ?? self::USERS[$userId]['groups'] ?? [])
+            ->withClaim('resource_access', self::USERS[$userId]['resource_access'] ?? [])
             ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
 
         return $token->toString();
@@ -91,9 +116,17 @@ class KeycloakClientTestMock implements HttpClientInterface
         return $token->toString();
     }
 
+    /**
+     * Query of the last request sent to each path, for the tests to check what reached the IdP.
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    public static array $lastQueries = [];
+
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $args = [$method, $url, $options];
+        self::$lastQueries[(string) parse_url($url, PHP_URL_PATH)] = $options['query'] ?? [];
         if ('POST' === $method && str_ends_with($url, '/token')) {
             if ('client_credentials' === $options['body']['grant_type']) {
                 return $this->createResponse($args, 200, [
@@ -103,6 +136,48 @@ class KeycloakClientTestMock implements HttpClientInterface
             }
             $this->createResponse($args, 401, [
                 'error' => 'invalid_grant_type_for_test',
+            ]);
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)/role-mappings/realm/composite$#', $url, $match)) {
+            return $this->createResponse($args, 200, array_map(fn (string $role): array => [
+                'name' => $role,
+            ], self::USERS[$match[1]]['roles'] ?? []));
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)/groups$#', $url, $match)) {
+            return $this->createResponse($args, 200, array_map(fn (string $group): array => [
+                'id' => $group,
+            ], self::USERS[$match[1]]['groups'] ?? []));
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/groups/([^/]+)/members$#', $url, $match)) {
+            return $this->createResponse($args, 200, array_slice(
+                self::GROUP_MEMBERS[$match[1]] ?? [],
+                (int) ($options['query']['first'] ?? 0),
+                (int) ($options['query']['max'] ?? 100),
+            ));
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/groups/([^/]+)$#', $url, $match)) {
+            if (!isset(self::GROUP_MEMBERS[$match[1]])) {
+                return $this->createResponse($args, 404, [
+                    'error' => 'Could not find group by id',
+                ]);
+            }
+
+            return $this->createResponse($args, 200, [
+                'id' => $match[1],
+                'name' => 'group',
+                'path' => '/group',
+            ]);
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)$#', $url, $match) && self::DISABLED_USER_UID === $match[1]) {
+            return $this->createResponse($args, 200, [
+                'id' => $match[1],
+                'username' => 'disabled_user',
+                'enabled' => false,
             ]);
         }
 
