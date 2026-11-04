@@ -9,7 +9,7 @@ const {auth, openModal} = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/auth/AuthProvider', () => ({useAuth: () => auth}));
-vi.mock('@/components/modals/ModalProvider', () => ({
+vi.mock('@alchemy/next-ui/modals/ModalProvider', () => ({
     useModals: () => ({openModal}),
 }));
 vi.mock('./SwitchUserDialog', () => ({SwitchUserDialog: () => null}));

@@ -2,7 +2,7 @@ import type {QueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 import {EntityName} from '@/types/api';
 import {iri} from '@/lib/utils/iri';
-import {toastError} from '@/lib/utils/errors';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 import {addAssetsToCollection, copyAssets, moveAssets} from '@/lib/api/assets';
 import {addToBasket} from '@/lib/api/misc';
 import {moveCollection} from '@/lib/api/collections';

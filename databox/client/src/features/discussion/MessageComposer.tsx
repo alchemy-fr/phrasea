@@ -33,9 +33,9 @@ import {
     XIcon,
 } from 'lucide-react';
 import type {AssetAnnotation, User} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
-import {cn} from '@/lib/utils/cn';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {EmojiPicker} from './EmojiPicker';
 import {LinkButton} from './LinkButton';
 import {useMentionSuggestions} from './MentionSuggestions';

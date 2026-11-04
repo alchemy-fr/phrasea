@@ -10,9 +10,9 @@ import {
 } from '@/features/attributes/definitionsStore';
 import {AttributeWidget} from '@/features/attributes/widgets/AttributeWidget';
 import {AttributeDefinitionSelect} from '@/components/form/selects';
-import {SimpleSelect} from '@/components/ui/select';
-import {FormRow, Input} from '@/components/ui/input';
-import {LabeledControl, Switch} from '@/components/ui/controls';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import type {ActionDefinition, ActionFormProps} from './types';
 
 type AttributeActionType = 'set' | 'add' | 'delete' | 'replace';

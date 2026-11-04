@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
 import {CodeIcon, TagIcon, WrenchIcon} from 'lucide-react';
-import {Alert, badgeVariants} from '@/components/ui/misc';
+import {Alert, badgeVariants} from '@alchemy/next-ui/ui/misc';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {linkTarget, useEmbedded} from '@/lib/embedded';
 import {routes} from '@/lib/routes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {ToolId} from '@/lib/config/types';
 import {useServiceStatuses} from '@/features/status/useServiceStatuses';
 import {getServiceCards, getTools} from './services';

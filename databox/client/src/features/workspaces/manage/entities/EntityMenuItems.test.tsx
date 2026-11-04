@@ -8,7 +8,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {type EntityMenuActions, EntityMenuItems} from './EntityMenuItems';
 import {DRAFT_PREFIX} from './drafts';
 

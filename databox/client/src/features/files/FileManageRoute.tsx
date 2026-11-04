@@ -11,13 +11,13 @@ import {
     DialogTab,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {InlineLoader} from '@/components/ui/loader';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {formatFileSize} from '@/lib/utils/format';
-import {Badge} from '@/components/ui/misc';
-import {Button} from '@/components/ui/button';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {CopyButton} from '@/components/ui/copy-button';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {AnalysisReport} from '@/features/assets/quarantine/AnalysisReport';

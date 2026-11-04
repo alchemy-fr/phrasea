@@ -1,7 +1,7 @@
 'use client';
 
 import {useId, useState} from 'react';
-import {Label} from '@/components/ui/input';
+import {Label} from '@alchemy/next-ui/ui/input';
 import {LocaleTabs, NO_LOCALE} from '@/components/form/TranslatableField';
 import {CodeEditor, CodeEditorMode} from './CodeEditor';
 

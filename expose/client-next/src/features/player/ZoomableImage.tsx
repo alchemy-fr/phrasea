@@ -9,9 +9,9 @@ import {
     RotateCcwIcon,
     RotateCwIcon,
 } from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
-import {cn} from '@/lib/utils/cn';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     clampOffset,
     fitScale,

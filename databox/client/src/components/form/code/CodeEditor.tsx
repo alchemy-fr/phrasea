@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTheme} from 'next-themes';
 import type {Ace} from 'ace-builds';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
 
 export type CodeEditorMode = 'yaml' | 'twig';

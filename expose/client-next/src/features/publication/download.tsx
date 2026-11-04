@@ -4,11 +4,14 @@ import {useCallback, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {CircleCheckIcon} from 'lucide-react';
 import type {Publication} from '@/types/api';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {useModals, type ModalProps} from '@/components/modals/ModalProvider';
-import {FieldHelp, Input, Label} from '@/components/ui/input';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {
+    useModals,
+    type ModalProps,
+} from '@alchemy/next-ui/modals/ModalProvider';
+import {FieldHelp, Input, Label} from '@alchemy/next-ui/ui/input';
 import {requestDownload} from '@/lib/api/publications';
-import {trackEvent} from '@/lib/analytics/matomo';
+import {trackEvent} from '@alchemy/next-core/analytics/matomo';
 import {acceptTerms, isTermsAccepted, termsKey} from './terms';
 import {TermsContent} from './TermsContent';
 

@@ -16,9 +16,9 @@ import {
 import type {Asset, DuplicateAsset} from '@/types/api';
 import {getAsset, getAssetDuplicates, searchAssets} from '@/lib/api/assets';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
-import {Button} from '@/components/ui/button';
-import {Badge, EmptyState, Skeleton} from '@/components/ui/misc';
-import {InlineLoader} from '@/components/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {CollectionChip, FileTypeChip, WorkspaceChip} from '@/components/chips';
 import {routes} from '@/lib/routes';
 import {formatDateTime, formatFileSize} from '@/lib/utils/format';
@@ -36,7 +36,7 @@ import {fileAnalysis, hasAnalysisReport, quarantineCondition} from './analysis';
 import {quarantineQueueKey, useQuarantineQueueStore} from './quarantineQueue';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {usePageTrail} from '@/components/layout/layoutStore';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
 import {ResizeHandle} from '@/components/ui/resize-handle';
 

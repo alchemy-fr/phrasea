@@ -3,9 +3,9 @@
 import {type ReactNode, useLayoutEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {CopyIcon, GripVerticalIcon, PencilIcon, Trash2Icon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
-import {Input} from '@/components/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {Input} from '@alchemy/next-ui/ui/input';
 import {annotationZIndex} from './controls';
 import type {AssetAnnotation} from './types';
 import type {Box, MediaSize} from './geometry';

@@ -5,7 +5,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {createI18n} from '@/i18n';
 import type {Asset} from '@/types/api';
 import {AssetStatus} from '@/types/api';
-import {ModalProvider} from '@/components/modals/ModalProvider';
+import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {QuarantineScreen} from './QuarantineScreen';
 import {useQuarantineQueueStore} from './quarantineQueue';
 

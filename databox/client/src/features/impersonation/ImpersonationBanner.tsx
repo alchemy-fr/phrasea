@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {UserRoundCogIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {useAuth} from '@/lib/auth/AuthProvider';
 
 /** Constant reminder that the admin is browsing as another user */

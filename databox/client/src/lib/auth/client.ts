@@ -1,5 +1,5 @@
 import {getConfig} from '@/lib/config/ConfigProvider';
-import {OidcClient} from './oidc';
+import {OidcClient} from '@alchemy/next-core/auth/oidc';
 
 let client: OidcClient | undefined;
 
@@ -22,6 +22,7 @@ export function getAuthClient(): OidcClient {
         silentRedirectUri: `${origin}/silent-check-sso.html`,
         postLogoutRedirectUri: `${origin}/`,
         idpHint: config.keycloak.autoConnectIdP,
+        storageKey: 'dbx.auth',
     });
 
     return client;

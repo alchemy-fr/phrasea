@@ -1,7 +1,7 @@
 import type {TFunction} from 'i18next';
 import {JobStatus, WorkflowStatus} from '@/types/api';
 import type {WorkflowDetail, WorkflowJob} from '@/types/api';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /** Key of a job status, `none` for a job that was not triggered yet */
 export type JobStatusKey =

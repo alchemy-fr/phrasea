@@ -3,8 +3,8 @@
 import {ReactNode, useEffect, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ShapesIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {AnnotationLayer} from './AnnotationLayer';
 import {AnnotationToolbar} from './AnnotationToolbar';
 import {

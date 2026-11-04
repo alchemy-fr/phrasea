@@ -2,6 +2,7 @@ import ky, {HTTPError, isHTTPError, type KyInstance, type Options} from 'ky';
 import {getConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {getImpersonation, IMPERSONATION_HEADER} from '@/lib/auth/impersonation';
+import {ApiError} from '@alchemy/next-ui/utils/errors';
 
 export type QueryParams = Record<string, unknown>;
 
@@ -20,35 +21,11 @@ export type RequestOptions = {
     keepalive?: boolean;
 };
 
-export class ApiError extends Error {
-    constructor(
-        message: string,
-        public readonly status: number,
-        public readonly data: any,
-        public readonly response?: Response
-    ) {
-        super(message);
-        this.name = 'ApiError';
-    }
-
-    /** API Platform constraint violations */
-    get violations(): {propertyPath: string; message: string}[] {
-        return this.data?.violations ?? [];
-    }
-}
-
-export function isApiError(e: unknown, status?: number): e is ApiError {
-    return (
-        e instanceof ApiError && (status === undefined || e.status === status)
-    );
-}
-
-export function isAbortError(e: unknown): boolean {
-    return (
-        (e instanceof DOMException && e.name === 'AbortError') ||
-        (e instanceof Error && e.name === 'AbortError')
-    );
-}
+export {
+    ApiError,
+    isAbortError,
+    isApiError,
+} from '@alchemy/next-ui/utils/errors';
 
 /**
  * Serializes query params the way Symfony expects them:

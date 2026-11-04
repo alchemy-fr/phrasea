@@ -22,13 +22,13 @@ import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {UserChip} from '@/components/chips';
 import {formatDateTime} from '@/lib/utils/format';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {SavedSearchPrivacyField} from '../SavedSearchPrivacyField';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {genericPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {AutomationsTab} from '../automations/AutomationsTab';
 
 type TabProps = {savedSearch: SavedSearch; refresh: () => void};

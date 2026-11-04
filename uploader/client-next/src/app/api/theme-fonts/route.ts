@@ -1,22 +1,9 @@
-import {getStackConfig} from '@/lib/config/stackConfig';
-import {compileStackTheme} from '@/features/theme/compile';
+import {getStackConfig} from '@alchemy/next-core/config/stackConfig';
+import {themeFontsResponse} from '@alchemy/next-theme/compile';
 
-/**
- * The `@font-face` rules of the fonts uploaded with the organisation theme.
- * The page links it with the digest of its content, so the browser keeps it
- * for good and fetches it again the day an administrator changes the fonts.
- */
+/** The `@font-face` rules of the fonts uploaded with the organisation theme */
 export const dynamic = 'force-dynamic';
 
 export async function GET(): Promise<Response> {
-    const css = compileStackTheme(await getStackConfig())?.fontsCss ?? '';
-
-    return new Response(css, {
-        headers: {
-            'Content-Type': 'text/css; charset=utf-8',
-            'Cache-Control': css
-                ? 'public, max-age=31536000, immutable'
-                : 'no-store',
-        },
-    });
+    return themeFontsResponse(await getStackConfig());
 }

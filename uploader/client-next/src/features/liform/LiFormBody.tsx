@@ -1,6 +1,6 @@
 'use client';
 
-import {Alert} from '@/components/ui/misc';
+import {Alert} from '@alchemy/next-ui/ui/misc';
 import {LiFormFields} from './LiForm';
 import type {useLiForm} from './useLiForm';
 

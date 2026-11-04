@@ -23,14 +23,14 @@ import type {
     User,
     Workspace,
 } from '@/types/api';
-import {Chip} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
+import {Chip} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {
     assetStatusLabels,
     privacyLabels,
 } from '@/features/attributes/types/registry';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {pickTranslation} from '@/lib/utils/locale';
 import {AssetStatus as AssetStatusEnum} from '@/types/api';
 

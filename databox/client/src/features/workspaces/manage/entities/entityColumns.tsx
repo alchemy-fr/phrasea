@@ -11,23 +11,23 @@ import {
 } from 'lucide-react';
 import type {AttributeEntity, EntityList} from '@/types/api';
 import {AttributeEntityStatus} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Badge} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {Flag} from '@/components/ui/flag';
 import {ColorSwatch} from '@/components/chips';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {Spinner} from '@/components/ui/loader';
+} from '@alchemy/next-ui/ui/menu';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 import {
     actionsColumn,
     selectionColumn,
 } from '@/components/ui/data-table/columns';
 import type {CellEditorOption} from '@/components/ui/data-table/types';
 import {formatDateTime} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {ENTITY_IMAGE_LIMITS} from '@/lib/uploadLimits';
 import {isDraft} from './drafts';
 import {type EntityMenuActions, EntityMenuItems} from './EntityMenuItems';

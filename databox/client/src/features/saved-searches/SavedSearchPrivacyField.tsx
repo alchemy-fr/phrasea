@@ -2,9 +2,9 @@
 
 import {useTranslation} from 'react-i18next';
 import {SavedSearchPrivacy} from '@/types/api';
-import {RadioGroup, RadioGroupItem} from '@/components/ui/controls';
-import {Label} from '@/components/ui/input';
-import {cn} from '@/lib/utils/cn';
+import {RadioGroup, RadioGroupItem} from '@alchemy/next-ui/ui/controls';
+import {Label} from '@alchemy/next-ui/ui/input';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export function SavedSearchPrivacyField({
     value,

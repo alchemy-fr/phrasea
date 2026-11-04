@@ -13,11 +13,11 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
-import {Button} from '@/components/ui/button';
-import {InlineLoader} from '@/components/ui/loader';
+} from '@alchemy/next-ui/ui/dialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {EntityChip} from '@/components/chips';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {useEntitiesStore} from '@/features/search/entitiesStore';
 import {iri} from '@/lib/utils/iri';

@@ -55,6 +55,10 @@ lib/js/auth
 lib/js/core
 lib/js/i18n
 lib/js/navigation
+lib/js/next-core
+lib/js/next-i18n
+lib/js/next-theme
+lib/js/next-ui
 lib/js/notification
 lib/js/phrasea-ui
 lib/js/phrasea-framework

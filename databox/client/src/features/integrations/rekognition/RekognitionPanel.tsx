@@ -18,10 +18,10 @@ import {
     runIntegrationAction,
 } from '@/lib/api/integrations';
 import {fetchAllPages} from '@/lib/api/hydra';
-import {Button} from '@/components/ui/button';
-import {InlineLoader} from '@/components/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {useAnnotations} from '@/features/annotations/AnnotationsProvider';
 import {AnnotationType} from '@/features/annotations/types';
 

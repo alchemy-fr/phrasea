@@ -59,16 +59,15 @@ The batch limits are also enforced by the API on commit.
 ```
 src/
   app/            Next.js routes (App Router); the private ones under app/(app)
-  components/     Design-system primitives (Radix + Tailwind), layout, modals
+  components/     Layout (the design system is `@alchemy/next-ui`, shared)
   features/
     targets/      Target list
     upload/       Upload wizard, and its engine (engine/: queue, resume, transport)
     download/     Upload by URL
     liform/       LiForm schema compiler and renderer
     admin/        Form schema and target data editors
-    theme/        Theme presets and organisation theme (shared with Databox)
   lib/            Config, auth (OIDC/PKCE), API client, navigation guard
-  i18n/           i18next setup and translations (en, fr, de, es)
+  i18n/           Languages and translations of the uploader (en, fr, de, es)
   types/          API contracts
 ```
 

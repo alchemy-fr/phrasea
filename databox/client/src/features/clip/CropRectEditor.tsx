@@ -10,7 +10,7 @@ import {
 } from '@/features/annotations/geometry';
 import type {Point} from '@/features/annotations/types';
 import {CropOverlay} from '@/features/assets/crop/CropOverlay';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {ClipCrop} from './types';
 
 /** Below this size (relative), a drawn rectangle is taken as a mere click */

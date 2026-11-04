@@ -40,8 +40,8 @@ import {
     VolumeXIcon,
 } from 'lucide-react';
 import type {ClipCrop, ClipTimeRange, MediaClip} from '@/types/api';
-import {cn} from '@/lib/utils/cn';
-import {scanForMedia} from '@/lib/analytics/matomo';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {scanForMedia} from '@alchemy/next-core/analytics/matomo';
 import type {ContentTracking} from '@/lib/analytics/useContentTracking';
 import {ClipFrame} from '@/features/clip/ClipFrame';
 import {useClipPlayback} from '@/features/clip/useClipPlayback';

@@ -24,17 +24,17 @@ import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {UserChip} from '@/components/chips';
 import {formatDateTime} from '@/lib/utils/format';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input, Textarea} from '@/components/ui/input';
-import {Alert} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
+import {Alert} from '@alchemy/next-ui/ui/misc';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {genericPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';
-import {useModals} from '@/components/modals/ModalProvider';
-import {ConfirmDialog} from '@/components/ui/confirm';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {useBasketStore} from '../basketStore';
 import {BasketIntegrations} from './BasketIntegrations';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 
 type TabProps = {basket: Basket; refresh: () => void; onClose: () => void};
 

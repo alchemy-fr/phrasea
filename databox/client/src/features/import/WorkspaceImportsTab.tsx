@@ -26,10 +26,10 @@ import {
     EmptyState,
     Progress,
     Skeleton,
-} from '@/components/ui/misc';
-import {Button} from '@/components/ui/button';
-import {useConfirm} from '@/components/ui/confirm';
-import {useModals} from '@/components/modals/ModalProvider';
+} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {LoadError} from '@/components/modals/LoadPlaceholder';
 import {formatDateTime} from '@/lib/utils/format';
 import {ImportAssetsDialog} from './ImportAssetsDialog';

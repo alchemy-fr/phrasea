@@ -2,7 +2,7 @@
 
 import {useMemo} from 'react';
 import {installLinkHook, sanitizeHtml} from '@/lib/utils/html';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 installLinkHook();
 

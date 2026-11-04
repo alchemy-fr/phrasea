@@ -15,11 +15,11 @@ import {
     type User,
     type Group,
 } from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
-import {LabeledControl, Switch} from '@/components/ui/controls';
-import {SimpleSelect} from '@/components/ui/select';
-import {Badge} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {
     AttributeDefinitionSelect,
     GroupSelect,
@@ -31,7 +31,7 @@ import {getRenditionDefinitions} from '@/lib/api/misc';
 import {getCollection} from '@/lib/api/collections';
 import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
 import {iri, toIris} from '@/lib/utils/iri';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 
 type AssetPolicyCondition = {field?: string; operator: string; value: string};
 /** The actions `AssetPolicyManager::applyPolicyToOutput` applies */

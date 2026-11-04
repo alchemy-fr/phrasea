@@ -20,12 +20,12 @@ import {
 } from './definitionsStore';
 import {BuiltInAttribute} from '@/features/search/searchState';
 import {CopyButton} from '@/components/ui/copy-button';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
-import {Separator} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {Separator} from '@alchemy/next-ui/ui/misc';
 import {useProfileStore} from '@/features/profiles/profileStore';
 import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabilities';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {AttributeType} from '@/types/api';
 
 type Item = {

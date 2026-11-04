@@ -3,10 +3,10 @@
 import {useState} from 'react';
 import {CheckIcon, CopyIcon} from 'lucide-react';
 import {useTranslation} from 'react-i18next';
-import {Button, type ButtonProps} from './button';
-import {Tooltip} from './overlays';
-import {copyToClipboard} from '@/lib/utils/misc';
-import {cn} from '@/lib/utils/cn';
+import {Button, type ButtonProps} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {copyToClipboard} from '@alchemy/next-ui/utils/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export function CopyButton({
     value,

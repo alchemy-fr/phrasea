@@ -5,24 +5,24 @@ import {useTranslation} from 'react-i18next';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {
     Dialog,
     DialogBody,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Progress} from '@/components/ui/misc';
+} from '@alchemy/next-ui/ui/dialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Progress} from '@alchemy/next-ui/ui/misc';
 import {multipartUpload} from '@/lib/api/upload';
 import {runIntegrationAction} from '@/lib/api/integrations';
 import {dataUrlToFile} from '@/lib/utils/mime';
 import {
     askDiscardChanges,
     useUnsavedChangesPrompt,
-} from '@/lib/navigation/unsavedChanges';
+} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {PhotoEditor, type PhotoEditorInstance} from './PhotoEditor';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 
@@ -36,8 +36,7 @@ import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
  */
 function isEdited(editor: PhotoEditorInstance | null): boolean {
     const stack = editor as
-        | (PhotoEditorInstance & {isEmptyUndoStack?: () => boolean})
-        | null;
+        (PhotoEditorInstance & {isEmptyUndoStack?: () => boolean}) | null;
 
     return stack?.isEmptyUndoStack?.() === false;
 }

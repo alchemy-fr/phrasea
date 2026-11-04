@@ -15,11 +15,11 @@ import {
     postEntityList,
     putEntityList,
 } from '@/lib/api/metadata';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
-import {Badge} from '@/components/ui/misc';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityGrid} from './EntityGrid';

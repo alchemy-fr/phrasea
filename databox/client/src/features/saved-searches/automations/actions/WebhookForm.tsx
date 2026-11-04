@@ -3,10 +3,10 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PlusIcon, Trash2Icon, WebhookIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {SimpleSelect} from '@/components/ui/select';
-import {FieldError, FormRow, Input, Label} from '@/components/ui/input';
-import {LabeledControl, Switch} from '@/components/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {FieldError, FormRow, Input, Label} from '@alchemy/next-ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import type {ActionDefinition, ActionFormProps} from './types';
 
 type WebhookMethod = 'POST' | 'PUT';

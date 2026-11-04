@@ -6,11 +6,11 @@ import {useQueryClient} from '@tanstack/react-query';
 import {RotateCcwIcon, Trash2Icon, UnlinkIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AssetTabProps} from '../types';
-import {Button} from '@/components/ui/button';
-import {Alert} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Alert} from '@alchemy/next-ui/ui/misc';
 import {CollectionChip, WorkspaceChip} from '@/components/chips';
-import {useModals} from '@/components/modals/ModalProvider';
-import {ConfirmDialog} from '@/components/ui/confirm';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {
     deleteAssets,
     deleteAssetShortcut,

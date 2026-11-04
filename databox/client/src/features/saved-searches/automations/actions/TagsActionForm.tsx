@@ -3,7 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import {TagsIcon} from 'lucide-react';
 import {TagSelect} from '@/components/form/selects';
-import {FormRow} from '@/components/ui/input';
+import {FormRow} from '@alchemy/next-ui/ui/input';
 import type {ActionDefinition, ActionFormProps} from './types';
 
 export function TagsActionForm({value, onChange, errors}: ActionFormProps) {

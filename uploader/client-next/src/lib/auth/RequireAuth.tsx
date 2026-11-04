@@ -5,8 +5,8 @@ import {useSearchParams} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
 import {LogInIcon} from 'lucide-react';
 import {LOGGED_OUT_PARAM, useAuth} from './AuthProvider';
-import {FullPageLoader} from '@/components/ui/loader';
-import {Button} from '@/components/ui/button';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
 
 /**
  * Gate for private screens: shows a loader while the session is being

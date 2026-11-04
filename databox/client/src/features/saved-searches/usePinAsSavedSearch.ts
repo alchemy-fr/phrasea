@@ -6,7 +6,7 @@ import {useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 import {type AQLQuery, SavedSearchPrivacy} from '@/types/api';
 import {postSavedSearch} from '@/lib/api/misc';
-import {toastError} from '@/lib/utils/errors';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 import {EventCategory, SavedSearchEvent, track} from '@/lib/analytics/events';
 import {conditionField} from '@/features/search/conditionField';
 

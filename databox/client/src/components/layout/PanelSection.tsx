@@ -3,7 +3,7 @@
 import {ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ChevronDownIcon, GripVerticalIcon} from 'lucide-react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {useSectionGrip} from './SortableSections';
 
 export function PanelSection({

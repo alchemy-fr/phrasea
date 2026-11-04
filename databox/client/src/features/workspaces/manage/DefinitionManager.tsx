@@ -24,11 +24,11 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {toast} from 'sonner';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {FilterInput} from '@/components/ui/filter-input';
-import {Skeleton, EmptyState} from '@/components/ui/misc';
-import {useModals} from '@/components/modals/ModalProvider';
-import {ConfirmDialog} from '@/components/ui/confirm';
+import {Skeleton, EmptyState} from '@alchemy/next-ui/ui/misc';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {LoadError} from '@/components/modals/LoadPlaceholder';
 import {isApiError} from '@/lib/api/http';
 import {
@@ -36,8 +36,8 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {cn} from '@/lib/utils/cn';
+} from '@alchemy/next-ui/ui/menu';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     overlayRow,
     SortableOverlay,
@@ -49,10 +49,10 @@ import {
     confirmLeave,
     UnsavedChangesScope,
     useUnsavedChangesChildScope,
-} from '@/lib/navigation/unsavedChanges';
+} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {NestedRoutePath, useRoutePath} from '@/lib/navigation/routePath';
 import {useFocusFirstField} from '@/hooks/useFocusFirstField';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
 
 export type DefinitionItem = {id: string};
 

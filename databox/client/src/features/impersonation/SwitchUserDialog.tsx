@@ -4,7 +4,7 @@ import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {CheckIcon} from 'lucide-react';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {
     Dialog,
     DialogBody,
@@ -12,7 +12,7 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
+} from '@alchemy/next-ui/ui/dialog';
 import {
     Command,
     CommandEmpty,
@@ -20,10 +20,10 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from '@/components/ui/command';
-import {Avatar} from '@/components/ui/misc';
-import {Spinner} from '@/components/ui/loader';
-import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+} from '@alchemy/next-ui/ui/command';
+import {Avatar} from '@alchemy/next-ui/ui/misc';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {
     getDisplayName,
@@ -31,7 +31,7 @@ import {
     getImpersonationIdentity,
     type ImpersonableUser,
 } from '@/lib/api/impersonation';
-import {toastError} from '@/lib/utils/errors';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 
 /**
  * Lets an admin act as another user to test permissions. Picking a user

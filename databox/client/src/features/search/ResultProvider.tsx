@@ -17,7 +17,7 @@ import {useSearch} from './SearchProvider';
 import {conditionQuery, resolveSortBy} from './searchState';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
-import {trackSiteSearch} from '@/lib/analytics/matomo';
+import {trackSiteSearch} from '@alchemy/next-core/analytics/matomo';
 
 export type ResultContextValue = {
     pages: Asset[][];

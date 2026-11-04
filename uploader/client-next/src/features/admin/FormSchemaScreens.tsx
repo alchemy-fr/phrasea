@@ -4,10 +4,10 @@ import Link from 'next/link';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {PencilIcon, PlusIcon, Trash2Icon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Alert, EmptyState} from '@/components/ui/misc';
-import {FullPageLoader} from '@/components/ui/loader';
-import {useConfirm} from '@/components/ui/confirm';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Alert, EmptyState} from '@alchemy/next-ui/ui/misc';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {Page} from '@/components/layout/AppShell';
 import {
     deleteFormSchema,
@@ -15,7 +15,7 @@ import {
     getFormSchemas,
 } from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
-import {getErrorMessage} from '@/lib/utils/errors';
+import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {FormSchemaEditor, formSchemasQueryKey} from './FormSchemaEditor';
 import {RequirePermission} from './RequirePermission';
 

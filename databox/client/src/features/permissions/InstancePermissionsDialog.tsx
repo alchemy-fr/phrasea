@@ -5,17 +5,17 @@ import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {InfoIcon, Trash2Icon, UserIcon, UsersIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
 import {Group, User, UserType} from '@/types/api';
 import {deleteAce, getTypeAces, putAce} from '@/lib/api/misc';
 import {getUserDisplayName} from '@/lib/users';
-import {Checkbox} from '@/components/ui/controls';
-import {Button} from '@/components/ui/button';
-import {Skeleton} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
+import {Checkbox} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     AceWrite,
     getInstancePermissionLabels,

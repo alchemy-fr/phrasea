@@ -22,25 +22,25 @@ import {
     SavedSearchAutomationInput,
 } from '@/lib/api/automations';
 import {isApiError} from '@/lib/api/http';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {FieldError, FormRow, Input} from '@/components/ui/input';
-import {SimpleSelect} from '@/components/ui/select';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {FieldError, FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {
     Checkbox,
     LabeledControl,
     RadioGroup,
     RadioGroupItem,
     Switch,
-} from '@/components/ui/controls';
-import {Button} from '@/components/ui/button';
+} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {toastError} from '@/lib/utils/errors';
+} from '@alchemy/next-ui/ui/menu';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 import {formatDateTime} from '@/lib/utils/format';
 import {
     actionTypes,

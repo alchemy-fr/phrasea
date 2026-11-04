@@ -19,24 +19,24 @@ import {
     TypeIcon,
     XIcon,
 } from 'lucide-react';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
     Tooltip,
-} from '@/components/ui/overlays';
+} from '@alchemy/next-ui/ui/overlays';
 import {ColorInput} from '@/components/ui/color-input';
-import {Input} from '@/components/ui/input';
-import {Slider} from '@/components/ui/controls';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Slider} from '@alchemy/next-ui/ui/controls';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {cn} from '@/lib/utils/cn';
+} from '@alchemy/next-ui/ui/menu';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {AnnotationType} from './types';
 import {getShapeModel} from './shapes';
 import type {AnnotationEditor} from './useAnnotationEditor';

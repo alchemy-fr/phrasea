@@ -6,10 +6,10 @@ import {CloudUploadIcon} from 'lucide-react';
 import type {AutomationActionConfig} from '@/types/api';
 import {getRenditionDefinitions} from '@/lib/api/misc';
 import {fetchAllPages} from '@/lib/api/hydra';
-import {FormRow, Input, Textarea} from '@/components/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
-import {InlineLoader} from '@/components/ui/loader';
-import {Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
+import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
 import type {ActionDefinition, ActionFormProps} from './types';
 
 export type RemoteExportProtocol = 's3' | 'sftp' | 'ftp';

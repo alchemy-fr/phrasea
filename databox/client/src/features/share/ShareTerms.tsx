@@ -3,8 +3,8 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {FileTextIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
 import {
     Dialog,
     DialogContent,
@@ -12,7 +12,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
+} from '@alchemy/next-ui/ui/dialog';
 import type {ShareTerms} from '@/types/api';
 
 /** The terms text, or a link to their PDF when provided instead */

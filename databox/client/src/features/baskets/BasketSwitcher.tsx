@@ -15,8 +15,8 @@ import {toast} from 'sonner';
 import type {Asset, Basket} from '@/types/api';
 import {useBasketStore} from './basketStore';
 import {useAddToCurrentBasket} from './useAddToCurrentBasket';
-import {Button} from '@/components/ui/button';
-import {Badge} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -27,12 +27,12 @@ import {
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {useModals} from '@/components/modals/ModalProvider';
+} from '@alchemy/next-ui/ui/menu';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {BasketFormDialog} from './BasketFormDialog';
 import {routes} from '@/lib/routes';
-import {Tooltip} from '@/components/ui/overlays';
-import {ConfirmDialog} from '@/components/ui/confirm';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 
 export function BasketSwitcher({
     selection,

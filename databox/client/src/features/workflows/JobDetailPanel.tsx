@@ -15,7 +15,7 @@ import type {WorkflowDetail, WorkflowJob} from '@/types/api';
 import {getWorkspace} from '@/lib/api/collections';
 import {joinRoutePath} from '@/lib/navigation/routePath';
 import {routes} from '@/lib/routes';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {CopiableText, CopyButton} from '@/components/ui/copy-button';
 import {
     DetailFields,

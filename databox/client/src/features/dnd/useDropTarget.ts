@@ -1,7 +1,7 @@
 'use client';
 
 import {useDroppable} from '@dnd-kit/core';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {useDragOver, useDragPayload} from './DragContext';
 import {type DropTarget, type DropVerdict, dropId} from './types';
 

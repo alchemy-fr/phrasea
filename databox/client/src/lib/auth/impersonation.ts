@@ -1,4 +1,4 @@
-import type {AuthUser} from './oidc';
+import type {AuthUser} from '@alchemy/next-core/auth/oidc';
 import {DEFINITIONS_CACHE_KEY} from '@/features/attributes/definitionsCacheKey';
 
 /**

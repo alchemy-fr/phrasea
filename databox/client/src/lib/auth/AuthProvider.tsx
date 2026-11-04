@@ -11,7 +11,7 @@ import {
 } from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {AUTH_CALLBACK_PATH, getAuthClient} from './client';
-import type {AuthUser} from './oidc';
+import type {AuthUser} from '@alchemy/next-core/auth/oidc';
 import {
     clearImpersonation,
     getImpersonation,
@@ -22,7 +22,7 @@ import {
     stopImpersonation,
     type ImpersonatedUser,
 } from './impersonation';
-import {toastError} from '@/lib/utils/errors';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 import {getImpersonationIdentity} from '@/lib/api/impersonation';
 import {isApiError} from '@/lib/api/http';
 import {clearDefinitionsCache} from '@/features/attributes/definitionsCache';

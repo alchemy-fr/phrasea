@@ -4,16 +4,16 @@ import {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PauseIcon, PlayIcon, PlusIcon, Trash2Icon, XIcon} from 'lucide-react';
 import type {ApiFile, Asset} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Button} from '@/components/ui/button';
-import {LabeledControl, Slider, Switch} from '@/components/ui/controls';
-import {FormRow, Input} from '@/components/ui/input';
-import {SimpleSelect} from '@/components/ui/select';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {LabeledControl, Slider, Switch} from '@alchemy/next-ui/ui/controls';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
-import {cn} from '@/lib/utils/cn';
-import {toastError} from '@/lib/utils/errors';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
 import {
     type CropRatioName,

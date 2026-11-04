@@ -1,7 +1,7 @@
 import {useCallback, useMemo, useRef, useState} from 'react';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import type {Page} from '@/types/api';
-import {useDebouncedValue} from './useDebouncedValue';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
 
 export type InfiniteListFetch<T> = (args: {
     /** The trimmed, debounced search ('' without one) */

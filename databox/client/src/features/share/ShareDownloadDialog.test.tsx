@@ -11,7 +11,7 @@ import {
 const misc = vi.hoisted(() => ({
     saveUrlAs: vi.fn((_url: string, _filename: string) => Promise.resolve()),
 }));
-vi.mock('@/lib/utils/misc', async importOriginal => ({
+vi.mock('@alchemy/next-ui/utils/misc', async importOriginal => ({
     ...(await importOriginal<object>()),
     ...misc,
 }));

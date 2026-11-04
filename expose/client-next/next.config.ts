@@ -34,6 +34,13 @@ const nextConfig: NextConfig = {
         optimizePackageImports: ['lucide-react', 'radix-ui', 'date-fns'],
     },
     turbopack: {},
+    // Workspace libraries are shipped as TypeScript sources
+    transpilePackages: [
+        '@alchemy/next-core',
+        '@alchemy/next-i18n',
+        '@alchemy/next-theme',
+        '@alchemy/next-ui',
+    ],
 };
 
 export default nextConfig;

@@ -42,12 +42,12 @@ import {
     ProfileItemSize,
     ProfileItemVariant,
 } from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {SimpleSelect} from '@/components/ui/select';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
 import {getAttributeType} from '@/features/attributes/types/registry';
 import {chipColors} from '@/features/assets/list/layouts/GridCardZones';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {ProfileTabProps} from './ProfileManageRoute';
 import {
     AttributePalette,

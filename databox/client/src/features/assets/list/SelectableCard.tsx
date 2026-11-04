@@ -8,8 +8,8 @@ import {
     useSelectionActions,
 } from './SelectionProvider';
 import {useAssetDrag} from '@/features/dnd/useAssetDrag';
-import {cn} from '@/lib/utils/cn';
-import {mergeRefs} from '@/lib/utils/refs';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {mergeRefs} from '@alchemy/next-ui/utils/refs';
 
 type Props = Omit<ComponentProps<'div'>, 'onClick' | 'onDoubleClick'> & {
     asset: Asset;

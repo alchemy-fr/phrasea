@@ -18,9 +18,9 @@ import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {isApiError} from '@/lib/api/http';
 import {useConfig} from '@/lib/config/ConfigProvider';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
-import {Slider, Switch} from '@/components/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {Slider, Switch} from '@alchemy/next-ui/ui/controls';
 import {
     Alert,
     Badge,
@@ -30,9 +30,9 @@ import {
     TabsContent,
     TabsList,
     TabsTrigger,
-} from '@/components/ui/misc';
-import {useConfirm} from '@/components/ui/confirm';
-import {cn} from '@/lib/utils/cn';
+} from '@alchemy/next-ui/ui/misc';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {deleteClientTheme, getClientTheme, putClientTheme} from './api';
 import {
     baseThemeColors,
@@ -42,14 +42,15 @@ import {
     resolveThemeColors,
     THEME_LIMITS,
     ThemeColorToken,
-} from './customTheme';
+} from '@alchemy/next-theme/customTheme';
 import {ThemeFontFields} from './ThemeFontFields';
-import {CUSTOM_THEME_ID, ThemeMode} from './presets';
-import {ThemeSwatch} from './ThemeMenu';
-import {useThemeStore} from './themeStore';
+import {CUSTOM_THEME_ID, ThemeMode} from '@alchemy/next-theme/presets';
+import {ThemeSwatch} from '@alchemy/next-theme/ThemeMenu';
+import {useThemeStore} from '@alchemy/next-theme/themeStore';
 import {ColorInput} from '@/components/ui/color-input';
-import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
+import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {usePageTrail} from '@/components/layout/layoutStore';
+import {usePreferencesStore} from '@/features/preferences/store';
 import {routes} from '@/lib/routes';
 
 type Palette = Record<ThemeColorToken, string>;
@@ -198,6 +199,7 @@ export function ThemeEditorScreen() {
     const setPreview = useThemeStore(s => s.setPreview);
     const selectedTheme = useThemeStore(s => s.theme);
     const selectTheme = useThemeStore(s => s.setTheme);
+    const updatePreference = usePreferencesStore(s => s.updatePreference);
     const {resolvedTheme, setTheme: setAppearance} = useTheme();
     const [draft, setDraft] = useState<Draft>();
     const [saving, setSaving] = useState(false);
@@ -676,9 +678,13 @@ export function ThemeEditorScreen() {
                                         variant="outline"
                                         size="sm"
                                         className="w-full"
-                                        onClick={() =>
-                                            selectTheme(CUSTOM_THEME_ID)
-                                        }
+                                        onClick={() => {
+                                            selectTheme(CUSTOM_THEME_ID);
+                                            void updatePreference(
+                                                'palette',
+                                                CUSTOM_THEME_ID
+                                            );
+                                        }}
                                         data-testid="theme-use"
                                     >
                                         <CheckIcon />{' '}

@@ -25,7 +25,7 @@ export type TicketingConfig = {
     enabled: boolean;
 };
 
-import type {ClientThemeMeta} from '@/features/theme/customTheme';
+import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
 
 export type AppConfig = {
     appId: string;

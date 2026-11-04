@@ -3,9 +3,9 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ArrowRightIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Alert} from '@/components/ui/misc';
-import {getErrorMessage} from '@/lib/utils/errors';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Alert} from '@alchemy/next-ui/ui/misc';
+import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {hasFormErrors, validateForm} from '@/lib/api/uploader';
 import {LiFormBody} from '@/features/liform/LiFormBody';
 import {fromServerErrors, useLiForm} from '@/features/liform/useLiForm';

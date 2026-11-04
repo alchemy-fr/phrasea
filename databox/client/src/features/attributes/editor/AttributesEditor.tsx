@@ -12,18 +12,18 @@ import {
     AttributeIndex,
     DefinitionIndex,
 } from './attributeEditorModel';
-import {Button} from '@/components/ui/button';
-import {Label} from '@/components/ui/input';
-import {Tabs, TabsList, TabsTrigger, Alert} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Label} from '@alchemy/next-ui/ui/input';
+import {Tabs, TabsList, TabsTrigger, Alert} from '@alchemy/next-ui/ui/misc';
 import {NO_LOCALE, isRtl} from '@/lib/utils/locale';
 import {routes} from '@/lib/routes';
 import {idFromIri} from '@/lib/utils/iri';
-import {shortId} from '@/lib/utils/misc';
-import {cn} from '@/lib/utils/cn';
+import {shortId} from '@alchemy/next-ui/utils/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {Flag} from '@/components/ui/flag';
 import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetButton';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
-import {Spinner} from '@/components/ui/loader';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 
 export type OnAttributeChange = (
     definitionId: string,

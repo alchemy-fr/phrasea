@@ -10,9 +10,9 @@ import {
     runIntegrationAction,
 } from '@/lib/api/integrations';
 import {useIntegrationData} from '../useIntegrationData';
-import {Button} from '@/components/ui/button';
-import {InlineLoader} from '@/components/ui/loader';
-import {useModals} from '@/components/modals/ModalProvider';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {PhotoEditorDialog} from './PhotoEditorDialog';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';

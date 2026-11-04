@@ -12,11 +12,11 @@ import {
     ZapIcon,
 } from 'lucide-react';
 import type {WorkflowDetail} from '@/types/api';
-import {DialogHeader, DialogTitle} from '@/components/ui/dialog';
-import {Button} from '@/components/ui/button';
+import {DialogHeader, DialogTitle} from '@alchemy/next-ui/ui/dialog';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {CopiableText} from '@/components/ui/copy-button';
-import {Tooltip} from '@/components/ui/overlays';
-import {cn} from '@/lib/utils/cn';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {JsonSection, RelativeDate} from './workflowDetails';
 import {canCancelWorkflow, formatJobDuration, hasData} from './jobStatus';
 import {workflowStatusBadge, workflowTitle} from './workflowLabel';

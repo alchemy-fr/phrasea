@@ -1,4 +1,4 @@
-import {trackEvent} from './matomo';
+import {trackEvent} from '@alchemy/next-core/analytics/matomo';
 
 /**
  * Catalogue of the Matomo events (`trackEvent`) sent by the client, documented

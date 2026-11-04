@@ -1,5 +1,5 @@
 import {getAuthClient} from './client';
-import type {Tokens} from './oidc';
+import type {Tokens} from '@alchemy/next-core/auth/oidc';
 
 /** Page of the sign-in window: it signs in, then hands the tokens over */
 export const LOGIN_WINDOW_PATH = '/auth/window';

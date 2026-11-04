@@ -8,9 +8,9 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 import {ArrowLeftIcon} from 'lucide-react';
 import type {PublicationProfile} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {FieldError, Input, Label} from '@/components/ui/input';
-import {FullPageLoader} from '@/components/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FieldError, Input, Label} from '@alchemy/next-ui/ui/input';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {ErrorScreen} from '@/components/ErrorScreen';
 import {
     createProfile,
@@ -20,8 +20,8 @@ import {
     publicationKeys,
 } from '@/lib/api/publications';
 import {isApiError} from '@/lib/api/http';
-import {toastError} from '@/lib/utils/errors';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {toastError} from '@alchemy/next-ui/utils/errors';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {routes} from '@/lib/routes';
 import {ConfigForm} from './config/ConfigForm';
 import {

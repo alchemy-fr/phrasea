@@ -9,9 +9,9 @@ import {
     SecurityMethod,
     type Publication,
 } from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {FieldError, Input, Label} from '@/components/ui/input';
-import {FullPageLoader} from '@/components/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FieldError, Input, Label} from '@alchemy/next-ui/ui/input';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {hasLoggedOut} from '@/lib/auth/loggedOut';
 import {isInIframe} from '@/lib/auth/loginWindow';

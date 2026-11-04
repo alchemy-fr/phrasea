@@ -6,7 +6,7 @@ const matomo = vi.hoisted(() => ({
     trackContentImpression: vi.fn(),
     trackContentInteraction: vi.fn(),
 }));
-vi.mock('./matomo', () => matomo);
+vi.mock('@alchemy/next-core/analytics/matomo', () => matomo);
 
 const {contentClick, getContentTracking, useContentImpression} =
     await import('./useContentTracking');

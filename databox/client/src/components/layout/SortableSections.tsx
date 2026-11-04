@@ -11,7 +11,7 @@ import {
     type KeyboardEvent as ReactKeyboardEvent,
     type PointerEvent as ReactPointerEvent,
 } from 'react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {moveItem} from '@/lib/utils/order';
 
 /** Given by `SortableSections` to the `PanelSection` it wraps: the grip moving it */
