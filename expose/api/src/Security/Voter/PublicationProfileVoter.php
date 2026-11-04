@@ -28,7 +28,7 @@ class PublicationProfileVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $isAdmin = $this->hasScope(ScopeInterface::SCOPE_PUBLISH, '', false)
-            || $this->isAdmin();
+            || $this->isAdmin($token);
         $user = $token->getUser();
         $isAuthenticated = $user instanceof JwtUser;
         $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();
