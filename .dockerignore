@@ -19,9 +19,6 @@
 **/vendor
 /bin
 /cypress
-/dashboard/client/index.html
-/expose/client/index.html
-/uploader/client/index.html
 /doc
 /infra
 /report

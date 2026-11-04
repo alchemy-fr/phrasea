@@ -16,11 +16,8 @@ configurator
 CLIENT_PROJECTS="
 databox/client
 expose/client
-expose/client-next
 uploader/client
-uploader/client-next
 dashboard/client
-dashboard/client-next
 "
 
 NODE_PROJECTS="

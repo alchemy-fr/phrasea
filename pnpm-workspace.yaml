@@ -2,11 +2,8 @@ packages:
   - 'databox/client'
   - 'databox/indexer'
   - 'expose/client'
-  - 'expose/client-next'
   - 'uploader/client'
-  - 'uploader/client-next'
   - 'dashboard/client'
-  - 'dashboard/client-next'
   - 'lib/js/*'
 
 overrides:
