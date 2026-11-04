@@ -1,10 +1,12 @@
 # <${PHRASEA_DOMAIN}>
 ${IP} uploader.${PHRASEA_DOMAIN}
+${IP} uploader-next.${PHRASEA_DOMAIN}
 ${IP} api-uploader.${PHRASEA_DOMAIN}
 ${IP} api-auth.${PHRASEA_DOMAIN}
 ${IP} pgadmin.${PHRASEA_DOMAIN}
 ${IP} rabbitmq-console.${PHRASEA_DOMAIN}
 ${IP} expose.${PHRASEA_DOMAIN}
+${IP} expose-next.${PHRASEA_DOMAIN}
 ${IP} api-expose.${PHRASEA_DOMAIN}
 ${IP} minio.${PHRASEA_DOMAIN}
 ${IP} minio-console.${PHRASEA_DOMAIN}
@@ -15,7 +17,7 @@ ${IP} saml-idp.${PHRASEA_DOMAIN}
 ${IP} pma.${PHRASEA_DOMAIN}
 ${IP} mailpit.${PHRASEA_DOMAIN}
 ${IP} dashboard.${PHRASEA_DOMAIN}
-${IP} databox.${PHRASEA_DOMAIN}
+${IP} dashboard-next.${PHRASEA_DOMAIN}
 ${IP} elastichq.${PHRASEA_DOMAIN}
 ${IP} report-kibana.${PHRASEA_DOMAIN}
 ${IP} traefik-console.${PHRASEA_DOMAIN}
