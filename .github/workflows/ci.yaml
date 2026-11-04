@@ -121,6 +121,17 @@ jobs:
       - build_nodejs-base
       - build_nginx-client-base
 
+  build_dashboard_client_next:
+    name: 'Build Dashboard Client Next'
+    uses: ./.github/workflows/build.yaml
+    with:
+      image: dashboard-client-next
+      context: ./dashboard/client-next
+      withLibs: true
+    secrets: inherit
+    needs:
+      - build_nodejs-base
+
   build_databox_api:
     name: 'Build Databox API'
     uses: ./.github/workflows/build_api.yaml
@@ -179,6 +190,17 @@ jobs:
       - build_nodejs-base
       - build_nginx-client-base
 
+  build_expose_client_next:
+    name: 'Build Expose Client Next'
+    uses: ./.github/workflows/build.yaml
+    with:
+      image: expose-client-next
+      context: ./expose/client-next
+      withLibs: true
+    secrets: inherit
+    needs:
+      - build_nodejs-base
+
   build_uploader_api:
     name: 'Build Uploader API'
     uses: ./.github/workflows/build_api.yaml
@@ -203,6 +225,17 @@ jobs:
       - build_nodejs-base
       - build_nginx-client-base
 
+  build_uploader_client_next:
+    name: 'Build Uploader Client Next'
+    uses: ./.github/workflows/build.yaml
+    with:
+      image: uploader-client-next
+      context: ./uploader/client-next
+      withLibs: true
+    secrets: inherit
+    needs:
+      - build_nodejs-base
+
   setup:
     name: 'Setup stack'
     runs-on: ubuntu-latest
@@ -212,13 +245,16 @@ jobs:
     needs:
       - build_configurator
       - build_dashboard
+      - build_dashboard_client_next
       - build_databox_api
       - build_databox_client
       - build_databox_indexer
       - build_expose_api
       - build_expose_client
+      - build_expose_client_next
       - build_uploader_api
       - build_uploader_client
+      - build_uploader_client_next
 
     steps:
       - name: Install mkcert
