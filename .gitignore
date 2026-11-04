@@ -1,4 +1,5 @@
 .idea
+.claude
 /env*.local
 /.env*.local
 /tmp
