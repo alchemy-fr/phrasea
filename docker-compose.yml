@@ -114,12 +114,12 @@ services:
       - NOTIFICATIONS_ENABLED
       - SOCKUDO_KEY
       # Carries the public HTTPS port, which is not 443 on every stack (CI).
-      - SOCKUDO_HOST=sockudo.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - SOCKUDO_HOST=ws.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
     extra_hosts:
-      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - ws.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_api-php:
@@ -180,14 +180,14 @@ services:
       - MATOMO_SITE_ID
       - MATOMO_MEDIA_PLUGIN_ENABLED
       - MATOMO_AUTH_TOKEN
-      - SOCKUDO_HOST=sockudo.${PHRASEA_DOMAIN}
+      - SOCKUDO_HOST=ws.${PHRASEA_DOMAIN}
       - SOCKUDO_APP_ID
       - SOCKUDO_KEY
       - SOCKUDO_SECRET
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - ws.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_s3-php:
     logging: *default-logging
@@ -1240,7 +1240,7 @@ services:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - ws.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   sockudo:
     logging: *default-logging
@@ -1271,9 +1271,9 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       # /usage, /stats and /operator are served on the app port: only /usage
       # is exposed, on its own host.
-      - "traefik.http.routers.sockudo.rule=Host(`sockudo.${PHRASEA_DOMAIN}`) && !PathPrefix(`/usage`) && !PathPrefix(`/stats`) && !PathPrefix(`/operator`)"
+      - "traefik.http.routers.sockudo.rule=Host(`ws.${PHRASEA_DOMAIN}`) && !PathPrefix(`/usage`) && !PathPrefix(`/stats`) && !PathPrefix(`/operator`)"
       - "traefik.http.routers.sockudo.service=sockudo"
-      - "traefik.http.routers.sockudo-usage.rule=Host(`sockudo-usage.${PHRASEA_DOMAIN}`) && Path(`/usage`)"
+      - "traefik.http.routers.sockudo-usage.rule=Host(`ws-usage.${PHRASEA_DOMAIN}`) && Path(`/usage`)"
       - "traefik.http.routers.sockudo-usage.service=sockudo"
       - "traefik.http.services.sockudo.loadbalancer.server.port=6001"
 
