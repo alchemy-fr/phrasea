@@ -6,6 +6,8 @@
 parameters:
     default_locale: 'en'
     env(VERIFY_SSL): true
+    # Above it, an import of assets must use the NDJSON format (read line by line)
+    env(ASSET_IMPORT_JSON_MAX_SIZE): '52428800'
     stof_doctrine_extensions.listener.softdeleteable.class: App\Doctrine\Listener\SoftDeleteableListener
 
 services:

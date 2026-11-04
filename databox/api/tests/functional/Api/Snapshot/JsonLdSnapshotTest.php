@@ -156,6 +156,10 @@ final class JsonLdSnapshotTest extends AbstractSearchTestCase
         $basketAsset->setAsset($other);
         $basketAsset->setOwnerId(self::USER);
         $basketAsset->setPosition(0);
+        $basketAsset->setClip([
+            'timeRange' => ['s' => 1.5, 'e' => 3.25],
+            'crop' => ['x' => 0.1, 'y' => 0.2, 'w' => 0.5, 'h' => 0.25],
+        ]);
         $em->persist($basketAsset);
         $em->flush();
     }

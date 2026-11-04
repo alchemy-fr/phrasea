@@ -2,6 +2,7 @@
 
 namespace Alchemy\RenditionFactory;
 
+use Alchemy\RenditionFactory\DTO\BuildConfig\BuildConfig;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
@@ -17,10 +18,14 @@ final readonly class BuildConfigDocumentation
         $treeBuilder = new TreeBuilder('root');
         // @formatter:off
         $treeBuilder->getRootNode()
-            ->info('The build definition is keyed by source file family. One entry per family to support, among: '.$families)
+            ->info('The build definition is keyed by source file family. One entry per family to support, among: '.$families.'. '
+                .'Or a single "'.BuildConfig::GENERATE.'" entry, to build a rendition without source file: its first module is a generator (e.g. contact_sheet).')
             ->useAttributeAsKey('family')
             ->arrayPrototype()
                 ->children()
+                    ->scalarNode('input')
+                        ->info('Only in "'.BuildConfig::GENERATE.'": what the application feeds the generator with (in Databox, the story items rendition: thumbnail or preview).')
+                    ->end()
                     ->arrayNode('transformations')
                         ->isRequired()
                         ->info('The modules to run sequentially to build the rendition.')

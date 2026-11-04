@@ -131,12 +131,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'query' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Search query on the name ("in:trash", "in:all" to include deleted collections); searches the whole sub-tree of the parent',
+                    description: 'Search query on the name ("in:trash", "in:all" to include deleted collections); searches the whole sub-tree of the parent, or all the collections without parent',
                     castToArray: false,
                 ),
                 'deep' => new QueryParameter(
                     schema: ['type' => 'boolean'],
-                    description: 'With "parent"/"parents": also list the descendants (default: only with a "query")',
+                    description: 'Also list the descendants of the parent, or of the root collections without parent (default: only with a "query")',
                     castToNativeType: true,
                     castToArray: false,
                 ),

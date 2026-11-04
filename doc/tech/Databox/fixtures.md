@@ -181,7 +181,7 @@ fixtures.
   stories), Artist, Client, Genre and Instruments (entity lists), BPM, Key, ISRC, Recorded
   on, Engineer, Duration, Explicit, Keywords (cue annotations on the audio and the video,
   rectangles and circles on the session photos), Blurhash, People (faces). **Label** policy:
-  WebVTT transcript (translatable), Contract notes.
+  WebVTT transcript (translatable `web_vtt`: the subtitles of the videos), Contract notes.
 - **Entity lists**: Genre and Instrument (translated in fr), Client (the artist of each
   album, 2 labels for the albums, an advertising agency and a radio for the voice-overs),
   People (faces).

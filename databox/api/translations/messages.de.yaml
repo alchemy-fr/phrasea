@@ -35,6 +35,7 @@ field_type:
   types:
     text: Text
     textarea: Textfeld
+    web_vtt: WebVTT-Untertitel
     json: JSON
     ip: IP
     code: Code

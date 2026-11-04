@@ -67,13 +67,31 @@ class AssetExport extends AbstractUuidEntity
     private ?string $path = null;
 
     /**
+     * Asset IDs. Derived from the basket items when they are given.
+     *
      * @var string[]
      */
     #[Groups(self::GROUP_WRITE)]
-    #[Assert\NotNull]
-    #[Assert\Count(min: 1)]
+    #[Assert\When(
+        expression: 'null === this.getBasketAssets()',
+        constraints: [
+            new Assert\NotNull(),
+            new Assert\Count(min: 1),
+        ],
+    )]
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $assets = null;
+
+    /**
+     * Basket item IDs, in place of the assets: their clip is applied to the exported files.
+     *
+     * @var string[]|null
+     */
+    #[Groups(self::GROUP_WRITE)]
+    #[Assert\Count(min: 1)]
+    #[Assert\All([new Assert\Uuid()])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $basketAssets = null;
 
     /**
      * @var string[]
@@ -108,6 +126,16 @@ class AssetExport extends AbstractUuidEntity
     public function setAssets(?array $assets): void
     {
         $this->assets = $assets;
+    }
+
+    public function getBasketAssets(): ?array
+    {
+        return $this->basketAssets;
+    }
+
+    public function setBasketAssets(?array $basketAssets): void
+    {
+        $this->basketAssets = $basketAssets;
     }
 
     public function getRenditions(): ?array

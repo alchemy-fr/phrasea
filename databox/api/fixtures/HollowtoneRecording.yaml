@@ -196,7 +196,7 @@ App\Entity\Core\AttributeDefinition:
     # Its slug "webvtttranscript" is used by the AWS Transcribe integration
     ht_ad_webvtttranscript (extends ht_tpl_ad):
         name: WebVTT transcript
-        type: code
+        type: web_vtt
         translatable: true
         policy: '@ht_ap_label'
         position: 15

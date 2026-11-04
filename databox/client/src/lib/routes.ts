@@ -55,6 +55,7 @@ export type WorkspaceTab =
     | 'renditions'
     | 'rendition-policies'
     | 'asset-policies'
+    | 'imports'
     | 'integrations'
     | 'filter-rules';
 

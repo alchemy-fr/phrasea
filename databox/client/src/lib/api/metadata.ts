@@ -21,6 +21,7 @@ import {
 } from '@/types/api';
 import {toIris} from '@/lib/utils/iri';
 import {multipartUpload} from './upload';
+import {createBatchLoader} from '@/lib/utils/batchLoader';
 
 // Attribute definitions ---------------------------------------------------
 
@@ -285,15 +286,12 @@ export function clearEntityList(listId: string): Promise<void> {
 }
 
 export type AttributeEntitySortField =
-    | 'value'
-    | 'status'
-    | 'note'
-    | 'createdAt'
-    | 'updatedAt';
+    'value' | 'status' | 'note' | 'createdAt' | 'updatedAt';
 
 export async function getAttributeEntities(options: {
     list?: string;
     workspace?: string;
+    ids?: string[];
     /** Search-as-you-type on Elasticsearch: ignores the ORM-only filters and sorts */
     query?: string;
     /** Contains match on the value (keeps the sorts and the other filters) */
@@ -317,6 +315,7 @@ export async function getAttributeEntities(options: {
                     : {
                           list: options.list,
                           workspace: options.workspace,
+                          ids: options.ids,
                           query: options.query,
                           value: options.value,
                           note: options.note,
@@ -336,6 +335,32 @@ export async function getAttributeEntities(options: {
 
 export function getAttributeEntity(id: string): Promise<AttributeEntity> {
     return api.get<AttributeEntity>(`/${EntityName.AttributeEntity}/${id}`);
+}
+
+const UUID_RE =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const attributeEntityBatch = createBatchLoader<AttributeEntity>({
+    load: async ids => {
+        const page = await getAttributeEntities({ids, limit: ids.length});
+
+        return new Map(page.items.map(e => [e.id, e]));
+    },
+});
+
+/**
+ * Same as `getAttributeEntity`, but the ids requested together are fetched in
+ * a few `?ids[]=` calls. The values the listing leaves out (rejected ones,
+ * shown to the list editors only) are fetched one by one.
+ */
+export async function loadAttributeEntity(
+    id: string
+): Promise<AttributeEntity> {
+    const entity = UUID_RE.test(id)
+        ? await attributeEntityBatch(id)
+        : undefined;
+
+    return entity ?? getAttributeEntity(id);
 }
 
 export function postAttributeEntity(

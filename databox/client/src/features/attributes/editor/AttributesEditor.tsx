@@ -236,6 +236,9 @@ export function AttributeField({
                 editable={!disabled}
                 onChange={onAnnotationsChange}
                 label={name}
+                attributeId={
+                    item && !item.id.startsWith('new-') ? item.id : undefined
+                }
                 disabled={disabled || !item}
                 size="icon-sm"
             />

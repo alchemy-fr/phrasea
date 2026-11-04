@@ -4,13 +4,7 @@ FROM nginx:1.30.6-alpine3.24 AS api-nginx
 RUN apk update \
     && apk add --no-cache \
       'brotli-libs>=1.2.1' \
-      libstdc++ \
-    && apk add --virtual .build \
-        wget \
-    && mkdir -p /var/docker \
-    && wget -q -O /var/docker/generate-env https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.2/generate-env-alpine \
-    && chmod +x /var/docker/generate-env \
-    && apk del .build \
+      quickjs-ng \
     && rm /etc/nginx/conf.d/default.conf \
     && mkdir -p /docker/entrypoint.d \
     && mkdir -p /etc/app

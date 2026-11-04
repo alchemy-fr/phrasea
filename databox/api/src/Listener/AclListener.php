@@ -21,9 +21,11 @@ use App\Consumer\Handler\Search\ComputeWorkspaceCollections;
 use App\Consumer\Handler\Search\IndexAllAssets;
 use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
+use App\Entity\Basket\Basket;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Entity\Template\AssetDataTemplate;
 use App\Security\Voter\DataboxExtraPermissionInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -247,6 +249,8 @@ readonly class AclListener
                 }
                 break;
             case Asset::class:
+            case Basket::class:
+            case AssetDataTemplate::class:
                 $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
                 break;
             case Collection::class:

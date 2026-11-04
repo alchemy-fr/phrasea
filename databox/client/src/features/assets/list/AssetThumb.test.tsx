@@ -8,7 +8,7 @@ import {
     usePreferencesStore,
 } from '@/features/preferences/store';
 import type {Asset} from '@/types/api';
-import {AssetThumb} from './AssetThumb';
+import {AssetThumb, similarityScoreLevel} from './AssetThumb';
 
 const api = vi.hoisted(() => ({
     getStoryThumbnails: vi.fn(() =>
@@ -80,6 +80,19 @@ describe('AssetThumb', () => {
         expect(
             screen.getByTestId('asset-similarity-score').textContent?.trim()
         ).toBe('87%');
+    });
+
+    it('colors the similarity score by level', () => {
+        expect(similarityScoreLevel(0.95)).toBe('high');
+        expect(similarityScoreLevel(0.9)).toBe('high');
+        expect(similarityScoreLevel(0.85)).toBe('medium');
+        expect(similarityScoreLevel(0.8)).toBe('medium');
+        expect(similarityScoreLevel(0.79)).toBe('low');
+
+        renderThumb(fakeAsset({}), 0.92);
+        expect(screen.getByTestId('asset-similarity-score').dataset.level).toBe(
+            'high'
+        );
     });
 
     it('shows no similarity score without one', () => {
@@ -180,5 +193,88 @@ describe('AssetThumb', () => {
         await waitFor(() =>
             expect(strip.querySelectorAll('img')).toHaveLength(2)
         );
+    });
+
+    describe('story with a contact sheet', () => {
+        const storyWithSheet = () =>
+            fakeAsset({
+                storyCollection: {id: 'c'} as any,
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/t.jpg', type: 'image/jpeg'},
+                } as any,
+                animatedThumbnail: {
+                    id: 's',
+                    file: {
+                        id: 'fs',
+                        url: 'http://x/sheet.webp',
+                        type: 'image/webp',
+                    },
+                } as any,
+            });
+
+        function renderSheetStory() {
+            const view = renderThumb(storyWithSheet());
+            const box = view.container.firstElementChild as HTMLElement;
+            box.getBoundingClientRect = () =>
+                ({width: 200, height: 200, left: 0, top: 0}) as DOMRect;
+
+            return {...view, box};
+        }
+
+        it('shows the sheet, not the carousel, while the pointer stays still', () => {
+            const {container, box} = renderSheetStory();
+            const strip = screen.getByTestId('story-thumb');
+
+            fireEvent.mouseEnter(box, {clientX: 50});
+            expect(container.querySelector('img')!.getAttribute('src')).toBe(
+                'http://x/sheet.webp'
+            );
+            expect(strip.className).toContain('opacity-0');
+            expect(api.getStoryThumbnails).not.toHaveBeenCalled();
+
+            // Below 15% of the width
+            fireEvent.mouseMove(box, {clientX: 70});
+            expect(strip.className).toContain('opacity-0');
+        });
+
+        it('shows the carousel after a horizontal move', async () => {
+            const {box} = renderSheetStory();
+            const strip = screen.getByTestId('story-thumb');
+
+            fireEvent.mouseEnter(box, {clientX: 50});
+            fireEvent.mouseMove(box, {clientX: 90});
+            expect(strip.className).toContain('opacity-100');
+            expect(api.getStoryThumbnails).toHaveBeenCalledWith('a1');
+            await waitFor(() =>
+                expect(strip.querySelectorAll('img')).toHaveLength(2)
+            );
+
+            // Back to the sheet on the next hover
+            fireEvent.mouseLeave(box);
+            fireEvent.mouseEnter(box, {clientX: 90});
+            expect(strip.className).toContain('opacity-0');
+        });
+
+        it('shows the carousel right away without a sheet', () => {
+            const {container} = renderThumb(
+                fakeAsset({
+                    storyCollection: {id: 'c'} as any,
+                    thumbnail: {
+                        id: 'r',
+                        file: {
+                            id: 'f',
+                            url: 'http://x/t.jpg',
+                            type: 'image/jpeg',
+                        },
+                    } as any,
+                })
+            );
+
+            fireEvent.mouseEnter(container.firstElementChild!, {clientX: 50});
+            expect(screen.getByTestId('story-thumb').className).toContain(
+                'opacity-100'
+            );
+        });
     });
 });

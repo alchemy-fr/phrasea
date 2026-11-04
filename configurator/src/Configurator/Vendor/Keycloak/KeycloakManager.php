@@ -14,6 +14,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class KeycloakManager
 {
+    private const int CREATE_REALM_TIMEOUT = 120;
+
     private ?array $tokens = null;
 
     public function __construct(
@@ -72,9 +74,16 @@ final class KeycloakManager
             'realm' => $this->keycloakRealm,
             'enabled' => true,
         ];
-        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()->request('POST', '', [
-            'json' => $data,
-        ])->getHeaders(), 409, $data);
+        HttpClientUtil::debugError(
+            fn () => $this->getAuthenticatedClient()->request('POST', '', [
+                'json' => $data,
+                // Keycloak can take a long time to create a realm, especially right after it started
+                'timeout' => self::CREATE_REALM_TIMEOUT,
+            ])->getHeaders(),
+            409,
+            $data,
+            isAlreadyApplied: fn (): bool => null !== $this->getRealm(),
+        );
     }
 
     private function getRealm(?string $realm = null): ?array
@@ -786,12 +795,17 @@ final class KeycloakManager
                     'json' => $data,
                 ]);
         } else {
-            HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
-                ->request('POST', UriTemplate::resolve('{realm}/identity-provider/instances', [
-                    'realm' => $this->keycloakRealm,
-                ]), [
-                    'json' => $data,
-                ])->getHeaders(), null, $data);
+            HttpClientUtil::debugError(
+                fn () => $this->getAuthenticatedClient()
+                    ->request('POST', UriTemplate::resolve('{realm}/identity-provider/instances', [
+                        'realm' => $this->keycloakRealm,
+                    ]), [
+                        'json' => $data,
+                    ])->getHeaders(),
+                null,
+                $data,
+                isAlreadyApplied: fn (): bool => null !== $this->getIdentityProviderByAlias($idpAlias),
+            );
         }
 
         $idp = $this->getIdentityProviderByAlias($idpAlias);

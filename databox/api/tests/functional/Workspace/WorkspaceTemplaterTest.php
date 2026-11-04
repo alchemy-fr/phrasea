@@ -9,6 +9,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetImport;
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\AssetPolicy\AssetPolicyUser;
 use App\Entity\Core\AttributeDefinition;
@@ -47,6 +48,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
      */
     private const array NOT_IN_TEMPLATE = [
         Asset::class,
+        AssetImport::class,
         Collection::class,
         CollectionAccess::class,
         File::class,

@@ -56,8 +56,8 @@ export function isDefaultAnnotationName(
     return new RegExp(`^${pattern}$`).test(annotation.name);
 }
 
-/** The name shown for a shape (its text, its name, else its type) */
-export function getAnnotationLabel(
+/** The name of a shape (its name, its text, else its type) */
+export function getAnnotationName(
     t: TFunction,
     annotation: AssetAnnotation
 ): string {
@@ -66,4 +66,39 @@ export function getAnnotationLabel(
         annotation.text ||
         getAnnotationTypeLabel(t, annotation.type)
     );
+}
+
+/** `m:ss`, `h:mm:ss` from an hour: the instant of a shape of a video */
+export function formatAnnotationTime(seconds: number): string {
+    const total = Math.max(0, Math.floor(seconds));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = String(total % 60).padStart(2, '0');
+
+    return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`;
+}
+
+/**
+ * The name shown for a shape away from the media: with its page, for a
+ * shape of a document; with its time, for a shape of a video
+ */
+export function getAnnotationLabel(
+    t: TFunction,
+    annotation: AssetAnnotation
+): string {
+    const name = getAnnotationName(t, annotation);
+    if (typeof annotation.t === 'number') {
+        return t('annotation.at_time', '{{name}} · {{time}}', {
+            name,
+            time: formatAnnotationTime(annotation.t),
+        });
+    }
+    if (!annotation.page) {
+        return name;
+    }
+
+    return t('annotation.on_page', '{{name}} · p. {{page}}', {
+        name,
+        page: annotation.page,
+    });
 }

@@ -8,6 +8,7 @@ import type {
     WorkspaceIntegration,
 } from '@/types/api';
 import {AnnotationType} from '@/features/annotations/types';
+import type {FaceCardFace} from './FaceCard';
 
 /** Integration key of the face recognition (`FaceRecognitionIntegration`) */
 export const faceRecognition = 'core.face_recognition';
@@ -54,6 +55,42 @@ export function setupOf(
         attribute: config.attribute,
         attributeDefinition: config.attributeDefinition,
     };
+}
+
+/** The user may detect the faces of the asset and set their persons */
+export function canNameFaces(
+    integration: WorkspaceIntegration,
+    asset: Asset
+): boolean {
+    return (
+        integration.capabilities?.interact !== false &&
+        asset.capabilities?.edit !== false
+    );
+}
+
+/** The faces of the asset: the values of its face attribute */
+export function facesOfAsset(
+    asset: Asset,
+    attributeSlug: string
+): FaceCardFace[] {
+    return (asset.attributes ?? [])
+        .filter(a => a.definition?.slug === attributeSlug)
+        .flatMap(a => {
+            const box = boxOf(a);
+
+            return box
+                ? [
+                      {
+                          id: a.id,
+                          asset,
+                          box,
+                          origin: a.origin,
+                          confidence: a.confidence,
+                          entity: a.value ?? null,
+                      },
+                  ]
+                : [];
+        });
 }
 
 /** The face annotation of a face value */

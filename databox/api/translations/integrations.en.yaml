@@ -7,6 +7,8 @@
     description: 'Translates attribute values into other locales with Amazon Translate.'
 'blurhash':
     description: 'Computes a compact blurred placeholder displayed while the images load.'
+'core.asset_import':
+    description: 'Exposes a webhook receiving JSON or NDJSON import instructions: the assets are created and their files downloaded from URLs.'
 'core.face_recognition':
     description: 'Detects the faces in images and groups them by person, with a self-hosted recognition service.'
 'core.file_analyzer':

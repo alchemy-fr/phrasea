@@ -63,6 +63,10 @@ type BaseProps<T> = {
     /** Listed before the loaded options, whatever the search */
     fixedOptions?: ComboOption<T>[];
     placeholder?: string;
+    /** Placeholder of the search field */
+    searchPlaceholder?: string;
+    /** Shown instead of "No match" when nothing is listed and nothing is typed */
+    emptyLabel?: string;
     disabled?: boolean;
     className?: string;
     id?: string;
@@ -167,7 +171,9 @@ export function AsyncCombobox<T = unknown>(
         v => !known[v] && !all.some(o => o.value === v)
     );
     const canResolve = !!props.resolveValues || !!props.resolveValue;
-    useQuery({
+    // The resolved options are the query data, not a side effect of the query
+    // function: a remounted combobox gets them from the cache without a refetch.
+    const resolved = useQuery({
         queryKey: [...props.queryKey, 'resolve', unresolved],
         queryFn: async () => {
             const results = props.resolveValues
@@ -175,12 +181,20 @@ export function AsyncCombobox<T = unknown>(
                 : await Promise.all(
                       unresolved.map(v => props.resolveValue!(v))
                   );
-            results.forEach(r => r && remember(r));
 
-            return null;
+            return results.filter((r): r is ComboOption<T> => !!r);
         },
         enabled: unresolved.length > 0 && canResolve,
+        structuralSharing: false,
     });
+    useEffect(() => {
+        if (resolved.data && resolved.data.length > 0) {
+            setKnown(k => ({
+                ...k,
+                ...Object.fromEntries(resolved.data.map(r => [r.value, r])),
+            }));
+        }
+    }, [resolved.data]);
 
     const labelOf = (v: string) =>
         known[v]?.label ?? all.find(o => o.value === v)?.label ?? v;
@@ -289,7 +303,10 @@ export function AsyncCombobox<T = unknown>(
                     <CommandInput
                         value={search}
                         onValueChange={setSearch}
-                        placeholder={t('common.search', 'Search…')}
+                        placeholder={
+                            props.searchPlaceholder ??
+                            t('common.search', 'Search…')
+                        }
                     />
                     <CommandList ref={listRef}>
                         {isLoading ? (
@@ -298,7 +315,9 @@ export function AsyncCombobox<T = unknown>(
                             </div>
                         ) : (
                             <CommandEmpty>
-                                {t('common.no_match', 'No match')}
+                                {!search.trim() && props.emptyLabel
+                                    ? props.emptyLabel
+                                    : t('common.no_match', 'No match')}
                             </CommandEmpty>
                         )}
                         <CommandGroup>

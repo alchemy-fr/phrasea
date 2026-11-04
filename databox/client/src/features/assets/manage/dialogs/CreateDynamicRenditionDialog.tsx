@@ -13,16 +13,16 @@ import {postRendition} from '@/lib/api/misc';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {clamp} from '@/lib/utils/misc';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {
+    containBox,
+    type CropRatioName,
+    cropRatioNames,
+    cropRatios,
+} from '@/features/assets/crop/ratios';
+import {CropOverlay} from '@/features/assets/crop/CropOverlay';
 
-type Ratio = 'original' | '1:1' | '4:3' | '3:4' | '16:9' | 'custom';
+type Ratio = 'original' | CropRatioName | 'custom';
 const sourceFileKey = 'source';
-
-const ratios: Record<Exclude<Ratio, 'original' | 'custom'>, number> = {
-    '1:1': 1,
-    '4:3': 4 / 3,
-    '3:4': 3 / 4,
-    '16:9': 16 / 9,
-};
 
 /**
  * Builds a custom rendition from a source rendition: interactive crop
@@ -104,7 +104,7 @@ export function CreateDynamicRenditionDialog({
                 : 1
             : ratio === 'custom'
               ? parseFloat(customRatio) || 1
-              : ratios[ratio];
+              : cropRatios[ratio];
 
     // Crop rectangle (relative to the source image) derived from ratio / zoom / offset
     const crop = useMemo(() => {
@@ -264,7 +264,11 @@ export function CreateDynamicRenditionDialog({
                                 }
                             />
                             {crop && natural ? (
-                                <CropOverlay crop={crop} natural={natural} />
+                                // The image is object-contain inside a square
+                                <CropOverlay
+                                    crop={crop}
+                                    media={containBox(natural.w / natural.h)}
+                                />
                             ) : null}
                         </div>
                     ) : null}
@@ -299,10 +303,10 @@ export function CreateDynamicRenditionDialog({
                                             'Original'
                                         ),
                                     },
-                                    {value: '1:1', label: '1:1'},
-                                    {value: '4:3', label: '4:3'},
-                                    {value: '3:4', label: '3:4'},
-                                    {value: '16:9', label: '16:9'},
+                                    ...cropRatioNames.map(r => ({
+                                        value: r,
+                                        label: r,
+                                    })),
                                     {
                                         value: 'custom',
                                         label: t(
@@ -385,41 +389,5 @@ export function CreateDynamicRenditionDialog({
                 </div>
             </div>
         </FormDialog>
-    );
-}
-
-function CropOverlay({
-    crop,
-    natural,
-}: {
-    crop: {x: number; y: number; w: number; h: number};
-    natural: {w: number; h: number};
-}) {
-    // The image is object-contain inside a square: compute its rendered box
-    const imgAspect = natural.w / natural.h;
-    const box =
-        imgAspect >= 1
-            ? {
-                  left: 0,
-                  top: (1 - 1 / imgAspect) / 2,
-                  width: 1,
-                  height: 1 / imgAspect,
-              }
-            : {left: (1 - imgAspect) / 2, top: 0, width: imgAspect, height: 1};
-    const style = {
-        left: `${(box.left + crop.x * box.width) * 100}%`,
-        top: `${(box.top + crop.y * box.height) * 100}%`,
-        width: `${crop.w * box.width * 100}%`,
-        height: `${crop.h * box.height * 100}%`,
-    };
-
-    return (
-        <>
-            <div className="pointer-events-none absolute inset-0 bg-black/40" />
-            <div
-                className="pointer-events-none absolute border-2 border-primary shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
-                style={style}
-            />
-        </>
     );
 }

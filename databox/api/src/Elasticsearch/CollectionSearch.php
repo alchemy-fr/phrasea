@@ -48,10 +48,28 @@ class CollectionSearch extends AbstractSearch
         ]);
 
         if (!empty($options['query'])) {
+            $parsed = $this->queryStringParser->parseQuery((string) $options['query']);
+            $partialMatch = new Query\MultiMatch();
+            $partialMatch->setQuery(implode(' ', [$parsed['should'], ...$parsed['must']]));
+            $partialMatch->setFields(['name.suggest', 'translatedNames.suggest']);
+            $partialHighlightQuery = $partialMatch->toArray();
+
             $query->setHighlight([
                 'pre_tags' => ['[hl]'],
                 'post_tags' => ['[/hl]'],
                 'fields' => [
+                    // Only the typed part of the words, from the edge n-grams of the name
+                    // (see CollectionOutputMapper::getNameHighlight())
+                    'name.suggest' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 1,
+                        'highlight_query' => $partialHighlightQuery,
+                    ],
+                    'translatedNames.suggest' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 0,
+                        'highlight_query' => $partialHighlightQuery,
+                    ],
                     'name' => [
                         'fragment_size' => 255,
                         'number_of_fragments' => 1,
@@ -137,7 +155,7 @@ class CollectionSearch extends AbstractSearch
             }, $parentCollections);
 
             $boolQuery->addFilter($parentsBoolQuery);
-        } else {
+        } elseif (!$deep) {
             $boolQuery->addFilter(new Query\Term(['pathDepth' => 0]));
         }
 
@@ -149,13 +167,14 @@ class CollectionSearch extends AbstractSearch
     }
 
     /**
-     * Matches the name or any of its translations.
+     * Matches the name or any of its translations, the last word being a prefix (search-as-you-type).
      */
     private static function createNameMatch(string $text): Query\MultiMatch
     {
         $match = new Query\MultiMatch();
         $match->setQuery($text);
-        $match->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
+        $match->setType(Query\MultiMatch::TYPE_BOOL_PREFIX);
+        $match->setOperator(Query\MultiMatch::OPERATOR_AND);
         $match->setFields(['name', 'translatedNames']);
 
         return $match;

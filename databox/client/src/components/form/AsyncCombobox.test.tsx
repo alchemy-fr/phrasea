@@ -44,12 +44,14 @@ const sizes: ComboOption = {value: 'sizes', label: 'Sizes'};
 
 type Props = Partial<ComponentProps<typeof AsyncCombobox>>;
 
-function renderCombobox(props: Props = {}) {
-    const onChange = vi.fn();
-    const queryClient = new QueryClient({
+function renderCombobox(
+    props: Props = {},
+    queryClient = new QueryClient({
         defaultOptions: {queries: {retry: false}},
-    });
-    render(
+    })
+) {
+    const onChange = vi.fn();
+    const result = render(
         <QueryClientProvider client={queryClient}>
             <I18nextProvider i18n={createI18n('en')}>
                 <AsyncCombobox
@@ -64,7 +66,7 @@ function renderCombobox(props: Props = {}) {
         </QueryClientProvider>
     );
 
-    return {onChange};
+    return {onChange, unmount: result.unmount};
 }
 
 async function openList() {
@@ -152,5 +154,26 @@ describe('AsyncCombobox with pages', () => {
         expect(screen.getByText('Option a')).toBeTruthy();
         expect(resolveValues).toHaveBeenCalledTimes(1);
         expect(resolveValues).toHaveBeenCalledWith(['a', 'b', 'c']);
+    });
+
+    it('shows the label of the selected value when remounted with a cached resolution', async () => {
+        const resolveValue = vi.fn(async (v: string) => option(v));
+        const queryClient = new QueryClient({
+            defaultOptions: {queries: {retry: false, staleTime: Infinity}},
+        });
+        const props = {
+            value: 'a',
+            loadPage: async () => ({options: []}),
+            loadOptions: undefined,
+            resolveValue,
+        } as Props;
+
+        const {unmount} = renderCombobox(props, queryClient);
+        expect(await screen.findByText('Option a')).toBeTruthy();
+        unmount();
+
+        renderCombobox(props, queryClient);
+        expect(await screen.findByText('Option a')).toBeTruthy();
+        expect(resolveValue).toHaveBeenCalledTimes(1);
     });
 });

@@ -2,4 +2,4 @@
 
 /docker/configurator/get-config.sh
 
-/var/docker/generate-env ./
+qjs /docker/configurator/generate-env.mjs ./

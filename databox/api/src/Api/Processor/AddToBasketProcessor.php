@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Api\Mapper\Input\BasketAssetInputMapper;
 use App\Api\Model\Input\AddToBasketInput;
 use App\Api\Model\Input\AssetToBasketInput;
 use App\Consumer\Handler\Basket\BasketUpdate;
@@ -76,6 +77,10 @@ class AddToBasketProcessor implements ProcessorInterface
             $basketItem->setOwnerId($user->getId());
             $basketItem->setAsset($asset);
             $basketItem->setPosition($position++);
+            $input = $mapping[$asset->getId()] ?? null;
+            if ($input instanceof AssetToBasketInput && null !== $input->clip) {
+                BasketAssetInputMapper::applyClip($basketItem, $input->clip);
+            }
             $this->em->persist($basketItem);
         }
 

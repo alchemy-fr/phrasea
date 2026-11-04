@@ -5,7 +5,7 @@ import {
 } from '@/features/attributes/types/registry';
 import type {AnnotationTarget} from './AnnotationsProvider';
 import {
-    getAnnotationLabel,
+    getAnnotationName,
     getAnnotationTypeLabel,
     isDefaultAnnotationName,
 } from './annotationNames';
@@ -34,7 +34,7 @@ export function labelAttributeAnnotations(
     const title = definition.displayName ?? definition.name;
 
     return (attribute.assetAnnotations ?? []).map(shape => {
-        const own = getAnnotationLabel(t, shape);
+        const own = getAnnotationName(t, shape);
         const generic =
             !shape.text &&
             (own === getAnnotationTypeLabel(t, shape.type) ||
@@ -73,6 +73,11 @@ export function getAssetAnnotationsTarget(
             annotations.push({
                 ...shape,
                 id: `${attribute.id}-${shape.id ?? i}`,
+                source: {
+                    attributeId: attribute.id,
+                    definitionId: definition.id,
+                    index: i,
+                },
             });
         });
     }
@@ -82,4 +87,33 @@ export function getAssetAnnotationsTarget(
         annotations,
         label: ctx.t('annotation.asset_label', 'Attributes'),
     };
+}
+
+/** The shapes of an attribute among the ones of the asset, shown on their own */
+export type AnnotationSet = {
+    /** The attribute definition */
+    id: string;
+    label: string;
+    count: number;
+};
+
+/** The attributes the shapes of the asset belong to, in their order */
+export function getAnnotationSets(
+    annotations: AssetAnnotation[]
+): AnnotationSet[] {
+    const sets = new Map<string, AnnotationSet>();
+    for (const shape of annotations) {
+        const id = shape.source?.definitionId;
+        if (!id) {
+            continue;
+        }
+        const set = sets.get(id);
+        if (set) {
+            set.count++;
+        } else {
+            sets.set(id, {id, label: shape.title ?? id, count: 1});
+        }
+    }
+
+    return [...sets.values()];
 }

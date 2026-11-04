@@ -1,6 +1,5 @@
 'use client';
 
-import {useCallback, useState} from 'react';
 import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
 import {CheckIcon, ExternalLinkIcon, Trash2Icon} from 'lucide-react';
@@ -10,21 +9,13 @@ import type {
     AttributeOrigin,
     FaceBox,
 } from '@/types/api';
-import {AttributeEntityStatus} from '@/types/api';
-import {
-    getAttributeEntities,
-    getAttributeEntity,
-    postAttributeEntity,
-} from '@/lib/api/metadata';
-import {AsyncCombobox, type ComboOption} from '@/components/form/AsyncCombobox';
-import {EntityChip} from '@/components/chips';
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/misc';
 import {Tooltip} from '@/components/ui/overlays';
 import {routes} from '@/lib/routes';
 import {cn} from '@/lib/utils/cn';
-import {entityLabel} from '@/features/attributes/types/registry';
 import {FaceCrop} from './FaceCrop';
+import {FacePersonPicker, isUnknownPerson, useRun} from './FacePersonPicker';
 
 /** The person of a face, as the attribute value carries it */
 export type FaceEntity = {
@@ -48,25 +39,6 @@ export type FaceCardFace = {
     confidence?: number;
     entity?: FaceEntity | null;
 };
-
-function personOption(e: AttributeEntity): ComboOption<AttributeEntity> {
-    return {
-        value: e.id,
-        label: entityLabel(e),
-        render: <EntityChip entity={e} size="sm" />,
-        item: e,
-    };
-}
-
-export function isUnknownPerson(
-    entity: FaceEntity | null | undefined
-): boolean {
-    return (
-        !entity ||
-        entity.status === AttributeEntityStatus.Pending ||
-        !entity.value
-    );
-}
 
 /**
  * One detected face: its crop, the asset it comes from and its person, to set
@@ -100,39 +72,10 @@ export function FaceCard<F extends FaceCardFace>({
     showAssetLink?: boolean;
 }) {
     const {t} = useTranslation();
-    const [saving, setSaving] = useState(false);
+    const [saving, run] = useRun();
     const unknown = isUnknownPerson(face.entity);
     const recognized = !unknown && face.origin !== 'human';
     const asset = face.asset;
-    const person = unknown ? undefined : face.entity?.id;
-
-    // Only the named persons: a pending one is an unknown person, giving the
-    // face to it would leave the face unnamed
-    const loadPersons = useCallback(
-        async (query: string) => {
-            const page = await getAttributeEntities({
-                list: listId,
-                query: query || undefined,
-                status: AttributeEntityStatus.Approved,
-            });
-
-            return page.items.map(personOption);
-        },
-        [listId]
-    );
-    const resolvePerson = useCallback(
-        async (id: string) => personOption(await getAttributeEntity(id)),
-        []
-    );
-
-    const run = async (action: () => Promise<void>) => {
-        setSaving(true);
-        try {
-            await action();
-        } finally {
-            setSaving(false);
-        }
-    };
 
     return (
         <div
@@ -189,52 +132,14 @@ export function FaceCard<F extends FaceCardFace>({
 
             <div className="flex items-center gap-1" data-testid="face-person">
                 <div className="min-w-0 flex-1">
-                    <AsyncCombobox<AttributeEntity>
-                        queryKey={['attribute-entities', listId, 'approved']}
-                        loadOptions={loadPersons}
-                        resolveValue={resolvePerson}
-                        value={person}
-                        disabled={!canEdit || saving || !listId}
-                        placeholder={t(
-                            'faces.group_name_placeholder',
-                            'Who is this?'
-                        )}
-                        createLabel={query =>
-                            t('faces.group_create', {
-                                defaultValue: 'New person « {{name}} »',
-                                name: query,
-                            })
-                        }
-                        onCreate={
-                            listId
-                                ? async query => {
-                                      setSaving(true);
-                                      try {
-                                          return personOption(
-                                              unknown && face.entity && onName
-                                                  ? await onName(face, query)
-                                                  : await postAttributeEntity(
-                                                        listId,
-                                                        {
-                                                            value: query,
-                                                            status: AttributeEntityStatus.Approved,
-                                                        }
-                                                    )
-                                          );
-                                      } finally {
-                                          setSaving(false);
-                                      }
-                                  }
-                                : undefined
-                        }
-                        onChange={(value, option) => {
-                            // The renamed unknown person is already the face's one
-                            if (value && value !== face.entity?.id) {
-                                void run(() =>
-                                    onAssign(face, value, option?.label)
-                                );
-                            }
-                        }}
+                    <FacePersonPicker
+                        face={face}
+                        listId={listId}
+                        disabled={!canEdit}
+                        saving={saving}
+                        run={run}
+                        onAssign={onAssign}
+                        onName={onName}
                     />
                 </div>
                 {recognized && canEdit ? (

@@ -131,6 +131,7 @@ export enum AttributeType {
 
 export enum EntityName {
     Asset = 'assets',
+    AssetImport = 'asset-imports',
     AssetPolicy = 'asset-policies',
     Attachment = 'attachments',
     Collection = 'collections',
@@ -396,8 +397,7 @@ export interface AttributeDefinition
 }
 
 export type AttributeDefinitionOrBuiltIn =
-    | AttributeDefinition
-    | BuiltInAttribute;
+    AttributeDefinition | BuiltInAttribute;
 
 export interface AttributePolicy extends HydraObject, Entity {
     name: string;
@@ -494,10 +494,21 @@ export type AssetAnnotation = {
     name?: string;
     page?: number;
     /**
+     * Time in seconds of the frame of a video the shape is drawn on, the
+     * instant of a cue
+     */
+    t?: number;
+    /**
      * Client only: tooltip of the label of a read only shape, never sent to
      * the API
      */
     title?: string;
+    /**
+     * Client only: where a read only shape of the asset comes from (its
+     * attribute value and definition, its position among the shapes of that
+     * value), never sent to the API
+     */
+    source?: {attributeId: string; definitionId: string; index: number};
     [prop: string]: any;
 };
 
@@ -536,6 +547,11 @@ export interface Asset
      * can be in a basket several times, each item is selected on its own.
      */
     basketItemId?: string;
+    /**
+     * Client side only: the clip of the basket item this asset is displayed
+     * for, applied when the asset is played or shown.
+     */
+    basketClip?: BasketClip;
     description?: string;
     privacy: Privacy;
     tags?: Tag[];
@@ -603,9 +619,25 @@ export interface Basket extends WithCapabilities<{share: boolean}>, Entity {
     owner?: User;
 }
 
+/** Part of a video or an audio, in seconds */
+export type ClipTimeRange = {s: number; e: number};
+
+/** Rectangle of an image or a video, relative to its displayed size (0..1) */
+export type ClipCrop = {x: number; y: number; w: number; h: number};
+
+/**
+ * Extract of a basket item: the file is not cut, the clip is applied on
+ * display, and when the item is published or exported.
+ */
+export type BasketClip = {
+    timeRange?: ClipTimeRange;
+    crop?: ClipCrop;
+};
+
 export interface BasketAsset extends Entity {
     asset: Asset;
     context?: unknown;
+    clip?: BasketClip | null;
     nameHighlight?: string;
     position: number;
     createdAt: string;
@@ -737,15 +769,7 @@ export enum ProfileItemType {
 
 export type GridRegion = 'over' | 'below';
 export type GridAnchor =
-    | 'l'
-    | 'c'
-    | 'r'
-    | 'tc'
-    | 'ml'
-    | 'cc'
-    | 'mr'
-    | 'bl'
-    | 'bc';
+    'l' | 'c' | 'r' | 'tc' | 'ml' | 'cc' | 'mr' | 'bl' | 'bc';
 
 export type ItemPlacement = {
     region: GridRegion;
@@ -1156,6 +1180,45 @@ export type SearchSuggestion = {
     locale?: string;
     /** Id of the entity behind an entity attribute value */
     entityId?: string;
+};
+
+// ---------------------------------------------------------------------------
+// Asset imports (JSON / NDJSON instructions file)
+
+export type AssetImportFormat = 'json' | 'ndjson';
+
+export type AssetImportStatus =
+    'pending' | 'dispatching' | 'processing' | 'completed' | 'failed';
+
+export type AssetImport = Entity & {
+    workspaceId: string;
+    collectionId?: string;
+    collectionTitle?: string;
+    /** Set when the import was triggered by an integration (webhook) */
+    integrationId?: string;
+    integrationTitle?: string;
+    owner?: Pick<User, 'id' | 'username'>;
+    format: AssetImportFormat;
+    privacy?: Privacy;
+    originalName?: string;
+    status: AssetImportStatus;
+    /** Unknown until the whole file has been read */
+    total?: number;
+    created: number;
+    skipped: number;
+    failed: number;
+    /** Fatal error which stopped the import (invalid JSON…) */
+    error?: string;
+    endedAt?: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type AssetImportError = Entity & {
+    /** Line of the NDJSON file, or position (from 1) in the JSON array */
+    line: number;
+    key?: string;
+    message: string;
 };
 
 // ---------------------------------------------------------------------------

@@ -17,9 +17,11 @@ use App\Entity\Integration\IntegrationToken;
 use App\Http\LocaleContext;
 use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
+use App\Model\BasketClip;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
+use App\Service\Clip\MediaClipper;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -33,6 +35,7 @@ final readonly class ExposeClient
         private AttributeTypeRegistry $attributeTypeRegistry,
         private LocaleContext $localeContext,
         private MultipartUploader $multipartUploader,
+        private MediaClipper $mediaClipper,
     ) {
     }
 
@@ -225,16 +228,19 @@ final readonly class ExposeClient
         string $publicationId,
         Asset $asset,
         array $properties,
+        ?BasketClip $clip = null,
     ): string {
         $source = $asset->getSource();
         $fetchedFilePath = $this->fileFetcher->getFile($source);
 
         try {
+            $file = $this->mediaClipper->apply($fetchedFilePath, $source->getType(), $clip);
+
             $multipart = $this->multipartUploader->upload(
                 $this->create($config, $integrationToken),
-                $fetchedFilePath,
-                $source->getOriginalName() ?? 'file',
-                $source->getType(),
+                $file->path,
+                $file->renameFile($source->getOriginalName() ?? 'file'),
+                $file->mimeType,
             );
 
             $data = array_merge([
@@ -250,6 +256,7 @@ final readonly class ExposeClient
                 ->toArray();
         } finally {
             @unlink($fetchedFilePath);
+            $this->mediaClipper->cleanUp();
         }
 
         return $pubAsset['id'];
@@ -278,10 +285,14 @@ final readonly class ExposeClient
         string $renditionName,
         AssetRendition $rendition,
         array $extraData = [],
+        ?BasketClip $clip = null,
     ): void {
         $file = $rendition->getFile();
         $subDefFetchedFile = $this->fileFetcher->getFile($file);
         try {
+            $clipped = $this->mediaClipper->apply($subDefFetchedFile, $file->getType(), $clip);
+            $size = $clipped->transformed ? filesize($clipped->path) : $file->getSize();
+
             $subDefResponse = $this->create($config, $integrationToken)
                 ->request('POST', '/sub-definitions', [
                     'json' => [
@@ -291,9 +302,9 @@ final readonly class ExposeClient
                         'use_as_thumbnail' => 'thumbnail' === $renditionName,
                         'use_as_poster' => 'poster' === $renditionName,
                         'upload' => [
-                            'type' => $file->getType(),
-                            'size' => $file->getSize(),
-                            'name' => $file->getOriginalName(),
+                            'type' => $clipped->mimeType,
+                            'size' => $size,
+                            'name' => $clipped->renameFile($file->getOriginalName()),
                         ],
                         ...$extraData,
                     ],
@@ -302,13 +313,14 @@ final readonly class ExposeClient
 
             $this->uploadClient->request('PUT', $subDefResponse['uploadURL'], [
                 'headers' => [
-                    'Content-Type' => $file->getType(),
-                    'Content-Length' => filesize($subDefFetchedFile),
+                    'Content-Type' => $clipped->mimeType,
+                    'Content-Length' => filesize($clipped->path),
                 ],
-                'body' => fopen($subDefFetchedFile, 'r'),
+                'body' => fopen($clipped->path, 'r'),
             ]);
         } finally {
             @unlink($subDefFetchedFile);
+            $this->mediaClipper->cleanUp();
         }
     }
 

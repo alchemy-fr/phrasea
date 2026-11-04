@@ -10,10 +10,12 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
+use App\Integration\Core\FaceRecognition\Message\FaceRecognitionPhoto;
 use App\Integration\IntegrationConfig;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Links the detected faces (attribute values carrying an embedding) to the persons (entities of
@@ -35,6 +37,7 @@ final class FaceManager
         private readonly AttributeAssigner $attributeAssigner,
         private readonly FaceRecognitionConfigResolver $configResolver,
         private readonly DeferredIndexListener $deferredIndexListener,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -225,6 +228,8 @@ final class FaceManager
 
         if (!empty($previous)) {
             $this->removeOrphanUnknowns($list, array_keys($previous));
+            // Their photo may have been cropped from a face they lost
+            $this->dispatchPhotos($config, array_keys($previous));
         }
 
         return $count;
@@ -253,6 +258,7 @@ final class FaceManager
 
         $count = 0;
         $previous = [];
+        $linked = [];
         foreach ($this->attributeRepository->iterateEmbeddings($definition->getId()) as $row) {
             if (Attribute::ORIGIN_HUMAN !== $row['origin']) {
                 $match = $this->findPerson($row['vector'], $processed, $threshold);
@@ -264,6 +270,7 @@ final class FaceManager
                 }
                 if ($value !== $row['value']) {
                     $previous[$row['value']] = true;
+                    $linked[$value] = true;
                     $this->em->createQueryBuilder()
                         ->update(Attribute::class, 'a')
                         ->set('a.value', ':value')
@@ -285,8 +292,22 @@ final class FaceManager
         if (!empty($previous)) {
             $this->removeOrphanUnknowns($list, array_keys($previous));
         }
+        // The persons that got a face (new unknown persons included), and the ones that lost one
+        $this->dispatchPhotos($config, [...array_keys($linked), ...array_keys($previous)]);
 
         return $count;
+    }
+
+    /**
+     * Asks for the photo of the persons to be given again (see FaceRecognitionPhotoHandler).
+     *
+     * @param array<int|string> $entityIds
+     */
+    public function dispatchPhotos(IntegrationConfig $config, array $entityIds): void
+    {
+        foreach (array_unique(array_filter(array_map('strval', $entityIds))) as $entityId) {
+            $this->bus->dispatch(new FaceRecognitionPhoto($entityId, $config->getIntegrationId()));
+        }
     }
 
     private function isPendingPerson(string $entityId): bool

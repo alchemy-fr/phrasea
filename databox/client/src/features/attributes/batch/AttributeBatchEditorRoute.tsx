@@ -32,6 +32,7 @@ import {FullPageLoader, Spinner} from '@/components/ui/loader';
 import {
     Badge,
     EmptyState,
+    Separator,
     Tabs,
     TabsList,
     TabsTrigger,
@@ -737,14 +738,6 @@ export function AttributeBatchEditorRoute() {
             className={cn(belowTopBar, 'z-50 flex flex-col bg-background')}
         >
             <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3">
-                <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={requestClose}
-                    aria-label={t('common.close', 'Close')}
-                >
-                    <XIcon />
-                </Button>
                 <h1 className="flex-1 text-sm font-semibold">
                     {t(
                         'batch_edit.title',
@@ -774,6 +767,15 @@ export function AttributeBatchEditorRoute() {
                 </Tooltip>
                 <Button size="sm" disabled={!dirty} onClick={save}>
                     <SaveIcon /> {t('common.save', 'Save')}
+                </Button>
+                <Separator orientation="vertical" className="mx-0.5 h-5" />
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={requestClose}
+                    aria-label={t('common.close', 'Close')}
+                >
+                    <XIcon />
                 </Button>
             </header>
 

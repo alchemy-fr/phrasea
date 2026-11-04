@@ -43,6 +43,7 @@ export function AssetPreview({
                         autoPlay={display.playVideos}
                         controls={interactive}
                         fit="contain"
+                        clip={asset.basketClip}
                         // Video playback only: hovering over an asset is
                         // not an impression of it
                         tracking={

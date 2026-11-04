@@ -14,6 +14,7 @@ import {
 import {toast} from 'sonner';
 import type {Asset, Basket} from '@/types/api';
 import {useBasketStore} from './basketStore';
+import {useAddToCurrentBasket} from './useAddToCurrentBasket';
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/misc';
 import {
@@ -43,8 +44,8 @@ export function BasketSwitcher({
     const {t} = useTranslation();
     const router = useRouter();
     const {openModal} = useModals();
-    const {current, baskets, next, load, loadMore, addToCurrent} =
-        useBasketStore();
+    const {current, baskets, next, load, loadMore} = useBasketStore();
+    const addToCurrent = useAddToCurrentBasket();
     const [loadingMore, setLoadingMore] = useState(false);
 
     useEffect(() => {

@@ -198,6 +198,17 @@ describe('useAnnotationEditor', () => {
         expect(editor().active).toBe(false);
     });
 
+    it('leaves nothing selected once annotating stops', () => {
+        const {editor} = setup([rect]);
+        act(() => editor().select('r1'));
+        expect(editor().selectedId).toBe('r1');
+
+        act(() => editor().setAnnotate(false));
+        expect(editor().annotate).toBe(false);
+        expect(editor().active).toBe(false);
+        expect(editor().selectedId).toBeUndefined();
+    });
+
     it('keeps the shapes of the other pages out of the layer', () => {
         const hook = renderHook(() =>
             useAnnotationEditor(
@@ -214,7 +225,164 @@ describe('useAnnotationEditor', () => {
         );
         expect(hook.result.current.pageAnnotations.map(a => a.id)).toEqual([
             'p2',
+        ]);
+    });
+
+    it('puts the shapes without a page on the first one', () => {
+        const hook = renderHook(() =>
+            useAnnotationEditor(
+                {
+                    key: 'doc',
+                    annotations: [
+                        {...rect, id: 'p2', page: 2},
+                        {...rect, id: 'any'},
+                    ],
+                },
+                1
+            )
+        );
+        expect(hook.result.current.pageAnnotations.map(a => a.id)).toEqual([
             'any',
         ]);
+    });
+
+    it('shows every shape of an image, whatever their page', () => {
+        const {editor} = setup([
+            {...rect, id: 'p2', page: 2},
+            {...rect, id: 'any'},
+        ]);
+        expect(editor().page).toBeUndefined();
+        expect(editor().pageAnnotations.map(a => a.id)).toEqual(['p2', 'any']);
+    });
+
+    it('keeps a shape drawn on a page of a document there', () => {
+        const {editor, onChange, sync} = setup();
+        act(() => {
+            editor().add({...rect, id: undefined, page: 2});
+        });
+        const [created] = onChange.mock.lastCall![0];
+        expect(created.page).toBe(2);
+        expect(created.name).toBe('Rectangle #1');
+        sync();
+        // Numbered among the shapes of its page
+        act(() => {
+            editor().add({...rect, id: undefined, page: 3});
+        });
+        expect(onChange.mock.lastCall![0][1]).toMatchObject({
+            page: 3,
+            name: 'Rectangle #1',
+        });
+    });
+
+    it('puts a shape added without a page on the page of the editor', () => {
+        const onChange = vi.fn();
+        const hook = renderHook(() =>
+            useAnnotationEditor(
+                {key: 'doc', annotations: [], editable: true, onChange},
+                4
+            )
+        );
+        act(() => {
+            hook.result.current.add({...rect, id: undefined});
+        });
+        expect(onChange.mock.lastCall![0][0].page).toBe(4);
+    });
+
+    it('measures a shape against the size of its page', () => {
+        const {editor, onChange} = setup([
+            {...rect, id: 'p1', page: 1},
+            {...rect, id: 'p2', page: 2},
+        ]);
+        act(() => {
+            editor().setMedia({width: 100, height: 100}, 1);
+            editor().setMedia({width: 2000, height: 1000}, 2);
+        });
+        expect(editor().mediaOf(2)).toEqual({width: 2000, height: 1000});
+        // Not reported by a layer: the size of the media without a page
+        expect(editor().mediaOf(3)).toEqual(media);
+
+        act(() => editor().select('p2'));
+        act(() => editor().nudge(200, 100));
+        expect(onChange).toHaveBeenLastCalledWith([
+            expect.objectContaining({id: 'p1', x: 0.1}),
+            expect.objectContaining({id: 'p2', x: 0.2, y: 0.2}),
+        ]);
+    });
+});
+
+describe('useAnnotationEditor of a video', () => {
+    const shapes: AssetAnnotation[] = [
+        {...rect, id: 'still'},
+        {...rect, id: 'at5', t: 5},
+        {...rect, id: 'at9', t: 9},
+        {id: 'cue', type: AnnotationType.Cue, t: 5},
+    ];
+
+    function setupVideo(time: number | undefined, now = time ?? 0) {
+        const onChange = vi.fn();
+        const hook = renderHook(
+            ({time}: {time: number | undefined}) =>
+                useAnnotationEditor(
+                    {key: 'v', annotations: shapes, editable: true, onChange},
+                    undefined,
+                    {time, tolerance: 0.04, now: () => now}
+                ),
+            {initialProps: {time}}
+        );
+
+        return {hook, onChange, editor: () => hook.result.current};
+    }
+
+    it('keeps the shapes of the frame shown within a frame, and the ones without a time', () => {
+        const {editor, hook} = setupVideo(5.03);
+        const ids = () => editor().pageAnnotations.map(a => a.id);
+        expect(ids()).toEqual(['still', 'at5', 'cue']);
+        expect(editor().isAtTime(shapes[2])).toBe(false);
+
+        hook.rerender({time: 5.05});
+        expect(ids()).toEqual(['still']);
+
+        hook.rerender({time: 9});
+        expect(ids()).toEqual(['still', 'at9']);
+    });
+
+    it('keeps the shapes without a time only while playing', () => {
+        const {editor} = setupVideo(undefined);
+        expect(editor().pageAnnotations.map(a => a.id)).toEqual(['still']);
+        expect(editor().timeline?.time).toBeUndefined();
+    });
+
+    it('puts a shape created on the current time of the video', () => {
+        const {editor, onChange} = setupVideo(7.25);
+        act(() => {
+            editor().add({...rect, id: undefined});
+        });
+        expect(onChange.mock.lastCall![0][4]).toMatchObject({
+            type: AnnotationType.Rect,
+            t: 7.25,
+        });
+        expect(onChange.mock.lastCall![0][4]).not.toHaveProperty('page');
+    });
+
+    it('keeps the time of a cue, named after its type', () => {
+        const {editor, onChange} = setupVideo(undefined, 12);
+        act(() => {
+            editor().add({type: AnnotationType.Cue, t: 3.5});
+        });
+        expect(onChange.mock.lastCall![0][4]).toMatchObject({
+            type: AnnotationType.Cue,
+            t: 3.5,
+            name: 'Cue #2',
+        });
+    });
+
+    it('does not time the shapes of an image', () => {
+        const {editor, onChange} = setup();
+        expect(editor().timeline).toBeUndefined();
+        expect(editor().isAtTime({...rect, t: 3})).toBe(true);
+        act(() => {
+            editor().add({...rect, id: undefined});
+        });
+        expect(onChange.mock.lastCall![0][0]).not.toHaveProperty('t');
     });
 });

@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Consumer\Handler\Asset\AssetExportProcess;
+use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetExport;
 use App\Security\Voter\AbstractVoter;
@@ -34,6 +35,19 @@ class AssetExportProcessor implements ProcessorInterface
         array $uriVariables = [],
         array $context = [],
     ): AssetExport {
+        if (null !== $basketAssetIds = $data->getBasketAssets()) {
+            $assetIds = [];
+            foreach ($basketAssetIds as $basketAssetId) {
+                /** @var BasketAsset $basketAsset */
+                $basketAsset = DoctrineUtil::findStrict($this->em, BasketAsset::class, $basketAssetId, throw404: true);
+                $this->denyAccessUnlessGranted(AbstractVoter::READ, $basketAsset->getBasket());
+                $this->denyAccessUnlessGranted(AbstractVoter::READ, $basketAsset->getAsset());
+                $assetIds[$basketAsset->getAsset()->getId()] = true;
+            }
+            $data->setBasketAssets(array_values(array_unique($basketAssetIds)));
+            $data->setAssets(array_keys($assetIds));
+        }
+
         foreach ($data->getAssets() as $assetId) {
             $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);

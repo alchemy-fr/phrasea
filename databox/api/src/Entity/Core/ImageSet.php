@@ -16,6 +16,10 @@ use Doctrine\ORM\Mapping as ORM;
  * A raster image holds the optimized version in imageFile and a light thumbnail
  * in thumbnailFile (both built by ProcessImageSetHandler; until then imageFile is
  * the uploaded original). An SVG image only holds its sanitized markup in svgData.
+ *
+ * An image cropped automatically from a face (the photo of a person, see
+ * FaceRecognitionPhotoHandler) keeps the ID of that face in sourceAttributeId; null
+ * means a user uploaded the image, which nothing replaces automatically.
  */
 #[ORM\Entity]
 class ImageSet extends AbstractUuidEntity
@@ -33,6 +37,12 @@ class ImageSet extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $svgData = null;
+
+    /**
+     * Not a foreign key: deleting the face must leave the image untouched.
+     */
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    private ?string $sourceAttributeId = null;
 
     public function getImageFile(): ?File
     {
@@ -67,5 +77,23 @@ class ImageSet extends AbstractUuidEntity
     public function isSvg(): bool
     {
         return null !== $this->svgData;
+    }
+
+    public function getSourceAttributeId(): ?string
+    {
+        return $this->sourceAttributeId;
+    }
+
+    public function setSourceAttributeId(?string $sourceAttributeId): void
+    {
+        $this->sourceAttributeId = $sourceAttributeId;
+    }
+
+    /**
+     * Whether the image was cropped automatically from a face (and may be replaced by another one).
+     */
+    public function isAuto(): bool
+    {
+        return null !== $this->sourceAttributeId;
     }
 }

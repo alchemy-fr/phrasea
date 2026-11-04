@@ -8,8 +8,46 @@ import MyMarkdown from '../../_databox/_rendition_transformers.md'
 
 The Rendition Factory is a service responsible for generating various renditions (alternative formats or versions) of media assets stored in Databox. It utilizes a set of transformers to process and convert the original media files into different renditions based on predefined configurations.
 
+## Story contact sheet (`generate:`)
+
+A story has no source file of its own until a cover is set. A `generate:` build
+definition produces a rendition without any source: its first module is a
+generator, fed with the renditions already built for the story items. The
+`contact_sheet` generator assembles them in a square grid (2×2 or 4×4).
+
+```yaml
+generate:
+    # The rendition of the items to assemble: thumbnail (default) or preview
+    input: thumbnail
+    transformations:
+        - module: contact_sheet
+          options: {grid: 2, size: 400, gap: 2, format: webp}
+```
+
+- The definition must be in `Custom` build mode, without parent, with the `Story` target.
+- The items are taken in their story order: not deleted, accepted (not in
+  quarantine), whatever the rights of the viewer — the sheet is shown to every
+  reader of the story, like a cover. Only their image renditions with a public
+  rendition policy are used; an item which never gets one leaves its cell empty.
+  An item which is a story brings its own cover or contact sheet.
+- The sources of the items are never read. While an item has a source but not
+  its rendition yet, the build waits (retried every 30 seconds, 10 times at most,
+  then built with the ready items).
+- The sheet is rebuilt a few seconds after the story changes: an item added,
+  removed or moved, its thumbnail or preview replaced, deleted, restored, or
+  accepted out of quarantine. An unchanged list of inputs keeps the existing file.
+- The new workspaces have a `StoryContactSheet` definition (2×2, used as
+  thumbnail and animated thumbnail). For an existing workspace, create it in
+  the rendition definitions tab with the definition above. For a 4×4 grid, set
+  `grid: 4`; create two definitions to get both.
+
+A story with a cover takes its thumbnail from the cover and shows the contact
+sheet on hover (the animated thumbnail); a story without cover shows the sheet
+in both cases. In the list, moving the pointer horizontally over the sheet
+then shows the carousel of the items.
+
 ## Transformers
 
-Here is the list of available transformers:
+Here is the list of available transformers (and generators):
 
 <MyMarkdown />

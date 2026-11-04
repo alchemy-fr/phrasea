@@ -11,6 +11,7 @@ import {
     useState,
 } from 'react';
 import type {AssetAnnotation} from './types';
+import {getAnnotationSets, type AnnotationSet} from './assetAnnotations';
 
 /**
  * What the shapes drawn over the media belong to: the message being written,
@@ -29,7 +30,20 @@ export type AnnotationTarget = {
     onChange?: (annotations: AssetAnnotation[]) => void;
     /** Shown next to the tools: what is being annotated */
     label?: string;
+    /**
+     * The stored attribute value the shapes are of: while they are edited,
+     * the other shapes of the asset stay shown around them, not its own
+     */
+    attributeId?: string;
+    /**
+     * Read only target: what replaces the name of the selected shape in its
+     * floating panel (a picker of its value…); nothing keeps the name
+     */
+    renderControl?: (annotation: AssetAnnotation) => ReactNode;
 };
+
+/** Opens the shape at that position among the shapes of a value, to edit it */
+export type ShapeEditor = (index: number) => void;
 
 type AnnotationsContextValue = {
     /** The explicit target, else the fallback when shown */
@@ -44,6 +58,24 @@ type AnnotationsContextValue = {
     fallback: AnnotationTarget | undefined;
     showFallback: boolean;
     setShowFallback: (show: boolean) => void;
+    /** The attributes the shapes of the asset belong to */
+    sets: AnnotationSet[];
+    /** The one the asset shows the shapes of, all of them when undefined */
+    setId: string | undefined;
+    /** Shows the shapes of the asset, of that attribute only when given */
+    showSet: (setId: string | undefined) => void;
+    /**
+     * The editor of a stored attribute value takes the clicks on its shapes
+     * shown with the asset (see `AssetAnnotation.source`)
+     */
+    registerShapeEditor: (
+        attributeId: string,
+        editor: ShapeEditor
+    ) => () => void;
+    /** Opens the shape in the editor of its value: false when there is none */
+    editShape: (annotation: AssetAnnotation) => boolean;
+    /** The value of the shape has an editor to open it */
+    canEditShape: (annotation: AssetAnnotation) => boolean;
 };
 
 const AnnotationsContext = createContext<AnnotationsContextValue | undefined>(
@@ -71,6 +103,8 @@ export function AnnotationsProvider({
     const [target, setTarget] = useState<AnnotationTarget>();
     const [supported, setSupported] = useState(false);
     const [showFallback, setShowFallbackState] = useState(true);
+    // Kept from an asset to the next one
+    const [chosenSetId, setChosenSetId] = useState<string>();
 
     useEffect(() => {
         setTarget(undefined);
@@ -96,16 +130,78 @@ export function AnnotationsProvider({
         }
     }, []);
 
+    const sets = useMemo(
+        () => getAnnotationSets(fallback?.annotations ?? []),
+        [fallback]
+    );
+    // An asset without the shapes of the attribute chosen shows them all
+    const setId = sets.some(s => s.id === chosenSetId)
+        ? chosenSetId
+        : undefined;
+    const shownFallback = useMemo(() => {
+        const set = sets.find(s => s.id === setId);
+        if (!fallback || !set) {
+            return fallback;
+        }
+
+        return {
+            ...fallback,
+            annotations: fallback.annotations.filter(
+                a => a.source?.definitionId === set.id
+            ),
+            label: set.label,
+        };
+    }, [fallback, sets, setId]);
+    const showSet = useCallback(
+        (id: string | undefined) => {
+            setChosenSetId(id);
+            setTarget(undefined);
+            setShowFallback(true);
+        },
+        [setShowFallback]
+    );
+
     const clearTarget = useCallback((key?: string) => {
         setTarget(t => (key === undefined || t?.key === key ? undefined : t));
+    }, []);
+
+    // Read on click only: registering re-renders nothing
+    const shapeEditors = useRef(new Map<string, ShapeEditor>());
+    const registerShapeEditor = useCallback(
+        (attributeId: string, editor: ShapeEditor) => {
+            shapeEditors.current.set(attributeId, editor);
+
+            return () => {
+                if (shapeEditors.current.get(attributeId) === editor) {
+                    shapeEditors.current.delete(attributeId);
+                }
+            };
+        },
+        []
+    );
+    const canEditShape = useCallback(
+        (annotation: AssetAnnotation) =>
+            !!annotation.source &&
+            shapeEditors.current.has(annotation.source.attributeId),
+        []
+    );
+    const editShape = useCallback((annotation: AssetAnnotation) => {
+        const source = annotation.source;
+        const editor = source && shapeEditors.current.get(source.attributeId);
+        if (!editor) {
+            return false;
+        }
+        editor(source.index);
+
+        return true;
     }, []);
 
     const value = useMemo<AnnotationsContextValue>(
         () => ({
             target:
                 target ??
-                (showFallback && fallback?.annotations.length
-                    ? fallback
+                (showFallback && shownFallback?.annotations.length
+                    ? shownFallback
                     : undefined),
             setTarget,
             clearTarget,
@@ -114,14 +210,27 @@ export function AnnotationsProvider({
             fallback,
             showFallback,
             setShowFallback,
+            sets,
+            setId,
+            showSet,
+            registerShapeEditor,
+            editShape,
+            canEditShape,
         }),
         [
             target,
             clearTarget,
             supported,
             fallback,
+            shownFallback,
             showFallback,
             setShowFallback,
+            sets,
+            setId,
+            showSet,
+            registerShapeEditor,
+            editShape,
+            canEditShape,
         ]
     );
 
@@ -150,7 +259,7 @@ export function useAnnotationTarget(
     const ctxRef = useRef(ctx);
     ctxRef.current = ctx;
     const active = ctx?.target?.key === key;
-    const {annotations, editable, selectedId, label} = props;
+    const {annotations, editable, selectedId, label, attributeId} = props;
     // The callback may be recreated on every render of the owner: the target
     // is not replaced for that (it would re-render the owner, and so on)
     const onChangeRef = useRef(props.onChange);
@@ -167,12 +276,14 @@ export function useAnnotationTarget(
                 key,
                 annotations,
                 editable,
-                selectedId,
+                // The shape given to `activate()` stays the one to highlight
+                selectedId: selectedId ?? c.target.selectedId,
                 onChange,
                 label,
+                attributeId,
             });
         }
-    }, [key, annotations, editable, selectedId, onChange, label]);
+    }, [key, annotations, editable, selectedId, onChange, label, attributeId]);
 
     useEffect(
         () => () => {
@@ -190,9 +301,10 @@ export function useAnnotationTarget(
                 selectedId,
                 onChange,
                 label,
+                attributeId,
                 ...overrides,
             }),
-        [key, annotations, editable, selectedId, onChange, label]
+        [key, annotations, editable, selectedId, onChange, label, attributeId]
     );
     const deactivate = useCallback(
         () => ctxRef.current?.clearTarget(key),
@@ -207,4 +319,47 @@ export function useAnnotationTarget(
         deactivate,
         toggle: active ? deactivate : () => activate(),
     };
+}
+
+const ShapeEditorsEnabled = createContext(true);
+
+/**
+ * The editors inside take the clicks on the shapes of the asset only while
+ * `enabled`: an editor kept mounted while hidden must not.
+ */
+export function ShapeEditorsScope({
+    enabled,
+    children,
+}: {
+    enabled: boolean;
+    children: ReactNode;
+}) {
+    return (
+        <ShapeEditorsEnabled.Provider value={enabled}>
+            {children}
+        </ShapeEditorsEnabled.Provider>
+    );
+}
+
+/**
+ * Makes `editor` open the shapes of the stored attribute value shown with the
+ * asset when they are clicked; nothing without a value or an editor.
+ */
+export function useShapeEditor(
+    attributeId: string | undefined,
+    editor: ShapeEditor | undefined
+) {
+    const register = useAnnotations()?.registerShapeEditor;
+    const enabled = useContext(ShapeEditorsEnabled);
+    const editorRef = useRef(editor);
+    editorRef.current = editor;
+    const hasEditor = !!editor;
+
+    useEffect(() => {
+        if (!register || !enabled || !attributeId || !hasEditor) {
+            return;
+        }
+
+        return register(attributeId, index => editorRef.current?.(index));
+    }, [register, enabled, attributeId, hasEditor]);
 }

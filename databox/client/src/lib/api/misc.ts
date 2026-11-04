@@ -9,6 +9,7 @@ import {
     AssetType,
     Basket,
     BasketAsset,
+    BasketClip,
     DisplayProfile,
     DuplicateAsset,
     EntityName,
@@ -96,6 +97,14 @@ export function addToBasket(
             assets: assetIds.map(id => ({id})),
         }
     );
+}
+
+/** Sets the clip of a basket item, or removes it with `null` */
+export function patchBasketAssetClip(
+    itemId: string,
+    clip: BasketClip | null
+): Promise<BasketAsset> {
+    return api.patch<BasketAsset>(`/basket-assets/${itemId}`, {clip});
 }
 
 export function removeFromBasket(
@@ -469,8 +478,13 @@ export function deleteShare(id: string): Promise<void> {
 
 // Exports ------------------------------------------------------------------
 
+/**
+ * Exports assets, or basket items (`basketAssets`, their clip is applied to
+ * the exported files).
+ */
 export function exportAssets(data: {
-    assets: string[];
+    assets?: string[];
+    basketAssets?: string[];
     renditions: string[];
 }): Promise<AssetExport> {
     return api.post<AssetExport>('/asset-exports', data);

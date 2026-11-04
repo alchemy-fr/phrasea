@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
+use App\Api\Filter\InIdsFilter;
 use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SortFilter;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
@@ -70,6 +71,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                     extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'listId'],
                 ),
                 'list[]' => new QueryParameter(property: 'list', openApi: false),
+                'ids' => new QueryParameter(
+                    filter: InIdsFilter::class,
+                    property: 'id',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'id'],
+                    hydra: false,
+                ),
                 'value' => new QueryParameter(
                     filter: new PartialSearchFilter(),
                     property: 'value',
@@ -402,7 +409,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         return self::STATUS_APPROVED === $this->status;
     }
 
-    #[Groups([self::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
     #[Assert\Length(min: 1, max: 1, countUnit: Assert\Length::COUNT_GRAPHEMES)]
     public function getEmoji(): ?string
     {
@@ -418,7 +425,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         }
     }
 
-    #[Groups([self::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
     #[Assert\CssColor]
     public function getColor(): ?string
     {

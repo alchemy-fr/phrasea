@@ -12,6 +12,7 @@ use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
+use App\Service\Asset\RenditionDefinitionParser;
 use App\Service\Storage\RenditionManager;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -25,6 +26,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
 
     public function __construct(
         private readonly RenditionManager $renditionManager,
+        private readonly RenditionDefinitionParser $definitionParser,
     ) {
     }
 
@@ -89,6 +91,10 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
                 $definition->getName(),
             );
             $j->getWith()->offsetSet('definition', $definition->getId());
+            if ($this->definitionParser->isGenerateDefinition($definition)) {
+                // Skipped for the assets that are not stories: the jobs needing the renditions must not wait for it
+                $j->setContinueOnSkip(true);
+            }
             $jobs[$definition->getId()] = $j;
         }
 

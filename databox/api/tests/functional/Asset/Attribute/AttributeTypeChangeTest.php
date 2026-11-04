@@ -26,6 +26,7 @@ use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\PrivacyAttributeType;
 use App\Attribute\Type\TextareaAttributeType;
 use App\Attribute\Type\TextAttributeType;
+use App\Attribute\Type\WebVttAttributeType;
 use App\Tests\Functional\AbstractDataboxTestCase;
 
 class AttributeTypeChangeTest extends AbstractDataboxTestCase
@@ -76,6 +77,12 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
                 TextAttributeType::NAME,
             ],
             JsonAttributeType::NAME => [
+                ...$strictFormats,
+                EntityAttributeType::NAME,
+                KeywordAttributeType::NAME,
+                TextAttributeType::NAME,
+            ],
+            WebVttAttributeType::NAME => [
                 ...$strictFormats,
                 EntityAttributeType::NAME,
                 KeywordAttributeType::NAME,

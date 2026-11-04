@@ -105,7 +105,7 @@ YAML;
         $this->assertNotContains($assetOnly->getId(), $byTarget);
 
         $byWorkspace = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(6, $byWorkspace->toArray()['totalItems']);
+        $this->assertSame(7, $byWorkspace->toArray()['totalItems']);
     }
 
     /**
@@ -317,7 +317,7 @@ YAML;
         $this->assertSame('Preview v2', $response->toArray()['name']);
 
         $list = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(4, $list->toArray()['totalItems']);
+        $this->assertSame(5, $list->toArray()['totalItems']);
     }
 
     public function testPatchOnlyChangesProvidedFields(): void
@@ -419,6 +419,7 @@ YAML;
             $defaults->renditionDefinitions['main']->getId(),
             $defaults->renditionDefinitions['preview']->getId(),
             $defaults->renditionDefinitions['animatedThumbnail']->getId(),
+            $defaults->renditionDefinitions['storyContactSheet']->getId(),
         ];
 
         $response = $this->jsonRequest('POST', '/rendition-definitions/sort', self::EDITOR, $ids);
@@ -429,8 +430,8 @@ YAML;
         $this->assertSame($ids, $listed);
 
         $em = self::getEntityManager();
-        $this->assertSame(3, $em->find(RenditionDefinition::class, $ids[0])->getPriority());
-        $this->assertSame(0, $em->find(RenditionDefinition::class, $ids[3])->getPriority());
+        $this->assertSame(4, $em->find(RenditionDefinition::class, $ids[0])->getPriority());
+        $this->assertSame(0, $em->find(RenditionDefinition::class, $ids[4])->getPriority());
     }
 
     public function testSortOnlyAffectsTheWorkspaceOfTheLastItem(): void
@@ -600,7 +601,7 @@ YAML;
         $this->assertResponseStatusCodeSame(404);
 
         $list = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(4, $list->toArray()['totalItems']);
+        $this->assertSame(5, $list->toArray()['totalItems']);
 
         $this->duplicate($id, self::ADMIN);
         $this->assertResponseStatusCodeSame(201);

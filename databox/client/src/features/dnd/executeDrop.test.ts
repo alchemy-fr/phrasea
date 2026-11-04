@@ -221,6 +221,7 @@ describe('executeDrop assets', () => {
         );
         expect(api.addToBasket).toHaveBeenCalledWith('b', ['a', 'c']);
         expect(useBasketStore.getState().baskets[0].assetCount).toBe(3);
+        expect(invalidate).toHaveBeenCalledWith({queryKey: ['basket', 'b']});
         expect(invalidate).toHaveBeenCalledWith({
             queryKey: ['basket-assets', 'b'],
         });

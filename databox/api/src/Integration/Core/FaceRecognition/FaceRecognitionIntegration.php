@@ -122,6 +122,10 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
                 ->defaultTrue()
                 ->info('When a user names a face, apply the person to the similar faces of the workspace')
             ->end()
+            ->booleanNode('autoPhoto')
+                ->defaultTrue()
+                ->info('Give the persons without a photo the photo of their best face, cropped from its asset (a photo uploaded by a user is never replaced)')
+            ->end()
         ;
     }
 

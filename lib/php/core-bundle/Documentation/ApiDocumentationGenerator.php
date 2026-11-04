@@ -27,21 +27,22 @@ final class ApiDocumentationGenerator extends DocumentationGenerator
 
     public function getContent(): string
     {
-        // Written to a file: going through the console formatter exhausts the default memory limit.
+        // The schema goes through a file: written to the console output, it would be
+        // parsed by the console formatter, which needs several times its size in memory.
         $file = tempnam(sys_get_temp_dir(), 'openapi');
-        $input = new ArrayInput([
-            'command' => 'api:openapi:export',
-            '--output' => $file,
-        ]);
-        $output = new BufferedOutput();
         try {
+            $input = new ArrayInput([
+                'command' => 'api:openapi:export',
+                '--output' => $file,
+            ]);
+            $output = new BufferedOutput();
             if (Command::SUCCESS !== $this->application->run($input, $output)) {
                 throw new \RuntimeException(sprintf('Unable to generate OpenAPI schema: %s', $output->fetch()));
             }
 
             return file_get_contents($file);
         } finally {
-            unlink($file);
+            @unlink($file);
         }
     }
 }

@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
  * A metadata tag namespace (e.g. "IPTC") or tag (e.g. "IPTC:Keywords") known by exiftool,
  * used to suggest tag names when configuring attribute definitions.
  *
- * GET /metadata-tags?query=IPT        => the namespaces containing "IPT"
+ * GET /metadata-tags?query=IPT        => the namespaces containing "IPT", then the tags of any namespace whose name contains "IPT"
  * GET /metadata-tags?query=IPTC:Key   => the tags of the "IPTC" namespace containing "Key"
  */
 #[ApiResource(
@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             parameters: [
                 'query' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Namespace prefix, or "<namespace>:<tag prefix>" to list the tags of a namespace',
+                    description: 'Namespace or tag name (from 2 characters, in any namespace), or "<namespace>:<tag prefix>" to list the tags of a namespace',
                     castToArray: false,
                 ),
             ],

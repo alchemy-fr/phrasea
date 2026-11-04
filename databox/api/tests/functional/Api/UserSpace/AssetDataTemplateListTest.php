@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api\UserSpace;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
@@ -81,6 +82,36 @@ final class AssetDataTemplateListTest extends AbstractSearchTestCase
         self::populateSearchIndices();
 
         $this->assertContains('WS private', $this->listNames(self::OTHER, ['workspace' => $this->workspace->getId()]));
+    }
+
+    public function testPrivateTemplateSharedWithUserIsListedUntilRevoked(): void
+    {
+        $workspace = ['workspace' => $this->workspace->getId()];
+        $this->assertNotContains('WS private', $this->listNames(self::OTHER, $workspace));
+
+        $this->putAce('WS private', 'user', self::OTHER);
+        self::waitForESIndex('asset_data_template');
+        $this->assertContains('WS private', $this->listNames(self::OTHER, $workspace));
+
+        $this->deleteAce('WS private', 'user', self::OTHER);
+        self::waitForESIndex('asset_data_template');
+        $this->assertNotContains('WS private', $this->listNames(self::OTHER, $workspace));
+    }
+
+    public function testPrivateTemplateSharedWithGroupIsListedUntilRevoked(): void
+    {
+        $workspace = ['workspace' => $this->workspace->getId()];
+        $groups = [KeycloakClientTestMock::GROUP_UID];
+        $this->assertNotContains('WS private', $this->listNames(self::OTHER, $workspace, $groups));
+
+        $this->putAce('WS private', 'group', KeycloakClientTestMock::GROUP_UID);
+        self::waitForESIndex('asset_data_template');
+        $this->assertContains('WS private', $this->listNames(self::OTHER, $workspace, $groups));
+        $this->assertNotContains('WS private', $this->listNames(self::OTHER, $workspace, []));
+
+        $this->deleteAce('WS private', 'group', KeycloakClientTestMock::GROUP_UID);
+        self::waitForESIndex('asset_data_template');
+        $this->assertNotContains('WS private', $this->listNames(self::OTHER, $workspace, $groups));
     }
 
     public function testAnonymousWithoutWorkspaceAccessGetsNothing(): void
@@ -166,15 +197,47 @@ final class AssetDataTemplateListTest extends AbstractSearchTestCase
         );
     }
 
-    private function listNames(?string $userId, array $query): array
+    /**
+     * @param string[]|null $groups the user's groups, instead of its ones in the IdP mock
+     */
+    private function listNames(?string $userId, array $query, ?array $groups = null): array
     {
-        $data = $this->apiJson('GET', '/asset-data-templates', $userId, query: $query);
+        if (null === $groups) {
+            $data = $this->apiJson('GET', '/asset-data-templates', $userId, query: $query);
+        } else {
+            $response = $this->api('GET', '/asset-data-templates', null, query: $query, headers: [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId, groups: $groups),
+            ]);
+            $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+            $data = $response->toArray();
+        }
         $names = array_column($this->members($data), 'name');
         if (!isset($query['collection'])) {
             sort($names);
         }
 
         return $names;
+    }
+
+    private function putAce(string $templateName, string $userType, string $userId): void
+    {
+        $this->apiJson('PUT', '/permissions/ace', self::USER, [
+            'objectType' => AssetDataTemplate::OBJECT_TYPE,
+            'objectId' => $this->ids[$templateName],
+            'userType' => $userType,
+            'userId' => $userId,
+            'mask' => PermissionInterface::VIEW,
+        ]);
+    }
+
+    private function deleteAce(string $templateName, string $userType, string $userId): void
+    {
+        $this->assertStatus(200, 'DELETE', '/permissions/ace', self::USER, [
+            'objectType' => AssetDataTemplate::OBJECT_TYPE,
+            'objectId' => $this->ids[$templateName],
+            'userType' => $userType,
+            'userId' => $userId,
+        ]);
     }
 
     private function createTemplate(

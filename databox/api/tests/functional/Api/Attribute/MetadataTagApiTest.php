@@ -40,14 +40,25 @@ final class MetadataTagApiTest extends AbstractDataboxTestCase
         $ids = $this->search('p');
 
         $this->assertNotEmpty($ids);
-        $prefixed = array_map(fn (string $id): bool => 0 === stripos($id, 'p'), $ids);
-        $firstContained = array_search(false, $prefixed, true);
-        if (false !== $firstContained) {
-            $this->assertNotContains(true, array_slice($prefixed, $firstContained), 'no prefix match after a contained one');
-        }
+        $this->assertPrefixMatchesFirst('p', $ids);
         foreach ($ids as $id) {
-            $this->assertStringContainsStringIgnoringCase('p', $id);
+            $this->assertStringNotContainsString(':', $id, 'a single character only matches namespaces');
         }
+    }
+
+    public function testTagsComeAfterTheNamespacesWithinTheLimit(): void
+    {
+        $ids = $this->search('ipt');
+
+        $this->assertCount(50, $ids);
+        $namespaces = array_values(array_filter($ids, fn (string $id): bool => !str_contains($id, ':')));
+        $this->assertNotEmpty($namespaces);
+        $this->assertSame($namespaces, array_slice($ids, 0, count($namespaces)));
+        $this->assertPrefixMatchesFirst('ipt', $namespaces);
+
+        $tagNames = array_map(fn (string $id): string => explode(':', $id, 2)[1], array_slice($ids, count($namespaces)));
+        $this->assertNotEmpty($tagNames);
+        $this->assertPrefixMatchesFirst('ipt', $tagNames);
     }
 
     public function testAnEmptyTagQueryListsTheTagsOfTheNamespace(): void
@@ -65,5 +76,20 @@ final class MetadataTagApiTest extends AbstractDataboxTestCase
     {
         $this->api('GET', '/metadata-tags/IPTC', self::USER);
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @param string[] $values
+     */
+    private function assertPrefixMatchesFirst(string $query, array $values): void
+    {
+        $prefixed = array_map(fn (string $value): bool => 0 === stripos($value, $query), $values);
+        $firstContained = array_search(false, $prefixed, true);
+        if (false !== $firstContained) {
+            $this->assertNotContains(true, array_slice($prefixed, $firstContained), 'no prefix match after a contained one');
+        }
+        foreach ($values as $value) {
+            $this->assertStringContainsStringIgnoringCase($query, $value);
+        }
     }
 }

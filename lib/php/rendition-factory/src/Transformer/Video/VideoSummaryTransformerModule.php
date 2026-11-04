@@ -167,8 +167,9 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         $inputDuration = $video->getFFProbe()->format($inputFile->getPath())->get('duration');
 
         if (FamilyEnum::Video === $outputFormat->getFamily()) {
+            // The output formats are shared services: the settings below must not leak to the next renditions
             /** @var VideoInterface $FFMpegOutputFormat */
-            $FFMpegOutputFormat = $outputFormat->getFFMpegFormat();
+            $FFMpegOutputFormat = clone $outputFormat->getFFMpegFormat();
             if ($videoCodec = $this->optionsResolver->resolveOption($options['video_codec'] ?? null, $resolverContext)) {
                 if (!in_array($videoCodec, $FFMpegOutputFormat->getAvailableVideoCodecs())) {
                     throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));

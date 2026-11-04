@@ -3,7 +3,7 @@
 import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQueries, useQuery} from '@tanstack/react-query';
-import {DownloadIcon} from 'lucide-react';
+import {DownloadIcon, ScissorsIcon} from 'lucide-react';
 import type {Asset, RenditionDefinition, Workspace} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
@@ -43,6 +43,13 @@ export function ExportDialog({
         () => [...new Set(assets.map(a => a.workspace.id))],
         [assets]
     );
+    // Basket items are exported as such: their clip applies to the files
+    const basketItemIds = assets.every(a => !!a.basketItemId)
+        ? assets.map(a => a.basketItemId!)
+        : undefined;
+    const hasClips =
+        !!basketItemIds &&
+        assets.some(a => a.basketClip?.timeRange || a.basketClip?.crop);
 
     const definitions = useQuery({
         queryKey: ['rendition-definitions', 'export', workspaceIds],
@@ -100,7 +107,9 @@ export function ExportDialog({
         }
 
         const exp = await exportAssets({
-            assets: assets.map(a => a.id),
+            ...(basketItemIds
+                ? {basketAssets: basketItemIds}
+                : {assets: assets.map(a => a.id)}),
             renditions: selected,
         });
         addExport(exp);
@@ -135,6 +144,18 @@ export function ExportDialog({
             onSubmit={submit}
         >
             {definitions.isLoading ? <InlineLoader /> : null}
+            {hasClips ? (
+                <p
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                    data-testid="export-basket-clips"
+                >
+                    <ScissorsIcon className="size-4 shrink-0" />
+                    {t(
+                        'export.dialog.basket_clips_applied',
+                        'The extracts of the basket items are applied: the exported files are cut and cropped.'
+                    )}
+                </p>
+            ) : null}
             {Object.entries(byWorkspace).map(([wsId, {name, defs}]) => (
                 <div key={wsId}>
                     {workspaceIds.length > 1 ? (

@@ -25,8 +25,9 @@ class AudioTransformer
         if (!method_exists($commonArgs->getOutputFormat(), 'getFFMpegFormat')) {
             throw new \InvalidArgumentException(sprintf('format %s does not declare FFMpeg format', $format));
         }
+        // The output formats are shared services: the settings below must not leak to the next renditions
         /** @var FFMpegFormatInterface $FFMpegFormat */
-        $FFMpegFormat = $commonArgs->getOutputFormat()->getFFMpegFormat();
+        $FFMpegFormat = clone $commonArgs->getOutputFormat()->getFFMpegFormat();
 
         /** @var Audio $audio */
         $audio = $commonArgs->getFFMpeg()->open($inputFile->getPath());
