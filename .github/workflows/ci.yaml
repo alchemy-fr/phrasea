@@ -300,7 +300,8 @@ jobs:
 
       - name: Compute image tag from ref
         env:
-          REF_NAME: ${{ github.ref_name }}
+          # On a pull request, ref_name is "<number>/merge": tag with the source branch.
+          REF_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
           # A ref name is not necessarily a valid Docker tag: one must match
           # /[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}/, so "feat/x" is rejected.
