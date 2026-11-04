@@ -1,4 +1,4 @@
-import type {Meta, StoryObj} from '@storybook/react';
+import type {Meta, StoryObj} from '@storybook/react-vite';
 import {WorkflowStatus} from '../types';
 import {workflowSample} from './workflowSample';
 import WorkflowHeader from '../WorkflowHeader';

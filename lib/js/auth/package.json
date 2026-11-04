@@ -23,12 +23,12 @@
         "@alchemy/storage": "workspace:*",
         "js-cookie": "^3.0.8",
         "jwt-decode": "^4.0.0",
-        "keycloak-js": "^26.2.4"
+        "keycloak-js": "^26.2.5"
     },
     "devDependencies": {
         "@types/js-cookie": "^3.0.6",
         "@types/node": "^10.17.60",
-        "axios": "^1.20.0",
+        "axios": "^1.21.0",
         "axios-mock-adapter": "^2.1.0",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3",

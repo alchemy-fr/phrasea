@@ -55,7 +55,7 @@
         "@types/react": "^18.3.31",
         "i18next-scanner-typescript": "^1.2.1",
         "react-dom": "^18.3.1",
-        "react-toastify": "^11.1.0",
+        "react-toastify": "^11.2.0",
         "typescript": "^5.9.3"
     }
 }
