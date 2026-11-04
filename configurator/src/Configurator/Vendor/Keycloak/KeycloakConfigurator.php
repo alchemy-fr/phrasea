@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\Keycloak;
 
 use App\Configurator\ConfiguratorInterface;
+use App\Configurator\ConfigureContext;
 use App\Service\ServiceWaiter;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,14 +27,14 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return 'keycloak';
     }
 
-    public function configure(OutputInterface $output, array $presets): void
+    public function configure(OutputInterface $output, ConfigureContext $context): void
     {
         $keycloakUrl = EnvHelper::getEnv('KEYCLOAK_INTERNAL_URL') ?: EnvHelper::getEnvOrThrow('KEYCLOAK_URL');
 
         $this->serviceWaiter->waitForService($output, $keycloakUrl.'/realms/master', successCodes: [200]);
 
-        $hasTestPreset = in_array('test', $presets, true);
-        $hasDevPreset = in_array('dev', $presets, true);
+        $hasTestPreset = $context->hasPreset('test');
+        $hasDevPreset = $context->hasPreset('dev');
 
         $this->configureRealm();
         $this->configureDefaultClientScopes();
@@ -80,6 +81,38 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
         $this->configureClients();
 
+        // On an upgrade, an admin removed by the operator must not come back with the default password.
+        if ($context->install) {
+            $this->createDefaultAdmin($hasTestPreset);
+        }
+
+        if ($hasDevPreset) {
+            $this->keycloakManager->createClient('postman', null, null, [
+                'standardFlowEnabled' => false,
+                'implicitFlowEnabled' => false,
+                'directAccessGrantsEnabled' => true,
+                'serviceAccountsEnabled' => false,
+            ]);
+        }
+
+        if (
+            $clientId = EnvHelper::getEnv('DATABOX_EXPOSE_INTEGRATION_CLIENT_ID')
+        ) {
+            $this->keycloakManager->createClient($clientId, null, null, [
+                'standardFlowEnabled' => true,
+                'implicitFlowEnabled' => false,
+                'directAccessGrantsEnabled' => false,
+                'serviceAccountsEnabled' => false,
+                'rootUrl' => EnvHelper::getEnvOrThrow('DATABOX_API_URL'),
+                'redirectUris' => [
+                    EnvHelper::getEnvOrThrow('DATABOX_API_URL').'/*',
+                ],
+            ]);
+        }
+    }
+
+    private function createDefaultAdmin(bool $hasTestPreset): void
+    {
         $defaultAdminUsername = EnvHelper::getEnvOrThrow('DEFAULT_ADMIN_USERNAME');
         $defaultAdminEmail = EnvHelper::getEnv('DEFAULT_ADMIN_EMAIL') ?: $defaultAdminUsername;
         if (!str_contains($defaultAdminEmail, '@')) {
@@ -108,36 +141,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
             'realm-admin',
         ]);
-
-        if ($hasDevPreset) {
-            $this->keycloakManager->createClient('postman', null, null, [
-                'standardFlowEnabled' => false,
-                'implicitFlowEnabled' => false,
-                'directAccessGrantsEnabled' => true,
-                'serviceAccountsEnabled' => false,
-            ]);
-        }
-
-        if (
-            $clientId = EnvHelper::getEnv('DATABOX_EXPOSE_INTEGRATION_CLIENT_ID')
-        ) {
-            $this->keycloakManager->createClient($clientId, null, null, [
-                'standardFlowEnabled' => true,
-                'implicitFlowEnabled' => false,
-                'directAccessGrantsEnabled' => false,
-                'serviceAccountsEnabled' => false,
-                'rootUrl' => EnvHelper::getEnvOrThrow('DATABOX_API_URL'),
-                'redirectUris' => [
-                    EnvHelper::getEnvOrThrow('DATABOX_API_URL').'/*',
-                ],
-            ]);
-        }
-    }
-
-    public function synchronize(): void
-    {
-        $this->configureRealm();
-        $this->configureClients();
     }
 
     private function configureClients(): void
@@ -322,7 +325,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return $clientData;
     }
 
-    public function configureRealm(): void
+    private function configureRealm(): void
     {
         $this->keycloakManager->createRealm();
 

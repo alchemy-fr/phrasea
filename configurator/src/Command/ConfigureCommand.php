@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Configurator\Configurator;
+use App\Configurator\ConfigureContext;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,14 +27,18 @@ final class ConfigureCommand extends Command
 
         $this->addOption('preset', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED);
         $this->addOption('filter', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED);
+        $this->addOption('install', null, InputOption::VALUE_NONE, 'Fresh installation: also create the one-time resources (default admin user)');
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $presets = $input->getOption('preset');
+        $context = new ConfigureContext(
+            presets: $input->getOption('preset'),
+            install: $input->getOption('install'),
+        );
         $filters = $input->getOption('filter');
 
-        $this->configurator->configure($output, $presets, filters: $filters);
+        $this->configurator->configure($output, $context, filters: $filters);
 
         return Command::SUCCESS;
     }

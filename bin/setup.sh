@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Install the stack (see doc/tech/Deployment/lifecycle.md).
+#
+# Usage: bin/setup.sh [preset...]   (presets of the configurator, e.g. "test" or "dev")
 
 set -e
 
@@ -11,85 +15,23 @@ if [ -n "${REPORT_API_URL}" ]; then
     COMPOSE_PROFILES="${COMPOSE_PROFILES},report"
 fi
 
-infra_services=(traefik minio rabbitmq db redis elasticsearch)
-if [ "${CONFIGURATOR_CONFIGURE_KEYCLOAK}" != "false" ]; then
-    infra_services+=(keycloak)
-fi
+export CONFIGURATOR_PRESETS="$*"
 
-pids=()
-containers=()
-
-# Force-remove the containers started by setup_container: killing the
-# "docker compose run" client is not enough, the container keeps running.
-remove_containers() {
-    local name
-    for name in "${containers[@]}"; do
-        docker rm -f "${name}" >/dev/null 2>&1 || true
-    done
-}
-
-cleanup() {
-    # A second Ctrl+C gives up on the cleanup instead of being ignored.
-    trap 'echo "Forced exit."; exit 130' INT TERM
-
-    echo
-    echo "Interrupted, stopping setup tasks..."
-
-    local pid
-    for pid in "${pids[@]}"; do
-        kill -TERM "${pid}" 2>/dev/null || true
-    done
-
-    remove_containers
-
-    wait 2>/dev/null || true
-
-    exit 130
-}
-
-trap cleanup INT TERM
-
-# Run a command in a one-off container, in the background, and register both the
-# client pid and the container name so that they can be cleaned up on interrupt.
-# Usage: setup_container <service> <command>
-setup_container() {
-    local service="$1"
-    local command="$2"
-    local name="phrasea-setup-$$-${service}"
-
-    containers+=("${name}")
-    docker compose run --rm -T --name "${name}" "${service}" su app -c "${command}" &
-    pids+=($!)
-}
-
-# Wait for every registered background job, returning non-zero if any failed.
-wait_all() {
-    local status=0
-    local pid
-    for pid in "${pids[@]}"; do
-        wait "${pid}" || status=$?
-    done
-    pids=()
-
-    return ${status}
-}
+APPS=(uploader-api-php expose-api-php databox-api-php)
 
 fail() {
     echo "Setup failed." >&2
-    remove_containers
     exit 1
 }
 
-docker compose up -d "${infra_services[@]}"
+docker compose up -d $(infra_services)
 
-setup_container configurator "bin/setup.sh $@"
-wait_all || fail
-
-setup_container uploader-api-php "bin/setup.sh"
-setup_container expose-api-php "bin/setup.sh"
-setup_container databox-api-php "bin/setup.sh"
-wait_all || fail
+run_phase pre-install configurator || fail
+run_phase pre-install "${APPS[@]}" || fail
 
 docker compose up -d $(compose_up_services)
+
+run_phase post-install configurator || fail
+run_phase post-install "${APPS[@]}" || fail
 
 echo "Done."

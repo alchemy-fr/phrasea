@@ -40,6 +40,10 @@ run (`unit` + `functional`, with the SQLite and Elasticsearch reset of
 Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
 `bin/setup.sh test` and loads the expose fixtures first.
 
+Right after `bin/setup.sh test`, the `setup` job runs `bin/migrate.sh` once: an
+upgrade of an up-to-date stack must converge without migrating or breaking
+anything (see [Install and upgrade lifecycle](../Deployment/lifecycle.md)).
+
 ### Keycloak and report-api in CI
 
 The Keycloak and report-api images are built outside this repository and are

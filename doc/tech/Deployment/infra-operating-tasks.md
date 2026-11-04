@@ -1,19 +1,21 @@
 # Infra operating tasks
 
-## Initialization (aka migration-0)
+## Initialization and upgrades
 
 The first time the stack is deployed we need to initialize some things:
 - Create databases
 - Add vhosts & permissions to rabbitmq
+- Create the S3 buckets and the Keycloak realm, roles and clients
 - etc.
 
-All the operations are described in [`/bin/setup.sh`](@phrasea-repo/bin/setup.sh).
+Each image does it through its `bin/lifecycle.sh <phase>` script, which also
+provisions what a new version adds and runs the migrations on an upgrade. The
+phases, their order and their mapping to Docker Compose
+([`/bin/setup.sh`](@phrasea-repo/bin/setup.sh),
+[`/bin/migrate.sh`](@phrasea-repo/bin/migrate.sh)) and to the Helm chart hooks
+are described in [Install and upgrade lifecycle](./lifecycle.md).
 
-## Migrations
-
-Each deployment of a new version runs the migrations, described in [`/bin/migrate.sh`](@phrasea-repo/bin/migrate.sh)
-(the `<app>-migrate` and `configurator-migrate` jobs of the Helm chart).
-
-The configurator `synchronize` command, run by the configurator migration, also replays the RabbitMQ configuration
+The configurator `configure` command, run on every upgrade, also replays the RabbitMQ configuration
 (vhosts, permissions, `s3events` exchange, queue and binding): a missing vhost (renamed in the configuration, RabbitMQ
-recreated or emptied) is recreated without manual intervention. Set `CONFIGURATOR_CONFIGURE_RABBITMQ=false` to skip it.
+recreated or emptied) is recreated without manual intervention. It only runs while `CONFIGURATOR_CONFIGURE_RABBITMQ`
+is true.

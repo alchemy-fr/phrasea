@@ -71,6 +71,7 @@ docker compose down --volumes --remove-orphans
 bin/dev/make-cert.sh
 sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
 bin/setup.sh test
+bin/migrate.sh
 
 bin/test.sh standard
 

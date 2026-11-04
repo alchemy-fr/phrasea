@@ -243,6 +243,11 @@ jobs:
           sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
           bin/setup.sh test
 
+      # Upgrading an up-to-date stack must converge without migrating or breaking anything.
+      - name: Upgrade (idempotence)
+        if: "!contains(github.event.head_commit.message || '', '[skip test]')"
+        run: bin/migrate.sh
+
       - name: Test
         if: "!contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip php-test]')"
         run: bin/test.sh standard
