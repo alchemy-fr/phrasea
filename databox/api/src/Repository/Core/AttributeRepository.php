@@ -108,7 +108,7 @@ class AttributeRepository extends ServiceEntityRepository
         }
 
         foreach ($byAsset as $assetId => $attributes) {
-            $this->attributeCache->get($assetId, fn (): array => $attributes);
+            $this->attributeCache->get(self::CACHE_KEY_PREFIX.$assetId, fn (): array => $attributes);
         }
     }
 
