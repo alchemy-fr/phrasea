@@ -366,6 +366,10 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     {
         if (null !== $synonyms) {
             foreach ($synonyms as $locale => $lSynonyms) {
+                if (is_array($lSynonyms)) {
+                    $lSynonyms = self::normalizeSynonymList($lSynonyms);
+                    $synonyms[$locale] = $lSynonyms;
+                }
                 if (is_numeric($locale) || empty($lSynonyms)) {
                     unset($synonyms[$locale]);
                 }
@@ -373,6 +377,28 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         }
 
         $this->synonyms = $synonyms;
+    }
+
+    /**
+     * Trimmed, without empty entries nor duplicates, and re-indexed: a list with gaps in its
+     * keys would be stored as a JSON object.
+     *
+     * Entries other than strings are kept for the validation to reject them.
+     */
+    private static function normalizeSynonymList(array $synonyms): array
+    {
+        $list = [];
+        foreach ($synonyms as $synonym) {
+            if (is_string($synonym)) {
+                $synonym = trim($synonym);
+                if ('' === $synonym || in_array($synonym, $list, true)) {
+                    continue;
+                }
+            }
+            $list[] = $synonym;
+        }
+
+        return $list;
     }
 
     public function getSynonymsOfLocale(string $locale): ?array

@@ -1,6 +1,12 @@
 'use client';
 
-import {ClipboardEvent, KeyboardEvent, useState} from 'react';
+import {
+    ClipboardEvent,
+    KeyboardEvent,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import {XIcon} from 'lucide-react';
 import {cn} from '@/lib/utils/cn';
 
@@ -12,14 +18,22 @@ type Props = {
     'disabled'?: boolean;
     'className'?: string;
     'aria-invalid'?: boolean;
+    /** Splits a paste; the comma key adds a chip only when it matches ',' */
+    'splitOn'?: RegExp;
+    /** Text already typed when the field mounts */
+    'initialText'?: string;
+    'autoFocus'?: boolean;
+    /** Enter on an empty text field: the input is over */
+    'onSubmit'?: () => void;
 };
 
-const separators = /[,\s]+/;
+const defaultSeparators = /[,\s]+/;
 
 /**
- * List of free values as chips: Enter or a comma adds the typed one,
- * Backspace on an empty field removes the last one, a paste is split on
- * commas and spaces.
+ * List of free values as chips: Enter (or a comma, with the default
+ * separators) adds the typed one, Backspace on an empty field removes the
+ * last one, a paste is split on the separators (commas and spaces by
+ * default). Leaving the field or Tab adds the typed text.
  */
 export function TagsInput({
     value,
@@ -29,15 +43,35 @@ export function TagsInput({
     disabled,
     className,
     'aria-invalid': invalid,
+    splitOn = defaultSeparators,
+    initialText,
+    autoFocus,
+    onSubmit,
 }: Props) {
-    const [text, setText] = useState('');
+    const [text, setText] = useState(initialText ?? '');
+    const inputRef = useRef<HTMLInputElement>(null);
+    const commaSeparates = splitOn.test(',');
+
+    useEffect(() => {
+        const input = inputRef.current;
+        if (autoFocus && input) {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const add = (items: string[]) => {
         const added = items.map(s => s.trim()).filter(Boolean);
         if (added.length === 0) {
             return;
         }
-        onChange([...value, ...added.filter(s => !value.includes(s))]);
+        onChange([
+            ...value,
+            ...added.filter(
+                (s, i) => !value.includes(s) && added.indexOf(s) === i
+            ),
+        ]);
     };
 
     const commit = () => {
@@ -46,8 +80,18 @@ export function TagsInput({
     };
 
     const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' || e.key === ',') {
+        if (e.key === 'Enter') {
             e.preventDefault();
+            if (text.trim() === '' && onSubmit) {
+                setText('');
+                onSubmit();
+            } else {
+                commit();
+            }
+        } else if (e.key === ',' && commaSeparates) {
+            e.preventDefault();
+            commit();
+        } else if (e.key === 'Tab') {
             commit();
         } else if (e.key === 'Backspace' && text === '' && value.length > 0) {
             e.preventDefault();
@@ -57,11 +101,11 @@ export function TagsInput({
 
     const onPaste = (e: ClipboardEvent<HTMLInputElement>) => {
         const pasted = e.clipboardData.getData('text');
-        if (!separators.test(pasted)) {
+        if (!splitOn.test(pasted)) {
             return;
         }
         e.preventDefault();
-        add(pasted.split(separators));
+        add(pasted.split(splitOn));
         setText('');
     };
 
@@ -96,6 +140,7 @@ export function TagsInput({
                 </span>
             ))}
             <input
+                ref={inputRef}
                 id={id}
                 value={text}
                 disabled={disabled}

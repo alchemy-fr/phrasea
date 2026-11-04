@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react';
 import type {RowData} from '@tanstack/react-table';
 
-export type CellEditorKind = 'text' | 'select' | 'color' | 'emoji';
+export type CellEditorKind = 'text' | 'select' | 'color' | 'emoji' | 'tags';
 
 export type CellEditorOption = {value: string; label: ReactNode};
 
