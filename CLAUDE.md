@@ -35,7 +35,7 @@ The applications:
 - `databox/`, `expose/`, `uploader/` — each has `api/` (Symfony) and `client/` (Next.js).
 - `dashboard/client/` — Next.js client only.
 - `lib/php/*` — shared Symfony bundles (e.g. `core-bundle`, `auth-bundle`, `configurator-bundle`, `storage-bundle`, `es-bundle`, `notifier-bundle`, `report-bundle`, `workflow-bundle`, `rendition-factory`). Consumed by the API apps as Composer **`type: path` repositories, symlinked** — editing a bundle immediately affects the apps that depend on it.
-- `lib/js/*` — shared React/TS packages published under the **`@alchemy/*`** scope (e.g. `@alchemy/core`, `@alchemy/auth`, `@alchemy/api`, `@alchemy/phrasea-ui`, `@alchemy/react-hooks`). Consumed via pnpm `workspace:*`.
+- `lib/js/*` — shared React/TS packages published under the **`@alchemy/*`** scope (e.g. `@alchemy/core`, `@alchemy/auth`, `@alchemy/api`, `@alchemy/storage`). Consumed via pnpm `workspace:*`.
 - `lib/js/next-*` — the packages shared by the Next.js clients (every `*/client`), shipped as TypeScript sources (`transpilePackages`) and imported by subpath (`@alchemy/next-ui/ui/button`): `next-ui` (design system, modals, top bar menus, base stylesheet), `next-theme` (palettes, presets, organisation theme, theme menu), `next-i18n` (languages, i18next setup, translations common to every client — a client's own file overrides them key by key), `next-core` (OIDC client, stack/runtime config, Matomo, auth callback). Code needed by more than one Next.js client goes there rather than being copied; each package's stylesheet declares `@source '../src'` so that Tailwind sees its classes.
 - `bin/` — orchestration scripts (setup, build, migrate, test); `bin/dev/` — developer helpers.
 - `infra/`, `docker-compose*.yml` — deployment and local stack.
@@ -87,7 +87,7 @@ dc run --rm dev pnpm build         # builds across packages
 
 Per-client: `pnpm --filter databox-client <script>` (scripts: `lint`, `build`, `cs` = lint:fix + format).
 
-**Frontend tests use Vitest** (the clients, `databox/indexer`, `lib/js/api`, `lib/js/auth`, `lib/js/i18n`, `lib/js/next-*`; `pnpm test` at the root runs them all through Turbo):
+**Frontend tests use Vitest** (the clients, `databox/indexer`, `lib/js/api`, `lib/js/auth`, `lib/js/next-*`; `pnpm test` at the root runs them all through Turbo):
 
 ```bash
 dc run --rm dev pnpm --filter databox-client test                      # vitest run
