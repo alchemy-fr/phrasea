@@ -347,6 +347,29 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
 
+  expose-client-next:
+    logging: *default-logging
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}expose-client-next:${DOCKER_TAG}
+    build:
+      context: ./
+      dockerfile: ./expose/client-next/Dockerfile
+    profiles:
+      - expose-next
+    environment:
+      - EXPOSE_API_URL
+      - EXPOSE_CLIENT_URL=${EXPOSE_NEXT_CLIENT_URL}
+      - CLIENT_ID=${EXPOSE_NEXT_CLIENT_ID}
+      - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
+      - ALLOWED_FRAME_ANCESTORS=${EXPOSE_ALLOWED_FRAME_ANCESTORS}
+      - MATOMO_DISABLE_COOKIES
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.expose-client-next.rule=Host(`expose-next.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.expose-client-next.loadbalancer.server.port=3000"
+
   uploader-client:
     logging: *default-logging
     extends:
@@ -366,6 +389,28 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
+
+  uploader-client-next:
+    logging: *default-logging
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}uploader-client-next:${DOCKER_TAG}
+    build:
+      context: ./
+      dockerfile: ./uploader/client-next/Dockerfile
+    profiles:
+      - uploader-next
+    environment:
+      - UPLOADER_API_URL
+      - UPLOADER_CLIENT_URL=${UPLOADER_NEXT_CLIENT_URL}
+      - CLIENT_ID=${UPLOADER_NEXT_CLIENT_ID}
+      - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
+      - MATOMO_DISABLE_COOKIES
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.uploader-client-next.rule=Host(`uploader-next.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.uploader-client-next.loadbalancer.server.port=3000"
 
   expose-api-php:
     logging: *default-logging
@@ -712,6 +757,45 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
+
+  dashboard-client-next:
+    logging: *default-logging
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}dashboard-client-next:${DOCKER_TAG}
+    build:
+      context: ./
+      dockerfile: ./dashboard/client-next/Dockerfile
+    profiles:
+      - dashboard-next
+    environment:
+      - DASHBOARD_CLIENT_URL=${DASHBOARD_NEXT_CLIENT_URL}
+      - CLIENT_ID=${DASHBOARD_NEXT_CLIENT_ID}
+      - DATABOX_API_URL
+      - DATABOX_CLIENT_URL
+      - EXPOSE_API_URL
+      - EXPOSE_CLIENT_URL
+      - UPLOADER_API_URL
+      - UPLOADER_CLIENT_URL
+      - MAILPIT_URL
+      - PGADMIN_URL
+      - PHPMYADMIN_URL
+      - RABBITMQ_CONSOLE_URL
+      - TRAEFIK_CONSOLE_URL
+      - SOCKUDO_USAGE_URL
+      - STACK_NAME=${COMPOSE_PROJECT_NAME}
+      - STACK_VERSION=${DOCKER_TAG}
+      - MATOMO_DISABLE_COOKIES
+    # The status of the APIs is probed from the server, through traefik
+    extra_hosts:
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.dashboard-client-next.rule=Host(`dashboard-next.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.dashboard-client-next.loadbalancer.server.port=3000"
 
   databox-api-php:
     logging: *default-logging
@@ -1112,12 +1196,18 @@ services:
       - DATABOX_ADMIN_CLIENT_SECRET
       - DATABOX_CLIENT_ID
       - EXPOSE_CLIENT_ID
+      - EXPOSE_NEXT_CLIENT_ID
       - UPLOADER_CLIENT_ID
+      - UPLOADER_NEXT_CLIENT_ID
       - DASHBOARD_CLIENT_ID
+      - DASHBOARD_NEXT_CLIENT_ID
       - DATABOX_CLIENT_URL
       - EXPOSE_CLIENT_URL
+      - EXPOSE_NEXT_CLIENT_URL
       - UPLOADER_CLIENT_URL
+      - UPLOADER_NEXT_CLIENT_URL
       - DASHBOARD_CLIENT_URL
+      - DASHBOARD_NEXT_CLIENT_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_HOST

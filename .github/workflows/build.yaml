@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 30
 
       - name: Generate git log
-        if: "${{ inputs.image == 'dashboard' }}"
+        if: "${{ inputs.image == 'dashboard' || inputs.image == 'dashboard-client-next' }}"
         run: bin/git-log.sh
 
       - uses: docker/setup-qemu-action@v4

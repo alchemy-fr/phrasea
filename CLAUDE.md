@@ -34,6 +34,9 @@ The applications:
 
 - `databox/`, `expose/`, `uploader/` — each has `api/` (Symfony) and `client/` (React; Next.js for databox, Vite for the others).
 - `dashboard/client/` — React client only.
+- `expose/client-next/` — Next.js rewrite of the expose client (same stack as `databox/client`), compose profile `expose-next`; it runs next to `expose/client` until it replaces it.
+- `uploader/client-next/` — Next.js rewrite of the uploader client (same stack as `databox/client`), compose profile `uploader-next`; it runs next to `uploader/client` until it replaces it.
+- `dashboard/client-next/` — Next.js rewrite of the dashboard client (same stack as `databox/client`), compose profile `dashboard-next`; it runs next to `dashboard/client` until it replaces it.
 - `lib/php/*` — shared Symfony bundles (e.g. `core-bundle`, `auth-bundle`, `configurator-bundle`, `storage-bundle`, `es-bundle`, `notifier-bundle`, `report-bundle`, `workflow-bundle`, `rendition-factory`). Consumed by the API apps as Composer **`type: path` repositories, symlinked** — editing a bundle immediately affects the apps that depend on it.
 - `lib/js/*` — shared React/TS packages published under the **`@alchemy/*`** scope (e.g. `@alchemy/core`, `@alchemy/auth`, `@alchemy/api`, `@alchemy/phrasea-ui`, `@alchemy/react-hooks`). Consumed via pnpm `workspace:*`.
 - `bin/` — orchestration scripts (setup, build, migrate, test); `bin/dev/` — developer helpers.
@@ -164,7 +167,7 @@ The canonical project lists (used by the whole-repo scripts) live in `bin/vars.s
 ## Conventions
 
 - Frontend (expose, uploader, dashboard): React 18 + TypeScript + Vite, MUI (`@mui/material`) for UI, TanStack React Query for data, i18next for translations (`pnpm translate` runs the i18next scanner).
-- Frontend (databox): Next.js (App Router) + React 19 + TypeScript, Tailwind CSS v4 + Radix primitives, TanStack Query, Zustand; see `databox/client/README.md`.
+- Frontend (databox, uploader/client-next, expose/client-next, dashboard/client-next): Next.js (App Router) + React 19 + TypeScript, Tailwind CSS v4 + Radix primitives, TanStack Query, Zustand; see `databox/client/README.md`, `uploader/client-next/README.md`, `expose/client-next/README.md` and `dashboard/client-next/README.md`.
 - A **pre-commit hook** (Husky + lint-staged) runs formatting/CS on staged files; keep code lint-clean.
 - New PHP shared bundles use the modern structure (`src/` + `config/` + an `AbstractBundle` class) rather than the legacy layout.
 - **Tagged services: the index lives in `#[AsTaggedItem]`, written once.** A service in a tagged locator/iterator (`#[AutoconfigureTag]`, `_instanceof`) declares its index with `#[AsTaggedItem(index: …)]` — never with `defaultIndexMethod`, deprecated since Symfony 8.1. If a static method also exposes that value (`getName()`, `getKey()`, …), it returns a shared constant used by the attribute (`public const string NAME = 'index_assets';` + `#[AsTaggedItem(index: self::NAME)]` + `return self::NAME;`); if nothing calls that method, drop it from the class and the interface instead.
