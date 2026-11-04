@@ -6,7 +6,7 @@ import {AlertTriangleIcon} from 'lucide-react';
 import type {Attribute, AttributeDefinitionOrBuiltIn} from '@/types/api';
 import {formatAttributeValue, getAttributeType} from './types/registry';
 import {useAttributeFormats} from './formatStore';
-import {Tooltip} from '@/components/ui/overlays';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {isRtl, NO_LOCALE, pickLocale} from '@/lib/utils/locale';
 import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetButton';
 import {labelAttributeAnnotations} from '@/features/annotations/assetAnnotations';

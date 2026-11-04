@@ -1,7 +1,7 @@
 'use client';
 
 import {useMemo} from 'react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {waveformPath} from './waveform';
 
 /**

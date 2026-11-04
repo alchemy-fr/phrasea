@@ -39,7 +39,7 @@ vi.mock('./sort/SortByButton', () => ({SortByButton: () => null}));
 vi.mock('@/hooks/useBrowserLocation', () => ({
     useBrowserLocation: () => ({requestLocation: vi.fn(), loading: false}),
 }));
-vi.mock('@/components/ui/overlays', () => ({
+vi.mock('@alchemy/next-ui/ui/overlays', () => ({
     Tooltip: ({children}: {children: ReactNode}) => children,
 }));
 

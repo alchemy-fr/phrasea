@@ -4,7 +4,7 @@ import {useTranslation} from 'react-i18next';
 import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {UserChip} from '@/components/chips';
-import {Badge} from '@/components/ui/misc';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {formatDateTime} from '@/lib/utils/format';
 
 export function WorkspaceInfoTab({workspace}: WorkspaceTabProps) {

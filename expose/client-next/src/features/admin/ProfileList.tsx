@@ -11,10 +11,10 @@ import {
     Trash2Icon,
 } from 'lucide-react';
 import type {PublicationProfile} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {EmptyState, Skeleton} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
-import {useConfirm} from '@/components/ui/confirm';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {ErrorScreen} from '@/components/ErrorScreen';
 import {deleteProfile, getProfiles, profileKeys} from '@/lib/api/publications';
 import {routes} from '@/lib/routes';

@@ -20,11 +20,11 @@ import {
     IntegrationObjectType,
     runIntegrationAction,
 } from '@/lib/api/integrations';
-import {InlineLoader} from '@/components/ui/loader';
-import {Badge, Progress} from '@/components/ui/misc';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input, Textarea} from '@/components/ui/input';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {Badge, Progress} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';

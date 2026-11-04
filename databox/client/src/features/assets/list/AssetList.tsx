@@ -5,17 +5,17 @@ import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
 import {useSelectionActions} from './SelectionProvider';
 import {useSelectAllKey} from '@/hooks/useSelectAllKey';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
 import {GridLayout} from './layouts/GridLayout';
 import {ListLayout} from './layouts/ListLayout';
-import {Button} from '@/components/ui/button';
-import {Spinner} from '@/components/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 import {AssetStackLoader} from '@/components/ui/asset-loaders';
 import type {LayoutMode} from '@/features/preferences/store';
 import type {OpenAssetOptions} from '@/features/assets/useAssetOpener';
 import {PreviewProvider} from './preview/PreviewProvider';
 import {DragScopeProvider} from '@/features/dnd/DragScope';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export type OnOpenAsset = (asset: Asset, options?: OpenAssetOptions) => void;
 

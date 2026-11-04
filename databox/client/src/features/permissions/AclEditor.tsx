@@ -9,15 +9,15 @@ import {toast} from 'sonner';
 import type {Ace} from '@/types/api';
 import {UserType} from '@/types/api';
 import {deleteAce, getAces, putAce} from '@/lib/api/misc';
-import {Checkbox} from '@/components/ui/controls';
-import {Button} from '@/components/ui/button';
-import {Skeleton} from '@/components/ui/misc';
+import {Checkbox} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
 import {
     Tooltip,
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from '@/components/ui/overlays';
+} from '@alchemy/next-ui/ui/overlays';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
 import {
     AclExtraPermission,
@@ -25,7 +25,7 @@ import {
     PermissionDefinition,
     PermissionObject,
 } from './permissionTypes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 type Props = {
     objectType: PermissionObject;

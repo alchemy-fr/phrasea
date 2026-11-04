@@ -1,42 +1,11 @@
 'use client';
 
-import {createContext, PropsWithChildren, useContext, useState} from 'react';
+import {createConfig} from '@alchemy/next-core/config/createConfig';
 import type {AppConfig} from './types';
-import {getRuntimeConfig, setRuntimeConfig} from './runtime';
 
-const ConfigContext = createContext<AppConfig | null>(null);
+const config = createConfig<AppConfig>();
 
-export function ConfigProvider({
-    config,
-    children,
-}: PropsWithChildren<{config: AppConfig}>) {
-    // Registered synchronously (state initializer) so that non-React modules
-    // (API client, auth) can read it from the very first child effect.
-    useState(() => {
-        setRuntimeConfig(config);
-
-        return true;
-    });
-
-    return (
-        <ConfigContext.Provider value={config}>
-            {children}
-        </ConfigContext.Provider>
-    );
-}
-
-export function useConfig(): AppConfig {
-    const config = useContext(ConfigContext);
-    if (!config) {
-        throw new Error('useConfig must be used within ConfigProvider');
-    }
-
-    return config;
-}
-
-/**
- * Imperative accessor for non-React modules (API client, auth, realtime).
- */
-export function getConfig(): AppConfig {
-    return getRuntimeConfig();
-}
+export const ConfigProvider = config.ConfigProvider;
+export const useConfig = config.useConfig;
+/** Imperative accessor for non-React modules (API client, auth, realtime) */
+export const getConfig = config.getConfig;

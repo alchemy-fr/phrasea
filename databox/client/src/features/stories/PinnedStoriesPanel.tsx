@@ -12,8 +12,8 @@ import {
 import type {Asset} from '@/types/api';
 import {getAssetsByIds} from '@/lib/api/assets';
 import {PanelSection} from '@/components/layout/PanelSection';
-import {Button} from '@/components/ui/button';
-import {Skeleton} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
 import {
     ContextMenu,
     ContextMenuContent,
@@ -25,12 +25,12 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {useDropTarget} from '@/features/dnd/useDropTarget';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {usePinnedStoriesStore} from './pinnedStoriesStore';
 
 /**

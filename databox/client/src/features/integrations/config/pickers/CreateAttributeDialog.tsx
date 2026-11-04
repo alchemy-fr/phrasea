@@ -16,11 +16,11 @@ import {
     postEntityList,
 } from '@/lib/api/metadata';
 import {iri} from '@/lib/utils/iri';
-import {FormDialog} from '@/components/modals/FormDialog';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormRow, Input} from '@/components/ui/input';
-import {SimpleSelect} from '@/components/ui/select';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
 import {EntityListSelect} from '@/components/form/selects';
 import type {AttributeConstraints} from './AttributePicker';

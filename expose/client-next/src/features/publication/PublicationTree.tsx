@@ -6,7 +6,7 @@ import {BookImageIcon} from 'lucide-react';
 import type {Publication, PublicationRef} from '@/types/api';
 import {useTranslateField} from '@/lib/utils/translate';
 import {routes} from '@/lib/routes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /**
  * Where the publication is in its tree: its parent, itself and its children

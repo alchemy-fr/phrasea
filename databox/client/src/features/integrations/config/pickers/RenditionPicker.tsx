@@ -4,8 +4,8 @@ import {useCallback} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {RenditionDefinition} from '@/types/api';
 import {getRenditionDefinitions} from '@/lib/api/misc';
-import {AsyncCombobox, ComboOption} from '@/components/form/AsyncCombobox';
-import {Input} from '@/components/ui/input';
+import {AsyncCombobox, ComboOption} from '@alchemy/next-ui/form/AsyncCombobox';
+import {Input} from '@alchemy/next-ui/ui/input';
 import {TagsInput} from '@/components/form/TagsInput';
 
 type BaseProps = {

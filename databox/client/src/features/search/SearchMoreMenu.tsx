@@ -10,18 +10,18 @@ import {
     SaveIcon,
     BugIcon,
 } from 'lucide-react';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {useSearch} from './SearchProvider';
 import {useResults} from './ResultProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
-import {useModals} from '@/components/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {SaveSearchDialog} from '@/features/saved-searches/SaveSearchDialog';
 import {getSavedSearch} from '@/lib/api/misc';
 import {searchChecksum} from './searchState';

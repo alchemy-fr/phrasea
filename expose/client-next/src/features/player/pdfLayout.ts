@@ -1,4 +1,4 @@
-import {clamp} from '@/lib/utils/misc';
+import {clamp} from '@alchemy/next-ui/utils/misc';
 
 /** Size of a page at scale 1 (PDF points, rotation applied) */
 export type PageSize = {width: number; height: number};

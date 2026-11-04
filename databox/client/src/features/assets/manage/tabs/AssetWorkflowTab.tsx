@@ -9,8 +9,8 @@ import type {AssetTabProps} from '../types';
 import {getAssetWorkflows} from '@/lib/api/misc';
 import {assetWorkflowsQueryKey} from '@/features/workflows/WorkflowRunsPanel';
 import {triggerAssetWorkflow} from '@/lib/api/assets';
-import {Button} from '@/components/ui/button';
-import {Skeleton} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
 import {formatDateTime} from '@/lib/utils/format';
 import {routes} from '@/lib/routes';
 import {

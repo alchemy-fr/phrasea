@@ -1,5 +1,5 @@
 import {isAbortError, isApiError} from '@/lib/api/http';
-import {getErrorMessage} from '@/lib/utils/errors';
+import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 
 export type UploadStatus =
     'queued' | 'uploading' | 'retrying' | 'offline' | 'error' | 'done';

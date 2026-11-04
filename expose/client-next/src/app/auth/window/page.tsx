@@ -4,8 +4,8 @@ import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {handOverTokens, LOGIN_WINDOW_PATH} from '@/lib/auth/loginWindow';
-import {FullPageLoader} from '@/components/ui/loader';
-import {EmptyState} from '@/components/ui/misc';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {EmptyState} from '@alchemy/next-ui/ui/misc';
 
 /**
  * The sign-in window opened by an embedded page (see openLoginWindow): it

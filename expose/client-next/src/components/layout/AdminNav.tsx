@@ -6,7 +6,7 @@ import {useTranslation} from 'react-i18next';
 import {BookImageIcon, SlidersHorizontalIcon} from 'lucide-react';
 import {useAdminAccess} from '@/features/admin/useAdminAccess';
 import {routes} from '@/lib/routes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /**
  * Links to the administration screens the user has something to do in

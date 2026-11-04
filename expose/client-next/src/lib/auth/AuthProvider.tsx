@@ -11,10 +11,10 @@ import {
 } from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {AUTH_CALLBACK_PATH, getAuthClient} from './client';
-import type {AuthUser} from './oidc';
+import type {AuthUser} from '@alchemy/next-core/auth/oidc';
 import {LOGIN_WINDOW_PATH, openLoginWindow} from './loginWindow';
 import {clearLoggedOut, setLoggedOut} from './loggedOut';
-import {toastError} from '@/lib/utils/errors';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 
 export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 

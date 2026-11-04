@@ -4,15 +4,15 @@ import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from 'next-themes';
 import {SmileIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Spinner} from '@/components/ui/loader';
-import {cn} from '@/lib/utils/cn';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
     Tooltip,
-} from '@/components/ui/overlays';
+} from '@alchemy/next-ui/ui/overlays';
 
 /** emoji-mart translations bundled with the app (never fetched from its CDN) */
 const i18nLoaders: Record<string, () => Promise<{default: unknown}>> = {

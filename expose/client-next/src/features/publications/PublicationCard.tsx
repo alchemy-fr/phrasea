@@ -4,13 +4,13 @@ import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
 import {EyeOffIcon, PencilIcon, Trash2Icon} from 'lucide-react';
 import type {Publication} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {RichText} from '@/components/RichText';
 import {getThumbSrc} from '@/features/publication/Thumbnail';
 import {useTranslateField} from '@/lib/utils/translate';
 import {routes} from '@/lib/routes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {useDeletePublication} from './usePublicationActions';
 
 export function PublicationCard({publication}: {publication: Publication}) {

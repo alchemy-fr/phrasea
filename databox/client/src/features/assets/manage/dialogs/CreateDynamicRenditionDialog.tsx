@@ -4,15 +4,15 @@ import {useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, AssetRendition} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {FormRow, Input} from '@/components/ui/input';
-import {SimpleSelect} from '@/components/ui/select';
-import {Checkbox, LabeledControl, Slider} from '@/components/ui/controls';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Checkbox, LabeledControl, Slider} from '@alchemy/next-ui/ui/controls';
 import {postRendition} from '@/lib/api/misc';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
-import {clamp} from '@/lib/utils/misc';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {clamp} from '@alchemy/next-ui/utils/misc';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {
     containBox,
     type CropRatioName,

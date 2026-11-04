@@ -3,8 +3,8 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {getStoryThumbnails} from '@/lib/api/assets';
-import {Skeleton} from '@/components/ui/misc';
-import {cn} from '@/lib/utils/cn';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /**
  * Hover carousel of a story: the thumbnails of its items laid out in a

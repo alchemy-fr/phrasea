@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {EyeOffIcon} from 'lucide-react';
-import {FullPageLoader} from '@/components/ui/loader';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {ErrorScreen} from '@/components/ErrorScreen';
 import {SecurityScreen} from '@/features/security/SecurityScreen';
 import {AssetPlayer} from '@/features/player/AssetPlayer';

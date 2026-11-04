@@ -35,13 +35,13 @@ import type {
     ProfileItem,
 } from '@/types/api';
 import {ProfileItemSection, ProfileItemType} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Badge} from '@/components/ui/misc';
-import {Input} from '@/components/ui/input';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
-import {SimpleSelect} from '@/components/ui/select';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {getAttributeType} from '@/features/attributes/types/registry';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {ProfileTabProps} from './ProfileManageRoute';
 import {
     AttributePalette,

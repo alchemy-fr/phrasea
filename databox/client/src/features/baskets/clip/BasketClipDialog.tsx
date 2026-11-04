@@ -3,7 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {patchBasketAssetClip} from '@/lib/api/misc';
 import {ClipEditorDialog} from '@/features/clip/ClipEditorDialog';
 

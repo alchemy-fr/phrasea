@@ -3,7 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {getAssetMetrics} from '@/lib/api/assets';
-import {InlineLoader} from '@/components/ui/loader';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 
 const keys: [string, string][] = [
     ['nb_plays', 'Plays'],

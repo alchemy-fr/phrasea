@@ -29,6 +29,13 @@ const nextConfig: NextConfig = {
         optimizePackageImports: ['lucide-react', 'radix-ui'],
     },
     turbopack: {},
+    // Workspace libraries are shipped as TypeScript sources
+    transpilePackages: [
+        '@alchemy/next-core',
+        '@alchemy/next-i18n',
+        '@alchemy/next-theme',
+        '@alchemy/next-ui',
+    ],
     // The former client served the commit history as a static file
     redirects: async () => [
         {source: '/git-log.html', destination: '/git-log', permanent: true},

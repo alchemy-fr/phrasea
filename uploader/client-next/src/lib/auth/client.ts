@@ -1,5 +1,5 @@
 import {getConfig} from '@/lib/config/ConfigProvider';
-import {OidcClient} from './oidc';
+import {OidcClient} from '@alchemy/next-core/auth/oidc';
 
 let client: OidcClient | undefined;
 

@@ -25,8 +25,8 @@ import {groupAttributes} from '@/features/attributes/AttributeValue';
 import {getAttributeType} from '@/features/attributes/types/registry';
 import {useAttributeFormats} from '@/features/attributes/formatStore';
 import type {BuiltInAttribute} from '@/features/search/searchState';
-import {Chip} from '@/components/ui/misc';
-import {cn} from '@/lib/utils/cn';
+import {Chip} from '@alchemy/next-ui/ui/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export const chipColors: Record<string, string> = {
     red: 'bg-red-500 text-white',

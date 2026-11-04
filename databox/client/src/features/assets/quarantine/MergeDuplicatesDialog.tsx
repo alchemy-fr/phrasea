@@ -5,10 +5,10 @@ import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import type {Asset, DuplicateAsset} from '@/types/api';
 import {AttributeBatchActionEnum} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {SimpleSelect} from '@/components/ui/select';
-import {RadioGroup, RadioGroupItem} from '@/components/ui/controls';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {RadioGroup, RadioGroupItem} from '@alchemy/next-ui/ui/controls';
 import {
     addAsAssetVersion,
     attributeBatchUpdate,

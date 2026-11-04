@@ -3,7 +3,7 @@
 import {type ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {MenuIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     Sheet,
     SheetContent,
@@ -11,7 +11,7 @@ import {
     SheetTitle,
     SheetTrigger,
     Tooltip,
-} from '@/components/ui/overlays';
+} from '@alchemy/next-ui/ui/overlays';
 import {TopBar} from './TopBar';
 import {AdminNav} from './AdminNav';
 

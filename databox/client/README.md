@@ -75,13 +75,14 @@ The theme menu has two independent choices: the **appearance** (light / dark
 (`data-theme` on `<html>`): the base palette, ten built-in presets or, when
 one is defined, the organisation theme. Every preset is a light palette with a
 dark alternative and its own font, corner radius, base size and letter spacing
-(`src/app/globals.css`, `[data-theme='<id>']` and `.dark[data-theme='<id>']`).
-Each preset is set in one of ten popular Google fonts, self-hosted by Next
-(`src/app/fonts.ts`, nothing is fetched from Google at runtime) and reached
-through the custom property it defines — the families are renamed at build
-time, so `src/features/theme/fonts.ts` is what maps a font id to it.
-The base font size of a theme drives the whole Tailwind text scale
-(`--text-…` in the `@theme` block of `globals.css`): the sizes are fixed rem
+(`styles/themes.css` of `@alchemy/next-theme`, `[data-theme='<id>']` and
+`.dark[data-theme='<id>']`). Each preset is set in one of ten popular Google
+fonts, self-hosted by Next (`src/googleFonts.ts` of the same package, nothing
+is fetched from Google at runtime) and reached through the custom property it
+defines — the families are renamed at build time, so `src/fonts.ts` is what
+maps a font id to it. The base font size of a theme drives the whole Tailwind
+text scale (`--text-…` in the `@theme` block of
+`@alchemy/next-ui/styles/base.css`): the sizes are fixed rem
 values out of the box, so without it only the elements inheriting the size of
 the body would follow.
 
@@ -141,12 +142,24 @@ and per process.
 src/
   app/            Next.js routes (App Router). Shareable dialogs are
                   intercepting routes under app/(app)/@modal.
-  components/ui   Design-system primitives (Radix + Tailwind)
+  components/ui   Design-system primitives specific to Databox
   features/       Domain modules (search, assets, collections, upload…)
-  lib/            Config, auth (OIDC/PKCE), API client, realtime, utils
-  i18n/           i18next setup and translations
+  lib/            Config, auth, API client, realtime, utils
+  i18n/           Languages and translations of Databox
   types/          API contracts
 ```
+
+The code shared with the other Next.js clients lives in workspace packages
+(`lib/js/next-*`):
+
+- `@alchemy/next-ui`: design-system primitives (Radix + Tailwind), modals,
+  the unsaved changes guard, the elements of the top bar (logo, services
+  link, settings, language and user menus) and the base stylesheet;
+- `@alchemy/next-theme`: palettes, presets, organisation theme, theme menu;
+- `@alchemy/next-i18n`: languages, i18next setup and the translations common
+  to every client (a client's own translations override them key by key);
+- `@alchemy/next-core`: OIDC client, stack and runtime configuration, Matomo,
+  OAuth callback page and session expired dialog.
 
 The top bar (`components/layout/TopBar`) is permanent chrome: it always shows
 the logo, where the user is and the user menu. Screens that take over the

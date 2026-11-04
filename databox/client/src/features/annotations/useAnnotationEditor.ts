@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {shortId} from '@/lib/utils/misc';
+import {shortId} from '@alchemy/next-ui/utils/misc';
 import type {AnnotationTarget} from './AnnotationsProvider';
 import {
     AnnotationType,

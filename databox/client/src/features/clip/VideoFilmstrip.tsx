@@ -1,8 +1,8 @@
 'use client';
 
 import {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {cn} from '@/lib/utils/cn';
-import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
 import {
     extractVideoFrames,
     getFilmstripCount,

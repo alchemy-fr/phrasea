@@ -8,9 +8,9 @@ import {getAttributeType} from '@/features/attributes/types/registry';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
 import {useAttributeFormats} from '@/features/attributes/formatStore';
 import {useDefinitionBySearchSlug} from '@/features/attributes/definitionsStore';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
-import {cn} from '@/lib/utils/cn';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export type ListSection = {
     key: string;

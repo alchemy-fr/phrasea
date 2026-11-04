@@ -22,12 +22,12 @@ import type {
     Tag,
 } from '@/types/api';
 import {AssetTypeFilter, EntityName} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input, Textarea} from '@/components/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
-import {SimpleSelect} from '@/components/ui/select';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {
     Tabs,
     TabsList,
@@ -37,7 +37,7 @@ import {
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from '@/components/ui/misc';
+} from '@alchemy/next-ui/ui/misc';
 import {
     CollectionTreePicker,
     TreeSelection,
@@ -47,7 +47,7 @@ import {TagSelect} from '@/components/form/selects';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {toDropzoneAccept} from '@/lib/utils/mime';
 import {formatFileSize} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     destinationToAssetProps,
     extractNameFromUrl,
@@ -60,7 +60,7 @@ import {
 import {getCollectionPrivacyInfo} from '@/lib/api/collections';
 import {getAssetDataTemplates} from '@/lib/api/metadata';
 import {useUploadStore} from './uploadStore';
-import {uniqueId, runWithConcurrency} from '@/lib/utils/misc';
+import {uniqueId, runWithConcurrency} from '@alchemy/next-ui/utils/misc';
 import {useAttributeEditor} from '@/features/attributes/editor/useAttributeEditor';
 import {AttributesEditor} from '@/features/attributes/editor/AttributesEditor';
 import {indexToCreateActions} from '@/features/attributes/editor/attributeEditorModel';

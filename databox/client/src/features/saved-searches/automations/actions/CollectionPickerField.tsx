@@ -7,7 +7,7 @@ import {
 } from '@/components/form/CollectionTreePicker';
 import {EntityName} from '@/types/api';
 import {iri} from '@/lib/utils/iri';
-import {FieldError} from '@/components/ui/input';
+import {FieldError} from '@alchemy/next-ui/ui/input';
 
 /**
  * Destination collection of an action, stored as an ID.

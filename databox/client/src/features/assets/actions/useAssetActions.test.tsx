@@ -15,7 +15,7 @@ const push = vi.fn();
 vi.mock('next/navigation', () => ({
     useRouter: () => ({push}),
 }));
-vi.mock('@/components/modals/ModalProvider', () => ({
+vi.mock('@alchemy/next-ui/modals/ModalProvider', () => ({
     useModals: () => ({openModal: vi.fn()}),
 }));
 vi.mock('@/lib/auth/AuthProvider', () => ({

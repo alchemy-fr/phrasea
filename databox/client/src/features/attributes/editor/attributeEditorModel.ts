@@ -6,7 +6,7 @@ import type {
 } from '@/types/api';
 import {AttributeBatchActionEnum} from '@/types/api';
 import {NO_LOCALE} from '@/lib/utils/locale';
-import {deepEquals} from '@/lib/utils/misc';
+import {deepEquals} from '@alchemy/next-ui/utils/misc';
 import {getAttributeType} from '@/features/attributes/types/registry';
 
 export type AttrValue = {

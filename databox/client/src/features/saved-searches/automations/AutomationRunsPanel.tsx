@@ -10,8 +10,8 @@ import {
     SavedSearchAutomation,
 } from '@/types/api';
 import {getAutomationRuns} from '@/lib/api/automations';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
 import {
     Accordion,
     AccordionContent,
@@ -20,8 +20,8 @@ import {
     Badge,
     EmptyState,
     Skeleton,
-} from '@/components/ui/misc';
-import {Button} from '@/components/ui/button';
+} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {formatDateTime} from '@/lib/utils/format';
 import {getActionDefinition} from './actions/registry';
 import {automationRunsQueryKey} from './queryKeys';

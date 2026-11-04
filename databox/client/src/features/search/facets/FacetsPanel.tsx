@@ -16,15 +16,15 @@ import {
 import {AttributeType, Facet, FacetType} from '@/types/api';
 import {useResults} from '../ResultProvider';
 import {FilterInput} from '@/components/ui/filter-input';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {Tooltip} from '@/components/ui/overlays';
+} from '@alchemy/next-ui/ui/menu';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {
     FacetPreference,
     usePreferencesStore,
@@ -33,10 +33,10 @@ import {ListFacet} from './widgets/ListFacet';
 import {BooleanFacet} from './widgets/BooleanFacet';
 import {DateHistogramFacet} from './widgets/DateHistogramFacet';
 import {GeoDistanceFacet} from './widgets/GeoDistanceFacet';
-import {useModals} from '@/components/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {FacetSettingsDialog} from './FacetSettingsDialog';
-import {cn} from '@/lib/utils/cn';
-import {Skeleton} from '@/components/ui/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {useEntityListsOfFacet} from '@/features/entities/explore/useEntityListsOfFacet';
 

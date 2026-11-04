@@ -5,7 +5,7 @@ import {DialogTab, TabbedRouteDialogShell} from './TabbedRouteDialog';
 import {
     useUnsavedChangesPrompt,
     useUnsavedChangesStore,
-} from '@/lib/navigation/unsavedChanges';
+} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {useRoutePath} from '@/lib/navigation/routePath';
 
 const nav = vi.hoisted(() => ({

@@ -16,14 +16,14 @@ import {
     DialogHeader,
     DialogTitle,
     DialogSize,
-} from '@/components/ui/dialog';
-import {Tabs, SideTabsList, SideTabsTrigger} from '@/components/ui/misc';
+} from '@alchemy/next-ui/ui/dialog';
+import {Tabs, SideTabsList, SideTabsTrigger} from '@alchemy/next-ui/ui/misc';
 import {
     askDiscardChanges,
     hasUnsavedChanges,
     UnsavedChangesScope,
     useUnsavedChangesStore,
-} from '@/lib/navigation/unsavedChanges';
+} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {
     joinRoutePath,
     pushPath,

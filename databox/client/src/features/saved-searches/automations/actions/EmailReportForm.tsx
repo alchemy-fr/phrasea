@@ -4,8 +4,8 @@ import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {MailIcon} from 'lucide-react';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
-import {FieldError, FormRow, Input, Textarea} from '@/components/ui/input';
-import {LabeledControl, Switch} from '@/components/ui/controls';
+import {FieldError, FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import type {AutomationActionConfig} from '@/types/api';
 import type {ActionDefinition, ActionFormProps} from './types';
 

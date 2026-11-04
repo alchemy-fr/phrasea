@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {FolderPlusIcon} from 'lucide-react';
-import {FieldHelp} from '@/components/ui/input';
+import {FieldHelp} from '@alchemy/next-ui/ui/input';
 import {CollectionPickerField} from './CollectionPickerField';
 import type {ActionDefinition, ActionFormProps} from './types';
 

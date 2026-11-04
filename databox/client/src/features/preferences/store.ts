@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {create} from 'zustand';
 import {api} from '@/lib/api/http';
-import {deepEquals} from '@/lib/utils/misc';
+import {deepEquals} from '@alchemy/next-ui/utils/misc';
 import type {SidebarSectionId} from '@/components/layout/sidebarSections';
 
 /** `map` needs a search: lists that are not search results show it as `grid` */
@@ -96,8 +96,7 @@ function writeLocal(prefs: UserPreferences): void {
 export type UpdatePreference = <K extends keyof UserPreferences>(
     name: K,
     value:
-        | UserPreferences[K]
-        | ((prev: UserPreferences[K]) => UserPreferences[K]),
+        UserPreferences[K] | ((prev: UserPreferences[K]) => UserPreferences[K]),
     options?: {
         reset?: boolean;
         offlineUpdates?: UserPreferences;

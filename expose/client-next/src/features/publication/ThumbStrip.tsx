@@ -3,7 +3,7 @@
 import {useEffect, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {Thumbnail} from './Thumbnail';
 
 /**

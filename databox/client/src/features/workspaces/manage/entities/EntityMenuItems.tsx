@@ -22,7 +22,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     MenuEmpty,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {isDraft} from './drafts';
 
 export type EntityMenuActions = {

@@ -5,7 +5,7 @@ import {createPortal} from 'react-dom';
 import {useTranslation} from 'react-i18next';
 import {ChevronLeftIcon, ChevronRightIcon, XIcon} from 'lucide-react';
 import type {Asset, Publication} from '@/types/api';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {AssetPlayer} from '@/features/player/AssetPlayer';
 import {AssetLegend} from './AssetLegend';
 import {ThumbStrip} from './ThumbStrip';

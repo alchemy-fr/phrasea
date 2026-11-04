@@ -12,7 +12,7 @@ import {Tooltip as TooltipPrimitive} from 'radix-ui';
 import {createI18n} from '@/i18n';
 import type {AttributeEntity} from '@/types/api';
 import {AttributeEntityStatus} from '@/types/api';
-import {ModalProvider} from '@/components/modals/ModalProvider';
+import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {EntityListExploreScreen} from './EntityListExploreScreen';
 
 vi.mock('next/navigation', () => ({

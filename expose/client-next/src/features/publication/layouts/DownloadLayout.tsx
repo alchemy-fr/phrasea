@@ -4,11 +4,11 @@ import {useEffect, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {DownloadIcon} from 'lucide-react';
 import type {Asset, Publication} from '@/types/api';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {RichText} from '@/components/RichText';
 import {useTranslateField} from '@/lib/utils/translate';
 import {formatFileSize} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {Thumbnail} from '../Thumbnail';
 import {useDownload} from '../download';
 

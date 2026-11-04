@@ -3,11 +3,11 @@ import {connection} from 'next/server';
 import {cookies} from 'next/headers';
 import './globals.css';
 import {getServerConfig} from '@/lib/config/server';
-import {getStackConfig} from '@/lib/config/stackConfig';
-import {compileStackTheme} from '@/features/theme/compile';
+import {getStackConfig} from '@alchemy/next-core/config/stackConfig';
+import {compileStackTheme} from '@alchemy/next-theme/compile';
 import {Providers} from './providers';
-import {defaultLanguage, isSupportedLanguage, LANG_COOKIE} from '@/i18n/config';
-import {fontVariables} from './fonts';
+import {languages} from '@/i18n/config';
+import {fontVariables} from '@alchemy/next-theme/googleFonts';
 
 export const metadata: Metadata = {
     title: {
@@ -41,10 +41,9 @@ export default async function RootLayout({
     if (compiledTheme) {
         config.theme = compiledTheme.meta;
     }
-    const cookieLang = (await cookies()).get(LANG_COOKIE)?.value;
-    const language = isSupportedLanguage(cookieLang)
-        ? cookieLang
-        : defaultLanguage;
+    const language = languages.resolveLanguage(
+        (await cookies()).get(languages.cookie)?.value
+    );
 
     return (
         <html

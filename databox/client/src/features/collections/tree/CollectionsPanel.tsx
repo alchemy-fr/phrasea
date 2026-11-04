@@ -34,12 +34,12 @@ import {
 import {useDropTarget} from '@/features/dnd/useDropTarget';
 import {useCollectionDrag} from '@/features/dnd/useCollectionDrag';
 import {useHoverExpand} from '@/features/dnd/useHoverExpand';
-import {mergeRefs} from '@/lib/utils/refs';
+import {mergeRefs} from '@alchemy/next-ui/utils/refs';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {BuiltInAttribute, quoteAQL} from '@/features/search/searchState';
 import {quarantineCondition} from '@/features/assets/quarantine/analysis';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Input} from '@alchemy/next-ui/ui/input';
 import {
     ContextMenu,
     ContextMenuContent,
@@ -52,11 +52,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
     MenuEmpty,
-} from '@/components/ui/menu';
-import {Skeleton} from '@/components/ui/misc';
-import {useModals} from '@/components/modals/ModalProvider';
+} from '@alchemy/next-ui/ui/menu';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {routes} from '@/lib/routes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {UploadDialog} from '@/features/upload/UploadDialog';
 import {ImportAssetsDialog} from '@/features/import/ImportAssetsDialog';
@@ -66,7 +66,7 @@ import {
     RestoreCollectionDialog,
 } from '../CollectionDialogs';
 import {getCollections} from '@/lib/api/collections';
-import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
 import {Highlight} from '@/components/ui/highlight';
 import {WorkspaceChip} from '@/components/chips';
 import {PanelSection} from '@/components/layout/PanelSection';

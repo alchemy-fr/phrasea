@@ -2,14 +2,14 @@
 
 import {useTranslation} from 'react-i18next';
 import type {ESDebug} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {
     Dialog,
     DialogBody,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
+} from '@alchemy/next-ui/ui/dialog';
 import {CopyButton} from '@/components/ui/copy-button';
 
 export function DebugEsDialog({

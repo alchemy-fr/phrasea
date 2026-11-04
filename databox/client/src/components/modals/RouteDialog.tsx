@@ -13,8 +13,8 @@ import {
     useState,
 } from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
-import {Dialog, DialogContent, DialogSize} from '@/components/ui/dialog';
-import {modalExitDuration} from './ModalProvider';
+import {Dialog, DialogContent, DialogSize} from '@alchemy/next-ui/ui/dialog';
+import {modalExitDuration} from '@alchemy/next-ui/modals/ModalProvider';
 import {pathOf, RouteOrigins} from './routeOrigins';
 import {isStackedRoute, routes} from '@/lib/routes';
 import {
@@ -22,7 +22,7 @@ import {
     hasUnsavedChanges,
     UnsavedChangesScope,
     useUnsavedChangesChildScope,
-} from '@/lib/navigation/unsavedChanges';
+} from '@alchemy/next-ui/navigation/unsavedChanges';
 
 type RouteHistory = {
     /** URL of the screen the app is on, updated after every navigation */

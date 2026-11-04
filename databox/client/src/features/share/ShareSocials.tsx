@@ -1,7 +1,7 @@
 'use client';
 
 import {MailIcon} from 'lucide-react';
-import {Tooltip} from '@/components/ui/overlays';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 
 type Network = {
     name: string;

@@ -4,7 +4,7 @@ import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ChevronDownIcon} from 'lucide-react';
 import type {Collection, Workspace} from '@/types/api';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {AclEditor} from './AclEditor';
 import {
     collectionPermissions,

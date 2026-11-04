@@ -6,7 +6,7 @@ import {
     FileVideoIcon,
 } from 'lucide-react';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /** Icon of the kind of a file (image, video, audio, document…) */
 export function FileKindIcon({

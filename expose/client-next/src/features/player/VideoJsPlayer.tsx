@@ -31,8 +31,8 @@ import {
     Volume2Icon,
     VolumeXIcon,
 } from 'lucide-react';
-import {cn} from '@/lib/utils/cn';
-import {scanForMedia} from '@/lib/analytics/matomo';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {scanForMedia} from '@alchemy/next-core/analytics/matomo';
 import type {ContentTracking} from '@/lib/analytics/useContentTracking';
 import type {SubtitleTrack} from './subtitles';
 

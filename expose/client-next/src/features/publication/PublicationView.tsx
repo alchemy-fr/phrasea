@@ -3,7 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import {ImageOffIcon, SearchXIcon} from 'lucide-react';
 import {Layout, type Publication} from '@/types/api';
-import {Alert, EmptyState} from '@/components/ui/misc';
+import {Alert, EmptyState} from '@alchemy/next-ui/ui/misc';
 import {PublicationHeader} from './PublicationHeader';
 import {GridLayout} from './layouts/GridLayout';
 import {GalleryLayout} from './layouts/GalleryLayout';

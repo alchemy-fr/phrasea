@@ -9,7 +9,7 @@ import type {Editor} from '@tiptap/core';
 import type {EditorState} from '@tiptap/pm/state';
 import type {User} from '@/types/api';
 import {getUsers} from '@/lib/api/misc';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export type MentionQuery = {from: number; to: number; query: string};
 

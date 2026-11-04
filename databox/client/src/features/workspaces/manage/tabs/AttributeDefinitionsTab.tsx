@@ -20,11 +20,11 @@ import {
     putAttributeDefinition,
     sortAttributeDefinitions,
 } from '@/lib/api/metadata';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
-import {SimpleSelect} from '@/components/ui/select';
-import {Badge} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {
     NO_LOCALE,
     TranslatableField,
@@ -33,7 +33,7 @@ import {LocalizedCodeField} from '@/components/form/code/LocalizedCodeField';
 import {MetadataTagsField} from '@/components/form/MetadataTagsField';
 import {iri} from '@/lib/utils/iri';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {EntityListSelect} from '@/components/form/selects';
 import {RenditionPicker} from '@/features/integrations/config/pickers/RenditionPicker';

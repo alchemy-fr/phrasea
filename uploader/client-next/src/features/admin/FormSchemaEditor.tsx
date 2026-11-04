@@ -6,10 +6,10 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import {SaveIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Alert} from '@/components/ui/misc';
-import {FormRow, Input} from '@/components/ui/input';
-import {SimpleSelect} from '@/components/ui/select';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Alert} from '@alchemy/next-ui/ui/misc';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
 import {
     Dialog,
@@ -17,11 +17,11 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
+} from '@alchemy/next-ui/ui/dialog';
 import {iri, saveFormSchema} from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
-import {getErrorMessage} from '@/lib/utils/errors';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {LocaleMode, type FormSchema} from '@/types/api';
 import {LiFormBody} from '@/features/liform/LiFormBody';
 import {useLiForm} from '@/features/liform/useLiForm';

@@ -2,8 +2,8 @@
 
 import {useTranslation} from 'react-i18next';
 import {LogInIcon, SearchXIcon} from 'lucide-react';
-import {EmptyState} from '@/components/ui/misc';
-import {Button} from '@/components/ui/button';
+import {EmptyState} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {useSearch} from './SearchProvider';
 

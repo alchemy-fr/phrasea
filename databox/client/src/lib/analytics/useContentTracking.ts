@@ -7,7 +7,7 @@ import {
     isMediaTrackingEnabled,
     trackContentImpression,
     trackContentInteraction,
-} from './matomo';
+} from '@alchemy/next-core/analytics/matomo';
 
 /** An asset as Matomo knows it: content piece / media resource, and name */
 export type ContentTracking = {

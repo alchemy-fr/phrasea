@@ -4,13 +4,13 @@ import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {BellIcon, BellOffIcon, CheckIcon, ChevronDownIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {follow, unfollow} from '@/lib/api/assets';
 import {EventCategory, FollowEvent, track} from '@/lib/analytics/events';
 

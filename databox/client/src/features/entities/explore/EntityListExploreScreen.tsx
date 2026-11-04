@@ -16,12 +16,12 @@ import {getWorkspace} from '@/lib/api/collections';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {routes} from '@/lib/routes';
 import {idFromIri} from '@/lib/utils/iri';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {FilterInput} from '@/components/ui/filter-input';
-import {Badge, EmptyState, Skeleton} from '@/components/ui/misc';
+import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {usePageTrail} from '@/components/layout/layoutStore';
-import {useDebouncedValue} from '@/hooks/useDebouncedValue';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
 import {useEntityListDefinitions} from '@/features/workspaces/manage/entities/useEntityAssets';
 import {EntityValueCard} from './EntityValueCard';
 

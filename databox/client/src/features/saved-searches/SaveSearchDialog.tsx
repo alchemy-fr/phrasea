@@ -4,14 +4,14 @@ import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {FormRow, Input} from '@/components/ui/input';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {SavedSearch, SavedSearchPrivacy} from '@/types/api';
 import {postSavedSearch, putSavedSearch} from '@/lib/api/misc';
 import type {SearchContextValue} from '@/features/search/SearchProvider';
 import {SavedSearchPrivacyField} from './SavedSearchPrivacyField';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {EventCategory, SavedSearchEvent, track} from '@/lib/analytics/events';
 import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabilities';
 

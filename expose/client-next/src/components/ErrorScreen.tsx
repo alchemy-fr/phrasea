@@ -7,8 +7,8 @@ import {
     LockIcon,
     ShieldAlertIcon,
 } from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {EmptyState} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {EmptyState} from '@alchemy/next-ui/ui/misc';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {isApiError} from '@/lib/api/http';
 import {isInIframe} from '@/lib/auth/loginWindow';

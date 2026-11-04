@@ -17,6 +17,10 @@
         "test:watch": "vitest"
     },
     "dependencies": {
+        "@alchemy/next-core": "workspace:*",
+        "@alchemy/next-i18n": "workspace:*",
+        "@alchemy/next-theme": "workspace:*",
+        "@alchemy/next-ui": "workspace:*",
         "@tanstack/react-query": "^5.105.3",
         "@videojs/react": "^10.2.0",
         "@wavesurfer/react": "^1.0.14",
