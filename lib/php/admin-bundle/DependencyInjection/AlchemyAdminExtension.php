@@ -52,23 +52,6 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $container->setParameter('alchemy_admin.worker_queues', $config['worker']['queues']);
         $container->setParameter('alchemy_admin.worker_rabbitmq', $config['worker']['rabbitmq']);
 
-        $container->prependExtensionConfig('easy_admin', [
-            'site_name' => '%alchemy_admin.site_title%',
-            'formats' => [
-                'date' => 'd/m/Y',
-                'time' => 'H:i',
-                'datetime' => 'd/m/Y H:i:s',
-            ],
-            'show' => [
-                'max_results' => 100,
-            ],
-            'user' => [
-                'display_name' => true,
-                'display_avatar' => false,
-                'name_property_path' => 'username',
-            ],
-        ]);
-
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [
                 'form_themes' => [
