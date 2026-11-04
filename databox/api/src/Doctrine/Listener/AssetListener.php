@@ -78,34 +78,36 @@ class AssetListener
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entityUpdate) {
-            if ($entityUpdate instanceof Asset && !$entityUpdate->isNoFileVersion()) {
-                $changeSet = $uow->getEntityChangeSet($entityUpdate);
-                $fileChange = $changeSet['source'] ?? null;
-                if ($fileChange) {
-                    $this->actionLogManager->createLogAction(
-                        ActionLogTypeEnum::AssetSubstituted,
-                        $entityUpdate,
-                        [
-                            'oldSourceId' => $fileChange[0]?->getId(),
-                            'newSourceId' => $fileChange[1]?->getId(),
-                        ],
-                        inOnFlush: true,
-                    );
+            if ($entityUpdate instanceof Asset) {
+                if (!$entityUpdate->isNoFileVersion()) {
+                    $changeSet = $uow->getEntityChangeSet($entityUpdate);
+                    $fileChange = $changeSet['source'] ?? null;
+                    if ($fileChange) {
+                        $this->actionLogManager->createLogAction(
+                            ActionLogTypeEnum::AssetSubstituted,
+                            $entityUpdate,
+                            [
+                                'oldSourceId' => $fileChange[0]?->getId(),
+                                'newSourceId' => $fileChange[1]?->getId(),
+                            ],
+                            inOnFlush: true,
+                        );
 
-                    if ($fileChange[0] instanceof File) {
-                        $assetFileVersion = new AssetFileVersion();
-                        $assetFileVersion->setAsset($entityUpdate);
-                        $assetFileVersion->setFile($fileChange[0]);
+                        if ($fileChange[0] instanceof File) {
+                            $assetFileVersion = new AssetFileVersion();
+                            $assetFileVersion->setAsset($entityUpdate);
+                            $assetFileVersion->setFile($fileChange[0]);
 
-                        $uow->persist($assetFileVersion);
+                            $uow->persist($assetFileVersion);
 
-                        $metadata = $em->getClassMetadata($assetFileVersion::class);
-                        $uow->computeChangeSet($metadata, $assetFileVersion);
+                            $metadata = $em->getClassMetadata($assetFileVersion::class);
+                            $uow->computeChangeSet($metadata, $assetFileVersion);
 
-                        // The old source usually stops being an asset source: re-evaluate analyses referencing it as duplicate.
-                        $ownerFileIds = $this->fileDuplicateRepository->findOwnerFileIdsByDuplicateFileIds([$fileChange[0]->getId()]);
-                        if (!empty($ownerFileIds)) {
-                            $this->postFlushStack->addBusMessage(new ReevaluateFileAnalyses($ownerFileIds));
+                            // The old source usually stops being an asset source: re-evaluate analyses referencing it as duplicate.
+                            $ownerFileIds = $this->fileDuplicateRepository->findOwnerFileIdsByDuplicateFileIds([$fileChange[0]->getId()]);
+                            if (!empty($ownerFileIds)) {
+                                $this->postFlushStack->addBusMessage(new ReevaluateFileAnalyses($ownerFileIds));
+                            }
                         }
                     }
                 }
