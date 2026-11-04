@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Profile\Profile;
+use App\Security\InstancePermission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
@@ -39,7 +40,8 @@ class ProfileVoter extends AbstractVoter
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
-            self::CREATE => $this->isAuthenticated(),
+            self::CREATE => $this->isAuthenticated()
+                && $this->security->isGranted(InstancePermission::CREATE_PROFILE),
             self::READ => $subject->isPublic()
                 || $isOwner()
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),

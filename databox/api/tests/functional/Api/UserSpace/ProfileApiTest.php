@@ -9,6 +9,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Entity\Profile\Profile;
 use App\Entity\Profile\ProfileItem;
+use App\Security\Voter\DataboxExtraPermissionInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -19,6 +20,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 final class ProfileApiTest extends AbstractDataboxTestCase
 {
     use UserSpaceTestTrait;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Creating profiles is granted to admins only by default
+        $this->grantOnType(self::USER, Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_CREATE_PROFILE);
+    }
 
     private const string UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
 

@@ -8,7 +8,9 @@ use App\Api\Model\Input\SavedSearchInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\SavedSearchPrivacyEnum;
+use App\Security\Voter\SavedSearchVoter;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AsTaggedItem(index: SavedSearchInput::class)]
 class SavedSearchInputMapper extends AbstractFileInputMapper implements InputMapperInterface
@@ -23,8 +25,12 @@ class SavedSearchInputMapper extends AbstractFileInputMapper implements InputMap
         /** @var SavedSearch $object */
         $object = $target ?? new SavedSearch();
 
+        $published = false;
         if (null !== $data->privacy) {
-            $object->setPrivacy(SavedSearchPrivacyEnum::from($data->privacy));
+            $privacy = SavedSearchPrivacyEnum::from($data->privacy);
+            // Keeping the current privacy needs no capability (e.g. renaming a public search)
+            $published = SavedSearchPrivacyEnum::Secret !== $privacy && $privacy !== $object->getPrivacy();
+            $object->setPrivacy($privacy);
         }
 
         if (null !== $data->name) {
@@ -35,6 +41,12 @@ class SavedSearchInputMapper extends AbstractFileInputMapper implements InputMap
             $object->setData($data->data);
         }
 
-        return $this->processOwnerId($object);
+        $this->processOwnerId($object);
+
+        if ($published && !$this->isGranted(SavedSearchVoter::PUBLISH, $object)) {
+            throw new AccessDeniedHttpException('You are not allowed to publish this saved search.');
+        }
+
+        return $object;
     }
 }

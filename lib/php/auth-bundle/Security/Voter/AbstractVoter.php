@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Security\Voter;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Model\AclUserInterface;
+use Alchemy\AclBundle\Repository\PermissionRepositoryInterface;
+use Alchemy\AclBundle\Repository\UserRepositoryInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
@@ -27,11 +30,21 @@ abstract class AbstractVoter extends Voter
     final public const string OWNER = 'OWNER';
 
     private PermissionManager $permissionManager;
+    private ObjectMapping $objectMapping;
+    private PermissionRepositoryInterface $permissionRepository;
+    private UserRepositoryInterface $aclUserRepository;
 
     #[Required]
-    public function setPermissionManager(PermissionManager $permissionManager): void
-    {
+    public function setAclServices(
+        PermissionManager $permissionManager,
+        ObjectMapping $objectMapping,
+        PermissionRepositoryInterface $permissionRepository,
+        UserRepositoryInterface $aclUserRepository,
+    ): void {
         $this->permissionManager = $permissionManager;
+        $this->objectMapping = $objectMapping;
+        $this->permissionRepository = $permissionRepository;
+        $this->aclUserRepository = $aclUserRepository;
     }
 
     protected function hasAcl(array|int $attribute, AclObjectInterface $subject, TokenInterface $token, bool $ownershipGrants = true): bool
@@ -39,6 +52,34 @@ abstract class AbstractVoter extends Voter
         $user = $token->getUser();
         if ($user instanceof AclUserInterface) {
             return $this->permissionManager->isGranted($user, $subject, $attribute, $ownershipGrants);
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the metadata is set on an ACE of the whole object type (without object id).
+     *
+     * @param class-string $entityClass
+     */
+    protected function hasTypeMetadata(int|string $metadata, string $entityClass, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+        if (!$user instanceof AclUserInterface) {
+            return false;
+        }
+
+        $aces = $this->permissionRepository->getAces(
+            $user->getId(),
+            $this->aclUserRepository->getAclGroupsId($user),
+            $this->objectMapping->getObjectKey($entityClass),
+            null,
+        );
+
+        foreach ($aces as $ace) {
+            if (in_array($metadata, $ace->getMetadata(), true)) {
+                return true;
+            }
         }
 
         return false;

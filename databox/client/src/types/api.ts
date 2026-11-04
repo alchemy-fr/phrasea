@@ -674,7 +674,9 @@ export enum SavedSearchPrivacy {
 }
 
 export interface SavedSearch
-    extends WithCapabilities<{manageAutomations: boolean}>, Entity {
+    extends
+        WithCapabilities<{manageAutomations: boolean; publish: boolean}>,
+        Entity {
     name: string;
     privacy?: SavedSearchPrivacy;
     createdAt: string;
@@ -682,6 +684,17 @@ export interface SavedSearch
     data: SavedSearchData;
     owner?: User;
 }
+
+/**
+ * Capabilities of the current user granted at the instance level (outside any
+ * workspace), see `features/permissions/instancePermissions.ts`.
+ */
+export type InstanceCapabilities = {
+    createWorkspace: boolean;
+    createProfile: boolean;
+    shareBasket: boolean;
+    publishSavedSearch: boolean;
+};
 
 export enum AutomationScope {
     New = 'new',

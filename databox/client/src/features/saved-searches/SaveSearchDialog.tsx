@@ -13,6 +13,7 @@ import type {SearchContextValue} from '@/features/search/SearchProvider';
 import {SavedSearchPrivacyField} from './SavedSearchPrivacyField';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 import {EventCategory, SavedSearchEvent, track} from '@/lib/analytics/events';
+import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabilities';
 
 type Props = ModalProps<SavedSearch> & {
     /** Caller's search context (modals render above SearchProvider) */
@@ -31,6 +32,7 @@ export function SaveSearchDialog({
 }: Props) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
+    const capabilities = useInstanceCapabilities();
     const [name, setName] = useState(
         mode === 'update'
             ? (savedSearch?.name ?? '')
@@ -40,12 +42,27 @@ export function SaveSearchDialog({
         savedSearch?.privacy ?? SavedSearchPrivacy.Secret
     );
 
+    const canPublish =
+        mode === 'update' && savedSearch
+            ? (savedSearch.capabilities?.publish ??
+              capabilities.publishSavedSearch)
+            : capabilities.publishSavedSearch;
+    const initialPrivacy =
+        mode === 'update'
+            ? (savedSearch?.privacy ?? SavedSearchPrivacy.Secret)
+            : SavedSearchPrivacy.Secret;
+    // A privacy the user cannot publish falls back to Secret
+    const effectivePrivacy =
+        canPublish || privacy === initialPrivacy
+            ? privacy
+            : SavedSearchPrivacy.Secret;
+
     const {dirty} = useDirtyState({name, privacy});
 
     const submit = async () => {
         const data = {
             name,
-            privacy,
+            privacy: effectivePrivacy,
             data: {
                 query: search.query,
                 conditions: search.conditions,
@@ -94,7 +111,12 @@ export function SaveSearchDialog({
                     onChange={e => setName(e.target.value)}
                 />
             </FormRow>
-            <SavedSearchPrivacyField value={privacy} onChange={setPrivacy} />
+            <SavedSearchPrivacyField
+                value={effectivePrivacy}
+                onChange={setPrivacy}
+                canPublish={canPublish}
+                initialValue={initialPrivacy}
+            />
         </FormDialog>
     );
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Mapper\Input;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\AssetStatusEnum;
@@ -64,7 +65,8 @@ class WorkspaceInputMapper extends AbstractInputMapper implements InputMapperInt
         }
 
         if ($isNew) {
-            if ($data->getOwnerId()) {
+            // A user granted the workspace creation (not an admin) owns what it creates
+            if ($data->getOwnerId() && ($this->isAdmin() || !$this->getUser() instanceof JwtUser)) {
                 $object->setOwnerId($data->getOwnerId());
             }
         }

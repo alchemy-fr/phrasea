@@ -52,6 +52,7 @@ class AddToProfileProcessor implements ProcessorInterface
         if (null === $profile) {
             $profile = new Profile();
             $profile->setOwnerId($user->getId());
+            $this->denyAccessUnlessGranted(AbstractVoter::CREATE, $profile);
             $this->em->persist($profile);
             $position = 0;
         } else {

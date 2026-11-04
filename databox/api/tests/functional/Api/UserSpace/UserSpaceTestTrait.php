@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api\UserSpace;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceCreator;
@@ -92,6 +93,22 @@ trait UserSpaceTestTrait
     protected function memberIds(array $collection): array
     {
         return array_column($this->members($collection), 'id');
+    }
+
+    /**
+     * Grants an instance capability (App\Security\InstancePermission): a metadata of
+     * an ACE on the whole object type.
+     */
+    protected function grantOnType(string $userId, string $objectType, int $capability): void
+    {
+        self::getPermissionManager()->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_USER_VALUE,
+            $userId,
+            $objectType,
+            null,
+            0,
+            [$capability],
+        );
     }
 
     /**

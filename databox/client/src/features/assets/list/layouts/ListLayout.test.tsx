@@ -12,6 +12,16 @@ vi.mock('next/navigation', () => ({
     useRouter: () => ({push: vi.fn(), replace: vi.fn()}),
 }));
 
+// Rendered without the auth and query providers
+vi.mock('@/features/permissions/useInstanceCapabilities', () => ({
+    useInstanceCapabilities: () => ({
+        createWorkspace: false,
+        createProfile: false,
+        shareBasket: false,
+        publishSavedSearch: false,
+    }),
+}));
+
 // jsdom does not implement scrolling
 Element.prototype.scrollTo ??= () => undefined;
 

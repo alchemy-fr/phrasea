@@ -11,6 +11,7 @@ use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
+use App\Security\Voter\DataboxExtraPermissionInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -21,6 +22,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 final class BasketApiTest extends AbstractDataboxTestCase
 {
     use UserSpaceTestTrait;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Sharing its baskets is granted to admins only by default
+        $this->grantOnType(self::USER, Basket::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_BASKET);
+    }
 
     public function testCreateRequiresAuthentication(): void
     {

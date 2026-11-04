@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Search;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Basket\Basket;
+use App\Security\Voter\DataboxExtraPermissionInterface;
 use App\Tests\Functional\AbstractSearchTestCase;
 use Elastica\Document;
 
@@ -145,6 +147,7 @@ class BasketSearchTest extends AbstractSearchTestCase
             'name' => 'Shared',
             'ownerId' => self::USER_ID,
         ]);
+        $this->grantBasketSharing();
         self::releaseIndex();
 
         $this->assertBasketNames([], $this->requestBaskets([], self::OTHER_USER_ID));
@@ -166,6 +169,7 @@ class BasketSearchTest extends AbstractSearchTestCase
             'name' => 'Shared',
             'ownerId' => self::USER_ID,
         ]);
+        $this->grantBasketSharing();
         self::releaseIndex();
 
         $this->assertBasketNames([], $this->requestBaskets([], self::OTHER_USER_ID, [self::GROUP_ID]));
@@ -180,6 +184,21 @@ class BasketSearchTest extends AbstractSearchTestCase
         self::waitForESIndex('basket');
 
         $this->assertBasketNames([], $this->requestBaskets([], self::OTHER_USER_ID, [self::GROUP_ID]));
+    }
+
+    /**
+     * Sharing its baskets is an instance capability, granted to admins only by default.
+     */
+    private function grantBasketSharing(): void
+    {
+        self::getPermissionManager()->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_USER_VALUE,
+            self::USER_ID,
+            Basket::OBJECT_TYPE,
+            null,
+            0,
+            [DataboxExtraPermissionInterface::PERM_SHARE_BASKET],
+        );
     }
 
     private function putAce(Basket $basket, string $userType, string $userId, int $mask): void
