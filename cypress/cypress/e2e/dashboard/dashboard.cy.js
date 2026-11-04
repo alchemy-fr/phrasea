@@ -3,9 +3,9 @@ import {adminPassword, adminUsername, keycloakUrl} from '../lib/urls';
 describe('Dashboard loads', () => {
     it('passes', () => {
         cy.visit('/');
-        cy.contains('Databox');
-        cy.contains('Expose');
-        cy.contains('Sign In').click();
+        cy.getBySel('service-databox').should('contain', 'Databox');
+        cy.getBySel('service-expose').should('contain', 'Expose');
+        cy.getBySel('sign-in').click();
 
         cy.origin(
             keycloakUrl,
@@ -22,7 +22,8 @@ describe('Dashboard loads', () => {
             }
         );
 
-        cy.get('.MuiAvatar-root').click();
-        cy.contains('Logout').click();
+        cy.getBySel('user-menu', {timeout: 30000}).click();
+        cy.getBySel('logout').click();
+        cy.getBySel('sign-in', {timeout: 30000}).should('be.visible');
     });
 });

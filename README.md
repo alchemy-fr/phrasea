@@ -228,8 +228,8 @@ The documentation is published at **[docs.phrasea.com](https://docs.phrasea.com)
 
 ```text
 databox/        core DAM: api/ (Symfony), client/ (Next.js), indexer/ (Node.js)
-expose/         publication: api/ (Symfony), client/ (React + Vite)
-uploader/       ingestion: api/ (Symfony), client/ (React + Vite)
+expose/         publication: api/ (Symfony), client/ (Next.js)
+uploader/       ingestion: api/ (Symfony), client/ (Next.js)
 dashboard/      client/ only: the shell that ties the applications together
 configurator/   Symfony application generating the per-tenant configuration
 report/         reporting service
@@ -243,8 +243,8 @@ doc/            user and technical documentation (source of docs.phrasea.com)
 ## Tech stack
 
 - **Back end**: PHP 8.5, Symfony 8.1, API Platform 5, Doctrine ORM 3, Symfony Messenger
-- **Front end**: React and TypeScript; Next.js (App Router) for Databox, Vite for the other
-  clients; pnpm workspaces and Turbo
+- **Front end**: React and TypeScript, Next.js (App Router) for every client; pnpm workspaces
+  and Turbo
 - **Services**: PostgreSQL, Elasticsearch, RabbitMQ, Redis, MinIO / S3, Keycloak, Traefik
 - **Runtime**: Docker Compose, or Kubernetes with Helm
 

@@ -16,70 +16,34 @@ services:
       - ./turbo.json:/srv/workspace/phrasea/turbo.json:ro
       - ./node_modules:/srv/workspace/phrasea/node_modules:ro
 
+  expose-client:
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}expose-client-dev:${DOCKER_TAG}
+    build:
+      target: client-dev
+    volumes:
+      - ./expose/client:/srv/workspace/phrasea/expose/client:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
+
   dashboard-client:
     extends:
       service: a_client
-    image: localhost:5000/dashboard-client-dev:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}dashboard-client-dev:${DOCKER_TAG}
     build:
-      target: client-build
+      target: client-dev
     volumes:
       - ./dashboard/client:/srv/workspace/phrasea/dashboard/client:rw
-      - ./lib/bash/configurator:/var/app/configurator:ro
-    environment:
-      - WDS_SOCKET_PORT=443
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
 
   uploader-client:
     extends:
       service: a_client
-    image: localhost:5000/uploader-client-dev:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}uploader-client-dev:${DOCKER_TAG}
     build:
-      target: client-build
+      target: client-dev
     volumes:
       - ./uploader/client:/srv/workspace/phrasea/uploader/client:rw
-      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
-    environment:
-      - WDS_SOCKET_PORT=443
-
-  expose-client:
-    extends:
-      service: a_client
-    image: localhost:5000/expose-client-dev:${DOCKER_TAG}
-    build:
-      target: client-build
-    volumes:
-      - ./expose/client:/srv/workspace/phrasea/expose/client:rw
-      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
-    environment:
-      - WDS_SOCKET_PORT=443
-
-  expose-client-next:
-    extends:
-      service: a_client
-    image: ${REGISTRY_NAMESPACE}expose-client-next-dev:${DOCKER_TAG}
-    build:
-      target: client-dev
-    volumes:
-      - ./expose/client-next:/srv/workspace/phrasea/expose/client-next:rw
-      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
-
-  dashboard-client-next:
-    extends:
-      service: a_client
-    image: ${REGISTRY_NAMESPACE}dashboard-client-next-dev:${DOCKER_TAG}
-    build:
-      target: client-dev
-    volumes:
-      - ./dashboard/client-next:/srv/workspace/phrasea/dashboard/client-next:rw
-      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
-
-  uploader-client-next:
-    extends:
-      service: a_client
-    image: ${REGISTRY_NAMESPACE}uploader-client-next-dev:${DOCKER_TAG}
-    build:
-      target: client-dev
-    volumes:
-      - ./uploader/client-next:/srv/workspace/phrasea/uploader/client-next:rw
       - ./lib/js:/srv/workspace/phrasea/lib/js:ro
 
   databox-client:
@@ -270,17 +234,11 @@ services:
       - DATABOX_CLIENT_ID
       - DASHBOARD_CLIENT_ID
       - DASHBOARD_CLIENT_URL
-      - DASHBOARD_NEXT_CLIENT_ID
-      - DASHBOARD_NEXT_CLIENT_URL
       - EXPOSE_CLIENT_ID
-      - EXPOSE_NEXT_CLIENT_ID
       - UPLOADER_CLIENT_ID
-      - UPLOADER_NEXT_CLIENT_ID
       - DATABOX_CLIENT_URL
       - EXPOSE_CLIENT_URL
-      - EXPOSE_NEXT_CLIENT_URL
       - UPLOADER_CLIENT_URL
-      - UPLOADER_NEXT_CLIENT_URL
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - AUTH_DB_NAME

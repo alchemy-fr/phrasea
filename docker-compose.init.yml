@@ -23,14 +23,6 @@ services:
       entitlements:
         - network.host
 
-  nginx-client-base:
-    image: ${REGISTRY_NAMESPACE}nginx-client-base:${DOCKER_TAG}
-    build:
-      context: ./infra/docker/nginx-client-base
-      network: host
-      entitlements:
-        - network.host
-
   nginx-cache-purge:
     image: ${REGISTRY_NAMESPACE}nginx-cache-purge:${DOCKER_TAG}
     build:

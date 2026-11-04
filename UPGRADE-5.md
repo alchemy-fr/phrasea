@@ -130,6 +130,34 @@ The Databox client is no longer static files served by nginx.
 - Server-side rendering settings are removed (`SSR_PORT`, `SSR_API_BASE_URL`),
   and the client no longer reads the `S3_MULTIPART_*` variables.
 
+### Expose, Uploader and Dashboard clients are Next.js servers
+
+The three clients follow the Databox client (see above): same images
+(`expose-client`, `uploader-client`, `dashboard`), now `node` servers.
+
+- They listen on port **3000** (formerly 80), with no `HEALTHCHECK`. The
+  Traefik routers `expose-client-dev` and `uploader-client-dev` are renamed
+  `expose-client` and `uploader-client`.
+- No more `config.js` / `window.config` injection: the configuration is read on
+  each request from `process.env` and from the configurator's `config.json`
+  (`CONFIGURATOR_S3_*`), which the containers must reach at runtime.
+- The headers formerly set by nginx (HSTS, `X-Robots-Tag`,
+  `X-Content-Type-Options`) are no longer emitted: set them on your reverse
+  proxy. Expose and the Dashboard still send their
+  `Content-Security-Policy: frame-ancestors` (Expose:
+  `EXPOSE_ALLOWED_FRAME_ANCESTORS`).
+- The OAuth callback moves from `/auth/check` to `/auth/callback`. Only Keycloak
+  redirect URIs configured by hand without a `/*` wildcard need updating.
+- Sentry is not wired: `CLIENT_SENTRY_DSN` has no effect on these clients.
+- Theme: the global `theme` entry (MUI theme options) no longer applies; they
+  offer the organisation theme `databox.theme`. The global `logo` (and
+  `uploader.client.logo`) is still honoured.
+- Dashboard: `/menu.html` is gone. The services menu of the API admins now
+  frames the dashboard root, and the dashboard lets the API origins frame it.
+  `/git-log.html` redirects to `/git-log`. The dashboard no longer reads
+  `REPORT_API_URL`, `SAML_URL`, `SAML2_URL` nor `SENTRY_*`.
+- The `nginx-client-base` image is no longer built nor used.
+
 ### Scheduler containers replace the cron jobs
 
 The periodic tasks of databox and uploader are now planned by Symfony Scheduler
