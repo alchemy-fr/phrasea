@@ -1,5 +1,12 @@
 services:
   a_client:
+    # A leaking dev server (next dev, Turbopack) grows past 20G unbounded:
+    # the container is killed, not the desktop session.
+    deploy:
+      resources:
+        limits:
+          memory: ${DEV_CLIENT_MEMORY_LIMIT}
+    memswap_limit: ${DEV_CLIENT_MEMORY_LIMIT}
     environment:
       - REACT_EDITOR
     volumes:
