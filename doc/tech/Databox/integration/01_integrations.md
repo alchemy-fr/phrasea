@@ -146,7 +146,7 @@ It powers the "Similar assets" panel and the "Find similar" action of the asset 
 
 Main behavior:
 
-- Adds a workflow job on asset ingest, depending on the configured rendition job (default: preview) and on the thumbnail rendition jobs.
+- Adds a workflow job on asset ingest, depending on the configured rendition job (required) and on the thumbnail rendition jobs.
 - Sends the rendition image to the similarity-embedder service (self-hosted, CLIP) to compute the vector. When the configured rendition is not an image (the preview of a document is a PDF, the one of a video is a video), the thumbnail rendition (`useAsThumbnail`) is used instead: documents and videos are searchable by similarity too.
 - Stores the vector in database (asset_embedding table) and reindexes the asset in Elasticsearch.
 - Similar assets are served by `GET /assets/{id}/similar` using an Elasticsearch kNN query filtered by permissions.
@@ -167,7 +167,7 @@ There is no face-specific data model nor API: **a face is a value of the configu
 
 Main behavior:
 
-- Sends the configured rendition (default: preview, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence and a 512-d ArcFace embedding.
+- Sends the configured rendition (optional, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence and a 512-d ArcFace embedding.
 - Runs on asset ingest when `processIncoming` is enabled (workflow job depending on the rendition job), or on demand from the asset view ("Detect faces", user action `analyze`).
 - Each detected face is recognized among the faces of the workspace (cosine similarity, `matchThreshold`): it joins the person of the closest face a user named, or else the closest face of a person nobody has named yet. Otherwise it starts a new **pending entity** ("Unknown person · 3f2a", `unknownLabel`): the pending persons are the groups of look-alikes still to be named; being pending, they never show up in the search facets, and they are removed as soon as no face references them any more. Only the faces named by users (`origin: human`) are references: a recognized face never becomes one, so that the recognition cannot drift.
 - Users name a face by changing the value of its attribute (`PATCH /attributes/{id}`, `/attributes/batch-update`), to an existing entity or to one they create (`POST /attribute-entities`): the face becomes a reference of the person (`origin: human`, `originUserId`, confidence 1) and, when `autoPropagate` is enabled, the person is propagated asynchronously to the similar faces of the workspace that no user named. Deleting the value (`DELETE /attributes/{id}`) forgets the face.
@@ -184,7 +184,7 @@ Configuration:
 | --- | --- | --- |
 | attribute | (required) | Slug of a multi-valued attribute of type `entity`, receiving one value per detected face; its entity list holds the persons |
 | unknownLabel | Unknown person | Name of a person nobody has named yet (a short code is appended) |
-| rendition | preview | Rendition sent to the service (must be an image) |
+| rendition | (none: source file) | Rendition sent to the service (must be an image) |
 | maxImageSize | 2048 | Longest side (pixels) of the downscaled JPEG copy actually sent to the service |
 | processIncoming | false | Detect faces on all incoming assets |
 | minConfidence | 0.5 | Minimum detection confidence for a face to be kept |

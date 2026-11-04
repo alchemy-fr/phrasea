@@ -46,7 +46,7 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
     {
         $builder
             ->scalarNode('rendition')
-                ->defaultValue(AssetEmbeddingManager::DEFAULT_RENDITION)
+                ->isRequired()
                 ->cannotBeEmpty()
                 ->info('Rendition used to compute the embedding. When it is not an image (document, video), the thumbnail is used instead.')
                 ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
