@@ -3,8 +3,8 @@
 import {type RefObject, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import 'tui-image-editor/dist/tui-image-editor.css';
-import {FullPageLoader} from '@/components/ui/loader';
-import {EmptyState} from '@/components/ui/misc';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {EmptyState} from '@alchemy/next-ui/ui/misc';
 
 /** The bits of the Toast UI editor instance this feature uses. */
 export type PhotoEditorInstance = {

@@ -18,6 +18,10 @@
     },
     "dependencies": {
         "@alchemy/api": "workspace:*",
+        "@alchemy/next-core": "workspace:*",
+        "@alchemy/next-i18n": "workspace:*",
+        "@alchemy/next-theme": "workspace:*",
+        "@alchemy/next-ui": "workspace:*",
         "@tanstack/react-query": "^5.105.3",
         "ace-builds": "^1.45.2",
         "class-variance-authority": "^0.7.1",

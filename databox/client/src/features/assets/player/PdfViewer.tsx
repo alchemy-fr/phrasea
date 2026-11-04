@@ -20,11 +20,11 @@ import {
     MoveHorizontalIcon,
     PlusIcon,
 } from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
-import {Spinner} from '@/components/ui/loader';
-import {cn} from '@/lib/utils/cn';
-import {clamp} from '@/lib/utils/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {clamp} from '@alchemy/next-ui/utils/misc';
 import {useAnnotationLayer} from '@/features/annotations/useAnnotationLayer';
 import {getAnnotationPage} from '@/features/annotations/common';
 import {getShapeBox} from '@/features/annotations/shapes';

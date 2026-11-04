@@ -20,9 +20,9 @@ import {
     DropdownMenuSub,
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
-} from '@/components/ui/menu';
-import {useModals} from '@/components/modals/ModalProvider';
-import {useGuardedRouter} from '@/components/modals/UnsavedChangesGuard';
+} from '@alchemy/next-ui/ui/menu';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {useGuardedRouter} from '@alchemy/next-ui/modals/UnsavedChangesGuard';
 import {usePreferencesStore} from '@/features/preferences/store';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {routes} from '@/lib/routes';

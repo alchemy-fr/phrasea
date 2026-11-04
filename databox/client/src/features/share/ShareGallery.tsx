@@ -8,15 +8,15 @@ import {
     ListIcon,
 } from 'lucide-react';
 import type {Asset} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Slider} from '@/components/ui/controls';
-import {Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Slider} from '@alchemy/next-ui/ui/controls';
+import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {Masonry} from '@/components/ui/masonry';
 import {FileTypeChip} from '@/components/chips';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {formatFileSize} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {ShareLayoutMode, useShareDisplayStore} from './shareDisplayStore';
 
 type ItemProps = {

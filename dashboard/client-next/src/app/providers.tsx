@@ -9,10 +9,10 @@ import type {AppConfig} from '@/lib/config/types';
 import {AuthProvider} from '@/lib/auth/AuthProvider';
 import {I18nProvider} from '@/i18n/I18nProvider';
 import type {LanguageCode} from '@/i18n/config';
-import {FullPageLoader} from '@/components/ui/loader';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
-import {ThemeManager} from '@/features/theme/ThemeManager';
-import {Toaster} from '@/components/ui/toaster';
+import {ThemeManager} from '@alchemy/next-theme/ThemeManager';
+import {Toaster} from '@alchemy/next-ui/ui/toaster';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
 
 function createQueryClient(): QueryClient {
@@ -43,7 +43,7 @@ export function Providers({config, language, children}: Props) {
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <ThemeManager />
+                    <ThemeManager meta={config.theme} />
                     <QueryClientProvider client={queryClient}>
                         <Suspense fallback={<FullPageLoader />}>
                             <AuthProvider>

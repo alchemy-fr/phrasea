@@ -17,11 +17,11 @@ import {
     pagerKey,
     CollectionNode,
 } from '@/features/collections/collectionStore';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Skeleton} from '@/components/ui/misc';
-import {cn} from '@/lib/utils/cn';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {iri} from '@/lib/utils/iri';
 import {postCollection} from '@/lib/api/collections';
 

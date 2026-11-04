@@ -6,10 +6,10 @@ import type {ApiFile, BasketClip, ClipCrop, ClipTimeRange} from '@/types/api';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {FileKindIcon} from '@/components/chips';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
 import {ZoomableImage} from '@/features/assets/player/ZoomableImage';
-import {scanForMedia} from '@/lib/analytics/matomo';
+import {scanForMedia} from '@alchemy/next-core/analytics/matomo';
 import {
     contentClick,
     type ContentTracking,
@@ -17,7 +17,7 @@ import {
 import {clipForFile} from '@/features/baskets/clip/clip';
 import {ClipFrame} from '@/features/baskets/clip/ClipFrame';
 import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
-import {Spinner} from '@/components/ui/loader';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 import type {SubtitleTrack} from '@/features/assets/player/subtitles';
 
 // pdf.js is loaded with the first PDF displayed, in the browser only

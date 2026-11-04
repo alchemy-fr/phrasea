@@ -3,9 +3,9 @@
 import {useTranslation} from 'react-i18next';
 import {LogInIcon} from 'lucide-react';
 import {useState} from 'react';
-import {Button} from '@/components/ui/button';
-import {Avatar} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Avatar} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {useAuth} from '@/lib/auth/AuthProvider';
 
 /**

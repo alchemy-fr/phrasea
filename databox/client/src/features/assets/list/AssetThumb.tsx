@@ -6,7 +6,7 @@ import {LayersIcon, ScanSearchIcon, Trash2Icon} from 'lucide-react';
 import type {Asset} from '@/types/api';
 import {FileKindIcon, FileTypeChip} from '@/components/chips';
 import {useDisplayPreferences} from '@/features/preferences/store';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {usePreview} from '@/features/assets/list/preview/PreviewProvider';

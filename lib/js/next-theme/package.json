@@ -1,0 +1,68 @@
+{
+    "name": "@alchemy/next-theme",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Themes of the Next.js clients: palettes, presets, organisation theme, theme menu",
+    "type": "module",
+    "license": "MIT",
+    "sideEffects": [
+        "*.css"
+    ],
+    "exports": {
+        "./compile": "./src/compile.ts",
+        "./customTheme": "./src/customTheme.ts",
+        "./fonts": "./src/fonts.ts",
+        "./googleFonts": "./src/googleFonts.ts",
+        "./presets": "./src/presets.ts",
+        "./themeScript": "./src/themeScript.ts",
+        "./themeStore": "./src/themeStore.ts",
+        "./ThemeManager": "./src/ThemeManager.tsx",
+        "./ThemeMenu": "./src/ThemeMenu.tsx",
+        "./styles/*": "./styles/*"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|mjs|tsx|jsx|css)\"",
+        "format:check": "prettier --ignore-path .gitignore --check \"**/*.+(js|ts|json|cjs|mjs|tsx|jsx|css)\"",
+        "cs": "pnpm lint:fix && pnpm format",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "dependencies": {
+        "@alchemy/next-ui": "workspace:*"
+    },
+    "peerDependencies": {
+        "lucide-react": "^1.67.0",
+        "next": "^16.4.4",
+        "next-themes": "^0.4.6",
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1",
+        "react-i18next": "^15.7.4",
+        "zustand": "^5.0.16"
+    },
+    "devDependencies": {
+        "@testing-library/react": "^16.3.3",
+        "@types/node": "^22.20.5",
+        "@types/react": "^19.3.0",
+        "@types/react-dom": "^19.3.0",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "eslint": "^10.14.0",
+        "eslint-config-next": "^16.4.4",
+        "i18next": "^24.2.1",
+        "jsdom": "^29.1.1",
+        "lucide-react": "^1.67.0",
+        "next": "^16.4.4",
+        "next-themes": "^0.4.6",
+        "radix-ui": "^1.8.1",
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1",
+        "react-i18next": "^15.7.4",
+        "tailwind-merge": "^3.7.0",
+        "typescript": "^5.9.3",
+        "vitest": "^4.1.12",
+        "zustand": "^5.0.16"
+    }
+}

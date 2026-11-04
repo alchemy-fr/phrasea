@@ -3,9 +3,9 @@
 import {useTranslation} from 'react-i18next';
 import {PlusIcon} from 'lucide-react';
 import {useSearch} from '../SearchProvider';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {SearchConditionChip} from './SearchConditionChip';
-import {useModals} from '@/components/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {ConditionDialog} from './ConditionDialog';
 import {PinnedFilterChip, usePinnedFilters} from '../pinned/PinnedFilters';
 

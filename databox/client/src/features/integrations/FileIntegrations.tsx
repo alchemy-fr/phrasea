@@ -7,7 +7,7 @@ import {
     getIntegrationsOfContext,
     IntegrationContext,
 } from '@/lib/api/integrations';
-import {Badge} from '@/components/ui/misc';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {IntegrationPanel} from './IntegrationPanel';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 

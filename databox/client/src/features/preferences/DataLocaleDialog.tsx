@@ -4,8 +4,8 @@ import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {CheckIcon} from 'lucide-react';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
 import {
     Command,
     CommandEmpty,
@@ -13,7 +13,7 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from '@/components/ui/command';
+} from '@alchemy/next-ui/ui/command';
 import {getLocales} from '@/lib/api/metadata';
 import {usePreferencesStore} from './store';
 import {setApiLocales} from '@/lib/api/http';

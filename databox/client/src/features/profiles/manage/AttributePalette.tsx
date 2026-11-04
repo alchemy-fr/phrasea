@@ -31,14 +31,14 @@ import {
     workspaceIdOf,
 } from '@/features/attributes/definitionsStore';
 import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
-import {Spinner} from '@/components/ui/loader';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import type {BuiltInAttribute} from '@/features/search/searchState';
-import {Input} from '@/components/ui/input';
-import {Button} from '@/components/ui/button';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {snapToCursor} from '@/features/dnd/snapToCursor';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     PALETTE_ZONE,
     paletteDragId,

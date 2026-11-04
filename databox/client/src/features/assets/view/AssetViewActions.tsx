@@ -5,8 +5,8 @@ import {useTranslation} from 'react-i18next';
 import {PanelRightCloseIcon, PanelRightOpenIcon} from 'lucide-react';
 import type {Asset, AssetRendition} from '@/types/api';
 import {EntityName} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {
     trackAssetAction,
     useAssetActions,
@@ -17,7 +17,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {MoreHorizontalIcon} from 'lucide-react';
 import {AssetMenuItems} from '@/features/assets/list/AssetContextMenu';
 

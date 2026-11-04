@@ -3,7 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
 import {FileKindIcon} from '@/components/chips';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {useHoverPreview} from './useHoverPreview';
 
 /**

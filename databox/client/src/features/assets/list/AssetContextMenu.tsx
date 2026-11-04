@@ -19,7 +19,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     MenuEmpty,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {
     useAssetActions,
     type ActionContext,

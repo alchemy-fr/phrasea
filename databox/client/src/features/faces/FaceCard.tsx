@@ -9,11 +9,11 @@ import type {
     AttributeOrigin,
     FaceBox,
 } from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Badge} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {routes} from '@/lib/routes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {FaceCrop} from './FaceCrop';
 import {FacePersonPicker, isUnknownPerson, useRun} from './FacePersonPicker';
 

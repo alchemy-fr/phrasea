@@ -1,0 +1,139 @@
+/*
+ * The Tailwind wiring of the design system: the token mapping, the text
+ * scale, the base styles and a few utilities. The tokens themselves (the
+ * palettes) come from @alchemy/next-theme/styles/themes.css. To be imported
+ * by the global stylesheet of the client, after `tailwindcss`.
+ */
+@source '../src';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-media-bg: var(--media-bg);
+    --color-selection: var(--selection);
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --font-sans:
+        ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, sans-serif;
+    --font-mono:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        'Liberation Mono', monospace;
+    /*
+     * The text scale follows the base size of the theme (`--font-size`, the
+     * size of `text-sm`) instead of the root rem. Tailwind's own sizes are
+     * fixed rem values: without this, changing the base size of a theme
+     * would only move the few elements that inherit the size of the body —
+     * everything carrying a `text-…` class, that is the whole interface,
+     * would stay put. The ratios are those of the default scale relative to
+     * `text-sm`; the line heights are unitless and follow on their own.
+     */
+    --text-xs: calc(var(--font-size) * 0.857);
+    --text-sm: calc(var(--font-size) * 1);
+    --text-base: calc(var(--font-size) * 1.143);
+    --text-lg: calc(var(--font-size) * 1.286);
+    --text-xl: calc(var(--font-size) * 1.429);
+    --text-2xl: calc(var(--font-size) * 1.714);
+    --text-3xl: calc(var(--font-size) * 2.143);
+    --text-4xl: calc(var(--font-size) * 2.571);
+    --text-5xl: calc(var(--font-size) * 3.429);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    html,
+    body {
+        height: 100%;
+    }
+    body {
+        @apply bg-background text-foreground antialiased;
+        font-family: var(--font-sans);
+        font-size: var(--font-size, 14px);
+        letter-spacing: var(--tracking, normal);
+        line-height: 1.45;
+    }
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-foreground/20;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-foreground/35;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    /* The negative margin offsets the padding: a highlight within a word adds no space to it */
+    mark,
+    .hl {
+        @apply -mx-0.5 rounded-sm bg-warning/40 px-0.5 text-inherit;
+    }
+}
+
+@utility scrollbar-thin {
+    scrollbar-width: thin;
+}
+
+@utility no-scrollbar {
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+@utility checkerboard {
+    background-color: var(--media-bg);
+    background-image:
+        linear-gradient(45deg, oklch(0.5 0 0 / 0.12) 25%, transparent 25%),
+        linear-gradient(-45deg, oklch(0.5 0 0 / 0.12) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, oklch(0.5 0 0 / 0.12) 75%),
+        linear-gradient(-45deg, transparent 75%, oklch(0.5 0 0 / 0.12) 75%);
+    background-size: 20px 20px;
+    background-position:
+        0 0,
+        0 10px,
+        10px -10px,
+        -10px 0;
+}
+
+/*
+ * Stacked dialogs (a confirmation opened above a form) render one overlay
+ * each, and their opacities add up to an almost black screen. Radix portals
+ * every overlay into <body>, in mount order: only keep the topmost one
+ * painted. Unlayered on purpose — it has to win over the utility layer.
+ */
+[data-slot='dialog-overlay']:has(~ [data-slot='dialog-overlay']) {
+    background: transparent;
+    backdrop-filter: none;
+}

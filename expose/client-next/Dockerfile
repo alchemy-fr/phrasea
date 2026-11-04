@@ -4,6 +4,11 @@ FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} AS deps
 
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY --chown=node:node ./expose/client-next/package.json ./expose/client-next/package.json
+# Workspace libraries (and the ones they depend on)
+COPY --chown=node:node ./lib/js/next-core/package.json ./lib/js/next-core/package.json
+COPY --chown=node:node ./lib/js/next-i18n/package.json ./lib/js/next-i18n/package.json
+COPY --chown=node:node ./lib/js/next-theme/package.json ./lib/js/next-theme/package.json
+COPY --chown=node:node ./lib/js/next-ui/package.json ./lib/js/next-ui/package.json
 
 USER node
 RUN pnpm install --filter "expose-client-next..." --frozen-lockfile \
@@ -13,6 +18,10 @@ RUN pnpm install --filter "expose-client-next..." --frozen-lockfile \
 
 FROM deps AS client-dev
 
+COPY --chown=node:node ./lib/js/next-core ./lib/js/next-core
+COPY --chown=node:node ./lib/js/next-i18n ./lib/js/next-i18n
+COPY --chown=node:node ./lib/js/next-theme ./lib/js/next-theme
+COPY --chown=node:node ./lib/js/next-ui ./lib/js/next-ui
 COPY --chown=node:node ./expose/client-next ./expose/client-next
 WORKDIR /srv/workspace/phrasea/expose/client-next
 ENV NODE_OPTIONS=
@@ -23,6 +32,10 @@ CMD ["pnpm", "dev"]
 
 FROM deps AS client-build
 
+COPY --chown=node:node ./lib/js/next-core ./lib/js/next-core
+COPY --chown=node:node ./lib/js/next-i18n ./lib/js/next-i18n
+COPY --chown=node:node ./lib/js/next-theme ./lib/js/next-theme
+COPY --chown=node:node ./lib/js/next-ui ./lib/js/next-ui
 COPY --chown=node:node ./expose/client-next ./expose/client-next
 WORKDIR /srv/workspace/phrasea/expose/client-next
 ENV NODE_OPTIONS=--max-old-space-size=4096 \

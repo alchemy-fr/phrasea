@@ -13,11 +13,11 @@ import {
     Trash2Icon,
 } from 'lucide-react';
 import {getPublications, publicationKeys} from '@/lib/api/publications';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Badge, EmptyState, Skeleton} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {ErrorScreen} from '@/components/ErrorScreen';
-import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
 import {Thumbnail} from '@/features/publication/Thumbnail';
 import {useDeletePublication} from '@/features/publications/usePublicationActions';
 import {useTranslateField} from '@/lib/utils/translate';

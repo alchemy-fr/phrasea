@@ -7,8 +7,8 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+} from '@alchemy/next-ui/ui/dialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {useUploaderUser} from './useUploaderUser';
 

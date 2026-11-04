@@ -1,6 +1,6 @@
 import type {CSSProperties} from 'react';
 import {FileTextIcon, FilmIcon, ImageIcon, MusicIcon} from 'lucide-react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /*
  * Loaders shown while assets are being fetched. Unlike the generic Spinner,

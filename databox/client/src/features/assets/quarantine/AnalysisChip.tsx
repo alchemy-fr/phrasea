@@ -3,7 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import {Loader2Icon, ShieldXIcon} from 'lucide-react';
 import type {ApiFile} from '@/types/api';
-import {Badge} from '@/components/ui/misc';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 
 export function AnalysisChip({file}: {file: ApiFile}) {
     const {t} = useTranslation();

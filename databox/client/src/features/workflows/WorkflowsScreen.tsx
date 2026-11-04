@@ -9,14 +9,14 @@ import {WorkflowStatus} from '@/types/api';
 import {getWorkflows} from '@/lib/api/misc';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     EmptyState,
     Skeleton,
     Tabs,
     TabsList,
     TabsTrigger,
-} from '@/components/ui/misc';
+} from '@alchemy/next-ui/ui/misc';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {formatDateTime} from '@/lib/utils/format';
 import {routes} from '@/lib/routes';

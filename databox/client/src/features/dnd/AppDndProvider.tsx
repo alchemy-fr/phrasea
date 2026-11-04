@@ -20,8 +20,8 @@ import {
 import {useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/lib/auth/AuthProvider';
-import {useModals} from '@/components/modals/ModalProvider';
-import {ConfirmDialog} from '@/components/ui/confirm';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {

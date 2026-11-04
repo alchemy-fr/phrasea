@@ -25,7 +25,7 @@ import {
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
-import type {DialogSize} from '@/components/ui/dialog';
+import type {DialogSize} from '@alchemy/next-ui/ui/dialog';
 import {routes} from '@/lib/routes';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {WorkspaceInfoTab} from './tabs/WorkspaceInfoTab';

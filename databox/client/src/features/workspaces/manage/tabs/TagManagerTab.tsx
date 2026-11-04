@@ -10,13 +10,13 @@ import {EntityName} from '@/types/api';
 import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {DefinitionManager} from '../DefinitionManager';
 import {deleteTag, getTag, getTags, postTag, putTag} from '@/lib/api/metadata';
-import {Button} from '@/components/ui/button';
-import {FormRow} from '@/components/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow} from '@alchemy/next-ui/ui/input';
 import {TranslatableField} from '@/components/form/TranslatableField';
 import {TagChip} from '@/components/chips';
 import {iri} from '@/lib/utils/iri';
 import {ColorInput} from '@/components/ui/color-input';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 
 export function TagManagerTab({workspace}: WorkspaceTabProps) {

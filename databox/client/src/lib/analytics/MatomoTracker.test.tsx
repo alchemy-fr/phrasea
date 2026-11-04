@@ -36,7 +36,7 @@ const matomo = vi.hoisted(() => ({
     setUserId: vi.fn(),
     trackPageView: vi.fn(),
 }));
-vi.mock('./matomo', () => matomo);
+vi.mock('@alchemy/next-core/analytics/matomo', () => matomo);
 
 const {MatomoTracker, getTrackedPath} = await import('./MatomoTracker');
 

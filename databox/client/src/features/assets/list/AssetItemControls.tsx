@@ -3,19 +3,19 @@
 import {ReactNode} from 'react';
 import {CheckIcon, MoreVerticalIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {
     assetKey,
     useIsAssetSelected,
     useSelectionActions,
 } from './SelectionProvider';
 import {AssetMenuItems, useSelectionMenuTargets} from './AssetContextMenu';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /**
  * Hover controls shown over a thumbnail: selection checkbox and actions menu.

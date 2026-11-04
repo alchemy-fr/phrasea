@@ -5,6 +5,10 @@ FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} AS deps
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY --chown=node:node ./uploader/client-next/package.json ./uploader/client-next/package.json
 # Workspace libraries (and the ones they depend on)
+COPY --chown=node:node ./lib/js/next-core/package.json ./lib/js/next-core/package.json
+COPY --chown=node:node ./lib/js/next-i18n/package.json ./lib/js/next-i18n/package.json
+COPY --chown=node:node ./lib/js/next-theme/package.json ./lib/js/next-theme/package.json
+COPY --chown=node:node ./lib/js/next-ui/package.json ./lib/js/next-ui/package.json
 COPY --chown=node:node ./lib/js/api/package.json ./lib/js/api/package.json
 COPY --chown=node:node ./lib/js/core/package.json ./lib/js/core/package.json
 
@@ -18,6 +22,10 @@ FROM deps AS client-dev
 
 COPY --chown=node:node ./lib/js/api ./lib/js/api
 COPY --chown=node:node ./lib/js/core ./lib/js/core
+COPY --chown=node:node ./lib/js/next-core ./lib/js/next-core
+COPY --chown=node:node ./lib/js/next-i18n ./lib/js/next-i18n
+COPY --chown=node:node ./lib/js/next-theme ./lib/js/next-theme
+COPY --chown=node:node ./lib/js/next-ui ./lib/js/next-ui
 COPY --chown=node:node ./uploader/client-next ./uploader/client-next
 WORKDIR /srv/workspace/phrasea/uploader/client-next
 ENV NODE_OPTIONS=
@@ -30,6 +38,10 @@ FROM deps AS client-build
 
 COPY --chown=node:node ./lib/js/api ./lib/js/api
 COPY --chown=node:node ./lib/js/core ./lib/js/core
+COPY --chown=node:node ./lib/js/next-core ./lib/js/next-core
+COPY --chown=node:node ./lib/js/next-i18n ./lib/js/next-i18n
+COPY --chown=node:node ./lib/js/next-theme ./lib/js/next-theme
+COPY --chown=node:node ./lib/js/next-ui ./lib/js/next-ui
 COPY --chown=node:node ./uploader/client-next ./uploader/client-next
 WORKDIR /srv/workspace/phrasea/uploader/client-next
 ENV NODE_OPTIONS=--max-old-space-size=4096 \

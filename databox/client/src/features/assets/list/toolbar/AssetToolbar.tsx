@@ -6,9 +6,9 @@ import {useResults} from '@/features/search/ResultProvider';
 import {SelectionActions} from './SelectionActions';
 import {DisplayOptionsMenu} from './DisplayOptionsMenu';
 import {formatNumber} from '@/lib/utils/format';
-import {useModals} from '@/components/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {DebugEsDialog} from '@/features/search/DebugEsDialog';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export function AssetToolbar() {
     const {t, i18n} = useTranslation();

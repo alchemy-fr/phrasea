@@ -1,7 +1,7 @@
 'use client';
 
 import {useTranslation} from 'react-i18next';
-import {AsyncCombobox} from '@/components/form/AsyncCombobox';
+import {AsyncCombobox} from '@alchemy/next-ui/form/AsyncCombobox';
 import {getProfiles, getPublications} from '@/lib/api/publications';
 import {translateField} from '@/lib/utils/translate';
 import type {PublicationRef} from '@/types/api';

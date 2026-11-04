@@ -9,10 +9,10 @@ import {
     DownloadIcon,
 } from 'lucide-react';
 import type {Asset, Share} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {SimpleSelect} from '@/components/ui/select';
-import {Tooltip} from '@/components/ui/overlays';
-import {Separator} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {Separator} from '@alchemy/next-ui/ui/misc';
 import {FileTypeChip} from '@/components/chips';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {AttributeList} from '@/features/attributes/AttributeList';

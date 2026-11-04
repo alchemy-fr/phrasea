@@ -11,7 +11,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {I18nextProvider} from 'react-i18next';
 import {Tooltip as TooltipPrimitive} from 'radix-ui';
 import {createI18n} from '@/i18n';
-import {ModalProvider} from '@/components/modals/ModalProvider';
+import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import type {Asset, RenditionDefinition, Share} from '@/types/api';
 import {ShareDialog} from './ShareDialog';
 
@@ -31,7 +31,7 @@ vi.mock('sonner', () => ({toast: toasts}));
 const misc = vi.hoisted(() => ({
     copyToClipboard: vi.fn(() => Promise.resolve()),
 }));
-vi.mock('@/lib/utils/misc', async importOriginal => ({
+vi.mock('@alchemy/next-ui/utils/misc', async importOriginal => ({
     ...(await importOriginal<object>()),
     ...misc,
 }));

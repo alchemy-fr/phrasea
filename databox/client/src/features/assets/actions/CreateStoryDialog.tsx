@@ -6,12 +6,12 @@ import {BookPlusIcon, CheckIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
 import {EntityName} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {FormRow, Input} from '@/components/ui/input';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {postAsset} from '@/lib/api/assets';
 import {iri} from '@/lib/utils/iri';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {EventCategory, StoryEvent, track} from '@/lib/analytics/events';
 

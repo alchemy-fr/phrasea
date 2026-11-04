@@ -36,7 +36,7 @@ import {resolveScalar} from './aql/serializer';
 import {isCondition, isField} from './aql/types';
 import {getSavedSearch} from '@/lib/api/misc';
 import {useEntitiesStore} from './entitiesStore';
-import {shortId} from '@/lib/utils/misc';
+import {shortId} from '@alchemy/next-ui/utils/misc';
 import {iri} from '@/lib/utils/iri';
 import {useProfileStore} from '@/features/profiles/profileStore';
 import {pinnedDefaults, withPinnedDefaults} from './pinned/pinnedFilterQuery';

@@ -13,13 +13,13 @@ import {
     useRouteDialogOrigin,
 } from '@/components/modals/RouteDialog';
 import {pathOf} from '@/components/modals/routeOrigins';
-import {DialogTitle} from '@/components/ui/dialog';
+import {DialogTitle} from '@alchemy/next-ui/ui/dialog';
 import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {pushPath, splitRoutePath} from '@/lib/navigation/routePath';
 import {routes, UNKNOWN_RENDITION} from '@/lib/routes';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {WorkflowHeader} from './WorkflowHeader';
 import {WorkflowGraph} from './WorkflowGraph';
 import {JobDetailPanel} from './JobDetailPanel';

@@ -10,7 +10,7 @@ import {
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
-import {ModalProvider} from '@/components/modals/ModalProvider';
+import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import type {AssetImport, Workspace} from '@/types/api';
 
 vi.mock('next/navigation', () => ({

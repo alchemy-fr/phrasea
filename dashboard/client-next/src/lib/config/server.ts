@@ -1,6 +1,6 @@
 import 'server-only';
 import type {AppConfig, AppId, AppService, ToolId} from './types';
-import type {StackConfig} from './stackConfig';
+import type {StackConfig} from '@alchemy/next-core/config/stackConfig';
 
 type Env = Record<string, string | undefined>;
 

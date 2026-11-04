@@ -27,9 +27,9 @@ import {useVirtualizer} from '@tanstack/react-virtual';
 import {ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon} from 'lucide-react';
 import {useTranslation} from 'react-i18next';
 import {FilterInput} from '@/components/ui/filter-input';
-import {InlineLoader} from '@/components/ui/loader';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
-import {cn} from '@/lib/utils/cn';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {CellEditorRenderProps, CellPosition} from './types';
 
 export type DataTableProps<T> = {

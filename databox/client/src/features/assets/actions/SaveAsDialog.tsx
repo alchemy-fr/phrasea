@@ -5,10 +5,10 @@ import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import type {ApiFile, Asset} from '@/types/api';
 import {AssetType} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {FormRow, Input} from '@/components/ui/input';
-import {RadioGroup, RadioGroupItem} from '@/components/ui/controls';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {RadioGroup, RadioGroupItem} from '@alchemy/next-ui/ui/controls';
 import {
     CollectionTreePicker,
     TreeSelection,

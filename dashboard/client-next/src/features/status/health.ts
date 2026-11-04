@@ -1,6 +1,6 @@
 import 'server-only';
 import {getApps} from '@/lib/config/server';
-import {httpGet, isFalse, type HttpGet} from '@/lib/server/http';
+import {httpGet, isFalse, type HttpGet} from '@alchemy/next-core/server/http';
 import type {AppId} from '@/lib/config/types';
 import type {ServiceStatus, ServiceStatuses} from './types';
 

@@ -1,6 +1,6 @@
 import 'server-only';
 import type {AppConfig} from './types';
-import type {StackConfig} from './stackConfig';
+import type {StackConfig} from '@alchemy/next-core/config/stackConfig';
 
 function bool(value: string | undefined, fallback = false): boolean {
     if (value === undefined || value === '') {

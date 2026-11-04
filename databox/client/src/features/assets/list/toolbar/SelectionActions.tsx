@@ -3,9 +3,9 @@
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
 import {useSelection} from '../SelectionProvider';
-import {Checkbox} from '@/components/ui/controls';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
+import {Checkbox} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {
     ActionContext,
     useAssetActions,

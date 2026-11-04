@@ -24,24 +24,24 @@ import {
     postIntegration,
     putIntegration,
 } from '@/lib/api/integrations';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input, Label} from '@/components/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input, Label} from '@alchemy/next-ui/ui/input';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
-import {LabeledControl, Switch, Toggle} from '@/components/ui/controls';
-import {Badge, Skeleton} from '@/components/ui/misc';
+import {LabeledControl, Switch, Toggle} from '@alchemy/next-ui/ui/controls';
+import {Badge, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {CopyButton} from '@/components/ui/copy-button';
-import {AsyncCombobox, ComboOption} from '@/components/form/AsyncCombobox';
+import {AsyncCombobox, ComboOption} from '@alchemy/next-ui/form/AsyncCombobox';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {integrationPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';
 import {iri} from '@/lib/utils/iri';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {isApiError} from '@/lib/api/http';
 import {ReferenceDetails} from '@/components/form/ReferenceDetails';
 import {IntegrationCatalog} from './IntegrationCatalog';
 import {IntegrationTypeIcon} from './integrationTypeUi';
 import {integrationLabel} from '../integrationLabel';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {useFocusFirstField} from '@/hooks/useFocusFirstField';
 import {ConfigForm} from '../config/ConfigForm';
 import {

@@ -4,10 +4,10 @@ import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {CheckIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
-import {FormDialog} from '@/components/modals/FormDialog';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {Thumbnail} from '@/features/publication/Thumbnail';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /**
  * Picks the cover of a publication among its assets — whatever their type,

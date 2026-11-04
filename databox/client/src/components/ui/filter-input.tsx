@@ -4,8 +4,8 @@ import * as React from 'react';
 import {useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {XIcon} from 'lucide-react';
-import {Input} from './input';
-import {cn} from '@/lib/utils/cn';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /**
  * Text input filtering a list, with a clear button once filled. Escape also

@@ -8,10 +8,10 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.esm.js';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js';
 import type {ClipTimeRange} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Spinner} from '@/components/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 import {formatDuration} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /**
  * Resolve a CSS color expression (may use `var(--token)` / `color-mix`) to a

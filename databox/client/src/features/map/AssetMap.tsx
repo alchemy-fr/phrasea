@@ -51,14 +51,14 @@ import {useResults} from '@/features/search/ResultProvider';
 import {useSearch} from '@/features/search/SearchProvider';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {useAssetStore} from '@/features/assets/assetStore';
-import {Button} from '@/components/ui/button';
-import {Toggle} from '@/components/ui/controls';
-import {Spinner} from '@/components/ui/loader';
-import {EmptyState, Separator} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
-import {SimpleSelect} from '@/components/ui/select';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Toggle} from '@alchemy/next-ui/ui/controls';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {EmptyState, Separator} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {formatNumber} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     circleBounds,
     circleRing,

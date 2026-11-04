@@ -11,9 +11,9 @@ import {
     runIntegrationAction,
 } from '@/lib/api/integrations';
 import {useIntegrationData} from './useIntegrationData';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
-import {InlineLoader} from '@/components/ui/loader';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {TuiPhotoEditorPanel, tuiPhotoEditor} from './tui/TuiPhotoEditorPanel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 import {RekognitionPanel, awsRekognition} from './rekognition/RekognitionPanel';

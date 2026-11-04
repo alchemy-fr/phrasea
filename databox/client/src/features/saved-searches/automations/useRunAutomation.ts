@@ -3,8 +3,8 @@ import {useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 import type {SavedSearchAutomation} from '@/types/api';
 import {triggerSavedSearchAutomation} from '@/lib/api/automations';
-import {useModals} from '@/components/modals/ModalProvider';
-import {toastError} from '@/lib/utils/errors';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 import {AutomationRunsDialog} from './AutomationRunsPanel';
 import {automationRunsQueryKey, automationsQueryKey} from './queryKeys';
 

@@ -8,9 +8,9 @@ import type {
     IntegrationType,
     WorkspaceIntegration,
 } from '@/types/api';
-import {Input} from '@/components/ui/input';
-import {Badge, EmptyState, Skeleton} from '@/components/ui/misc';
-import {cn} from '@/lib/utils/cn';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     categoryLabel,
     featureLabel,

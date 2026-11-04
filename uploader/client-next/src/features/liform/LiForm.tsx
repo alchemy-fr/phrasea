@@ -15,22 +15,22 @@ import {
     Textarea,
     FieldError,
     FieldHelp,
-} from '@/components/ui/input';
+} from '@alchemy/next-ui/ui/input';
 import {
     Checkbox,
     RadioGroup,
     RadioGroupItem,
     LabeledControl,
-} from '@/components/ui/controls';
-import {SimpleSelect} from '@/components/ui/select';
-import {Button} from '@/components/ui/button';
+} from '@alchemy/next-ui/ui/controls';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from '@/components/ui/overlays';
-import {Badge} from '@/components/ui/misc';
-import {cn} from '@/lib/utils/cn';
+} from '@alchemy/next-ui/ui/overlays';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     fieldLabel,
     guessWidget,

@@ -6,7 +6,7 @@ import {RefreshCwIcon, ScanFaceIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
 import {runIntegrationAction} from '@/lib/api/integrations';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {FaceCard} from './FaceCard';
 import {

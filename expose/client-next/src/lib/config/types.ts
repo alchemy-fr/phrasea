@@ -1,4 +1,4 @@
-import type {ClientThemeMeta} from '@/features/theme/customTheme';
+import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
 
 /**
  * Runtime configuration of the client. It is resolved on the server at request

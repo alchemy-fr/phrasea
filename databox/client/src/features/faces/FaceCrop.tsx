@@ -3,7 +3,7 @@
 import {CSSProperties, useState} from 'react';
 import {ImageOffIcon} from 'lucide-react';
 import type {Asset, FaceBox} from '@/types/api';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /** Image area around the face, relative to its longest side */
 const context = 1.8;

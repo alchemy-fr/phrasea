@@ -5,9 +5,9 @@ import dynamic from 'next/dynamic';
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {FileKindIcon} from '@/components/ui/file-icon';
-import {Spinner} from '@/components/ui/loader';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 import {
     contentClick,
     getContentTracking,

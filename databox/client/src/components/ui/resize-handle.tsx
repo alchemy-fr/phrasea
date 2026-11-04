@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import type {useResizablePanel} from '@/hooks/useResizablePanel';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /**
  * The grip resizing a panel (see `useResizablePanel`), laid between the panel

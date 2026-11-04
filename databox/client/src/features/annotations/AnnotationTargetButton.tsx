@@ -3,9 +3,9 @@
 import {useTranslation} from 'react-i18next';
 import {ShapesIcon} from 'lucide-react';
 import type {AssetAnnotation} from '@/types/api';
-import {Button, type ButtonProps} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
-import {cn} from '@/lib/utils/cn';
+import {Button, type ButtonProps} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     useAnnotations,
     useAnnotationTarget,

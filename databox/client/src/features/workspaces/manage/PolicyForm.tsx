@@ -5,16 +5,16 @@ import {useTranslation} from 'react-i18next';
 import type {TFunction} from 'i18next';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
-import {LabeledControl, Switch} from '@/components/ui/controls';
-import {Badge} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {
     PermissionDefinition,
     PermissionObject,
 } from '@/features/permissions/permissionTypes';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 
 /** What attribute and rendition policies have in common */
 type Policy = {

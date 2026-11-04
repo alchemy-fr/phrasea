@@ -4,7 +4,7 @@ import type {Asset} from '@/types/api';
 import {useDisplayPreferences} from '@/features/preferences/store';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {AttributeList} from '@/features/attributes/AttributeList';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {getContentTracking} from '@/lib/analytics/useContentTracking';
 

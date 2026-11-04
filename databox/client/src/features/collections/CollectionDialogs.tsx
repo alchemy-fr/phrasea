@@ -3,8 +3,8 @@
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import type {Collection} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {ConfirmDialog} from '@/components/ui/confirm';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {deleteCollections, restoreCollections} from '@/lib/api/collections';
 import {useCollectionStore} from './collectionStore';
 import {CollectionEvent, EventCategory, track} from '@/lib/analytics/events';

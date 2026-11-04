@@ -3,9 +3,9 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {XIcon} from 'lucide-react';
-import {Input} from '@/components/ui/input';
+import {Input} from '@alchemy/next-ui/ui/input';
 import {TagsInput} from '@/components/form/TagsInput';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {CellEditorRenderProps} from '@/components/ui/data-table/types';
 import {parseSynonyms} from './entityColumns';
 

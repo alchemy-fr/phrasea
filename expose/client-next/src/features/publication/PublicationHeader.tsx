@@ -11,8 +11,8 @@ import {
     PencilIcon,
 } from 'lucide-react';
 import type {Publication, PublicationRef} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Alert} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Alert} from '@alchemy/next-ui/ui/misc';
 import {RichText} from '@/components/RichText';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {useTranslateField} from '@/lib/utils/translate';

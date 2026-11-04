@@ -4,13 +4,13 @@ import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {DownloadIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Checkbox} from '@/components/ui/controls';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Checkbox} from '@alchemy/next-ui/ui/controls';
 import {FileTypeChip} from '@/components/chips';
 import {formatFileSize} from '@/lib/utils/format';
-import {saveUrlAs} from '@/lib/utils/misc';
-import {cn} from '@/lib/utils/cn';
+import {saveUrlAs} from '@alchemy/next-ui/utils/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     extensionFromMimeType,
     getDownloadFileName,

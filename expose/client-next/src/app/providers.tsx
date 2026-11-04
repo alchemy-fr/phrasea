@@ -10,12 +10,12 @@ import {AuthProvider} from '@/lib/auth/AuthProvider';
 import {I18nProvider} from '@/i18n/I18nProvider';
 import type {LanguageCode} from '@/i18n/config';
 import {isApiError} from '@/lib/api/http';
-import {FullPageLoader} from '@/components/ui/loader';
-import {ModalProvider} from '@/components/modals/ModalProvider';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
-import {ThemeManager} from '@/features/theme/ThemeManager';
-import {UnsavedChangesGuard} from '@/components/modals/UnsavedChangesGuard';
-import {Toaster} from '@/components/ui/toaster';
+import {ThemeManager} from '@alchemy/next-theme/ThemeManager';
+import {UnsavedChangesGuard} from '@alchemy/next-ui/modals/UnsavedChangesGuard';
+import {Toaster} from '@alchemy/next-ui/ui/toaster';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
 import {SessionQueryReset} from '@/lib/auth/SessionQueryReset';
 
@@ -54,7 +54,7 @@ export function Providers({config, language, children}: Props) {
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <ThemeManager />
+                    <ThemeManager meta={config.theme} />
                     <QueryClientProvider client={queryClient}>
                         <Suspense fallback={<FullPageLoader />}>
                             <AuthProvider>

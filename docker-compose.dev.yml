@@ -60,6 +60,7 @@ services:
       target: client-dev
     volumes:
       - ./expose/client-next:/srv/workspace/phrasea/expose/client-next:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
 
   dashboard-client-next:
     extends:
@@ -69,6 +70,7 @@ services:
       target: client-dev
     volumes:
       - ./dashboard/client-next:/srv/workspace/phrasea/dashboard/client-next:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
 
   uploader-client-next:
     extends:

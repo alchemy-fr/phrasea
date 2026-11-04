@@ -2,8 +2,8 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {FieldHelp, Input, Label, Textarea} from '@/components/ui/input';
-import {Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
+import {FieldHelp, Input, Label, Textarea} from '@alchemy/next-ui/ui/input';
+import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
 import {Flag} from '@/components/ui/flag';
 
 /** Key of the value that is not tied to a locale */

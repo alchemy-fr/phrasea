@@ -5,17 +5,17 @@ import {useTranslation} from 'react-i18next';
 import {useQueries, useQuery} from '@tanstack/react-query';
 import {DownloadIcon, ScissorsIcon} from 'lucide-react';
 import type {Asset, RenditionDefinition, Workspace} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
-import {InlineLoader} from '@/components/ui/loader';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {exportAssets, getRenditionDefinitions} from '@/lib/api/misc';
 import {fetchAllPages} from '@/lib/api/hydra';
 import {getWorkspace, signWorkspaceTerms} from '@/lib/api/collections';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {TermsContent} from '@/features/share/ShareTerms';
 import {useExportStore} from '@/features/assets/exportStore';
-import {downloadUrl} from '@/lib/utils/misc';
+import {downloadUrl} from '@alchemy/next-ui/utils/misc';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 async function getAllRenditionDefinitions(

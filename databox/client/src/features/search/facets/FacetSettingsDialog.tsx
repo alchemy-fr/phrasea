@@ -22,15 +22,15 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import type {Facets} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Button} from '@/components/ui/button';
-import {useConfirm} from '@/components/ui/confirm';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {
     FacetPreference,
     usePreferencesStore,
 } from '@/features/preferences/store';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     overlayRow,
     SortableOverlay,
@@ -38,7 +38,7 @@ import {
     sortableMeasuring,
     useSortableRow,
 } from '@/components/ui/sortable';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 
 type Row = {name: string; label: string; hidden: boolean};
 

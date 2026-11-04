@@ -3,7 +3,11 @@
 import {getUserDisplayName} from '@/lib/users';
 import {useCallback, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
-import {AsyncCombobox, ComboOption, ComboPage} from './AsyncCombobox';
+import {
+    AsyncCombobox,
+    ComboOption,
+    ComboPage,
+} from '@alchemy/next-ui/form/AsyncCombobox';
 import {
     getAttributeDefinitionsPage,
     getAttributeEntities,

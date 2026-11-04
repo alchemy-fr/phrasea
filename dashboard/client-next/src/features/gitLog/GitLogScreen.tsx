@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {useSyncExternalStore} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ArrowLeftIcon, GitCommitHorizontalIcon} from 'lucide-react';
-import {EmptyState} from '@/components/ui/misc';
+import {EmptyState} from '@alchemy/next-ui/ui/misc';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {routes} from '@/lib/routes';
 import type {Commit} from './gitLog';

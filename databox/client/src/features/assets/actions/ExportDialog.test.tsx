@@ -27,7 +27,7 @@ vi.mock('@/lib/api/collections', async importOriginal => ({
     ...(await importOriginal<object>()),
     ...collections,
 }));
-vi.mock('@/lib/utils/misc', async importOriginal => ({
+vi.mock('@alchemy/next-ui/utils/misc', async importOriginal => ({
     ...(await importOriginal<object>()),
     ...utils,
 }));

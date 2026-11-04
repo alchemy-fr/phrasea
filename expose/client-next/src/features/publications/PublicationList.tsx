@@ -8,15 +8,15 @@ import {
     publicationKeys,
     type PublicationSort,
 } from '@/lib/api/publications';
-import {Button} from '@/components/ui/button';
-import {EmptyState, Skeleton} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select';
+} from '@alchemy/next-ui/ui/select';
 import {ErrorScreen} from '@/components/ErrorScreen';
 import {useStoredState} from '@/hooks/useStoredState';
 import {PublicationCard} from './PublicationCard';

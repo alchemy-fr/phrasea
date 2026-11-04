@@ -10,16 +10,16 @@ import {
     type AttributeDefinitionOrBuiltIn,
     type ProfileItem,
 } from '@/types/api';
-import {Badge} from '@/components/ui/misc';
-import {Input} from '@/components/ui/input';
-import {SimpleSelect} from '@/components/ui/select';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {
     Checkbox,
     LabeledControl,
     RadioGroup,
     RadioGroupItem,
-} from '@/components/ui/controls';
-import {Button} from '@/components/ui/button';
+} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {aqlKey} from '@/features/attributes/definitionsStore';
 import {booleanChoices} from '@/features/search/pinned/booleanChoices';
 import {

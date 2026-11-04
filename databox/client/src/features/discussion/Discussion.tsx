@@ -19,21 +19,21 @@ import {
     postMessage,
     putMessage,
 } from '@/lib/api/misc';
-import {Button} from '@/components/ui/button';
-import {Avatar, Skeleton} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Avatar, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {Tooltip} from '@/components/ui/overlays';
-import {useModals} from '@/components/modals/ModalProvider';
-import {ConfirmDialog} from '@/components/ui/confirm';
+} from '@alchemy/next-ui/ui/menu';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {formatDateTime} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
-import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {FormattedMessage} from './FormattedMessage';
 import {rememberUsers} from './mentionUser';

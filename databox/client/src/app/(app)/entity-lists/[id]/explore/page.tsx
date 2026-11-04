@@ -1,6 +1,6 @@
 import {Suspense} from 'react';
 import {EntityListExploreScreen} from '@/features/entities/explore/EntityListExploreScreen';
-import {FullPageLoader} from '@/components/ui/loader';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 
 export default async function EntityListExplorePage({
     params,

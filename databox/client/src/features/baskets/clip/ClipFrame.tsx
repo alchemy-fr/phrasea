@@ -1,7 +1,7 @@
 'use client';
 
 import type {CSSProperties, ReactNode} from 'react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {ClipCrop} from './types';
 import {cropAspect, cropFrameStyle} from './clip';
 

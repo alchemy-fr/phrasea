@@ -5,7 +5,7 @@ import {PlugIcon} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
-import {EmptyState} from '@/components/ui/misc';
+import {EmptyState} from '@alchemy/next-ui/ui/misc';
 import {UrlPathProvider} from '@/lib/navigation/routePath';
 import {routes} from '@/lib/routes';
 import {usePageTrail} from '@/components/layout/layoutStore';

@@ -1,7 +1,7 @@
 'use client';
 
 import type {ReactNode} from 'react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {RelativeBox} from './ratios';
 
 const fullBox: RelativeBox = {left: 0, top: 0, width: 1, height: 1};

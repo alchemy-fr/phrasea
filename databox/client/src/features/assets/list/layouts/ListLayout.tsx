@@ -26,7 +26,7 @@ import {AttributeList} from '@/features/attributes/AttributeList';
 import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
 import {AssetStatus} from '@/types/api';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 const NO_KEYS: ReadonlySet<string> = new Set();
 

@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 import type {Publication} from '@/types/api';
-import {useConfirm} from '@/components/ui/confirm';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {deletePublication, publicationKeys} from '@/lib/api/publications';
 import {useTranslateField} from '@/lib/utils/translate';
 

@@ -2,10 +2,10 @@
 
 import type {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Tooltip} from '@/components/ui/overlays';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {CopyButton} from '@/components/ui/copy-button';
 import {formatDateTime} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {hasData} from './jobStatus';
 
 /** Label / value pairs laid out in a row (the legacy `HorizontalTable`) */

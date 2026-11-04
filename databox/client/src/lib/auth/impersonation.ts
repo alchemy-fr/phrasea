@@ -1,4 +1,4 @@
-import type {AuthUser} from './oidc';
+import type {AuthUser} from '@alchemy/next-core/auth/oidc';
 
 /**
  * Admins can act as another user to test permissions. The admin keeps their
