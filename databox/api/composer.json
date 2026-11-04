@@ -161,7 +161,7 @@
         "alchemy/messenger-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/notifier-bundle": "@dev",
-        "alchemy/phpexiftool": "dev-symfony-8 as 4.3.0",
+        "alchemy/phpexiftool": "4.x-dev",
         "alchemy/rendition-factory": "@dev",
         "alchemy/rendition-factory-bundle": "@dev",
         "alchemy/storage-bundle": "*",
