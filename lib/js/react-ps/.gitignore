@@ -1,7 +1,0 @@
-/node_modules
-.DS_Store
-*.log
-.vscode
-.idea
-dist
-/src/icons/Menu.js
