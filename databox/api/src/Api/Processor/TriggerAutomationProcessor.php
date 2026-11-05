@@ -12,8 +12,10 @@ use App\Api\Model\Input\Automation\TriggerAutomationInput;
 use App\Automation\AutomationRunner;
 use App\Entity\Automation\AutomationRun;
 use App\Entity\Automation\SavedSearchAutomation;
+use App\Model\AuditLogActionEnum;
 use App\Model\AutomationTriggerEnum;
 use App\Security\Voter\SavedSearchAutomationVoter;
+use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -26,6 +28,7 @@ final class TriggerAutomationProcessor implements ProcessorInterface
     public function __construct(
         private readonly AutomationRunner $runner,
         private readonly EntityManagerInterface $em,
+        private readonly AuditLogManager $auditLogManager,
     ) {
     }
 
@@ -44,6 +47,12 @@ final class TriggerAutomationProcessor implements ProcessorInterface
             $this->getStrictUser()->getId(),
             $data->dryRun,
         );
+
+        $this->auditLogManager->log(AuditLogActionEnum::AutomationTriggered, $automation, [
+            'runId' => $run->getId(),
+            'dryRun' => $data->dryRun,
+        ]);
+        $this->em->flush();
 
         // The run may have been executed synchronously (sync transport), which clears the entity manager
         return $this->em->find(AutomationRun::class, $run->getId()) ?? $run;

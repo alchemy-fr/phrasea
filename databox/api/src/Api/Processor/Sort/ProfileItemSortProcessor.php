@@ -37,4 +37,13 @@ final class ProfileItemSortProcessor extends AbstractSortProcessor
             'profile' => $profile->getId(),
         ];
     }
+
+    /**
+     * @param ProfileItem $firstItem
+     */
+    #[\Override]
+    protected function getSortedParent(object $firstItem): object
+    {
+        return $firstItem->getProfile();
+    }
 }

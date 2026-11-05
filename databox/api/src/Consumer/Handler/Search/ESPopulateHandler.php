@@ -32,6 +32,8 @@ final readonly class ESPopulateHandler
     {
         $command = [
             PHP_BINARY,
+            // A `-d memory_limit` given to the worker is not inherited, and the child may have to compile its own container
+            '-d', 'memory_limit='.ini_get('memory_limit'),
             $this->projectDir.'/bin/console',
             'fos:elastica:populate',
             '--no-debug',

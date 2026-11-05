@@ -13,6 +13,7 @@ import {
     LogInIcon,
     LogOutIcon,
     PanelLeftIcon,
+    ScrollTextIcon,
     SettingsIcon,
     ShieldIcon,
     UserIcon,
@@ -306,6 +307,13 @@ export function TopBar({
                                     'settings.instance_integrations',
                                     'Instance integrations'
                                 )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                data-testid="settings-audit-log"
+                                onSelect={() => router.push(routes.auditLog())}
+                            >
+                                <ScrollTextIcon />{' '}
+                                {t('settings.audit_log', 'Audit log')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 data-testid="settings-instance-permissions"

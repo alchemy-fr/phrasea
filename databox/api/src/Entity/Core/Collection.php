@@ -40,6 +40,7 @@ use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\CollectionPrivacyInfoProvider;
 use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
+use App\Audit\AuditableInterface;
 use App\Entity\FollowableInterface;
 use App\Entity\ObjectDisplayableNameInterface;
 use App\Entity\Traits\DeletedAtTrait;
@@ -217,7 +218,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
-class Collection extends AbstractUuidEntity implements FollowableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, HighlightableModelInterface, ObjectDisplayableNameInterface, \Stringable
+class Collection extends AbstractUuidEntity implements AuditableInterface, FollowableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, HighlightableModelInterface, ObjectDisplayableNameInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

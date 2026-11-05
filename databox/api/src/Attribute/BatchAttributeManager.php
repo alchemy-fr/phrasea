@@ -46,6 +46,7 @@ class BatchAttributeManager
         private readonly DeferredIndexListener $deferredIndexListener,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributeValidator $attributeValidator,
+        private readonly AttributeChangeAuditor $attributeChangeAuditor,
     ) {
     }
 
@@ -98,8 +99,21 @@ class BatchAttributeManager
         DeferredIndexListener::disable();
         $assetsId ??= [];
 
+        // The DQL writes are invisible to the audit listener: the values are compared before and after
+        $auditedAssetIds = $assetsId;
+        $operations = [];
+        foreach ($input->actions as $action) {
+            array_push($auditedAssetIds, ...($action->assets ?? []));
+            $operations[] = [
+                'definitionId' => $action->definitionId,
+                'action' => $action->action,
+                'assets' => $action->assets,
+            ];
+        }
+        $auditedAssetIds = array_values(array_unique($auditedAssetIds));
+
         try {
-            $this->em->wrapInTransaction(function () use ($userOrClient, $input, $assetsId, $workspaceId, $dispatchUpdateEvent): void {
+            $this->em->wrapInTransaction(fn () => $this->attributeChangeAuditor->audit($auditedAssetIds, $operations, function () use ($userOrClient, $input, $assetsId, $workspaceId, $dispatchUpdateEvent): void {
                 $updatedAssets = [];
                 $changedAttributeDefinitions = [];
 
@@ -291,7 +305,7 @@ class BatchAttributeManager
                 }
 
                 $this->em->flush();
-            });
+            }));
         } finally {
             DeferredIndexListener::enable();
         }

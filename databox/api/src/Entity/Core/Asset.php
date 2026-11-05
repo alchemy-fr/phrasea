@@ -73,6 +73,8 @@ use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\SimilarAssetCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
+use App\Audit\AuditableInterface;
+use App\Audit\AuditIgnore;
 use App\Entity\FollowableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
@@ -490,7 +492,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(columns: ['created_at'], name: 'asset_created_at_idx')]
 #[ORM\Index(columns: ['created_at', 'id'], name: 'asset_created_at_id_idx')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
+class Asset extends AbstractUuidEntity implements AuditableInterface, FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -515,9 +517,11 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     final public const string EVENT_NEW_COMMENT = 'asset:new_comment';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    #[AuditIgnore]
     private int $microseconds = 0;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    #[AuditIgnore]
     private int $sequence = 0;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]

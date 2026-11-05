@@ -8,10 +8,13 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Core\Workspace;
+use App\Model\AuditLogActionEnum;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * Persists the order of the items given as a JSON list of IDs (request body).
@@ -20,9 +23,17 @@ abstract class AbstractSortProcessor implements ProcessorInterface
 {
     use SecurityAwareTrait;
 
+    private AuditLogManager $auditLogManager;
+
     public function __construct(
         protected readonly EntityManagerInterface $em,
     ) {
+    }
+
+    #[Required]
+    public function setAuditLogManager(AuditLogManager $auditLogManager): void
+    {
+        $this->auditLogManager = $auditLogManager;
     }
 
     /**
@@ -76,9 +87,26 @@ abstract class AbstractSortProcessor implements ProcessorInterface
 
                 $query->execute();
             }
+
+            // A DQL update triggers no Doctrine listener
+            $this->auditLogManager->log(AuditLogActionEnum::ObjectUpdated, $this->getSortedParent($firstItem), [
+                'sort' => [
+                    'type' => AuditLogManager::getObjectTypeKey($class),
+                    'ids' => $ids,
+                ],
+            ]);
+            $this->em->flush();
         });
 
         return null;
+    }
+
+    /**
+     * The object whose items are sorted, logged as updated.
+     */
+    protected function getSortedParent(object $firstItem): object
+    {
+        return $firstItem->getWorkspace();
     }
 
     /**

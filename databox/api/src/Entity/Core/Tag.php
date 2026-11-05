@@ -20,6 +20,7 @@ use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\TagCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\LocaleTrait;
@@ -109,7 +110,7 @@ use Symfony\Component\Validator\Constraints\Length;
     errorPath: 'name',
 )]
 #[ORM\Entity(repositoryClass: TagRepository::class)]
-class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable, LoggableChangeSetInterface
+class Tag extends AbstractUuidEntity implements AuditableInterface, TranslatableInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

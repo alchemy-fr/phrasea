@@ -160,6 +160,7 @@ export enum EntityName {
     Message = 'messages',
     File = 'files',
     Workflow = 'workflows',
+    AuditLog = 'audit-logs',
 }
 
 export enum AttributeBatchActionEnum {
@@ -1092,6 +1093,46 @@ export type WorkflowDetail = {
     number?: number | null;
     /** The asset the workflow ran on */
     asset?: {id: string; name?: string | null} | null;
+};
+
+export enum AuditLogActorType {
+    User = 'user',
+    OAuthClient = 'oauth_client',
+    System = 'system',
+}
+
+/** A change of an attribute in an `asset_attribute_changed` entry */
+export type AuditLogAttributeChange = {
+    definitionId: string;
+    definitionName?: string | null;
+    locale?: string | null;
+    op: 'set' | 'add' | 'delete' | 'replace';
+    old: string[];
+    new: string[];
+};
+
+/** An entry of the audit log (admins) */
+export type AuditLog = Entity & {
+    date: string;
+    /** Action key, e.g. `asset_moved` */
+    action: string;
+    actorType: AuditLogActorType;
+    /** The acting user, with the username they had then */
+    user?: {id: string; username?: string | null} | null;
+    impersonatorId?: string | null;
+    clientId?: string | null;
+    ip?: string | null;
+    /** Object type key, e.g. `asset`, `saved_search` */
+    objectType?: string | null;
+    objectId?: string | null;
+    /** The title or name of the object when the action was logged */
+    objectLabel?: string | null;
+    workspaceId?: string | null;
+    /** Shared by an action and its asynchronous effects */
+    correlationId?: string | null;
+    data: Record<string, unknown> | unknown[];
+    /** `uri`, `_route`, `source` (api, admin, console, worker, automation, integration), `command` */
+    meta: Record<string, unknown> | unknown[];
 };
 
 export type IntegrationData = Entity & {

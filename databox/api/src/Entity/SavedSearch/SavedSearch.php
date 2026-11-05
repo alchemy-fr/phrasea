@@ -19,6 +19,7 @@ use App\Api\Model\Input\SavedSearchInput;
 use App\Api\Model\Output\SavedSearchOutput;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\SavedSearchCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Model\SavedSearchPrivacyEnum;
@@ -72,7 +73,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: SavedSearchCollectionProvider::class,
 )]
 #[ORM\Entity(repositoryClass: SavedSearchRepository::class)]
-class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, \Stringable
+class SavedSearch extends AbstractUuidEntity implements AuditableInterface, WithOwnerIdInterface, AclObjectInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

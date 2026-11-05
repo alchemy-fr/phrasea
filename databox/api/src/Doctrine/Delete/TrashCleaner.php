@@ -12,6 +12,8 @@ use Psr\Log\LoggerInterface;
 
 final readonly class TrashCleaner
 {
+    final public const string AUDIT_REASON = 'trash_retention';
+
     public function __construct(
         private WorkspaceRepository $workspaceRepository,
         private CollectionRepository $collectionRepository,
@@ -51,7 +53,7 @@ final readonly class TrashCleaner
             ->toIterable();
 
         foreach ($collections as $collection) {
-            $this->collectionDelete->deleteCollection((string) $collection['id']);
+            $this->collectionDelete->deleteCollection((string) $collection['id'], reason: self::AUDIT_REASON);
         }
 
         $assets = $this->assetRepository->createQueryBuilder('t')
@@ -70,13 +72,13 @@ final readonly class TrashCleaner
         foreach ($assets as $asset) {
             $stack[] = $asset['id'];
             if ($i++ >= $batchSize) {
-                $this->assetDelete->deleteAssets($stack);
+                $this->assetDelete->deleteAssets($stack, self::AUDIT_REASON);
                 $stack = [];
                 $i = 0;
             }
         }
         if (!empty($stack)) {
-            $this->assetDelete->deleteAssets($stack);
+            $this->assetDelete->deleteAssets($stack, self::AUDIT_REASON);
         }
     }
 }

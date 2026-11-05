@@ -8,13 +8,14 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
+use App\Audit\AuditableInterface;
 use App\Repository\Template\WorkspaceTemplateRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: WorkspaceTemplateRepository::class)]
-class WorkspaceTemplate extends AbstractUuidEntity implements \Stringable, LoggableChangeSetInterface
+class WorkspaceTemplate extends AbstractUuidEntity implements AuditableInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

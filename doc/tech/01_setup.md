@@ -106,6 +106,7 @@ scale the `*-worker` services instead.
 | databox     | `app:integration:renew-tokens` (integration tokens about to expire)                          | hourly       |
 | databox     | `app:file:unblock-analyses` (stuck file analyses, see `doc/tech/Databox/FileAnalyzers.mdx`) | hourly       |
 | databox     | `app:trash:empty`                                                                            | daily        |
+| databox     | `app:audit-log:purge` (retention `AUDIT_LOG_RETENTION_DAYS`, 365 days by default, see `doc/tech/Databox/audit-log.md`) | daily        |
 | uploader    | `app:asset:clean-expired` (retention `ASSET_DAYS_RETENTION`, 31 days by default)             | daily        |
 
 Hourly and daily tasks start at a fixed minute derived from the task (daily

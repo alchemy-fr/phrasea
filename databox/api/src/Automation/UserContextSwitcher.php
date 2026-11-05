@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Impersonator;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\RoleMapper;
 use Alchemy\AuthBundle\Security\Token\JwtToken;
+use App\Audit\AuditContext;
 use App\Automation\Exception\AutomationOwnerUnavailableException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 /**
  * Runs code as a given user, outside of any HTTP request: the user's current
  * roles and groups are read from the IdP at each call (never a snapshot).
+ * The audit log records the user as the actor, from the "automation" source.
  */
 final class UserContextSwitcher
 {
@@ -34,6 +36,7 @@ final class UserContextSwitcher
         private readonly TokenStorageInterface $tokenStorage,
         private readonly Impersonator $impersonator,
         private readonly RoleMapper $roleMapper,
+        private readonly AuditContext $auditContext,
     ) {
     }
 
@@ -77,7 +80,7 @@ final class UserContextSwitcher
         $this->tokenStorage->setToken($token);
 
         try {
-            return $fn($user);
+            return $this->auditContext->runAsUser($user->getId(), $user->getUsername(), AuditContext::SOURCE_AUTOMATION, static fn (): mixed => $fn($user));
         } finally {
             $this->tokenStorage->setToken($previousToken);
         }

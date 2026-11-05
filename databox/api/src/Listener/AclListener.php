@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Event\AclDeleteEvent;
 use Alchemy\AclBundle\Event\AclEvent;
 use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
@@ -26,7 +27,10 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
+use App\Model\AuditLogActionEnum;
 use App\Security\Voter\DataboxExtraPermissionInterface;
+use App\Service\Log\AuditLogManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -40,11 +44,15 @@ readonly class AclListener
         private ObjectMapping $objectMapping,
         private MessageBusInterface $bus,
         private TagAwareCacheInterface $collectionCache,
+        private AuditLogManager $auditLogManager,
+        private EntityManagerInterface $em,
     ) {
     }
 
     public function onAclUpsert(AclUpsertEvent $event): void
     {
+        $this->logChange($event, $event->getPermissions(), $event->getMetadata());
+
         $this->handleChange(
             $event,
             $event->getPermissions(),
@@ -58,11 +66,64 @@ readonly class AclListener
             throw new \LogicException('Previous permissions must be set for ACL delete events');
         }
 
+        $this->logChange($event, null, null);
+
         $this->handleChange(
             $event,
             0,
             [],
         );
+    }
+
+    /**
+     * An ACE given on a type (without object ID) is logged without object ID.
+     */
+    private function logChange(AclEvent $event, ?int $newPermissions, ?array $newMetadata): void
+    {
+        $previousPermissions = $event->getPreviousPermissions();
+        if (null === $newPermissions) {
+            $action = AuditLogActionEnum::PermissionRevoked;
+        } elseif (null === $previousPermissions) {
+            $action = AuditLogActionEnum::PermissionGranted;
+        } elseif ($previousPermissions === $newPermissions && ($event->getPreviousMetadata() ?? []) === $newMetadata) {
+            return;
+        } else {
+            $action = AuditLogActionEnum::PermissionChanged;
+        }
+
+        $objectClass = $this->objectMapping->getClassName($event->getObjectType());
+        $objectId = $event->getObjectId();
+        $object = null !== $objectId ? $this->em->find($objectClass, $objectId) : null;
+
+        $data = [
+            'userType' => array_search($event->getUserType(), AccessControlEntryInterface::USER_TYPES, true) ?: $event->getUserType(),
+            'userId' => $event->getUserId(),
+            'aclObjectType' => $event->getObjectType(),
+            'previousMask' => $previousPermissions,
+            'mask' => $newPermissions,
+            'previousPermissions' => self::getPermissionNames($previousPermissions ?? 0),
+            'permissions' => self::getPermissionNames($newPermissions ?? 0),
+            'previousMetadata' => $event->getPreviousMetadata(),
+            'metadata' => $newMetadata,
+        ];
+
+        if (null !== $object) {
+            $this->auditLogManager->log($action, $object, $data);
+        } else {
+            $this->auditLogManager->logRaw($action, $objectClass, $objectId, null, null, $data);
+        }
+        $this->em->flush();
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function getPermissionNames(int $mask): array
+    {
+        return array_keys(array_filter(
+            PermissionInterface::PERMISSIONS,
+            static fn (int $permission): bool => ($mask & $permission) === $permission,
+        ));
     }
 
     private function hasPermission(int $permissions, int $permissionToCheck): bool

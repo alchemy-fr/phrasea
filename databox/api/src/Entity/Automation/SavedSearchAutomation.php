@@ -23,6 +23,8 @@ use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\ResetAutomationCursorProcessor;
 use App\Api\Processor\TriggerAutomationProcessor;
 use App\Api\Provider\SavedSearchAutomationCollectionProvider;
+use App\Audit\AuditableInterface;
+use App\Audit\AuditIgnore;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\AutomationRunStatusEnum;
 use App\Model\AutomationScopeEnum;
@@ -91,10 +93,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Entity(repositoryClass: SavedSearchAutomationRepository::class)]
 #[ORM\Index(columns: ['enabled', 'next_run_at'], name: 'ssa_due_idx')]
-class SavedSearchAutomation extends AbstractUuidEntity implements \Stringable
+class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+
+    final public const int OBJECT_INDEX = 24;
 
     final public const string GROUP_READ = 'ssa:r';
     final public const string GROUP_LIST = 'ssa:i';
@@ -138,15 +142,19 @@ class SavedSearchAutomation extends AbstractUuidEntity implements \Stringable
     private array $actions = [];
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[AuditIgnore]
     private ?\DateTimeImmutable $nextRunAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[AuditIgnore]
     private ?\DateTimeImmutable $lastRunAt = null;
 
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true, enumType: AutomationRunStatusEnum::class)]
+    #[AuditIgnore]
     private ?AutomationRunStatusEnum $lastRunStatus = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false, options: ['default' => 0])]
+    #[AuditIgnore]
     private int $consecutiveFailures = 0;
 
     /**

@@ -10,11 +10,9 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
-use App\Model\ActionLogTypeEnum;
 use App\Repository\Core\FileDuplicateRepository;
 use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Asset\StoryContactSheetScheduler;
-use App\Service\Log\ActionLogManager;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
@@ -24,7 +22,6 @@ class AssetListener
 {
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
-        private readonly ActionLogManager $actionLogManager,
         private readonly AssetNameFiller $assetNameFiller,
         private readonly FileDuplicateRepository $fileDuplicateRepository,
         private readonly StoryContactSheetScheduler $contactSheetScheduler,
@@ -78,51 +75,23 @@ class AssetListener
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entityUpdate) {
-            if ($entityUpdate instanceof Asset) {
-                if (!$entityUpdate->isNoFileVersion()) {
-                    $changeSet = $uow->getEntityChangeSet($entityUpdate);
-                    $fileChange = $changeSet['source'] ?? null;
-                    if ($fileChange) {
-                        $this->actionLogManager->createLogAction(
-                            ActionLogTypeEnum::AssetSubstituted,
-                            $entityUpdate,
-                            [
-                                'oldSourceId' => $fileChange[0]?->getId(),
-                                'newSourceId' => $fileChange[1]?->getId(),
-                            ],
-                            inOnFlush: true,
-                        );
+            if ($entityUpdate instanceof Asset && !$entityUpdate->isNoFileVersion()) {
+                $fileChange = $uow->getEntityChangeSet($entityUpdate)['source'] ?? null;
+                if ($fileChange && $fileChange[0] instanceof File) {
+                    $assetFileVersion = new AssetFileVersion();
+                    $assetFileVersion->setAsset($entityUpdate);
+                    $assetFileVersion->setFile($fileChange[0]);
 
-                        if ($fileChange[0] instanceof File) {
-                            $assetFileVersion = new AssetFileVersion();
-                            $assetFileVersion->setAsset($entityUpdate);
-                            $assetFileVersion->setFile($fileChange[0]);
+                    $uow->persist($assetFileVersion);
 
-                            $uow->persist($assetFileVersion);
+                    $metadata = $em->getClassMetadata($assetFileVersion::class);
+                    $uow->computeChangeSet($metadata, $assetFileVersion);
 
-                            $metadata = $em->getClassMetadata($assetFileVersion::class);
-                            $uow->computeChangeSet($metadata, $assetFileVersion);
-
-                            // The old source usually stops being an asset source: re-evaluate analyses referencing it as duplicate.
-                            $ownerFileIds = $this->fileDuplicateRepository->findOwnerFileIdsByDuplicateFileIds([$fileChange[0]->getId()]);
-                            if (!empty($ownerFileIds)) {
-                                $this->postFlushStack->addBusMessage(new ReevaluateFileAnalyses($ownerFileIds));
-                            }
-                        }
+                    // The old source usually stops being an asset source: re-evaluate analyses referencing it as duplicate.
+                    $ownerFileIds = $this->fileDuplicateRepository->findOwnerFileIdsByDuplicateFileIds([$fileChange[0]->getId()]);
+                    if (!empty($ownerFileIds)) {
+                        $this->postFlushStack->addBusMessage(new ReevaluateFileAnalyses($ownerFileIds));
                     }
-                }
-
-                $refCollection = $changeSet['referenceCollection'] ?? false;
-                if ($refCollection) {
-                    $this->actionLogManager->createLogAction(
-                        ActionLogTypeEnum::AssetMoved,
-                        $entityUpdate,
-                        [
-                            'oldCollectionId' => $refCollection[0]?->getId(),
-                            'newCollectionId' => $refCollection[1]?->getId(),
-                        ],
-                        inOnFlush: true,
-                    );
                 }
             }
         }

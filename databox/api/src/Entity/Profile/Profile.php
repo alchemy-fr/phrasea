@@ -26,6 +26,7 @@ use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\RemoveFromProfileProcessor;
 use App\Api\Processor\Sort\ProfileItemSortProcessor;
 use App\Api\Provider\ProfileCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Profile\ProfileRepository;
@@ -125,7 +126,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ProfileCollectionProvider::class,
 )]
 #[ORM\Entity(repositoryClass: ProfileRepository::class)]
-class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, \Stringable
+class Profile extends AbstractUuidEntity implements AuditableInterface, WithOwnerIdInterface, AclObjectInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

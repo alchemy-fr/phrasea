@@ -30,6 +30,7 @@ use App\Api\Processor\DeleteAttributeEntityImageProcessor;
 use App\Api\Processor\MergeAttributeEntitiesProcessor;
 use App\Api\Processor\UploadAttributeEntityImageProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\WorkspaceTrait;
@@ -175,11 +176,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[UniqueConstraint(name: 'list_external_id_uniq', fields: ['list', 'externalId'])]
 #[UniqueEntity(fields: ['list', 'externalId'], message: 'This external ID already exists in the list', errorPath: 'externalId')]
-class AttributeEntity extends AbstractUuidEntity implements \Stringable
+class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+
+    final public const int OBJECT_INDEX = 25;
 
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';

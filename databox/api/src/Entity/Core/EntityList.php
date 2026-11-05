@@ -24,6 +24,7 @@ use App\Api\Model\Input\ImportEntitiesInput;
 use App\Api\Processor\ClearEntitiesProcessor;
 use App\Api\Processor\ExportEntitiesProcessor;
 use App\Api\Processor\ImportEntitiesProcessor;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Listener\OwnerPersistableInterface;
@@ -99,7 +100,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     fields: ['workspace', 'name'],
     message: 'This entity type already exists in the workspace.'
 )]
-class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterface, OwnerPersistableInterface, \Stringable
+class EntityList extends AbstractUuidEntity implements AuditableInterface, LoggableChangeSetInterface, OwnerPersistableInterface, \Stringable
 {
     use CreatedAtTrait;
     use OwnerIdTrait;

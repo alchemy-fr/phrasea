@@ -27,6 +27,7 @@ use App\Api\Model\Output\RenditionDefinitionOutput;
 use App\Api\Processor\DuplicateRenditionDefinitionProcessor;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\Sort\RenditionDefinitionSortProcessor;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -152,7 +153,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'policy.workspace', 'parent.workspace'],
 )]
-class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSetInterface, \Stringable
+class RenditionDefinition extends AbstractUuidEntity implements AuditableInterface, LoggableChangeSetInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

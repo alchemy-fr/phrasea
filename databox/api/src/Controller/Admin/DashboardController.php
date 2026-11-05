@@ -129,7 +129,7 @@ class DashboardController extends AbstractAdminDashboardController
         ];
 
         $logs = [
-            MenuItem::linkTo(ActionLogCrudController::class, 'Action Log'),
+            MenuItem::linkTo(AuditLogCrudController::class, 'Audit Log'),
             MenuItem::linkTo(ChangeLogCrudController::class, 'Change Log'),
         ];
 
