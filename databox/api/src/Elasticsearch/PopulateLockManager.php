@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Entity\Admin\PopulatePass;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
@@ -54,7 +55,7 @@ final class PopulateLockManager
      */
     public function forceRelease(string $indexName): array
     {
-        $lockReleased = ((int) $this->redis()->del(self::getLockName($indexName))) > 0;
+        $lockReleased = $this->deleteLock($indexName);
 
         $passes = $this->em->getRepository(PopulatePass::class)->findBy([
             'endedAt' => null,
@@ -70,6 +71,49 @@ final class PopulateLockManager
         }
 
         return ['lockReleased' => $lockReleased, 'passesClosed' => \count($passes)];
+    }
+
+    /**
+     * Closes the passes left open by a populate process that died (OOM, killed…) and
+     * frees the lock of their index.
+     *
+     * Only the passes created since $since are touched: the lock guarantees a single
+     * open pass per index, and a pass refused because the index was locked by another
+     * run is closed right away, so the lock of another run is never released.
+     *
+     * @return int the number of closed passes
+     */
+    public function closeDeadPasses(?string $indexName, \DateTimeImmutable $since, string $error): int
+    {
+        $queryBuilder = $this->em->getRepository(PopulatePass::class)->createQueryBuilder('p')
+            ->andWhere('p.endedAt IS NULL')
+            ->andWhere('p.createdAt >= :since')
+            // createdAt is stored without its microseconds
+            ->setParameter('since', $since->setTime((int) $since->format('H'), (int) $since->format('i'), (int) $since->format('s')), Types::DATETIME_IMMUTABLE);
+        if (null !== $indexName) {
+            $queryBuilder
+                ->andWhere('p.indexName = :indexName')
+                ->setParameter('indexName', $indexName);
+        }
+
+        /** @var list<PopulatePass> $passes */
+        $passes = $queryBuilder->getQuery()->getResult();
+        foreach ($passes as $pass) {
+            $pass->setError(substr($error, 0, 255));
+            $pass->setEndedAt(new \DateTimeImmutable());
+            $this->em->persist($pass);
+            $this->deleteLock($pass->getIndexName());
+        }
+        if ([] !== $passes) {
+            $this->em->flush();
+        }
+
+        return \count($passes);
+    }
+
+    private function deleteLock(string $indexName): bool
+    {
+        return ((int) $this->redis()->del(self::getLockName($indexName))) > 0;
     }
 
     private function redis(): \Redis|\Predis\ClientInterface

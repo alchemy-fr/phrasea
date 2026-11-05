@@ -61,54 +61,63 @@ final readonly class AssetIndexer
         $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter(deepClone: false));
         $this->assetPermissionComputer->setAssetCache(new ArrayAdapter(deepClone: false));
 
-        $maxResults = 500;
+        try {
+            $maxResults = 500;
 
-        $getPage = (fn (int $offset): iterable => $selectQuery
-            ->getQuery()
-            ->setMaxResults($maxResults)
-            ->setFirstResult($offset)
-            ->toIterable());
+            $getPage = (fn (int $offset): iterable => $selectQuery
+                ->getQuery()
+                ->setMaxResults($maxResults)
+                ->setFirstResult($offset)
+                ->toIterable());
 
-        $lastCollectionId = null;
-        $runContext->start((int) $total);
-        $runContext->getProgressBar()->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:16s%/%estimated:-16s% %memory:6s%');
+            $lastCollectionId = null;
+            $runContext->start((int) $total);
+            $runContext->getProgressBar()->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:16s%/%estimated:-16s% %memory:6s%');
 
-        $cursor = 0;
+            $cursor = 0;
 
-        /* @var Asset $asset */
-        while ($assets = $getPage($cursor)) {
-            $i = 0;
+            /* @var Asset $asset */
+            while ($assets = $getPage($cursor)) {
+                $i = 0;
 
-            $shouldClearLastCollection = false;
-            $assetStack = [];
-            foreach ($assets as $asset) {
-                if ($lastCollectionId !== $asset->getReferenceCollectionId()) {
-                    $shouldClearLastCollection = true;
-                    $lastCollectionId = $asset->getReferenceCollectionId();
+                $shouldClearLastCollection = false;
+                $assetStack = [];
+                foreach ($assets as $asset) {
+                    if ($lastCollectionId !== $asset->getReferenceCollectionId()) {
+                        $shouldClearLastCollection = true;
+                        $lastCollectionId = $asset->getReferenceCollectionId();
+                    }
+
+                    ++$i;
+                    $assetStack[] = $asset;
                 }
+                $cursor += $i;
 
-                ++$i;
-                $assetStack[] = $asset;
+                if (!empty($assetStack)) {
+                    $this->assetObjectPersister->replaceMany($assetStack);
+                }
+                unset($assetStack);
+
+                if ($shouldClearLastCollection) {
+                    $this->assetPermissionComputer->clearCollectionCache();
+                }
+                $this->assetPermissionComputer->clearAssetCache();
+                $this->em->clear();
+                $this->temporaryCacheFactory->reset();
+                // The cleared entities form cycles that only the cycle collector frees
+                gc_collect_cycles();
+
+                $runContext->advance($i);
+
+                if ($i < $maxResults) {
+                    break;
+                }
             }
-            $cursor += $i;
-
-            if (!empty($assetStack)) {
-                $this->assetObjectPersister->replaceMany($assetStack);
-            }
-            unset($assetStack);
-
-            if ($shouldClearLastCollection) {
-                $this->assetPermissionComputer->clearCollectionCache();
-            }
-            $this->assetPermissionComputer->clearAssetCache();
-            $this->em->clear();
-            $this->temporaryCacheFactory->reset();
-
-            $runContext->advance($i);
-
-            if ($i < $maxResults) {
-                break;
-            }
+        } finally {
+            // The worker keeps this service between messages: a populate run afterwards must not reuse these caches
+            $this->assetPermissionComputer->disableWorkspaceCache();
+            $this->assetPermissionComputer->disableCollectionCache();
+            $this->assetPermissionComputer->disableAssetCache();
         }
 
         $runContext->finish();

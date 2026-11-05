@@ -12,4 +12,4 @@ php -d memory_limit=2G bin/console hautelook:fixtures:load --no-interaction
 php -d memory_limit=2G bin/console app:workspace:ingest-assets
 bin/console doctrine:migrations:sync-metadata-storage
 bin/console doctrine:migrations:version --add --all --no-interaction
-bin/console fos:elastica:populate
+bin/console fos:elastica:populate --no-debug
