@@ -139,6 +139,7 @@ export enum AuthConstant {
     ResponseCodeParam = 'code',
     LoggedOutParam = 'logout',
     StateRedirectParam = 'r',
+    StateNonceParam = 'n',
 }
 
 export type StateParams = Record<string, any>;
