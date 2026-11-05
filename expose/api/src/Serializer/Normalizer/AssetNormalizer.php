@@ -20,8 +20,8 @@ class AssetNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = []): void
     {
+        $publication = $object->getPublication();
         if (in_array(Asset::GROUP_READ, $context['groups'] ?? [])) {
-            $publication = $object->getPublication();
             $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $publication);
             $publication->setAuthorized($isAuthorized);
             if (!$isAuthorized) {
@@ -29,6 +29,15 @@ class AssetNormalizer extends AbstractRouterNormalizer
 
                 return;
             }
+        } elseif (!$this->security->isGranted(PublicationVoter::READ_DETAILS, $publication)) {
+            // The cover of a listed publication the visitor cannot open: its thumbnail only
+            $thumbnail = $object->getThumbnailDefinition() ?? $object->getPosterDefinition();
+            if (null !== $thumbnail && str_starts_with($thumbnail->getMimeType(), 'image/')) {
+                $object->setThumbUrl($this->generateAssetUrl($thumbnail));
+                $object->setThumbType($thumbnail->getMimeType());
+            }
+
+            return;
         }
 
         $downloadViaEmail = $context['download_via_email'] ?? false;
