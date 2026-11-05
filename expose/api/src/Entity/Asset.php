@@ -301,7 +301,15 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
     uriVariables: [
-        'id' => new Link(toProperty: 'publication', fromClass: Publication::class, identifiers: ['id']),
+        'id' => new Link(
+            toProperty: 'publication',
+            fromClass: Publication::class,
+            identifiers: ['id'],
+            security: 'is_granted("READ_DETAILS", publication) or is_granted("EDIT", publication)',
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [self::GROUP_READ],
     ],
 )]
 class Asset implements MediaInterface, \Stringable
