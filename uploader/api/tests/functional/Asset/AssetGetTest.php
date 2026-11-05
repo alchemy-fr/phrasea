@@ -57,7 +57,18 @@ class AssetGetTest extends AbstractAssetTestCase
     {
         $this->commitAsset();
         $response = $this->requestGet('invalid_asset_token');
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    public function testUnknownAssetTokenDoesNotAuthenticate(): void
+    {
+        $client = static::createClient();
+        $response = $client->request('GET', '/targets', [
+            'headers' => [
+                'Authorization' => 'AssetToken invalid_asset_token',
+            ],
+        ]);
+        $this->assertEquals(401, $response->getStatusCode());
     }
 
     public function testUnCommittedAssetGet(): void
