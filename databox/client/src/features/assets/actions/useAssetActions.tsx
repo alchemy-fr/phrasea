@@ -28,6 +28,7 @@ import type {Asset} from '@/types/api';
 import {useModals} from '@/components/modals/ModalProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {routes} from '@/lib/routes';
+import {isHttpUrl} from '@/lib/utils/misc';
 import {useAddToCurrentBasket} from '@/features/baskets/useAddToCurrentBasket';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {ExportDialog} from './ExportDialog';
@@ -292,15 +293,19 @@ export function useAssetActions(
             });
         }
         if (single?.source?.alternateUrls?.length) {
-            single.source.alternateUrls.forEach((alt, i) =>
+            single.source.alternateUrls.forEach((alt, i) => {
+                if (!isHttpUrl(alt.url)) {
+                    return;
+                }
                 nav.push({
                     id: `alt-${i}`,
                     label: alt.label ?? alt.type,
                     icon: <ExternalLinkIcon />,
                     href: alt.url,
-                    run: () => window.open(alt.url, '_blank'),
-                })
-            );
+                    run: () =>
+                        window.open(alt.url, '_blank', 'noopener,noreferrer'),
+                });
+            });
         }
         groups.push(nav);
 
