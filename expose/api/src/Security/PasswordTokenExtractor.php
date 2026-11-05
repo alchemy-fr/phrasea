@@ -21,14 +21,18 @@ final readonly class PasswordTokenExtractor
         }
 
         try {
-            return json_decode(base64_decode($passwords), true, 512, JSON_THROW_ON_ERROR);
+            $passwords = json_decode(base64_decode($passwords), true, 512, JSON_THROW_ON_ERROR);
         } catch (\Throwable) {
             return [];
         }
+
+        return is_array($passwords) ? $passwords : [];
     }
 
     public function getPublicationPassword(string $publicationId): ?string
     {
-        return $this->getPasswords()[$publicationId] ?? null;
+        $password = $this->getPasswords()[$publicationId] ?? null;
+
+        return is_string($password) ? $password : null;
     }
 }
