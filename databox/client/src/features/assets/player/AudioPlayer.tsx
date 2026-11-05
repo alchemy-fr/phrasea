@@ -69,6 +69,7 @@ export function AudioPlayer({
     boundPlayback = true,
     onTimeUpdate,
     onDuration,
+    onPeaks,
 }: {
     src: string;
     autoPlay?: boolean;
@@ -83,6 +84,12 @@ export function AudioPlayer({
     onTimeUpdate?: (time: number) => void;
     /** Called once the sound is loaded */
     onDuration?: (duration: number) => void;
+    /**
+     * Called once the sound is decoded, with its waveform: up to 1000 peaks
+     * of the first channel, in [-1, 1]. Lets another view draw the sound
+     * without downloading it again.
+     */
+    onPeaks?: (peaks: number[]) => void;
 }) {
     const {t} = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -125,6 +132,8 @@ export function AudioPlayer({
     onTimeUpdateRef.current = onTimeUpdate;
     const onDurationRef = useRef(onDuration);
     onDurationRef.current = onDuration;
+    const onPeaksRef = useRef(onPeaks);
+    onPeaksRef.current = onPeaks;
 
     const {wavesurfer, currentTime, isReady, isPlaying} = useWavesurfer({
         container: containerRef,
@@ -191,6 +200,18 @@ export function AudioPlayer({
     useEffect(() => {
         if (wavesurfer && isReady) {
             onDurationRef.current?.(wavesurfer.getDuration());
+            if (onPeaksRef.current) {
+                try {
+                    onPeaksRef.current(
+                        wavesurfer.exportPeaks({
+                            channels: 1,
+                            maxLength: 1000,
+                        })[0] ?? []
+                    );
+                } catch {
+                    // Not decoded: no waveform to share
+                }
+            }
         }
     }, [wavesurfer, isReady]);
 

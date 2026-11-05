@@ -32,6 +32,8 @@ import {
 } from './clip';
 import {CropRectEditor, fitCropToRatio} from './CropRectEditor';
 import {useClipPlayback} from './useClipPlayback';
+import {VideoFilmstrip} from './VideoFilmstrip';
+import {AudioWaveform} from './AudioWaveform';
 
 type RatioChoice = 'free' | 'original' | CropRatioName;
 
@@ -101,6 +103,7 @@ export function ClipEditorDialog({
     const [ratio, setRatio] = useState<RatioChoice>('free');
     const [duration, setDuration] = useState<number>();
     const [mediaAspect, setMediaAspect] = useState<number>();
+    const [peaks, setPeaks] = useState<number[]>();
     const [currentTime, setCurrentTime] = useState(0);
     const [playing, setPlaying] = useState(false);
     const [removing, setRemoving] = useState(false);
@@ -329,6 +332,7 @@ export function ClipEditorDialog({
                     timeRanges={playedRanges}
                     onTimeUpdate={setCurrentTime}
                     onDuration={setDuration}
+                    onPeaks={setPeaks}
                 />
             ) : mediaElement ? (
                 <div className="space-y-2">
@@ -388,6 +392,17 @@ export function ClipEditorDialog({
                                     selected={selectedIndex}
                                     currentTime={currentTime}
                                     onSelect={selectRange}
+                                    videoSrc={
+                                        mediaKind === FileKind.Video
+                                            ? media?.url
+                                            : undefined
+                                    }
+                                    aspect={mediaAspect}
+                                    peaks={
+                                        mediaKind === FileKind.Audio
+                                            ? peaks
+                                            : undefined
+                                    }
                                 />
                             ) : null}
                             <div
@@ -570,7 +585,8 @@ export function ClipEditorDialog({
 
 /**
  * The duration of the media, with every range on it: a click on one selects
- * it.
+ * it. The content of the media is drawn behind, as in an editing software:
+ * the thumbnails of a video, the waveform of a sound.
  */
 function RangeTimeline({
     ranges,
@@ -578,21 +594,46 @@ function RangeTimeline({
     selected,
     currentTime,
     onSelect,
+    videoSrc,
+    aspect,
+    peaks,
 }: {
     ranges: ClipTimeRange[];
     duration: number;
     selected: number;
     currentTime: number;
     onSelect: (index: number) => void;
+    videoSrc?: string;
+    /** Width / height of the video */
+    aspect?: number;
+    /** Waveform of the sound, in [-1, 1] */
+    peaks?: number[];
 }) {
     const percent = (time: number) =>
         Math.min(100, Math.max(0, (time / duration) * 100));
+    const background = videoSrc ? (
+        <VideoFilmstrip
+            src={videoSrc}
+            duration={duration}
+            aspect={aspect}
+            className="absolute inset-0 rounded"
+        />
+    ) : peaks ? (
+        <div className="absolute inset-0 overflow-hidden rounded bg-muted">
+            <AudioWaveform peaks={peaks} />
+        </div>
+    ) : null;
+    const withBackground = !!background;
 
     return (
         <div
-            className="relative h-6 w-full rounded bg-muted"
+            className={cn(
+                'relative w-full rounded bg-muted',
+                withBackground ? 'h-12' : 'h-6'
+            )}
             data-testid="clip-range-timeline"
         >
+            {background}
             {ranges.map((r, i) => {
                 const left = percent(r.s);
                 const width = Math.max(0.5, percent(r.e) - left);
@@ -605,8 +646,14 @@ function RangeTimeline({
                         aria-label={formatClipRange(r)}
                         title={formatClipRange(r)}
                         className={cn(
-                            'absolute inset-y-0 cursor-pointer rounded bg-primary/40 outline-none hover:bg-primary/60 focus-visible:ring-2 focus-visible:ring-ring',
-                            i === selected && 'bg-primary ring-2 ring-primary'
+                            'absolute inset-y-0 cursor-pointer rounded outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                            withBackground
+                                ? 'border-2 border-primary/70 bg-primary/25 hover:bg-primary/40'
+                                : 'bg-primary/40 hover:bg-primary/60',
+                            i === selected &&
+                                (withBackground
+                                    ? 'border-primary bg-primary/40 ring-2 ring-primary'
+                                    : 'bg-primary ring-2 ring-primary')
                         )}
                         style={{left: `${left}%`, width: `${width}%`}}
                         onClick={() => onSelect(i)}
@@ -614,7 +661,11 @@ function RangeTimeline({
                 );
             })}
             <div
-                className="pointer-events-none absolute inset-y-0 w-px bg-foreground"
+                className={cn(
+                    'pointer-events-none absolute inset-y-0 w-px bg-foreground',
+                    // Kept visible on the thumbnails
+                    withBackground && 'shadow-[0_0_0_1px_var(--background)]'
+                )}
                 style={{left: `${percent(currentTime)}%`}}
             />
         </div>
