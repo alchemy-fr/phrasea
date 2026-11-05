@@ -156,7 +156,9 @@ class PhraseanetIntegrationController extends AbstractController
                         break;
                     }
                     $phraseanetHost = parse_url((string) $config['baseUrl'], PHP_URL_HOST);
-                    if (!is_string($phraseanetHost) || parse_url((string) $url, PHP_URL_HOST) !== $phraseanetHost) {
+                    if (!is_string($phraseanetHost)
+                        || parse_url((string) $url, PHP_URL_HOST) !== $phraseanetHost
+                        || parse_url((string) $url, PHP_URL_PORT) !== parse_url((string) $config['baseUrl'], PHP_URL_PORT)) {
                         $logger->warning(sprintf('Phraseanet webhook ignored: permalink "%s" is not on the integration host', $url));
                         break;
                     }
