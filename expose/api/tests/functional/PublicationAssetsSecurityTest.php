@@ -35,4 +35,16 @@ class PublicationAssetsSecurityTest extends AbstractExposeTestCase
         $this->assertArrayNotHasKey('path', $assets[0]);
         $this->assertArrayNotHasKey('ownerId', $assets[0]);
     }
+
+    public function testAssetListIsRestrictedToAdmins(): void
+    {
+        $response = $this->request(null, 'GET', '/assets');
+        $this->assertContains($response->getStatusCode(), [401, 403]);
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/assets');
+        $this->assertSame(403, $response->getStatusCode());
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/assets');
+        $this->assertSame(200, $response->getStatusCode());
+    }
 }

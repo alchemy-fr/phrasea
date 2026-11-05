@@ -168,6 +168,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: CreateAssetProcessor::class,
         ),
         new GetCollection(
+            security: 'is_granted("ROLE_ADMIN")',
             parameters: [
                 'order[title]' => new QueryParameter(filter: new SortFilter(), property: 'title', castToArray: false),
                 'order[position]' => new QueryParameter(filter: new SortFilter(), property: 'position', castToArray: false),
