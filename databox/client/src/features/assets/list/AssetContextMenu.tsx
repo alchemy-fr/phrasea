@@ -158,6 +158,7 @@ export function AssetActionItems({
                     {group.map(action => (
                         <Item
                             key={action.id}
+                            data-testid={action.testId}
                             disabled={action.disabled}
                             variant={
                                 action.destructive ? 'destructive' : 'default'

@@ -42,8 +42,8 @@ import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@/lib/utils/cn';
 import {useModals} from '@/components/modals/ModalProvider';
-import {isClipApplicable} from '../clip/clip';
-import {ClipBadge} from '../clip/ClipBadge';
+import {effectiveClip, isClipApplicable} from '@/features/clip/clip';
+import {ClipBadge} from '@/features/clip/ClipBadge';
 import {BasketClipDialog} from '../clip/BasketClipDialog';
 
 /**
@@ -282,7 +282,8 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                                                 )}
                                             </span>
                                             <ClipBadge
-                                                clip={asset.basketClip}
+                                                clip={effectiveClip(asset)}
+                                                inherited={!asset.basketClip}
                                             />
                                         </span>
                                     )}

@@ -479,7 +479,7 @@ final class BasketApiTest extends AbstractDataboxTestCase
     }
 
     private const array CLIP = [
-        'timeRange' => ['s' => 1.5, 'e' => 3],
+        'timeRanges' => [['s' => 1.5, 'e' => 3]],
         'crop' => ['x' => 0.1, 'y' => 0.2, 'w' => 0.5, 'h' => 0.25],
     ];
 
@@ -500,8 +500,9 @@ final class BasketApiTest extends AbstractDataboxTestCase
         $this->apiJson('PATCH', $uri, self::USER, ['clip' => null]);
         $this->assertNull($this->getItem($basket, $itemId)['clip'] ?? null);
 
+        // The former single range format is accepted, and served in the current one
         $this->apiJson('PATCH', $uri, self::USER, ['clip' => ['timeRange' => ['s' => 0, 'e' => 2]]]);
-        $this->assertEquals(['timeRange' => ['s' => 0, 'e' => 2]], $this->getItem($basket, $itemId)['clip']);
+        $this->assertEquals(['timeRanges' => [['s' => 0, 'e' => 2]]], $this->getItem($basket, $itemId)['clip']);
 
         $this->apiJson('PATCH', $uri, self::USER, ['clip' => []]);
         $this->assertNull($this->getItem($basket, $itemId)['clip'] ?? null);
@@ -509,7 +510,47 @@ final class BasketApiTest extends AbstractDataboxTestCase
         self::getEntityManager()->clear();
         $item = self::getEntityManager()->find(BasketAsset::class, $itemId);
         $this->assertNull($item->getClip());
-        $this->assertNull($item->getBasketClip());
+        $this->assertNull($item->getMediaClip());
+    }
+
+    public function testClipWithSeveralTimeRanges(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('video/mp4');
+
+        $data = $this->apiJson('PATCH', '/basket-assets/'.$itemId, self::USER, ['clip' => [
+            'timeRanges' => [['s' => 50, 'e' => 60], ['s' => 10, 'e' => 20], ['s' => 18, 'e' => 25]],
+        ]]);
+
+        $expected = ['timeRanges' => [['s' => 10, 'e' => 25], ['s' => 50, 'e' => 60]]];
+        $this->assertEquals($expected, $data['clip']);
+        $this->assertEquals($expected, $this->getItem($basket, $itemId)['clip']);
+    }
+
+    public function testStoredLegacyClipIsServedInTheCurrentFormat(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('video/mp4');
+        $em = self::getEntityManager();
+        $item = $em->find(BasketAsset::class, $itemId);
+        $item->setContext(['clip' => ['timeRange' => ['s' => 1, 'e' => 2], 'crop' => self::CLIP['crop']]]);
+        $em->flush();
+
+        $this->assertEquals([
+            'timeRanges' => [['s' => 1, 'e' => 2]],
+            'crop' => self::CLIP['crop'],
+        ], $this->getItem($basket, $itemId)['clip']);
+    }
+
+    public function testItemsListTheRoiOfTheirAsset(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('image/png');
+        $em = self::getEntityManager();
+        $asset = $em->find(BasketAsset::class, $itemId)->getAsset();
+        $asset->setRoi(['crop' => self::CLIP['crop']]);
+        $em->flush();
+
+        $item = $this->getItem($basket, $itemId);
+        $this->assertEquals(['crop' => self::CLIP['crop']], $item['asset']['roi']);
+        $this->assertArrayNotHasKey('clip', $item);
     }
 
     #[DataProvider('provideInvalidClips')]
@@ -524,8 +565,11 @@ final class BasketApiTest extends AbstractDataboxTestCase
 
     public static function provideInvalidClips(): iterable
     {
-        yield 'negative start' => [['timeRange' => ['s' => -1, 'e' => 2]], 'clip.timeRange.s'];
-        yield 'end before start' => [['timeRange' => ['s' => 2, 'e' => 2]], 'clip.timeRange.e'];
+        yield 'negative start' => [['timeRanges' => [['s' => -1, 'e' => 2]]], 'clip.timeRanges[0].s'];
+        yield 'end before start' => [['timeRanges' => [['s' => 0, 'e' => 1], ['s' => 2, 'e' => 2]]], 'clip.timeRanges[1].e'];
+        yield 'too many ranges' => [['timeRanges' => array_map(static fn (int $i): array => ['s' => $i, 'e' => $i + 0.5], range(0, 50))], 'clip.timeRanges'];
+        yield 'legacy negative start' => [['timeRange' => ['s' => -1, 'e' => 2]], 'clip.timeRange.s'];
+        yield 'legacy end before start' => [['timeRange' => ['s' => 2, 'e' => 2]], 'clip.timeRange.e'];
         yield 'missing end' => [['timeRange' => ['s' => 2]], 'clip.timeRange.e'];
         yield 'x out of the media' => [['crop' => ['x' => 1.5, 'y' => 0, 'w' => 0.1, 'h' => 0.1]], 'clip.crop.x'];
         yield 'empty width' => [['crop' => ['x' => 0, 'y' => 0, 'w' => 0, 'h' => 0.5]], 'clip.crop.w'];

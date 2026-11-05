@@ -12,9 +12,9 @@ import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {usePreview} from '@/features/assets/list/preview/PreviewProvider';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
 import {StoryThumb} from '@/features/assets/list/StoryThumb';
-import {clipForFile, cropAspect} from '@/features/baskets/clip/clip';
-import {ClipFrame} from '@/features/baskets/clip/ClipFrame';
-import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
+import {clipForFile, cropAspect, effectiveClip} from '@/features/clip/clip';
+import {ClipFrame} from '@/features/clip/ClipFrame';
+import {useClipPlayback} from '@/features/clip/useClipPlayback';
 
 /**
  * Thumbnail of an asset (with animated preview on hover when available),
@@ -45,8 +45,9 @@ import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
  * similarity search, in [0, 1], shown as a percentage colored by
  * `similarityScoreLevel`.
  *
- * The clip of a basket item (`asset.basketClip`) applies to the thumbnail:
- * cropped, and played within its time range.
+ * The region of interest of the asset, or the extract of the basket item in
+ * its place (see `effectiveClip`), applies to the thumbnail: cropped, and
+ * played within its time ranges.
  */
 export function AssetThumb({
     asset,
@@ -82,9 +83,10 @@ export function AssetThumb({
     const fitClass = thumbFit === 'cover' ? 'object-cover' : 'object-contain';
     const thumbType = hover && animated?.url ? animated.type : thumb?.type;
     const thumbKind = getFileKind(thumbType);
-    const clip = clipForFile(asset.basketClip, thumbType);
+    const clip = clipForFile(effectiveClip(asset), thumbType);
     const crop = clip?.crop;
-    const timeRange = clip?.timeRange;
+    const timeRanges = clip?.timeRanges;
+    const clipStart = timeRanges?.[0]?.s;
     const isVideoThumb = !!url && thumbKind === FileKind.Video;
     const isAudioThumb = !!url && thumbKind === FileKind.Audio;
     const storyCarousel = !!asset.storyCollection && !asset.deleted;
@@ -100,7 +102,7 @@ export function AssetThumb({
         score === undefined ? undefined : similarityScoreLevel(score);
     const videoRef = useRef<HTMLVideoElement>(null);
     const playing = hover && playOnHover;
-    useClipPlayback(videoRef, isVideoThumb ? timeRange : undefined, {
+    useClipPlayback(videoRef, isVideoThumb ? timeRanges : undefined, {
         loop: true,
     });
     // Size of the thumbnail media, for the crop
@@ -139,9 +141,9 @@ export function AssetThumb({
         } else {
             video.pause();
             // Back to the start of the clip
-            video.currentTime = timeRange?.s ?? 0;
+            video.currentTime = clipStart ?? 0;
         }
-    }, [playing, url, timeRange?.s]);
+    }, [playing, url, clipStart]);
 
     const renderVideo = (style?: CSSProperties, mediaClass?: string) => (
         <video
@@ -151,7 +153,7 @@ export function AssetThumb({
             style={style}
             muted
             // A clip loops through useClipPlayback
-            loop={!timeRange}
+            loop={!timeRanges?.length}
             playsInline
             preload="metadata"
             onLoadedMetadata={e =>
@@ -235,7 +237,7 @@ export function AssetThumb({
                         playing={playing}
                         height={Math.round((size ?? 200) * 0.4)}
                         className="size-full px-2"
-                        timeRange={timeRange}
+                        timeRanges={timeRanges}
                     />
                 ) : crop ? (
                     <ClipFrame crop={crop} aspect={cropMediaAspect}>

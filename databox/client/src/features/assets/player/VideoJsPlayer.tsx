@@ -39,12 +39,13 @@ import {
     Volume2Icon,
     VolumeXIcon,
 } from 'lucide-react';
-import type {ClipCrop, ClipTimeRange} from '@/types/api';
+import type {ClipCrop, ClipTimeRange, MediaClip} from '@/types/api';
 import {cn} from '@/lib/utils/cn';
 import {scanForMedia} from '@/lib/analytics/matomo';
 import type {ContentTracking} from '@/lib/analytics/useContentTracking';
-import {ClipFrame} from '@/features/baskets/clip/ClipFrame';
-import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
+import {ClipFrame} from '@/features/clip/ClipFrame';
+import {useClipPlayback} from '@/features/clip/useClipPlayback';
+import {CropOverlay} from '@/features/assets/crop/CropOverlay';
 import {useAnnotationLayer} from '@/features/annotations/useAnnotationLayer';
 import {
     defaultFrameDuration,
@@ -64,8 +65,15 @@ export type VideoJsPlayerProps = {
     autoPlay?: boolean;
     className?: string;
     tracking?: ContentTracking;
-    timeRange?: ClipTimeRange;
+    /** The playback is bounded to these ranges, shown on the time slider */
+    timeRanges?: ClipTimeRange[];
+    /** Only this part of the frame is shown */
     crop?: ClipCrop;
+    /**
+     * The region of interest of the whole video shown: its ranges on the
+     * time slider and its crop outlined, without bounding nor cropping
+     */
+    roiOverlay?: MediaClip;
     /** Offered in the subtitles menu, none shown by default */
     subtitles?: SubtitleTrack[];
     /**
@@ -241,8 +249,9 @@ function VideoJsPlayerBody({
     autoPlay,
     className,
     tracking,
-    timeRange,
+    timeRanges,
     crop,
+    roiOverlay,
     subtitles,
     annotate = false,
 }: VideoJsPlayerProps) {
@@ -253,7 +262,8 @@ function VideoJsPlayerBody({
     const [aspect, setAspect] = useState<number>();
     const instant = useMediaInstant(ref);
     const tracks = useSubtitleUrls(subtitles);
-    useClipPlayback(ref, timeRange);
+    useClipPlayback(ref, timeRanges);
+    const overlayCrop = crop ? undefined : roiOverlay?.crop;
 
     const timeline = useMemo<AnnotationTimeline>(
         () => ({
@@ -270,7 +280,11 @@ function VideoJsPlayerBody({
         enabled: annotate && !crop,
     });
     const {editor, target, isFallback} = annotations;
-    const box = useVideoBox(ref, containerRef, !!annotations.layer);
+    const box = useVideoBox(
+        ref,
+        containerRef,
+        !!annotations.layer || !!overlayCrop
+    );
 
     // MediaAnalytics reads the `data-matomo-*` attributes when it scans the
     // container, so they are rendered first
@@ -402,6 +416,20 @@ function VideoJsPlayerBody({
             ) : (
                 video()
             )}
+            {overlayCrop && box ? (
+                <div
+                    data-testid="roi-overlay"
+                    className="pointer-events-none absolute"
+                    style={{
+                        left: box.left,
+                        top: box.top,
+                        width: box.width,
+                        height: box.height,
+                    }}
+                >
+                    <CropOverlay crop={overlayCrop} dimmed={false} />
+                </div>
+            ) : null}
             {annotations.layer && box ? (
                 // The frame displayed; the controls stay above it
                 <div
@@ -429,6 +457,7 @@ function VideoJsPlayerBody({
             ) : null}
             <VideoControls
                 markers={markers}
+                ranges={timeRanges ?? roiOverlay?.timeRanges}
                 duration={instant.duration}
                 selectedId={editor.selectedId}
                 labelOf={a => getAnnotationLabel(t, a)}
@@ -463,12 +492,15 @@ const controlButton =
 
 function VideoControls({
     markers,
+    ranges,
     duration,
     selectedId,
     labelOf,
     onMarker,
 }: {
     markers: (AssetAnnotation & {t: number})[];
+    /** Time ranges of the clip, as bands on the time slider */
+    ranges?: ClipTimeRange[];
     duration: number;
     selectedId: string | undefined;
     labelOf: (annotation: AssetAnnotation) => string;
@@ -484,6 +516,35 @@ function VideoControls({
                         <TimeSlider.Buffer className="absolute inset-y-0 left-0 w-(--media-slider-buffer) bg-white/40" />
                         <TimeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-fill) bg-primary" />
                     </TimeSlider.Track>
+                    {duration > 0 && ranges?.length ? (
+                        <div
+                            data-testid="clip-ranges"
+                            className="pointer-events-none absolute inset-x-0 top-1/2 h-1 -translate-y-1/2"
+                        >
+                            {ranges.map(r => {
+                                const left = Math.min(
+                                    100,
+                                    Math.max(0, (r.s / duration) * 100)
+                                );
+                                const right = Math.min(
+                                    100,
+                                    Math.max(left, (r.e / duration) * 100)
+                                );
+
+                                return (
+                                    <div
+                                        key={`${r.s}-${r.e}`}
+                                        data-clip-range
+                                        className="absolute inset-y-0 rounded-full bg-amber-300/80"
+                                        style={{
+                                            left: `${left}%`,
+                                            width: `${right - left}%`,
+                                        }}
+                                    />
+                                );
+                            })}
+                        </div>
+                    ) : null}
                     <TimeSlider.Thumb className="absolute left-(--media-slider-fill) size-3 -translate-x-1/2 scale-0 rounded-full bg-white shadow outline-none transition-transform duration-150 group-data-interactive/slider:scale-100 focus-visible:ring-2 focus-visible:ring-white/70" />
                     {duration > 0
                         ? markers.map(annotation => {

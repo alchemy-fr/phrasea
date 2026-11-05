@@ -87,6 +87,7 @@ class AssetOutputMapper implements OutputMapperInterface
         $output->externalId = $data->getExternalId();
         $output->resolvedTrackingId = $data->getResolvedTrackingId();
         $output->status = $data->getStatus();
+        $output->roi = $data->getMediaClip()?->toArray();
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->editedAt = $data->getEditedAt();

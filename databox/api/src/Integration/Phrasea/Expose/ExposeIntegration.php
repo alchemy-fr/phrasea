@@ -88,6 +88,11 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 $basket = DoctrineUtil::findStrict($this->em, Basket::class, $data['basketId']);
                 // The basket assets are published: it must be one the user can read
                 $this->denyAccessUnlessGranted(AbstractVoter::READ, $basket);
+
+                // Fixed for the life of the publication. Not an Expose property: the body is sent as is.
+                $ignoreRoi = filter_var($data['ignoreRoi'] ?? false, FILTER_VALIDATE_BOOL);
+                unset($data['ignoreRoi']);
+
                 $response = $this->exposeClient->createPublication($config, $integrationToken, $data);
 
                 $publicationId = $response['id'];
@@ -97,7 +102,10 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                     $userId,
                     $basket,
                     self::DATA_PUBLICATION_ID,
-                    $publicationId,
+                    json_encode([
+                        'id' => $publicationId,
+                        'ignoreRoi' => $ignoreRoi,
+                    ], JSON_THROW_ON_ERROR),
                     multiple: true,
                 );
 
@@ -131,7 +139,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                         $id,
                         $userId,
                     );
-                    $publicationId = $intData->getValue();
+                    $publicationId = self::readPublicationData($intData)['id'];
 
                     $this->exposeClient->deletePublication($config, $integrationToken, $publicationId);
                 }
@@ -156,14 +164,40 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
     public function transformData(IntegrationData $data, IntegrationConfig $config): void
     {
-        $publicationId = $data->getValue();
+        ['id' => $publicationId, 'ignoreRoi' => $ignoreRoi] = self::readPublicationData($data);
 
         $data->setValue([
             'id' => $publicationId,
             'url' => $config['clientUrl'].'/'.$publicationId,
             'editUrl' => $config['clientUrl'].'/publications/'.$publicationId.'/edit',
+            'ignoreRoi' => $ignoreRoi,
         ]);
         $data->setName(self::DATA_PUBLICATION);
+    }
+
+    /**
+     * The publication of a basket synchronization: stored as JSON, or as the bare publication ID
+     * by the synchronizations created before the option to publish the whole files.
+     *
+     * @return array{id: string, ignoreRoi: bool}
+     */
+    public static function readPublicationData(IntegrationData $data): array
+    {
+        $value = $data->getValue();
+        if (is_string($value) && str_starts_with($value, '{')) {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded) && is_string($decoded['id'] ?? null)) {
+                return [
+                    'id' => $decoded['id'],
+                    'ignoreRoi' => true === ($decoded['ignoreRoi'] ?? false),
+                ];
+            }
+        }
+
+        return [
+            'id' => (string) $value,
+            'ignoreRoi' => false,
+        ];
     }
 
     public function supportData(string $integrationName, string $dataName, IntegrationConfig $config): bool

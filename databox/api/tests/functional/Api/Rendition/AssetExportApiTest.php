@@ -7,10 +7,16 @@ namespace App\Tests\Functional\Api\Rendition;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\MessengerBundle\Transport\TestTransport;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Consumer\Handler\Asset\AssetExportProcess;
+use App\Consumer\Handler\Asset\AssetExportProcessHandler;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AssetExport;
+use App\Entity\Core\File;
+use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\Workspace;
 use App\Model\ExportStatusEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
@@ -300,5 +306,148 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
 
         $this->jsonRequest('GET', '/asset-exports/'.$exportId, self::OTHER);
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    private const array HALF_CROP = ['x' => 0.5, 'y' => 0, 'w' => 0.5, 'h' => 0.5];
+
+    /**
+     * An image of 200x100 as source and main rendition, stored in the (local) storage.
+     */
+    private function createImageAsset(Workspace $workspace, RenditionDefinition $main, ?array $roi = null): Asset
+    {
+        $em = self::getEntityManager();
+
+        $image = imagecreatetruecolor(200, 100);
+        ob_start();
+        imagepng($image);
+        $content = ob_get_clean();
+
+        $file = new File();
+        $file->setWorkspace($workspace);
+        $file->setStorage(File::STORAGE_S3_MAIN);
+        $file->setPath(sprintf('test-exports/%s.png', uniqid()));
+        $file->setType('image/png');
+        $file->setExtension('png');
+        $file->setOriginalName('image.png');
+        $file->setSize(strlen($content));
+        $em->persist($file);
+        self::getService(FileStorageManager::class)->store($file->getPath(), $content);
+
+        $asset = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::OWNER, 'no_flush' => true]);
+        $asset->setSource($file);
+        $asset->setRoi($roi);
+        $em->flush();
+        $this->createAssetRendition($asset, $main, $file);
+
+        return $asset;
+    }
+
+    /**
+     * Requests the export then processes it, as the worker does.
+     *
+     * @return list<array{int, int}> the sizes of the exported images, in the order of their names
+     */
+    private function export(array $payload): array
+    {
+        $this->interceptP1();
+        $response = $this->jsonRequest('POST', '/asset-exports', self::OWNER, $payload);
+        $this->assertResponseStatusCodeSame(201);
+        $exportId = $response->toArray()['id'];
+
+        self::getService(AssetExportProcessHandler::class)(new AssetExportProcess($exportId));
+
+        $em = self::getEntityManager();
+        $em->clear();
+        /** @var AssetExport $export */
+        $export = $em->find(AssetExport::class, $exportId);
+        $this->assertSame(ExportStatusEnum::Ready, $export->getStatus());
+
+        $zipPath = sys_get_temp_dir().'/'.uniqid('export-test').'.zip';
+        $stream = self::getService(FileStorageManager::class)->getStream($export->getPath());
+        file_put_contents($zipPath, $stream);
+        fclose($stream);
+
+        try {
+            $zip = new \ZipArchive();
+            $this->assertTrue($zip->open($zipPath));
+            $images = [];
+            for ($i = 0; $i < $zip->numFiles; ++$i) {
+                $name = $zip->getNameIndex($i);
+                if (str_ends_with($name, '.png')) {
+                    $size = getimagesizefromstring($zip->getFromIndex($i));
+                    $images[$name] = [$size[0], $size[1]];
+                }
+            }
+            $zip->close();
+        } finally {
+            @unlink($zipPath);
+        }
+        ksort($images);
+
+        return array_values($images);
+    }
+
+    public function testRoiIsAppliedToTheExportedFiles(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::OWNER);
+        $main = $defaults->renditionDefinitions['main'];
+        $asset = $this->createImageAsset($ws, $main, ['crop' => self::HALF_CROP]);
+
+        $this->assertSame([[100, 50]], $this->export([
+            'assets' => [$asset->getId()],
+            'renditions' => [$main->getId()],
+        ]));
+    }
+
+    public function testIgnoreRoiExportsTheWholeFiles(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::OWNER);
+        $main = $defaults->renditionDefinitions['main'];
+        $asset = $this->createImageAsset($ws, $main, ['crop' => self::HALF_CROP]);
+
+        $this->assertSame([[200, 100]], $this->export([
+            'assets' => [$asset->getId()],
+            'renditions' => [$main->getId()],
+            'ignoreRoi' => true,
+        ]));
+    }
+
+    public function testClipOfTheBasketItemReplacesTheRoi(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::OWNER);
+        $main = $defaults->renditionDefinitions['main'];
+        $asset = $this->createImageAsset($ws, $main, ['crop' => self::HALF_CROP]);
+        $em = self::getEntityManager();
+
+        $basket = new Basket();
+        $basket->setName('Basket');
+        $basket->setOwnerId(self::OWNER);
+        $em->persist($basket);
+
+        $ids = [];
+        // The first one inherits the region of interest of the asset
+        foreach ([null, ['crop' => ['x' => 0, 'y' => 0, 'w' => 0.25, 'h' => 1]]] as $position => $clip) {
+            $item = new BasketAsset();
+            $item->setBasket($basket);
+            $item->setAsset($asset);
+            $item->setOwnerId(self::OWNER);
+            $item->setPosition($position);
+            $item->setClip($clip);
+            $em->persist($item);
+            $em->flush();
+            $ids[] = $item->getId();
+        }
+
+        $sizes = $this->export([
+            'basketAssets' => $ids,
+            'renditions' => [$main->getId()],
+        ]);
+        $this->assertEqualsCanonicalizing([[100, 50], [50, 100]], $sizes);
+
+        $this->assertSame([[200, 100], [200, 100]], $this->export([
+            'basketAssets' => $ids,
+            'renditions' => [$main->getId()],
+            'ignoreRoi' => true,
+        ]));
     }
 }

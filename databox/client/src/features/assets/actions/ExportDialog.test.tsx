@@ -137,7 +137,7 @@ describe('ExportDialog', () => {
             assets: ['1'],
             renditions: ['rd1'],
         });
-        expect(screen.queryByTestId('export-basket-clips')).toBeNull();
+        expect(screen.queryByTestId('export-ignore-roi')).toBeNull();
     });
 
     it('exports basket items with their clips', async () => {
@@ -146,13 +146,13 @@ describe('ExportDialog', () => {
             {
                 ...asset('1', 'a'),
                 basketItemId: 'item-1',
-                basketClip: {timeRange: {s: 1, e: 2}},
+                basketClip: {timeRanges: [{s: 1, e: 2}]},
             },
             {...asset('1', 'a'), basketItemId: 'item-2'},
         ]);
 
         fireEvent.click(await screen.findByRole('checkbox', {name: 'Preview'}));
-        expect(screen.getByTestId('export-basket-clips')).toBeTruthy();
+        expect(screen.getByTestId('export-ignore-roi')).toBeTruthy();
         const submit = screen.getByRole('button', {name: 'Export'});
         await waitFor(() => expect(submit).toHaveProperty('disabled', false));
         fireEvent.click(submit);
@@ -170,13 +170,14 @@ describe('ExportDialog', () => {
             {
                 ...asset('1', 'a'),
                 basketItemId: 'item-1',
-                basketClip: {timeRange: {s: 1, e: 2}},
+                basketClip: {timeRanges: [{s: 1, e: 2}]},
             },
             asset('2', 'a'),
         ]);
 
         fireEvent.click(await screen.findByRole('checkbox', {name: 'Preview'}));
-        expect(screen.queryByTestId('export-basket-clips')).toBeNull();
+        // Exported as assets: the extracts do not apply
+        expect(screen.queryByTestId('export-ignore-roi')).toBeNull();
         const submit = screen.getByRole('button', {name: 'Export'});
         await waitFor(() => expect(submit).toHaveProperty('disabled', false));
         fireEvent.click(submit);
@@ -184,6 +185,47 @@ describe('ExportDialog', () => {
         await waitFor(() => expect(resolve).toHaveBeenCalled());
         expect(misc.exportAssets).toHaveBeenCalledWith({
             assets: ['1', '2'],
+            renditions: ['rd1'],
+        });
+    });
+
+    it('exports the whole files when asked', async () => {
+        collections.getWorkspace.mockResolvedValue(workspace('a', null));
+        const {resolve} = renderDialog([
+            {...asset('1', 'a'), roi: {crop: {x: 0, y: 0, w: 0.5, h: 0.5}}},
+        ]);
+
+        fireEvent.click(await screen.findByRole('checkbox', {name: 'Preview'}));
+        const ignore = screen.getByTestId('export-ignore-roi');
+        expect(ignore.getAttribute('aria-checked')).toBe('false');
+        fireEvent.click(ignore);
+        const submit = screen.getByRole('button', {name: 'Export'});
+        await waitFor(() => expect(submit).toHaveProperty('disabled', false));
+        fireEvent.click(submit);
+
+        await waitFor(() => expect(resolve).toHaveBeenCalled());
+        expect(misc.exportAssets).toHaveBeenCalledWith({
+            assets: ['1'],
+            renditions: ['rd1'],
+            ignoreRoi: true,
+        });
+    });
+
+    it('applies the regions of interest by default', async () => {
+        collections.getWorkspace.mockResolvedValue(workspace('a', null));
+        const {resolve} = renderDialog([
+            {...asset('1', 'a'), roi: {crop: {x: 0, y: 0, w: 0.5, h: 0.5}}},
+        ]);
+
+        fireEvent.click(await screen.findByRole('checkbox', {name: 'Preview'}));
+        expect(screen.getByTestId('export-ignore-roi')).toBeTruthy();
+        const submit = screen.getByRole('button', {name: 'Export'});
+        await waitFor(() => expect(submit).toHaveProperty('disabled', false));
+        fireEvent.click(submit);
+
+        await waitFor(() => expect(resolve).toHaveBeenCalled());
+        expect(misc.exportAssets).toHaveBeenCalledWith({
+            assets: ['1'],
             renditions: ['rd1'],
         });
     });

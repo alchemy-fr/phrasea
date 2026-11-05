@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use App\Consumer\Handler\Asset\AssetRoiUpdate;
 use App\Consumer\Handler\File\ReevaluateFileAnalyses;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
@@ -45,6 +46,10 @@ class AssetListener
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);
                 if (array_key_exists('deletedAt', $changeSet) || array_key_exists('status', $changeSet)) {
                     $storyItemIds[] = $entityUpdate->getId();
+                }
+                // The baskets publish the region of interest of their items' assets
+                if (array_key_exists('roi', $changeSet)) {
+                    $this->postFlushStack->addBusMessage(new AssetRoiUpdate($entityUpdate->getId()));
                 }
             }
         }

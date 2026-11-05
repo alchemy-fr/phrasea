@@ -31,15 +31,23 @@ class FakeMedia extends EventTarget {
     }
 }
 
+type Range = {s: number; e: number};
+
 function setup(
-    range: {s: number; e: number} | undefined,
+    range: Range | Range[] | undefined,
     options?: {loop?: boolean},
     media = new FakeMedia()
 ) {
     const ref = {current: media} as unknown as RefObject<HTMLMediaElement>;
-    const hook = renderHook(({r}) => useClipPlayback(ref, r, options), {
-        initialProps: {r: range},
-    });
+    const toRanges = (r: Range | Range[] | undefined) =>
+        r === undefined ? undefined : Array.isArray(r) ? r : [r];
+    const hook = renderHook(
+        ({r}: {r: Range | Range[] | undefined}) =>
+            useClipPlayback(ref, toRanges(r), options),
+        {
+            initialProps: {r: range},
+        }
+    );
 
     return {media, ...hook};
 }
@@ -125,6 +133,81 @@ describe('useClipPlayback', () => {
         expect(media.pause).toHaveBeenCalledTimes(1);
         // Not scheduled any more once paused
         expect(frames).toHaveLength(1);
+    });
+
+    it('plays the ranges one after the other', () => {
+        const ranges = [
+            {s: 2, e: 4},
+            {s: 10, e: 12},
+            {s: 20, e: 25},
+        ];
+        const {media} = setup(ranges);
+        media.readyState = 1;
+        media.dispatchEvent(new Event('loadedmetadata'));
+        expect(media.currentTime).toBe(2);
+
+        media.play();
+        media.playTo(3.9);
+        expect(media.currentTime).toBe(3.9);
+        // From the end of a range to the start of the next one
+        media.playTo(4.05);
+        expect(media.currentTime).toBe(10);
+        media.playTo(12);
+        expect(media.currentTime).toBe(20);
+        expect(media.pause).not.toHaveBeenCalled();
+
+        // Stops after the last one
+        media.playTo(25.1);
+        expect(media.pause).toHaveBeenCalledTimes(1);
+
+        // Played again: from the first one
+        media.play();
+        expect(media.currentTime).toBe(2);
+    });
+
+    it('seeks to the next range from a gap', () => {
+        const {media} = setup([
+            {s: 2, e: 4},
+            {s: 10, e: 12},
+        ]);
+
+        media.seek(6);
+        expect(media.currentTime).toBe(10);
+        media.seek(11);
+        expect(media.currentTime).toBe(11);
+        media.seek(0.5);
+        expect(media.currentTime).toBe(2);
+        // After the last one: the first one
+        media.seek(30);
+        expect(media.currentTime).toBe(2);
+    });
+
+    it('loops back to the first range', () => {
+        const {media} = setup(
+            [
+                {s: 2, e: 4},
+                {s: 10, e: 12},
+            ],
+            {loop: true}
+        );
+        media.play();
+
+        media.playTo(4);
+        expect(media.currentTime).toBe(10);
+        media.playTo(12);
+        expect(media.currentTime).toBe(2);
+        expect(media.pause).not.toHaveBeenCalled();
+    });
+
+    it('ignores a new array of the same ranges', () => {
+        const {media, rerender} = setup([{s: 2, e: 4}]);
+        media.readyState = 1;
+        // Not through an event: only a new effect would move it back
+        media.currentTime = 50;
+        rerender({r: [{s: 2, e: 4}]});
+        expect(media.currentTime).toBe(50);
+        rerender({r: [{s: 3, e: 4}]});
+        expect(media.currentTime).toBe(3);
     });
 
     it('does nothing without a range, and stops listening', () => {

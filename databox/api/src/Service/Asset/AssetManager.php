@@ -42,6 +42,10 @@ readonly class AssetManager
             throw new \InvalidArgumentException('Asset and File are not in the same workspace');
         }
 
+        if ($asset->getSource()?->getId() !== $file->getId()) {
+            // The new file may differ in type, duration or framing
+            $asset->setRoi(null);
+        }
         $asset->setSource($file);
 
         if (!empty($formData)) {

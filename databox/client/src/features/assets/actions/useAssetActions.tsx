@@ -21,6 +21,7 @@ import {
     PinIcon,
     PinOffIcon,
     ScanSearchIcon,
+    ScanIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
@@ -37,6 +38,8 @@ import {ShareDialog} from '@/features/share/ShareDialog';
 import {ReplaceSourceDialog} from './ReplaceSourceDialog';
 import {SaveAsDialog} from './SaveAsDialog';
 import {CreateStoryDialog} from './CreateStoryDialog';
+import {AssetRoiDialog} from '@/features/assets/roi/AssetRoiDialog';
+import {isClipApplicable} from '@/features/clip/clip';
 import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {usePinnedStoriesStore} from '@/features/stories/pinnedStoriesStore';
@@ -53,6 +56,8 @@ export type AssetAction = {
     href?: string;
     /** Show in the bulk toolbar */
     bulk?: boolean;
+    /** `data-testid` of the controls running it */
+    testId?: string;
 };
 
 export type ActionContext = {
@@ -66,6 +71,8 @@ export type ActionContext = {
     move?: boolean;
     copy?: boolean;
     replace?: boolean;
+    /** Edit the region of interest */
+    roi?: boolean;
     info?: boolean;
     saveAs?: boolean;
     /** Pin a story in the sidebar */
@@ -87,6 +94,7 @@ export const defaultActionContext: Required<ActionContext> = {
     move: true,
     copy: true,
     replace: true,
+    roi: true,
     info: true,
     saveAs: true,
     pin: true,
@@ -431,6 +439,19 @@ export function useAssetActions(
                             });
                         }
                     },
+                });
+            }
+            if (
+                ctx.roi &&
+                single?.capabilities.edit &&
+                isClipApplicable(single.source?.type)
+            ) {
+                manage.push({
+                    id: 'roi',
+                    testId: 'asset-roi-edit',
+                    label: t('asset.roi.action', 'Edit the region of interest'),
+                    icon: <ScanIcon />,
+                    run: () => openModal(AssetRoiDialog, {asset: single}),
                 });
             }
         }

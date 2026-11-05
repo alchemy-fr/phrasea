@@ -21,8 +21,8 @@ use App\Entity\Core\AssetExport;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Workspace;
 use App\Integration\PusherTrait;
-use App\Model\BasketClip;
 use App\Model\ExportStatusEnum;
+use App\Model\MediaClip;
 use App\Model\UserData;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
@@ -30,6 +30,7 @@ use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributeMetadataEmbedder;
 use App\Service\Asset\FileFetcher;
 use App\Service\Clip\ClipException;
+use App\Service\Clip\ClipResolver;
 use App\Service\Clip\MediaClipper;
 use App\Service\Metadata\FileMetadataEmbedder;
 use App\Service\Metadata\RenditionDefinitionMetadataEmbedder;
@@ -98,7 +99,7 @@ class AssetExportProcessHandler
             try {
                 foreach ($items as $item) {
                     $assetId = $item['assetId'];
-                    $clip = BasketClip::fromArray($item['clip']);
+                    $clip = MediaClip::fromArray($item['clip']);
                     // The same asset may be exported twice, from two basket items
                     $nameSuffix = $item['basketAssetId'] ?? $assetId;
 
@@ -292,17 +293,30 @@ class AssetExportProcessHandler
     }
 
     /**
+     * The clip of a basket item replaces the region of interest of its asset.
+     *
      * @return list<array{assetId: string, basketAssetId: string|null, clip: array|null}>
      */
     private function getExportItems(AssetExport $export): array
     {
+        $ignoreRoi = $export->isIgnoreRoi();
         $basketAssetIds = $export->getBasketAssets();
         if (null === $basketAssetIds) {
+            $assetIds = $export->getAssets();
+
+            /** @var array<string, Asset> $assets */
+            $assets = [];
+            if (!$ignoreRoi) {
+                foreach ($this->em->getRepository(Asset::class)->findBy(['id' => $assetIds]) as $asset) {
+                    $assets[$asset->getId()] = $asset;
+                }
+            }
+
             return array_map(static fn (string $assetId): array => [
                 'assetId' => $assetId,
                 'basketAssetId' => null,
-                'clip' => null,
-            ], $export->getAssets());
+                'clip' => isset($assets[$assetId]) ? ClipResolver::forAsset($assets[$assetId], $ignoreRoi)?->toArray() : null,
+            ], $assetIds);
         }
 
         /** @var array<string, BasketAsset> $basketAssets */
@@ -321,7 +335,7 @@ class AssetExportProcessHandler
             $items[] = [
                 'assetId' => $basketAsset->getAsset()->getId(),
                 'basketAssetId' => $basketAsset->getId(),
-                'clip' => $basketAsset->getClip(),
+                'clip' => ClipResolver::forBasketAsset($basketAsset, $ignoreRoi)?->toArray(),
             ];
         }
 

@@ -7,6 +7,8 @@ import {
     ChevronLeftIcon,
     ChevronRightIcon,
     FilePlusIcon,
+    MaximizeIcon,
+    ScanIcon,
     XIcon,
 } from 'lucide-react';
 import type {Asset, AssetRendition} from '@/types/api';
@@ -21,6 +23,7 @@ import {FullPageLoader} from '@/components/ui/loader';
 import {EmptyState, Separator} from '@/components/ui/misc';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {getSubtitleTracks} from '@/features/assets/player/subtitles';
+import {clipForFile, effectiveClip} from '@/features/clip/clip';
 import {
     AssetPanel,
     defaultAssetPanelTab,
@@ -116,6 +119,9 @@ export function AssetViewRoute({
     const update = useAssetStore(s => s.update);
     const navContext = useNavigationContextStore(s => s.context);
     const [panelOpen, setPanelOpen] = useState(true);
+    // The whole media, in place of its region of interest
+    const [whole, setWhole] = useState(false);
+    useEffect(() => setWhole(false), [assetId]);
     // The editor and the tabs each keep their own width
     const panel = useResizablePanel(editing ? 'edit' : 'info');
 
@@ -197,6 +203,10 @@ export function AssetViewRoute({
     const displayedFile = rendition?.file ?? standInFile(storyStandIn);
     // The media displayed is the stand-in's for a story without a file
     const displayedAsset = storyStandIn ?? asset;
+    const displayedClip = displayedAsset
+        ? effectiveClip(displayedAsset)
+        : undefined;
+    const hasDisplayedClip = !!clipForFile(displayedClip, displayedFile?.type);
     const subtitles = useMemo(
         () => getSubtitleTracks(displayedAsset?.attributes, i18n.language),
         [displayedAsset?.attributes, i18n.language]
@@ -422,6 +432,42 @@ export function AssetViewRoute({
                                 }))}
                         />
                     ) : null}
+                    {hasDisplayedClip ? (
+                        <Tooltip
+                            content={
+                                whole
+                                    ? t(
+                                          'asset.roi.show_roi',
+                                          'Show the region of interest'
+                                      )
+                                    : t(
+                                          'asset.roi.show_whole',
+                                          'Show the whole asset'
+                                      )
+                            }
+                        >
+                            <Button
+                                variant={whole ? 'secondary' : 'ghost'}
+                                size="icon-sm"
+                                data-testid="asset-roi-toggle"
+                                aria-pressed={whole}
+                                aria-label={
+                                    whole
+                                        ? t(
+                                              'asset.roi.show_roi',
+                                              'Show the region of interest'
+                                          )
+                                        : t(
+                                              'asset.roi.show_whole',
+                                              'Show the whole asset'
+                                          )
+                                }
+                                onClick={() => setWhole(w => !w)}
+                            >
+                                {whole ? <ScanIcon /> : <MaximizeIcon />}
+                            </Button>
+                        </Tooltip>
+                    ) : null}
                     {asset ? (
                         <AssetViewActions
                             asset={asset}
@@ -535,6 +581,8 @@ export function AssetViewRoute({
                                         className="size-full"
                                         autoPlay
                                         subtitles={subtitles}
+                                        clip={displayedClip}
+                                        whole={whole}
                                     />
                                 </div>
                             ) : asset &&

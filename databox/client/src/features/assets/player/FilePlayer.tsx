@@ -2,7 +2,7 @@
 
 import {type CSSProperties, useEffect, useRef, useState} from 'react';
 import dynamic from 'next/dynamic';
-import type {ApiFile, BasketClip, ClipCrop, ClipTimeRange} from '@/types/api';
+import type {ApiFile, ClipCrop, ClipTimeRange, MediaClip} from '@/types/api';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {FileKindIcon} from '@/components/chips';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
@@ -14,9 +14,10 @@ import {
     contentClick,
     type ContentTracking,
 } from '@/lib/analytics/useContentTracking';
-import {clipForFile} from '@/features/baskets/clip/clip';
-import {ClipFrame} from '@/features/baskets/clip/ClipFrame';
-import {useClipPlayback} from '@/features/baskets/clip/useClipPlayback';
+import {clipForFile} from '@/features/clip/clip';
+import {ClipFrame} from '@/features/clip/ClipFrame';
+import {useClipPlayback} from '@/features/clip/useClipPlayback';
+import {CropOverlay} from '@/features/assets/crop/CropOverlay';
 import {Spinner} from '@/components/ui/loader';
 import type {SubtitleTrack} from '@/features/assets/player/subtitles';
 
@@ -68,10 +69,16 @@ export type FilePlayerProps = {
      */
     tracking?: ContentTracking;
     /**
-     * Clip of the basket item displayed: bounds the playback and crops the
-     * media, for the parts that apply to the file
+     * Region of interest of the asset, or extract of the basket item
+     * displayed: bounds the playback and crops the media, for the parts that
+     * apply to the file
      */
-    clip?: BasketClip;
+    clip?: MediaClip;
+    /**
+     * The whole media is shown, the clip over it (ranges on the timeline,
+     * crop outlined) instead of being applied
+     */
+    whole?: boolean;
     /** Subtitle tracks of a video, none shown by default */
     subtitles?: SubtitleTrack[];
 };
@@ -89,10 +96,13 @@ export function FilePlayer({
     onInteraction,
     tracking,
     clip,
+    whole = false,
     subtitles,
 }: FilePlayerProps) {
     const onContentClick = tracking ? () => contentClick(tracking) : undefined;
-    const fileClip = clipForFile(clip, file.type);
+    const roi = clipForFile(clip, file.type);
+    const fileClip = whole ? undefined : roi;
+    const roiOverlay = whole ? roi : undefined;
 
     if (file.analysisPending || file.accepted === false) {
         return (
@@ -138,6 +148,14 @@ export function FilePlayer({
                     className={className}
                     onInteraction={onInteraction}
                     onContentClick={onContentClick}
+                    overlay={
+                        roiOverlay?.crop ? (
+                            <CropOverlay
+                                crop={roiOverlay.crop}
+                                dimmed={false}
+                            />
+                        ) : undefined
+                    }
                 />
             ) : (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -162,8 +180,9 @@ export function FilePlayer({
                     autoPlay={autoPlay}
                     className={className}
                     tracking={tracking}
-                    timeRange={fileClip?.timeRange}
+                    timeRanges={fileClip?.timeRanges}
                     crop={fileClip?.crop}
+                    roiOverlay={roiOverlay}
                     subtitles={subtitles}
                     annotate={fit === 'zoom'}
                 />
@@ -175,7 +194,7 @@ export function FilePlayer({
                     autoPlay={autoPlay}
                     className={className}
                     tracking={tracking}
-                    timeRange={fileClip?.timeRange}
+                    timeRanges={fileClip?.timeRanges}
                     crop={fileClip?.crop}
                 />
             );
@@ -187,7 +206,8 @@ export function FilePlayer({
                     autoPlay={autoPlay}
                     controls={controls}
                     className={className}
-                    timeRange={fileClip?.timeRange}
+                    timeRanges={roi?.timeRanges}
+                    boundPlayback={!whole}
                 />
             );
         case FileKind.Document:
@@ -223,8 +243,7 @@ export function FilePlayer({
 }
 
 /**
- * A video without controls (a preview): it loops, within the clip of a basket
- * item.
+ * A video without controls (a preview): it loops, within its clip.
  */
 function VideoPreview({
     src,
@@ -232,7 +251,7 @@ function VideoPreview({
     autoPlay,
     className,
     tracking,
-    timeRange,
+    timeRanges,
     crop,
 }: {
     src: string;
@@ -240,13 +259,13 @@ function VideoPreview({
     autoPlay?: boolean;
     className?: string;
     tracking?: ContentTracking;
-    timeRange?: ClipTimeRange;
+    timeRanges?: ClipTimeRange[];
     crop?: ClipCrop;
 }) {
     const ref = useRef<HTMLVideoElement>(null);
     const trackingId = tracking?.id;
     const [aspect, setAspect] = useState<number>();
-    useClipPlayback(ref, timeRange, {loop: true});
+    useClipPlayback(ref, timeRanges, {loop: true});
 
     // MediaAnalytics reads the `data-matomo-*` attributes when it scans the
     // container, so they are rendered first
@@ -286,7 +305,7 @@ function VideoPreview({
             autoPlay={autoPlay}
             muted={autoPlay}
             // A clip loops through useClipPlayback
-            loop={!timeRange}
+            loop={!timeRanges?.length}
             playsInline
             preload="metadata"
             data-type={type}

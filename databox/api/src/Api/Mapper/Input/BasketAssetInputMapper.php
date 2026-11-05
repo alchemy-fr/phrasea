@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\Basket\BasketAssetInput;
-use App\Api\Model\Input\Basket\BasketClipInput;
+use App\Api\Model\Input\MediaClipInput;
 use App\Entity\Basket\BasketAsset;
-use App\Model\BasketClip;
+use App\Model\MediaClip;
 use App\Service\Clip\ClipFamily;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
-use Symfony\Component\HttpFoundation\Exception\JsonException;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 #[AsTaggedItem(index: BasketAssetInput::class)]
@@ -38,39 +36,13 @@ class BasketAssetInputMapper extends AbstractInputMapper implements InputMapperI
      *
      * @throws BadRequestHttpException when the clip does not apply to the asset source
      */
-    public static function applyClip(BasketAsset $basketAsset, ?BasketClipInput $input): void
+    public static function applyClip(BasketAsset $basketAsset, ?MediaClipInput $input): void
     {
-        $clip = BasketClip::fromArray($input?->toArray());
+        $clip = MediaClip::fromArray($input?->toArray());
         if (null !== $clip) {
-            $mimeType = $basketAsset->getAsset()->getSource()?->getType();
-            if (null === $mimeType) {
-                throw new BadRequestHttpException('The asset has no source file to clip');
-            }
-            if ($clip->hasTimeRange() && !ClipFamily::acceptsTimeRange($mimeType)) {
-                throw new BadRequestHttpException(sprintf('A time range only applies to a video or an audio file, not to "%s"', $mimeType));
-            }
-            if ($clip->hasCrop() && !ClipFamily::acceptsCrop($mimeType)) {
-                throw new BadRequestHttpException(sprintf('A crop only applies to an image or a video file, not to "%s"', $mimeType));
-            }
+            ClipFamily::assertApplicable($clip, $basketAsset->getAsset()->getSource()?->getType());
         }
 
         $basketAsset->setClip($clip?->toArray());
-    }
-
-    /**
-     * Whether the key was sent, null included (a merge patch removes a value with null).
-     */
-    private static function hasKey(string $key, mixed $value, array $context): bool
-    {
-        $request = $context['request'] ?? null;
-        if (!$request instanceof Request) {
-            return null !== $value;
-        }
-
-        try {
-            return array_key_exists($key, $request->toArray());
-        } catch (JsonException) {
-            return null !== $value;
-        }
     }
 }

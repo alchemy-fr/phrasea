@@ -16,10 +16,11 @@ use App\Integration\Phrasea\Expose\Sync\AssetToSync;
 use App\Integration\Phrasea\Expose\Sync\ExposeAsset;
 use App\Integration\Phrasea\Expose\Sync\ExposeSubDefinition;
 use App\Integration\PusherTrait;
-use App\Model\BasketClip;
+use App\Model\MediaClip;
 use App\Repository\Integration\IntegrationTokenRepository;
 use App\Service\Clip\ClipException;
 use App\Service\Clip\ClipFamily;
+use App\Service\Clip\ClipResolver;
 use App\Service\Storage\RenditionManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Lock\LockInterface;
@@ -58,7 +59,7 @@ final class ExposeSynchronizer
             throw new MissingIntegrationTokenException($basketData->getUserId(), ExposeIntegration::getDisplayName(), 'Your Expose access has expired: the basket synchronization was stopped. Please authenticate again from the Expose integration panel and run a synchronization.');
         }
 
-        $publicationId = $basketData->getValue();
+        ['id' => $publicationId, 'ignoreRoi' => $ignoreRoi] = ExposeIntegration::readPublicationData($basketData);
         $data = $this->exposeClient->getPublication($config, $token, $publicationId);
 
         /** @var ExposeAsset[] $exposeAssets */
@@ -136,7 +137,7 @@ final class ExposeSynchronizer
             $asset = $basketAsset->getAsset();
             $source = $asset->getSource();
             $fileId = $source->getId();
-            $basketClip = $basketAsset->getBasketClip();
+            $basketClip = ClipResolver::forBasketAsset($basketAsset, $ignoreRoi);
             $sourceClip = ClipFamily::restrict($basketClip, $source->getType());
             $clipHash = $sourceClip?->getHash();
 
@@ -279,7 +280,7 @@ final class ExposeSynchronizer
     /**
      * @return string|null the Expose asset id, null when the clipped file could not be produced
      */
-    private function postAsset(IntegrationConfig $config, IntegrationToken $token, string $publicationId, BasketAsset $basketAsset, array $assetProperties, ?BasketClip $clip): ?string
+    private function postAsset(IntegrationConfig $config, IntegrationToken $token, string $publicationId, BasketAsset $basketAsset, array $assetProperties, ?MediaClip $clip): ?string
     {
         try {
             return $this->exposeClient->postAsset($config, $token, $publicationId, $basketAsset->getAsset(), $assetProperties, $clip);

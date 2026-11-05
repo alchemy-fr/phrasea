@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import {type ReactNode, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     MaximizeIcon,
@@ -47,6 +47,7 @@ export function ZoomableImage({
     className,
     onInteraction,
     onContentClick,
+    overlay,
 }: {
     src: string;
     alt: string;
@@ -54,6 +55,11 @@ export function ZoomableImage({
     onInteraction?: () => void;
     /** A click on the image, not ending a drag nor on the toolbar */
     onContentClick?: () => void;
+    /**
+     * Drawn over the image, in a box following its zoom and rotation (the
+     * region of interest of the asset)
+     */
+    overlay?: ReactNode;
 }) {
     const {t} = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -315,6 +321,25 @@ export function ZoomableImage({
                     }}
                 />
             </div>
+            {overlay && imageBox ? (
+                <div
+                    data-testid="roi-overlay"
+                    className={cn(
+                        'pointer-events-none absolute',
+                        moving && 'will-change-transform',
+                        animated && 'transition-transform duration-200 ease-out'
+                    )}
+                    style={{
+                        left: imageBox.left,
+                        top: imageBox.top,
+                        width: imageBox.width,
+                        height: imageBox.height,
+                        transform,
+                    }}
+                >
+                    {overlay}
+                </div>
+            ) : null}
             {annotations.layer && imageBox ? (
                 // Same box and transform as the image: the shapes follow it
                 <div

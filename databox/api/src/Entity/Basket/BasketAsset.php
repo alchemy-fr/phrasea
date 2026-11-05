@@ -19,7 +19,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Traits\AssetAnnotationsTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
-use App\Model\BasketClip;
+use App\Model\MediaClip;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -110,12 +110,14 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
     }
 
     /**
-     * @return array{timeRange?: array{s: float, e: float}, crop?: array{x: float, y: float, w: float, h: float}}|null
+     * The clip of the item, normalized (the former single range format included).
+     *
+     * @return array{timeRanges?: list<array{s: float, e: float}>, crop?: array{x: float, y: float, w: float, h: float}}|null
      */
     #[Groups([self::GROUP_LIST])]
     public function getClip(): ?array
     {
-        return $this->context['clip'] ?? null;
+        return $this->getMediaClip()?->toArray();
     }
 
     public function setClip(?array $clip): void
@@ -129,9 +131,14 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
         $this->context = $context;
     }
 
-    public function getBasketClip(): ?BasketClip
+    /**
+     * The clip of the item itself, regardless of the region of interest of its asset.
+     */
+    public function getMediaClip(): ?MediaClip
     {
-        return BasketClip::fromArray($this->getClip());
+        $clip = $this->context['clip'] ?? null;
+
+        return is_array($clip) ? MediaClip::fromArray($clip) : null;
     }
 
     public function getPosition(): ?int

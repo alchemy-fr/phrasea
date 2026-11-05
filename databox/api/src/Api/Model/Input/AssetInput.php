@@ -77,4 +77,12 @@ class AssetInput extends AbstractOwnerIdInput
      * Story creation only: ID of the asset (one of storyAssets) whose source file becomes the story cover.
      */
     public ?string $storyCover = null;
+
+    /**
+     * Region of interest of the source file (time ranges of a video or an audio, crop of an image
+     * or a video): `null` or `{}` remove it, an omitted key leaves it unchanged.
+     * Removed when the source file changes, unless given in the same request.
+     */
+    #[Assert\Valid]
+    public ?MediaClipInput $roi = null;
 }

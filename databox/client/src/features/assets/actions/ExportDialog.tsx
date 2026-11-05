@@ -3,7 +3,7 @@
 import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQueries, useQuery} from '@tanstack/react-query';
-import {DownloadIcon, ScissorsIcon} from 'lucide-react';
+import {DownloadIcon} from 'lucide-react';
 import type {Asset, RenditionDefinition, Workspace} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
@@ -17,6 +17,7 @@ import {TermsContent} from '@/features/share/ShareTerms';
 import {useExportStore} from '@/features/assets/exportStore';
 import {downloadUrl} from '@/lib/utils/misc';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
+import {effectiveClip, hasClip} from '@/features/clip/clip';
 
 async function getAllRenditionDefinitions(
     workspaceIds: string[]
@@ -35,6 +36,7 @@ export function ExportDialog({
 }: ModalProps<string[]> & {assets: Asset[]}) {
     const {t} = useTranslation();
     const [selected, setSelected] = useState<string[]>([]);
+    const [ignoreRoi, setIgnoreRoi] = useState(false);
     const [acceptedTerms, setAcceptedTerms] = useState<Record<string, boolean>>(
         {}
     );
@@ -43,13 +45,14 @@ export function ExportDialog({
         () => [...new Set(assets.map(a => a.workspace.id))],
         [assets]
     );
-    // Basket items are exported as such: their clip applies to the files
+    // Basket items are exported as such: their clip applies to the files,
+    // in place of the region of interest of their asset
     const basketItemIds = assets.every(a => !!a.basketItemId)
         ? assets.map(a => a.basketItemId!)
         : undefined;
-    const hasClips =
-        !!basketItemIds &&
-        assets.some(a => a.basketClip?.timeRange || a.basketClip?.crop);
+    const hasClips = assets.some(a =>
+        hasClip(basketItemIds ? effectiveClip(a) : a.roi)
+    );
 
     const definitions = useQuery({
         queryKey: ['rendition-definitions', 'export', workspaceIds],
@@ -111,6 +114,7 @@ export function ExportDialog({
                 ? {basketAssets: basketItemIds}
                 : {assets: assets.map(a => a.id)}),
             renditions: selected,
+            ...(hasClips && ignoreRoi ? {ignoreRoi: true} : {}),
         });
         addExport(exp);
         track(
@@ -145,16 +149,26 @@ export function ExportDialog({
         >
             {definitions.isLoading ? <InlineLoader /> : null}
             {hasClips ? (
-                <p
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
-                    data-testid="export-basket-clips"
-                >
-                    <ScissorsIcon className="size-4 shrink-0" />
-                    {t(
-                        'export.dialog.basket_clips_applied',
-                        'The extracts of the basket items are applied: the exported files are cut and cropped.'
-                    )}
-                </p>
+                <div className="space-y-1">
+                    <LabeledControl
+                        label={t(
+                            'export.dialog.ignore_roi',
+                            'Export the whole files (ignore the regions of interest and the extracts)'
+                        )}
+                    >
+                        <Checkbox
+                            checked={ignoreRoi}
+                            onCheckedChange={v => setIgnoreRoi(v === true)}
+                            data-testid="export-ignore-roi"
+                        />
+                    </LabeledControl>
+                    <p className="text-xs text-muted-foreground">
+                        {t(
+                            'export.dialog.roi_applied',
+                            'By default, the regions of interest of the assets, and the extracts of the basket items in their place, are applied: the exported files are cut and cropped.'
+                        )}
+                    </p>
+                </div>
             ) : null}
             {Object.entries(byWorkspace).map(([wsId, {name, defs}]) => (
                 <div key={wsId}>

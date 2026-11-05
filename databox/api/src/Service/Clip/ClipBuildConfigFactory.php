@@ -20,10 +20,11 @@ use Alchemy\RenditionFactory\Transformer\Video\Format\OgvFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\QuicktimeFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\WavFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\WebmFormat;
-use App\Model\BasketClip;
+use App\Model\MediaClip;
 
 /**
- * Builds the rendition build config cutting a file to a basket clip.
+ * Builds the rendition build config cutting a file to a clip of one time range at most
+ * (MediaClipper cuts the ranges one by one before concatenating them).
  */
 final readonly class ClipBuildConfigFactory
 {
@@ -43,8 +44,12 @@ final readonly class ClipBuildConfigFactory
     /**
      * @return BuildConfig|null null when nothing has to be done
      */
-    public function create(FamilyEnum $family, string $mimeType, ?BasketClip $clip, ?VideoProbe $probe = null): ?BuildConfig
+    public function create(FamilyEnum $family, string $mimeType, ?MediaClip $clip, ?VideoProbe $probe = null): ?BuildConfig
     {
+        if (null !== $clip && count($clip->getTimeRanges()) > 1) {
+            throw new \InvalidArgumentException(sprintf('A build config cuts a single time range, %d given', count($clip->getTimeRanges())));
+        }
+
         $clip = $clip?->forFamily($family);
         if (null === $clip) {
             return null;
@@ -58,7 +63,7 @@ final readonly class ClipBuildConfigFactory
         };
     }
 
-    private function createVideoOptions(string $mimeType, BasketClip $clip, ?VideoProbe $probe): array
+    private function createVideoOptions(string $mimeType, MediaClip $clip, ?VideoProbe $probe): array
     {
         $filters = [];
         if ($clip->hasTimeRange()) {
@@ -105,7 +110,7 @@ final readonly class ClipBuildConfigFactory
         return $options;
     }
 
-    private function createAudioOptions(string $mimeType, BasketClip $clip): array
+    private function createAudioOptions(string $mimeType, MediaClip $clip): array
     {
         [$start, $duration] = self::getTimeRange($clip, null);
         [$format, $extension] = self::getAudioFormat($mimeType);
@@ -123,7 +128,7 @@ final readonly class ClipBuildConfigFactory
         ];
     }
 
-    private function createImageOptions(string $mimeType, BasketClip $clip): array
+    private function createImageOptions(string $mimeType, MediaClip $clip): array
     {
         $format = ImageFormatGuesser::getFormat($mimeType);
         if (null === $format || 'svg' === $format) {
@@ -178,10 +183,11 @@ final readonly class ClipBuildConfigFactory
     /**
      * @return array{float, float} the start and the duration, bounded to the media duration when known
      */
-    private static function getTimeRange(BasketClip $clip, ?float $mediaDuration): array
+    private static function getTimeRange(MediaClip $clip, ?float $mediaDuration): array
     {
-        $start = max(0.0, $clip->start);
-        $end = $clip->end;
+        $range = $clip->getTimeRanges()[0];
+        $start = max(0.0, $range['s']);
+        $end = $range['e'];
         if (null !== $mediaDuration && $mediaDuration > 0) {
             $end = min($end, $mediaDuration);
         }

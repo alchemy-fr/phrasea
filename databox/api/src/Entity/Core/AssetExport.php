@@ -83,7 +83,8 @@ class AssetExport extends AbstractUuidEntity
     private ?array $assets = null;
 
     /**
-     * Basket item IDs, in place of the assets: their clip is applied to the exported files.
+     * Basket item IDs, in place of the assets: their clip (or else the region of interest
+     * of their asset) is applied to the exported files.
      *
      * @var string[]|null
      */
@@ -101,6 +102,13 @@ class AssetExport extends AbstractUuidEntity
     #[Assert\Count(min: 1)]
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $renditions = null;
+
+    /**
+     * Export the whole files: the regions of interest of the assets and the clips of the basket items are ignored.
+     */
+    #[Groups(self::GROUP_WRITE)]
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $ignoreRoi = false;
 
     #[Groups(self::GROUP_READ)]
     public ?string $downloadUrl = null;
@@ -146,6 +154,16 @@ class AssetExport extends AbstractUuidEntity
     public function setRenditions(?array $renditions): void
     {
         $this->renditions = $renditions;
+    }
+
+    public function isIgnoreRoi(): bool
+    {
+        return $this->ignoreRoi;
+    }
+
+    public function setIgnoreRoi(bool $ignoreRoi): void
+    {
+        $this->ignoreRoi = $ignoreRoi;
     }
 
     public function getUserData(): UserData

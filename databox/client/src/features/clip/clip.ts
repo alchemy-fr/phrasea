@@ -1,12 +1,16 @@
 import type {CSSProperties} from 'react';
 import {FileFamily, getFileFamily} from '@/lib/utils/mime';
 import {formatDuration} from '@/lib/utils/format';
+import type {Asset} from '@/types/api';
 import type {
-    BasketClip,
     ClipCapabilities,
     ClipCrop,
     ClipTimeRange,
+    MediaClip,
 } from './types';
+
+/** Same limit as the API */
+export const MAX_TIME_RANGES = 50;
 
 /**
  * Same rules as the API (`ClipFamily`): a time range applies to videos and
@@ -34,26 +38,40 @@ export function isClipApplicable(mimeType: string | undefined): boolean {
 }
 
 /**
+ * The clip displayed for an asset: the extract of the basket item it is
+ * shown for, which replaces the region of interest of the asset.
+ */
+export function effectiveClip(
+    asset: Pick<Asset, 'basketClip' | 'roi'>
+): MediaClip | undefined {
+    return asset.basketClip ?? asset.roi ?? undefined;
+}
+
+export function hasClip(clip: MediaClip | null | undefined): boolean {
+    return !!clip?.timeRanges?.length || !!clip?.crop;
+}
+
+/**
  * The part of the clip that applies to a file of the given type (the image
  * thumbnail of a video only gets the crop).
  */
 export function clipForFile(
-    clip: BasketClip | null | undefined,
+    clip: MediaClip | null | undefined,
     mimeType: string | undefined
-): BasketClip | undefined {
+): MediaClip | undefined {
     if (!clip) {
         return undefined;
     }
     const capabilities = getClipCapabilities(mimeType);
-    const applied: BasketClip = {};
-    if (capabilities.timeRange && clip.timeRange) {
-        applied.timeRange = clip.timeRange;
+    const applied: MediaClip = {};
+    if (capabilities.timeRange && clip.timeRanges?.length) {
+        applied.timeRanges = clip.timeRanges;
     }
     if (capabilities.crop && clip.crop) {
         applied.crop = clip.crop;
     }
 
-    return applied.timeRange || applied.crop ? applied : undefined;
+    return hasClip(applied) ? applied : undefined;
 }
 
 function formatTime(seconds: number): string {
@@ -65,6 +83,16 @@ function formatTime(seconds: number): string {
 /** `00:12–00:30` */
 export function formatClipRange({s, e}: ClipTimeRange): string {
     return `${formatTime(s)}–${formatTime(e)}`;
+}
+
+/** The first range, and how many others: `00:12–00:30 +2` */
+export function formatClipRanges(ranges: ClipTimeRange[]): string {
+    if (ranges.length === 0) {
+        return '';
+    }
+    const first = formatClipRange(ranges[0]);
+
+    return ranges.length > 1 ? `${first} +${ranges.length - 1}` : first;
 }
 
 /** `mm:ss.t`, the format of the time fields */
@@ -104,6 +132,30 @@ export function isInRange(time: number, range: ClipTimeRange): boolean {
     return time >= range.s && time < range.e;
 }
 
+/** Index of the range the time is in, -1 when in none */
+export function rangeIndexAt(time: number, ranges: ClipTimeRange[]): number {
+    return ranges.findIndex(r => isInRange(time, r));
+}
+
+/**
+ * Where the playback of sorted ranges goes from a time out of them: the
+ * start of the next range, or, after the last one (`ended`), the start of
+ * the first one. Undefined when the time is in a range.
+ */
+export function clipPlaybackTarget(
+    time: number,
+    ranges: ClipTimeRange[]
+): {time: number; ended: boolean} | undefined {
+    if (ranges.length === 0 || rangeIndexAt(time, ranges) >= 0) {
+        return undefined;
+    }
+    const next = ranges.find(r => r.s > time);
+
+    return next
+        ? {time: next.s, ended: false}
+        : {time: ranges[0].s, ended: true};
+}
+
 const round = (n: number, digits: number) => {
     const f = 10 ** digits;
 
@@ -111,27 +163,55 @@ const round = (n: number, digits: number) => {
 };
 
 /**
- * The clip as sent to the API: values rounded and bounded, empty parts
- * dropped; null when nothing is left.
+ * Same normalization as the API: values rounded and bounded, empty ranges
+ * dropped, ranges sorted, overlapping or contiguous ones merged.
  */
-export function normalizeClip(
-    clip: BasketClip | null | undefined,
+export function normalizeTimeRanges(
+    ranges: ClipTimeRange[] | undefined,
     duration?: number
-): BasketClip | null {
-    if (!clip) {
-        return null;
-    }
-    const normalized: BasketClip = {};
-
-    if (clip.timeRange) {
-        const s = round(Math.max(0, clip.timeRange.s), 2);
-        let e = round(clip.timeRange.e, 2);
+): ClipTimeRange[] {
+    const bounded: ClipTimeRange[] = [];
+    for (const range of ranges ?? []) {
+        const s = round(Math.max(0, range.s), 2);
+        let e = round(range.e, 2);
         if (duration !== undefined && duration > 0) {
             e = Math.min(e, round(duration, 2));
         }
         if (e > s) {
-            normalized.timeRange = {s, e};
+            bounded.push({s, e});
         }
+    }
+    bounded.sort((a, b) => a.s - b.s || a.e - b.e);
+
+    const merged: ClipTimeRange[] = [];
+    for (const range of bounded) {
+        const last = merged[merged.length - 1];
+        if (last && range.s <= last.e) {
+            last.e = Math.max(last.e, range.e);
+        } else {
+            merged.push({...range});
+        }
+    }
+
+    return merged.slice(0, MAX_TIME_RANGES);
+}
+
+/**
+ * The clip as sent to the API: values rounded and bounded, empty parts
+ * dropped; null when nothing is left.
+ */
+export function normalizeClip(
+    clip: MediaClip | null | undefined,
+    duration?: number
+): MediaClip | null {
+    if (!clip) {
+        return null;
+    }
+    const normalized: MediaClip = {};
+
+    const timeRanges = normalizeTimeRanges(clip.timeRanges, duration);
+    if (timeRanges.length > 0) {
+        normalized.timeRanges = timeRanges;
     }
 
     if (clip.crop) {
@@ -145,12 +225,12 @@ export function normalizeClip(
         }
     }
 
-    return normalized.timeRange || normalized.crop ? normalized : null;
+    return hasClip(normalized) ? normalized : null;
 }
 
 export function isSameClip(
-    a: BasketClip | null | undefined,
-    b: BasketClip | null | undefined
+    a: MediaClip | null | undefined,
+    b: MediaClip | null | undefined
 ): boolean {
     return (
         JSON.stringify(normalizeClip(a)) === JSON.stringify(normalizeClip(b))

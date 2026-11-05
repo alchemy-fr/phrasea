@@ -6,7 +6,7 @@ namespace App\Tests\Unit\Service\Clip;
 
 use Alchemy\RenditionFactory\DTO\BuildConfig\BuildConfig;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use App\Model\BasketClip;
+use App\Model\MediaClip;
 use App\Service\Clip\ClipBuildConfigFactory;
 use App\Service\Clip\VideoProbe;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 class ClipBuildConfigFactoryTest extends TestCase
 {
-    private const array RANGE = ['timeRange' => ['s' => 12, 'e' => 30.5]];
+    private const array RANGE = ['timeRanges' => [['s' => 12, 'e' => 30.5]]];
     private const array CROP = ['crop' => ['x' => 0.1, 'y' => 0.2, 'w' => 0.5, 'h' => 0.5]];
 
     public function testVideoClipStartsWithPreClipThenCrops(): void
@@ -170,7 +170,7 @@ class ClipBuildConfigFactoryTest extends TestCase
 
     public function testCropOnlyAudioIsANoop(): void
     {
-        $this->assertNull(new ClipBuildConfigFactory()->create(FamilyEnum::Audio, 'audio/mpeg', BasketClip::fromArray(self::CROP)));
+        $this->assertNull(new ClipBuildConfigFactory()->create(FamilyEnum::Audio, 'audio/mpeg', MediaClip::fromArray(self::CROP)));
     }
 
     public function testImageClipIgnoresTheRange(): void
@@ -197,13 +197,13 @@ class ClipBuildConfigFactoryTest extends TestCase
 
     public function testRangeOnlyImageIsANoop(): void
     {
-        $this->assertNull(new ClipBuildConfigFactory()->create(FamilyEnum::Image, 'image/jpeg', BasketClip::fromArray(self::RANGE)));
+        $this->assertNull(new ClipBuildConfigFactory()->create(FamilyEnum::Image, 'image/jpeg', MediaClip::fromArray(self::RANGE)));
     }
 
     #[DataProvider('provideNoopFamilies')]
     public function testOtherFamiliesAreANoop(FamilyEnum $family): void
     {
-        $this->assertNull(new ClipBuildConfigFactory()->create($family, 'application/octet-stream', BasketClip::fromArray(self::RANGE + self::CROP)));
+        $this->assertNull(new ClipBuildConfigFactory()->create($family, 'application/octet-stream', MediaClip::fromArray(self::RANGE + self::CROP)));
     }
 
     public static function provideNoopFamilies(): iterable
@@ -213,15 +213,30 @@ class ClipBuildConfigFactoryTest extends TestCase
         yield 'unknown' => [FamilyEnum::Unknown];
     }
 
+    public function testLegacySingleRangeIsRead(): void
+    {
+        $options = $this->createOptions(FamilyEnum::Audio, 'audio/mpeg', ['timeRange' => ['s' => 1, 'e' => 3]], null, 'ffmpeg');
+
+        $this->assertSame([['name' => 'clip', 'start' => 1.0, 'duration' => 2.0]], $options['filters']);
+    }
+
+    public function testSeveralRangesAreRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new ClipBuildConfigFactory()->create(FamilyEnum::Video, 'video/mp4', MediaClip::fromArray([
+            'timeRanges' => [['s' => 1, 'e' => 2], ['s' => 5, 'e' => 6]],
+        ]), new VideoProbe(640, 360, duration: 10.0));
+    }
+
     public function testNoClipIsANoop(): void
     {
         $this->assertNull(new ClipBuildConfigFactory()->create(FamilyEnum::Video, 'video/mp4', null));
-        $this->assertNull(new ClipBuildConfigFactory()->create(FamilyEnum::Video, 'video/mp4', BasketClip::fromArray([])));
+        $this->assertNull(new ClipBuildConfigFactory()->create(FamilyEnum::Video, 'video/mp4', MediaClip::fromArray([])));
     }
 
     private function createOptions(FamilyEnum $family, string $mimeType, array $clip, ?VideoProbe $probe, string $expectedModule): array
     {
-        $buildConfig = new ClipBuildConfigFactory()->create($family, $mimeType, BasketClip::fromArray($clip), $probe);
+        $buildConfig = new ClipBuildConfigFactory()->create($family, $mimeType, MediaClip::fromArray($clip), $probe);
         $this->assertInstanceOf(BuildConfig::class, $buildConfig);
 
         $familyConfig = $buildConfig->getFamily($family);

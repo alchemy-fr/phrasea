@@ -29,12 +29,12 @@ final class UpdateBasketAssetProcessor implements ProcessorInterface
             throw new \LogicException('The basket item is expected to be read by the provider');
         }
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $target->getBasket());
-        $previousHash = $target->getBasketClip()?->getHash();
+        $previousHash = $target->getMediaClip()?->getHash();
 
         $basketAsset = $this->inputMapperProcessor->process($data, $operation, $uriVariables, $context);
 
         // The integrations (Expose) publish the clipped files: synchronize them when the clip changes
-        if ($basketAsset instanceof BasketAsset && $basketAsset->getBasketClip()?->getHash() !== $previousHash) {
+        if ($basketAsset instanceof BasketAsset && $basketAsset->getMediaClip()?->getHash() !== $previousHash) {
             $this->bus->dispatch(new BasketUpdate($basketAsset->getBasket()->getId()));
         }
 

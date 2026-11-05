@@ -2,20 +2,27 @@ import {describe, expect, it} from 'vitest';
 import {
     clampToRange,
     clipForFile,
+    clipPlaybackTarget,
     cropAspect,
     cropFrameStyle,
+    effectiveClip,
     formatClipRange,
+    formatClipRanges,
     formatClipTime,
     getClipCapabilities,
     isClipApplicable,
     isSameClip,
+    MAX_TIME_RANGES,
     normalizeClip,
+    normalizeTimeRanges,
     parseClipTime,
+    rangeIndexAt,
 } from './clip';
 import {constrainedBox, fitCropToRatio} from './CropRectEditor';
 
 const crop = {x: 0.1, y: 0.2, w: 0.5, h: 0.25};
 const timeRange = {s: 12, e: 30.5};
+const timeRanges = [timeRange];
 
 describe('clip capabilities', () => {
     it('follows the API rules', () => {
@@ -41,15 +48,28 @@ describe('clip capabilities', () => {
     });
 
     it('keeps the parts that apply to a file', () => {
-        const clip = {timeRange, crop};
+        const clip = {timeRanges, crop};
         expect(clipForFile(clip, 'video/mp4')).toEqual(clip);
-        expect(clipForFile(clip, 'audio/mpeg')).toEqual({timeRange});
+        expect(clipForFile(clip, 'audio/mpeg')).toEqual({timeRanges});
         // The image thumbnail of a video
         expect(clipForFile(clip, 'image/jpeg')).toEqual({crop});
-        expect(clipForFile({timeRange}, 'image/jpeg')).toBeUndefined();
+        expect(clipForFile({timeRanges}, 'image/jpeg')).toBeUndefined();
+        expect(clipForFile({timeRanges: []}, 'video/mp4')).toBeUndefined();
         expect(clipForFile(clip, 'application/pdf')).toBeUndefined();
         expect(clipForFile(undefined, 'video/mp4')).toBeUndefined();
         expect(clipForFile(null, 'video/mp4')).toBeUndefined();
+    });
+});
+
+describe('effective clip', () => {
+    it('prefers the extract of the basket item to the region of interest', () => {
+        const roi = {crop};
+        const basketClip = {timeRanges};
+        expect(effectiveClip({roi})).toBe(roi);
+        expect(effectiveClip({roi, basketClip})).toBe(basketClip);
+        expect(effectiveClip({basketClip})).toBe(basketClip);
+        expect(effectiveClip({roi: null})).toBeUndefined();
+        expect(effectiveClip({})).toBeUndefined();
     });
 });
 
@@ -57,6 +77,33 @@ describe('clip times', () => {
     it('formats the range', () => {
         expect(formatClipRange(timeRange)).toBe('00:12–00:31');
         expect(formatClipRange({s: 3600, e: 3725})).toBe('01:00:00–01:02:05');
+    });
+
+    it('formats several ranges', () => {
+        expect(formatClipRanges([])).toBe('');
+        expect(formatClipRanges(timeRanges)).toBe('00:12–00:31');
+        expect(
+            formatClipRanges([timeRange, {s: 40, e: 50}, {s: 60, e: 70}])
+        ).toBe('00:12–00:31 +2');
+    });
+
+    it('finds where the playback of the ranges goes', () => {
+        const ranges = [
+            {s: 2, e: 4},
+            {s: 10, e: 12},
+        ];
+        expect(rangeIndexAt(3, ranges)).toBe(0);
+        expect(rangeIndexAt(4, ranges)).toBe(-1);
+        expect(rangeIndexAt(11, ranges)).toBe(1);
+
+        expect(clipPlaybackTarget(3, ranges)).toBeUndefined();
+        expect(clipPlaybackTarget(0, ranges)).toEqual({time: 2, ended: false});
+        expect(clipPlaybackTarget(4, ranges)).toEqual({
+            time: 10,
+            ended: false,
+        });
+        expect(clipPlaybackTarget(12, ranges)).toEqual({time: 2, ended: true});
+        expect(clipPlaybackTarget(5, [])).toBeUndefined();
     });
 
     it('formats and parses the time fields', () => {
@@ -87,7 +134,8 @@ describe('normalizeClip', () => {
     it('drops the empty clips', () => {
         expect(normalizeClip(null)).toBeNull();
         expect(normalizeClip({})).toBeNull();
-        expect(normalizeClip({timeRange: {s: 5, e: 5}})).toBeNull();
+        expect(normalizeClip({timeRanges: [{s: 5, e: 5}]})).toBeNull();
+        expect(normalizeClip({timeRanges: []})).toBeNull();
         expect(normalizeClip({crop: {x: 0, y: 0, w: 1, h: 1}})).toBeNull();
         expect(
             normalizeClip({crop: {x: 0.2, y: 0.2, w: 0, h: 0.5}})
@@ -98,25 +146,74 @@ describe('normalizeClip', () => {
         expect(
             normalizeClip(
                 {
-                    timeRange: {s: -1, e: 99.999},
+                    timeRanges: [{s: -1, e: 99.999}],
                     crop: {x: 0.123456, y: 0.5, w: 0.9, h: 0.6},
                 },
                 60
             )
         ).toEqual({
-            timeRange: {s: 0, e: 60},
+            timeRanges: [{s: 0, e: 60}],
             crop: {x: 0.1235, y: 0.5, w: 0.8765, h: 0.5},
         });
+    });
+
+    it('sorts and merges the ranges', () => {
+        expect(
+            normalizeTimeRanges([
+                {s: 50, e: 60},
+                {s: 10, e: 20},
+                {s: 15, e: 25},
+                {s: 25, e: 30},
+                {s: 52, e: 55},
+                {s: 40, e: 40},
+                {s: 70, e: 90},
+            ])
+        ).toEqual([
+            {s: 10, e: 30},
+            {s: 50, e: 60},
+            {s: 70, e: 90},
+        ]);
+        // Bounded to the duration
+        expect(
+            normalizeTimeRanges(
+                [
+                    {s: 5, e: 8},
+                    {s: 70, e: 90},
+                ],
+                60
+            )
+        ).toEqual([{s: 5, e: 8}]);
+        const many = Array.from({length: MAX_TIME_RANGES + 5}, (_, i) => ({
+            s: i * 10,
+            e: i * 10 + 1,
+        }));
+        expect(normalizeTimeRanges(many)).toHaveLength(MAX_TIME_RANGES);
     });
 
     it('compares clips by value', () => {
         expect(
             isSameClip(
-                {timeRange: {s: 1, e: 2.0001}},
-                {timeRange: {s: 1, e: 2}}
+                {timeRanges: [{s: 1, e: 2.0001}]},
+                {timeRanges: [{s: 1, e: 2}]}
             )
         ).toBe(true);
-        expect(isSameClip({timeRange: {s: 1, e: 2}}, null)).toBe(false);
+        expect(
+            isSameClip(
+                {
+                    timeRanges: [
+                        {s: 5, e: 6},
+                        {s: 1, e: 2},
+                    ],
+                },
+                {
+                    timeRanges: [
+                        {s: 1, e: 2},
+                        {s: 5, e: 6},
+                    ],
+                }
+            )
+        ).toBe(true);
+        expect(isSameClip({timeRanges: [{s: 1, e: 2}]}, null)).toBe(false);
         expect(isSameClip({}, null)).toBe(true);
     });
 });

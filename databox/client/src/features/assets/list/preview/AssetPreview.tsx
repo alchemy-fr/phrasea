@@ -7,6 +7,7 @@ import {AttributeList} from '@/features/attributes/AttributeList';
 import {cn} from '@/lib/utils/cn';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {getContentTracking} from '@/lib/analytics/useContentTracking';
+import {effectiveClip} from '@/features/clip/clip';
 
 /**
  * Player and pinned attributes of an asset, side by side as set in the
@@ -43,7 +44,7 @@ export function AssetPreview({
                         autoPlay={display.playVideos}
                         controls={interactive}
                         fit="contain"
-                        clip={asset.basketClip}
+                        clip={effectiveClip(asset)}
                         // Video playback only: hovering over an asset is
                         // not an impression of it
                         tracking={

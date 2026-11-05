@@ -141,6 +141,7 @@ function ExposeIntegration({
         enabled: true,
         parent: '',
         profile: '',
+        ignoreRoi: false,
     });
     const [progress, setProgress] = useState<
         Record<string, {status: string; done?: number; total?: number}>
@@ -213,6 +214,21 @@ function ExposeIntegration({
                             <span className="flex-1 font-medium">
                                 {v.title ?? v.slug ?? s.keyId}
                             </span>
+                            {v.ignoreRoi ? (
+                                <Badge
+                                    variant="muted"
+                                    data-testid="expose-whole-files"
+                                    title={t(
+                                        'integrations.expose.whole_files_help',
+                                        'The regions of interest and the extracts are not applied to this publication'
+                                    )}
+                                >
+                                    {t(
+                                        'integrations.expose.whole_files',
+                                        'Whole files'
+                                    )}
+                                </Badge>
+                            ) : null}
                             {v.url ? (
                                 <Button variant="ghost" size="icon-xs" asChild>
                                     <a
@@ -361,6 +377,20 @@ function ExposeIntegration({
                             }
                         />
                     </LabeledControl>
+                    <LabeledControl
+                        label={t(
+                            'integrations.expose.ignore_roi',
+                            'Publish the whole files (ignore the regions of interest and the extracts)'
+                        )}
+                    >
+                        <Checkbox
+                            checked={form.ignoreRoi}
+                            onCheckedChange={v =>
+                                setForm({...form, ignoreRoi: v === true})
+                            }
+                            data-testid="expose-ignore-roi"
+                        />
+                    </LabeledControl>
                     <div className="flex justify-end gap-2">
                         <Button
                             variant="ghost"
@@ -373,6 +403,8 @@ function ExposeIntegration({
                             size="sm"
                             onClick={async () => {
                                 await run('sync', {
+                                    // Fixed for the life of the publication
+                                    ignoreRoi: form.ignoreRoi,
                                     publication: {
                                         title: form.title,
                                         slug: form.slug || undefined,

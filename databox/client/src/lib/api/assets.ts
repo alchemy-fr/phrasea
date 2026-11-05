@@ -16,6 +16,7 @@ import {
     Facets,
     HydraCollection,
     MatomoMediaMetrics,
+    MediaClip,
     Page,
     SearchSuggestion,
 } from '@/types/api';
@@ -402,6 +403,8 @@ export type AssetInput = {
     sourceFileId?: string;
     multipart?: MultipartUpload;
     sourceFile?: SourceFileInput;
+    /** Region of interest of the source file: `null` removes it */
+    roi?: MediaClip | null;
     attributes?: AttributeBatchAction[];
     relationship?: {
         source: string;

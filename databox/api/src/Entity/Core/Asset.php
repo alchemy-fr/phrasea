@@ -85,6 +85,7 @@ use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
+use App\Model\MediaClip;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameFiller;
@@ -602,6 +603,13 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
     #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: AssetStatusEnum::class)]
     private ?AssetStatusEnum $status = null;
 
+    /**
+     * Region of interest: time ranges and/or crop of the source file (see MediaClip),
+     * applied to the display, the exports and the publications. Removed when the source changes.
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $roi = null;
+
     public ?GroupValue $groupValue = null;
     public ?AttributeIndex $attributesIndex = null;
 
@@ -640,6 +648,21 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         }
 
         $this->workspace = $workspace;
+    }
+
+    public function getRoi(): ?array
+    {
+        return $this->roi;
+    }
+
+    public function setRoi(?array $roi): void
+    {
+        $this->roi = empty($roi) ? null : $roi;
+    }
+
+    public function getMediaClip(): ?MediaClip
+    {
+        return MediaClip::fromArray($this->roi);
     }
 
     public function getSource(): ?File

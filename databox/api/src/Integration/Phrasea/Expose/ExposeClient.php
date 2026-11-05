@@ -17,7 +17,7 @@ use App\Entity\Integration\IntegrationToken;
 use App\Http\LocaleContext;
 use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
-use App\Model\BasketClip;
+use App\Model\MediaClip;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
@@ -228,7 +228,7 @@ final readonly class ExposeClient
         string $publicationId,
         Asset $asset,
         array $properties,
-        ?BasketClip $clip = null,
+        ?MediaClip $clip = null,
     ): string {
         $source = $asset->getSource();
         $fetchedFilePath = $this->fileFetcher->getFile($source);
@@ -285,7 +285,7 @@ final readonly class ExposeClient
         string $renditionName,
         AssetRendition $rendition,
         array $extraData = [],
-        ?BasketClip $clip = null,
+        ?MediaClip $clip = null,
     ): void {
         $file = $rendition->getFile();
         $subDefFetchedFile = $this->fileFetcher->getFile($file);

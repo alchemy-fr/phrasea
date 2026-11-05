@@ -552,7 +552,9 @@ export interface Asset
      * Client side only: the clip of the basket item this asset is displayed
      * for, applied when the asset is played or shown.
      */
-    basketClip?: BasketClip;
+    basketClip?: MediaClip;
+    /** Region of interest: applied by default when the asset is shown, published or exported */
+    roi?: MediaClip | null;
     description?: string;
     privacy: Privacy;
     tags?: Tag[];
@@ -627,18 +629,21 @@ export type ClipTimeRange = {s: number; e: number};
 export type ClipCrop = {x: number; y: number; w: number; h: number};
 
 /**
- * Extract of a basket item: the file is not cut, the clip is applied on
- * display, and when the item is published or exported.
+ * Time ranges and/or crop of a media: region of interest of an asset, or
+ * extract of a basket item (which replaces the region of interest of its
+ * asset). The file is not cut: the clip is applied on display, and when the
+ * asset is published or exported (the ranges are then concatenated). The
+ * ranges are sorted and do not overlap.
  */
-export type BasketClip = {
-    timeRange?: ClipTimeRange;
+export type MediaClip = {
+    timeRanges?: ClipTimeRange[];
     crop?: ClipCrop;
 };
 
 export interface BasketAsset extends Entity {
     asset: Asset;
     context?: unknown;
-    clip?: BasketClip | null;
+    clip?: MediaClip | null;
     nameHighlight?: string;
     position: number;
     createdAt: string;
