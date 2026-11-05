@@ -8,6 +8,8 @@ use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use Alchemy\Workflow\State\Inputs;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use Symfony\Component\ExpressionLanguage\Node\GetAttrNode;
+use Symfony\Component\ExpressionLanguage\Node\Node;
 
 class ExpressionParser extends ExpressionLanguage
 {
@@ -75,7 +77,35 @@ class ExpressionParser extends ExpressionLanguage
 
     public function evaluateIf(string $expression, JobExecutionContext $context, array $params = []): bool
     {
-        return (bool) $this->evaluate($expression, array_merge($this->createJobVariables($context), $params));
+        return $this->evaluateCondition($expression, array_merge($this->createJobVariables($context), $params));
+    }
+
+    /**
+     * Conditions may be written by users and get entities as variables: only getters
+     * can be called on them, so that evaluating a condition never changes anything.
+     */
+    public function evaluateCondition(string $expression, array $variables): bool
+    {
+        $parsed = $this->parse($expression, array_keys($variables));
+        self::assertNoMutatingCall($parsed->getNodes());
+
+        return (bool) $this->evaluate($parsed, $variables);
+    }
+
+    private static function assertNoMutatingCall(Node $node): void
+    {
+        if ($node instanceof GetAttrNode && GetAttrNode::METHOD_CALL === $node->attributes['type']) {
+            $method = (string) $node->nodes['attribute']->attributes['value'];
+            if (1 !== preg_match('#^(get|is|has)[A-Z]#', $method)) {
+                throw new \InvalidArgumentException(sprintf('Method "%s()" cannot be called in a condition', $method));
+            }
+        }
+
+        foreach ($node->nodes as $child) {
+            if ($child instanceof Node) {
+                self::assertNoMutatingCall($child);
+            }
+        }
     }
 
     public function evaluateArray(array $array, JobExecutionContext $context): array
