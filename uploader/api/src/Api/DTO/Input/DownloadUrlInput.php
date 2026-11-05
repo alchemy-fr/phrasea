@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 final class DownloadUrlInput
 {
     #[Assert\NotNull]
+    #[Assert\Url(requireTld: true)]
     public ?string $url = null;
 
     public ?string $targetSlug = null;

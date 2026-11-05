@@ -11,6 +11,9 @@ use App\Entity\Commit;
 use App\Entity\Target;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireInline;
+use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\MimeTypes;
@@ -21,6 +24,7 @@ readonly class DownloadHandler
 {
     public function __construct(
         private FileStorageManager $storageManager,
+        #[AutowireInline(NoPrivateNetworkHttpClient::class, [new Reference('http_client')])]
         private HttpClientInterface $client,
         private AssetManager $assetManager,
         private MessageBusInterface $bus,
