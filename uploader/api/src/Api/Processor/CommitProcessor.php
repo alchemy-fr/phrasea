@@ -12,12 +12,14 @@ use App\Entity\Commit;
 use App\Entity\Target;
 use App\Form\FormValidator;
 use App\Report\UploaderLogActionInterface;
+use App\Security\Voter\TargetVoter;
 use App\Storage\AssetManager;
 use App\Validation\CommitValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -53,6 +55,10 @@ final readonly class CommitProcessor implements ProcessorInterface
                 throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetSlug));
             }
             $data->setTarget($target);
+        }
+
+        if (!$this->security->isGranted(TargetVoter::UPLOAD, $data->getTarget())) {
+            throw new AccessDeniedHttpException('Cannot upload to this target');
         }
 
         $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget(), $request);

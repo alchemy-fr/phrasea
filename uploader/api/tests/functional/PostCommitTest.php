@@ -49,6 +49,22 @@ class PostCommitTest extends AbstractUploaderTestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
+    public function testCommitToATargetOutsideTheUserGroupsReturns403(): void
+    {
+        $target = $this->createTarget();
+        $target->setAllowedGroups(['restricted-group']);
+        $em = self::getEntityManager();
+        $em->flush();
+        $asset = $this->createAsset($target, KeycloakClientTestMock::USER_UID);
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'POST', '/commit', [
+            'files' => [$asset->getId()],
+            'formData' => [],
+            'target' => '/targets/'.$target->getId(),
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
     public function testCommitWithAnonymousUserReturns401(): void
     {
         $target = $this->createTarget();
@@ -76,7 +92,7 @@ class PostCommitTest extends AbstractUploaderTestCase
         return $target;
     }
 
-    private function createAsset(Target $target): Asset
+    private function createAsset(Target $target, string $userId = KeycloakClientTestMock::ADMIN_UID): Asset
     {
         $asset = new Asset();
         $asset->setTarget($target);
@@ -84,7 +100,7 @@ class PostCommitTest extends AbstractUploaderTestCase
         $asset->setPath('a/b/c.jpeg');
         $asset->setSize(42);
         $asset->setOriginalName('foo.jpeg');
-        $asset->setUserId(KeycloakClientTestMock::ADMIN_UID);
+        $asset->setUserId($userId);
 
         $em = self::getEntityManager();
         $em->persist($asset);
