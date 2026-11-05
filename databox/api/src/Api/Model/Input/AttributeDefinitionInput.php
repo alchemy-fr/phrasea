@@ -43,6 +43,22 @@ class AttributeDefinitionInput
     public $entityList;
 
     /**
+     * Lowest depth of the entity list hierarchy whose entities the attribute accepts; null: open bound.
+     * Left unset (not sent), the bound is kept. Both bounds null unbind the attribute.
+     */
+    #[Assert\PositiveOrZero]
+    public ?int $entityHierarchyDepthMin;
+
+    /**
+     * Deepest depth of the entity list hierarchy whose entities the attribute accepts; null: open bound.
+     * Left unset (not sent), the bound is kept.
+     */
+    #[Assert\PositiveOrZero]
+    public ?int $entityHierarchyDepthMax;
+
+    public ?bool $autoFillParents = null;
+
+    /**
      * @var string
      */
     public $fileType;
@@ -171,6 +187,11 @@ class AttributeDefinitionInput
     public ?array $translations = null;
 
     public ?int $target = null;
+
+    public function isProvided(string $property): bool
+    {
+        return (new \ReflectionProperty($this, $property))->isInitialized($this);
+    }
 
     #[Assert\Callback()]
     public function validate(ExecutionContextInterface $context)

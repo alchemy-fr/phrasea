@@ -19,11 +19,15 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
+use App\Api\Model\Input\EntityHierarchyImportInput;
 use App\Api\Model\Input\ExportEntitiesInput;
 use App\Api\Model\Input\ImportEntitiesInput;
 use App\Api\Processor\ClearEntitiesProcessor;
 use App\Api\Processor\ExportEntitiesProcessor;
+use App\Api\Processor\ExportEntityHierarchyProcessor;
 use App\Api\Processor\ImportEntitiesProcessor;
+use App\Api\Processor\ImportEntityHierarchyProcessor;
+use App\Api\Provider\EntityListImportTaskProvider;
 use App\Audit\AuditableInterface;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -72,12 +76,35 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'import_entities',
             processor: ImportEntitiesProcessor::class
         ),
+        new Get(
+            uriTemplate: '/entity-lists/{id}/import-tasks/{taskId}',
+            uriVariables: [
+                'id' => 'id',
+                'taskId' => 'taskId',
+            ],
+            name: 'import_entities_task',
+            provider: EntityListImportTaskProvider::class,
+        ),
         new Post(
             uriTemplate: '/entity-lists/{id}/export',
             security: 'is_granted("EDIT", object)',
             input: ExportEntitiesInput::class,
             name: 'export_entities',
             processor: ExportEntitiesProcessor::class
+        ),
+        new Post(
+            uriTemplate: '/entity-lists/{id}/hierarchy-import',
+            security: 'is_granted("EDIT", object)',
+            input: EntityHierarchyImportInput::class,
+            name: 'import_entity_hierarchy',
+            processor: ImportEntityHierarchyProcessor::class
+        ),
+        new Post(
+            uriTemplate: '/entity-lists/{id}/hierarchy-export',
+            security: 'is_granted("EDIT", object)',
+            input: false,
+            name: 'export_entity_hierarchy',
+            processor: ExportEntityHierarchyProcessor::class
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/clear',
@@ -116,6 +143,7 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
     private const string WITH_IMAGES = 'wi';
     private const string WITH_TRANSLATIONS = 'wt';
     private const string WITH_SYNONYMS = 'ws';
+    private const string IS_HIERARCHY = 'h';
 
     final public const string GROUP_READ = 'entity-list:r';
     final public const string GROUP_LIST = 'entity-list:i';
@@ -253,6 +281,36 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
     public function setWithSynonyms(bool $withSynonyms): void
     {
         $this->options[self::WITH_SYNONYMS] = $withSynonyms;
+    }
+
+    /**
+     * Whether the entities may form a hierarchy. Turned off, the hierarchy is flattened (see EntityListFlattener).
+     */
+    public function isHierarchy(): bool
+    {
+        return self::isHierarchyOption($this->options);
+    }
+
+    /**
+     * The flag in a state of the options (e.g. from a Doctrine changeset).
+     */
+    public static function isHierarchyOption(?array $options): bool
+    {
+        return $options[self::IS_HIERARCHY] ?? false;
+    }
+
+    /**
+     * Exposed as "isHierarchy", the name of its setter.
+     */
+    #[Groups(self::COMMON_GROUPS)]
+    public function getIsHierarchy(): bool
+    {
+        return $this->isHierarchy();
+    }
+
+    public function setIsHierarchy(bool $isHierarchy): void
+    {
+        $this->options[self::IS_HIERARCHY] = $isHierarchy;
     }
 
     public function getEntities(): ?Collection

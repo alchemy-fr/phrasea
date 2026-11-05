@@ -113,8 +113,12 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
             if (null !== $data->entityList) {
                 $object->setEntityList($data->entityList);
             }
+            $this->mapHierarchyBinding($data, $object);
         } else {
             $object->setEntityList(null);
+            $object->setEntityHierarchyDepthMin(null);
+            $object->setEntityHierarchyDepthMax(null);
+            $object->setAutoFillParents(false);
         }
 
         if (null !== $data->fillFromName) {
@@ -172,5 +176,33 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         }
 
         return $object;
+    }
+
+    private function mapHierarchyBinding(AttributeDefinitionInput $data, AttributeDefinition $object): void
+    {
+        if ($data->isProvided('entityHierarchyDepthMin')) {
+            $object->setEntityHierarchyDepthMin($data->entityHierarchyDepthMin);
+        }
+        if ($data->isProvided('entityHierarchyDepthMax')) {
+            $object->setEntityHierarchyDepthMax($data->entityHierarchyDepthMax);
+        }
+        if (null !== $data->autoFillParents) {
+            $object->setAutoFillParents($data->autoFillParents);
+        }
+
+        $min = $object->getEntityHierarchyDepthMin();
+        $max = $object->getEntityHierarchyDepthMax();
+        if ((null !== $min || null !== $max) && null === $object->getEntityList()) {
+            throw new BadRequestHttpException('A hierarchy depth needs an entity list');
+        }
+        if ((null !== $min || null !== $max) && !$object->getEntityList()->isHierarchy()) {
+            throw new BadRequestHttpException('A hierarchy depth needs an entity list flagged as a hierarchy');
+        }
+        if (null !== $min && null !== $max && $min > $max) {
+            throw new BadRequestHttpException('The minimum hierarchy depth must not exceed the maximum one');
+        }
+        if (null === $min && null === $max) {
+            $object->setAutoFillParents(false);
+        }
     }
 }

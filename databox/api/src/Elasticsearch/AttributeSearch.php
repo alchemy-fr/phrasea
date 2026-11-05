@@ -388,10 +388,15 @@ class AttributeSearch
 
             switch ($type->getFacetType()) {
                 case ESFacetInterface::TYPE_TEXT:
-                case ESFacetInterface::TYPE_ENTITY:
                     $agg = new Aggregation\Terms($fieldName);
                     $agg->setField($fullFieldName);
                     $agg->setSize(20);
+                    break;
+                case ESFacetInterface::TYPE_ENTITY:
+                    $agg = new Aggregation\Terms($fieldName);
+                    $agg->setField($fullFieldName);
+                    // The ancestors of the entities of a hierarchy take their place in the buckets
+                    $agg->setSize(100);
                     break;
                 case ESFacetInterface::TYPE_BOOLEAN:
                     $agg = new Aggregation\Terms($fieldName);

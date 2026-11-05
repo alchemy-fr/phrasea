@@ -26,34 +26,14 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
     ) {
     }
 
-    public function import(EntityList $entityList, string $data): void
+    public function validate(EntityList $entityList, string $data, ?string $defaultLocale = null): void
     {
-        $rows = str_getcsv($data, separator: "\n", escape: '')
-                |> (fn (array $data): array => array_map(fn (string $r) => str_getcsv($r, escape: ''), $data));
+        $this->parse($data);
+    }
 
-        /** @var array $headers */
-        $headers = array_shift($rows);
-        if (empty($headers)) {
-            throw new BadRequestHttpException('Empty headers');
-        }
-
-        $allowedHeaders = [
-            'id',
-            'value',
-            'external_id',
-            'emoji',
-            'color',
-            'status',
-        ];
-        foreach ($headers as $header) {
-            if (!str_starts_with((string) $header, self::TRANSLATION_PREFIX) && !in_array($header, $allowedHeaders, true)) {
-                throw new BadRequestHttpException(sprintf('Unsupported header "%s" in CSV data', $header));
-            }
-        }
-
-        if (!in_array('value', $headers, true)) {
-            throw new BadRequestHttpException(sprintf('Missing required header "value" in CSV data'));
-        }
+    public function import(EntityList $entityList, string $data, ?string $defaultLocale = null): void
+    {
+        [$headers, $rows] = $this->parse($data);
 
         $errors = [];
 
@@ -164,5 +144,40 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
         }
 
         $batch->terminate();
+    }
+
+    /**
+     * @return array{0: array, 1: list<array>} the headers and the rows
+     */
+    private function parse(string $data): array
+    {
+        $rows = str_getcsv($data, separator: "\n", escape: '')
+                |> (fn (array $data): array => array_map(fn (string $r) => str_getcsv($r, escape: ''), $data));
+
+        /** @var array $headers */
+        $headers = array_shift($rows);
+        if (empty($headers)) {
+            throw new BadRequestHttpException('Empty headers');
+        }
+
+        $allowedHeaders = [
+            'id',
+            'value',
+            'external_id',
+            'emoji',
+            'color',
+            'status',
+        ];
+        foreach ($headers as $header) {
+            if (!str_starts_with((string) $header, self::TRANSLATION_PREFIX) && !in_array($header, $allowedHeaders, true)) {
+                throw new BadRequestHttpException(sprintf('Unsupported header "%s" in CSV data', $header));
+            }
+        }
+
+        if (!in_array('value', $headers, true)) {
+            throw new BadRequestHttpException(sprintf('Missing required header "value" in CSV data'));
+        }
+
+        return [$headers, $rows];
     }
 }
