@@ -24,7 +24,8 @@ export type DefinitionKeys = {ids?: string[]; slugs?: string[]};
 /**
  * A cache of the definitions met so far: the pages of the lists (see
  * `useAttributeDefinitionList`) feed it, the missing ones are resolved by key
- * (`ensure`). It never holds the whole list.
+ * (`ensure`). It never holds the whole list. It is kept in the session storage
+ * of the tab (see `definitionsCache.ts`): restored on reload, then revalidated.
  */
 type State = {
     byId: Record<string, AttributeDefinition>;
@@ -44,6 +45,11 @@ type State = {
     removeDefinition: (id: string) => void;
     /** Resolves again the definitions of the workspace (and every slug) */
     invalidateWorkspace: (workspaceId: string) => void;
+    /**
+     * Resolves again every known definition and the built-ins (e.g. their
+     * labels after a change of the interface language)
+     */
+    revalidateAll: () => Promise<void>;
 };
 
 /** The most keys sent in a request */
@@ -275,6 +281,16 @@ export const useDefinitionsStore = create<State>((set, get) => {
 
                 return {resolved};
             }),
+
+        revalidateAll: () => {
+            set({resolved: {}, builtInLoaded: false});
+            const {byId, ensure, loadBuiltIn} = get();
+
+            return Promise.all([
+                ensure({ids: Object.keys(byId)}),
+                loadBuiltIn(),
+            ]).then(() => undefined);
+        },
     };
 });
 

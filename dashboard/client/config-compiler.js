@@ -1,4 +1,4 @@
-(function (config, env) {
+(function (stackConfig, env) {
     function castBoolean(value) {
         if (typeof value === 'boolean') {
             return value;
@@ -12,8 +12,6 @@
 
         return false;
     }
-
-    config = config || {};
 
     const analytics = {};
 
@@ -57,9 +55,6 @@
         }
     });
 
-    const stackConfig = JSON.parse(
-        require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8')
-    );
     const customHTML = {};
     customHTML['__MUI_THEME__'] = '';
     if (stackConfig.theme) {

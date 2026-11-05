@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AttributePolicyInput;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AttributePolicyCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
@@ -61,7 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     message: 'The attribute policy name must be unique in the workspace.',
     errorPath: 'name',
 )]
-class AttributePolicy extends AbstractUuidEntity implements AclObjectInterface, LoggableChangeSetInterface, \Stringable
+class AttributePolicy extends AbstractUuidEntity implements AuditableInterface, AclObjectInterface, LoggableChangeSetInterface, \Stringable
 {
     use CreatedAtTrait;
     use WorkspaceTrait;

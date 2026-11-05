@@ -24,7 +24,7 @@ done
 echo "## Setting up databox..."
 docker compose run --rm databox-api-php /bin/ash -c 'bin/console hautelook:fixtures:load --no-interaction \
 && php -d memory_limit=-1 bin/console app:workspace:ingest-assets \
-&& bin/console fos:elastica:populate'
+&& bin/console fos:elastica:populate --no-debug'
 
 echo "## Setting up expose..."
 docker compose run --rm expose-api-php /bin/ash -c 'bin/console hautelook:fixtures:load --no-interaction'

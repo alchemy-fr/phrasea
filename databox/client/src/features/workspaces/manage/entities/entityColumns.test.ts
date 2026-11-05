@@ -81,7 +81,8 @@ describe('entityColumns', () => {
         expect(cellValueOf(entity, 'value')).toBe('Summer');
         expect(cellValueOf(entity, 'translations.fr')).toBe('Été');
         expect(cellValueOf(entity, 'translations.en')).toBe('');
-        expect(cellValueOf(entity, 'synonyms.en')).toBe('Warm, Hot');
+        expect(cellValueOf(entity, 'synonyms.en')).toBe('["Warm","Hot"]');
+        expect(cellValueOf(entity, 'synonyms.fr')).toBe('[]');
         expect(cellValueOf(entity, 'status')).toBe('1');
     });
 
@@ -108,12 +109,23 @@ describe('entityColumns', () => {
             translations: {},
         });
         expect(
-            entityPatchFromCell(entity, 'synonyms.fr', 'Chaud, , Tiède')
+            entityPatchFromCell(
+                entity,
+                'synonyms.fr',
+                '["Chaud",""," Tiède, doux ","Chaud"]'
+            )
         ).toEqual({
-            synonyms: {en: ['Warm', 'Hot'], fr: ['Chaud', 'Tiède']},
+            synonyms: {en: ['Warm', 'Hot'], fr: ['Chaud', 'Tiède, doux']},
         });
-        expect(entityPatchFromCell(entity, 'synonyms.en', '')).toEqual({
+        expect(entityPatchFromCell(entity, 'synonyms.en', '[]')).toEqual({
             synonyms: {},
         });
+        expect(entityPatchFromCell(entity, 'synonyms.en', '')).toBeNull();
+        expect(
+            entityPatchFromCell(entity, 'synonyms.en', 'Warm, Hot')
+        ).toBeNull();
+        expect(
+            entityPatchFromCell(entity, 'synonyms.en', '{"0":"Warm"}')
+        ).toBeNull();
     });
 });

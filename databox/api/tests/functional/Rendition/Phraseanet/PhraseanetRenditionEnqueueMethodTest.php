@@ -160,6 +160,44 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         // Phraseanet creates sub definitions...
         // Then we receive webhook for each generated sub def:
         // Call from Phraseanet with valid token
+        // A permalink outside of the Phraseanet host is ignored
+        $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
+            'json' => [
+                'event' => 'record.subdef.created',
+                'url' => 'foo.bar',
+                'data' => [
+                    'databox_id' => 1,
+                    'record_id' => 123456,
+                    'original_name' => $originalName,
+                    'permalink' => 'http://169.254.169.254/latest/meta-data/',
+                    'subdef_name' => 'thumbnail',
+                    'type' => 'image/jpeg',
+                    'size' => 42,
+                ],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertCount(0, $inMemoryTransport->get());
+
+        // Nor on another port of the Phraseanet host
+        $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
+            'json' => [
+                'event' => 'record.subdef.created',
+                'url' => 'foo.bar',
+                'data' => [
+                    'databox_id' => 1,
+                    'record_id' => 123456,
+                    'original_name' => $originalName,
+                    'permalink' => 'http://foo.bar:6379/permalink/123456/thumb.jpg',
+                    'subdef_name' => 'thumbnail',
+                    'type' => 'image/jpeg',
+                    'size' => 42,
+                ],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertCount(0, $inMemoryTransport->get());
+
         $thumbnailRemoteUrl = 'https://foo.bar/permalink/123456/thumb.jpg';
         $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
             'json' => [

@@ -11,6 +11,8 @@ use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Template\AssetDataTemplate;
+use App\Model\AuditLogActionEnum;
+use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -22,10 +24,14 @@ final readonly class CollectionDelete
         private CollectionListener $collectionListener,
         private PostFlushStack $postFlushStack,
         private LoggerInterface $logger,
+        private AuditLogManager $auditLogManager,
     ) {
     }
 
-    public function deleteCollection(string $collectionId, bool $isChildProcess = false): void
+    /**
+     * @param string|null $reason why the collection is deleted, when not on request (e.g. "trash_retention")
+     */
+    public function deleteCollection(string $collectionId, bool $isChildProcess = false, ?string $reason = null): void
     {
         if (!$isChildProcess) {
             $collection = $this->em->find(Collection::class, $collectionId);
@@ -40,12 +46,22 @@ final readonly class CollectionDelete
                 return;
             }
 
+            $label = $this->auditLogManager->resolveLabel($collection);
+            $workspaceId = $collection->getWorkspaceId();
+
             DeferredIndexListener::disable();
             $this->collectionListener->softDeleteEnabled = false;
 
             $this->em->beginTransaction();
             try {
-                $this->doDelete($collectionId);
+                // A single audit entry for the whole branch
+                $purged = $this->auditLogManager->mute(fn () => $this->doDelete($collectionId));
+                $purged['collection'] = ($purged['collection'] ?? 1) - 1;
+                $this->auditLogManager->logRaw(AuditLogActionEnum::ObjectDeleted, Collection::class, $collectionId, $label, $workspaceId, array_filter([
+                    'purged' => array_filter($purged),
+                    'reason' => $reason,
+                ]));
+                $this->em->flush();
                 $this->em->commit();
             } catch (\Throwable $e) {
                 $this->em->rollback();

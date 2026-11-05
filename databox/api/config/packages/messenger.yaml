@@ -5,6 +5,7 @@ framework:
                 middleware:
                     - doctrine_ping_connection
                     - App\Consumer\Middleware\QuietContextMiddleware
+                    - App\Consumer\Middleware\AuditContextMiddleware
                     - Alchemy\MessengerBundle\Middleware\RetryCountMiddleware
         transports:
             p1:

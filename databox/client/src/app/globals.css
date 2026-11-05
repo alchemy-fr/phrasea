@@ -935,9 +935,10 @@
     ::-webkit-scrollbar-track {
         background: transparent;
     }
+    /* The negative margin offsets the padding: a highlight within a word adds no space to it */
     mark,
     .hl {
-        @apply rounded-sm bg-warning/40 px-0.5 text-inherit;
+        @apply -mx-0.5 rounded-sm bg-warning/40 px-0.5 text-inherit;
     }
 }
 

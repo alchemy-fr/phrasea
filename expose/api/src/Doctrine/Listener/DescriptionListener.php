@@ -39,6 +39,7 @@ readonly class DescriptionListener
             || $entity instanceof Asset
         ) {
             $entity->setDescription($this->cleanHtml($entity->getDescription()));
+            $entity->setTranslations($this->cleanTranslatedDescriptions($entity->getTranslations()));
         }
 
         if ($entity instanceof Publication
@@ -57,6 +58,19 @@ readonly class DescriptionListener
     private function handleTermsConfig(TermsConfig $config): void
     {
         $config->setText($this->cleanHtml($config->getText()));
+    }
+
+    private function cleanTranslatedDescriptions(?array $translations): ?array
+    {
+        if (!is_array($translations['description'] ?? null)) {
+            return $translations;
+        }
+
+        foreach ($translations['description'] as $locale => $description) {
+            $translations['description'][$locale] = is_string($description) ? $this->cleanHtml($description) : null;
+        }
+
+        return $translations;
     }
 
     private function cleanHtml(?string $data): ?string

@@ -17,6 +17,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Provider\RenditionPolicyCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
@@ -56,7 +57,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     errorPath: 'name',
 )]
 #[ORM\Entity]
-class RenditionPolicy extends AbstractUuidEntity implements \Stringable, LoggableChangeSetInterface, AclObjectInterface
+class RenditionPolicy extends AbstractUuidEntity implements AuditableInterface, \Stringable, LoggableChangeSetInterface, AclObjectInterface
 {
     use CreatedAtTrait;
     use WorkspaceTrait;

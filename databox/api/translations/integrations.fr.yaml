@@ -7,6 +7,8 @@
     description: 'Traduit les valeurs d''attributs dans d''autres langues avec Amazon Translate.'
 'blurhash':
     description: 'Calcule un aperçu flou compact affiché pendant le chargement des images.'
+'core.asset_import':
+    description: 'Expose un webhook recevant des instructions d''import JSON ou NDJSON : les assets sont créés et leurs fichiers téléchargés depuis des URLs.'
 'core.face_recognition':
     description: 'Détecte les visages dans les images et les regroupe par personne, avec un service de reconnaissance auto-hébergé.'
 'core.file_analyzer':

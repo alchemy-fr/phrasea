@@ -43,6 +43,7 @@ final class MainScheduleTest extends KernelTestCase
             'app:integration:renew-tokens',
             'app:file:unblock-analyses',
             'app:trash:empty',
+            'app:audit-log:purge',
         ];
         sort($expected);
         sort($tasks);

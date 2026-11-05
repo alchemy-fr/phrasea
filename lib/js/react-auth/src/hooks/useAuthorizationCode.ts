@@ -2,6 +2,7 @@ import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {useState} from 'react';
 import {
     AuthConstant,
+    consumeStateNonce,
     decodeState,
     getPathFromRedirectUri,
     OAuthClient,
@@ -46,6 +47,12 @@ export function useAuthorizationCode({
         }
 
         const state = urlParams.get(AuthConstant.StateParam);
+        const stateParams = decodeState(state);
+        if (!consumeStateNonce(stateParams[AuthConstant.StateNonceParam])) {
+            setError(`Invalid authorization state, please log in again.`);
+
+            return;
+        }
 
         oauthClient
             .getTokenFromAuthCode(code, location.href.split('?')[0])
@@ -56,12 +63,9 @@ export function useAuthorizationCode({
                     return;
                 }
                 let redirectPath = '/';
-                if (state) {
-                    const stateParams = decodeState(state);
-                    const r = stateParams[AuthConstant.StateRedirectParam];
-                    if (r) {
-                        redirectPath = getPathFromRedirectUri(r);
-                    }
+                const r = stateParams[AuthConstant.StateRedirectParam];
+                if (r) {
+                    redirectPath = getPathFromRedirectUri(r);
                 }
 
                 if (window.opener) {

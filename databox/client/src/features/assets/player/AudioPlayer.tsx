@@ -6,10 +6,13 @@ import {PauseIcon, PlayIcon} from 'lucide-react';
 import {useWavesurfer} from '@wavesurfer/react';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.esm.js';
+import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js';
+import type {ClipTimeRange} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {Spinner} from '@/components/ui/loader';
 import {formatDuration} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
+import {clipPlaybackTarget} from '@/features/clip/clip';
 
 /**
  * Resolve a CSS color expression (may use `var(--token)` / `color-mix`) to a
@@ -47,6 +50,12 @@ function formatTime(seconds: number): string {
  * `playing`, playback is driven by the parent instead (thumbnails played on
  * hover): it rewinds when `playing` turns false.
  *
+ * With `timeRanges` (a region of interest, the extract of a basket item),
+ * the ranges are highlighted on the waveform and the playback is bounded to
+ * them: it starts at the start of the first one, jumps from one to the next,
+ * and stops (loops, when driven by `playing`) at the end of the last one.
+ * With `boundPlayback` false, they are only highlighted.
+ *
  * The player fills the width of its box.
  */
 export function AudioPlayer({
@@ -56,6 +65,11 @@ export function AudioPlayer({
     controls = true,
     height = 128,
     className,
+    timeRanges,
+    boundPlayback = true,
+    onTimeUpdate,
+    onDuration,
+    onPeaks,
 }: {
     src: string;
     autoPlay?: boolean;
@@ -64,6 +78,18 @@ export function AudioPlayer({
     /** Waveform height in px */
     height?: number;
     className?: string;
+    /** Sorted, not overlapping */
+    timeRanges?: ClipTimeRange[];
+    boundPlayback?: boolean;
+    onTimeUpdate?: (time: number) => void;
+    /** Called once the sound is loaded */
+    onDuration?: (duration: number) => void;
+    /**
+     * Called once the sound is decoded, with its waveform: up to 1000 peaks
+     * of the first channel, in [-1, 1]. Lets another view draw the sound
+     * without downloading it again.
+     */
+    onPeaks?: (peaks: number[]) => void;
 }) {
     const {t} = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -74,19 +100,40 @@ export function AudioPlayer({
                 'rgba(99, 102, 241, 0.5)'
             ),
             progress: resolveCssColor('var(--primary)', 'rgb(99, 102, 241)'),
+            region: resolveCssColor(
+                'color-mix(in oklch, var(--primary) 20%, transparent)',
+                'rgba(99, 102, 241, 0.2)'
+            ),
         }),
         []
     );
+    // The ranges by value: a new array of the same ranges changes nothing
+    const rangesKey = timeRanges?.length
+        ? JSON.stringify(timeRanges)
+        : undefined;
+    const hasRange = rangesKey !== undefined;
+    const regions = useMemo(
+        () => (hasRange ? RegionsPlugin.create() : undefined),
+        [hasRange]
+    );
     const plugins = useMemo(
-        () =>
-            controls
+        () => [
+            ...(controls
                 ? [
                       TimelinePlugin.create(),
                       ZoomPlugin.create({scale: 0.5, maxZoom: 100}),
                   ]
-                : [],
-        [controls]
+                : []),
+            ...(regions ? [regions] : []),
+        ],
+        [controls, regions]
     );
+    const onTimeUpdateRef = useRef(onTimeUpdate);
+    onTimeUpdateRef.current = onTimeUpdate;
+    const onDurationRef = useRef(onDuration);
+    onDurationRef.current = onDuration;
+    const onPeaksRef = useRef(onPeaks);
+    onPeaksRef.current = onPeaks;
 
     const {wavesurfer, currentTime, isReady, isPlaying} = useWavesurfer({
         container: containerRef,
@@ -121,6 +168,8 @@ export function AudioPlayer({
         return () => observer.disconnect();
     }, [wavesurfer, autoPlay, isReady]);
 
+    const rangeStart = timeRanges?.[0]?.s;
+    const bounded = boundPlayback ? rangeStart : undefined;
     useEffect(() => {
         if (!wavesurfer || !isReady || undefined === playing) {
             return;
@@ -130,9 +179,90 @@ export function AudioPlayer({
             wavesurfer.play().catch(() => undefined);
         } else {
             wavesurfer.pause();
-            wavesurfer.seekTo(0);
+            if (bounded !== undefined) {
+                wavesurfer.setTime(bounded);
+            } else {
+                wavesurfer.seekTo(0);
+            }
         }
-    }, [wavesurfer, isReady, playing]);
+    }, [wavesurfer, isReady, playing, bounded]);
+
+    useEffect(() => {
+        if (!wavesurfer) {
+            return;
+        }
+
+        return wavesurfer.on('timeupdate', time =>
+            onTimeUpdateRef.current?.(time)
+        );
+    }, [wavesurfer]);
+
+    useEffect(() => {
+        if (wavesurfer && isReady) {
+            onDurationRef.current?.(wavesurfer.getDuration());
+            if (onPeaksRef.current) {
+                try {
+                    onPeaksRef.current(
+                        wavesurfer.exportPeaks({
+                            channels: 1,
+                            maxLength: 1000,
+                        })[0] ?? []
+                    );
+                } catch {
+                    // Not decoded: no waveform to share
+                }
+            }
+        }
+    }, [wavesurfer, isReady]);
+
+    // The clip: highlighted, and bounding the playback
+    const loop = undefined !== playing;
+    useEffect(() => {
+        if (!wavesurfer || !isReady || rangesKey === undefined) {
+            return;
+        }
+        const ranges: ClipTimeRange[] = JSON.parse(rangesKey);
+
+        regions?.clearRegions();
+        for (const r of ranges) {
+            regions?.addRegion({
+                start: r.s,
+                end: r.e,
+                drag: false,
+                resize: false,
+                color: colors.region,
+            });
+        }
+        if (!boundPlayback) {
+            return;
+        }
+
+        const moveIn = (time: number) => {
+            const target = clipPlaybackTarget(time, ranges);
+            if (target) {
+                wavesurfer.setTime(target.time);
+            }
+        };
+        moveIn(wavesurfer.getCurrentTime());
+
+        const unsubscribe = [
+            wavesurfer.on('timeupdate', time => {
+                const target = clipPlaybackTarget(time, ranges);
+                if (!target) {
+                    return;
+                }
+                if (!target.ended || loop) {
+                    wavesurfer.setTime(target.time);
+                } else {
+                    wavesurfer.pause();
+                }
+            }),
+            wavesurfer.on('play', () => moveIn(wavesurfer.getCurrentTime())),
+            wavesurfer.on('interaction', moveIn),
+        ];
+
+        return () => unsubscribe.forEach(u => u());
+    }, [wavesurfer, isReady, regions, rangesKey, boundPlayback, loop, colors]);
 
     const duration = wavesurfer && isReady ? wavesurfer.getDuration() : null;
     const playLabel = isPlaying

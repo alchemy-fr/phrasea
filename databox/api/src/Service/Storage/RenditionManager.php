@@ -11,6 +11,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
+use App\Service\Asset\StoryContactSheetScheduler;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
 use Ramsey\Uuid\Uuid;
@@ -24,6 +25,7 @@ final class RenditionManager
         private readonly FileManager $fileManager,
         private readonly PusherManager $pusherManager,
         private readonly PostFlushStack $postFlushStack,
+        private readonly StoryContactSheetScheduler $contactSheetScheduler,
     ) {
     }
 
@@ -95,7 +97,18 @@ final class RenditionManager
             ]
         ));
 
+        // The contact sheets of the stories containing the asset are made of these renditions
+        if ($definition->isUseAsThumbnail() || $definition->isUseAsPreview()) {
+            $this->contactSheetScheduler->scheduleForStoriesContaining($asset->getId());
+        }
+
         return $rendition;
+    }
+
+    public function removeRendition(AssetRendition $rendition): void
+    {
+        $this->em->remove($rendition);
+        $this->pushRenditionUpdate($rendition);
     }
 
     /**

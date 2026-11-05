@@ -14,6 +14,8 @@ import {
     EntityName,
     Group,
     HydraCollection,
+    InstanceCapabilities,
+    MediaClip,
     OperationTask,
     Page,
     ProfileItem,
@@ -96,6 +98,14 @@ export function addToBasket(
             assets: assetIds.map(id => ({id})),
         }
     );
+}
+
+/** Sets the clip of a basket item, or removes it with `null` */
+export function patchBasketAssetClip(
+    itemId: string,
+    clip: MediaClip | null
+): Promise<BasketAsset> {
+    return api.patch<BasketAsset>(`/basket-assets/${itemId}`, {clip});
 }
 
 export function removeFromBasket(
@@ -469,9 +479,16 @@ export function deleteShare(id: string): Promise<void> {
 
 // Exports ------------------------------------------------------------------
 
+/**
+ * Exports assets, or basket items (`basketAssets`). The region of interest of
+ * the assets, or the clip of the basket items in its place, is applied to the
+ * exported files, unless `ignoreRoi`.
+ */
 export function exportAssets(data: {
-    assets: string[];
+    assets?: string[];
+    basketAssets?: string[];
     renditions: string[];
+    ignoreRoi?: boolean;
 }): Promise<AssetExport> {
     return api.post<AssetExport>('/asset-exports', data);
 }
@@ -616,6 +633,24 @@ export async function getAces(
 
             return u !== 0 ? u : (b.wildcard ? 1 : 0) - (a.wildcard ? 1 : 0);
         });
+}
+
+/**
+ * The ACEs set on a whole object type (without object id), which apply to
+ * every object of the type. Only admins may read them.
+ */
+export function getTypeAces(objectType: string): Promise<Ace[]> {
+    return api.get<Ace[]>('/permissions/aces', {
+        params: {
+            objectType,
+            objectId: 'null',
+        },
+    });
+}
+
+/** Capabilities of the current user granted outside any workspace */
+export function getInstanceCapabilities(): Promise<InstanceCapabilities> {
+    return api.get<InstanceCapabilities>('/capabilities');
 }
 
 export function putAce(data: {

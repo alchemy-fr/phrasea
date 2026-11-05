@@ -7,6 +7,7 @@ import {addAssetsToCollection, copyAssets, moveAssets} from '@/lib/api/assets';
 import {addToBasket} from '@/lib/api/misc';
 import {moveCollection} from '@/lib/api/collections';
 import {useBasketStore} from '@/features/baskets/basketStore';
+import {invalidateBasket} from '@/features/baskets/basketQueries';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {
     type AssetOp,
@@ -106,9 +107,7 @@ async function dropAssets(
         case 'basket': {
             const basket = await addToBasket(target.basket.id, ids);
             useBasketStore.getState().upsert(basket);
-            void queryClient.invalidateQueries({
-                queryKey: ['basket-assets', basket.id],
-            });
+            invalidateBasket(queryClient, basket.id);
             toast.success(
                 t('basket.added', '{{count}} items added to basket', {
                     count,

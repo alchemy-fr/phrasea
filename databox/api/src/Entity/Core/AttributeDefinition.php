@@ -29,6 +29,7 @@ use App\Api\Processor\DuplicateAttributeDefinitionProcessor;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\Sort\AttributeDefinitionSortProcessor;
 use App\Attribute\AttributeInterface;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
@@ -227,7 +228,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     fields: ['workspace', 'name'],
     errorPath: 'name',
 )]
-class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, LoggableChangeSetInterface
+class AttributeDefinition extends AbstractUuidEntity implements AuditableInterface, \Stringable, ErrorDisableInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

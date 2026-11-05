@@ -31,6 +31,8 @@ export type AssetListProps = {
     thumbSize: number;
     onOpen?: OnOpenAsset;
     searchQuery?: string;
+    /** Similarity score shown on the thumbnails, by asset ID */
+    scores?: Record<string, number>;
     /** Extra per-item overlay (e.g. basket position) */
     itemOverlay?: (asset: Asset, index: number) => React.ReactNode;
     /** Custom item actions */

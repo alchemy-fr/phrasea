@@ -9,7 +9,10 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Core\Workspace;
+use App\Model\AuditLogActionEnum;
+use App\Service\Log\AuditLogManager;
 use App\Service\Workspace\TermsManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -19,6 +22,8 @@ final class SignWorkspaceTermsProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly TermsManager $termsManager,
+        private readonly AuditLogManager $auditLogManager,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 
@@ -38,6 +43,12 @@ final class SignWorkspaceTermsProcessor implements ProcessorInterface
         }
 
         $this->termsManager->sign($terms, $user->getId());
+
+        $this->auditLogManager->log(AuditLogActionEnum::WorkspaceTermsSigned, $data, [
+            'termsVersionId' => $terms->getId(),
+            'version' => $terms->getVersion(),
+        ]);
+        $this->em->flush();
 
         return $data;
     }

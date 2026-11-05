@@ -6,7 +6,10 @@ services:
     Alchemy\RenditionFactory\Command\CreateCommand: ~
     Alchemy\RenditionFactory\Command\ConfigurationValidateCommand: ~
 
-    Alchemy\RenditionFactory\Context\TransformationContextFactory: ~
+    Alchemy\RenditionFactory\Context\TransformationContextFactory:
+        arguments:
+            $allowPrivateNetwork: "@=parameter('kernel.environment') === 'dev'"
+
     Alchemy\RenditionFactory\FileFamilyGuesser: ~
     Alchemy\RenditionFactory\RenditionCreator: ~
     Alchemy\RenditionFactory\Config\YamlLoader: ~
@@ -60,6 +63,11 @@ services:
     Alchemy\RenditionFactory\Transformer\DownloadTransformerModule:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    # Generators: first module of a "generate" build
+    Alchemy\RenditionFactory\Transformer\Image\ContactSheet\ContactSheetGeneratorModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\GeneratorModuleInterface::TAG }
 
     # Output "formats"
     Alchemy\RenditionFactory\Transformer\Video\Format\JpegFormat:

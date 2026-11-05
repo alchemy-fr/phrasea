@@ -43,14 +43,17 @@
         }
     },
     "require-dev": {
+        "dragonmantank/cron-expression": "^3.4",
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
         "phpunit/phpunit": "^11.5",
         "pusher/pusher-php-server": "^7.2.4",
         "rector/rector": "^2.3.0",
-        "symfony/http-client": "^7.4 || ^8.0"
+        "symfony/http-client": "^7.4 || ^8.0",
+        "symfony/scheduler": "^7.4 || ^8.0"
     },
     "suggest": {
-        "pusher/pusher-php-server": "^7.2.4"
+        "pusher/pusher-php-server": "^7.2.4",
+        "symfony/scheduler": "Offsets the schedules with SCHEDULER_OFFSET"
     }
 }

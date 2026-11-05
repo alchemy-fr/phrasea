@@ -24,6 +24,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * Detects the faces of an asset through the face-recognition service and writes them as values of
  * the configured entity attribute: one value per face (its person, box, confidence and embedding).
  * Each face is recognized among the faces of the workspace, or starts a new unknown person.
+ * The persons of the faces then get the photo of their best face (FaceRecognitionPhoto).
  */
 final class FaceRecognitionAnalyzer
 {
@@ -160,13 +161,23 @@ final class FaceRecognitionAnalyzer
             'count' => count($faces),
         ], direct: true);
 
-        return $this->attributeRepository->findEmbeddingsOfAsset($definition->getId(), $asset->getId());
+        $written = $this->attributeRepository->findEmbeddingsOfAsset($definition->getId(), $asset->getId());
+
+        // The faces are flushed: the persons may get their photo from them, and the previous
+        // persons of the asset may have lost the face their photo was cropped from
+        $this->faceManager->dispatchPhotos($config, [
+            ...array_map(fn (Attribute $face): string => (string) $face->getValue(), $written),
+            ...array_keys($previousValues),
+        ]);
+
+        return $written;
     }
 
     /**
-     * Returns the configured rendition file when it is an image, otherwise the source when it is an image.
+     * Returns the configured rendition file when it is an image, otherwise the source when it is an image:
+     * the file the boxes of the faces are relative to.
      */
-    private function resolveFile(Asset $asset, IntegrationConfig $config): ?File
+    public function resolveFile(Asset $asset, IntegrationConfig $config): ?File
     {
         $renditionName = $config['rendition'] ?? null;
         if (!empty($renditionName)) {

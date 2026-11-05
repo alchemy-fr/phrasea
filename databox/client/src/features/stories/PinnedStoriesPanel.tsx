@@ -10,7 +10,7 @@ import {
     PinOffIcon,
 } from 'lucide-react';
 import type {Asset} from '@/types/api';
-import {searchAssets} from '@/lib/api/assets';
+import {getAssetsByIds} from '@/lib/api/assets';
 import {PanelSection} from '@/components/layout/PanelSection';
 import {Button} from '@/components/ui/button';
 import {Skeleton} from '@/components/ui/misc';
@@ -42,13 +42,13 @@ export function PinnedStoriesPanel() {
     const ids = usePinnedStoriesStore(s => s.ids);
     const stories = useQuery({
         queryKey: ['pinned-stories', ids],
-        queryFn: () => searchAssets({ids, limit: ids.length}),
+        queryFn: ({signal}) => getAssetsByIds(ids, {}, signal),
         enabled: ids.length > 0,
         staleTime: 60_000,
     });
     const byId = useMemo(() => {
         const map = new Map<string, Asset>();
-        stories.data?.items.forEach(a => map.set(a.id, a));
+        stories.data?.forEach(a => map.set(a.id, a));
 
         return map;
     }, [stories.data]);

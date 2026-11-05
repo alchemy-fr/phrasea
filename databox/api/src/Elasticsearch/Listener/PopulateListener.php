@@ -6,6 +6,7 @@ namespace App\Elasticsearch\Listener;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Elasticsearch\AssetPermissionComputer;
+use App\Service\Asset\Attribute\AttributeValueResolver;
 use Elastic\Elasticsearch\Traits\EndpointTrait;
 use Elastica\Index\Settings;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
@@ -26,6 +27,7 @@ readonly class PopulateListener implements EventSubscriberInterface
         private CacheInterface $fosPopulateCache,
         private AssetPermissionComputer $assetPermissionComputer,
         private TemporaryCacheFactory $temporaryCacheFactory,
+        private AttributeValueResolver $attributeValueResolver,
     ) {
     }
 
@@ -50,6 +52,7 @@ readonly class PopulateListener implements EventSubscriberInterface
         $this->assetPermissionComputer->disableCollectionCache();
         $this->assetPermissionComputer->disableWorkspaceCache();
         $this->assetPermissionComputer->disableAssetCache();
+        $this->attributeValueResolver->reset();
 
         $index = $this->indexManager->getIndex($event->getIndex());
 
@@ -62,9 +65,16 @@ readonly class PopulateListener implements EventSubscriberInterface
         $index->getSettings()->setRefreshInterval(Settings::DEFAULT_REFRESH_INTERVAL);
     }
 
-    public function postInsertObjects(PostInsertObjectsEvent $event): void
+    /**
+     * Runs after the listener of FOS Elastica that clears the entity manager (priority 0):
+     * the Doctrine graph of the page is full of cycles, which only the cycle collector frees.
+     * Left to its adaptive threshold, it lets the cleared pages pile up.
+     */
+    public function afterPageCleared(PostInsertObjectsEvent $event): void
     {
         $this->temporaryCacheFactory->reset();
+        $this->attributeValueResolver->reset();
+        gc_collect_cycles();
     }
 
     public static function getSubscribedEvents(): array
@@ -72,7 +82,7 @@ readonly class PopulateListener implements EventSubscriberInterface
         return [
             PreIndexPopulateEvent::class => 'preIndexPopulate',
             PostIndexPopulateEvent::class => 'postIndexPopulate',
-            PostInsertObjectsEvent::class => 'postInsertObjects',
+            PostInsertObjectsEvent::class => ['afterPageCleared', -1024],
         ];
     }
 }

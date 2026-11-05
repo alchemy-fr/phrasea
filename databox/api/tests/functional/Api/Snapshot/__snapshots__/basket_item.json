@@ -21,8 +21,8 @@
     "capabilities": {
         "delete": true,
         "edit": true,
-        "editPermissions": true,
-        "share": true
+        "editPermissions": false,
+        "share": false
     },
     "createdAt": "<date>",
     "id": "<basket>",

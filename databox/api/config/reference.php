@@ -973,7 +973,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             token_handler?: Param|string|array{
  *                 id?: scalar|Param|null,
  *                 oidc_user_info?: Param|string|array{
- *                     base_uri?: scalar|Param|null, // Base URI of the userinfo endpoint on the OIDC server, or the OIDC server URI to use the discovery (require "discovery" to be configured).
+ *                     base_uri?: scalar|Param|null, // Base URI of the userinfo endpoint on the OIDC server, or the OIDC server URI to use the discovery (require "discovery" to be configured). The latter must end with a slash when it has a path, as the discovery path is resolved against it as a relative URL.
  *                     discovery?: array{ // Enable the OIDC discovery.
  *                         cache?: array{
  *                             id?: scalar|Param|null, // Cache service id to use to cache the OIDC discovery configuration.
@@ -2262,6 +2262,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     dsn?: scalar|Param|null, // If this value is not provided, the SDK will try to read it from the SENTRY_DSN environment variable. If that variable also does not exist, the SDK will not send any events.
  *     register_error_listener?: bool|Param, // Default: true
  *     register_error_handler?: bool|Param, // Default: true
+ *     register_monolog_handler?: bool|Param, // EXPERIMENT: automatically push a Sentry handler onto every Monolog channel (requires MonologBundle). // Default: false
  *     logger?: scalar|Param|null, // The service ID of the PSR-3 logger used to log messages coming from the SDK client. Be aware that setting the same logger of the application may create a circular loop when an event fails to be sent. // Default: null
  *     options?: array{
  *         integrations?: mixed, // Default: []
@@ -2302,6 +2303,41 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         in_app_exclude?: list<scalar|Param|null>,
  *         in_app_include?: list<scalar|Param|null>,
  *         send_default_pii?: bool|Param,
+ *         data_collection?: array{ // Opts into the data collection options, which replace legacy options such as "send_default_pii". An empty array applies the default of every option, null keeps the legacy options even if an earlier config file opted in.
+ *             user_info?: bool|Param,
+ *             cookies?: array{
+ *                 mode?: "off"|"denyList"|"allowList"|Param,
+ *                 terms?: list<scalar|Param|null>,
+ *             },
+ *             http_headers?: array{
+ *                 request?: array{
+ *                     mode?: "off"|"denyList"|"allowList"|Param,
+ *                     terms?: list<scalar|Param|null>,
+ *                 },
+ *                 response?: array{
+ *                     mode?: "off"|"denyList"|"allowList"|Param,
+ *                     terms?: list<scalar|Param|null>,
+ *                 },
+ *                 ...<string, mixed>
+ *             },
+ *             http_bodies?: list<"incomingRequest"|"outgoingRequest"|"incomingResponse"|"outgoingResponse"|Param>,
+ *             url_query_params?: array{
+ *                 mode?: "off"|"denyList"|"allowList"|Param,
+ *                 terms?: list<scalar|Param|null>,
+ *             },
+ *             gen_ai?: array{
+ *                 inputs?: bool|Param,
+ *                 outputs?: bool|Param,
+ *             },
+ *             database_query_data?: bool|Param,
+ *             queues?: bool|Param,
+ *             stack_frame_variables?: bool|array{
+ *                 mode?: "off"|"denyList"|"allowList"|Param,
+ *                 terms?: list<scalar|Param|null>,
+ *             },
+ *             frame_context_lines?: int|Param,
+ *             ...<string, mixed>
+ *         },
  *         max_value_length?: int|Param,
  *         transport?: scalar|Param|null,
  *         http_client?: scalar|Param|null,

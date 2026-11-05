@@ -8,12 +8,18 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\SavedSearchPrivacyEnum;
+use App\Security\InstancePermission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class SavedSearchVoter extends AbstractVoter
 {
     private const string SCOPE_PREFIX = 'saved-search:';
+
+    /**
+     * Make the search visible to others (privacy other than Secret).
+     */
+    final public const string PUBLISH = 'PUBLISH';
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -48,8 +54,9 @@ class SavedSearchVoter extends AbstractVoter
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::DELETE => $isOwner()
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
-            self::EDIT_PERMISSIONS => $isOwner()
-                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
+            // Publishing its own searches is an instance capability
+            self::PUBLISH, self::EDIT_PERMISSIONS => ($isOwner() && $this->security->isGranted(InstancePermission::PUBLISH_SAVED_SEARCH))
+                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token, ownershipGrants: false),
             default => false,
         };
     }

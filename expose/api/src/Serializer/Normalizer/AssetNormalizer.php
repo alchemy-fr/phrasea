@@ -5,14 +5,33 @@ declare(strict_types=1);
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Asset;
+use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class AssetNormalizer extends AbstractRouterNormalizer
+class AssetNormalizer extends AbstractRouterNormalizer implements ResetInterface
 {
+    /**
+     * READ_DETAILS of each publication for the current token: every asset of a publication
+     * asks it again.
+     *
+     * @var \WeakMap<Publication, bool>
+     */
+    private \WeakMap $readDetails;
+    private ?TokenInterface $readDetailsToken = null;
+
     public function __construct(private readonly Security $security)
     {
+        $this->readDetails = new \WeakMap();
+    }
+
+    public function reset(): void
+    {
+        $this->readDetails = new \WeakMap();
+        $this->readDetailsToken = null;
     }
 
     /**
@@ -20,15 +39,24 @@ class AssetNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = []): void
     {
+        $publication = $object->getPublication();
         if (in_array(Asset::GROUP_READ, $context['groups'] ?? [])) {
-            $publication = $object->getPublication();
-            $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $publication);
+            $isAuthorized = $this->canReadDetails($publication);
             $publication->setAuthorized($isAuthorized);
             if (!$isAuthorized) {
                 $context['groups'] = ['_'];
 
                 return;
             }
+        } elseif (!$this->canReadDetails($publication)) {
+            // The cover of a listed publication the visitor cannot open: its thumbnail only
+            $thumbnail = $object->getThumbnailDefinition() ?? $object->getPosterDefinition();
+            if (null !== $thumbnail && str_starts_with($thumbnail->getMimeType(), 'image/')) {
+                $object->setThumbUrl($this->generateAssetUrl($thumbnail));
+                $object->setThumbType($thumbnail->getMimeType());
+            }
+
+            return;
         }
 
         $downloadViaEmail = $context['download_via_email'] ?? false;
@@ -83,5 +111,16 @@ class AssetNormalizer extends AbstractRouterNormalizer
     public function support($object): bool
     {
         return $object instanceof Asset;
+    }
+
+    private function canReadDetails(Publication $publication): bool
+    {
+        $token = $this->security->getToken();
+        if ($token !== $this->readDetailsToken) {
+            $this->reset();
+            $this->readDetailsToken = $token;
+        }
+
+        return $this->readDetails[$publication] ??= $this->security->isGranted(PublicationVoter::READ_DETAILS, $publication);
     }
 }

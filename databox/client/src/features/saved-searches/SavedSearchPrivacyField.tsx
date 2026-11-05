@@ -4,13 +4,20 @@ import {useTranslation} from 'react-i18next';
 import {SavedSearchPrivacy} from '@/types/api';
 import {RadioGroup, RadioGroupItem} from '@/components/ui/controls';
 import {Label} from '@/components/ui/input';
+import {cn} from '@/lib/utils/cn';
 
 export function SavedSearchPrivacyField({
     value,
     onChange,
+    canPublish = true,
+    initialValue = SavedSearchPrivacy.Secret,
 }: {
     value: SavedSearchPrivacy;
     onChange: (value: SavedSearchPrivacy) => void;
+    /** Without it, only Secret and the current privacy can be chosen */
+    canPublish?: boolean;
+    /** Privacy of the saved search, which can be kept without publishing */
+    initialValue?: SavedSearchPrivacy;
 }) {
     const {t} = useTranslation();
     const options = [
@@ -45,24 +52,45 @@ export function SavedSearchPrivacyField({
                 onValueChange={v => onChange(Number(v) as SavedSearchPrivacy)}
                 className="space-y-2"
             >
-                {options.map(o => (
-                    <label
-                        key={o.value}
-                        className="flex cursor-pointer items-start gap-2 text-sm"
-                    >
-                        <RadioGroupItem
-                            value={String(o.value)}
-                            className="mt-0.5"
-                        />
-                        <span>
-                            <span className="font-medium">{o.label}</span>
-                            <span className="block text-xs text-muted-foreground">
-                                {o.help}
+                {options.map(o => {
+                    const disabled =
+                        !canPublish &&
+                        o.value !== SavedSearchPrivacy.Secret &&
+                        o.value !== initialValue;
+
+                    return (
+                        <label
+                            key={o.value}
+                            className={cn(
+                                'flex items-start gap-2 text-sm',
+                                disabled
+                                    ? 'cursor-not-allowed opacity-60'
+                                    : 'cursor-pointer'
+                            )}
+                        >
+                            <RadioGroupItem
+                                value={String(o.value)}
+                                className="mt-0.5"
+                                disabled={disabled}
+                            />
+                            <span>
+                                <span className="font-medium">{o.label}</span>
+                                <span className="block text-xs text-muted-foreground">
+                                    {o.help}
+                                </span>
                             </span>
-                        </span>
-                    </label>
-                ))}
+                        </label>
+                    );
+                })}
             </RadioGroup>
+            {!canPublish ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                    {t(
+                        'saved_search.privacy.cannot_publish',
+                        'You are not allowed to publish searches.'
+                    )}
+                </p>
+            ) : null}
         </div>
     );
 }

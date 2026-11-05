@@ -8,6 +8,8 @@ fos_elastica:
         default:
             hosts:
                 - '%env(ELASTICSEARCH_URL)%/'
+            username: '%env(ELASTICSEARCH_USERNAME)%'
+            password: '%env(ELASTICSEARCH_PASSWORD)%'
     indexes:
         asset:
             use_alias: '%elastica.use_alias%'
@@ -255,9 +257,13 @@ fos_elastica:
                 name:
                     type: text
                     analyzer: text
+                    fields:
+                        suggest: *suggest_field
                 translatedNames:
                     type: text
                     analyzer: text
+                    fields:
+                        suggest: *suggest_field
                 suggestion:
                     property_path: name
                     type: text

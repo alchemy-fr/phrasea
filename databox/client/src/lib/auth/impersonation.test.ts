@@ -63,18 +63,22 @@ describe('impersonation', () => {
     });
 
     it('drops the previous user caches and reloads on switch', () => {
-        sessionStorage.setItem('dbx.prefs', '{}');
+        const caches = ['dbx.prefs', 'dbx.attribute-definitions'];
+        const fill = () => caches.forEach(k => sessionStorage.setItem(k, '{}'));
+        const left = () => caches.filter(k => sessionStorage.getItem(k));
+
+        fill();
         startImpersonation(alice);
 
         expect(getImpersonation()).toEqual(alice);
-        expect(sessionStorage.getItem('dbx.prefs')).toBeNull();
+        expect(left()).toEqual([]);
         expect(reload).toHaveBeenCalledOnce();
 
-        sessionStorage.setItem('dbx.prefs', '{}');
+        fill();
         stopImpersonation();
 
         expect(getImpersonation()).toBeUndefined();
-        expect(sessionStorage.getItem('dbx.prefs')).toBeNull();
+        expect(left()).toEqual([]);
         expect(reload).toHaveBeenCalledTimes(2);
     });
 

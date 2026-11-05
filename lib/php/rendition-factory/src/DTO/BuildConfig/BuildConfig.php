@@ -6,9 +6,14 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 
 final readonly class BuildConfig
 {
+    /**
+     * Key of the "generate" section, also the family level of its build hashes.
+     */
+    final public const string GENERATE = 'generate';
+
     public function __construct(
         private array $families,
-        private ?array $generate,
+        private ?GenerateConfig $generate,
     ) {
     }
 
@@ -17,7 +22,7 @@ final readonly class BuildConfig
         return $this->families[$family->value] ?? null;
     }
 
-    public function getGenerate(): ?array
+    public function getGenerate(): ?GenerateConfig
     {
         return $this->generate;
     }

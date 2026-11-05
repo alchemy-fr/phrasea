@@ -6,15 +6,24 @@ namespace App\Integration\Phrasea\Expose;
 
 use Alchemy\CoreBundle\Lock\LockTrait;
 use App\Entity\Basket\Basket;
+use App\Entity\Basket\BasketAsset;
 use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationToken;
 use App\Integration\Auth\MissingIntegrationTokenException;
+use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationManager;
 use App\Integration\Phrasea\Expose\Sync\AssetToSync;
 use App\Integration\Phrasea\Expose\Sync\ExposeAsset;
 use App\Integration\Phrasea\Expose\Sync\ExposeSubDefinition;
 use App\Integration\PusherTrait;
+use App\Model\MediaClip;
 use App\Repository\Integration\IntegrationTokenRepository;
+use App\Service\Clip\ClipException;
+use App\Service\Clip\ClipFamily;
+use App\Service\Clip\ClipResolver;
 use App\Service\Storage\RenditionManager;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Lock\LockInterface;
 
 final class ExposeSynchronizer
 {
@@ -26,6 +35,7 @@ final class ExposeSynchronizer
         private readonly IntegrationManager $integrationManager,
         private readonly IntegrationTokenRepository $integrationTokenRepository,
         private readonly RenditionManager $renditionManager,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -35,11 +45,13 @@ final class ExposeSynchronizer
             'sync:'.$basketData->getId(),
             30,
             'synchronize',
-            fn () => $this->doSynchronize($basketData)
+            fn (LockInterface $lock) => $this->doSynchronize($basketData, $lock),
+            // Cutting a clipped video may take a while: the lock is also refreshed on each item
+            ttl: 600,
         );
     }
 
-    private function doSynchronize(IntegrationData $basketData): void
+    private function doSynchronize(IntegrationData $basketData, LockInterface $lock): void
     {
         $config = $this->integrationManager->getIntegrationConfiguration($basketData->getIntegration());
         $token = $this->integrationTokenRepository->getLastValidUserToken($config->getIntegrationId(), $basketData->getUserId());
@@ -47,7 +59,7 @@ final class ExposeSynchronizer
             throw new MissingIntegrationTokenException($basketData->getUserId(), ExposeIntegration::getDisplayName(), 'Your Expose access has expired: the basket synchronization was stopped. Please authenticate again from the Expose integration panel and run a synchronization.');
         }
 
-        $publicationId = $basketData->getValue();
+        ['id' => $publicationId, 'ignoreRoi' => $ignoreRoi] = ExposeIntegration::readPublicationData($basketData);
         $data = $this->exposeClient->getPublication($config, $token, $publicationId);
 
         /** @var ExposeAsset[] $exposeAssets */
@@ -65,6 +77,7 @@ final class ExposeSynchronizer
                             $subDef['name'],
                             $subDefAnnotations['renditionId'] ?? '',
                             $subDefAnnotations['fileId'] ?? '',
+                            $subDefAnnotations['clip'] ?? null,
                         );
                     }, $asset['subDefinitions']);
 
@@ -76,6 +89,7 @@ final class ExposeSynchronizer
                         $asset['description'] ?? null,
                         $asset['translations'] ?? [],
                         $subDefinitions,
+                        $annotations['clip'] ?? null,
                     );
                 }
             }
@@ -117,26 +131,37 @@ final class ExposeSynchronizer
         };
 
         foreach ($toSync as $assetToSync) {
+            $lock->refresh();
             $progress($done++);
             $basketAsset = $assetToSync->basketAsset;
             $asset = $basketAsset->getAsset();
-            $fileId = $asset->getSource()->getId();
+            $source = $asset->getSource();
+            $fileId = $source->getId();
+            $basketClip = ClipResolver::forBasketAsset($basketAsset, $ignoreRoi);
+            $sourceClip = ClipFamily::restrict($basketClip, $source->getType());
+            $clipHash = $sourceClip?->getHash();
 
             $assetProperties = $this->exposeClient->getAssetProperties($asset, [
-                'clientAnnotations' => json_encode([
+                'clientAnnotations' => json_encode(self::fileAnnotations([
                     'basketAssetId' => $basketAsset->getId(),
                     'fileId' => $fileId,
-                ], JSON_THROW_ON_ERROR),
+                ], $clipHash), JSON_THROW_ON_ERROR),
             ]);
 
             if (null === $assetToSync->exposeAsset) {
-                $exposeAssetId = $this->exposeClient->postAsset($config, $token, $publicationId, $asset, $assetProperties);
+                $exposeAssetId = $this->postAsset($config, $token, $publicationId, $basketAsset, $assetProperties, $sourceClip);
+                if (null === $exposeAssetId) {
+                    continue;
+                }
             } else {
                 $exposeAssetId = $assetToSync->exposeAsset->id;
-                if ($assetToSync->exposeAsset->fileId !== $fileId) {
+                if ($assetToSync->exposeAsset->fileId !== $fileId || $assetToSync->exposeAsset->clipHash !== $clipHash) {
                     $this->exposeClient->deleteAsset($config, $token, $assetToSync->exposeAsset->id);
 
-                    $exposeAssetId = $this->exposeClient->postAsset($config, $token, $publicationId, $asset, $assetProperties);
+                    $exposeAssetId = $this->postAsset($config, $token, $publicationId, $basketAsset, $assetProperties, $sourceClip);
+                    if (null === $exposeAssetId) {
+                        continue;
+                    }
 
                     $assetToSync = new AssetToSync(
                         $basketAsset,
@@ -148,6 +173,7 @@ final class ExposeSynchronizer
                             $assetProperties['description'],
                             $assetProperties['translations'],
                             [],
+                            $clipHash,
                         )
                     );
                 } elseif (
@@ -171,35 +197,50 @@ final class ExposeSynchronizer
                 'thumbnail',
             ] as $renditionName) {
                 if (null !== $rendition = $this->renditionManager->getAssetRenditionUsedAs($renditionName, $asset->getId())) {
-                    if (!$rendition->getFile()) {
+                    $renditionFile = $rendition->getFile();
+                    if (!$renditionFile) {
                         continue;
                     }
+
+                    // The image thumbnail of a video only gets the crop
+                    $renditionClip = ClipFamily::restrict($basketClip, $renditionFile->getType());
+                    $renditionClipHash = $renditionClip?->getHash();
 
                     $existingSubDef = $exposeSubDefs[$renditionName] ?? null;
                     unset($exposeSubDefs[$renditionName]);
 
                     /** @var ExposeSubDefinition|null $existingSubDef */
                     if (null !== $existingSubDef) {
-                        if ($existingSubDef->fileId === $rendition->getFile()->getId()) {
+                        if ($existingSubDef->fileId === $renditionFile->getId() && $existingSubDef->clipHash === $renditionClipHash) {
                             continue;
                         }
 
                         $this->exposeClient->deleteSubDefinition($config, $token, $existingSubDef->id);
                     }
 
-                    $this->exposeClient->postSubDefinition(
-                        $config,
-                        $token,
-                        $exposeAssetId,
-                        $renditionName,
-                        $rendition,
-                        [
-                            'clientAnnotations' => json_encode([
-                                'renditionId' => $rendition->getId(),
-                                'fileId' => $rendition->getFile()->getId(),
-                            ], JSON_THROW_ON_ERROR),
-                        ]
-                    );
+                    try {
+                        $this->exposeClient->postSubDefinition(
+                            $config,
+                            $token,
+                            $exposeAssetId,
+                            $renditionName,
+                            $rendition,
+                            [
+                                'clientAnnotations' => json_encode(self::fileAnnotations([
+                                    'renditionId' => $rendition->getId(),
+                                    'fileId' => $renditionFile->getId(),
+                                ], $renditionClipHash), JSON_THROW_ON_ERROR),
+                            ],
+                            $renditionClip,
+                        );
+                    } catch (ClipException $e) {
+                        // Never publish the whole file in place of the clipped one
+                        $this->logger->error('Expose synchronization: a basket item rendition could not be clipped, it is not published', [
+                            'exception' => $e,
+                            'basketAssetId' => $basketAsset->getId(),
+                            'renditionId' => $rendition->getId(),
+                        ]);
+                    }
                 }
             }
 
@@ -221,5 +262,36 @@ final class ExposeSynchronizer
             'id' => $dataId,
             'action' => 'sync-complete',
         ], direct: true);
+    }
+
+    /**
+     * The clip hash is only set on clipped files: the items published before the clips
+     * existed are not uploaded again.
+     */
+    private static function fileAnnotations(array $annotations, ?string $clipHash): array
+    {
+        if (null !== $clipHash) {
+            $annotations['clip'] = $clipHash;
+        }
+
+        return $annotations;
+    }
+
+    /**
+     * @return string|null the Expose asset id, null when the clipped file could not be produced
+     */
+    private function postAsset(IntegrationConfig $config, IntegrationToken $token, string $publicationId, BasketAsset $basketAsset, array $assetProperties, ?MediaClip $clip): ?string
+    {
+        try {
+            return $this->exposeClient->postAsset($config, $token, $publicationId, $basketAsset->getAsset(), $assetProperties, $clip);
+        } catch (ClipException $e) {
+            // Never publish the whole file in place of the clipped one
+            $this->logger->error('Expose synchronization: a basket item could not be clipped, it is not published', [
+                'exception' => $e,
+                'basketAssetId' => $basketAsset->getId(),
+            ]);
+
+            return null;
+        }
     }
 }

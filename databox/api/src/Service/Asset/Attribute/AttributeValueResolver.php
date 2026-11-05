@@ -11,8 +11,9 @@ use App\File\FileMetadataAccessorWrapper;
 use App\Notification\EntityDisableNotifyableException;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
+use Symfony\Contracts\Service\ResetInterface;
 
-final class AttributeValueResolver
+final class AttributeValueResolver implements ResetInterface
 {
     /**
      * @var array<string, array<string, AttributeDefinition>> definitions indexed by slug, per workspace
@@ -24,6 +25,11 @@ final class AttributeValueResolver
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
     ) {
+    }
+
+    public function reset(): void
+    {
+        $this->indexByName = [];
     }
 
     private function getDefinitionIndexByName(string $workspaceId): array

@@ -222,17 +222,25 @@ class CollectionOutputMapper implements OutputMapperInterface
 
     /**
      * The highlight of the displayed name: the name may match through one of its translations.
+     *
+     * The partial highlight (only the typed part of the words) comes first; the whole words one
+     * remains for the words longer than the indexed edge n-grams.
      */
     private static function getNameHighlight(array $highlights, ?string $displayedName): ?string
     {
         if (null !== $displayedName) {
-            foreach ([...$highlights['name'] ?? [], ...$highlights['translatedNames'] ?? []] as $fragment) {
+            foreach ([
+                ...$highlights['name.suggest'] ?? [],
+                ...$highlights['translatedNames.suggest'] ?? [],
+                ...$highlights['name'] ?? [],
+                ...$highlights['translatedNames'] ?? [],
+            ] as $fragment) {
                 if (str_replace(['[hl]', '[/hl]'], '', $fragment) === $displayedName) {
                     return $fragment;
                 }
             }
         }
 
-        return $highlights['name'][0] ?? null;
+        return $highlights['name.suggest'][0] ?? $highlights['name'][0] ?? null;
     }
 }

@@ -6,6 +6,10 @@
 parameters:
     default_locale: 'en'
     env(VERIFY_SSL): true
+    # Above it, an import of assets must use the NDJSON format (read line by line)
+    env(ASSET_IMPORT_JSON_MAX_SIZE): '52428800'
+    # Days the audit log entries are kept, 0 to keep them forever
+    env(AUDIT_LOG_RETENTION_DAYS): '365'
     stof_doctrine_extensions.listener.softdeleteable.class: App\Doctrine\Listener\SoftDeleteableListener
 
 services:

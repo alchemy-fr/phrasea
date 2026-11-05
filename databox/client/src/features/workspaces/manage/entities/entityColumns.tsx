@@ -60,15 +60,38 @@ export const statusOptions = (t: TFunction): CellEditorOption[] => [
     },
 ];
 
-/** Value of a cell as its editor handles it */
+const synonymsOf = (entity: AttributeEntity, columnId: string): string[] =>
+    entity.synonyms?.[columnId.slice(SYNONYMS.length)] ?? [];
+
+/** The synonyms of a cell value (a JSON list); `null` when it is not one */
+export function parseSynonyms(value: string): string[] | null {
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(value);
+    } catch {
+        return null;
+    }
+    if (!Array.isArray(parsed)) {
+        return null;
+    }
+    const list = parsed
+        .filter((s): s is string => typeof s === 'string')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+    return list.filter((s, i) => list.indexOf(s) === i);
+}
+
+/**
+ * Value of a cell as its editor handles it; the synonyms of a locale are a
+ * JSON list
+ */
 export function cellValueOf(entity: AttributeEntity, columnId: string): string {
     if (columnId.startsWith(TRANSLATIONS)) {
         return entity.translations?.[columnId.slice(TRANSLATIONS.length)] ?? '';
     }
     if (columnId.startsWith(SYNONYMS)) {
-        return (entity.synonyms?.[columnId.slice(SYNONYMS.length)] ?? []).join(
-            ', '
-        );
+        return JSON.stringify(synonymsOf(entity, columnId));
     }
     switch (columnId) {
         case 'value':
@@ -88,7 +111,7 @@ export function cellValueOf(entity: AttributeEntity, columnId: string): string {
 
 /**
  * The PATCH payload of an edited cell; `null` when the value is invalid (an
- * empty value).
+ * empty value, synonyms which are not a JSON list).
  */
 export function entityPatchFromCell(
     entity: AttributeEntity,
@@ -109,10 +132,10 @@ export function entityPatchFromCell(
     }
     if (columnId.startsWith(SYNONYMS)) {
         const locale = columnId.slice(SYNONYMS.length);
-        const list = value
-            .split(',')
-            .map(s => s.trim())
-            .filter(Boolean);
+        const list = parseSynonyms(value);
+        if (!list) {
+            return null;
+        }
         const synonyms = {...(entity.synonyms ?? {})};
         if (list.length > 0) {
             synonyms[locale] = list;
@@ -360,24 +383,32 @@ export function buildEntityColumns(
             const id = `${SYNONYMS}${locale}`;
             columns.push({
                 id,
-                accessorFn: e => cellValueOf(e, id),
+                accessorFn: e => synonymsOf(e, id),
                 header: () => (
                     <span
                         className="flex items-center gap-1"
-                        title={t(
-                            'entity.synonyms',
-                            'Synonyms (comma separated)'
-                        )}
+                        title={t('entity.synonyms', 'Synonyms')}
                     >
                         ≈ <Flag locale={locale} /> {locale}
                     </span>
                 ),
                 size: 180,
                 enableSorting: false,
-                meta: {editor: 'text', editable: notDraft},
+                meta: {
+                    editor: 'tags',
+                    editable: notDraft,
+                    getValue: e => cellValueOf(e, id),
+                },
                 cell: ({getValue}) => (
-                    <span className="truncate text-muted-foreground">
-                        {getValue()}
+                    <span className="flex min-w-0 gap-1 overflow-hidden">
+                        {(getValue() as string[]).map((s, i) => (
+                            <span
+                                key={`${s}-${i}`}
+                                className="max-w-full shrink-0 truncate rounded-full bg-secondary px-2 py-0.5 text-xs"
+                            >
+                                {s}
+                            </span>
+                        ))}
                     </span>
                 ),
             });

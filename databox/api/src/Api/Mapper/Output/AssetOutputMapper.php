@@ -31,6 +31,7 @@ use App\Serializer\Normalizer\ShareNormalizer;
 use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Asset\StoryRenditionPreference;
 use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -86,6 +87,7 @@ class AssetOutputMapper implements OutputMapperInterface
         $output->externalId = $data->getExternalId();
         $output->resolvedTrackingId = $data->getResolvedTrackingId();
         $output->status = $data->getStatus();
+        $output->roi = $data->getMediaClip()?->toArray();
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->editedAt = $data->getEditedAt();
@@ -156,7 +158,8 @@ class AssetOutputMapper implements OutputMapperInterface
             $shareId = $sharedPublicly ? $context[ShareNormalizer::CONTEXT_SHARE_ID] ?? null : null;
             $share = null !== $shareId ? $this->em->find(Share::class, $shareId) : null;
             foreach (RenditionDefinition::BUILT_IN_RENDITIONS as $type) {
-                if (null !== $file = $this->getRenditionUsedAsType($renditions, $type, $sharedPublicly, $share)) {
+                $candidates = StoryRenditionPreference::sort($data, $type, $renditions);
+                if (null !== $file = $this->getRenditionUsedAsType($candidates, $type, $sharedPublicly, $share)) {
                     $output->{'set'.ucfirst($type)}($file);
                 }
             }

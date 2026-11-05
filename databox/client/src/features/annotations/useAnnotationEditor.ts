@@ -11,7 +11,14 @@ import {
 import {emptyMedia, type MediaSize} from './geometry';
 import {getShapeModel} from './shapes';
 import {getDefaultOptions, updateLastOptions} from './defaultOptions';
-import {ensureAnnotationIds, toStoredAnnotation} from './common';
+import {
+    ensureAnnotationIds,
+    getAnnotationPage,
+    isAtTime,
+    isOnPage,
+    toStoredAnnotation,
+    type AnnotationTimeline,
+} from './common';
 import {getDefaultAnnotationName} from './annotationNames';
 
 /** A text being typed: an existing shape, or a new one when `id` is unset */
@@ -23,15 +30,32 @@ export type TextEdit = {
 export type AnnotationEditor = {
     /** Every shape of the target, with an id */
     annotations: AssetAnnotation[];
-    /** The shapes of the displayed page */
+    /**
+     * The shapes of `page` (all of them without a page) on the frame shown
+     * (see `timeline`)
+     */
     pageAnnotations: AssetAnnotation[];
+    /**
+     * The page the layers are of unless they tell theirs (a document shows
+     * one layer per page), every page when undefined
+     */
     page: number | undefined;
+    /**
+     * The instant of a video the layer shows: the shapes are drawn on its
+     * frame, the cues are placed at its current time
+     */
+    timeline: AnnotationTimeline | undefined;
+    /** The shape is on the frame shown, always without a timeline */
+    isAtTime: (annotation: AssetAnnotation) => boolean;
     editable: boolean;
     /** The pointer draws and selects shapes (editable and not paused) */
     active: boolean;
-    /** Size of the rendered media, reported by the layer */
+    /** Size of the rendered media of `page` */
     media: MediaSize;
-    setMedia: (media: MediaSize) => void;
+    /** Size of a rendered page, `page` when omitted */
+    mediaOf: (page?: number) => MediaSize;
+    /** Reported by the layer of the page, `page` when omitted */
+    setMedia: (media: MediaSize, page?: number) => void;
     /** The drawing tool, none in selection mode */
     tool: AnnotationType | undefined;
     setTool: (tool: AnnotationType | undefined) => void;
@@ -51,33 +75,57 @@ export type AnnotationEditor = {
     textEdit: TextEdit | undefined;
     editText: (edit: TextEdit | undefined) => void;
     commitText: (text: string) => void;
-    /** Adds a shape (named, on the page) and selects it */
+    /**
+     * Adds a shape (named, on its page, else on `page`; at its time, else
+     * at the current time of the timeline) and selects it
+     */
     add: (annotation: AssetAnnotation) => AssetAnnotation;
     update: (id: string, annotation: AssetAnnotation) => void;
     remove: (id: string) => void;
     duplicate: (id: string) => void;
     rename: (id: string, name: string) => void;
-    /** Moves the selected shape by a delta in pixels of the media */
+    /** Moves the selected shape by a delta in pixels of its page */
     nudge: (dx: number, dy: number) => void;
 };
 
 const noAnnotations: AssetAnnotation[] = [];
 
+type MediaSizes = Record<string, MediaSize>;
+
+const defaultMediaKey = 'default';
+
+function mediaKey(page: number | undefined): string {
+    return page === undefined ? defaultMediaKey : String(page);
+}
+
+/**
+ * The size of a page, else of the media of the layer without a page (an
+ * image shows its shapes whatever their page)
+ */
+function getMedia(medias: MediaSizes, page: number | undefined): MediaSize {
+    return medias[mediaKey(page)] ?? medias[defaultMediaKey] ?? emptyMedia;
+}
+
 /** Id of a shape being created, not stored yet */
 export const draftId = '__draft__';
 
 /**
- * State of the annotation layer of a target: the tool, the selection, the
+ * State of the annotation layers of a target: the tool, the selection, the
  * shape being dragged, the options; and the edits, sent to the target.
+ *
+ * One editor serves every layer of a document (one per page): each one
+ * reports the size of its page, the shapes are measured against the size
+ * of theirs.
  */
 export function useAnnotationEditor(
     target: AnnotationTarget | undefined,
-    page: number | undefined
+    page: number | undefined,
+    timeline?: AnnotationTimeline
 ): AnnotationEditor {
     const {t} = useTranslation();
     const editable = !!target?.editable;
     const targetKey = target?.key;
-    const [media, setMedia] = useState<MediaSize>(emptyMedia);
+    const [medias, setMedias] = useState<MediaSizes>({});
     const [tool, setToolState] = useState<AnnotationType>();
     const [annotate, setAnnotateState] = useState(true);
     const [options, setOptionsState] = useState<AnnotationOptions>(() =>
@@ -95,14 +143,67 @@ export function useAnnotationEditor(
             ),
         [target?.annotations, targetKey]
     );
+    const timelineTime = timeline?.time;
+    const timelineTolerance = timeline?.tolerance;
+    const timed = !!timeline;
+    const atTime = useCallback(
+        (annotation: AssetAnnotation) =>
+            isAtTime(
+                annotation,
+                timed
+                    ? {time: timelineTime, tolerance: timelineTolerance ?? 0}
+                    : undefined
+            ),
+        [timed, timelineTime, timelineTolerance]
+    );
     const pageAnnotations = useMemo(
-        () => annotations.filter(a => !page || !a.page || a.page === page),
-        [annotations, page]
+        () =>
+            page === undefined && !timed
+                ? annotations
+                : annotations.filter(a => isOnPage(a, page) && atTime(a)),
+        [annotations, page, timed, atTime]
     );
 
     // The actions read the latest values without being recreated
-    const latest = useRef({annotations, media, selectedId, tool, options});
-    latest.current = {annotations, media, selectedId, tool, options};
+    const latest = useRef({
+        annotations,
+        medias,
+        page,
+        selectedId,
+        tool,
+        timeline,
+    });
+    latest.current = {annotations, medias, page, selectedId, tool, timeline};
+    /** The size of the page of the shape */
+    const shapeMedia = useCallback(
+        (annotation: AssetAnnotation): MediaSize =>
+            getMedia(
+                latest.current.medias,
+                latest.current.page === undefined
+                    ? getAnnotationPage(annotation)
+                    : (annotation.page ?? latest.current.page)
+            ),
+        []
+    );
+
+    const setMedia = useCallback(
+        (media: MediaSize, mediaPage?: number) =>
+            setMedias(prev => {
+                const key = mediaKey(mediaPage ?? latest.current.page);
+                const current = prev[key];
+
+                return current &&
+                    current.width === media.width &&
+                    current.height === media.height
+                    ? prev
+                    : {...prev, [key]: media};
+            }),
+        []
+    );
+    const mediaOf = useCallback(
+        (mediaPage?: number) => getMedia(medias, mediaPage ?? page),
+        [medias, page]
+    );
     const onChangeRef = useRef(target?.onChange);
     onChangeRef.current = target?.onChange;
 
@@ -136,14 +237,17 @@ export function useAnnotationEditor(
 
     const add = useCallback(
         (annotation: AssetAnnotation): AssetAnnotation => {
-            const {annotations} = latest.current;
+            const {annotations, timeline} = latest.current;
             const created: AssetAnnotation = {
                 ...annotation,
                 id: `annotation-${shortId()}`,
-                page,
+                page: annotation.page ?? page,
             };
             if (created.page === undefined) {
                 delete created.page;
+            }
+            if (timeline && typeof created.t !== 'number') {
+                created.t = timeline.now();
             }
             if (!created.name && created.type !== AnnotationType.Text) {
                 created.name = getDefaultAnnotationName(
@@ -170,17 +274,19 @@ export function useAnnotationEditor(
 
     const duplicate = useCallback(
         (id: string) => {
-            const {annotations, media} = latest.current;
-            const annotation = annotations.find(a => a.id === id);
+            const annotation = latest.current.annotations.find(
+                a => a.id === id
+            );
             const model = getShapeModel(annotation?.type);
             if (!annotation || !model) {
                 return;
             }
+            const media = shapeMedia(annotation);
             const offset = Math.max(10, media.width * 0.02);
             const {id: _id, name: _name, ...copy} = annotation;
             add(model.move(copy, offset, offset, media));
         },
-        [add]
+        [add, shapeMedia]
     );
 
     const rename = useCallback(
@@ -195,15 +301,20 @@ export function useAnnotationEditor(
         [update]
     );
 
-    const select = useCallback((id: string | undefined) => {
-        const {annotations, media} = latest.current;
-        setSelectedId(id);
-        const annotation = id ? annotations.find(a => a.id === id) : undefined;
-        const model = getShapeModel(annotation?.type);
-        if (annotation && model && media.width) {
-            setOptionsState(model.toOptions(annotation, media));
-        }
-    }, []);
+    const select = useCallback(
+        (id: string | undefined) => {
+            setSelectedId(id);
+            const annotation = id
+                ? latest.current.annotations.find(a => a.id === id)
+                : undefined;
+            const model = getShapeModel(annotation?.type);
+            const media = annotation ? shapeMedia(annotation) : emptyMedia;
+            if (annotation && model && media.width) {
+                setOptionsState(model.toOptions(annotation, media));
+            }
+        },
+        [shapeMedia]
+    );
 
     const setTool = useCallback((next: AnnotationType | undefined) => {
         setToolState(next);
@@ -219,7 +330,11 @@ export function useAnnotationEditor(
         (next: boolean) => {
             setAnnotateState(next);
             if (!next) {
+                // Nothing stays being edited while the pointer pans the image
                 setTool(undefined);
+                setSelectedId(undefined);
+                setDraft(undefined);
+                setTextEdit(undefined);
             }
         },
         [setTool]
@@ -227,7 +342,7 @@ export function useAnnotationEditor(
 
     const setOptions = useCallback(
         (next: AnnotationOptions) => {
-            const {annotations, media, selectedId, tool} = latest.current;
+            const {annotations, selectedId, tool} = latest.current;
             setOptionsState(next);
             const selected = selectedId
                 ? annotations.find(a => a.id === selectedId)
@@ -237,23 +352,25 @@ export function useAnnotationEditor(
                 updateLastOptions(type, next);
             }
             const model = getShapeModel(selected?.type);
+            const media = selected ? shapeMedia(selected) : emptyMedia;
             if (selected && model && media.width) {
                 update(selected.id!, model.applyOptions(selected, next, media));
             }
         },
-        [update]
+        [update, shapeMedia]
     );
 
     const nudge = useCallback(
         (dx: number, dy: number) => {
-            const {annotations, media, selectedId} = latest.current;
+            const {annotations, selectedId} = latest.current;
             const selected = annotations.find(a => a.id === selectedId);
             const model = getShapeModel(selected?.type);
+            const media = selected ? shapeMedia(selected) : emptyMedia;
             if (selected && model && media.width) {
                 update(selected.id!, model.move(selected, dx, dy, media));
             }
         },
-        [update]
+        [update, shapeMedia]
     );
 
     const commitText = useCallback(
@@ -289,9 +406,12 @@ export function useAnnotationEditor(
         annotations,
         pageAnnotations,
         page,
+        timeline,
+        isAtTime: atTime,
         editable,
         active: editable && annotate,
-        media,
+        media: mediaOf(page),
+        mediaOf,
         setMedia,
         tool,
         setTool,

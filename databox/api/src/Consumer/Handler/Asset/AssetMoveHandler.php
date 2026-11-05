@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Service\Asset\StoryContactSheetScheduler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -19,6 +20,7 @@ readonly class AssetMoveHandler
     public function __construct(
         private IriConverterInterface $iriConverter,
         private EntityManagerInterface $em,
+        private StoryContactSheetScheduler $contactSheetScheduler,
     ) {
     }
 
@@ -40,6 +42,11 @@ readonly class AssetMoveHandler
                 $this->em
                     ->getRepository(CollectionAsset::class)
                     ->deleteCollectionAsset($asset->getId(), $from->getId());
+
+                // A DQL delete triggers no Doctrine listener
+                if (null !== $storyAsset = $from->getStoryAsset()) {
+                    $this->contactSheetScheduler->schedule($storyAsset->getId());
+                }
             }
 
             if ($destination instanceof Collection) {

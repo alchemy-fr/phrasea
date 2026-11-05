@@ -4,6 +4,7 @@ import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
+    FileInputIcon,
     FilterIcon,
     ImagesIcon,
     InfoIcon,
@@ -39,6 +40,7 @@ import {RenditionPoliciesTab} from './tabs/RenditionPoliciesTab';
 import {AssetPoliciesTab} from './tabs/AssetPoliciesTab';
 import {IntegrationsTab} from './tabs/IntegrationsTab';
 import {FilterRulesTab} from './tabs/FilterRulesTab';
+import {WorkspaceImportsTab} from '@/features/import/WorkspaceImportsTab';
 
 export type WorkspaceTabProps = {workspace: Workspace; refresh: () => void};
 
@@ -139,6 +141,13 @@ function useTabs(workspace?: Workspace): DialogTab<WorkspaceTabProps>[] {
             icon: <ShieldCheckIcon />,
             component: AssetPoliciesTab,
             enabled: canEdit,
+        },
+        {
+            id: 'imports',
+            title: t('workspace.manage.imports', 'Imports'),
+            icon: <FileInputIcon />,
+            component: WorkspaceImportsTab,
+            enabled: !!workspace?.capabilities.createAsset,
         },
         {
             id: 'integrations',

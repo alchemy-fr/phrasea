@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace App\Entity\Basket;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use ApiPlatform\Doctrine\Orm\State\ItemProvider;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use App\Api\Model\Input\Basket\BasketAssetInput;
+use App\Api\Processor\UpdateBasketAssetProcessor;
 use App\Api\Provider\BasketAssetCollectionProvider;
 use App\Entity\Core\Asset;
 use App\Entity\Traits\AssetAnnotationsTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
+use App\Model\MediaClip;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -23,6 +29,18 @@ use Symfony\Component\Serializer\Attribute\Groups;
     uriTemplate: '/baskets/{id}/assets',
     operations: [
         new GetCollection(),
+        new Patch(
+            uriTemplate: '/basket-assets/{id}',
+            uriVariables: [
+                'id' => new Link(fromClass: self::class, identifiers: ['id']),
+            ],
+            // `object` is the input DTO here: the basket is checked by the processor
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: BasketAssetInput::class,
+            // The resource level provider lists the items of a basket: the id here is an item id
+            provider: ItemProvider::class,
+            processor: UpdateBasketAssetProcessor::class,
+        ),
     ],
     uriVariables: [
         'id' => new Link(toProperty: 'basket', fromClass: Basket::class),
@@ -89,6 +107,38 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
     public function setContext(?array $context): void
     {
         $this->context = $context;
+    }
+
+    /**
+     * The clip of the item, normalized (the former single range format included).
+     *
+     * @return array{timeRanges?: list<array{s: float, e: float}>, crop?: array{x: float, y: float, w: float, h: float}}|null
+     */
+    #[Groups([self::GROUP_LIST])]
+    public function getClip(): ?array
+    {
+        return $this->getMediaClip()?->toArray();
+    }
+
+    public function setClip(?array $clip): void
+    {
+        $context = $this->context ?? [];
+        if (empty($clip)) {
+            unset($context['clip']);
+        } else {
+            $context['clip'] = $clip;
+        }
+        $this->context = $context;
+    }
+
+    /**
+     * The clip of the item itself, regardless of the region of interest of its asset.
+     */
+    public function getMediaClip(): ?MediaClip
+    {
+        $clip = $this->context['clip'] ?? null;
+
+        return is_array($clip) ? MediaClip::fromArray($clip) : null;
     }
 
     public function getPosition(): ?int

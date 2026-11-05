@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import {type ReactNode, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     MaximizeIcon,
@@ -47,6 +47,7 @@ export function ZoomableImage({
     className,
     onInteraction,
     onContentClick,
+    overlay,
 }: {
     src: string;
     alt: string;
@@ -54,6 +55,11 @@ export function ZoomableImage({
     onInteraction?: () => void;
     /** A click on the image, not ending a drag nor on the toolbar */
     onContentClick?: () => void;
+    /**
+     * Drawn over the image, in a box following its zoom and rotation (the
+     * region of interest of the asset)
+     */
+    overlay?: ReactNode;
 }) {
     const {t} = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -112,8 +118,12 @@ export function ZoomableImage({
         if (!m) {
             return;
         }
-        setAnimated(smooth);
-        setView(update(m, viewRef.current));
+        const current = viewRef.current;
+        const next = update(m, current);
+        // A step changing nothing starts no transition, whose end would
+        // never come to clear the flag
+        setAnimated(a => smooth && (a || !sameView(current, next)));
+        setView(next);
         onInteraction?.();
     };
 
@@ -200,6 +210,11 @@ export function ZoomableImage({
     // Smaller than its natural size once fitted
     const reduced =
         !!metrics && fitScale(metrics, view.rotation) < toScale(metrics, 1);
+    const transform = toTransform(view);
+    // A GPU layer only while the transform moves: a lasting one is drawn
+    // from a raster Chrome does not redo, blurry once zoomed and with
+    // artifacts at its edges at 1x
+    const moving = animated || dragging;
 
     return (
         <div
@@ -289,11 +304,15 @@ export function ZoomableImage({
                     alt={alt}
                     draggable={false}
                     className={cn(
-                        'max-h-full max-w-full object-contain will-change-transform',
+                        'max-h-full max-w-full object-contain',
+                        moving && 'will-change-transform',
                         animated && 'transition-transform duration-200 ease-out'
                     )}
-                    style={{
-                        transform: `translate(${view.x}px, ${view.y}px) rotate(${view.rotation}deg) scale(${view.scale})`,
+                    style={{transform}}
+                    onTransitionEnd={e => {
+                        if (e.propertyName === 'transform') {
+                            setAnimated(false);
+                        }
                     }}
                     onLoad={() => {
                         metricsRef.current = measure();
@@ -302,12 +321,12 @@ export function ZoomableImage({
                     }}
                 />
             </div>
-            {annotations.layer && imageBox ? (
-                // Same box and transform as the image: the shapes follow it
+            {overlay && imageBox ? (
                 <div
-                    data-testid="annotation-overlay"
+                    data-testid="roi-overlay"
                     className={cn(
                         'pointer-events-none absolute',
+                        moving && 'will-change-transform',
                         animated && 'transition-transform duration-200 ease-out'
                     )}
                     style={{
@@ -315,7 +334,27 @@ export function ZoomableImage({
                         top: imageBox.top,
                         width: imageBox.width,
                         height: imageBox.height,
-                        transform: `translate(${view.x}px, ${view.y}px) rotate(${view.rotation}deg) scale(${view.scale})`,
+                        transform,
+                    }}
+                >
+                    {overlay}
+                </div>
+            ) : null}
+            {annotations.layer && imageBox ? (
+                // Same box and transform as the image: the shapes follow it
+                <div
+                    data-testid="annotation-overlay"
+                    className={cn(
+                        'pointer-events-none absolute',
+                        moving && 'will-change-transform',
+                        animated && 'transition-transform duration-200 ease-out'
+                    )}
+                    style={{
+                        left: imageBox.left,
+                        top: imageBox.top,
+                        width: imageBox.width,
+                        height: imageBox.height,
+                        transform,
                     }}
                 >
                     {annotations.layer}
@@ -391,6 +430,26 @@ export function ZoomableImage({
                 </Tooltip>
             </div>
         </div>
+    );
+}
+
+/**
+ * The translation is truncated to whole pixels, so as not to shift the
+ * image (and the annotations over it) by a fraction of a pixel: towards
+ * zero, it stays within the bounds of `clampOffset` and uncovers no
+ * background at the edges. The view itself keeps the exact offsets the
+ * zoom around the pointer is computed from.
+ */
+function toTransform(v: ZoomView): string {
+    return `translate(${Math.trunc(v.x)}px, ${Math.trunc(v.y)}px) rotate(${v.rotation}deg) scale(${v.scale})`;
+}
+
+function sameView(a: ZoomView, b: ZoomView): boolean {
+    return (
+        a.x === b.x &&
+        a.y === b.y &&
+        a.scale === b.scale &&
+        a.rotation === b.rotation
     );
 }
 

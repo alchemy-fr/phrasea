@@ -17,6 +17,7 @@ import {TermsContent} from '@/features/share/ShareTerms';
 import {useExportStore} from '@/features/assets/exportStore';
 import {downloadUrl} from '@/lib/utils/misc';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
+import {effectiveClip, hasClip} from '@/features/clip/clip';
 
 async function getAllRenditionDefinitions(
     workspaceIds: string[]
@@ -35,6 +36,7 @@ export function ExportDialog({
 }: ModalProps<string[]> & {assets: Asset[]}) {
     const {t} = useTranslation();
     const [selected, setSelected] = useState<string[]>([]);
+    const [ignoreRoi, setIgnoreRoi] = useState(false);
     const [acceptedTerms, setAcceptedTerms] = useState<Record<string, boolean>>(
         {}
     );
@@ -42,6 +44,14 @@ export function ExportDialog({
     const workspaceIds = useMemo(
         () => [...new Set(assets.map(a => a.workspace.id))],
         [assets]
+    );
+    // Basket items are exported as such: their clip applies to the files,
+    // in place of the region of interest of their asset
+    const basketItemIds = assets.every(a => !!a.basketItemId)
+        ? assets.map(a => a.basketItemId!)
+        : undefined;
+    const hasClips = assets.some(a =>
+        hasClip(basketItemIds ? effectiveClip(a) : a.roi)
     );
 
     const definitions = useQuery({
@@ -100,8 +110,11 @@ export function ExportDialog({
         }
 
         const exp = await exportAssets({
-            assets: assets.map(a => a.id),
+            ...(basketItemIds
+                ? {basketAssets: basketItemIds}
+                : {assets: assets.map(a => a.id)}),
             renditions: selected,
+            ...(hasClips && ignoreRoi ? {ignoreRoi: true} : {}),
         });
         addExport(exp);
         track(
@@ -135,6 +148,28 @@ export function ExportDialog({
             onSubmit={submit}
         >
             {definitions.isLoading ? <InlineLoader /> : null}
+            {hasClips ? (
+                <div className="space-y-1">
+                    <LabeledControl
+                        label={t(
+                            'export.dialog.ignore_roi',
+                            'Export the whole files (ignore the regions of interest and the extracts)'
+                        )}
+                    >
+                        <Checkbox
+                            checked={ignoreRoi}
+                            onCheckedChange={v => setIgnoreRoi(v === true)}
+                            data-testid="export-ignore-roi"
+                        />
+                    </LabeledControl>
+                    <p className="text-xs text-muted-foreground">
+                        {t(
+                            'export.dialog.roi_applied',
+                            'By default, the regions of interest of the assets, and the extracts of the basket items in their place, are applied: the exported files are cut and cropped.'
+                        )}
+                    </p>
+                </div>
+            ) : null}
             {Object.entries(byWorkspace).map(([wsId, {name, defs}]) => (
                 <div key={wsId}>
                     {workspaceIds.length > 1 ? (

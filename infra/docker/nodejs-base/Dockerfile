@@ -4,10 +4,8 @@ RUN apk add --no-cache \
         python3 \
         make \
         g++ \
+        quickjs-ng \
     && npm install -g pnpm@^12.15.0 \
-    && mkdir -p /var/docker \
-    && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.1/generate-env-alpine \
-    && chmod +x /var/docker/generate-env \
     && mkdir -p /srv/workspace/phrasea \
     && chown -R node: /srv/workspace/phrasea \
     && mkdir -p /docker/entrypoint.d \
@@ -19,7 +17,6 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 WORKDIR /srv/workspace/phrasea
 
 COPY entrypoint.sh /entrypoint.sh
-COPY entrypoint.d/* /docker/entrypoint.d/
 
 EXPOSE 3000
 

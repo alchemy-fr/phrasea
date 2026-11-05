@@ -11,6 +11,8 @@ final readonly class ExposeSubDefinition
         public string $subDefinitionName,
         public string $renditionId,
         public string $fileId,
+        /** Hash of the clip the published file was cut to */
+        public ?string $clipHash = null,
     ) {
     }
 }

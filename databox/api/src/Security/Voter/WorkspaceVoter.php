@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Workspace;
+use App\Security\InstancePermission;
 use App\Service\Workspace\TermsManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -72,7 +73,8 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
 
         return match ($attribute) {
             // Create a new Workspace
-            AbstractVoter::CREATE => $this->isAdmin(),
+            AbstractVoter::CREATE => $this->isAdmin($token)
+                || $this->security->isGranted(InstancePermission::CREATE_WORKSPACE),
             self::CREATE_COLLECTION => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CREATE,

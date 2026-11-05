@@ -15,6 +15,7 @@ class AssetRepository extends EntityRepository
             ->update(Asset::class, 'a')
             ->set('a.commit', ':commit')
             ->andWhere('a.id IN (:ids)')
+            ->andWhere('a.commit IS NULL')
             ->setParameter('commit', $commitId)
             ->setParameter('ids', $files)
             ->getQuery()

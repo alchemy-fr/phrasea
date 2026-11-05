@@ -136,6 +136,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         yield 'nested option' => ['remove.bg', ['budgetLimit' => ['limit' => 'abc']], 'config.budgetLimit.limit'];
         yield 'missing workspace resource' => ['core.face_recognition', ['attribute' => 'faces'], 'config.attribute'];
         yield 'missing required option' => ['core.webhook', [], 'config'];
+        yield 'missing rendition' => ['core.similarity', [], 'config'];
     }
 
     #[DataProvider('getInvalidConfigurations')]

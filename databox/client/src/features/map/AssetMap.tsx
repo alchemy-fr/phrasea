@@ -42,8 +42,8 @@ import {
     GeoCluster,
     geoClusterSearch,
     getAsset,
+    getAssetsByIds,
     getGeoClusters,
-    searchAssets,
 } from '@/lib/api/assets';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
@@ -414,17 +414,14 @@ function MapView({
         queryKey: ['map-pin-assets', results.searchOptions, missingIds],
         queryFn: async ({signal}) => {
             // The search options keep the deleted or quarantined assets the search shows
-            const result = await searchAssets(
-                {
-                    ...results.searchOptions,
-                    ids: missingIds,
-                    limit: missingIds.length,
-                },
+            const assets = await getAssetsByIds(
+                missingIds,
+                results.searchOptions,
                 signal
             );
-            storeAssets(result.items);
+            storeAssets(assets);
 
-            return result.items.length;
+            return assets.length;
         },
         enabled: missingIds.length > 0,
         staleTime: Infinity,

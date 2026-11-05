@@ -12,11 +12,13 @@ use App\Entity\Core\AssetRelationship;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Model\MediaClip;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\AssetManager;
 use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Asset\PickSourceRenditionManager;
 use App\Service\Asset\StoryCoverManager;
+use App\Service\Clip\ClipFamily;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -28,6 +30,10 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
     use AttributeInputTrait;
 
     final public const string CONTEXT_CREATION_MICRO_TIME = 'micro_time';
+    /**
+     * Never update the asset of the same key: the creation fails on the unique key instead.
+     */
+    final public const string CONTEXT_CREATE_ONLY = 'create_only';
 
     public function __construct(
         private readonly PickSourceRenditionManager $pickSourceRenditionManager,
@@ -60,7 +66,7 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
             $data->sequence
         );
 
-        if ($isNew) {
+        if ($isNew && !($context[self::CONTEXT_CREATE_ONLY] ?? false)) {
             if ($workspace instanceof Workspace && $data->key) {
                 $asset = $this->em->getRepository(Asset::class)
                     ->findOneBy([
@@ -126,6 +132,15 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
         if (null !== $file = $this->handleFile($data, $object)) {
             $this->renditionManager->resetAssetRenditions($object);
             $this->assetManager->assignNewAssetSourceFile($object, $file);
+        }
+
+        // After the source change, which removes the region of interest
+        if (self::hasKey('roi', $data->roi, $context)) {
+            $roi = MediaClip::fromArray($data->roi?->toArray());
+            if (null !== $roi) {
+                ClipFamily::assertApplicable($roi, $object->getSource()?->getType());
+            }
+            $object->setRoi($roi?->toArray());
         }
 
         if (!empty($data->renditions)) {

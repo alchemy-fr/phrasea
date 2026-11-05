@@ -50,6 +50,22 @@ export async function copyToClipboard(text: string): Promise<void> {
     await navigator.clipboard.writeText(text);
 }
 
+/**
+ * Whether the URL may be opened or linked: http(s) only, never `javascript:` or `data:`.
+ */
+export function isHttpUrl(url: string | null | undefined): url is string {
+    if (!url) {
+        return false;
+    }
+    try {
+        return ['http:', 'https:'].includes(
+            new URL(url, window.location.href).protocol
+        );
+    } catch {
+        return false;
+    }
+}
+
 export function downloadUrl(url: string, filename?: string): void {
     const a = document.createElement('a');
     a.href = url;

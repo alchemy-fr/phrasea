@@ -131,6 +131,7 @@ export enum AttributeType {
 
 export enum EntityName {
     Asset = 'assets',
+    AssetImport = 'asset-imports',
     AssetPolicy = 'asset-policies',
     Attachment = 'attachments',
     Collection = 'collections',
@@ -159,6 +160,7 @@ export enum EntityName {
     Message = 'messages',
     File = 'files',
     Workflow = 'workflows',
+    AuditLog = 'audit-logs',
 }
 
 export enum AttributeBatchActionEnum {
@@ -523,10 +525,21 @@ export type AssetAnnotation = {
     name?: string;
     page?: number;
     /**
+     * Time in seconds of the frame of a video the shape is drawn on, the
+     * instant of a cue
+     */
+    t?: number;
+    /**
      * Client only: tooltip of the label of a read only shape, never sent to
      * the API
      */
     title?: string;
+    /**
+     * Client only: where a read only shape of the asset comes from (its
+     * attribute value and definition, its position among the shapes of that
+     * value), never sent to the API
+     */
+    source?: {attributeId: string; definitionId: string; index: number};
     [prop: string]: any;
 };
 
@@ -565,6 +578,13 @@ export interface Asset
      * can be in a basket several times, each item is selected on its own.
      */
     basketItemId?: string;
+    /**
+     * Client side only: the clip of the basket item this asset is displayed
+     * for, applied when the asset is played or shown.
+     */
+    basketClip?: MediaClip;
+    /** Region of interest: applied by default when the asset is shown, published or exported */
+    roi?: MediaClip | null;
     description?: string;
     privacy: Privacy;
     tags?: Tag[];
@@ -632,9 +652,28 @@ export interface Basket extends WithCapabilities<{share: boolean}>, Entity {
     owner?: User;
 }
 
+/** Part of a video or an audio, in seconds */
+export type ClipTimeRange = {s: number; e: number};
+
+/** Rectangle of an image or a video, relative to its displayed size (0..1) */
+export type ClipCrop = {x: number; y: number; w: number; h: number};
+
+/**
+ * Time ranges and/or crop of a media: region of interest of an asset, or
+ * extract of a basket item (which replaces the region of interest of its
+ * asset). The file is not cut: the clip is applied on display, and when the
+ * asset is published or exported (the ranges are then concatenated). The
+ * ranges are sorted and do not overlap.
+ */
+export type MediaClip = {
+    timeRanges?: ClipTimeRange[];
+    crop?: ClipCrop;
+};
+
 export interface BasketAsset extends Entity {
     asset: Asset;
     context?: unknown;
+    clip?: MediaClip | null;
     nameHighlight?: string;
     position: number;
     createdAt: string;
@@ -671,7 +710,9 @@ export enum SavedSearchPrivacy {
 }
 
 export interface SavedSearch
-    extends WithCapabilities<{manageAutomations: boolean}>, Entity {
+    extends
+        WithCapabilities<{manageAutomations: boolean; publish: boolean}>,
+        Entity {
     name: string;
     privacy?: SavedSearchPrivacy;
     createdAt: string;
@@ -679,6 +720,17 @@ export interface SavedSearch
     data: SavedSearchData;
     owner?: User;
 }
+
+/**
+ * Capabilities of the current user granted at the instance level (outside any
+ * workspace), see `features/permissions/instancePermissions.ts`.
+ */
+export type InstanceCapabilities = {
+    createWorkspace: boolean;
+    createProfile: boolean;
+    shareBasket: boolean;
+    publishSavedSearch: boolean;
+};
 
 export enum AutomationScope {
     New = 'new',
@@ -1078,6 +1130,46 @@ export type WorkflowDetail = {
     asset?: {id: string; name?: string | null} | null;
 };
 
+export enum AuditLogActorType {
+    User = 'user',
+    OAuthClient = 'oauth_client',
+    System = 'system',
+}
+
+/** A change of an attribute in an `asset_attribute_changed` entry */
+export type AuditLogAttributeChange = {
+    definitionId: string;
+    definitionName?: string | null;
+    locale?: string | null;
+    op: 'set' | 'add' | 'delete' | 'replace';
+    old: string[];
+    new: string[];
+};
+
+/** An entry of the audit log (admins) */
+export type AuditLog = Entity & {
+    date: string;
+    /** Action key, e.g. `asset_moved` */
+    action: string;
+    actorType: AuditLogActorType;
+    /** The acting user, with the username they had then */
+    user?: {id: string; username?: string | null} | null;
+    impersonatorId?: string | null;
+    clientId?: string | null;
+    ip?: string | null;
+    /** Object type key, e.g. `asset`, `saved_search` */
+    objectType?: string | null;
+    objectId?: string | null;
+    /** The title or name of the object when the action was logged */
+    objectLabel?: string | null;
+    workspaceId?: string | null;
+    /** Shared by an action and its asynchronous effects */
+    correlationId?: string | null;
+    data: Record<string, unknown> | unknown[];
+    /** `uri`, `_route`, `source` (api, admin, console, worker, automation, integration), `command` */
+    meta: Record<string, unknown> | unknown[];
+};
+
 export type IntegrationData = Entity & {
     object?: object;
     keyId: string | null;
@@ -1177,6 +1269,45 @@ export type SearchSuggestion = {
     locale?: string;
     /** Id of the entity behind an entity attribute value */
     entityId?: string;
+};
+
+// ---------------------------------------------------------------------------
+// Asset imports (JSON / NDJSON instructions file)
+
+export type AssetImportFormat = 'json' | 'ndjson';
+
+export type AssetImportStatus =
+    'pending' | 'dispatching' | 'processing' | 'completed' | 'failed';
+
+export type AssetImport = Entity & {
+    workspaceId: string;
+    collectionId?: string;
+    collectionTitle?: string;
+    /** Set when the import was triggered by an integration (webhook) */
+    integrationId?: string;
+    integrationTitle?: string;
+    owner?: Pick<User, 'id' | 'username'>;
+    format: AssetImportFormat;
+    privacy?: Privacy;
+    originalName?: string;
+    status: AssetImportStatus;
+    /** Unknown until the whole file has been read */
+    total?: number;
+    created: number;
+    skipped: number;
+    failed: number;
+    /** Fatal error which stopped the import (invalid JSON…) */
+    error?: string;
+    endedAt?: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type AssetImportError = Entity & {
+    /** Line of the NDJSON file, or position (from 1) in the JSON array */
+    line: number;
+    key?: string;
+    message: string;
 };
 
 // ---------------------------------------------------------------------------

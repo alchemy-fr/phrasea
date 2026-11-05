@@ -13,7 +13,9 @@ import {
     LogInIcon,
     LogOutIcon,
     PanelLeftIcon,
+    ScrollTextIcon,
     SettingsIcon,
+    ShieldIcon,
     UserIcon,
     LanguagesIcon,
     ListChecksIcon,
@@ -47,6 +49,7 @@ import {supportedLanguages} from '@/i18n';
 import {routes} from '@/lib/routes';
 import {useModals} from '@/components/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
+import {InstancePermissionsDialog} from '@/features/permissions/InstancePermissionsDialog';
 import {
     SWITCH_USER_SHORTCUT,
     useSwitchUserShortcut,
@@ -303,6 +306,25 @@ export function TopBar({
                                 {t(
                                     'settings.instance_integrations',
                                     'Instance integrations'
+                                )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                data-testid="settings-audit-log"
+                                onSelect={() => router.push(routes.auditLog())}
+                            >
+                                <ScrollTextIcon />{' '}
+                                {t('settings.audit_log', 'Audit log')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                data-testid="settings-instance-permissions"
+                                onSelect={() =>
+                                    openModal(InstancePermissionsDialog, {})
+                                }
+                            >
+                                <ShieldIcon />{' '}
+                                {t(
+                                    'settings.instance_permissions',
+                                    'Instance permissions'
                                 )}
                             </DropdownMenuItem>
                         </>

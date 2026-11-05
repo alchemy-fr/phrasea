@@ -104,7 +104,34 @@
                     "similarity": false
                 }
             },
-            "context": [],
+            "clip": {
+                "crop": {
+                    "h": 0.25,
+                    "w": 0.5,
+                    "x": 0.1,
+                    "y": 0.2
+                },
+                "timeRanges": [
+                    {
+                        "e": 3.25,
+                        "s": 1.5
+                    }
+                ]
+            },
+            "context": {
+                "clip": {
+                    "crop": {
+                        "h": 0.25,
+                        "w": 0.5,
+                        "x": 0.1,
+                        "y": 0.2
+                    },
+                    "timeRange": {
+                        "e": 3.25,
+                        "s": 1.5
+                    }
+                }
+            },
             "createdAt": "<date>",
             "id": "<basketAsset>",
             "position": 0

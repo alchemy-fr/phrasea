@@ -5,33 +5,42 @@ declare(strict_types=1);
 namespace App\Border;
 
 use App\Border\Exception\UnsupportedUriException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class UriDownloader
 {
     private const array SUPPORTED_SCHEMES = ['http', 'https'];
 
-    public function __construct(private HttpClientInterface $client)
-    {
+    public function __construct(
+        private HttpClientInterface $client,
+        #[Autowire(param: 'kernel.environment')]
+        private string $kernelEnv,
+    ) {
     }
 
     /**
+     * @param bool $allowPrivateNetwork only for URLs the platform trusts: user-supplied ones
+     *                                  could reach the internal services or the cloud metadata
+     *
      * @return string The temporary file path
      *
      * @throws UnsupportedUriException when $uri is not an HTTP(S) URL
      */
-    public function download(string $uri, array &$headers = [], ?string $path = null): string
+    public function download(string $uri, array &$headers = [], ?string $path = null, bool $allowPrivateNetwork = false): string
     {
         $scheme = parse_url($uri, PHP_URL_SCHEME);
         if (!\is_string($scheme) || !\in_array(strtolower($scheme), self::SUPPORTED_SCHEMES, true)) {
             throw new UnsupportedUriException($uri);
         }
 
-        $response = $this->client->request('GET', $uri);
+        $client = $allowPrivateNetwork || 'dev' === $this->kernelEnv ? $this->client : new NoPrivateNetworkHttpClient($this->client);
+        $response = $client->request('GET', $uri);
 
         $path ??= sys_get_temp_dir().'/'.uniqid('download-file');
         $fileHandler = fopen($path, 'w');
-        foreach ($this->client->stream($response) as $chunk) {
+        foreach ($client->stream($response) as $chunk) {
             fwrite($fileHandler, $chunk->getContent());
         }
         fclose($fileHandler);

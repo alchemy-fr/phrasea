@@ -149,6 +149,7 @@ function SearchScreenContent() {
                         thumbSize={display.thumbSize}
                         onOpen={openAsset}
                         searchQuery={search.query}
+                        scores={results.scores}
                     />
                 )}
             </div>

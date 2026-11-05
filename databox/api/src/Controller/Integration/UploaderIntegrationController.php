@@ -32,7 +32,7 @@ class UploaderIntegrationController extends AbstractController
 
         $integration = $integrationManager->loadIntegration($integrationId);
         $config = $integrationManager->getIntegrationConfiguration($integration);
-        if ($config['securityKey'] !== $authToken) {
+        if (!hash_equals((string) $config['securityKey'], $authToken)) {
             throw new AccessDeniedHttpException('Invalid token');
         }
 

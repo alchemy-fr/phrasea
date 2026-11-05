@@ -73,6 +73,8 @@ use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\SimilarAssetCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
+use App\Audit\AuditableInterface;
+use App\Audit\AuditIgnore;
 use App\Entity\FollowableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
@@ -83,6 +85,7 @@ use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
+use App\Model\MediaClip;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameFiller;
@@ -490,7 +493,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(columns: ['created_at'], name: 'asset_created_at_idx')]
 #[ORM\Index(columns: ['created_at', 'id'], name: 'asset_created_at_id_idx')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
+class Asset extends AbstractUuidEntity implements AuditableInterface, FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -515,9 +518,11 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     final public const string EVENT_NEW_COMMENT = 'asset:new_comment';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    #[AuditIgnore]
     private int $microseconds = 0;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    #[AuditIgnore]
     private int $sequence = 0;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
@@ -598,6 +603,13 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: AssetStatusEnum::class)]
     private ?AssetStatusEnum $status = null;
 
+    /**
+     * Region of interest: time ranges and/or crop of the source file (see MediaClip),
+     * applied to the display, the exports and the publications. Removed when the source changes.
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $roi = null;
+
     public ?GroupValue $groupValue = null;
     public ?AttributeIndex $attributesIndex = null;
 
@@ -636,6 +648,21 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         }
 
         $this->workspace = $workspace;
+    }
+
+    public function getRoi(): ?array
+    {
+        return $this->roi;
+    }
+
+    public function setRoi(?array $roi): void
+    {
+        $this->roi = empty($roi) ? null : $roi;
+    }
+
+    public function getMediaClip(): ?MediaClip
+    {
+        return MediaClip::fromArray($this->roi);
     }
 
     public function getSource(): ?File

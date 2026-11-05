@@ -21,7 +21,7 @@ import {AttributeBatchActionEnum, AttributeType, EntityName} from '@/types/api';
 import {
     attributeBatchUpdate,
     isAssetEligibleForDefinition,
-    searchAssets,
+    getAssetsByIds,
 } from '@/lib/api/assets';
 import {useHierarchyConflictConfirm} from '@/features/attributes/hierarchy/useHierarchyConflictConfirm';
 import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
@@ -33,6 +33,7 @@ import {FullPageLoader, Spinner} from '@/components/ui/loader';
 import {
     Badge,
     EmptyState,
+    Separator,
     Tabs,
     TabsList,
     TabsTrigger,
@@ -152,17 +153,13 @@ export function AttributeBatchEditorRoute() {
         }
     }, []);
 
-    // The assets come with their attributes: one request for the whole
-    // selection
+    // The assets come with their attributes
     const assetsQuery = useQuery({
         queryKey: ['batch-edit', 'assets', ids],
-        queryFn: () => searchAssets({ids, limit: ids.length || 1}),
+        queryFn: ({signal}) => getAssetsByIds(ids, {}, signal),
         enabled: ids.length > 0,
     });
-    const assets = useMemo(
-        () => assetsQuery.data?.items ?? [],
-        [assetsQuery.data?.items]
-    );
+    const assets = useMemo(() => assetsQuery.data ?? [], [assetsQuery.data]);
     const workspaceId = assets[0]?.workspace.id;
     const definitionFilters = useMemo(() => ({workspaceId}), [workspaceId]);
     const definitionList = useAttributeDefinitionList(definitionFilters, {
@@ -753,14 +750,6 @@ export function AttributeBatchEditorRoute() {
             className={cn(belowTopBar, 'z-50 flex flex-col bg-background')}
         >
             <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3">
-                <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={requestClose}
-                    aria-label={t('common.close', 'Close')}
-                >
-                    <XIcon />
-                </Button>
                 <h1 className="flex-1 text-sm font-semibold">
                     {t(
                         'batch_edit.title',
@@ -790,6 +779,15 @@ export function AttributeBatchEditorRoute() {
                 </Tooltip>
                 <Button size="sm" disabled={!dirty} onClick={save}>
                     <SaveIcon /> {t('common.save', 'Save')}
+                </Button>
+                <Separator orientation="vertical" className="mx-0.5 h-5" />
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={requestClose}
+                    aria-label={t('common.close', 'Close')}
+                >
+                    <XIcon />
                 </Button>
             </header>
 

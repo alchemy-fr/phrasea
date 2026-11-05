@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Search;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Basket\Basket;
+use App\Security\Voter\DataboxExtraPermissionInterface;
 use App\Tests\Functional\AbstractSearchTestCase;
 use Elastica\Document;
 
 class BasketSearchTest extends AbstractSearchTestCase
 {
     private const string USER_ID = KeycloakClientTestMock::USER_UID;
+    private const string OTHER_USER_ID = KeycloakClientTestMock::OTHER_USER_UID;
+    private const string GROUP_ID = KeycloakClientTestMock::GROUP_UID;
 
     private static function releaseIndex(): void
     {
@@ -136,12 +141,104 @@ class BasketSearchTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(422);
     }
 
-    private function requestBaskets(array $query): array
+    public function testBasketSharedWithUserIsListedUntilRevoked(): void
+    {
+        $basket = $this->createBasket([
+            'name' => 'Shared',
+            'ownerId' => self::USER_ID,
+        ]);
+        $this->grantBasketSharing();
+        self::releaseIndex();
+
+        $this->assertBasketNames([], $this->requestBaskets([], self::OTHER_USER_ID));
+
+        $this->putAce($basket, 'user', self::OTHER_USER_ID, PermissionInterface::VIEW);
+        self::waitForESIndex('basket');
+
+        $this->assertBasketNames(['Shared'], $this->requestBaskets([], self::OTHER_USER_ID));
+
+        $this->deleteAce($basket, 'user', self::OTHER_USER_ID);
+        self::waitForESIndex('basket');
+
+        $this->assertBasketNames([], $this->requestBaskets([], self::OTHER_USER_ID));
+    }
+
+    public function testBasketSharedWithGroupIsListedUntilRevoked(): void
+    {
+        $basket = $this->createBasket([
+            'name' => 'Shared',
+            'ownerId' => self::USER_ID,
+        ]);
+        $this->grantBasketSharing();
+        self::releaseIndex();
+
+        $this->assertBasketNames([], $this->requestBaskets([], self::OTHER_USER_ID, [self::GROUP_ID]));
+
+        $this->putAce($basket, 'group', self::GROUP_ID, PermissionInterface::VIEW);
+        self::waitForESIndex('basket');
+
+        $this->assertBasketNames(['Shared'], $this->requestBaskets([], self::OTHER_USER_ID, [self::GROUP_ID]));
+        $this->assertBasketNames([], $this->requestBaskets([], self::OTHER_USER_ID, []));
+
+        $this->deleteAce($basket, 'group', self::GROUP_ID);
+        self::waitForESIndex('basket');
+
+        $this->assertBasketNames([], $this->requestBaskets([], self::OTHER_USER_ID, [self::GROUP_ID]));
+    }
+
+    /**
+     * Sharing its baskets is an instance capability, granted to admins only by default.
+     */
+    private function grantBasketSharing(): void
+    {
+        self::getPermissionManager()->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_USER_VALUE,
+            self::USER_ID,
+            Basket::OBJECT_TYPE,
+            null,
+            0,
+            [DataboxExtraPermissionInterface::PERM_SHARE_BASKET],
+        );
+    }
+
+    private function putAce(Basket $basket, string $userType, string $userId, int $mask): void
+    {
+        self::createClient()->request('PUT', '/permissions/ace', [
+            'json' => [
+                'objectType' => Basket::OBJECT_TYPE,
+                'objectId' => $basket->getId(),
+                'userType' => $userType,
+                'userId' => $userId,
+                'mask' => $mask,
+            ],
+            'headers' => $this->getAuthHeaders(),
+        ]);
+        $this->assertResponseIsSuccessful();
+    }
+
+    private function deleteAce(Basket $basket, string $userType, string $userId): void
+    {
+        self::createClient()->request('DELETE', '/permissions/ace', [
+            'json' => [
+                'objectType' => Basket::OBJECT_TYPE,
+                'objectId' => $basket->getId(),
+                'userType' => $userType,
+                'userId' => $userId,
+            ],
+            'headers' => $this->getAuthHeaders(),
+        ]);
+        $this->assertResponseIsSuccessful();
+    }
+
+    /**
+     * @param string[]|null $groups
+     */
+    private function requestBaskets(array $query, string $userId = self::USER_ID, ?array $groups = null): array
     {
         $client = self::createClient();
         $response = $client->request('GET', '/baskets', [
             'query' => $query,
-            'headers' => $this->getAuthHeaders(),
+            'headers' => $this->getAuthHeaders($userId, $groups),
         ]);
         $this->assertResponseIsSuccessful();
 
@@ -162,10 +259,13 @@ class BasketSearchTest extends AbstractSearchTestCase
         $index->addDocument(new Document($basket->getId(), $data));
     }
 
-    private function getAuthHeaders(): array
+    /**
+     * @param string[]|null $groups
+     */
+    private function getAuthHeaders(string $userId = self::USER_ID, ?array $groups = null): array
     {
         return [
-            'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(self::USER_ID),
+            'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId, groups: $groups),
         ];
     }
 }

@@ -19,16 +19,12 @@ const limit = 24;
  * whole similarity search.
  */
 export function AssetSimilarTab({asset}: AssetTabProps) {
-    const {t, i18n} = useTranslation();
+    const {t} = useTranslation();
     const openAsset = useAssetOpener();
     const searchSimilar = useSimilarSearch();
     const similar = useQuery({
         queryKey: ['asset-similar', asset.id],
         queryFn: ({signal}) => getSimilarAssets(asset.id, limit, signal),
-    });
-    const percent = new Intl.NumberFormat(i18n.language, {
-        style: 'percent',
-        maximumFractionDigits: 0,
     });
     const items = similar.data?.items ?? [];
 
@@ -58,34 +54,25 @@ export function AssetSimilarTab({asset}: AssetTabProps) {
                 </p>
             ) : (
                 <ul className="grid grid-cols-3 gap-2">
-                    {items.map(a => {
-                        const score = similar.data?.scores[a.id];
-
-                        return (
-                            <li key={a.id}>
-                                <Tooltip
-                                    content={
-                                        score === undefined
-                                            ? a.name
-                                            : `${a.name} · ${percent.format(score)}`
-                                    }
+                    {items.map(a => (
+                        <li key={a.id}>
+                            <Tooltip content={a.name}>
+                                <button
+                                    type="button"
+                                    className="block aspect-square w-full overflow-hidden rounded bg-media-bg hover:ring-2 hover:ring-primary"
+                                    onClick={() => openAsset(a)}
+                                    aria-label={a.name}
                                 >
-                                    <button
-                                        type="button"
-                                        className="block aspect-square w-full overflow-hidden rounded bg-media-bg hover:ring-2 hover:ring-primary"
-                                        onClick={() => openAsset(a)}
-                                        aria-label={a.name}
-                                    >
-                                        <AssetThumb
-                                            asset={a}
-                                            size={120}
-                                            ignoreAnalysis
-                                        />
-                                    </button>
-                                </Tooltip>
-                            </li>
-                        );
-                    })}
+                                    <AssetThumb
+                                        asset={a}
+                                        size={120}
+                                        score={similar.data?.scores[a.id]}
+                                        ignoreAnalysis
+                                    />
+                                </button>
+                            </Tooltip>
+                        </li>
+                    ))}
                 </ul>
             )}
         </div>

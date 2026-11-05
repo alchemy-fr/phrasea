@@ -48,8 +48,12 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
         ];
     }
 
+    /**
+     * Per object, not per class: a nested object of the same class (the children of a publication)
+     * must go through its entity normalizer too, which applies its own authorization.
+     */
     private function getObjectKey(object $object): string
     {
-        return $object::class.self::ALREADY_CALLED;
+        return $object::class.'#'.spl_object_id($object).self::ALREADY_CALLED;
     }
 }

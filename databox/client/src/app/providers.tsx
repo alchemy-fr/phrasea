@@ -19,6 +19,7 @@ import {ThemeManager} from '@/features/theme/ThemeManager';
 import {UnsavedChangesGuard} from '@/components/modals/UnsavedChangesGuard';
 import {Toaster} from '@/components/ui/toaster';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
+import {NavigationProgress} from '@/components/layout/NavigationProgress';
 
 function createQueryClient(): QueryClient {
     return new QueryClient({
@@ -74,6 +75,9 @@ export function Providers({config, language, children}: Props) {
                             </AuthProvider>
                         </Suspense>
                         <Toaster />
+                        <Suspense>
+                            <NavigationProgress />
+                        </Suspense>
                     </QueryClientProvider>
                 </ThemeProvider>
             </I18nProvider>

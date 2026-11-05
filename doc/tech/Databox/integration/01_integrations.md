@@ -98,6 +98,25 @@ Operational notes:
 - Uses an ApiKey authorization scheme.
 - Security key must match on both Phrasea and uploader configurations.
 
+## Asset import integration (core.asset_import)
+
+Display name: Asset import
+
+This integration exposes a webhook receiving import instructions (JSON or NDJSON, one entry per asset):
+the assets are created and their files downloaded from URLs. See [Import of assets](../import.md).
+
+Main behavior:
+
+- `POST /integrations/asset-import/{integrationId}/imports`, authenticated by the `Authorization: ApiKey <securityKey>` header; the format is given by the `Content-Type` (`application/x-ndjson`, `application/json`).
+- Answers 202 with the ID of the created import, followed in the Imports tab of the workspace (`GET /asset-imports/{id}`).
+- The entries are imported as the owner of the integration, in the configured `collectionId` (the workspace root otherwise) with the configured default `privacy`.
+- Generates the security key at creation, and a new one when the integration is duplicated.
+
+Operational notes:
+
+- Requires a workspace; the `collectionId` must belong to it.
+- 401 without the ApiKey header, 403 on a wrong key, 404 for an unknown or disabled integration, 415 on an unsupported Content-Type.
+
 ## Toast UI Photo Editor integration (tui.photo-editor)
 
 Display name: Toast UI Photo Editor
@@ -127,7 +146,7 @@ It powers the "Similar assets" panel and the "Find similar" action of the asset 
 
 Main behavior:
 
-- Adds a workflow job on asset ingest, depending on the configured rendition job (default: preview) and on the thumbnail rendition jobs.
+- Adds a workflow job on asset ingest, depending on the configured rendition job (required) and on the thumbnail rendition jobs.
 - Sends the rendition image to the similarity-embedder service (self-hosted, CLIP) to compute the vector. When the configured rendition is not an image (the preview of a document is a PDF, the one of a video is a video), the thumbnail rendition (`useAsThumbnail`) is used instead: documents and videos are searchable by similarity too.
 - Stores the vector in database (asset_embedding table) and reindexes the asset in Elasticsearch.
 - Similar assets are served by `GET /assets/{id}/similar` using an Elasticsearch kNN query filtered by permissions.
@@ -148,7 +167,7 @@ There is no face-specific data model nor API: **a face is a value of the configu
 
 Main behavior:
 
-- Sends the configured rendition (default: preview, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence and a 512-d ArcFace embedding.
+- Sends the configured rendition (optional, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence and a 512-d ArcFace embedding.
 - Runs on asset ingest when `processIncoming` is enabled (workflow job depending on the rendition job), or on demand from the asset view ("Detect faces", user action `analyze`).
 - Each detected face is recognized among the faces of the workspace (cosine similarity, `matchThreshold`): it joins the person of the closest face a user named, or else the closest face of a person nobody has named yet. Otherwise it starts a new **pending entity** ("Unknown person · 3f2a", `unknownLabel`): the pending persons are the groups of look-alikes still to be named; being pending, they never show up in the search facets, and they are removed as soon as no face references them any more. Only the faces named by users (`origin: human`) are references: a recognized face never becomes one, so that the recognition cannot drift.
 - Users name a face by changing the value of its attribute (`PATCH /attributes/{id}`, `/attributes/batch-update`), to an existing entity or to one they create (`POST /attribute-entities`): the face becomes a reference of the person (`origin: human`, `originUserId`, confidence 1) and, when `autoPropagate` is enabled, the person is propagated asynchronously to the similar faces of the workspace that no user named. Deleting the value (`DELETE /attributes/{id}`) forgets the face.
@@ -156,6 +175,8 @@ Main behavior:
 - In the client, faces are named from the asset view (face recognition panel). The persons are managed from the exploration page of their entity list (`/entity-lists/{id}/explore`, "Explore" on the list in the workspace entities, under an entity facet or in an entity pinned filter): each person with a few of the assets showing it, renamed (`value`, `note`) or merged into another one by the list editors; the values grid of the list (workspace management, entities) covers the rest (approval, bulk edits). Both are built on `GET /attribute-entities?list=…&status=…&usage=1` (with the number of faces, `usage`) and, for the pending persons, which are not indexed, `GET /attributes?definition[]=…&value=…`. Pending persons are listed to the users who may edit the attributes of the workspace, so that they can name them. In the values of an asset, the name of a pending person is only sent to the managers of the entity list and to its creator (the users who may edit the entity); the others get a null value, shown as "Pending".
 - Permissions are those of the attributes and the entity lists: reading the faces of an asset requires reading its face attribute (asset readable, attribute policy public or granted), naming requires editing it, creating or renaming a person requires the rights on the list.
 - Re-running the detection on an asset keeps the person of the faces that overlap a previous detection (what users said included). Replay the recognition after a change of `matchThreshold` with `bin/console app:face-recognition:relink` (no detection involved).
+- When `autoPhoto` is enabled, every person with a face, unknown and pending ones included, gets the photo of its best face (the entity image shown by the chips, the exploration cards and the facets): the most confident face, so a face named by a user first, cropped on the server from the file the detection ran on (configured rendition or source, EXIF-oriented) with the framing of the client (a square centered on the box, 1.8 times its longest side, shifted inside the image at its edges), then processed like an uploaded image. It is asked for asynchronously (`FaceRecognitionPhoto` message, p2) after a detection, when a user names, moves or deletes a face, approves a pending person, after a merge and after a relink.
+- An automatic photo remembers the face it was cropped from (`image_set.source_attribute_id`). It is replaced only when that face no longer shows the person (deleted, moved to another person, or its asset deleted), or when it comes from a recognized face and the person now has a face named by a user: a more confident recognized face alone does not replace it. A photo uploaded by a user is never replaced; once a user deletes it, the next of these events gives the person an automatic one. Disabling `autoPhoto` keeps the existing automatic photos.
 
 Configuration:
 
@@ -163,17 +184,19 @@ Configuration:
 | --- | --- | --- |
 | attribute | (required) | Slug of a multi-valued attribute of type `entity`, receiving one value per detected face; its entity list holds the persons |
 | unknownLabel | Unknown person | Name of a person nobody has named yet (a short code is appended) |
-| rendition | preview | Rendition sent to the service (must be an image) |
+| rendition | (none: source file) | Rendition sent to the service (must be an image) |
 | maxImageSize | 2048 | Longest side (pixels) of the downscaled JPEG copy actually sent to the service |
 | processIncoming | false | Detect faces on all incoming assets |
 | minConfidence | 0.5 | Minimum detection confidence for a face to be kept |
 | matchThreshold | 0.5 | Minimum cosine similarity with a known face to recognize the same person (0 disables recognition: every face is a new unknown person) |
 | autoPropagate | true | Apply a newly named person to the similar faces of the workspace |
+| autoPhoto | true | Give the persons without a photo the photo of their best face, cropped from its asset (a photo uploaded by a user is never replaced) |
 
 Operational notes:
 
 - Requires the `face-recognition` service (maintained in [alchemy-fr/phrasea-face-recognition](https://github.com/alchemy-fr/phrasea-face-recognition), InsightFace `buffalo_l` model pack on CPU; image `FACE_RECOGNITION_IMAGE`, `face-recognition` Docker Compose profile). Databox reaches it through `FACE_RECOGNITION_URL`.
 - Backfill existing assets with `bin/console app:face-recognition:index` (add `--sync` to run in the foreground).
+- Give the existing persons their photo with `bin/console app:face-recognition:photos` (`--workspace` to limit it to a workspace): it queues the persons that have no photo or an automatic one, in the integrations having `autoPhoto` enabled.
 
 ## Configuration form & schema
 
@@ -217,6 +240,7 @@ The table below is the exhaustive integration list currently available in Databo
 | phrasea.expose | Expose | Basket publication synchronization with Expose | No |
 | core.read_metadata | Read Metadata | Asset source metadata extraction and normalization | No |
 | phrasea.uploader | Uploader | External upload/webhook integration for Phrasea | No |
+| core.asset_import | Asset import | Webhook receiving JSON/NDJSON asset import instructions | No |
 | tui.photo-editor | Toast UI Photo Editor | Asset view editing integration | No |
 | core.moderation | Moderation | Workflow moderation step for assets | No |
 | core.watermark | Watermark | Workflow watermark generation | No |

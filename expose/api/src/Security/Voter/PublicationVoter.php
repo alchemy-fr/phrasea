@@ -93,7 +93,7 @@ class PublicationVoter extends AbstractVoter
                 }
 
                 $password = $securityContainer->getSecurityOptions()['password'] ?? null;
-                if (null === $password || $publicationPassword !== $password) {
+                if (!is_string($password) || !hash_equals($password, $publicationPassword)) {
                     $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
 
                     return false;

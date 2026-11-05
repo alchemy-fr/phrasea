@@ -130,10 +130,19 @@ class PopulatePassListener implements EventSubscriberInterface
     public function postInsertObjects(PostInsertObjectsEvent $event): void
     {
         $indexName = $event->getOptions()['indexName'];
-        $populatePass = $this->getPass($indexName);
-        $populatePass->setProgress($populatePass->getProgress() + count($event->getObjects()));
-        $this->em->persist($populatePass);
-        $this->em->flush();
+
+        // A bulk update rather than a flush: the unit of work still holds the whole page here,
+        // and a flush would compute its change set (and write any entity touched while indexing).
+        $updated = 0;
+        if (isset($this->pendingPasses[$indexName])) {
+            $updated = $this->em->createQuery(sprintf('UPDATE %s p SET p.progress = COALESCE(p.progress, 0) + :n WHERE p.id = :id', PopulatePass::class))
+                ->setParameter('n', count($event->getObjects()))
+                ->setParameter('id', $this->pendingPasses[$indexName])
+                ->execute();
+        }
+        if (0 === $updated) {
+            $this->cancel($indexName);
+        }
 
         if (isset($this->locks[$indexName])) {
             $this->locks[$indexName]->refresh();
@@ -159,24 +168,6 @@ class PopulatePassListener implements EventSubscriberInterface
 
         $this->cleanOrphanIndex($indexName);
         $this->release($indexName);
-    }
-
-    /**
-     * Flags the passes started by this process and still open as failed.
-     * Used when the populate command exits with an error without going through onException().
-     */
-    public function markPendingPassesAsFailed(string $error): void
-    {
-        foreach (array_keys($this->pendingPasses) as $indexName) {
-            $populatePass = $this->findPass($indexName);
-            if (null !== $populatePass && null === $populatePass->getEndedAt()) {
-                $populatePass->setError(substr($error, 0, 255));
-                $populatePass->setEndedAt(new \DateTimeImmutable());
-                $this->em->persist($populatePass);
-            }
-            $this->release($indexName);
-        }
-        $this->em->flush();
     }
 
     private function recordRefusedPass(string $indexName): void
@@ -211,16 +202,18 @@ class PopulatePassListener implements EventSubscriberInterface
 
     private function getPass(string $indexName): PopulatePass
     {
-        $populatePass = $this->findPass($indexName);
-        if (null === $populatePass) {
-            // Pass has been deleted: this is how a running populate gets cancelled from the admin
-            $this->cleanOrphanIndex($indexName);
-            $this->release($indexName);
+        return $this->findPass($indexName) ?? $this->cancel($indexName);
+    }
 
-            throw new \RuntimeException(sprintf('Populate of index "%s" cancelled: its populate pass has been deleted', $indexName));
-        }
+    /**
+     * The pass has been deleted: this is how a running populate gets cancelled from the admin.
+     */
+    private function cancel(string $indexName): never
+    {
+        $this->cleanOrphanIndex($indexName);
+        $this->release($indexName);
 
-        return $populatePass;
+        throw new \RuntimeException(sprintf('Populate of index "%s" cancelled: its populate pass has been deleted', $indexName));
     }
 
     private function release(string $indexName): void

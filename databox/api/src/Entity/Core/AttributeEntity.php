@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
+use App\Api\Filter\InIdsFilter;
 use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SortFilter;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
@@ -33,6 +34,7 @@ use App\Api\Processor\MergeAttributeEntitiesProcessor;
 use App\Api\Processor\UploadAttributeEntityImageProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Api\Provider\EntityHierarchyImpactProvider;
+use App\Audit\AuditableInterface;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\WorkspaceTrait;
@@ -94,6 +96,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'listId'],
                 ),
                 'list[]' => new QueryParameter(property: 'list', openApi: false),
+                'ids' => new QueryParameter(
+                    filter: InIdsFilter::class,
+                    property: 'id',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'id'],
+                    hydra: false,
+                ),
                 'value' => new QueryParameter(
                     filter: new PartialSearchFilter(),
                     property: 'value',
@@ -219,11 +227,13 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 )]
 #[UniqueConstraint(name: 'list_external_id_uniq', fields: ['list', 'externalId'])]
 #[UniqueEntity(fields: ['list', 'externalId'], message: 'This external ID already exists in the list', errorPath: 'externalId')]
-class AttributeEntity extends AbstractUuidEntity implements \Stringable
+class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+
+    final public const int OBJECT_INDEX = 25;
 
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
@@ -360,6 +370,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
      */
     #[ORM\OneToOne(targetEntity: ImageSet::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[ApiProperty(writable: false)]
     private ?ImageSet $image = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -459,6 +470,10 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     {
         if (null !== $synonyms) {
             foreach ($synonyms as $locale => $lSynonyms) {
+                if (is_array($lSynonyms)) {
+                    $lSynonyms = self::normalizeSynonymList($lSynonyms);
+                    $synonyms[$locale] = $lSynonyms;
+                }
                 if (is_numeric($locale) || empty($lSynonyms)) {
                     unset($synonyms[$locale]);
                 }
@@ -466,6 +481,28 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         }
 
         $this->synonyms = $synonyms;
+    }
+
+    /**
+     * Trimmed, without empty entries nor duplicates, and re-indexed: a list with gaps in its
+     * keys would be stored as a JSON object.
+     *
+     * Entries other than strings are kept for the validation to reject them.
+     */
+    private static function normalizeSynonymList(array $synonyms): array
+    {
+        $list = [];
+        foreach ($synonyms as $synonym) {
+            if (is_string($synonym)) {
+                $synonym = trim($synonym);
+                if ('' === $synonym || in_array($synonym, $list, true)) {
+                    continue;
+                }
+            }
+            $list[] = $synonym;
+        }
+
+        return $list;
     }
 
     public function getSynonymsOfLocale(string $locale): ?array
@@ -502,7 +539,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         return self::STATUS_APPROVED === $this->status;
     }
 
-    #[Groups([self::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
     #[Assert\Length(min: 1, max: 1, countUnit: Assert\Length::COUNT_GRAPHEMES)]
     public function getEmoji(): ?string
     {
@@ -518,7 +555,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         }
     }
 
-    #[Groups([self::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, ResolveEntitiesOutput::GROUP_READ])]
     #[Assert\CssColor]
     public function getColor(): ?string
     {

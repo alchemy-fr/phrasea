@@ -23,6 +23,7 @@ final readonly class RenditionBuildHashManager
         private AssetNameResolver $assetNameResolver,
         private RenditionManager $renditionManager,
         private YamlLoader $loader,
+        private RenditionDefinitionParser $definitionParser,
     ) {
     }
 
@@ -37,6 +38,18 @@ final readonly class RenditionBuildHashManager
             $source?->getId() ?? 'no-source',
             $definition->getId(),
             $definition->getDefinition(),
+        ]));
+    }
+
+    /**
+     * @param File[] $inputs the files a "generate" build is made of, in their order
+     */
+    public function getGenerateBuildHash(RenditionDefinition $definition, array $inputs): string
+    {
+        return md5(implode('|', [
+            $definition->getId(),
+            $definition->getDefinition(),
+            implode(',', array_map(fn (File $file): string => $file->getId(), $inputs)),
         ]));
     }
 
@@ -55,6 +68,11 @@ final readonly class RenditionBuildHashManager
 
         if (null === $definition) {
             return $this->isDynamicRenditionDirty($assetRendition);
+        }
+
+        // Its inputs are other assets renditions: any change rebuilds it (see StoryContactSheetScheduler)
+        if ($this->definitionParser->isGenerateDefinition($definition)) {
+            return false;
         }
 
         if (null !== $parentDefinition = $definition->getParent()) {

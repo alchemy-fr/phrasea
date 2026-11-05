@@ -14,4 +14,4 @@ fi
 bin/dev/sf-all.sh composer install
 bin/dev/sf-all.sh bin/console doctrine:migrations:migrate --no-interaction
 
-(cd databox/api && bin/console fos:elastica:populate)
+(cd databox/api && bin/console fos:elastica:populate --no-debug)

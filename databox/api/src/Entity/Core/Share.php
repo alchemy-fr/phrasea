@@ -22,6 +22,8 @@ use App\Api\Provider\ShareAttachmentProvider;
 use App\Api\Provider\ShareCollectionProvider;
 use App\Api\Provider\ShareReadProvider;
 use App\Api\Provider\ShareRenditionProvider;
+use App\Audit\AuditableInterface;
+use App\Audit\AuditIgnore;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Listener\OwnerPersistableInterface;
 use App\Repository\Core\ShareRepository;
@@ -121,11 +123,13 @@ use Symfony\Component\String\ByteString;
     ],
 )]
 #[ORM\Entity(repositoryClass: ShareRepository::class)]
-class Share extends AbstractUuidEntity implements OwnerPersistableInterface
+class Share extends AbstractUuidEntity implements AuditableInterface, OwnerPersistableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use OwnerIdTrait;
+
+    final public const int OBJECT_INDEX = 23;
     final public const string GROUP_READ = 'share:read';
     final public const string GROUP_PUBLIC_READ = 'share:public';
     final public const string GROUP_WRITE = 'share:write';
@@ -182,6 +186,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false)]
     #[Groups([self::GROUP_READ])]
+    #[AuditIgnore(mask: true)]
     private ?string $token = null;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]

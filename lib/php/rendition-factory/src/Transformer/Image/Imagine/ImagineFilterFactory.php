@@ -5,6 +5,7 @@ namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
 use Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter\GrayscaleFilterLoader;
+use Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter\RelativeCropFilterLoader;
 use Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter\StampFilter;
 use Imagine\Image\ImagineInterface;
 use Liip\ImagineBundle\Binary\SimpleMimeTypeGuesser;
@@ -58,6 +59,7 @@ final readonly class ImagineFilterFactory
             'resize' => new ResizeFilterLoader(),
             'thumbnail' => new ThumbnailFilterLoader(),
             'crop' => new CropFilterLoader(),
+            'relative_crop' => new RelativeCropFilterLoader(),
             'grayscale' => new GrayscaleFilterLoader(),
             'watermark' => new WatermarkDownloadProxyFilterLoader(
                 $context,

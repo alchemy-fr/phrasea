@@ -23,6 +23,7 @@ use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Api\Processor\DuplicateWorkspaceIntegrationProcessor;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\WorkspaceIntegrationCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Entity\Core\Workspace;
 use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
@@ -97,7 +98,7 @@ use Symfony\Component\Yaml\Yaml;
 #[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'name', 'integration'])]
 #[ORM\Entity]
 #[ValidIntegrationOptionsConstraint]
-class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface, AclObjectInterface
+class WorkspaceIntegration extends AbstractUuidEntity implements AuditableInterface, \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface, AclObjectInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

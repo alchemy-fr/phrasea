@@ -106,6 +106,18 @@ describe('AuthProvider login', () => {
     });
 });
 
+describe('AuthProvider logout', () => {
+    it('drops the attribute definitions cached in the tab', () => {
+        sessionStorage.setItem('dbx.attribute-definitions', '{}');
+        const {result} = renderHook(() => useAuth(), {wrapper});
+
+        act(() => result.current.logout());
+
+        expect(sessionStorage.getItem('dbx.attribute-definitions')).toBeNull();
+        expect(client.logout).toHaveBeenCalled();
+    });
+});
+
 describe('AuthProvider impersonation', () => {
     const admin: User = {
         id: 'admin-id',

@@ -30,6 +30,7 @@ use App\Api\Processor\SignWorkspaceTermsProcessor;
 use App\Api\Processor\UploadWorkspaceLogoProcessor;
 use App\Api\Processor\UploadWorkspaceTermsPdfProcessor;
 use App\Api\Provider\WorkspaceBySlugProvider;
+use App\Audit\AuditableInterface;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -154,7 +155,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: [
     'slug',
 ], message: 'Slug is already taken')]
-class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable, LoggableChangeSetInterface
+class Workspace extends AbstractUuidEntity implements AuditableInterface, SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

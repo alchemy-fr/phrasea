@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Core\Rendition;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
@@ -17,10 +18,25 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
 {
     final public const string JOB_ID = 'build';
 
+    private const string SKIP_NOT_A_STORY = 'Asset is not a story';
+
     public function __construct(
         private readonly RenditionBuilder $renditionBuilder,
         private readonly FileFetcher $fileFetcher,
     ) {
+    }
+
+    #[\Override]
+    protected function getJobSkipReason(Asset $asset, JobExecutionContext $context): ?string
+    {
+        $definitionId = $context->getInputs()['definition'] ?? null;
+        $renditionDefinition = null !== $definitionId ? $this->em->find(RenditionDefinition::class, $definitionId) : null;
+        if ($renditionDefinition instanceof RenditionDefinition && $this->renditionBuilder->isGenerateDefinition($renditionDefinition)) {
+            // Built from the story items renditions, not from the asset source
+            return $asset->isStory() ? null : self::SKIP_NOT_A_STORY;
+        }
+
+        return $this->getSkipReason($asset);
     }
 
     #[\Override]

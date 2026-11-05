@@ -20,6 +20,7 @@ use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
@@ -105,7 +106,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'tags.workspace', 'collection.workspace', 'attributes.workspace']
 )]
-class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
+class AssetDataTemplate extends AbstractUuidEntity implements AuditableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

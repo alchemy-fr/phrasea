@@ -31,7 +31,7 @@ class AssetCollectionProvider extends AbstractCollectionProvider
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
         try {
-            [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, self::getParameterValues($operation));
+            [$result, $facets, $queryJson, $searchTime, $scores] = $this->assetSearch->search($userId, $groupIds, self::getParameterValues($operation));
         } catch (NoWorkspaceAllowedException) {
             return [];
         }
@@ -40,6 +40,9 @@ class AssetCollectionProvider extends AbstractCollectionProvider
 
         $response = new ApiMetaWrapperOutput(new PagerFantaApiPlatformPaginator($result));
         $response->setMeta('facets', $facets);
+        if (null !== $scores) {
+            $response->setMeta('scores', $scores);
+        }
         $response->setMeta('debug:es', [
             'query' => $queryJson,
             'time' => $searchTime,

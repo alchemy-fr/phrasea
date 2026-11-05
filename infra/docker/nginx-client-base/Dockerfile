@@ -1,14 +1,10 @@
-FROM nginx:1.27.1-alpine3.20 AS api-nginx
+FROM nginx:1.30.6-alpine3.24 AS api-nginx
 
+# brotli-libs >= 1.2.1: CVE-2026-111497
 RUN apk update \
     && apk add --no-cache \
-      libstdc++ \
-    && apk add --virtual .build \
-        wget \
-    && mkdir -p /var/docker \
-    && wget -q -O /var/docker/generate-env https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.1/generate-env-alpine \
-    && chmod +x /var/docker/generate-env \
-    && apk del .build \
+      'brotli-libs>=1.2.1' \
+      quickjs-ng \
     && rm /etc/nginx/conf.d/default.conf \
     && mkdir -p /docker/entrypoint.d \
     && mkdir -p /etc/app

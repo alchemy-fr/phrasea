@@ -12,6 +12,7 @@ import {
     InfoIcon,
     PencilIcon,
     PlugIcon,
+    ScissorsIcon,
     ShoppingBasketIcon,
     Trash2Icon,
     XIcon,
@@ -22,11 +23,12 @@ import {getBasket, getBasketAssets} from '@/lib/api/misc';
 import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
 import {FullPageLoader} from '@/components/ui/loader';
-import {EmptyState} from '@/components/ui/misc';
+import {EmptyState, Separator} from '@/components/ui/misc';
 import {AssetList} from '@/features/assets/list/AssetList';
 import {SelectionProvider} from '@/features/assets/list/SelectionProvider';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {useBasketStore} from '../basketStore';
+import {invalidateBasket} from '../basketQueries';
 import {BasketsPanel} from '../BasketsPanel';
 import {routes} from '@/lib/routes';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
@@ -39,6 +41,10 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@/lib/utils/cn';
+import {useModals} from '@/components/modals/ModalProvider';
+import {effectiveClip, isClipApplicable} from '@/features/clip/clip';
+import {ClipBadge} from '@/features/clip/ClipBadge';
+import {BasketClipDialog} from '../clip/BasketClipDialog';
 
 /**
  * Full screen basket view: basket list on the left, ordered assets grid.
@@ -60,6 +66,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
     const display = useDisplayPreferences();
     const removeItems = useBasketStore(s => s.removeItems);
     const upsert = useBasketStore(s => s.upsert);
+    const {openModal} = useModals();
 
     const basket = useQuery({
         queryKey: ['basket', basketId],
@@ -76,19 +83,20 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
         initialPageParam: undefined as string | undefined,
         getNextPageParam: last => last.next,
     });
-    useChannelEvent(`basket-${basketId}`, 'basket:update', () => {
-        void queryClient.invalidateQueries({
-            queryKey: ['basket-assets', basketId],
-        });
-        void basket.refetch();
-    });
+    useChannelEvent(`basket-${basketId}`, 'basket:update', () =>
+        invalidateBasket(queryClient, basketId)
+    );
 
     // An asset can be in the basket several times: each item is its own
     // card, selected and removed on its own (see `assetKey`)
     const pages = useMemo(
         () =>
             (assets.data?.pages ?? []).map(p =>
-                p.items.map(i => ({...i.asset, basketItemId: i.id}))
+                p.items.map(i => ({
+                    ...i.asset,
+                    basketItemId: i.id,
+                    basketClip: i.clip ?? undefined,
+                }))
             ),
         [assets.data]
     );
@@ -108,9 +116,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
             .filter((id): id is string => !!id);
         try {
             await removeItems(basketId, itemIds);
-            void queryClient.invalidateQueries({
-                queryKey: ['basket-assets', basketId],
-            });
+            invalidateBasket(queryClient, basketId);
             toast.success(
                 t('basket.removed', '{{count}} items removed from basket', {
                     count: itemIds.length,
@@ -118,6 +124,13 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
             );
         } catch (e: any) {
             toast.error(e?.message);
+        }
+    };
+
+    const editClip = async (asset: Asset) => {
+        const saved = await openModal(BasketClipDialog, {asset});
+        if (saved) {
+            invalidateBasket(queryClient, basketId);
         }
     };
 
@@ -136,14 +149,6 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
             className={cn(belowTopBar, 'z-50 flex flex-col bg-background')}
         >
             <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={close}
-                    aria-label={t('common.close', 'Close')}
-                >
-                    <XIcon />
-                </Button>
                 <ShoppingBasketIcon className="size-5 text-muted-foreground" />
                 <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
                     {basket.data?.name ?? ''}
@@ -206,6 +211,15 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                         </Tooltip>
                     </>
                 ) : null}
+                <Separator orientation="vertical" className="mx-0.5 h-5" />
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={close}
+                    aria-label={t('common.close', 'Close')}
+                >
+                    <XIcon />
+                </Button>
             </header>
             <div className="flex min-h-0 flex-1">
                 <aside
@@ -260,33 +274,68 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                                     thumbSize={display.thumbSize}
                                     onOpen={openAsset}
                                     itemOverlay={asset => (
-                                        <span className="pointer-events-none absolute bottom-1.5 left-1.5 z-10 rounded bg-background/90 px-1.5 py-0.5 font-mono text-[11px] font-semibold shadow-sm">
-                                            #
-                                            {positions.get(
-                                                asset.basketItemId ?? ''
-                                            )}
+                                        <span className="pointer-events-none absolute bottom-1.5 left-1.5 z-10 flex items-center gap-1">
+                                            <span className="rounded bg-background/90 px-1.5 py-0.5 font-mono text-[11px] font-semibold shadow-sm">
+                                                #
+                                                {positions.get(
+                                                    asset.basketItemId ?? ''
+                                                )}
+                                            </span>
+                                            <ClipBadge
+                                                clip={effectiveClip(asset)}
+                                                inherited={!asset.basketClip}
+                                            />
                                         </span>
                                     )}
                                     itemActions={
                                         basket.data?.capabilities.edit
                                             ? asset => (
-                                                  <Tooltip
-                                                      content={t(
-                                                          'basket.remove_item',
-                                                          'Remove from basket'
-                                                      )}
-                                                  >
-                                                      <Button
-                                                          variant="secondary"
-                                                          size="icon-xs"
-                                                          className="bg-background/90 shadow-sm"
-                                                          onClick={() =>
-                                                              remove([asset])
-                                                          }
+                                                  <>
+                                                      {asset.basketItemId &&
+                                                      isClipApplicable(
+                                                          asset.source?.type
+                                                      ) ? (
+                                                          <Tooltip
+                                                              content={t(
+                                                                  'basket.clip.action',
+                                                                  'Cut / crop'
+                                                              )}
+                                                          >
+                                                              <Button
+                                                                  variant="secondary"
+                                                                  size="icon-xs"
+                                                                  className="bg-background/90 shadow-sm"
+                                                                  data-testid="basket-clip-action"
+                                                                  onClick={() =>
+                                                                      void editClip(
+                                                                          asset
+                                                                      )
+                                                                  }
+                                                              >
+                                                                  <ScissorsIcon />
+                                                              </Button>
+                                                          </Tooltip>
+                                                      ) : null}
+                                                      <Tooltip
+                                                          content={t(
+                                                              'basket.remove_item',
+                                                              'Remove from basket'
+                                                          )}
                                                       >
-                                                          <Trash2Icon />
-                                                      </Button>
-                                                  </Tooltip>
+                                                          <Button
+                                                              variant="secondary"
+                                                              size="icon-xs"
+                                                              className="bg-background/90 shadow-sm"
+                                                              onClick={() =>
+                                                                  remove([
+                                                                      asset,
+                                                                  ])
+                                                              }
+                                                          >
+                                                              <Trash2Icon />
+                                                          </Button>
+                                                      </Tooltip>
+                                                  </>
                                               )
                                             : undefined
                                     }

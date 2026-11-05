@@ -7,7 +7,7 @@ import {AsyncCombobox, ComboOption, ComboPage} from './AsyncCombobox';
 import {
     getAttributeDefinitionsPage,
     getAttributeEntities,
-    getAttributeEntity,
+    loadAttributeEntity,
     getEntityList,
     getEntityLists,
     getTag,
@@ -385,7 +385,7 @@ export function AttributeEntitySelect({
         [listId, definitionId]
     );
     const resolve = useCallback(
-        async (value: string) => entityOption(await getAttributeEntity(value)),
+        async (value: string) => entityOption(await loadAttributeEntity(value)),
         []
     );
 

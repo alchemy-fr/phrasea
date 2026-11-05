@@ -64,6 +64,7 @@ const {api} = vi.hoisted(() => ({
         mergeAttributeEntities: vi.fn(),
         putAttributeEntity: vi.fn(),
         searchAssets: vi.fn(),
+        getAssetsByIds: vi.fn(),
         getWorkspace: vi.fn(),
     },
 }));
@@ -85,7 +86,11 @@ vi.mock('@/lib/api/metadata', async importOriginal => {
 vi.mock('@/lib/api/assets', async importOriginal => {
     const actual = await importOriginal<typeof import('@/lib/api/assets')>();
 
-    return {...actual, searchAssets: api.searchAssets};
+    return {
+        ...actual,
+        searchAssets: api.searchAssets,
+        getAssetsByIds: api.getAssetsByIds,
+    };
 });
 vi.mock('@/lib/api/collections', async importOriginal => {
     const actual =
@@ -217,17 +222,13 @@ describe('EntityListExploreScreen', () => {
                     ? {total: 1, items: [unknown]}
                     : {total: 1, items: [alice]}
         );
-        api.searchAssets.mockImplementation(async (opts: {ids?: string[]}) =>
-            opts.ids
-                ? {
-                      total: opts.ids.length,
-                      items: opts.ids.map(id => ({...asset(1), id})),
-                  }
-                : {
-                      total: 8,
-                      items: [1, 2, 3, 4, 5, 6].map(asset),
-                      next: '/assets?page=2',
-                  }
+        api.searchAssets.mockResolvedValue({
+            total: 8,
+            items: [1, 2, 3, 4, 5, 6].map(asset),
+            next: '/assets?page=2',
+        });
+        api.getAssetsByIds.mockImplementation(async (ids: string[]) =>
+            ids.map(id => ({...asset(1), id}))
         );
         api.getAttributesOfDefinition.mockResolvedValue({
             total: 1,
@@ -325,6 +326,11 @@ describe('EntityListExploreScreen', () => {
                 definition: ['def-1'],
                 value: 'unknown-1',
             }),
+            expect.anything()
+        );
+        expect(api.getAssetsByIds).toHaveBeenCalledWith(
+            ['asset-9'],
+            expect.anything(),
             expect.anything()
         );
         expect(within(card).getByTestId('entity-value-more').textContent).toBe(

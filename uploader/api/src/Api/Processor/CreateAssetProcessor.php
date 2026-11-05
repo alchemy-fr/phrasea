@@ -43,12 +43,12 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
 
         $target = $this->resolveTarget($request);
 
-        if ($request->request->all('multipart')) {
-            return $this->handleMultipartUpload($request, $target);
-        }
-
         if (!$this->security->isGranted(TargetVoter::UPLOAD, $target)) {
             throw new AccessDeniedHttpException('Cannot upload to this target');
+        }
+
+        if ($request->request->all('multipart')) {
+            return $this->handleMultipartUpload($request, $target);
         }
 
         ini_set('max_execution_time', '600');

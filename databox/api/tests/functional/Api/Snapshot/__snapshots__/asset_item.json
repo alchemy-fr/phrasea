@@ -23,6 +23,7 @@
         "referenceCollection": "AssetOutput/referenceCollection",
         "resolvedName": "AssetOutput/resolvedName",
         "resolvedTrackingId": "AssetOutput/resolvedTrackingId",
+        "roi": "AssetOutput/roi",
         "source": "AssetOutput/source",
         "status": "AssetOutput/status",
         "storyCollection": "AssetOutput/storyCollection",

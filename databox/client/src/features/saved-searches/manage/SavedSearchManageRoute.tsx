@@ -174,7 +174,12 @@ function EditTab({savedSearch, refresh}: TabProps) {
             <FormRow label={t('common.name', 'Name')}>
                 <Input value={name} onChange={e => setName(e.target.value)} />
             </FormRow>
-            <SavedSearchPrivacyField value={privacy} onChange={setPrivacy} />
+            <SavedSearchPrivacyField
+                value={privacy}
+                onChange={setPrivacy}
+                canPublish={savedSearch.capabilities.publish}
+                initialValue={savedSearch.privacy}
+            />
             <div className="flex justify-end">
                 <Button onClick={save} loading={saving} disabled={!name.trim()}>
                     <SaveIcon /> {t('common.save', 'Save')}

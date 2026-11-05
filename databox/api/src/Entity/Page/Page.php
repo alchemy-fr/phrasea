@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Provider\PageBySlugProvider;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Listener\OwnerPersistableInterface;
 use App\Repository\Page\PageRepository;
@@ -67,13 +68,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Entity(repositoryClass: PageRepository::class)]
 #[UniqueEntity(fields: ['slug'])]
-class Page extends AbstractUuidEntity implements OwnerPersistableInterface, AclObjectInterface, \Stringable
+class Page extends AbstractUuidEntity implements AuditableInterface, OwnerPersistableInterface, AclObjectInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    final public const int OBJECT_INDEX = 8;
+    final public const int OBJECT_INDEX = 22;
     final public const string OBJECT_TYPE = 'page';
 
     final public const string GROUP_PREFIX = 'page:';

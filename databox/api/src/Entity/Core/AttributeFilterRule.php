@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AttributeFilterRuleInput;
 use App\Api\Model\Output\AttributeFilterRuleOutput;
 use App\Api\Processor\InputMapperProcessor;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeFilterRuleRepository;
 use App\Validator\ValidAQLConstraint;
@@ -56,7 +57,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: AttributeFilterRuleRepository::class)]
-class AttributeFilterRule extends AbstractUuidEntity implements LoggableChangeSetInterface
+class AttributeFilterRule extends AbstractUuidEntity implements AuditableInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

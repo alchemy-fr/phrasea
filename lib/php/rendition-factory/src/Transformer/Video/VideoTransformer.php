@@ -30,8 +30,9 @@ class VideoTransformer
             throw new \InvalidArgumentException(sprintf('format %s does not declare FFMpeg format', $format));
         }
 
+        // The output formats are shared services: the settings below must not leak to the next renditions
         /** @var FFMpegFormatInterface $FFMpegFormat */
-        $FFMpegFormat = $outputFormat->getFFMpegFormat();
+        $FFMpegFormat = clone $outputFormat->getFFMpegFormat();
 
         /** @var Video $video */
         $video = $commonArgs->getFFMpeg()->open($inputFile->getPath());

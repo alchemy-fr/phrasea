@@ -27,6 +27,7 @@ import {
     ValidationError,
 } from '../types';
 import {encodeState} from '../stateEncoder';
+import {createStateNonce} from '../stateNonce';
 
 type OrderedListener = {
     p: number;
@@ -320,6 +321,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
             [AuthConstant.RedirectUriParam]: checkCodeUri.toString(),
             [AuthConstant.StateParam]: encodeState({
                 ...stateParams,
+                [AuthConstant.StateNonceParam]: createStateNonce(),
                 [AuthConstant.StateRedirectParam]: normalizeRedirectUri(
                     redirectPath ?? this.defaultRedirectPath
                 )!,
@@ -615,14 +617,21 @@ export function normalizeRedirectUri(uri: string): string {
     return uri;
 }
 
+/**
+ * The path to go back to after login, never another origin.
+ */
 export function getPathFromRedirectUri(uri: string): string {
     const location = document.location;
     const baseUrl = location.protocol + '//' + location.host;
-    if (uri.startsWith(baseUrl)) {
-        return uri.substring(baseUrl.length);
+    const path = uri.startsWith(baseUrl + '/')
+        ? uri.substring(baseUrl.length)
+        : uri;
+
+    if (!path.startsWith('/') || path.startsWith('//') || path.includes('\\')) {
+        return '/';
     }
 
-    return uri;
+    return path;
 }
 
 export function inIframe(): boolean {

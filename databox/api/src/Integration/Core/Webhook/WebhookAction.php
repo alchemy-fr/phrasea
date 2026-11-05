@@ -7,14 +7,23 @@ namespace App\Integration\Core\Webhook;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Integration\AbstractIntegrationAction;
 use App\Service\Asset\Attribute\AssetNameResolver;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class WebhookAction extends AbstractIntegrationAction
 {
+    /**
+     * The request options the integration editor may set: no proxy, DNS override or callback.
+     */
+    private const array ALLOWED_OPTIONS = ['headers', 'query', 'json', 'body', 'timeout', 'max_duration'];
+
     public function __construct(
         private readonly HttpClientInterface $client,
         private readonly string $databoxBaseUrl,
         private readonly AssetNameResolver $assetNameResolver,
+        #[Autowire(param: 'kernel.environment')]
+        private readonly string $kernelEnv,
     ) {
     }
 
@@ -27,7 +36,7 @@ final class WebhookAction extends AbstractIntegrationAction
             throw new \InvalidArgumentException('Missing or empty "url"');
         }
 
-        $options = $config['options'] ?? [];
+        $options = array_intersect_key($config['options'] ?? [], array_flip(self::ALLOWED_OPTIONS));
 
         if ($config['includeInputs']) {
             $options['json']['asset'] = [
@@ -45,7 +54,9 @@ final class WebhookAction extends AbstractIntegrationAction
             $options['json']['origin'] = $this->databoxBaseUrl;
         }
 
-        $response = $this->client->request(
+        // The editor of the integration chooses the URL, and reads the response in the workflow outputs
+        $client = 'dev' === $this->kernelEnv ? $this->client : new NoPrivateNetworkHttpClient($this->client);
+        $response = $client->request(
             $config['method'] ?? 'POST',
             $config['url'],
             $options,

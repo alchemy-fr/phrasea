@@ -25,5 +25,6 @@ class FileSourceInput
      *
      * @var AlternateUrlInput[]
      */
+    #[Assert\Valid]
     public ?array $alternateUrls = null;
 }

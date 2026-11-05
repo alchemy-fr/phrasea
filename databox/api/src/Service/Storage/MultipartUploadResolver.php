@@ -26,8 +26,11 @@ final readonly class MultipartUploadResolver
 
     public function resolveFromRequest(Request $request): MultipartUpload
     {
-        $input = MultipartUploadInput::fromArray($request->toArray()['multipart'] ?? []);
+        return $this->resolve(MultipartUploadInput::fromArray($request->toArray()['multipart'] ?? []));
+    }
 
+    public function resolve(MultipartUploadInput $input): MultipartUpload
+    {
         $upload = $this->em->find(MultipartUpload::class, $input->uploadId);
         if (!$upload instanceof MultipartUpload) {
             throw new NotFoundHttpException(sprintf('Multipart upload "%s" not found', $input->uploadId));

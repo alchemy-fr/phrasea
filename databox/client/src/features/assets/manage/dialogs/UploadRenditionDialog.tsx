@@ -43,7 +43,10 @@ export function UploadRenditionDialog({
                 await postRendition({
                     assetId: asset.id,
                     definitionId: definition.id,
-                    sourceFile: {url: value.url, importFile: true},
+                    sourceFile: {
+                        url: value.url,
+                        importFile: value.importFile ?? true,
+                    },
                     substituted: true,
                 });
             }
@@ -71,7 +74,7 @@ export function UploadRenditionDialog({
             bodyClassName="space-y-3"
             onSubmit={submit}
         >
-            <FileOrUrlInput value={value} onChange={setValue} />
+            <FileOrUrlInput value={value} onChange={setValue} allowReference />
             {progress !== undefined ? (
                 <Progress value={Math.round(progress * 100)} />
             ) : null}

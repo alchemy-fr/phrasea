@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\ElasticSearch;
 
+use Alchemy\ApiTest\ApiTestTrait;
+use Alchemy\TestBundle\Helper\FixturesTrait;
 use App\Command\ESPopulateUnlockCommand;
 use App\Elasticsearch\Exception\PopulateAlreadyRunningException;
 use App\Elasticsearch\Listener\PopulatePassListener;
 use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
+use App\Tests\Functional\DataboxTestTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Lock\LockFactory;
 
 /**
@@ -24,9 +31,19 @@ use Symfony\Component\Lock\LockFactory;
  */
 class PopulateLockTest extends KernelTestCase
 {
+    use FixturesTrait;
+    use DataboxTestTrait;
+    use ApiTestTrait;
+
     private const INDEX = 'tag';
 
     private EntityManagerInterface $em;
+
+    #[\Override]
+    protected static function bootKernel(array $options = []): KernelInterface
+    {
+        return static::bootKernelWithFixtures($options);
+    }
 
     protected function setUp(): void
     {
@@ -38,6 +55,8 @@ class PopulateLockTest extends KernelTestCase
     protected function tearDown(): void
     {
         $this->deletePasses();
+        $this->defaultWorkspace = null;
+        $this->defaultAttributePolicy = null;
         parent::tearDown();
     }
 
@@ -131,6 +150,99 @@ class PopulateLockTest extends KernelTestCase
         $this->assertSame(['lockReleased' => false, 'passesClosed' => 0], $manager->forceRelease(self::INDEX));
     }
 
+    public function testPopulateProgressIsRecordedPageByPage(): void
+    {
+        $this->createTags(3);
+
+        $progress = [];
+        $listener = function (PostInsertObjectsEvent $event) use (&$progress): void {
+            $passes = $this->em->getRepository(PopulatePass::class)->findBy(['indexName' => self::INDEX]);
+            $this->em->refresh($passes[0]);
+            $progress[] = $passes[0]->getProgress();
+        };
+
+        $this->withPostInsertListener($listener, -2048, function (): void {
+            $this->assertSame(0, $this->populate(maxPerPage: 1));
+        });
+
+        $this->assertSame([1, 2, 3], $progress);
+        $passes = $this->getPasses();
+        $this->assertCount(1, $passes);
+        $this->assertNull($passes[0]->getError());
+        $this->assertSame(3, $passes[0]->getProgress());
+    }
+
+    public function testDeletingThePassCancelsTheRunningPopulate(): void
+    {
+        $this->createTags(3);
+
+        $listener = function (): void {
+            $this->deletePasses();
+        };
+
+        $this->withPostInsertListener($listener, 1024, function (): void {
+            try {
+                $this->populate(catchExceptions: false, maxPerPage: 1);
+                $this->fail('the populate goes on after its pass has been deleted');
+            } catch (\RuntimeException $e) {
+                $this->assertStringContainsString('cancelled', $e->getMessage());
+            }
+        });
+
+        $this->assertSame([], $this->getPasses(), 'no pass is recreated');
+        /** @var PopulateLockManager $manager */
+        $manager = static::getContainer()->get(PopulateLockManager::class);
+        $this->assertFalse($manager->isLocked(self::INDEX), 'the lock is released');
+
+        // the index is usable again
+        $this->assertSame(0, $this->populate());
+    }
+
+    public function testCloseDeadPassesOnlyClosesThePassesOfTheDeadRun(): void
+    {
+        /** @var LockFactory $lockFactory */
+        $lockFactory = static::getContainer()->get(LockFactory::class);
+        /** @var PopulateLockManager $manager */
+        $manager = static::getContainer()->get(PopulateLockManager::class);
+
+        $before = $this->createOpenPass(new \DateTimeImmutable('-1 hour'));
+        $closedBefore = $this->createOpenPass(new \DateTimeImmutable('-1 hour'), endedAt: new \DateTimeImmutable('-30 minutes'));
+        $since = new \DateTimeImmutable('-1 minute');
+        $dead = $this->createOpenPass(new \DateTimeImmutable());
+        $closedAfter = $this->createOpenPass(new \DateTimeImmutable(), endedAt: new \DateTimeImmutable());
+        $otherIndex = $this->createOpenPass(new \DateTimeImmutable(), indexName: 'collection');
+        $this->em->clear();
+
+        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName(self::INDEX), 600);
+        $this->assertTrue($deadWorker->acquire());
+
+        try {
+            $this->assertSame(1, $manager->closeDeadPasses(self::INDEX, $since, 'Process killed'));
+            $this->assertFalse($manager->isLocked(self::INDEX), 'the lock of the dead run is released');
+
+            $this->em->clear();
+            $closed = $this->em->find(PopulatePass::class, $dead);
+            $this->assertNotNull($closed->getEndedAt());
+            $this->assertSame('Process killed', $closed->getError());
+
+            $this->assertNull($this->em->find(PopulatePass::class, $before)->getEndedAt(), 'a pass older than the run is left alone');
+            $this->assertNull($this->em->find(PopulatePass::class, $closedBefore)->getError());
+            $this->assertNull($this->em->find(PopulatePass::class, $closedAfter)->getError(), 'a closed pass is left alone');
+            $this->assertNull($this->em->find(PopulatePass::class, $otherIndex)->getEndedAt(), 'another index is left alone');
+
+            // without index: every open pass of the run
+            $this->assertSame(1, $manager->closeDeadPasses(null, $since, 'Process killed'));
+            $this->em->clear();
+            $this->assertNotNull($this->em->find(PopulatePass::class, $otherIndex)->getEndedAt());
+            $this->assertNull($this->em->find(PopulatePass::class, $before)->getEndedAt());
+        } finally {
+            $deadWorker->release();
+            $this->em->createQuery(sprintf('DELETE FROM %s p WHERE p.indexName = :i', PopulatePass::class))
+                ->setParameter('i', 'collection')
+                ->execute();
+        }
+    }
+
     public function testUnlockCommand(): void
     {
         /** @var LockFactory $lockFactory */
@@ -168,17 +280,63 @@ class PopulateLockTest extends KernelTestCase
         $this->assertFalse($manager->isLocked(self::INDEX));
     }
 
-    private function populate(bool $catchExceptions = true): int
+    private function populate(bool $catchExceptions = true, ?int $maxPerPage = null): int
     {
         $application = new Application(static::$kernel);
         $application->setAutoExit(false);
         $application->setCatchExceptions($catchExceptions);
 
-        return $application->run(new ArrayInput([
+        $arguments = [
             'command' => 'fos:elastica:populate',
             '--index' => self::INDEX,
             '--no-interaction' => true,
-        ]), new NullOutput());
+        ];
+        if (null !== $maxPerPage) {
+            $arguments['--max-per-page'] = $maxPerPage;
+        }
+
+        return $application->run(new ArrayInput($arguments), new NullOutput());
+    }
+
+    private function withPostInsertListener(callable $listener, int $priority, callable $run): void
+    {
+        /** @var EventDispatcherInterface $dispatcher */
+        $dispatcher = static::getContainer()->get(EventDispatcherInterface::class);
+        $dispatcher->addListener(PostInsertObjectsEvent::class, $listener, $priority);
+        try {
+            $run();
+        } finally {
+            $dispatcher->removeListener(PostInsertObjectsEvent::class, $listener);
+        }
+    }
+
+    private function createTags(int $count): void
+    {
+        $workspace = $this->getOrCreateDefaultWorkspace();
+        for ($i = 1; $i <= $count; ++$i) {
+            $this->findOrCreateTagByName('Tag '.$i, $workspace);
+        }
+        $this->em->clear();
+    }
+
+    private function createOpenPass(\DateTimeImmutable $createdAt, ?\DateTimeImmutable $endedAt = null, string $indexName = self::INDEX): string
+    {
+        $pass = new PopulatePass();
+        $pass->setIndexName($indexName);
+        $pass->setMapping([]);
+        $pass->setDocumentCount(4);
+        $pass->setProgress(1);
+        $pass->setEndedAt($endedAt);
+        $this->em->persist($pass);
+        $this->em->flush();
+
+        // Gedmo Timestampable sets createdAt on insert
+        $this->em->createQuery(sprintf('UPDATE %s p SET p.createdAt = :createdAt WHERE p.id = :id', PopulatePass::class))
+            ->setParameter('createdAt', $createdAt, Types::DATETIME_IMMUTABLE)
+            ->setParameter('id', $pass->getId())
+            ->execute();
+
+        return $pass->getId();
     }
 
     /**

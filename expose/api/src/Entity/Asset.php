@@ -51,7 +51,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             provider: AssetBySlugProvider::class,
         ),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(
+            security: 'is_granted("EDIT", object)',
+            denormalizationContext: [
+                'groups' => [self::GROUP_WRITE],
+            ],
+        ),
         new Delete(
             uriTemplate: '/assets/delete-by-asset-id/{assetId}',
             uriVariables: [],
@@ -168,6 +173,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: CreateAssetProcessor::class,
         ),
         new GetCollection(
+            security: 'is_granted("ROLE_ADMIN")',
             parameters: [
                 'order[title]' => new QueryParameter(filter: new SortFilter(), property: 'title', castToArray: false),
                 'order[position]' => new QueryParameter(filter: new SortFilter(), property: 'position', castToArray: false),
@@ -301,7 +307,15 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
     uriVariables: [
-        'id' => new Link(toProperty: 'publication', fromClass: Publication::class, identifiers: ['id']),
+        'id' => new Link(
+            toProperty: 'publication',
+            fromClass: Publication::class,
+            identifiers: ['id'],
+            security: 'is_granted("READ_DETAILS", publication) or is_granted("EDIT", publication)',
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [self::GROUP_READ],
     ],
 )]
 class Asset implements MediaInterface, \Stringable
@@ -310,6 +324,7 @@ class Asset implements MediaInterface, \Stringable
 
     final public const string GET_ASSET_ROUTE_NAME = 'get_asset';
     final public const string GROUP_READ = 'asset:r';
+    final public const string GROUP_WRITE = 'asset:w';
     final public const string GROUP_ADMIN_READ = 'admin:'.self::GROUP_READ;
 
     /**
@@ -325,7 +340,7 @@ class Asset implements MediaInterface, \Stringable
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $assetId = null;
 
-    #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
+    #[Groups([Publication::GROUP_READ, self::GROUP_READ, self::GROUP_WRITE])]
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
     private ?string $trackingId = null;
@@ -338,15 +353,15 @@ class Asset implements MediaInterface, \Stringable
     private ?string $size = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?array $translations = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
@@ -364,11 +379,12 @@ class Asset implements MediaInterface, \Stringable
     /**
      * Direct access to asset.
      */
-    #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
+    #[Groups([Publication::GROUP_READ, self::GROUP_READ, self::GROUP_WRITE])]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     protected ?string $slug = null;
 
     #[ORM\Column(type: Types::SMALLINT, options: ['default' => 0])]
+    #[Groups([self::GROUP_WRITE])]
     protected int $position = 0;
 
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'assets')]
@@ -390,18 +406,18 @@ class Asset implements MediaInterface, \Stringable
      * Location latitude.
      */
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?float $lat = null;
 
     /**
      * Location longitude.
      */
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?float $lng = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups([Asset::GROUP_ADMIN_READ])]
+    #[Groups([Asset::GROUP_ADMIN_READ, self::GROUP_WRITE])]
     #[Assert\All([
         new Assert\Collection(
             fields: [
@@ -436,7 +452,7 @@ class Asset implements MediaInterface, \Stringable
      * Location altitude.
      */
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?float $altitude = null;
 
     #[ApiProperty(writable: false)]

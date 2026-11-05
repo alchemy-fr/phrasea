@@ -21,13 +21,15 @@ import {
     PinIcon,
     PinOffIcon,
     ScanSearchIcon,
+    ScanIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
 import {useModals} from '@/components/modals/ModalProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {routes} from '@/lib/routes';
-import {useBasketStore} from '@/features/baskets/basketStore';
+import {isHttpUrl} from '@/lib/utils/misc';
+import {useAddToCurrentBasket} from '@/features/baskets/useAddToCurrentBasket';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {ExportDialog} from './ExportDialog';
 import {CopyMoveDialog} from './CopyMoveDialog';
@@ -37,6 +39,8 @@ import {ShareDialog} from '@/features/share/ShareDialog';
 import {ReplaceSourceDialog} from './ReplaceSourceDialog';
 import {SaveAsDialog} from './SaveAsDialog';
 import {CreateStoryDialog} from './CreateStoryDialog';
+import {AssetRoiDialog} from '@/features/assets/roi/AssetRoiDialog';
+import {isClipApplicable} from '@/features/clip/clip';
 import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {usePinnedStoriesStore} from '@/features/stories/pinnedStoriesStore';
@@ -53,6 +57,8 @@ export type AssetAction = {
     href?: string;
     /** Show in the bulk toolbar */
     bulk?: boolean;
+    /** `data-testid` of the controls running it */
+    testId?: string;
 };
 
 export type ActionContext = {
@@ -66,6 +72,8 @@ export type ActionContext = {
     move?: boolean;
     copy?: boolean;
     replace?: boolean;
+    /** Edit the region of interest */
+    roi?: boolean;
     info?: boolean;
     saveAs?: boolean;
     /** Pin a story in the sidebar */
@@ -87,6 +95,7 @@ export const defaultActionContext: Required<ActionContext> = {
     move: true,
     copy: true,
     replace: true,
+    roi: true,
     info: true,
     saveAs: true,
     pin: true,
@@ -135,7 +144,7 @@ export function useAssetActions(
     const router = useRouter();
     const {openModal} = useModals();
     const {isAuthenticated} = useAuth();
-    const addToBasket = useBasketStore(s => s.addToCurrent);
+    const addToBasket = useAddToCurrentBasket();
     const openAsset = useAssetOpener();
     const results = useOptionalResults();
     const selection = useOptionalSelection();
@@ -284,15 +293,19 @@ export function useAssetActions(
             });
         }
         if (single?.source?.alternateUrls?.length) {
-            single.source.alternateUrls.forEach((alt, i) =>
+            single.source.alternateUrls.forEach((alt, i) => {
+                if (!isHttpUrl(alt.url)) {
+                    return;
+                }
                 nav.push({
                     id: `alt-${i}`,
                     label: alt.label ?? alt.type,
                     icon: <ExternalLinkIcon />,
                     href: alt.url,
-                    run: () => window.open(alt.url, '_blank'),
-                })
-            );
+                    run: () =>
+                        window.open(alt.url, '_blank', 'noopener,noreferrer'),
+                });
+            });
         }
         groups.push(nav);
 
@@ -431,6 +444,19 @@ export function useAssetActions(
                             });
                         }
                     },
+                });
+            }
+            if (
+                ctx.roi &&
+                single?.capabilities.edit &&
+                isClipApplicable(single.source?.type)
+            ) {
+                manage.push({
+                    id: 'roi',
+                    testId: 'asset-roi-edit',
+                    label: t('asset.roi.action', 'Edit the region of interest'),
+                    icon: <ScanIcon />,
+                    run: () => openModal(AssetRoiDialog, {asset: single}),
                 });
             }
         }

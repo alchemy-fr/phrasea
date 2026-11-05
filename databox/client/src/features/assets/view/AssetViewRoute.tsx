@@ -7,6 +7,8 @@ import {
     ChevronLeftIcon,
     ChevronRightIcon,
     FilePlusIcon,
+    MaximizeIcon,
+    ScanIcon,
     XIcon,
 } from 'lucide-react';
 import type {Asset, AssetRendition} from '@/types/api';
@@ -18,8 +20,10 @@ import {Button} from '@/components/ui/button';
 import {SimpleSelect} from '@/components/ui/select';
 import {Tooltip} from '@/components/ui/overlays';
 import {FullPageLoader} from '@/components/ui/loader';
-import {EmptyState} from '@/components/ui/misc';
+import {EmptyState, Separator} from '@/components/ui/misc';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
+import {getSubtitleTracks} from '@/features/assets/player/subtitles';
+import {clipForFile, effectiveClip} from '@/features/clip/clip';
 import {
     AssetPanel,
     defaultAssetPanelTab,
@@ -50,6 +54,7 @@ import {AnnotationsProvider} from '@/features/annotations/AnnotationsProvider';
 import {getAssetAnnotationsTarget} from '@/features/annotations/assetAnnotations';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
 import {useAttributeFormats} from '@/features/attributes/formatStore';
+import {useFaceAnnotationControl} from '@/features/faces/FaceAnnotationControl';
 
 /** Best file to display for a story item standing in for its story */
 function standInFile(asset: Asset | undefined) {
@@ -107,13 +112,16 @@ export function AssetViewRoute({
             setPanelTab(hashTarget);
         }
     }, [initialAssetId, initialRenditionId]);
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const queryClient = useQueryClient();
     const {openModal} = useModals();
     const close = useCloseRoute();
     const update = useAssetStore(s => s.update);
     const navContext = useNavigationContextStore(s => s.context);
     const [panelOpen, setPanelOpen] = useState(true);
+    // The whole media, in place of its region of interest
+    const [whole, setWhole] = useState(false);
+    useEffect(() => setWhole(false), [assetId]);
     // The editor and the tabs each keep their own width
     const panel = useResizablePanel(editing ? 'edit' : 'info');
 
@@ -142,16 +150,6 @@ export function AssetViewRoute({
     });
 
     const asset = query.data?.asset;
-    const formatContext = useFormatContext();
-    const {getFormat} = useAttributeFormats();
-    // The shapes of the attribute values, shown over the image by default
-    const assetAnnotations = useMemo(
-        () =>
-            asset
-                ? getAssetAnnotationsTarget(asset, formatContext, getFormat)
-                : undefined,
-        [asset, formatContext, getFormat]
-    );
     const renditions = useMemo(
         () => query.data?.renditions ?? [],
         [query.data?.renditions]
@@ -168,6 +166,24 @@ export function AssetViewRoute({
             renditions[0]
         );
     }, [renditions, renditionId, asset]);
+    const formatContext = useFormatContext();
+    const {getFormat} = useAttributeFormats();
+    const renderFaceControl = useFaceAnnotationControl(asset, rendition?.file);
+    // The shapes of the attribute values, shown over the image by default
+    const assetAnnotations = useMemo(
+        () =>
+            asset
+                ? {
+                      ...getAssetAnnotationsTarget(
+                          asset,
+                          formatContext,
+                          getFormat
+                      ),
+                      renderControl: renderFaceControl,
+                  }
+                : undefined,
+        [asset, formatContext, getFormat, renderFaceControl]
+    );
 
     // A story is browsed from the story itself: keep it until the URL points
     // somewhere else (the items of a story are plain assets).
@@ -187,6 +203,14 @@ export function AssetViewRoute({
     const displayedFile = rendition?.file ?? standInFile(storyStandIn);
     // The media displayed is the stand-in's for a story without a file
     const displayedAsset = storyStandIn ?? asset;
+    const displayedClip = displayedAsset
+        ? effectiveClip(displayedAsset)
+        : undefined;
+    const hasDisplayedClip = !!clipForFile(displayedClip, displayedFile?.type);
+    const subtitles = useMemo(
+        () => getSubtitleTracks(displayedAsset?.attributes, i18n.language),
+        [displayedAsset?.attributes, i18n.language]
+    );
     useContentImpression(
         displayedFile ? displayedAsset : undefined,
         displayedFile?.type
@@ -336,7 +360,9 @@ export function AssetViewRoute({
                 step('next');
             } else if (
                 e.key === 'Escape' &&
-                !document.querySelector('[role=dialog][data-state=open]')
+                !document.querySelector(
+                    ':is([role=dialog], [role=menu])[data-state=open]'
+                )
             ) {
                 close();
             }
@@ -385,16 +411,6 @@ export function AssetViewRoute({
                 )}
             >
                 <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
-                    <Tooltip content={t('common.close', 'Close')}>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={close}
-                            aria-label={t('common.close', 'Close')}
-                        >
-                            <XIcon />
-                        </Button>
-                    </Tooltip>
                     <h1
                         data-testid="asset-view-title"
                         className="min-w-0 flex-1 truncate text-base font-semibold"
@@ -416,6 +432,42 @@ export function AssetViewRoute({
                                 }))}
                         />
                     ) : null}
+                    {hasDisplayedClip ? (
+                        <Tooltip
+                            content={
+                                whole
+                                    ? t(
+                                          'asset.roi.show_roi',
+                                          'Show the region of interest'
+                                      )
+                                    : t(
+                                          'asset.roi.show_whole',
+                                          'Show the whole asset'
+                                      )
+                            }
+                        >
+                            <Button
+                                variant={whole ? 'secondary' : 'ghost'}
+                                size="icon-sm"
+                                data-testid="asset-roi-toggle"
+                                aria-pressed={whole}
+                                aria-label={
+                                    whole
+                                        ? t(
+                                              'asset.roi.show_roi',
+                                              'Show the region of interest'
+                                          )
+                                        : t(
+                                              'asset.roi.show_whole',
+                                              'Show the whole asset'
+                                          )
+                                }
+                                onClick={() => setWhole(w => !w)}
+                            >
+                                {whole ? <ScanIcon /> : <MaximizeIcon />}
+                            </Button>
+                        </Tooltip>
+                    ) : null}
                     {asset ? (
                         <AssetViewActions
                             asset={asset}
@@ -426,6 +478,17 @@ export function AssetViewRoute({
                             panelOpen={panelOpen}
                         />
                     ) : null}
+                    <Separator orientation="vertical" className="mx-0.5 h-5" />
+                    <Tooltip content={t('common.close', 'Close')}>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={close}
+                            aria-label={t('common.close', 'Close')}
+                        >
+                            <XIcon />
+                        </Button>
+                    </Tooltip>
                 </header>
 
                 <div className="flex min-h-0 flex-1">
@@ -517,6 +580,9 @@ export function AssetViewRoute({
                                         fit="zoom"
                                         className="size-full"
                                         autoPlay
+                                        subtitles={subtitles}
+                                        clip={displayedClip}
+                                        whole={whole}
                                     />
                                 </div>
                             ) : asset &&

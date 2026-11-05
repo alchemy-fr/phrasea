@@ -6,6 +6,8 @@ namespace App\Consumer\Handler\Collection;
 
 use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Collection;
+use App\Model\AuditLogActionEnum;
+use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -15,16 +17,14 @@ readonly class CollectionsMoveToTrashHandler
     public function __construct(
         private EntityManagerInterface $em,
         private ElasticSearchClient $elasticSearchClient,
+        private AuditLogManager $auditLogManager,
     ) {
     }
 
     public function __invoke(CollectionsMoveToTrash $message): void
     {
-        $collections = array_map(function (string $id): string {
-            $collection = $this->em->getRepository(Collection::class)->find($id);
-
-            return $collection->getAbsolutePath();
-        }, $message->getIds());
+        $entities = array_map(fn (string $id): Collection => $this->em->getRepository(Collection::class)->find($id), $message->getIds());
+        $collections = array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $entities);
 
         $this->em->createQueryBuilder()
             ->update(Collection::class, 'c')
@@ -34,6 +34,12 @@ readonly class CollectionsMoveToTrashHandler
             ->setParameter('ids', $message->getIds())
             ->getQuery()
             ->execute();
+
+        // A DQL update triggers no Doctrine listener
+        foreach ($entities as $collection) {
+            $this->auditLogManager->log(AuditLogActionEnum::ObjectTrashed, $collection);
+        }
+        $this->em->flush();
 
         $this->elasticSearchClient->updateByQuery(
             'asset',

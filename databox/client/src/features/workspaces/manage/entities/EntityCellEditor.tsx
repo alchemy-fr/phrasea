@@ -4,12 +4,14 @@ import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {XIcon} from 'lucide-react';
 import {Input} from '@/components/ui/input';
+import {TagsInput} from '@/components/form/TagsInput';
 import {cn} from '@/lib/utils/cn';
 import type {CellEditorRenderProps} from '@/components/ui/data-table/types';
+import {parseSynonyms} from './entityColumns';
 
 /**
- * In-cell editors of the entity grid. They commit on Enter, Tab and blur;
- * Escape is handled by the grid (cancel).
+ * In-cell editors of the entity grid. They commit on Enter (in an empty
+ * field for the chips), Tab and blur; Escape is handled by the grid (cancel).
  */
 export function EntityCellEditor<T>(p: CellEditorRenderProps<T>) {
     switch (p.kind) {
@@ -17,6 +19,8 @@ export function EntityCellEditor<T>(p: CellEditorRenderProps<T>) {
             return <SelectEditor {...p} />;
         case 'color':
             return <ColorEditor {...p} />;
+        case 'tags':
+            return <TagsEditor {...p} />;
         default:
             return <TextEditor {...p} />;
     }
@@ -147,6 +151,71 @@ function ColorEditor<T>({value, onCommit, onCancel}: CellEditorRenderProps<T>) {
             >
                 <XIcon className="size-3.5" />
             </button>
+        </div>
+    );
+}
+
+/**
+ * A JSON list edited as chips; Enter in the empty text field, Tab and leaving
+ * the editor commit the list.
+ */
+function TagsEditor<T>({
+    value,
+    initialValue,
+    onCommit,
+    onCancel,
+}: CellEditorRenderProps<T>) {
+    const {t} = useTranslation();
+    const [list, setList] = useState<string[]>(
+        () => parseSynonyms(value) ?? []
+    );
+    // Read by the commits: the input adds its pending text on blur and Tab,
+    // in the same event as the one bubbling to the container, before React
+    // renders the new list
+    const listRef = useRef(list);
+    const change = (next: string[]) => {
+        listRef.current = next;
+        setList(next);
+    };
+    const commit = () => onCommit(JSON.stringify(listRef.current));
+
+    return (
+        <div
+            className="w-full"
+            // Keeps the focus in the text field when a chip is removed
+            onMouseDown={e => {
+                if (!(e.target instanceof HTMLInputElement)) {
+                    e.preventDefault();
+                }
+            }}
+            onBlur={e => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                    commit();
+                }
+            }}
+            onKeyDown={e => {
+                if (e.key === 'Escape') {
+                    e.stopPropagation();
+                    onCancel();
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    commit();
+                }
+            }}
+        >
+            <TagsInput
+                value={list}
+                onChange={change}
+                splitOn={/\r?\n/}
+                autoFocus
+                initialText={initialValue}
+                onSubmit={commit}
+                placeholder={t(
+                    'entity.synonyms_placeholder',
+                    'Type a synonym, then Enter'
+                )}
+                className="min-h-7 flex-nowrap overflow-x-auto py-0.5"
+            />
         </div>
     );
 }

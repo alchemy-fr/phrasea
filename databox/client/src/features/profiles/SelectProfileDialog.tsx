@@ -30,6 +30,7 @@ import {ProfileOwnership} from './ProfileOwnership';
 import {useProfileStore} from './profileStore';
 import {usePreferencesStore} from '@/features/preferences/store';
 import {postProfile} from '@/lib/api/misc';
+import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabilities';
 import {routes} from '@/lib/routes';
 import type {DisplayProfile} from '@/types/api';
 import {useAuth} from '@/lib/auth/AuthProvider';
@@ -37,6 +38,7 @@ import {cn} from '@/lib/utils/cn';
 
 export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
     const {t} = useTranslation();
+    const capabilities = useInstanceCapabilities();
     const {user} = useAuth();
     const router = useRouter();
     const {openModal} = useModals();
@@ -61,16 +63,18 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
             submitLabel={t('common.close', 'Close')}
             bodyClassName="space-y-2"
             footerStart={
-                <Button
-                    variant="outline"
-                    onClick={() =>
-                        openModal(CreateProfileDialog, {
-                            onCreated: () => onOpenChange(false),
-                        })
-                    }
-                >
-                    <PlusIcon /> {t('profile.create', 'New profile')}
-                </Button>
+                capabilities.createProfile ? (
+                    <Button
+                        variant="outline"
+                        onClick={() =>
+                            openModal(CreateProfileDialog, {
+                                onCreated: () => onOpenChange(false),
+                            })
+                        }
+                    >
+                        <PlusIcon /> {t('profile.create', 'New profile')}
+                    </Button>
+                ) : undefined
             }
         >
             <ProfileRow

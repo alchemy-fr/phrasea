@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api\UserSpace;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\MessengerBundle\Transport\TestTransport;
+use App\Consumer\Handler\Basket\BasketUpdate;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
+use App\Entity\Core\File;
+use App\Security\Voter\DataboxExtraPermissionInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Basket item operations (no Elasticsearch involved).
@@ -17,6 +22,14 @@ use App\Tests\Functional\AbstractDataboxTestCase;
 final class BasketApiTest extends AbstractDataboxTestCase
 {
     use UserSpaceTestTrait;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Sharing its baskets is granted to admins only by default
+        $this->grantOnType(self::USER, Basket::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_BASKET);
+    }
 
     public function testCreateRequiresAuthentication(): void
     {
@@ -463,6 +476,253 @@ final class BasketApiTest extends AbstractDataboxTestCase
 
         // The route only exists for IRI generation
         $this->assertStatus(404, 'GET', '/basket-assets/'.$item['id'], self::USER);
+    }
+
+    private const array CLIP = [
+        'timeRanges' => [['s' => 1.5, 'e' => 3]],
+        'crop' => ['x' => 0.1, 'y' => 0.2, 'w' => 0.5, 'h' => 0.25],
+    ];
+
+    public function testPatchSetsClearsAndKeepsTheClip(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('video/mp4');
+        $uri = '/basket-assets/'.$itemId;
+
+        $data = $this->apiJson('PATCH', $uri, self::USER, ['clip' => self::CLIP]);
+        $this->assertSame($itemId, $data['id']);
+        $this->assertEquals(self::CLIP, $data['clip']);
+        $this->assertEquals(self::CLIP, $this->getItem($basket, $itemId)['clip']);
+
+        // Omitted: unchanged
+        $this->apiJson('PATCH', $uri, self::USER, []);
+        $this->assertEquals(self::CLIP, $this->getItem($basket, $itemId)['clip']);
+
+        $this->apiJson('PATCH', $uri, self::USER, ['clip' => null]);
+        $this->assertNull($this->getItem($basket, $itemId)['clip'] ?? null);
+
+        // The former single range format is accepted, and served in the current one
+        $this->apiJson('PATCH', $uri, self::USER, ['clip' => ['timeRange' => ['s' => 0, 'e' => 2]]]);
+        $this->assertEquals(['timeRanges' => [['s' => 0, 'e' => 2]]], $this->getItem($basket, $itemId)['clip']);
+
+        $this->apiJson('PATCH', $uri, self::USER, ['clip' => []]);
+        $this->assertNull($this->getItem($basket, $itemId)['clip'] ?? null);
+
+        self::getEntityManager()->clear();
+        $item = self::getEntityManager()->find(BasketAsset::class, $itemId);
+        $this->assertNull($item->getClip());
+        $this->assertNull($item->getMediaClip());
+    }
+
+    public function testClipWithSeveralTimeRanges(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('video/mp4');
+
+        $data = $this->apiJson('PATCH', '/basket-assets/'.$itemId, self::USER, ['clip' => [
+            'timeRanges' => [['s' => 50, 'e' => 60], ['s' => 10, 'e' => 20], ['s' => 18, 'e' => 25]],
+        ]]);
+
+        $expected = ['timeRanges' => [['s' => 10, 'e' => 25], ['s' => 50, 'e' => 60]]];
+        $this->assertEquals($expected, $data['clip']);
+        $this->assertEquals($expected, $this->getItem($basket, $itemId)['clip']);
+    }
+
+    public function testStoredLegacyClipIsServedInTheCurrentFormat(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('video/mp4');
+        $em = self::getEntityManager();
+        $item = $em->find(BasketAsset::class, $itemId);
+        $item->setContext(['clip' => ['timeRange' => ['s' => 1, 'e' => 2], 'crop' => self::CLIP['crop']]]);
+        $em->flush();
+
+        $this->assertEquals([
+            'timeRanges' => [['s' => 1, 'e' => 2]],
+            'crop' => self::CLIP['crop'],
+        ], $this->getItem($basket, $itemId)['clip']);
+    }
+
+    public function testItemsListTheRoiOfTheirAsset(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('image/png');
+        $em = self::getEntityManager();
+        $asset = $em->find(BasketAsset::class, $itemId)->getAsset();
+        $asset->setRoi(['crop' => self::CLIP['crop']]);
+        $em->flush();
+
+        $item = $this->getItem($basket, $itemId);
+        $this->assertEquals(['crop' => self::CLIP['crop']], $item['asset']['roi']);
+        $this->assertArrayNotHasKey('clip', $item);
+    }
+
+    #[DataProvider('provideInvalidClips')]
+    public function testPatchValidatesTheClip(array $clip, string $path): void
+    {
+        [, $itemId] = $this->createBasketItem('video/mp4');
+
+        $response = $this->api('PATCH', '/basket-assets/'.$itemId, self::USER, ['clip' => $clip]);
+        $this->assertSame(422, $response->getStatusCode(), $response->getContent(false));
+        $this->assertContains($path, array_column($response->toArray(false)['violations'], 'propertyPath'));
+    }
+
+    public static function provideInvalidClips(): iterable
+    {
+        yield 'negative start' => [['timeRanges' => [['s' => -1, 'e' => 2]]], 'clip.timeRanges[0].s'];
+        yield 'end before start' => [['timeRanges' => [['s' => 0, 'e' => 1], ['s' => 2, 'e' => 2]]], 'clip.timeRanges[1].e'];
+        yield 'too many ranges' => [['timeRanges' => array_map(static fn (int $i): array => ['s' => $i, 'e' => $i + 0.5], range(0, 50))], 'clip.timeRanges'];
+        yield 'legacy negative start' => [['timeRange' => ['s' => -1, 'e' => 2]], 'clip.timeRange.s'];
+        yield 'legacy end before start' => [['timeRange' => ['s' => 2, 'e' => 2]], 'clip.timeRange.e'];
+        yield 'missing end' => [['timeRange' => ['s' => 2]], 'clip.timeRange.e'];
+        yield 'x out of the media' => [['crop' => ['x' => 1.5, 'y' => 0, 'w' => 0.1, 'h' => 0.1]], 'clip.crop.x'];
+        yield 'empty width' => [['crop' => ['x' => 0, 'y' => 0, 'w' => 0, 'h' => 0.5]], 'clip.crop.w'];
+        yield 'beyond the right edge' => [['crop' => ['x' => 0.6, 'y' => 0, 'w' => 0.5, 'h' => 0.5]], 'clip.crop.w'];
+        yield 'beyond the bottom edge' => [['crop' => ['x' => 0, 'y' => 0.6, 'w' => 0.5, 'h' => 0.5]], 'clip.crop.h'];
+    }
+
+    #[DataProvider('provideSourceTypes')]
+    public function testClipMustApplyToTheSource(?string $sourceType, bool $timeRange, bool $crop): void
+    {
+        [, $itemId] = $this->createBasketItem($sourceType);
+        $uri = '/basket-assets/'.$itemId;
+
+        $this->assertStatus($timeRange ? 200 : 400, 'PATCH', $uri, self::USER, ['clip' => ['timeRange' => ['s' => 0, 'e' => 2]]]);
+        $this->assertStatus($crop ? 200 : 400, 'PATCH', $uri, self::USER, ['clip' => ['crop' => self::CLIP['crop']]]);
+        // Removing a clip is always possible
+        $this->assertStatus(200, 'PATCH', $uri, self::USER, ['clip' => null]);
+    }
+
+    public static function provideSourceTypes(): iterable
+    {
+        yield 'video' => ['video/mp4', true, true];
+        yield 'audio' => ['audio/mpeg', true, false];
+        yield 'image' => ['image/jpeg', false, true];
+        yield 'svg' => ['image/svg+xml', false, false];
+        yield 'document' => ['application/pdf', false, false];
+        yield 'no source' => [null, false, false];
+    }
+
+    public function testPatchingTheClipRequiresToEditTheBasket(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('video/mp4');
+        $uri = '/basket-assets/'.$itemId;
+
+        $this->assertStatus(401, 'PATCH', $uri, null, ['clip' => self::CLIP]);
+        $this->assertStatus(403, 'PATCH', $uri, self::OTHER, ['clip' => self::CLIP]);
+
+        $this->grantUserOnObject(self::OTHER, $basket, PermissionInterface::VIEW);
+        $this->assertStatus(403, 'PATCH', $uri, self::OTHER, ['clip' => self::CLIP]);
+
+        $this->grantUserOnObject(self::OTHER, $basket, PermissionInterface::VIEW | PermissionInterface::EDIT);
+        $this->assertStatus(200, 'PATCH', $uri, self::OTHER, ['clip' => self::CLIP]);
+
+        $this->assertStatus(404, 'PATCH', '/basket-assets/00000000-0000-4000-8000-000000000000', self::USER, ['clip' => self::CLIP]);
+    }
+
+    public function testOnlyAClipChangeSynchronizesTheBasket(): void
+    {
+        [$basket, $itemId] = $this->createBasketItem('video/mp4');
+        $uri = '/basket-assets/'.$itemId;
+
+        // The kernel must not be rebooted between the requests: it would replace the transport
+        static::createClient()->disableReboot();
+        /** @var TestTransport $transport */
+        $transport = self::getContainer()->get('messenger.transport.p2');
+        $queue = $transport->intercept();
+        $updates = static fn (): array => array_values(array_filter(
+            $queue->getSent(),
+            static fn ($envelope): bool => $envelope->getMessage() instanceof BasketUpdate,
+        ));
+
+        // The services are reset before each request: the messages are those of the last request
+        $this->apiJson('PATCH', $uri, self::USER, ['clip' => self::CLIP]);
+        $this->assertCount(1, $updates());
+        $this->assertSame($basket->getId(), $updates()[0]->getMessage()->getId());
+
+        // Same clip (float noise included), no clip key: nothing to synchronize
+        $this->apiJson('PATCH', $uri, self::USER, ['clip' => [
+            'timeRange' => ['s' => 1.5001, 'e' => 3],
+            'crop' => self::CLIP['crop'],
+        ]]);
+        $this->assertCount(0, $updates());
+        $this->apiJson('PATCH', $uri, self::USER, []);
+        $this->assertCount(0, $updates());
+
+        $this->apiJson('PATCH', $uri, self::USER, ['clip' => null]);
+        $this->assertCount(1, $updates());
+    }
+
+    public function testAssetsCanBeAddedWithAClip(): void
+    {
+        $video = $this->createReadableAssetWithSource('video/mp4');
+        $image = $this->createReadableAssetWithSource('image/png');
+        $basket = $this->createBasket(['name' => 'B', 'ownerId' => self::USER]);
+        $uri = '/baskets/'.$basket->getId().'/assets';
+
+        $this->apiJson('POST', $uri, self::USER, ['assets' => [
+            ['id' => $video->getId(), 'clip' => self::CLIP],
+            ['id' => $image->getId()],
+        ]]);
+
+        $clips = [];
+        foreach ($this->members($this->apiJson('GET', $uri, self::USER)) as $item) {
+            $clips[$item['asset']['id']] = $item['clip'] ?? null;
+        }
+        $this->assertEquals([
+            $video->getId() => self::CLIP,
+            $image->getId() => null,
+        ], $clips);
+
+        // A time range does not apply to an image
+        $this->assertStatus(400, 'POST', $uri, self::USER, ['assets' => [
+            ['id' => $image->getId(), 'clip' => ['timeRange' => ['s' => 0, 'e' => 1]]],
+        ]]);
+        $this->assertStatus(422, 'POST', $uri, self::USER, ['assets' => [
+            ['id' => $video->getId(), 'clip' => ['timeRange' => ['s' => 3, 'e' => 1]]],
+        ]]);
+    }
+
+    /**
+     * @return array{Basket, string} the basket and the item ID
+     */
+    private function createBasketItem(?string $sourceType): array
+    {
+        $asset = null !== $sourceType ? $this->createReadableAssetWithSource($sourceType) : $this->createReadableAsset(self::USER);
+        $basket = $this->createBasket(['name' => 'B', 'ownerId' => self::USER]);
+        $this->apiJson('POST', '/baskets/'.$basket->getId().'/assets', self::USER, ['assets' => [['id' => $asset->getId()]]]);
+
+        return [$basket, $this->getItems($basket)[0]['id']];
+    }
+
+    private function getItems(Basket $basket): array
+    {
+        return $this->members($this->apiJson('GET', '/baskets/'.$basket->getId().'/assets', self::USER));
+    }
+
+    private function getItem(Basket $basket, string $itemId): array
+    {
+        foreach ($this->getItems($basket) as $item) {
+            if ($item['id'] === $itemId) {
+                return $item;
+            }
+        }
+
+        $this->fail(sprintf('Basket item "%s" not listed', $itemId));
+    }
+
+    private function createReadableAssetWithSource(string $type): Asset
+    {
+        $asset = $this->createReadableAsset(self::USER);
+        $em = self::getEntityManager();
+
+        $file = new File();
+        $file->setWorkspace($asset->getWorkspace());
+        $file->setStorage(File::STORAGE_S3_MAIN);
+        $file->setPath('test/'.uniqid());
+        $file->setType($type);
+        $file->setSize(1234);
+        $em->persist($file);
+        $asset->setSource($file);
+        $em->flush();
+
+        return $asset;
     }
 
     private function createReadableAsset(string $userId, ?string $title = null): Asset

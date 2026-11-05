@@ -70,7 +70,7 @@ class SimilarityIndexCommand extends Command
             }
 
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
-            $rendition = $config['rendition'] ?? AssetEmbeddingManager::DEFAULT_RENDITION;
+            $rendition = $config['rendition'];
 
             $io->section(sprintf('Workspace "%s"', $workspace->getName()));
 

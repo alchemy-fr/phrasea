@@ -4,4 +4,5 @@ export * from './src/userNormalizer/keycloakNormalizer';
 export * from './src/oneTimeToken';
 export * from './src/openLoginWindow';
 export * from './src/stateEncoder';
+export * from './src/stateNonce';
 export * from './src/types';

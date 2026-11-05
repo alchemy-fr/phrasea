@@ -1,5 +1,12 @@
 services:
   a_client:
+    # A leaking dev server (next dev, Turbopack) grows past 20G unbounded:
+    # the container is killed, not the desktop session.
+    deploy:
+      resources:
+        limits:
+          memory: ${DEV_CLIENT_MEMORY_LIMIT}
+    memswap_limit: ${DEV_CLIENT_MEMORY_LIMIT}
     environment:
       - REACT_EDITOR
     volumes:
@@ -178,6 +185,8 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - ELASTICSEARCH_URL
+      - ELASTICSEARCH_USERNAME
+      - ELASTICSEARCH_PASSWORD
       - ELASTICSEARCH_INDEX_PREFIX
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
@@ -259,7 +268,7 @@ services:
       - MATOMO_MEDIA_PLUGIN_ENABLED
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
-      - SOCKUDO_HOST=sockudo.${PHRASEA_DOMAIN}
+      - SOCKUDO_HOST=ws.${PHRASEA_DOMAIN}
       - SOCKUDO_APP_ID
       - SOCKUDO_KEY
       - SOCKUDO_SECRET
@@ -298,7 +307,7 @@ services:
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - ws.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   configurator:
     volumes:

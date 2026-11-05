@@ -122,6 +122,7 @@ class PhraseanetIntegrationController extends AbstractController
         LoggerInterface $logger,
         WorkflowOrchestrator $workflowOrchestrator,
         StateRepositoryInterface $workflowStateRepository,
+        IntegrationManager $integrationManager,
     ): Response {
         $json = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -144,14 +145,29 @@ class PhraseanetIntegrationController extends AbstractController
                         break;
                     }
                     $assetId = $inputs['assetId'];
+
+                    // Temporary hack
+                    $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', (string) $data['permalink']);
+
+                    // This webhook is not authenticated: only files of the configured Phraseanet are fetched
+                    try {
+                        $config = $integrationManager->getIntegrationConfiguration($integrationManager->loadIntegration((string) $integrationId));
+                    } catch (\InvalidArgumentException) {
+                        break;
+                    }
+                    $phraseanetHost = parse_url((string) $config['baseUrl'], PHP_URL_HOST);
+                    if (!is_string($phraseanetHost)
+                        || parse_url((string) $url, PHP_URL_HOST) !== $phraseanetHost
+                        || parse_url((string) $url, PHP_URL_PORT) !== parse_url((string) $config['baseUrl'], PHP_URL_PORT)) {
+                        $logger->warning(sprintf('Phraseanet webhook ignored: permalink "%s" is not on the integration host', $url));
+                        break;
+                    }
+
                     $workflowOrchestrator->continueJob(
                         $workflowId,
                         PhraseanetRenditionIntegration::getRenditionJobId($integrationId, $data['subdef_name']),
                         ['built' => 1]
                     );
-
-                    // Temporary hack
-                    $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', (string) $data['permalink']);
 
                     $logger->debug(sprintf('URL: %s', $url));
                     $bus->dispatch(new PhraseanetDownloadSubdef(

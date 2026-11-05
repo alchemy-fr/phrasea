@@ -10,7 +10,9 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Workspace;
+use App\Model\AuditLogActionEnum;
 use App\Service\Asset\AssetCopier;
+use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -21,6 +23,7 @@ readonly class AssetCopyHandler
         private IriConverterInterface $iriConverter,
         private AssetCopier $assetCopier,
         private EntityManagerInterface $em,
+        private AuditLogManager $auditLogManager,
     ) {
     }
 
@@ -59,6 +62,14 @@ readonly class AssetCopyHandler
                 $message->getOptions(),
                 $message->getExtraMetadata(),
             );
+
+            // The copy itself is logged as created, under the same correlation ID
+            $this->auditLogManager->log(AuditLogActionEnum::AssetCopied, $asset, [
+                'destinationWorkspaceId' => $destWorkspace->getId(),
+                'destinationCollectionId' => $destCollection?->getId(),
+                'options' => $message->getOptions(),
+            ]);
+            $this->em->flush();
         }
     }
 }

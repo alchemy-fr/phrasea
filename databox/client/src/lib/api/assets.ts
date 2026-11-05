@@ -16,6 +16,7 @@ import {
     Facets,
     HydraCollection,
     MatomoMediaMetrics,
+    MediaClip,
     Page,
     SearchSuggestion,
 } from '@/types/api';
@@ -42,6 +43,11 @@ export type SearchAssetsOptions = {
 export type SearchAssetsResult = Page<Asset> & {
     facets: Facets;
     debug?: ESDebug;
+    /**
+     * Similarity score of each asset of the page to the reference asset, by
+     * asset ID, when the search ranks by similarity (`@similar`)
+     */
+    scores?: Record<string, number>;
 };
 
 export async function searchAssets(
@@ -52,7 +58,11 @@ export async function searchAssets(
     const res = await api.get<
         HydraCollection<
             Asset,
-            {'facets': Facets; 'debug:es'?: {query: object; time: number}}
+            {
+                'facets': Facets;
+                'debug:es'?: {query: object; time: number};
+                'scores'?: Record<string, number>;
+            }
         >
     >(url ?? `/${EntityName.Asset}`, {
         params: url ? undefined : params,
@@ -65,6 +75,8 @@ export async function searchAssets(
     return {
         ...page,
         facets: res.facets ?? {},
+        // An empty PHP array is serialized as a JSON list
+        scores: Array.isArray(res.scores) ? {} : res.scores,
         debug: debug
             ? {
                   query: debug.query,
@@ -73,6 +85,36 @@ export async function searchAssets(
               }
             : undefined,
     };
+}
+
+/**
+ * Ids per request: each one adds ~47 characters to the query string, and
+ * proxies reject long URLs (nginx answers 414 past 8 KB by default).
+ */
+export const ASSET_IDS_CHUNK = 50;
+
+/**
+ * The assets of `ids` the user can see (the others are left out), fetched
+ * by chunks in parallel. `options` narrows the search the same way for
+ * every chunk.
+ */
+export async function getAssetsByIds(
+    ids: string[],
+    options: Omit<SearchAssetsOptions, 'url' | 'ids' | 'limit'> = {},
+    signal?: AbortSignal
+): Promise<Asset[]> {
+    const chunks: string[][] = [];
+    for (let i = 0; i < ids.length; i += ASSET_IDS_CHUNK) {
+        chunks.push(ids.slice(i, i + ASSET_IDS_CHUNK));
+    }
+
+    const pages = await Promise.all(
+        chunks.map(chunk =>
+            searchAssets({...options, ids: chunk, limit: chunk.length}, signal)
+        )
+    );
+
+    return pages.flatMap(p => p.items);
 }
 
 /** Latitudes and longitudes of a box */
@@ -371,6 +413,8 @@ export type AssetInput = {
     sourceFileId?: string;
     multipart?: MultipartUpload;
     sourceFile?: SourceFileInput;
+    /** Region of interest of the source file: `null` removes it */
+    roi?: MediaClip | null;
     attributes?: AttributeBatchAction[];
     relationship?: {
         source: string;

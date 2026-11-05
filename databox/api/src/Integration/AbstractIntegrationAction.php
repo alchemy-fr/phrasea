@@ -83,7 +83,7 @@ abstract class AbstractIntegrationAction implements IfActionInterface
             return false;
         }
 
-        if (null !== $skipReason = $this->getSkipReason($asset)) {
+        if (null !== $skipReason = $this->getJobSkipReason($asset, $context)) {
             $context->setSkipReason($skipReason);
 
             return false;
@@ -143,5 +143,15 @@ abstract class AbstractIntegrationAction implements IfActionInterface
     protected function getSkipReason(Asset $asset): ?string
     {
         return null;
+    }
+
+    /**
+     * Same as getSkipReason(), for the actions whose skip depends on the job inputs.
+     *
+     * @return string|null why the job must be skipped for this asset, null to run it
+     */
+    protected function getJobSkipReason(Asset $asset, JobExecutionContext $context): ?string
+    {
+        return $this->getSkipReason($asset);
     }
 }

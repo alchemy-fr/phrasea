@@ -408,7 +408,7 @@ export function DataTable<T>({
                     !e.ctrlKey &&
                     !e.metaKey &&
                     !e.altKey &&
-                    (kind === 'text' || kind === 'emoji') &&
+                    (kind === 'text' || kind === 'emoji' || kind === 'tags') &&
                     startEditing(focused, e.key)
                 ) {
                     e.preventDefault();

@@ -27,6 +27,7 @@ use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\RemoveFromBasketProcessor;
 use App\Api\Processor\UnarchiveBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
+use App\Audit\AuditableInterface;
 use App\Elasticsearch\BasketSearch;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
@@ -156,7 +157,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: BasketCollectionProvider::class,
 )]
 #[ORM\Entity(repositoryClass: BasketRepository::class)]
-class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, ESIndexableInterface, HighlightableModelInterface, \Stringable
+class Basket extends AbstractUuidEntity implements AuditableInterface, WithOwnerIdInterface, AclObjectInterface, ESIndexableInterface, HighlightableModelInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

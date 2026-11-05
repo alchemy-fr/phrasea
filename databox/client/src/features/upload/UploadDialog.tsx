@@ -14,7 +14,13 @@ import {
     XIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
-import type {Asset, CollectionPrivacyInfo, Privacy, Tag} from '@/types/api';
+import type {
+    Asset,
+    AssetDataTemplate,
+    CollectionPrivacyInfo,
+    Privacy,
+    Tag,
+} from '@/types/api';
 import {AssetTypeFilter, EntityName} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
@@ -125,6 +131,9 @@ export function UploadDialog({
     const [coverFile, setCoverFile] = useState<File>();
     const [coverUrl, setCoverUrl] = useState<string>();
     const [templateIds, setTemplateIds] = useState<string[]>([]);
+    const [appliedTemplates, setAppliedTemplates] = useState<
+        Record<string, AssetDataTemplate>
+    >({});
     const uploadStore = useUploadStore();
     const workspaceId = destination?.workspaceId;
     const workspace = useWorkspace(workspaceId);
@@ -608,6 +617,10 @@ export function UploadDialog({
                             value={templateIds}
                             onChange={setTemplateIds}
                             onApply={tpl => {
+                                setAppliedTemplates(prev => ({
+                                    ...prev,
+                                    [tpl.id]: tpl,
+                                }));
                                 if (
                                     tpl.privacy !== undefined &&
                                     tpl.privacy !== null
@@ -828,7 +841,13 @@ export function UploadDialog({
                                             assetEditor.attributes,
                                             assetEditor.definitions
                                         )}
-                                        appliedTemplateId={templateIds[0]}
+                                        appliedTemplate={
+                                            templateIds.length === 1
+                                                ? appliedTemplates[
+                                                      templateIds[0]
+                                                  ]
+                                                : undefined
+                                        }
                                         onSaved={() =>
                                             queryClient.invalidateQueries({
                                                 queryKey: [

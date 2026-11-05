@@ -63,6 +63,7 @@ final readonly class BorderManager
 
     private function importFile(InputFile $file): string
     {
-        return $this->fileDownloader->download($file->getUrl());
+        // A presigned URL from the uploader API, whose storage may live on the private network
+        return $this->fileDownloader->download($file->getUrl(), allowPrivateNetwork: true);
     }
 }

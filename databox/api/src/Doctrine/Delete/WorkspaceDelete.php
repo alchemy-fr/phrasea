@@ -10,6 +10,7 @@ use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetImport;
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
@@ -29,6 +30,9 @@ use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
+use App\Model\AuditLogActionEnum;
+use App\Service\Import\AssetImportManager;
+use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -40,7 +44,9 @@ final readonly class WorkspaceDelete
         private IndexCleaner $indexCleaner,
         private SoftDeleteToggler $softDeleteToggler,
         private CollectionListener $collectionListener,
+        private AssetImportManager $assetImportManager,
         private LoggerInterface $logger,
+        private AuditLogManager $auditLogManager,
     ) {
     }
 
@@ -58,6 +64,8 @@ final readonly class WorkspaceDelete
             return;
         }
 
+        $workspaceName = $workspace->getName();
+
         $this->logger->debug('Cleaning index.');
         $this->indexCleaner->removeWorkspaceFromIndex($workspaceId);
 
@@ -68,79 +76,12 @@ final readonly class WorkspaceDelete
         $this->em->beginTransaction();
 
         try {
-            // first, delete story collections to avoid "collection not found" later
-            $storyCollections = $this->em->getRepository(Collection::class)
-                ->createQueryBuilder('c')
-                ->select('c.id')
-                ->andWhere('c.workspace = :ws')
-                ->andWhere('c.storyAsset IS NOT NULL')
-                ->setParameter('ws', $workspaceId)
-                ->getQuery()
-                ->toIterable();
-
-            foreach ($storyCollections as $c) {
-                $this->logger->debug(sprintf('Deleting story collection (%s).', $c['id']));
-                $this->collectionDelete->deleteCollection((string) $c['id'], true);
-            }
-
-            $collections = $this->em->getRepository(Collection::class)
-                ->createQueryBuilder('t')
-                ->select('t.id, t.name')
-                ->andWhere('t.parent IS NULL')
-                ->andWhere('t.workspace = :ws')
-                ->setParameter('ws', $workspaceId)
-                ->getQuery()
-                ->toIterable();
-
-            foreach ($collections as $c) {
-                $this->logger->debug(sprintf('Deleting collection "%s" (%s).', $c['name'] ?: '', $c['id']));
-                $this->collectionDelete->deleteCollection((string) $c['id'], true);
-            }
-
-            $this->deleteDependencies(Asset::class, $workspaceId);
-            $this->deleteDependencies(Tag::class, $workspaceId);
-            $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
-            $this->deleteDependencies(RenditionPolicy::class, $workspaceId);
-            $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
-            $this->deleteDependencies(AssetPolicy::class, $workspaceId);
-            $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
-            $this->deleteDependencies(AttributePolicy::class, $workspaceId);
-            $this->deleteIntegrationChildren($workspaceId);
-            $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
-            $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
-            $this->deleteDependencies(WorkspaceEnv::class, $workspaceId);
-            $this->deleteDependencies(AlternateUrl::class, $workspaceId);
-            $this->deleteDependencies(AttributeEntity::class, $workspaceId);
-            $this->deleteDependencies(EntityList::class, $workspaceId);
-            $this->deleteDependencies(ImageSet::class, $workspaceId);
-            $this->deleteDependencies(AttributeFilterRule::class, $workspaceId);
-
-            $nFiles = $this->em->getRepository(File::class)
-                ->createQueryBuilder('t')
-                ->select('COUNT(t.id)')
-                ->andWhere('t.workspace = :ws')
-                ->setParameter('ws', $workspaceId)
-                ->getQuery()
-                ->getSingleScalarResult();
-
-            $files = $this->em->getRepository(File::class)
-                ->createQueryBuilder('t')
-                ->select('t.id')
-                ->andWhere('t.workspace = :ws')
-                ->setParameter('ws', $workspaceId)
-                ->getQuery()
-                ->toIterable();
-
-            $this->logger->debug(sprintf('Deleting %d Files', $nFiles));
-            foreach ($files as $file) {
-                $f = $this->em->find(File::class, $file['id']);
-                $this->em->remove($f);
-                $this->em->flush();
-            }
-
-            $workspace = $this->em->find(Workspace::class, $workspaceId);
-            $this->logger->debug('Deleting workspace.');
-            $this->em->remove($workspace);
+            // A single audit entry for the whole workspace
+            $purged = $this->auditLogManager->mute(fn () => $this->doDelete($workspaceId));
+            $purged['workspace'] = ($purged['workspace'] ?? 1) - 1;
+            $this->auditLogManager->logRaw(AuditLogActionEnum::ObjectDeleted, Workspace::class, $workspaceId, $workspaceName, $workspaceId, array_filter([
+                'purged' => array_filter($purged),
+            ]));
             $this->em->flush();
             $this->em->commit();
         } catch (\Throwable $e) {
@@ -151,6 +92,100 @@ final readonly class WorkspaceDelete
             $this->softDeleteToggler->enable();
             $this->collectionListener->softDeleteEnabled = true;
         }
+    }
+
+    private function doDelete(string $workspaceId): void
+    {
+        // first, delete story collections to avoid "collection not found" later
+        $storyCollections = $this->em->getRepository(Collection::class)
+            ->createQueryBuilder('c')
+            ->select('c.id')
+            ->andWhere('c.workspace = :ws')
+            ->andWhere('c.storyAsset IS NOT NULL')
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->toIterable();
+
+        foreach ($storyCollections as $c) {
+            $this->logger->debug(sprintf('Deleting story collection (%s).', $c['id']));
+            $this->collectionDelete->deleteCollection((string) $c['id'], true);
+        }
+
+        $collections = $this->em->getRepository(Collection::class)
+            ->createQueryBuilder('t')
+            ->select('t.id, t.name')
+            ->andWhere('t.parent IS NULL')
+            ->andWhere('t.workspace = :ws')
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->toIterable();
+
+        foreach ($collections as $c) {
+            $this->logger->debug(sprintf('Deleting collection "%s" (%s).', $c['name'] ?: '', $c['id']));
+            $this->collectionDelete->deleteCollection((string) $c['id'], true);
+        }
+
+        $this->deleteDependencies(Asset::class, $workspaceId);
+        $this->deleteDependencies(Tag::class, $workspaceId);
+        $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
+        $this->deleteDependencies(RenditionPolicy::class, $workspaceId);
+        $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
+        $this->deleteDependencies(AssetPolicy::class, $workspaceId);
+        $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
+        $this->deleteDependencies(AttributePolicy::class, $workspaceId);
+        $this->deleteAssetImports($workspaceId);
+        $this->deleteIntegrationChildren($workspaceId);
+        $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
+        $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
+        $this->deleteDependencies(WorkspaceEnv::class, $workspaceId);
+        $this->deleteDependencies(AlternateUrl::class, $workspaceId);
+        $this->deleteDependencies(AttributeEntity::class, $workspaceId);
+        $this->deleteDependencies(EntityList::class, $workspaceId);
+        $this->deleteDependencies(ImageSet::class, $workspaceId);
+        $this->deleteDependencies(AttributeFilterRule::class, $workspaceId);
+
+        $nFiles = $this->em->getRepository(File::class)
+            ->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->andWhere('t.workspace = :ws')
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $files = $this->em->getRepository(File::class)
+            ->createQueryBuilder('t')
+            ->select('t.id')
+            ->andWhere('t.workspace = :ws')
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->toIterable();
+
+        $this->logger->debug(sprintf('Deleting %d Files', $nFiles));
+        foreach ($files as $file) {
+            $f = $this->em->find(File::class, $file['id']);
+            $this->em->remove($f);
+            $this->em->flush();
+        }
+
+        $workspace = $this->em->find(Workspace::class, $workspaceId);
+        $this->logger->debug('Deleting workspace.');
+        $this->em->remove($workspace);
+        $this->em->flush();
+    }
+
+    private function deleteAssetImports(string $workspaceId): void
+    {
+        $this->logger->debug('Deleting AssetImport(s)');
+
+        $imports = $this->em->getRepository(AssetImport::class)->findBy([
+            'workspace' => $workspaceId,
+        ]);
+        foreach ($imports as $import) {
+            $this->assetImportManager->scheduleFileDeletion($import);
+            $this->em->remove($import);
+        }
+        $this->em->flush();
+        $this->em->clear();
     }
 
     private function deleteIntegrationChildren(string $workspaceId): void

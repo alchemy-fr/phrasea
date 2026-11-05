@@ -15,6 +15,8 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Exception\JsonException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -38,6 +40,28 @@ abstract class AbstractInputMapper
                 }
                 $object->setPrivacy(constant($constantName));
             }
+        }
+    }
+
+    /**
+     * Whether a property was sent, null included (a merge patch removes a value with null).
+     * A null value only counts when its key is at the root of the request body.
+     */
+    protected static function hasKey(string $key, mixed $value, array $context): bool
+    {
+        if (null !== $value) {
+            return true;
+        }
+
+        $request = $context['request'] ?? null;
+        if (!$request instanceof Request) {
+            return false;
+        }
+
+        try {
+            return array_key_exists($key, $request->toArray());
+        } catch (JsonException) {
+            return false;
         }
     }
 

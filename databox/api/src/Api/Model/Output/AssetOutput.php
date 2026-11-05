@@ -160,6 +160,14 @@ class AssetOutput extends AbstractUuidOutput
     public ?AssetStatusEnum $status = null;
 
     /**
+     * Region of interest: time ranges and/or crop of the source file.
+     *
+     * @var array{timeRanges?: list<array{s: float, e: float}>, crop?: array{x: float, y: float, w: float, h: float}}|null
+     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    public ?array $roi = null;
+
+    /**
      * Used for result grouping.
      */
     #[Groups(['_'])]

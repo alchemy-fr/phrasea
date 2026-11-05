@@ -11,8 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/_health/sentry-test')]
+#[IsGranted('ROLE_ADMIN')]
 #[AsController]
 #[Autoconfigure]
 readonly class SentryTestController

@@ -62,6 +62,10 @@ Elasticsearch moves from 7.17 to 9.1.4.
 - The `asset` index now holds a `dense_vector` field (`embedding`, 512 dims,
   indexed, cosine) and `fileFamily`: Elasticsearch older than 8.12 cannot create
   it. Upgrade any external cluster.
+- An external cluster protected by basic authentication is supported through
+  `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD` (empty by default: no
+  authentication). The bundled `elasticsearch` service keeps its security
+  disabled.
 
 See [Elasticsearch 9 and index rebuild](#elasticsearch-9-and-index-rebuild).
 
@@ -190,8 +194,8 @@ Everything named after Soketi is renamed, with no fallback on the old names:
 
 - compose service and profile `soketi` → `sockudo`: update `COMPOSE_PROFILES`
   in `.env.local` (or wherever you override it);
-- public hosts `soketi.${PHRASEA_DOMAIN}` → `sockudo.${PHRASEA_DOMAIN}` and
-  `soketi-usage.${PHRASEA_DOMAIN}` → `sockudo-usage.${PHRASEA_DOMAIN}`: update
+- public hosts `soketi.${PHRASEA_DOMAIN}` → `ws.${PHRASEA_DOMAIN}` and
+  `soketi-usage.${PHRASEA_DOMAIN}` → `ws-usage.${PHRASEA_DOMAIN}`: update
   your DNS (or `/etc/hosts`, see `infra/dev/hosts.txt`) and TLS certificates;
 - environment variables, to rename in `.env.local` and in any deployment
   configuration:
@@ -212,7 +216,7 @@ empty): otherwise Sockudo keeps the demo app of its bundled example
 configuration.
 
 `/usage` (memory usage, linked from the dashboard) is now served on the app
-port 6001, no longer on 9601: the `sockudo-usage` host only exposes `/usage`,
+port 6001, no longer on 9601: the `ws-usage` host only exposes `/usage`,
 and the `sockudo` host hides `/usage`, `/stats` and `/operator`.
 
 Remove the old container once the new one is up:

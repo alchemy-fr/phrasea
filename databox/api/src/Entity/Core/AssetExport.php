@@ -67,13 +67,32 @@ class AssetExport extends AbstractUuidEntity
     private ?string $path = null;
 
     /**
+     * Asset IDs. Derived from the basket items when they are given.
+     *
      * @var string[]
      */
     #[Groups(self::GROUP_WRITE)]
-    #[Assert\NotNull]
-    #[Assert\Count(min: 1)]
+    #[Assert\When(
+        expression: 'null === this.getBasketAssets()',
+        constraints: [
+            new Assert\NotNull(),
+            new Assert\Count(min: 1),
+        ],
+    )]
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $assets = null;
+
+    /**
+     * Basket item IDs, in place of the assets: their clip (or else the region of interest
+     * of their asset) is applied to the exported files.
+     *
+     * @var string[]|null
+     */
+    #[Groups(self::GROUP_WRITE)]
+    #[Assert\Count(min: 1)]
+    #[Assert\All([new Assert\Uuid()])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $basketAssets = null;
 
     /**
      * @var string[]
@@ -83,6 +102,13 @@ class AssetExport extends AbstractUuidEntity
     #[Assert\Count(min: 1)]
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $renditions = null;
+
+    /**
+     * Export the whole files: the regions of interest of the assets and the clips of the basket items are ignored.
+     */
+    #[Groups(self::GROUP_WRITE)]
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $ignoreRoi = false;
 
     #[Groups(self::GROUP_READ)]
     public ?string $downloadUrl = null;
@@ -110,6 +136,16 @@ class AssetExport extends AbstractUuidEntity
         $this->assets = $assets;
     }
 
+    public function getBasketAssets(): ?array
+    {
+        return $this->basketAssets;
+    }
+
+    public function setBasketAssets(?array $basketAssets): void
+    {
+        $this->basketAssets = $basketAssets;
+    }
+
     public function getRenditions(): ?array
     {
         return $this->renditions;
@@ -118,6 +154,16 @@ class AssetExport extends AbstractUuidEntity
     public function setRenditions(?array $renditions): void
     {
         $this->renditions = $renditions;
+    }
+
+    public function isIgnoreRoi(): bool
+    {
+        return $this->ignoreRoi;
+    }
+
+    public function setIgnoreRoi(bool $ignoreRoi): void
+    {
+        $this->ignoreRoi = $ignoreRoi;
     }
 
     public function getUserData(): UserData

@@ -9,6 +9,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetEmbedding;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
+use App\Model\AssetTypeEnum;
 use App\Service\Asset\FileFetcher;
 use App\Service\Image\ImageDownscaler;
 use App\Service\Storage\RenditionManager;
@@ -16,8 +17,6 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class AssetEmbeddingManager
 {
-    final public const string DEFAULT_RENDITION = 'preview';
-
     /**
      * CLIP works on 224px inputs: sending more than this is useless, and the embedder caps uploads at 2 MB.
      */
@@ -37,7 +36,7 @@ final readonly class AssetEmbeddingManager
      * The embedding is computed from the given rendition or, when it is not an image (a document
      * preview is a PDF, a video preview is a video), from the thumbnail of the asset.
      */
-    public function embedAsset(Asset $asset, string $renditionName = self::DEFAULT_RENDITION, bool $force = false): bool
+    public function embedAsset(Asset $asset, string $renditionName, bool $force = false): bool
     {
         $existingEmbedding = $this->em->getRepository(AssetEmbedding::class)
             ->findOneBy(['asset' => $asset->getId()]);
@@ -77,10 +76,14 @@ final readonly class AssetEmbeddingManager
      */
     public function getFallbackRenditionDefinitionIds(string $workspaceId): array
     {
-        return array_map(
+        return array_values(array_map(
             static fn (RenditionDefinition $definition): string => $definition->getId(),
-            $this->renditionManager->getRenditionDefinitionsUsedAs('thumbnail', $workspaceId),
-        );
+            // A story-only thumbnail (contact sheet) shows the story items, not the asset content
+            array_filter(
+                $this->renditionManager->getRenditionDefinitionsUsedAs('thumbnail', $workspaceId),
+                static fn (RenditionDefinition $definition): bool => $definition->isForTarget(AssetTypeEnum::Asset),
+            ),
+        ));
     }
 
     private function getImageFile(Asset $asset, string $renditionName): ?File

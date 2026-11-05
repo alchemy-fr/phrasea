@@ -18,6 +18,7 @@ import {SimpleSelect} from '@/components/ui/select';
 import {Flag} from '@/components/ui/flag';
 import {ColorInput} from '@/components/ui/color-input';
 import {FilePicker} from '@/components/form/FilePicker';
+import {TagsInput} from '@/components/form/TagsInput';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 import {
     checkUploadFile,
@@ -51,13 +52,8 @@ export function EntityForm({
     const [translations, setTranslations] = useState<Record<string, string>>(
         entity?.translations ?? {}
     );
-    const [synonyms, setSynonyms] = useState<Record<string, string>>(
-        Object.fromEntries(
-            Object.entries(entity?.synonyms ?? {}).map(([k, v]) => [
-                k,
-                v.join(', '),
-            ])
-        )
+    const [synonyms, setSynonyms] = useState<Record<string, string[]>>(
+        entity?.synonyms ?? {}
     );
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState({
@@ -83,13 +79,9 @@ export function EntityForm({
                 translations: list.withTranslations ? translations : undefined,
                 synonyms: list.withSynonyms
                     ? Object.fromEntries(
-                          Object.entries(synonyms).map(([k, v]) => [
-                              k,
-                              v
-                                  .split(',')
-                                  .map(s => s.trim())
-                                  .filter(Boolean),
-                          ])
+                          Object.entries(synonyms).filter(
+                              ([, v]) => v.length > 0
+                          )
                       )
                     : undefined,
             };
@@ -249,24 +241,23 @@ export function EntityForm({
                 </FormRow>
             ) : null}
             {list.withSynonyms && locales.length > 0 ? (
-                <FormRow
-                    label={t('entity.synonyms', 'Synonyms (comma separated)')}
-                >
+                <FormRow label={t('entity.synonyms', 'Synonyms')}>
                     <div className="space-y-1">
                         {locales.map(l => (
                             <div key={l} className="flex items-center gap-2">
                                 <span className="w-12 text-xs">
                                     <Flag locale={l} /> {l}
                                 </span>
-                                <Input
-                                    value={synonyms[l] ?? ''}
-                                    onChange={e =>
-                                        setSynonyms({
-                                            ...synonyms,
-                                            [l]: e.target.value,
-                                        })
+                                <TagsInput
+                                    value={synonyms[l] ?? []}
+                                    onChange={v =>
+                                        setSynonyms(s => ({...s, [l]: v}))
                                     }
-                                    className="h-8"
+                                    splitOn={/\r?\n/}
+                                    placeholder={t(
+                                        'entity.synonyms_placeholder',
+                                        'Type a synonym, then Enter'
+                                    )}
                                 />
                             </div>
                         ))}

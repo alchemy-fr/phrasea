@@ -10,4 +10,10 @@ class AssetToBasketInput
 {
     #[Assert\NotNull]
     public ?string $id = null;
+
+    /**
+     * Optional time ranges and/or crop of the created item.
+     */
+    #[Assert\Valid]
+    public ?MediaClipInput $clip = null;
 }

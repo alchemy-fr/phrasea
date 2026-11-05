@@ -9,7 +9,10 @@ if [ ! -d "${BASEDIR}/../vendor" ]; then
 fi
 
 is_es_ready() {
-    [ $(curl --write-out %{http_code} --silent --output /dev/null ${ELASTICSEARCH_URL}/_cat/health?h=st) = 200 ]
+    if [ -n "${ELASTICSEARCH_USERNAME}" ]; then
+        set -- -u "${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD}"
+    fi
+    [ $(curl "$@" --write-out %{http_code} --silent --output /dev/null ${ELASTICSEARCH_URL}/_cat/health?h=st) = 200 ]
 }
 
 wait_for_es() {
@@ -33,6 +36,6 @@ wait_for_es
 "${BASEDIR}/console" app:database:configure
 "${BASEDIR}/console" doctrine:schema:update -f
 "${BASEDIR}/console" fos:elastica:reset
-php -d memory_limit=-1 "${BASEDIR}/console" fos:elastica:populate
+php -d memory_limit=-1 "${BASEDIR}/console" fos:elastica:populate --no-debug
 "${BASEDIR}/console" doctrine:migrations:sync-metadata-storage
 "${BASEDIR}/console" doctrine:migrations:version --add --all -n

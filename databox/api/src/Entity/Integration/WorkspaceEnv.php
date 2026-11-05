@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
+use App\Audit\AuditableInterface;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_env_key', columns: ['workspace_id', 'name'])]
 #[ORM\Entity]
-class WorkspaceEnv extends AbstractUuidEntity implements LoggableChangeSetInterface
+class WorkspaceEnv extends AbstractUuidEntity implements AuditableInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

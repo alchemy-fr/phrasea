@@ -47,7 +47,9 @@ export function AssetViewActions({
     const primary = groups
         .flat()
         .filter(a =>
-            ['download', 'edit', 'share', 'delete', 'restore'].includes(a.id)
+            ['download', 'edit', 'roi', 'share', 'delete', 'restore'].includes(
+                a.id
+            )
         )
         .map(a =>
             a.id === 'edit'
@@ -98,7 +100,7 @@ export function AssetViewActions({
                                     : 'ghost'
                             }
                             size="icon-sm"
-                            data-testid={`asset-action-${a.id}`}
+                            data-testid={a.testId ?? `asset-action-${a.id}`}
                             onClick={() => a.run()}
                             disabled={a.disabled}
                             aria-pressed={a.id === 'edit' ? editing : undefined}

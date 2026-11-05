@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from 'vitest';
 import {renderHook} from '@testing-library/react';
 import type {PropsWithChildren} from 'react';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import type {Asset} from '@/types/api';
@@ -52,8 +53,11 @@ function asset(
 }
 
 const i18n = createI18n('en');
+const queryClient = new QueryClient();
 const wrapper = ({children}: PropsWithChildren) => (
-    <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+    <QueryClientProvider client={queryClient}>
+        <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+    </QueryClientProvider>
 );
 
 function actionsOf(
