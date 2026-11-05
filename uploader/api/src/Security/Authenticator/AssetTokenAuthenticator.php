@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Security\Authenticator;
 
 use Alchemy\AuthBundle\Security\RequestHelper;
+use App\Entity\Commit;
 use App\Security\AssetTokenUser;
 use App\Security\Authentication\AssetToken;
 use App\Security\Badge\AssetTokenBadge;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +23,10 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 class AssetTokenAuthenticator extends AbstractAuthenticator
 {
+    public function __construct(private readonly EntityManagerInterface $em)
+    {
+    }
+
     public function supports(Request $request): bool
     {
         return $request->headers->has('Authorization')
@@ -31,7 +37,7 @@ class AssetTokenAuthenticator extends AbstractAuthenticator
     {
         $assetToken = RequestHelper::getAuthorizationFromRequest($request, 'AssetToken', false);
 
-        if (null === $assetToken) {
+        if (null === $assetToken || null === $this->em->getRepository(Commit::class)->findOneBy(['token' => $assetToken])) {
             throw new CustomUserMessageAuthenticationException('Invalid AssetToken');
         }
 

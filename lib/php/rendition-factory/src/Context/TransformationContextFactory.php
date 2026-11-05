@@ -7,6 +7,7 @@ use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\NativeHttpClient;
+use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class TransformationContextFactory
@@ -18,6 +19,11 @@ final readonly class TransformationContextFactory
         ?string $workingDirectory = null,
         private ?HttpClientInterface $client = null,
         private ?LoggerInterface $logger = null,
+        /**
+         * The remote files (download module, watermarks) come from the rendition definitions,
+         * which are not trusted with the internal services or the cloud metadata.
+         */
+        private bool $allowPrivateNetwork = false,
     ) {
         $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
     }
@@ -39,7 +45,7 @@ final readonly class TransformationContextFactory
             $workingDir,
             $cacheDir,
             $this->mimeTypeGuesser,
-            $this->client ?? new NativeHttpClient(),
+            $this->getClient(),
             $this->logger ?? new NullLogger(),
             $options?->getMetadataContainer(),
             $options?->getInputFiles() ?? [],
@@ -54,5 +60,12 @@ final readonly class TransformationContextFactory
             $options?->getMetadataContainer(),
             $options?->getInputFiles() ?? [],
         );
+    }
+
+    private function getClient(): HttpClientInterface
+    {
+        $client = $this->client ?? new NativeHttpClient();
+
+        return $this->allowPrivateNetwork ? $client : new NoPrivateNetworkHttpClient($client);
     }
 }

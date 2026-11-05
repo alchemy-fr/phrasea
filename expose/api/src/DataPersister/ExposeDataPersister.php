@@ -5,14 +5,19 @@ declare(strict_types=1);
 namespace App\DataPersister;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
+use App\Security\Voter\PublicationProfileVoter;
+use App\Security\Voter\PublicationVoter;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 final readonly class ExposeDataPersister implements ProcessorInterface
@@ -36,6 +41,10 @@ final readonly class ExposeDataPersister implements ProcessorInterface
 
                 $parent->addChild($data);
                 $this->em->persist($parent);
+            }
+
+            if (!$operation instanceof DeleteOperationInterface) {
+                $this->assertReferencesAreAllowed($data, $context['previous_data'] ?? null);
             }
         }
 
@@ -62,5 +71,34 @@ final readonly class ExposeDataPersister implements ProcessorInterface
         }
 
         return $data;
+    }
+
+    /**
+     * The publication may only be attached to a publication the user edits, be covered
+     * by its own assets, and use a profile the user can read.
+     */
+    private function assertReferencesAreAllowed(Publication $publication, mixed $previous): void
+    {
+        $previous = $previous instanceof Publication ? $previous : null;
+
+        $parent = $publication->getParent();
+        if (null !== $parent
+            && $parent->getId() !== $previous?->getParent()?->getId()
+            && !$this->security->isGranted(PublicationVoter::EDIT, $parent)) {
+            throw new AccessDeniedHttpException(sprintf('Not allowed to add a child to publication "%s"', $parent->getId()));
+        }
+
+        foreach (['cover' => $publication->getCover(), 'package' => $publication->getPackage()] as $property => $asset) {
+            if (null !== $asset && $asset->getPublication()?->getId() !== $publication->getId()) {
+                throw new BadRequestHttpException(sprintf('The %s must be an asset of the publication', $property));
+            }
+        }
+
+        $profile = $publication->getProfile();
+        if (null !== $profile
+            && $profile->getId() !== $previous?->getProfile()?->getId()
+            && !$this->security->isGranted(PublicationProfileVoter::READ, $profile)) {
+            throw new AccessDeniedHttpException(sprintf('Not allowed to assign profile "%s"', $profile->getId()));
+        }
     }
 }

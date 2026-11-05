@@ -8,16 +8,20 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ReportBundle\ReportUserService;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
 use App\Form\FormValidator;
 use App\Report\UploaderLogActionInterface;
+use App\Security\Voter\TargetVoter;
 use App\Storage\AssetManager;
 use App\Validation\CommitValidator;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -55,18 +59,27 @@ final readonly class CommitProcessor implements ProcessorInterface
             $data->setTarget($target);
         }
 
+        if (!$this->security->isGranted(TargetVoter::UPLOAD, $data->getTarget())) {
+            throw new AccessDeniedHttpException('Cannot upload to this target');
+        }
+
         $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget(), $request);
         if (!empty($errors)) {
             throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors, JSON_THROW_ON_ERROR)));
         }
+
+        $user = $this->security->getUser();
+        if (!$user instanceof JwtUser) {
+            throw new AccessDeniedHttpException('Authentication required');
+        }
+
+        $this->assertFilesCanBeCommitted($data, $user);
 
         $totalSize = $this->assetManager->getTotalSize($data->getFiles());
         $data->setTotalSize($totalSize);
 
         $this->commitValidator->validate($data);
 
-        /** @var JwtUser $user */
-        $user = $this->security->getUser();
         $data->setUserId($user->getId());
         $data->setLocale($request->getLocale() ?? $request->getDefaultLocale());
 
@@ -91,5 +104,27 @@ final readonly class CommitProcessor implements ProcessorInterface
         );
 
         return new JsonResponse(true);
+    }
+
+    private function assertFilesCanBeCommitted(Commit $commit, JwtUser $user): void
+    {
+        $files = array_values(array_unique($commit->getFiles()));
+        if (empty($files) || array_any($files, fn ($id): bool => !is_string($id) || !Uuid::isValid($id))) {
+            throw new BadRequestHttpException('Invalid files');
+        }
+        $commit->setFiles($files);
+
+        $assets = $this->em->getRepository(Asset::class)->findBy(['id' => $files]);
+        if (count($assets) !== count($files)) {
+            throw new BadRequestHttpException('Some files do not exist');
+        }
+
+        foreach ($assets as $asset) {
+            if ($asset->getUserId() !== $user->getId()
+                || $asset->getTarget()?->getId() !== $commit->getTarget()->getId()
+                || $asset->isCommitted()) {
+                throw new AccessDeniedHttpException(sprintf('File "%s" cannot be committed', $asset->getId()));
+            }
+        }
     }
 }

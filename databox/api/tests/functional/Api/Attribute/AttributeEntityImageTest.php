@@ -96,6 +96,26 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
         }
     }
 
+    public function testTheImageCannotBeSetToAnExistingFile(): void
+    {
+        $this->setUpScene();
+        $file = new File();
+        $file->setStorage(File::STORAGE_S3_MAIN);
+        $file->setPath('secret/original.jpg');
+        $file->setType('image/jpeg');
+        $file->setWorkspace($this->workspace);
+        $em = self::getEntityManager();
+        $em->persist($file);
+        $em->flush();
+
+        $data = $this->api('PATCH', '/attribute-entities/'.$this->entity->getId(), self::USER, [
+            'image' => ['imageFile' => '/files/'.$file->getId()],
+        ])->toArray(false);
+
+        $this->assertNull($data['image'] ?? null);
+        $this->assertNull($this->findImage());
+    }
+
     public function testARasterImageIsKeptAsUploadedUntilTheJob(): void
     {
         $this->setUpScene();

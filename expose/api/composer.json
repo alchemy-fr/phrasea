@@ -157,6 +157,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "App\\Tests\\Unit\\": "tests/unit/",
             "App\\Tests\\Functional\\": "tests/functional/"
         }
     },
@@ -203,7 +204,7 @@
             "@phpstan",
             "@cs:check"
         ],
-        "phpunit:unit": "echo 'expose/api: no unit suite yet (see phpunit.xml.dist)'",
+        "phpunit:unit": "php -d memory_limit=1024M vendor/bin/phpunit --testsuite unit",
         "phpunit:functional": [
             "@pre-phpunit",
             "php -d memory_limit=1024M ./bin/phpunit --testsuite functional"

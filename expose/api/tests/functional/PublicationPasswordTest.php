@@ -50,6 +50,22 @@ class PublicationPasswordTest extends AbstractExposeTestCase
         $this->assertEquals(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD, $json['authorizationError']);
     }
 
+    public function testMalformedPasswordsAreRefused(): void
+    {
+        $id = $this->createPublication([
+            'password' => 'xxx',
+        ])->getId();
+
+        foreach ([42, [$id => ['xxx']], [$id => 42]] as $passwords) {
+            $response = $this->request(null, 'GET', '/publications/'.$id, [], [], [
+                'HTTP_X-Passwords' => base64_encode(json_encode($passwords, JSON_THROW_ON_ERROR)),
+            ]);
+            $this->assertEquals(200, $response->getStatusCode());
+            $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+            $this->assertFalse($json['authorized']);
+        }
+    }
+
     public function testGetPublicationWithPasswordAsAdmin(): void
     {
         $id = $this->createPublication([

@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait ClientAnnotationsTrait
 {
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([Publication::GROUP_ADMIN_READ, Asset::GROUP_ADMIN_READ, PublicationProfile::GROUP_ADMIN_READ])]
+    #[Groups([Publication::GROUP_ADMIN_READ, Asset::GROUP_ADMIN_READ, Asset::GROUP_WRITE, PublicationProfile::GROUP_ADMIN_READ])]
     private ?string $clientAnnotations = null;
 
     public function getClientAnnotations(): ?string

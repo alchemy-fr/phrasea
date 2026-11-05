@@ -119,6 +119,20 @@ class AssetDeleteTest extends AbstractExposeTestCase
         }
     }
 
+    public function testDeleteAssetByAssetIdRequiresTheDeleteRight(): void
+    {
+        $publication = $this->createPublication(['ownerId' => KeycloakClientTestMock::ADMIN_UID]);
+        $id = $this->createAsset($publication, [
+            'asset_id' => 'foo',
+        ]);
+
+        foreach ([null, KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID)] as $accessToken) {
+            $response = $this->request($accessToken, 'DELETE', '/assets/delete-by-asset-id/foo');
+            $this->assertContains($response->getStatusCode(), [401, 403]);
+            $this->assertAssetExist($id);
+        }
+    }
+
     private function assertSubDefinitionExist(string $id): void
     {
         $obj = self::getEntityManager()->find(SubDefinition::class, $id);

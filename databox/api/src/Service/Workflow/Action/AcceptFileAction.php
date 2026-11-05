@@ -7,6 +7,7 @@ namespace App\Service\Workflow\Action;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
+use App\Automation\UserContextSwitcher;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
@@ -14,8 +15,10 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Security\Voter\AssetVoter;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 
 readonly class AcceptFileAction implements ActionInterface
 {
@@ -26,6 +29,8 @@ readonly class AcceptFileAction implements ActionInterface
         private UploaderClient $uploaderClient,
         private EntityManagerInterface $em,
         private RenditionManager $renditionManager,
+        private UserContextSwitcher $userContextSwitcher,
+        private Security $security,
     ) {
     }
 
@@ -34,7 +39,7 @@ readonly class AcceptFileAction implements ActionInterface
         $inputs = $context->getInputs();
         $userId = $inputs['userId'];
         $assetData = $this->uploaderClient->getAsset($inputs['baseUrl'], $inputs['assetId'], $inputs['token']);
-        $data = $assetData['data'];
+        $data = $assetData['data'] ?? [];
         $assetId = $data['targetAsset'] ?? null;
         $formData = $assetData['formData'] ?? [];
         $formLocale = $assetData['formLocale'] ?? null;
@@ -45,6 +50,10 @@ readonly class AcceptFileAction implements ActionInterface
                 throw new \InvalidArgumentException('Missing "targetAsset" when "targetRendition" is set');
             }
             $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
+            $this->assertInIntegrationWorkspace($asset->getWorkspaceId(), $inputs);
+            if (!$this->userContextSwitcher->runAs($userId, fn (): bool => $this->security->isGranted(AssetVoter::EDIT, $asset))) {
+                throw new \InvalidArgumentException(sprintf('User "%s" cannot edit the asset "%s"', $userId, $asset->getId()));
+            }
             $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
 
             $this->renditionManager->validateSubstitution(
@@ -58,9 +67,10 @@ readonly class AcceptFileAction implements ActionInterface
             $collectionId = $inputs['storyCollectionId'] ?? $formData[self::COLLECTION_DESTINATION] ?? $inputs['collectionId'] ?? null;
             if ($collectionId) {
                 $collection = DoctrineUtil::findStrict($this->em, Collection::class, $collectionId);
+                $this->assertInIntegrationWorkspace($collection->getWorkspaceId(), $inputs);
                 $workspace = $collection->getWorkspace();
             } else {
-                $workspaceId = $data['workspaceId'] ?? $inputs['workspaceId'] ?? null;
+                $workspaceId = $inputs['workspaceId'] ?? null;
                 if (empty($workspaceId)) {
                     throw new \InvalidArgumentException(sprintf('Missing "%s", "targetAsset", "collectionId" or "workspaceId"', self::COLLECTION_DESTINATION));
                 }
@@ -91,5 +101,17 @@ readonly class AcceptFileAction implements ActionInterface
         $context->setOutput('formData', $formData);
         $context->setOutput('formLocale', $formLocale);
         $context->setOutput('renditionId', $renditionDefId);
+    }
+
+    /**
+     * The uploaded file's data and form data are set by the uploading user: they cannot
+     * reach outside the workspace the integration is bound to.
+     */
+    private function assertInIntegrationWorkspace(string $workspaceId, array $inputs): void
+    {
+        $integrationWorkspaceId = $inputs['workspaceId'] ?? null;
+        if (null !== $integrationWorkspaceId && $workspaceId !== $integrationWorkspaceId) {
+            throw new \InvalidArgumentException(sprintf('Workspace "%s" is not the one of the integration', $workspaceId));
+        }
     }
 }

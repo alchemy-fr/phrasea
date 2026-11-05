@@ -18,11 +18,13 @@
     </php>
 
     <!--
-        Only a `functional` suite so far: every expose test boots the kernel
-        (SQLite + minio). Add tests/unit and its suite with the first plain
-        TestCase; see databox/api/phpunit.xml.dist.
+        tests/unit: plain TestCase classes without any service, played by the
+        `quick` tier without the stack. tests/functional: kernel, SQLite, minio.
     -->
     <testsuites>
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
         <testsuite name="functional">
             <directory>tests/functional</directory>
         </testsuite>

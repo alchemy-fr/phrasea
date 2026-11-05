@@ -899,4 +899,20 @@ DESC,
         $this->assertArrayHasKey('description', $json);
         $this->assertEquals('<div><a>B</a></div>', $json['description']);
     }
+
+    public function testPublicationWillHaveSafeHtmlTranslatedDescriptions(): void
+    {
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/publications', [
+            'title' => 'Foo',
+            'translations' => [
+                'description' => [
+                    'fr' => '<div><img src="x" onerror="alert(1)">B</div>',
+                ],
+            ],
+        ]);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $this->assertStringNotContainsString('onerror', $json['translations']['description']['fr']);
+    }
 }

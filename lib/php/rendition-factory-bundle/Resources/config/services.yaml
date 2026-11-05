@@ -6,7 +6,10 @@ services:
     Alchemy\RenditionFactory\Command\CreateCommand: ~
     Alchemy\RenditionFactory\Command\ConfigurationValidateCommand: ~
 
-    Alchemy\RenditionFactory\Context\TransformationContextFactory: ~
+    Alchemy\RenditionFactory\Context\TransformationContextFactory:
+        arguments:
+            $allowPrivateNetwork: "@=parameter('kernel.environment') === 'dev'"
+
     Alchemy\RenditionFactory\FileFamilyGuesser: ~
     Alchemy\RenditionFactory\RenditionCreator: ~
     Alchemy\RenditionFactory\Config\YamlLoader: ~

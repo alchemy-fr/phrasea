@@ -75,6 +75,7 @@ final readonly class UriJwtManager
         assert($token instanceof UnencryptedToken);
 
         $config = $config->withValidationConstraints(
+            new Constraint\SignedWith($config->signer(), $config->verificationKey()),
             new Constraint\LooseValidAt(
                 new SystemClock(new \DateTimeZone('UTC')),
                 new \DateInterval('PT30S')

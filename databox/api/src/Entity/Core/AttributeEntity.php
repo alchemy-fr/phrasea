@@ -276,6 +276,7 @@ class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, 
      */
     #[ORM\OneToOne(targetEntity: ImageSet::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[ApiProperty(writable: false)]
     private ?ImageSet $image = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]

@@ -71,6 +71,33 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         $this->assertSame($workspace->getId(), $asset->getSource()->getWorkspaceId());
     }
 
+    public function testAlternateUrlsMustBeHttpUrls(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+
+        $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'sourceFile' => [
+                'url' => 'https://example.com/files/photo.jpg',
+                'alternateUrls' => [
+                    ['type' => 'open', 'url' => 'javascript:alert(document.domain)'],
+                ],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(422);
+
+        $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'sourceFile' => [
+                'url' => 'https://example.com/files/photo.jpg',
+                'alternateUrls' => [
+                    ['type' => 'open', 'url' => 'https://example.com/hd/photo.jpg'],
+                ],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+    }
+
     public function testPrivateSourceUrlIsNotExposed(): void
     {
         $workspace = $this->createOwnedWorkspace();
