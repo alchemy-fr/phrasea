@@ -28,13 +28,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     shortName: 'sub-definition',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Post(
             deserialize: false,
             processor: CreateSubDefinitionProcessor::class,
         ),
-        new GetCollection(),
+        new GetCollection(security: 'is_granted("ROLE_ADMIN")'),
     ],
     normalizationContext: [
         'groups' => [self::GROUP_READ],
@@ -173,6 +173,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
         'id' => new Link(
             toProperty: 'asset',
             fromClass: Asset::class,
+            security: 'is_granted("READ", asset)',
         ),
     ],
     normalizationContext: [
