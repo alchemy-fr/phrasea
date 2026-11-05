@@ -1841,5 +1841,12 @@
     "entity.reload": "Reload",
     "entity.reload_hint": "Values were changed in the other view.",
     "entity.reload_title": "Reload the values?",
-    "entity.reload_keep": "Keep the display"
+    "entity.reload_keep": "Keep the display",
+    "entity.thesaurus.import": "Import a tabulated thesaurus…",
+    "entity.thesaurus.export": "Export as a tabulated thesaurus",
+    "entity.thesaurus.import_title": "Import a tabulated thesaurus into \"{{name}}\"",
+    "entity.thesaurus.import_help": "One entity per line, indented under its parent. A leading \"?\" makes it pending, \"!\" rejected; {#rrggbb} sets its color; the terms are separated by \";\", \"term [locale]\" being a translation. An entity of the same value is updated, or moved when it is the only one of the list.",
+    "entity.thesaurus.default_locale": "Language of the terms without language",
+    "entity.thesaurus.default_locale_help": "The first one becomes the translation in this language, the next ones its synonyms.",
+    "entity.thesaurus.no_default_locale": "None (labels without language)"
 }

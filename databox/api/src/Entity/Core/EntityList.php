@@ -27,6 +27,7 @@ use App\Api\Processor\ExportEntitiesProcessor;
 use App\Api\Processor\ExportEntityHierarchyProcessor;
 use App\Api\Processor\ImportEntitiesProcessor;
 use App\Api\Processor\ImportEntityHierarchyProcessor;
+use App\Api\Provider\EntityListImportTaskProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Listener\OwnerPersistableInterface;
@@ -73,6 +74,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: ImportEntitiesInput::class,
             name: 'import_entities',
             processor: ImportEntitiesProcessor::class
+        ),
+        new Get(
+            uriTemplate: '/entity-lists/{id}/import-tasks/{taskId}',
+            uriVariables: [
+                'id' => 'id',
+                'taskId' => 'taskId',
+            ],
+            name: 'import_entities_task',
+            provider: EntityListImportTaskProvider::class,
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/export',

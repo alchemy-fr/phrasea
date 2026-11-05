@@ -30,6 +30,7 @@ import {
     type AttributeEntitySortField,
     clearEntityList,
     exportEntityHierarchy,
+    exportEntityList,
     deleteAttributeEntity,
     deleteAttributeEntityImage,
     getAttributeEntity,
@@ -76,6 +77,8 @@ import {ImportEntityHierarchyDialog} from './hierarchy/ImportEntityHierarchyDial
 import {
     ExportEntitiesDialog,
     ImportEntitiesDialog,
+    ImportThesaurusDialog,
+    THESAURUS_FORMAT,
     MergeEntitiesDialog,
 } from './dialogs';
 import {
@@ -771,6 +774,45 @@ export function EntityGrid({
                             {t(
                                 'entity_hierarchy.import',
                                 'Import the hierarchy…'
+                            )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onSelect={() =>
+                                openModal(ImportThesaurusDialog, {
+                                    list,
+                                    onImported: reload,
+                                })
+                            }
+                            data-testid="entity-thesaurus-import"
+                        >
+                            <UploadIcon />{' '}
+                            {t(
+                                'entity.thesaurus.import',
+                                'Import a tabulated thesaurus…'
+                            )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={async () => {
+                                try {
+                                    const {blob, filename} =
+                                        await exportEntityList(list.id, {
+                                            format: THESAURUS_FORMAT,
+                                        });
+                                    downloadUrl(
+                                        URL.createObjectURL(blob),
+                                        filename
+                                    );
+                                } catch (e) {
+                                    toastError(e);
+                                }
+                            }}
+                            data-testid="entity-thesaurus-export"
+                        >
+                            <DownloadIcon />{' '}
+                            {t(
+                                'entity.thesaurus.export',
+                                'Export as a tabulated thesaurus'
                             )}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />

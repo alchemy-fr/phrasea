@@ -1841,5 +1841,12 @@
     "entity.reload": "Recharger",
     "entity.reload_hint": "Des valeurs ont été modifiées dans l’autre vue.",
     "entity.reload_title": "Recharger les valeurs ?",
-    "entity.reload_keep": "Conserver l’affichage"
+    "entity.reload_keep": "Conserver l’affichage",
+    "entity.thesaurus.import": "Importer un thésaurus tabulé…",
+    "entity.thesaurus.export": "Exporter au format thésaurus tabulé",
+    "entity.thesaurus.import_title": "Importer un thésaurus tabulé dans « {{name}} »",
+    "entity.thesaurus.import_help": "Une entité par ligne, indentée sous son parent. Un « ? » en tête la met en attente, un « ! » la rejette ; {#rrggbb} fixe sa couleur ; les termes sont séparés par « ; », « terme [locale] » étant une traduction. Une entité de même valeur est mise à jour, ou déplacée si c’est la seule de la liste.",
+    "entity.thesaurus.default_locale": "Langue des termes sans langue",
+    "entity.thesaurus.default_locale_help": "Le premier devient la traduction dans cette langue, les suivants ses synonymes.",
+    "entity.thesaurus.no_default_locale": "Aucune (labels sans langue)"
 }

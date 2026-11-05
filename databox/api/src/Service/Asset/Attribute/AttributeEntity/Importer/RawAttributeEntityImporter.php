@@ -20,7 +20,11 @@ final readonly class RawAttributeEntityImporter implements AttributeEntityImport
     ) {
     }
 
-    public function import(EntityList $entityList, string $data): void
+    public function validate(string $data, ?string $defaultLocale = null): void
+    {
+    }
+
+    public function import(EntityList $entityList, string $data, ?string $defaultLocale = null): void
     {
         $values = explode("\n", $data)
             |> (fn (array $x): array => array_map(trim(...), $x))

@@ -56,6 +56,49 @@ A flat list is a forest of single entities at depth 0: lists can be organized pr
   unknown entities, duplicates and cycles are rejected.
 - `POST /entity-lists/{id}/hierarchy-export`: the same CSV, depth first, from every entity of the top level.
 
+## Tabulated thesaurus
+
+`POST /entity-lists/{id}/import` and `/export` with `"format": "thesaurus"` read and write the whole forest
+as text, one entity per line, indented under its parent (tabs on export; tabs or spaces on import, as long as
+they are consistent):
+
+```
+animal
+    mammifère [fr]; mammal [en]
+        {#ff0000} chien [fr] ; dog [en]
+        ! {#00F800} cat [en]; chat [fr]
+    oiseau [fr]
+        ? pigeon
+object [en] ; objet [fr]
+    table
+```
+
+- A leading `?` makes the entity pending, `!` rejected; approved otherwise. `{#rrggbb}` is its color.
+- Terms are separated by `;`; `term [locale]` is a translation, the next terms in the same locale are its
+  synonyms. The value is the first term without locale, else the first term; the next terms without locale
+  are synonyms.
+- `defaultLocale` (import only) gives a locale to the terms without one: the first one is also the translation
+  in that locale (a synonym if a term of that locale comes before it), the next ones are synonyms in that locale.
+- Several colors on a line are a syntax error (as an indentation matching no upper level, or a line without
+  term): the import is rejected (400) with every error and its line.
+- The export writes each translation followed by its synonyms in its locale. A synonym in a locale without
+  translation is read back as the translation.
+- A line updates the entity of the same value under the same parent, else the only entity of that value in the
+  list (moved there with its branch), else a new one. Its status follows the line; its color, translations and
+  synonyms are added. Siblings take the order of the file.
+
+The format lives in `TabulatedThesaurus`; `TabulatedThesaurusImporter`/`Exporter` plug it into the import and
+export formats.
+
+### Background import
+
+`POST /entity-lists/{id}/import` (every format) only checks the data — a syntax error still answers 400 — and
+queues an `import_entities` `OperationTask` (`ImportEntitiesTask`, run by the worker): a large thesaurus outlasts
+an HTTP request. It answers `202 {taskId}`; `GET /entity-lists/{id}/import-tasks/{taskId}` (EDIT on the list)
+gives `{status, output}`, `output` holding the error of a failed import (e.g. the invalid entities, by line).
+The imported data is dropped from the task payload once handled. The client polls it until the task completes
+or fails.
+
 ## Upward filling
 
 `HierarchyAttributeFiller`. For each asset, the values of the definitions having `autoFillParents`
