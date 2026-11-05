@@ -71,6 +71,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
 )]
 #[ORM\Table(name: 'asset_commit')]
+#[ORM\Index(columns: ['token'], name: 'asset_commit_token_idx')]
 #[ORM\Entity(repositoryClass: CommitRepository::class)]
 class Commit extends AbstractUuidEntity
 {
