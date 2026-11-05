@@ -48,10 +48,14 @@ export function consumeStateNonce(nonce: unknown): boolean {
         return false;
     }
 
-    window.localStorage.setItem(
-        storageKey,
-        JSON.stringify(nonces.filter(n => n !== nonce))
-    );
+    try {
+        window.localStorage.setItem(
+            storageKey,
+            JSON.stringify(nonces.filter(n => n !== nonce))
+        );
+    } catch {
+        // Storage read-only: the nonce stays, it was still issued by this browser
+    }
 
     return true;
 }
