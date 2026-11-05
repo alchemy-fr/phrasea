@@ -38,6 +38,22 @@ placed at most once (it has a single `parent` column).
 
 A flat list is a forest of single entities at depth 0: lists can be organized progressively.
 
+### The `isHierarchy` flag
+
+`EntityList.isHierarchy` (false by default, stored in its `options`) allows the hierarchy:
+
+- Off, the list takes no hierarchy: a `parent` or a `placeholder` is a violation (422), an
+  indented tabulated thesaurus and the hierarchy CSV import are rejected (400), and an attribute
+  definition cannot be bound to depths (400). The client shows the table only, without the
+  hierarchy and thesaurus actions, nor the depth fields of the definitions.
+- Turned off (PATCH), the list is flattened at once by `EntityListFlattener` (in the request,
+  plain DQL, then reindexing): every entity at the top level, the placeholders deleted, the definitions of the
+  list unbound (`entityHierarchyDepthMin/Max` null, no `autoFillParents`) and the values filled
+  by the hierarchy (origin `hierarchy`) removed from the assets. The client asks for a
+  confirmation when a hierarchy exists.
+- The migration flagged the lists having a hierarchy already; a workspace template without the
+  flag gets it when one of its entities has a parent.
+
 ## API
 
 - `POST /attribute-entities` `{"list": …, "value": …, "parent": "/attribute-entities/{id}", "placeholder": false}`.

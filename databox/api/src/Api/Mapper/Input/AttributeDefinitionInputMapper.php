@@ -195,6 +195,9 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         if ((null !== $min || null !== $max) && null === $object->getEntityList()) {
             throw new BadRequestHttpException('A hierarchy depth needs an entity list');
         }
+        if ((null !== $min || null !== $max) && !$object->getEntityList()->isHierarchy()) {
+            throw new BadRequestHttpException('A hierarchy depth needs an entity list flagged as a hierarchy');
+        }
         if (null !== $min && null !== $max && $min > $max) {
             throw new BadRequestHttpException('The minimum hierarchy depth must not exceed the maximum one');
         }

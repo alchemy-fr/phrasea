@@ -1,10 +1,11 @@
 'use client';
 
+import {useEffect} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {FormRow, Input} from '@/components/ui/input';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
-import {getAttributeEntities} from '@/lib/api/metadata';
+import {getAttributeEntities, getEntityList} from '@/lib/api/metadata';
 import {idFromIri} from '@/lib/utils/iri';
 
 export type HierarchyBindingValue = {
@@ -43,7 +44,8 @@ export function formatDepthRange(
 /**
  * Binds an entity attribute to a range of depths of its list hierarchy: the
  * attribute then only accepts the entities between those levels, and a value
- * may fill the attributes bound to the levels above.
+ * may fill the attributes bound to the levels above. Nothing for a list not
+ * flagged as a hierarchy, whose binding is cleared.
  */
 export function HierarchyBindingFields({
     entityList,
@@ -57,8 +59,21 @@ export function HierarchyBindingFields({
 }) {
     const {t} = useTranslation();
     const listId = entityList ? idFromIri(entityList) : undefined;
+    const list = useQuery({
+        queryKey: ['entity-list', listId],
+        queryFn: () => getEntityList(listId!),
+        enabled: !!listId,
+    });
+    const flat = !!list.data && !list.data.isHierarchy;
+    const bound = isHierarchyBound(value);
 
-    if (!listId) {
+    useEffect(() => {
+        if (flat && bound) {
+            onChange({depthMin: '', depthMax: '', autoFillParents: false});
+        }
+    }, [flat, bound, onChange]);
+
+    if (!listId || !list.data || flat) {
         return null;
     }
 

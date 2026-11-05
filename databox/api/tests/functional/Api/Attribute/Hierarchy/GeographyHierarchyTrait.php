@@ -37,7 +37,7 @@ trait GeographyHierarchyTrait
     protected function createGeography(): void
     {
         $em = self::getEntityManager();
-        $this->geo = $this->createEntityList(['name' => 'Géographie']);
+        $this->geo = $this->createEntityList(['name' => 'Géographie', 'isHierarchy' => true]);
 
         $this->e['monde'] = $this->node('Monde', null);
         $this->e['europe'] = $this->node('Europe', 'monde');

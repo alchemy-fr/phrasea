@@ -35,7 +35,7 @@ final class EntityListThesaurusTest extends AbstractDataboxTestCase
     private function setUpScene(): void
     {
         $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
-        $this->list = $this->createEntityList(['name' => 'Things']);
+        $this->list = $this->createEntityList(['name' => 'Things', 'isHierarchy' => true]);
     }
 
     private function import(string $data, ?string $defaultLocale = null): ResponseInterface

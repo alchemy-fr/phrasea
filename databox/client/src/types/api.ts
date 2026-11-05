@@ -498,6 +498,8 @@ export interface EntityList extends HydraObject, Entity {
     withEmojis?: boolean;
     withColors?: boolean;
     withImages?: boolean;
+    /** The entities may form a hierarchy (the "Tree" view) */
+    isHierarchy?: boolean;
     workspace?: Workspace | string;
     createdAt: string;
     updatedAt: string;

@@ -33,14 +33,14 @@ final readonly class TabulatedThesaurusImporter implements AttributeEntityImport
     ) {
     }
 
-    public function validate(string $data, ?string $defaultLocale = null): void
+    public function validate(EntityList $entityList, string $data, ?string $defaultLocale = null): void
     {
-        $this->parse($data, $defaultLocale);
+        $this->parse($entityList, $data, $defaultLocale);
     }
 
     public function import(EntityList $entityList, string $data, ?string $defaultLocale = null): void
     {
-        $lines = $this->parse($data, $defaultLocale);
+        $lines = $this->parse($entityList, $data, $defaultLocale);
         $restoreLogger = DoctrineUtil::disableLogger($this->em);
         try {
             $this->importLines($entityList, $lines);
@@ -52,13 +52,23 @@ final readonly class TabulatedThesaurusImporter implements AttributeEntityImport
     /**
      * @return list<TabulatedThesaurusLine>
      */
-    private function parse(string $data, ?string $defaultLocale): array
+    private function parse(EntityList $entityList, string $data, ?string $defaultLocale): array
     {
         try {
-            return TabulatedThesaurus::parse($data, $defaultLocale);
+            $lines = TabulatedThesaurus::parse($data, $defaultLocale);
         } catch (TabulatedThesaurusSyntaxException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         }
+
+        if (!$entityList->isHierarchy()) {
+            foreach ($lines as $line) {
+                if (null !== $line->parent) {
+                    throw new BadRequestHttpException(sprintf('Line %d: the list is not a hierarchy: its entities cannot be indented', $line->line));
+                }
+            }
+        }
+
+        return $lines;
     }
 
     /**

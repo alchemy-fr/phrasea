@@ -696,6 +696,11 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     #[Assert\Callback]
     public function validateHierarchy(ExecutionContextInterface $context): void
     {
+        if ((null !== $this->parent || $this->placeholder) && null !== $this->list && !$this->list->isHierarchy()) {
+            $context->buildViolation('The list is not a hierarchy')->atPath(null !== $this->parent ? 'parent' : 'placeholder')->addViolation();
+
+            return;
+        }
         if (null === $this->parent) {
             return;
         }

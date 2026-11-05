@@ -14,6 +14,7 @@ use App\Entity\Core\EntityList;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Answers the import report: {applied, rejected: [{line, entity, reason}]}.
@@ -35,6 +36,9 @@ final class ImportEntityHierarchyProcessor implements ProcessorInterface
     {
         $list = DoctrineUtil::findStrict($this->em, EntityList::class, (string) $uriVariables['id']);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
+        if (!$list->isHierarchy()) {
+            throw new BadRequestHttpException('The list is not a hierarchy');
+        }
 
         return new JsonResponse($this->importer->import($list, (string) $data->data, $data->dryRun));
     }

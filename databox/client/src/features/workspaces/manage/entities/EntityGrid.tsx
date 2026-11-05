@@ -144,7 +144,10 @@ export function EntityGrid({
 
     // Both views stay mounted: switching keeps the open nodes, the selection
     // and the scroll
-    const [view, setView] = useState<EntityView>('tree');
+    // A list not flagged as a hierarchy only has the table
+    const isHierarchy = !!list.isHierarchy;
+    const [selectedView, setView] = useState<EntityView>('tree');
+    const view: EntityView = isHierarchy ? selectedView : 'table';
     const viewRef = useRef(view);
     viewRef.current = view;
     // Changed from the other view: reloaded on demand only
@@ -562,28 +565,30 @@ export function EntityGrid({
                 </Button>
                 <h3 className="text-sm font-semibold">{list.name}</h3>
                 <ExploreEntityListButton listId={list.id} />
-                <div className="flex items-center gap-0.5" role="group">
-                    <Button
-                        size="icon-sm"
-                        variant={view === 'tree' ? 'secondary' : 'ghost'}
-                        aria-pressed={view === 'tree'}
-                        title={t('entity.view.tree', 'Tree')}
-                        data-testid="entity-view-tree"
-                        onClick={() => switchView('tree')}
-                    >
-                        <ListTreeIcon />
-                    </Button>
-                    <Button
-                        size="icon-sm"
-                        variant={view === 'table' ? 'secondary' : 'ghost'}
-                        aria-pressed={view === 'table'}
-                        title={t('entity.view.table', 'Table')}
-                        data-testid="entity-view-table"
-                        onClick={() => switchView('table')}
-                    >
-                        <TableIcon />
-                    </Button>
-                </div>
+                {isHierarchy ? (
+                    <div className="flex items-center gap-0.5" role="group">
+                        <Button
+                            size="icon-sm"
+                            variant={view === 'tree' ? 'secondary' : 'ghost'}
+                            aria-pressed={view === 'tree'}
+                            title={t('entity.view.tree', 'Tree')}
+                            data-testid="entity-view-tree"
+                            onClick={() => switchView('tree')}
+                        >
+                            <ListTreeIcon />
+                        </Button>
+                        <Button
+                            size="icon-sm"
+                            variant={view === 'table' ? 'secondary' : 'ghost'}
+                            aria-pressed={view === 'table'}
+                            title={t('entity.view.table', 'Table')}
+                            data-testid="entity-view-table"
+                            onClick={() => switchView('table')}
+                        >
+                            <TableIcon />
+                        </Button>
+                    </div>
+                ) : null}
                 <Button
                     size="sm"
                     variant="outline"
@@ -744,77 +749,88 @@ export function EntityGrid({
                         >
                             <UploadIcon /> {t('entity.import', 'Import…')}
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            onSelect={async () => {
-                                try {
-                                    const {blob, filename} =
-                                        await exportEntityHierarchy(list.id);
-                                    downloadUrl(
-                                        URL.createObjectURL(blob),
-                                        filename
-                                    );
-                                } catch (e) {
-                                    toastError(e);
-                                }
-                            }}
-                        >
-                            <DownloadIcon />{' '}
-                            {t(
-                                'entity_hierarchy.export',
-                                'Export the hierarchy'
-                            )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onSelect={() =>
-                                openModal(ImportEntityHierarchyDialog, {list})
-                            }
-                        >
-                            <UploadIcon />{' '}
-                            {t(
-                                'entity_hierarchy.import',
-                                'Import the hierarchy…'
-                            )}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            onSelect={() =>
-                                openModal(ImportThesaurusDialog, {
-                                    list,
-                                    onImported: reload,
-                                })
-                            }
-                            data-testid="entity-thesaurus-import"
-                        >
-                            <UploadIcon />{' '}
-                            {t(
-                                'entity.thesaurus.import',
-                                'Import a tabulated thesaurus…'
-                            )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onSelect={async () => {
-                                try {
-                                    const {blob, filename} =
-                                        await exportEntityList(list.id, {
-                                            format: THESAURUS_FORMAT,
-                                        });
-                                    downloadUrl(
-                                        URL.createObjectURL(blob),
-                                        filename
-                                    );
-                                } catch (e) {
-                                    toastError(e);
-                                }
-                            }}
-                            data-testid="entity-thesaurus-export"
-                        >
-                            <DownloadIcon />{' '}
-                            {t(
-                                'entity.thesaurus.export',
-                                'Export as a tabulated thesaurus'
-                            )}
-                        </DropdownMenuItem>
+                        {isHierarchy ? (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onSelect={async () => {
+                                        try {
+                                            const {blob, filename} =
+                                                await exportEntityHierarchy(
+                                                    list.id
+                                                );
+                                            downloadUrl(
+                                                URL.createObjectURL(blob),
+                                                filename
+                                            );
+                                        } catch (e) {
+                                            toastError(e);
+                                        }
+                                    }}
+                                >
+                                    <DownloadIcon />{' '}
+                                    {t(
+                                        'entity_hierarchy.export',
+                                        'Export the hierarchy'
+                                    )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onSelect={() =>
+                                        openModal(ImportEntityHierarchyDialog, {
+                                            list,
+                                        })
+                                    }
+                                >
+                                    <UploadIcon />{' '}
+                                    {t(
+                                        'entity_hierarchy.import',
+                                        'Import the hierarchy…'
+                                    )}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onSelect={() =>
+                                        openModal(ImportThesaurusDialog, {
+                                            list,
+                                            onImported: reload,
+                                        })
+                                    }
+                                    data-testid="entity-thesaurus-import"
+                                >
+                                    <UploadIcon />{' '}
+                                    {t(
+                                        'entity.thesaurus.import',
+                                        'Import a tabulated thesaurus…'
+                                    )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onSelect={async () => {
+                                        try {
+                                            const {blob, filename} =
+                                                await exportEntityList(
+                                                    list.id,
+                                                    {
+                                                        format: THESAURUS_FORMAT,
+                                                    }
+                                                );
+                                            downloadUrl(
+                                                URL.createObjectURL(blob),
+                                                filename
+                                            );
+                                        } catch (e) {
+                                            toastError(e);
+                                        }
+                                    }}
+                                    data-testid="entity-thesaurus-export"
+                                >
+                                    <DownloadIcon />{' '}
+                                    {t(
+                                        'entity.thesaurus.export',
+                                        'Export as a tabulated thesaurus'
+                                    )}
+                                </DropdownMenuItem>
+                            </>
+                        ) : null}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             variant="destructive"
@@ -842,30 +858,32 @@ export function EntityGrid({
             </div>
             <div className="relative min-h-0 flex-1">
                 {/* Hidden, not unmounted: it keeps its state and its scroll */}
-                <div
-                    className={cn(
-                        'absolute inset-0 flex flex-col',
-                        view !== 'tree' && 'invisible'
-                    )}
-                    inert={view !== 'tree'}
-                >
-                    <EntityTree
-                        list={list}
-                        className="min-h-0 flex-1"
-                        onOpen={e => navigate([e.id])}
-                        onCreated={() => dataChanged('table')}
-                        wrapRow={(entity, row) => (
-                            <EntityRowContextMenu
-                                entity={entity}
-                                list={list}
-                                actions={menuActions}
-                                getTargets={e => [e]}
-                            >
-                                {row}
-                            </EntityRowContextMenu>
+                {isHierarchy ? (
+                    <div
+                        className={cn(
+                            'absolute inset-0 flex flex-col',
+                            view !== 'tree' && 'invisible'
                         )}
-                    />
-                </div>
+                        inert={view !== 'tree'}
+                    >
+                        <EntityTree
+                            list={list}
+                            className="min-h-0 flex-1"
+                            onOpen={e => navigate([e.id])}
+                            onCreated={() => dataChanged('table')}
+                            wrapRow={(entity, row) => (
+                                <EntityRowContextMenu
+                                    entity={entity}
+                                    list={list}
+                                    actions={menuActions}
+                                    getTargets={e => [e]}
+                                >
+                                    {row}
+                                </EntityRowContextMenu>
+                            )}
+                        />
+                    </div>
+                ) : null}
                 <div
                     className={cn(
                         'absolute inset-0 flex flex-col',

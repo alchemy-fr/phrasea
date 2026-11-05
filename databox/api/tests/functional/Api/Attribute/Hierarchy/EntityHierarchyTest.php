@@ -37,7 +37,7 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
     public function testEntitiesGetTheirDepth(): void
     {
         $this->workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
-        $list = $this->createEntityList(['name' => 'Geo']);
+        $list = $this->createEntityList(['name' => 'Geo', 'isHierarchy' => true]);
         $world = $this->createEntity($list, 'World');
         $atlantis = $this->createEntity($list, 'Atlantis');
 
@@ -75,7 +75,7 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseStatusCodeSame(422);
 
-        $other = $this->createEntityList(['name' => 'Other']);
+        $other = $this->createEntityList(['name' => 'Other', 'isHierarchy' => true]);
         $foreign = $this->createEntity($other, 'Foreign');
         $this->api('PATCH', '/attribute-entities/'.$this->e['france']->getId(), self::USER, [
             'parent' => '/attribute-entities/'.$foreign->getId(),
@@ -162,7 +162,7 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
     public function testImportPlacesExistingEntitiesAndReports(): void
     {
         $this->workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
-        $list = $this->createEntityList(['name' => 'Geo']);
+        $list = $this->createEntityList(['name' => 'Geo', 'isHierarchy' => true]);
         foreach (['world', 'eu', 'fr', 'it'] as $key) {
             $entity = $this->createEntity($list, strtoupper($key), ['no_flush' => true]);
             $entity->setExternalId($key);

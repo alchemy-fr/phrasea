@@ -17,7 +17,7 @@ interface AttributeEntityImporterInterface
      *
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      */
-    public function validate(string $data, ?string $defaultLocale = null): void;
+    public function validate(EntityList $entityList, string $data, ?string $defaultLocale = null): void;
 
     /**
      * @param string|null $defaultLocale locale of the labels given without one, for the formats supporting it

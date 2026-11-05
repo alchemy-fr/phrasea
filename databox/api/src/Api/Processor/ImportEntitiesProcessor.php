@@ -57,7 +57,7 @@ class ImportEntitiesProcessor implements ProcessorInterface
             throw new BadRequestHttpException(sprintf('Unsupported import format "%s".', $data->format), previous: $e);
         }
 
-        $importer->validate($data->data, $data->defaultLocale);
+        $importer->validate($list, $data->data, $data->defaultLocale);
 
         $task = $this->taskManager->createTask($this->getStrictUser(), ImportEntitiesTask::NAME, [
             'listId' => $list->getId(),

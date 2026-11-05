@@ -142,6 +142,7 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     private const string WITH_IMAGES = 'wi';
     private const string WITH_TRANSLATIONS = 'wt';
     private const string WITH_SYNONYMS = 'ws';
+    private const string IS_HIERARCHY = 'h';
 
     final public const string GROUP_READ = 'entity-list:r';
     final public const string GROUP_LIST = 'entity-list:i';
@@ -279,6 +280,36 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     public function setWithSynonyms(bool $withSynonyms): void
     {
         $this->options[self::WITH_SYNONYMS] = $withSynonyms;
+    }
+
+    /**
+     * Whether the entities may form a hierarchy. Turned off, the hierarchy is flattened (see EntityListFlattener).
+     */
+    public function isHierarchy(): bool
+    {
+        return self::isHierarchyOption($this->options);
+    }
+
+    /**
+     * The flag in a state of the options (e.g. from a Doctrine changeset).
+     */
+    public static function isHierarchyOption(?array $options): bool
+    {
+        return $options[self::IS_HIERARCHY] ?? false;
+    }
+
+    /**
+     * Exposed as "isHierarchy", the name of its setter.
+     */
+    #[Groups(self::COMMON_GROUPS)]
+    public function getIsHierarchy(): bool
+    {
+        return $this->isHierarchy();
+    }
+
+    public function setIsHierarchy(bool $isHierarchy): void
+    {
+        $this->options[self::IS_HIERARCHY] = $isHierarchy;
     }
 
     public function getEntities(): ?Collection

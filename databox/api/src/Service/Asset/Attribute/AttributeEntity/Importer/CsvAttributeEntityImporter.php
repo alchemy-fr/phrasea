@@ -26,7 +26,7 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
     ) {
     }
 
-    public function validate(string $data, ?string $defaultLocale = null): void
+    public function validate(EntityList $entityList, string $data, ?string $defaultLocale = null): void
     {
         $this->parse($data);
     }

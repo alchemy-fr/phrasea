@@ -24,6 +24,7 @@ final class EntityListSection extends AbstractTemplateSection
         'withImages' => ['isWithImages', 'setWithImages'],
         'withTranslations' => ['isWithTranslations', 'setWithTranslations'],
         'withSynonyms' => ['isWithSynonyms', 'setWithSynonyms'],
+        'isHierarchy' => ['isHierarchy', 'setIsHierarchy'],
     ];
 
     public static function getKey(): string
@@ -88,6 +89,15 @@ final class EntityListSection extends AbstractTemplateSection
             foreach (self::OPTIONS as $key => [, $setter]) {
                 if (array_key_exists($key, $item)) {
                     $list->$setter((bool) $item[$key]);
+                }
+            }
+            if (!array_key_exists('isHierarchy', $item)) {
+                // A template older than the flag: a hierarchy makes it
+                foreach ($item['entities'] ?? [] as $entityItem) {
+                    if (!empty($entityItem['parent']) || !empty($entityItem['placeholder'])) {
+                        $list->setIsHierarchy(true);
+                        break;
+                    }
                 }
             }
             $this->em->persist($list);
