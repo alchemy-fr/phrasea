@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Metadata\ApiProperty;
@@ -35,6 +36,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             processor: AssetAckProcessor::class,
         ),
         new GetCollection(
+            security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")',
             parameters: [
                 'acknowledged' => new QueryParameter(
                     filter: new ExactFilter(),

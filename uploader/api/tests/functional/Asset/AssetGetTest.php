@@ -71,6 +71,19 @@ class AssetGetTest extends AbstractAssetTestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
+    public function testAssetListIsRestrictedToAdmins(): void
+    {
+        $client = static::createClient();
+        $list = fn (string $userId) => $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId),
+            ],
+        ]);
+
+        $this->assertEquals(403, $list(KeycloakClientTestMock::USER_UID)->getStatusCode());
+        $this->assertEquals(200, $list(KeycloakClientTestMock::ADMIN_UID)->getStatusCode());
+    }
+
     public function testUnCommittedAssetGet(): void
     {
         $response = $this->requestGet(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'Bearer');
