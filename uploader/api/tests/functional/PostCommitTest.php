@@ -65,6 +65,19 @@ class PostCommitTest extends AbstractUploaderTestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
+    public function testCommitOfAnotherUserFilesReturns403(): void
+    {
+        $target = $this->createTarget();
+        $asset = $this->createAsset($target, KeycloakClientTestMock::OTHER_USER_UID);
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'POST', '/commit', [
+            'files' => [$asset->getId()],
+            'formData' => [],
+            'target' => '/targets/'.$target->getId(),
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
     public function testCommitWithAnonymousUserReturns401(): void
     {
         $target = $this->createTarget();
