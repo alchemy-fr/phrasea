@@ -95,7 +95,9 @@ final readonly class ExposeDataPersister implements ProcessorInterface
         }
 
         $profile = $publication->getProfile();
-        if (null === $previous && null !== $profile && !$this->security->isGranted(PublicationProfileVoter::READ, $profile)) {
+        if (null !== $profile
+            && $profile->getId() !== $previous?->getProfile()?->getId()
+            && !$this->security->isGranted(PublicationProfileVoter::READ, $profile)) {
             throw new AccessDeniedHttpException(sprintf('Not allowed to assign profile "%s"', $profile->getId()));
         }
     }
