@@ -1,5 +1,6 @@
 import {describe, expect, it} from 'vitest';
-import fixture from '../../../../../api/tests/fixtures/liform-schema.json';
+import fs from 'node:fs';
+import path from 'node:path';
 import type {LiFormSchema} from '@/features/liform/types';
 import type {DataboxField, InputField} from '../types';
 import {fromLiForm} from './fromLiForm';
@@ -48,10 +49,22 @@ const databoxFields: DataboxField[] = [
 
 const inputs = (fields: unknown[]) => fields as InputField[];
 
+// Read at run time rather than imported: the API is not in the Docker build
+// context of the client, whose `next build` type-checks the tests too.
+const fixture = JSON.parse(
+    fs.readFileSync(
+        path.resolve(
+            __dirname,
+            '../../../../../api/tests/fixtures/liform-schema.json'
+        ),
+        'utf8'
+    )
+) as LiFormSchema;
+
 describe('fromLiForm', () => {
     it('converts the fixture of the API', () => {
         const {definition, warnings} = fromLiForm(
-            {locale: 'en', schema: fixture as LiFormSchema},
+            {locale: 'en', schema: fixture},
             databoxFields,
             'ws'
         );

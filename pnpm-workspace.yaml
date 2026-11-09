@@ -9,6 +9,29 @@ packages:
 overrides:
   i18next: 24.2.1
 
+# @dnd-kit's typings import React without declaring @types/react: they would
+# otherwise get whichever @types/react pnpm hoists (18, from the older libs,
+# in a filtered install), incompatible with the React 19 types of the clients.
+packageExtensions:
+  '@dnd-kit/core':
+    peerDependencies:
+      '@types/react': '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+  '@dnd-kit/sortable':
+    peerDependencies:
+      '@types/react': '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+  '@dnd-kit/utilities':
+    peerDependencies:
+      '@types/react': '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
 allowBuilds:
   '@parcel/watcher': false
   '@swc/core': false
