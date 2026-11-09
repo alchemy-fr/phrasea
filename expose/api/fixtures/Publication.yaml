@@ -45,9 +45,11 @@ App\Entity\PublicationConfig:
 
 App\Entity\TermsConfig:
     terms_config_1:
+        enabled: true
         text: 'These are the terms and conditions for \<strong>USING</strong> this publication.'
         url: 'https://example.com/terms-and-conditions'
     terms_config_download:
+        enabled: true
         text: 'These are the terms and conditions for \<strong>DOWNLOADING</strong> content from this publication.'
         url: 'https://example.com/terms-and-conditions'
 
