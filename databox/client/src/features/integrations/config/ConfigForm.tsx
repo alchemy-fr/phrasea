@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import {createContext, useContext, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {EyeIcon, EyeOffIcon, PlusIcon, Trash2Icon} from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
@@ -25,6 +25,7 @@ import {
 import {AttributePicker} from './pickers/AttributePicker';
 import {RenditionPicker} from './pickers/RenditionPicker';
 import {CollectionPicker} from './pickers/CollectionPicker';
+import {OAuthClientPicker} from './pickers/OAuthClientPicker';
 
 type FormProps = {
     schema: ConfigObjectSchema;
@@ -33,7 +34,17 @@ type FormProps = {
     errors?: ConfigErrors;
     /** Omitted for the instance-wide integrations: no resource to pick from */
     workspaceId?: string;
+    /** Omitted for an integration not saved yet */
+    integrationId?: string;
+    /** Title of the integration, to name what is created for it */
+    integrationTitle?: string;
 };
+
+/** The integration being configured, for the fields bound to it */
+const IntegrationContext = createContext<{
+    integrationId?: string;
+    integrationTitle?: string;
+}>({});
 
 const noErrors: ConfigErrors = {};
 const noValue = '__none__';
@@ -47,6 +58,8 @@ export function ConfigForm({
     onChange,
     errors = noErrors,
     workspaceId,
+    integrationId,
+    integrationTitle,
 }: FormProps) {
     const properties = schema.properties ?? {};
     // Bound to no field of the form: shown on top
@@ -65,14 +78,18 @@ export function ConfigForm({
                     <span className="whitespace-pre-line">{global}</span>
                 </FieldError>
             ) : null}
-            <ObjectFields
-                schema={schema}
-                path=""
-                value={value}
-                onChange={onChange}
-                errors={errors}
-                workspaceId={workspaceId}
-            />
+            <IntegrationContext.Provider
+                value={{integrationId, integrationTitle}}
+            >
+                <ObjectFields
+                    schema={schema}
+                    path=""
+                    value={value}
+                    onChange={onChange}
+                    errors={errors}
+                    workspaceId={workspaceId}
+                />
+            </IntegrationContext.Provider>
         </div>
     );
 }
@@ -178,11 +195,32 @@ function StringField(props: FieldProps & {schema: ConfigSchema}) {
     const {t} = useTranslation();
     const {schema, value, onChange, workspaceId} = props;
     const {id, testId, label, error, help, placeholder} = useFieldChrome(props);
+    const {integrationId, integrationTitle} = useContext(IntegrationContext);
     const [shown, setShown] = useState(false);
     const text = typeof value === 'string' ? value : (value ?? '');
     // "${VAR}": a workspace secret or variable, resolved by the API
     const envRef = typeof text === 'string' && text.startsWith('$');
     const set = (v: string | undefined) => onChange(v === '' ? undefined : v);
+
+    const input = (
+        <Input
+            id={id}
+            type={
+                schema.secret && !shown
+                    ? 'password'
+                    : schema.widget === 'email'
+                      ? 'email'
+                      : 'text'
+            }
+            value={String(text)}
+            onChange={e => set(e.target.value)}
+            placeholder={placeholder}
+            required={schema.required}
+            aria-invalid={!!error}
+            autoComplete="off"
+            className={cn(envRef && 'font-mono')}
+        />
+    );
 
     let control;
     switch (schema.widget) {
@@ -217,26 +255,19 @@ function StringField(props: FieldProps & {schema: ConfigSchema}) {
                 />
             );
             break;
-        default: {
-            const input = (
-                <Input
-                    id={id}
-                    type={
-                        schema.secret && !shown
-                            ? 'password'
-                            : schema.widget === 'email'
-                              ? 'email'
-                              : 'text'
-                    }
-                    value={String(text)}
-                    onChange={e => set(e.target.value)}
-                    placeholder={placeholder}
-                    required={schema.required}
-                    aria-invalid={!!error}
-                    autoComplete="off"
-                    className={cn(envRef && 'font-mono')}
-                />
+        case 'oauth_client':
+            control = (
+                <OAuthClientPicker
+                    value={text === '' ? undefined : String(text)}
+                    onChange={set}
+                    integrationId={integrationId}
+                    integrationTitle={integrationTitle}
+                >
+                    {input}
+                </OAuthClientPicker>
             );
+            break;
+        default:
             control = schema.secret ? (
                 <div className="flex items-center gap-1">
                     {input}
@@ -258,7 +289,6 @@ function StringField(props: FieldProps & {schema: ConfigSchema}) {
             ) : (
                 input
             );
-        }
     }
 
     return (

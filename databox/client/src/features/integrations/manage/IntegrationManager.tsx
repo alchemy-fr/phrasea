@@ -418,6 +418,10 @@ function IntegrationForm({
                         onChange={v => set('config', v)}
                         errors={errors}
                         workspaceId={workspaceId}
+                        integrationId={i?.id}
+                        integrationTitle={
+                            form.name.trim() || type?.displayName || undefined
+                        }
                     />
                 ) : schema && !hasSchema && !form.configYaml ? (
                     <p

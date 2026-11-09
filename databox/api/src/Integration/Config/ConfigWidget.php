@@ -21,6 +21,11 @@ enum ConfigWidget: string
     case Email = 'email';
     /** Language code */
     case Language = 'language';
+    /**
+     * Client ID of a Keycloak OAuth client (public, standard flow) authorizing the users of the
+     * integration: the form offers to pick one or to create one when the user's Keycloak account can.
+     */
+    case OAuthClient = 'oauth_client';
 
     final public const string ATTR_WIDGET = 'widget';
     final public const string ATTR_WIDGET_OPTIONS = 'widgetOptions';

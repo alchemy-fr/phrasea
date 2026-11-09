@@ -1,11 +1,33 @@
-import {describe, expect, it, vi} from 'vitest';
-import {fireEvent, render, screen, within} from '@testing-library/react';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+    within,
+} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {useState} from 'react';
 import {createI18n} from '@/i18n';
+import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {ConfigForm} from './ConfigForm';
 import type {ConfigObjectSchema, ConfigValues} from './schema';
+
+const {auth, oauthApi} = vi.hoisted(() => ({
+    auth: {canViewOAuthClients: false, canManageOAuthClients: false},
+    oauthApi: {getOAuthClients: vi.fn(), createOAuthClient: vi.fn()},
+}));
+vi.mock('@/lib/auth/AuthProvider', () => ({useAuth: () => auth}));
+vi.mock('@/lib/api/oauthClients', () => oauthApi);
+
+// Used by the Radix popover and cmdk, missing from jsdom
+globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+} as unknown as typeof ResizeObserver;
+Element.prototype.scrollIntoView ??= () => {};
 
 // Ace is not for jsdom: a plain textarea stands in for the YAML editor
 vi.mock('@/components/form/code/CodeEditor', () => ({
@@ -280,5 +302,150 @@ describe('ConfigForm', () => {
         const form = screen.getByTestId('integration-config-form');
         expect(form.textContent).toContain('Missing "attribute"');
         expect(form.textContent).toContain('Unexpected');
+    });
+});
+
+describe('ConfigForm OAuth client field', () => {
+    const oauthSchema: ConfigObjectSchema = {
+        type: 'object',
+        properties: {
+            clientId: {
+                type: 'string',
+                widget: 'oauth_client',
+                required: true,
+                label: 'Client ID',
+            },
+        },
+    };
+
+    function renderOAuthForm(initial: ConfigValues = {}) {
+        const onChange = vi.fn();
+        function OAuthHarness() {
+            const [value, setValue] = useState<ConfigValues>(initial);
+
+            return (
+                <ConfigForm
+                    schema={oauthSchema}
+                    value={value}
+                    onChange={v => {
+                        setValue(v);
+                        onChange(v);
+                    }}
+                    integrationId="int-1"
+                    integrationTitle="Expose prod"
+                />
+            );
+        }
+        render(
+            <I18nextProvider i18n={createI18n('en')}>
+                <QueryClientProvider client={new QueryClient()}>
+                    <ModalProvider>
+                        <OAuthHarness />
+                    </ModalProvider>
+                </QueryClientProvider>
+            </I18nextProvider>
+        );
+
+        return () => onChange.mock.lastCall?.[0] as ConfigValues;
+    }
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        auth.canViewOAuthClients = false;
+        auth.canManageOAuthClients = false;
+        oauthApi.getOAuthClients.mockResolvedValue([
+            {
+                id: 'kc-1',
+                clientId: 'expose-integration',
+                name: 'Expose integration',
+                redirectUris: ['https://api-databox.test/*'],
+                redirectUriAllowed: true,
+            },
+            {
+                id: 'kc-2',
+                clientId: 'databox-app',
+                redirectUris: ['https://databox.test/*'],
+                redirectUriAllowed: false,
+            },
+        ]);
+    });
+
+    it('is a plain text field without the Keycloak roles', () => {
+        const last = renderOAuthForm();
+
+        expect(screen.queryByTestId('oauth-client-choose')).toBeNull();
+        expect(screen.queryByTestId('oauth-client-create')).toBeNull();
+        fireEvent.change(screen.getByLabelText('Client ID'), {
+            target: {value: 'my-client'},
+        });
+        expect(last()).toEqual({clientId: 'my-client'});
+    });
+
+    it('offers to create a client with the manage role only', () => {
+        auth.canManageOAuthClients = true;
+        renderOAuthForm();
+
+        expect(screen.queryByTestId('oauth-client-choose')).toBeNull();
+        expect(screen.getByTestId('oauth-client-create')).toBeTruthy();
+    });
+
+    it('picks a client among the compatible ones', async () => {
+        auth.canViewOAuthClients = true;
+        auth.canManageOAuthClients = true;
+        const last = renderOAuthForm({clientId: '${CLIENT_ID}'});
+
+        // Still typed by hand (e.g. a variable)
+        expect(
+            (screen.getByLabelText('Client ID') as HTMLInputElement).value
+        ).toBe('${CLIENT_ID}');
+        expect(screen.getByTestId('oauth-client-create')).toBeTruthy();
+
+        fireEvent.click(screen.getByTestId('oauth-client-choose'));
+        await waitFor(() =>
+            expect(screen.getByTestId('oauth-client-databox-app')).toBeTruthy()
+        );
+        expect(oauthApi.getOAuthClients).toHaveBeenCalledWith(
+            {search: '', integrationId: 'int-1'},
+            expect.anything()
+        );
+        // Only the clients not allowing the redirect URI are flagged
+        expect(
+            within(screen.getByTestId('oauth-client-databox-app')).getByText(
+                'Redirect URI not allowed'
+            )
+        ).toBeTruthy();
+        expect(
+            within(
+                screen.getByTestId('oauth-client-expose-integration')
+            ).queryByText('Redirect URI not allowed')
+        ).toBeNull();
+
+        fireEvent.click(screen.getByTestId('oauth-client-expose-integration'));
+        expect(last()).toEqual({clientId: 'expose-integration'});
+    });
+
+    it('fills the field with the created client', async () => {
+        auth.canManageOAuthClients = true;
+        oauthApi.createOAuthClient.mockImplementation(async d => ({
+            id: 'kc-3',
+            clientId: d.clientId,
+            redirectUris: [],
+            redirectUriAllowed: true,
+        }));
+        const last = renderOAuthForm();
+
+        fireEvent.click(screen.getByTestId('oauth-client-create'));
+        await waitFor(() =>
+            expect(
+                (
+                    screen.getByLabelText('Client ID', {
+                        selector: '#create-oauth-client-id',
+                    }) as HTMLInputElement
+                ).value
+            ).toBe('expose-prod')
+        );
+        fireEvent.click(screen.getByRole('button', {name: 'Create'}));
+
+        await waitFor(() => expect(last()).toEqual({clientId: 'expose-prod'}));
     });
 });

@@ -365,3 +365,48 @@ describe('OidcClient.getAccessToken', () => {
         expect(fetchMock).not.toHaveBeenCalled();
     });
 });
+
+describe('OidcClient.getUser', () => {
+    async function userWith(roles: string[] | undefined) {
+        storage.set('dbx.auth', JSON.stringify({refreshToken: 'stored'}));
+        fetchMock.mockResolvedValue(
+            tokenResponse(200, {
+                access_token: jwt({
+                    sub: 'alice-id',
+                    resource_access: roles
+                        ? {'realm-management': {roles}}
+                        : undefined,
+                }),
+                expires_in: 300,
+            })
+        );
+
+        return createClient().init({silent: true});
+    }
+
+    it('reads the realm management roles', async () => {
+        expect(await userWith(['view-clients'])).toMatchObject({
+            canImpersonate: false,
+            canViewOAuthClients: true,
+            canManageOAuthClients: false,
+        });
+        // Managing the clients implies seeing them
+        expect(await userWith(['manage-clients'])).toMatchObject({
+            canViewOAuthClients: true,
+            canManageOAuthClients: true,
+        });
+        expect(await userWith(['impersonation'])).toMatchObject({
+            canImpersonate: true,
+            canViewOAuthClients: false,
+            canManageOAuthClients: false,
+        });
+    });
+
+    it('grants nothing without realm management roles', async () => {
+        expect(await userWith(undefined)).toMatchObject({
+            canImpersonate: false,
+            canViewOAuthClients: false,
+            canManageOAuthClients: false,
+        });
+    });
+});

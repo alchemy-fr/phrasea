@@ -19,6 +19,16 @@ export type AuthUser = {
     groups: string[];
     /** Granted by the Keycloak `impersonation` role of `realm-management` */
     canImpersonate?: boolean;
+    /**
+     * Granted by the Keycloak `view-clients` (or `manage-clients`) role of
+     * `realm-management`: the OAuth clients of the realm can be listed
+     */
+    canViewOAuthClients?: boolean;
+    /**
+     * Granted by the Keycloak `manage-clients` role of `realm-management`:
+     * OAuth clients can be created in the realm
+     */
+    canManageOAuthClients?: boolean;
 };
 
 export type Tokens = {
@@ -230,6 +240,11 @@ export class OidcClient {
             realm_access?: {roles?: string[]};
             resource_access?: Record<string, {roles?: string[]} | undefined>;
         }>(this.tokens.accessToken);
+        // Composite roles (`realm-admin`) are expanded in the token
+        const realmManagement =
+            claims.resource_access?.['realm-management']?.roles ?? [];
+        const canManageOAuthClients =
+            realmManagement.includes('manage-clients');
 
         return {
             id: claims.sub,
@@ -243,10 +258,11 @@ export class OidcClient {
                 ]),
             ],
             groups: claims.groups ?? [],
-            canImpersonate:
-                claims.resource_access?.['realm-management']?.roles?.includes(
-                    'impersonation'
-                ) ?? false,
+            canImpersonate: realmManagement.includes('impersonation'),
+            canViewOAuthClients:
+                canManageOAuthClients ||
+                realmManagement.includes('view-clients'),
+            canManageOAuthClients,
         };
     }
 

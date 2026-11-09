@@ -32,7 +32,7 @@ class KeycloakClientTestMock implements HttpClientInterface
             'username' => 'admin',
             'roles' => ['admin', 'databox', 'expose', 'uploader'],
             'resource_access' => [
-                'realm-management' => ['roles' => ['impersonation']],
+                'realm-management' => ['roles' => ['impersonation', 'manage-clients', 'view-clients']],
             ],
         ],
         self::OTHER_USER_UID => [
@@ -48,6 +48,75 @@ class KeycloakClientTestMock implements HttpClientInterface
     final public const string GROUP_UID = '77777777-fc1a-492b-9e76-c2e8e6979786';
 
     /**
+     * Client ID refused by the IdP on creation, as already taken.
+     */
+    final public const string EXISTING_CLIENT_ID = 'expose-integration';
+
+    /**
+     * OAuth clients of the realm, as returned by the IdP.
+     */
+    final public const array CLIENTS = [
+        [
+            'id' => 'c0000001-fc1a-492b-9e76-c2e8e6979786',
+            'clientId' => 'expose-integration',
+            'name' => 'Expose integration',
+            'enabled' => true,
+            'publicClient' => true,
+            'bearerOnly' => false,
+            'standardFlowEnabled' => true,
+            'rootUrl' => 'http://localhost',
+            'redirectUris' => ['http://localhost/*'],
+        ],
+        [
+            'id' => 'c0000002-fc1a-492b-9e76-c2e8e6979786',
+            'clientId' => 'databox-app',
+            'name' => 'Databox',
+            'enabled' => true,
+            'publicClient' => true,
+            'bearerOnly' => false,
+            'standardFlowEnabled' => true,
+            'rootUrl' => 'https://databox.phrasea.test',
+            'redirectUris' => ['/*'],
+        ],
+        [
+            'id' => 'c0000003-fc1a-492b-9e76-c2e8e6979786',
+            'clientId' => 'databox-admin',
+            'enabled' => true,
+            'publicClient' => false,
+            'bearerOnly' => false,
+            'standardFlowEnabled' => true,
+            'redirectUris' => ['http://localhost/*'],
+        ],
+        [
+            'id' => 'c0000004-fc1a-492b-9e76-c2e8e6979786',
+            'clientId' => 'account-console',
+            'name' => '${client_account-console}',
+            'enabled' => true,
+            'publicClient' => true,
+            'bearerOnly' => false,
+            'standardFlowEnabled' => true,
+            'rootUrl' => '${authBaseUrl}',
+            'redirectUris' => ['/realms/phrasea/account/*'],
+        ],
+        [
+            'id' => 'c0000005-fc1a-492b-9e76-c2e8e6979786',
+            'clientId' => 'an-integration',
+            'enabled' => true,
+            'publicClient' => true,
+            'bearerOnly' => false,
+            'standardFlowEnabled' => true,
+            'redirectUris' => ['http://localhost/integrations/11111111-1111-1111-1111-111111111111/code'],
+        ],
+    ];
+
+    /**
+     * Clients created during the test, by client ID, as sent to the IdP.
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    public static array $createdClients = [];
+
+    /**
      * Members of the groups, as returned by the IdP.
      */
     final public const array GROUP_MEMBERS = [
@@ -59,10 +128,11 @@ class KeycloakClientTestMock implements HttpClientInterface
     ];
 
     /**
-     * @param string[]      $extraRoles realm roles granted on top of the user's ones (e.g. an application role)
-     * @param string[]|null $groups     the user's groups, instead of its ones in USERS
+     * @param string[]      $extraRoles     realm roles granted on top of the user's ones (e.g. an application role)
+     * @param string[]|null $groups         the user's groups, instead of its ones in USERS
+     * @param array|null    $resourceAccess the client roles ("resource_access" claim), instead of its ones in USERS
      */
-    public static function getJwtFor(string $userId, array $extraRoles = [], ?array $groups = null): string
+    public static function getJwtFor(string $userId, array $extraRoles = [], ?array $groups = null, ?array $resourceAccess = null): string
     {
         $configuration = Configuration::forAsymmetricSigner(
             new Sha256(),
@@ -84,7 +154,7 @@ class KeycloakClientTestMock implements HttpClientInterface
             ->withClaim('preferred_username', self::USERS[$userId]['username'])
             ->withClaim('roles', array_values(array_unique([...(self::USERS[$userId]['roles'] ?? []), ...$extraRoles])))
             ->withClaim('groups', $groups ?? self::USERS[$userId]['groups'] ?? [])
-            ->withClaim('resource_access', self::USERS[$userId]['resource_access'] ?? [])
+            ->withClaim('resource_access', $resourceAccess ?? self::USERS[$userId]['resource_access'] ?? [])
             ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
 
         return $token->toString();
@@ -137,6 +207,10 @@ class KeycloakClientTestMock implements HttpClientInterface
             $this->createResponse($args, 401, [
                 'error' => 'invalid_grant_type_for_test',
             ]);
+        }
+
+        if (str_ends_with($url, '/admin/realms/phrasea/clients')) {
+            return $this->handleClients($args);
         }
 
         if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)/role-mappings/realm/composite$#', $url, $match)) {
@@ -202,6 +276,46 @@ class KeycloakClientTestMock implements HttpClientInterface
             ]),
             default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
+    }
+
+    private function handleClients(array $args): ResponseInterface
+    {
+        [$method, , $options] = $args;
+
+        if ('POST' === $method) {
+            $data = $options['json'] ?? [];
+            $clientId = (string) ($data['clientId'] ?? '');
+            if (self::EXISTING_CLIENT_ID === $clientId || isset(self::$createdClients[$clientId])) {
+                return $this->createResponse($args, 409, [
+                    'errorMessage' => sprintf('Client %s already exists', $clientId),
+                ]);
+            }
+            self::$createdClients[$clientId] = $data;
+
+            return $this->createResponse($args, 201, []);
+        }
+
+        $query = $options['query'] ?? [];
+        $clients = [...self::CLIENTS];
+        foreach (self::$createdClients as $clientId => $data) {
+            $clients[] = [
+                ...$data,
+                'id' => md5($clientId),
+            ];
+        }
+
+        if (isset($query['clientId'])) {
+            $search = 'true' === (string) ($query['search'] ?? 'false');
+            $clients = array_filter($clients, fn (array $client): bool => $search
+                ? false !== stripos($client['clientId'], (string) $query['clientId'])
+                : $client['clientId'] === $query['clientId']);
+        }
+
+        return $this->createResponse($args, 200, array_slice(
+            array_values($clients),
+            (int) ($query['first'] ?? 0),
+            (int) ($query['max'] ?? 100),
+        ));
     }
 
     private function createResponse(array $args, int $code, array $data): ResponseInterface

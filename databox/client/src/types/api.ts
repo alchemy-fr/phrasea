@@ -1211,6 +1211,18 @@ export type IntegrationType = {
     schema: ConfigObjectSchema;
 };
 
+/** A Keycloak OAuth client an integration can authorize its users with */
+export type OAuthClient = {
+    /** The Keycloak ID (not the client ID) */
+    id: string;
+    clientId: string;
+    name?: string;
+    description?: string;
+    redirectUris: string[];
+    /** The redirect URIs of the client allow the one of the integration */
+    redirectUriAllowed: boolean;
+};
+
 export type MetadataTag = {
     /** Namespace (e.g. "IPTC") or namespaced tag (e.g. "IPTC:Keywords") */
     id: string;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Client;
 
+use Alchemy\AuthBundle\Exception\ClientAlreadyExistsException;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -216,6 +217,78 @@ final readonly class KeycloakClient
                 'max' => $max,
             ],
         ]);
+    }
+
+    /**
+     * OAuth clients of the realm (Keycloak "ClientRepresentation"s), as the owner of the access token
+     * is allowed to see them ("view-clients" role of "realm-management").
+     */
+    public function getClients(string $accessToken, array $options = []): array
+    {
+        return $this->asTokenOwner(fn (): array => $this->get($this->urlGenerator->getClientsApiUrl(), [
+            ...$options,
+            'access_token' => $accessToken,
+        ]));
+    }
+
+    /**
+     * Creates an OAuth client of the realm on behalf of the owner of the access token
+     * ("manage-clients" role of "realm-management").
+     *
+     * @param array $data a Keycloak "ClientRepresentation"
+     *
+     * @return array the created client, as Keycloak returns it
+     *
+     * @throws ClientAlreadyExistsException
+     */
+    public function createClient(array $data, string $accessToken): array
+    {
+        $response = $this->keycloakClient->request('POST', $this->urlGenerator->getClientsApiUrl(), $this->getRequestOptions([
+            'access_token' => $accessToken,
+            'json' => $data,
+        ]));
+
+        $statusCode = $response->getStatusCode();
+        if (409 === $statusCode) {
+            throw new ClientAlreadyExistsException((string) $data['clientId']);
+        }
+        if (401 === $statusCode || 403 === $statusCode) {
+            throw new AccessDeniedHttpException($response->getContent(false));
+        }
+        if ($statusCode >= 300) {
+            throw new HttpException($statusCode, $response->getContent(false));
+        }
+
+        $clients = $this->getClients($accessToken, [
+            'query' => [
+                'clientId' => $data['clientId'],
+                'search' => 'false',
+                'max' => 1,
+            ],
+        ]);
+
+        if (empty($clients)) {
+            throw new \RuntimeException('Cannot find newly created client. Please check user permissions!');
+        }
+
+        return $clients[0];
+    }
+
+    /**
+     * Runs a request of the admin API authenticated by a user's token. Keycloak refusing that token
+     * is a missing permission, not the end of the user's session in the application.
+     */
+    private function asTokenOwner(callable $handler): array
+    {
+        try {
+            return $handler();
+        } catch (HttpException $e) {
+            if (401 === $e->getStatusCode()) {
+                throw new AccessDeniedHttpException($e->getMessage(), $e);
+            }
+
+            throw $e;
+        }
     }
 
     private function get(string $path, array $options = []): array

@@ -10,7 +10,9 @@ export type ConfigWidget =
     | 'rendition'
     | 'collection'
     | 'email'
-    | 'language';
+    | 'language'
+    /** Client ID of a Keycloak OAuth client (public, standard flow) */
+    | 'oauth_client';
 
 type ConfigSchemaBase = {
     label?: string;

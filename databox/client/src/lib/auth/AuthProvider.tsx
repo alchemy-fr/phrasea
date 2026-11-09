@@ -38,6 +38,14 @@ export type AuthContextValue = {
     impersonating: boolean;
     /** The signed-in user may switch to another user's account */
     canImpersonate: boolean;
+    /**
+     * The Keycloak account of the signed-in user can list the OAuth clients
+     * of the realm. Off while impersonating: the API refuses to act on
+     * Keycloak with the admin's token under another identity.
+     */
+    canViewOAuthClients: boolean;
+    /** Same, to create OAuth clients */
+    canManageOAuthClients: boolean;
     /** Switches to another user's account (reloads the app) */
     impersonate: (user: ImpersonatedUser) => void;
     /** Goes back to the signed-in user's account (reloads the app) */
@@ -199,6 +207,11 @@ export function AuthProvider({children}: PropsWithChildren) {
     }, []);
 
     const user = realUser ? (impersonated ?? realUser) : undefined;
+    const impersonating = !!realUser && !!impersonated;
+    const canViewOAuthClients =
+        !impersonating && !!realUser?.canViewOAuthClients;
+    const canManageOAuthClients =
+        !impersonating && !!realUser?.canManageOAuthClients;
 
     const impersonate = useCallback(
         (target: ImpersonatedUser) => {
@@ -226,8 +239,10 @@ export function AuthProvider({children}: PropsWithChildren) {
             status,
             user,
             realUser,
-            impersonating: !!realUser && !!impersonated,
+            impersonating,
             canImpersonate,
+            canViewOAuthClients,
+            canManageOAuthClients,
             impersonate,
             stopImpersonating: stopImpersonation,
             isAuthenticated: status === 'authenticated',
@@ -243,8 +258,10 @@ export function AuthProvider({children}: PropsWithChildren) {
             status,
             user,
             realUser,
-            impersonated,
+            impersonating,
             canImpersonate,
+            canViewOAuthClients,
+            canManageOAuthClients,
             impersonate,
             login,
             redirecting,
