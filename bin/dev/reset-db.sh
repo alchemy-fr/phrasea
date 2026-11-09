@@ -26,5 +26,5 @@ for entry in "databox-api-php:${DATABOX_DB_NAME}" "expose-api-php:${EXPOSE_DB_NA
   exec_container db "psql -U \"${POSTGRES_USER}\" -c 'DROP DATABASE IF EXISTS ${db_name} WITH (FORCE);'"
   # Created by the superuser: the role of the API (<APP>_POSTGRES_USER), when
   # there is one, may not. The configurator gives it back the ownership.
-  docker compose run --rm -e POSTGRES_USER="${POSTGRES_USER}" -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" ${service} /bin/ash -c 'bin/console doctrine:database:create && (!(bin/console | grep app:database:configure) || bin/console app:database:configure)'
+  docker compose run --rm -e POSTGRES_USER="${POSTGRES_USER}" -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" ${service} su app -c 'bin/console doctrine:database:create && (!(bin/console | grep app:database:configure) || bin/console app:database:configure)'
 done
