@@ -1,117 +1,25 @@
 #!/bin/sh
 #
-# Install/upgrade lifecycle of the Databox API (see doc/tech/Deployment/lifecycle.md).
+# Install/upgrade lifecycle of the Databox API (see doc/tech/Deployment/lifecycle.md):
+# the common steps of alchemy/core-bundle, plus the hooks of bin/lifecycle.d.
 #
 # Usage: bin/lifecycle.sh <pre-install|post-install|pre-upgrade|post-upgrade>
-#
-# Every phase converges: it detects the state of the database and can be run
-# again safely, whatever the phase name (a pre-install on an installed database
-# migrates it, a pre-upgrade on an empty database installs it).
 
 set -e
 
-BASEDIR=$(dirname "$0")
-CONSOLE="${BASEDIR}/console"
-WAIT_TIMEOUT="${LIFECYCLE_WAIT_TIMEOUT:-300}"
+APP_DIR=$(cd "$(dirname "$0")/.." && pwd)
 
-usage() {
-    echo "Usage: $0 <pre-install|post-install|pre-upgrade|post-upgrade>" >&2
-}
-
-log() {
-    echo "[lifecycle] databox: $*"
-}
-
-# Usage: wait_for <description> <command...>
-wait_for() {
-    description="$1"
-    shift
-    deadline=$(($(date +%s) + WAIT_TIMEOUT))
-    until "$@"; do
-        if [ "$(date +%s)" -ge "${deadline}" ]; then
-            echo "[lifecycle] databox: ${description} still not ready after ${WAIT_TIMEOUT}s, giving up" >&2
-            exit 1
-        fi
-        log "waiting for ${description}..."
-        sleep 3
-    done
-}
-
-# Same resolution as config/packages/doctrine.yaml: DATABASE_URL, else the
-# POSTGRES_* variables with the defaults of the application .env file.
-is_postgres_ready() {
-    # PHP code, not shell expansions.
-    # shellcheck disable=SC2016
-    php -r '
-        $url = getenv("DATABASE_URL");
-        if ($url) {
-            $parts = parse_url($url);
-            $host = $parts["host"] ?? "db";
-            $port = $parts["port"] ?? 5432;
-        } else {
-            $host = getenv("POSTGRES_HOST") ?: "db";
-            $port = getenv("POSTGRES_PORT") ?: 5432;
-        }
-        exit(@fsockopen($host, (int) $port, $errno, $errstr, 2) ? 0 : 1);
-    '
-}
-
-is_es_ready() {
-    if [ -n "${ELASTICSEARCH_USERNAME}" ]; then
-        set -- -u "${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD}"
+# The common steps ship with the vendors, installed by the image build: only a
+# development checkout may lack them, composer never runs anywhere else.
+if [ ! -d "${APP_DIR}/vendor" ]; then
+    if [ "${APP_ENV}" != "dev" ]; then
+        echo "[lifecycle] databox: ${APP_DIR}/vendor is missing (APP_ENV=${APP_ENV:-unset})" >&2
+        exit 1
     fi
-    [ "$(curl "$@" --write-out '%{http_code}' --silent --output /dev/null "${ELASTICSEARCH_URL}/_cat/health?h=st")" = 200 ]
-}
+    (cd "${APP_DIR}" && composer install)
+fi
 
-prepare() {
-    if [ ! -d "${BASEDIR}/../vendor" ]; then
-        (cd "${BASEDIR}/.." && composer install)
-    fi
+export LIFECYCLE_APP=databox
+export LIFECYCLE_APP_DIR="${APP_DIR}"
 
-    wait_for "PostgreSQL" is_postgres_ready
-    wait_for "Elasticsearch" is_es_ready
-
-    "${CONSOLE}" doctrine:database:create --if-not-exists
-    "${CONSOLE}" app:database:configure
-}
-
-converge() {
-    # The state is the last line: a log record printed by the console may precede it.
-    state=$("${CONSOLE}" alchemy:lifecycle:state --no-ansi)
-    state=$(printf '%s\n' "${state}" | tail -n 1)
-    log "database state: ${state}"
-
-    case "${state}" in
-        fresh)
-            # The only path that resets anything: no migration is recorded yet.
-            "${CONSOLE}" doctrine:schema:update -f
-            "${CONSOLE}" fos:elastica:reset
-            php -d memory_limit=1G "${CONSOLE}" fos:elastica:populate --no-debug
-            "${CONSOLE}" doctrine:migrations:sync-metadata-storage
-            "${CONSOLE}" doctrine:migrations:version --add --all -n
-            ;;
-        installed)
-            "${CONSOLE}" doctrine:migrations:sync-metadata-storage
-            "${CONSOLE}" doctrine:migrations:migrate -n
-            ;;
-        *)
-            echo "[lifecycle] databox: unexpected database state \"${state}\"" >&2
-            exit 1
-            ;;
-    esac
-}
-
-case "$1" in
-    pre-install | pre-upgrade)
-        log "$1"
-        prepare
-        converge
-        ;;
-    post-install | post-upgrade)
-        # Extension point of the lifecycle contract: nothing to do yet.
-        ;;
-    *)
-        usage
-        exit 64
-        ;;
-esac
+exec sh "${APP_DIR}/vendor/alchemy/core-bundle/Resources/lifecycle/lifecycle.sh" "$@"

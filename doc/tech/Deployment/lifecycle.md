@@ -61,38 +61,49 @@ only at the very end.
 `post-install` and `post-upgrade` do nothing yet in any component: they are the
 extension points of the contract.
 
-### APIs (databox, expose, uploader)
+### Common steps
 
+The `bin/lifecycle.sh` of each image only runs `composer install` when
+`vendor/` is missing (development), then hands over to the script shared by
+every component,
+[`lib/php/core-bundle/Resources/lifecycle/lifecycle.sh`](@phrasea-repo/lib/php/core-bundle/Resources/lifecycle/lifecycle.sh)
+(shipped with `alchemy/core-bundle`, next to `alchemy:lifecycle:state`).
 `pre-install` and `pre-upgrade` run the same steps:
 
-1. `composer install` when `vendor/` is missing (development);
-2. wait for PostgreSQL (`DATABASE_URL`, else `POSTGRES_HOST`/`POSTGRES_PORT`);
-3. databox only: wait for Elasticsearch (`ELASTICSEARCH_URL`);
-4. `doctrine:database:create --if-not-exists`;
-5. databox only: `app:database:configure` (idempotent PostgreSQL extensions);
-6. `alchemy:lifecycle:state`, then:
-    - `fresh`: `doctrine:schema:update -f`, databox only `fos:elastica:reset`
-      and `fos:elastica:populate`, `doctrine:migrations:sync-metadata-storage`,
-      `doctrine:migrations:version --add --all`;
-    - `installed`: `doctrine:migrations:sync-metadata-storage`,
-      `doctrine:migrations:migrate`.
-
-### Configurator
-
-`pre-install` and `pre-upgrade` run the same steps:
-
-1. `composer install` when `vendor/` is missing (development);
-2. wait for PostgreSQL (`CONFIGURATOR_DATABASE_URL`, else
-   `POSTGRES_HOST`/`POSTGRES_PORT`);
-3. `doctrine:database:create --if-not-exists`;
+1. wait for PostgreSQL (`DATABASE_URL`, `CONFIGURATOR_DATABASE_URL` for the
+   configurator, else `POSTGRES_HOST`/`POSTGRES_PORT`);
+2. `doctrine:database:create --if-not-exists`;
+3. the `prepare` hooks;
 4. `alchemy:lifecycle:state`, then:
-    - `fresh`: `doctrine:schema:update -f --em=configurator`,
-      `doctrine:migrations:sync-metadata-storage`, `configure --install`,
-      `doctrine:migrations:version --add --all`. `configure` builds the current
-      state of every service, so the Keycloak migrations are not replayed on a
-      new installation;
-    - `installed`: `doctrine:migrations:sync-metadata-storage`, `configure`,
-      `doctrine:migrations:migrate`.
+    - `fresh`: `doctrine:schema:update -f`,
+      `doctrine:migrations:sync-metadata-storage`, the `install` hooks,
+      `doctrine:migrations:version --add --all`;
+    - `installed`: `doctrine:migrations:sync-metadata-storage`, the `upgrade`
+      hooks, `doctrine:migrations:migrate`.
+
+### Hooks
+
+A component adds its own steps in `bin/lifecycle.d/<NN>-<name>.<step>.sh`, where
+`<step>` is `prepare`, `install` or `upgrade`. The hooks of a step are sourced
+in name order by the common script, so they can use `CONSOLE` (the Symfony
+console), `log` and `wait_for <description> <command...>`; a failing command
+fails the phase.
+
+The steps are named after the state of the database rather than after the
+phases: a `pre-upgrade` on a fresh database runs the `install` hooks.
+
+| Component    | Hook                              | Steps                                                                       |
+|--------------|-----------------------------------|-----------------------------------------------------------------------------|
+| databox      | `01-database.prepare.sh`          | `app:database:configure` (idempotent PostgreSQL extensions)                 |
+| databox      | `01-elasticsearch.install.sh`     | wait for Elasticsearch (`ELASTICSEARCH_URL`), `fos:elastica:reset`, `fos:elastica:populate` |
+| configurator | `01-configure.install.sh`         | `configure --install` with the `CONFIGURATOR_PRESETS`                       |
+| configurator | `01-configure.upgrade.sh`         | `configure` with the `CONFIGURATOR_PRESETS`                                 |
+
+Expose and uploader have no hook. An upgrade does not need Elasticsearch: the
+migrations are plain SQL, so databox only waits for it on an install.
+`configure --install` builds the current state of every service, so the
+Keycloak migrations are not replayed on a new installation: they are marked as
+executed with the others.
 
 `configure` provisions every enabled service (`CONFIGURATOR_CONFIGURE_<NAME>`):
 databases, RabbitMQ vhosts, S3 buckets, Minio notifications, then the Keycloak
@@ -151,7 +162,7 @@ phase of a component gets the same environment, and the configurator presets
 
 | Variable                             | Used by      | Default | Description                                                                                                  |
 |--------------------------------------|--------------|---------|--------------------------------------------------------------------------------------------------------------|
-| `LIFECYCLE_WAIT_TIMEOUT`             | all          | `300`   | Seconds a phase waits for PostgreSQL (and Elasticsearch for databox) before failing.                         |
+| `LIFECYCLE_WAIT_TIMEOUT`             | all          | `300`   | Seconds a phase waits for PostgreSQL (and Elasticsearch for a databox install) before failing.               |
 | `CONFIGURATOR_PRESETS`               | configurator | (empty) | Space-separated presets of `configure` (`test`, `dev`).                                                      |
 | `CONFIGURATOR_SERVICE_WAIT_TIMEOUT`  | configurator |         | Still applies to the waits of `configure` itself (RabbitMQ, S3, Minio, Keycloak).                            |
 | `CONFIGURATOR_CONFIGURE_<NAME>`      | configurator | `false` | Enables a configurator (`DATABASE`, `KEYCLOAK`, `MINIO`, `RABBITMQ`, `S3`). The Keycloak migrations are skipped (and not recorded) while `CONFIGURATOR_CONFIGURE_KEYCLOAK` is not true. |
