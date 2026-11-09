@@ -1234,6 +1234,10 @@ services:
       - CYPRESS_DATABOX_CLIENT_ID=${DATABOX_CLIENT_ID}
       - CYPRESS_DATABOX_ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
       - CYPRESS_DATABOX_ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
+      # Uploader e2e tests
+      - CYPRESS_UPLOADER_CLIENT_URL=${UPLOADER_CLIENT_URL}
+      - CYPRESS_UPLOADER_API_URL=${UPLOADER_API_URL}
+      - CYPRESS_UPLOADER_CLIENT_ID=${UPLOADER_CLIENT_ID}
     volumes:
       - cypress_output:/cypress/output
     extra_hosts:
@@ -1245,6 +1249,8 @@ services:
       - databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - ws.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   sockudo:
     logging: *default-logging
