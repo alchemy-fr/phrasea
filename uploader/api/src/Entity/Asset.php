@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -26,6 +27,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     shortName: 'asset',
     operations: [
         new Get(security: 'is_granted("READ_META", object)'),
+        new Delete(security: 'is_granted("'.AssetVoter::DELETE.'", object)'),
         new Post(
             uriTemplate: '/assets/{id}/ack',
             security: 'is_granted("'.AssetVoter::ACK.'", object)',

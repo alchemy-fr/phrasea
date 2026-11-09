@@ -32,6 +32,7 @@ import {useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {
     commit,
+    deleteAsset,
     getAllTargets,
     getTarget,
     getTargetFormSchema,
@@ -43,7 +44,11 @@ import {formatFileSize} from '@/lib/utils/format';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import type {FormValues} from '@/features/form-builder/types';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';
-import type {QueueSnapshot, UploadQueue} from './engine/UploadQueue';
+import type {
+    QueueSnapshot,
+    UploadItem,
+    UploadQueue,
+} from './engine/UploadQueue';
 import {FileSelectionStep} from './FileSelectionStep';
 import {MetadataFormStep} from './MetadataFormStep';
 import {PreviewCacheProvider} from './previewCache';
@@ -102,6 +107,8 @@ export function UploadScreen({targetId}: {targetId: string}) {
     const [sent, setSent] = useState<Sent>({files: [], notify: false});
     const [showFiles, setShowFiles] = useState(false);
     const committing = useRef(false);
+    // The assets belong to the commit once it is sent (it attaches them later)
+    const committed = useRef(false);
     const uploadFiles = useMemo(
         () => [...files, ...snapshot.items.map(i => i.file)],
         [files, snapshot.items]
@@ -109,8 +116,29 @@ export function UploadScreen({targetId}: {targetId: string}) {
 
     useUnsavedChangesPrompt(files.length > 0 && step !== 'done');
 
+    /** Deletes the assets of files sent to a batch that will not be committed */
+    const discard = useCallback((items: UploadItem[]) => {
+        if (committing.current || committed.current) {
+            return;
+        }
+        items.forEach(i => {
+            if (i.assetId) {
+                // Left to the expired assets cleanup if this fails
+                deleteAsset(i.assetId).catch(() => undefined);
+            }
+        });
+    }, []);
+
+    // Read on unmount: the queue is already emptied by then
+    const lastItems = useRef<UploadItem[]>([]);
+    useEffect(() => {
+        lastItems.current = snapshot.items;
+    }, [snapshot.items]);
+    useEffect(() => () => discard(lastItems.current), [discard]);
+
     const reset = useCallback(() => {
         queue.cancel();
+        committed.current = false;
         setFiles([]);
         setFormData(undefined);
         setCommitState({status: 'idle'});
@@ -131,8 +159,14 @@ export function UploadScreen({targetId}: {targetId: string}) {
                 destructive: true,
             })
         ) {
+            discard(queue.getSnapshot().items);
             reset();
         }
+    };
+
+    const removeItem = (item: UploadItem) => {
+        queue.remove(item.id);
+        discard([item]);
     };
 
     const startUpload = () => {
@@ -160,6 +194,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
                 formData,
                 schemaId,
             });
+            committed.current = true;
             setSent({
                 files: items.map(i => ({name: i.file.name, size: i.file.size})),
                 notify: formData[NOTIFY_FIELD] === true,
@@ -227,7 +262,12 @@ export function UploadScreen({targetId}: {targetId: string}) {
                     loaded={item.loaded}
                     error={errorMessage(item)}
                     onRetry={() => queue.retry(item.id)}
-                    onRemove={() => queue.remove(item.id)}
+                    // The files being committed are already sent to the target
+                    onRemove={
+                        commitState.status === 'pending'
+                            ? undefined
+                            : () => removeItem(item)
+                    }
                 />
             ))}
         </ul>

@@ -125,7 +125,7 @@ export function FileTile({
                             <RotateCwIcon />
                         </Button>
                     ) : null}
-                    {onRemove && status !== 'done' ? (
+                    {onRemove ? (
                         <Button
                             type="button"
                             size="icon-xs"
