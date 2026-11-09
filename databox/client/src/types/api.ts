@@ -161,6 +161,8 @@ export enum EntityName {
     File = 'files',
     Workflow = 'workflows',
     AuditLog = 'audit-logs',
+    WorkspaceSecret = 'workspace-secrets',
+    WorkspaceEnv = 'workspace-envs',
 }
 
 export enum AttributeBatchActionEnum {
@@ -1221,6 +1223,25 @@ export type OAuthClient = {
     redirectUris: string[];
     /** The redirect URIs of the client allow the one of the integration */
     redirectUriAllowed: boolean;
+};
+
+/**
+ * A value referenced as `${NAME}` by the configuration of the integrations of
+ * its workspace. Write only: its value is never returned.
+ */
+export type WorkspaceSecret = {
+    id: string;
+    name: string;
+    /** IRI of the workspace, missing for an instance secret */
+    workspace?: string | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+/** A variable (managed in the admin), by its name only */
+export type WorkspaceEnv = {
+    id: string;
+    name: string;
 };
 
 export type MetadataTag = {

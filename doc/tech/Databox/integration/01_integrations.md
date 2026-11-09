@@ -232,10 +232,41 @@ ConfigWidget::apply($builder->scalarNode('attribute'), ConfigWidget::Attribute, 
 ```
 
 - `widget` (`ConfigWidget`): `attribute` (slug of an attribute definition of the workspace, with `widgetOptions` restricting its `type`, `multiple` and `entityList`; the picker offers to **create** the attribute, and the entity list it needs, right from the form), `rendition` (name of a rendition definition), `collection` (collection ID), `email`, `language`, `oauth_client` (client ID of a Keycloak OAuth client, public with the standard flow: the text field gets "Choose…" and "Create…" buttons when the Keycloak account of the user can list or create the clients, see the Expose integration). On a prototype (`scalarPrototype()`), the widget applies to the items of the list (multiple picker, chips).
-- `secret`: the form masks the value (with a "show" button). The API does not redact it: `configYaml` and `configValues` are only given to who may edit the integration.
+- `secret`: the form masks a value typed in clear (with a "show" button) and offers to **save it as a secret** (see [Secrets & variables](#secrets--variables)). The API does not redact a value stored in clear: `configYaml` and `configValues` are only given to who may edit the integration. Prefer a reference to a secret.
 - An integration whose tree does not tell the whole story implements `ConfigSchemaCustomizerInterface::customizeConfigSchema(array $schema): array`: `core.file_analyzer` replaces the items of `analyzers` by `{type: object, discriminator: name, variants: {<analyzer>: …}}`, one variant per registered analyzer.
 
 `GET /integrations/{id}` returns the stored configuration twice to its editors: `configYaml` and `configValues` (the same values, structured), so that an integration written in YAML reopens in the form with its values. A configuration refused by the tree (or by `validateConfiguration()` when it sets the path of its `InvalidConfigurationException`, e.g. `root.attribute`) answers a 422 whose violation `propertyPath` points to the option (`config.minConfidence`, `config.analyzers.0.name`), reported under the matching field.
+
+## Secrets & variables
+
+A string value of the configuration can refer to a named value instead of holding it: `${NAME}` (or the older `$NAME`), alone or within a text (`https://${HOST}/api`). `IntegrationConfig` resolves the references of the first-level keys when the integration reads its configuration, in the workspace of the integration (the instance ones for an instance-wide integration, without falling back from a workspace to the instance), in this order:
+
+1. a **secret** (`WorkspaceSecret`) of that name;
+2. a **variable** (`WorkspaceEnv`) of that name;
+3. the environment variable `PWI_<NAME>` of the instance;
+4. an empty string otherwise.
+
+A secret is encrypted with a libsodium sealed box: the API only has the public key (it encrypts, never decrypts, and never returns the value), the workers hold the secret key and decrypt it when they run the integration. A variable is stored in clear and managed in the admin only.
+
+| Endpoint | Rights |
+| --- | --- |
+| `GET /workspace-secrets?workspace={id}` | edit the workspace (`EDIT`): even the names are of use to the editors only |
+| `GET /workspace-secrets?global=true` | administrators (instance secrets) |
+| `GET /workspace-secrets/{id}` | as above, for the workspace of the secret |
+| `POST /workspace-secrets` (`workspace` IRI or `null`, `name`, `value`) | as above |
+| `PATCH /workspace-secrets/{id}` (`value`) | as above |
+| `DELETE /workspace-secrets/{id}` | as above |
+| `GET /workspace-envs?workspace={id}` / `?global=true` | as above, names only (a variable may still hold sensitive data) |
+
+The listings need `workspace` or `global` (400 otherwise), sort by name and accept `limit`/`page`. The value is write only, and the name cannot change once created (the references would silently break): a `PATCH` replaces the value, a different `name` answers 400. A name matches `^[A-Za-z_][A-Za-z0-9_]*$` (100 characters at most), so that both reference forms resolve it, and is unique in its workspace, instance secrets included (validated, as SQL does not compare `NULL` workspaces). Deleting a secret still referenced is allowed: the references then resolve to a variable, `PWI_<NAME>` or nothing.
+
+In the configuration form, every plain text field switches between **Value** and **Reference**:
+
+- a value which is a reference as a whole opens as a Reference, any other (mixed ones included) as a Value; switching mode empties the field;
+- in Reference mode, the name is typed (stored as `${NAME}`) or picked among the secrets and variables of the scope, and a new secret can be created; a line under the field tells whether the name is a secret, a variable, or defined nowhere (then resolved from `PWI_<NAME>` or empty). An editor of the integration (ACL) who cannot edit the workspace gets the free typing only;
+- in Value mode, a `secret` field offers **Save as secret**: the typed value becomes a secret (named after the key, `apiKey` → `API_KEY`), and the field its reference.
+
+The secrets are managed in the **Secrets** tab of the workspace (`/workspaces/:id/manage/secrets`: names, the integrations referring to them, value replaced but never shown, deletion), and in the **Instance secrets** tab of the instance integrations screen for the administrators. The variables are only listed there.
 
 ## Exhaustive integration list
 

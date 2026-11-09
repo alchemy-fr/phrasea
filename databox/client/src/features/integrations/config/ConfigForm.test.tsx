@@ -10,16 +10,36 @@ import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {useState} from 'react';
 import {createI18n} from '@/i18n';
+import {ApiError} from '@alchemy/next-ui/utils/errors';
 import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {ConfigForm} from './ConfigForm';
 import type {ConfigObjectSchema, ConfigValues} from './schema';
 
-const {auth, oauthApi} = vi.hoisted(() => ({
+const {auth, oauthApi, secretsApi} = vi.hoisted(() => ({
     auth: {canViewOAuthClients: false, canManageOAuthClients: false},
     oauthApi: {getOAuthClients: vi.fn(), createOAuthClient: vi.fn()},
+    secretsApi: {
+        secretsQueryKey: 'workspace-secrets',
+        envsQueryKey: 'workspace-envs',
+        getWorkspaceSecrets: vi.fn(),
+        getWorkspaceEnvs: vi.fn(),
+        postWorkspaceSecret: vi.fn(),
+        putWorkspaceSecret: vi.fn(),
+        deleteWorkspaceSecret: vi.fn(),
+    },
 }));
 vi.mock('@/lib/auth/AuthProvider', () => ({useAuth: () => auth}));
 vi.mock('@/lib/api/oauthClients', () => oauthApi);
+vi.mock('@/lib/api/secrets', () => secretsApi);
+
+function page<T>(items: T[]) {
+    return {items, total: items.length};
+}
+
+beforeEach(() => {
+    secretsApi.getWorkspaceSecrets.mockResolvedValue(page([]));
+    secretsApi.getWorkspaceEnvs.mockResolvedValue(page([]));
+});
 
 // Used by the Radix popover and cmdk, missing from jsdom
 globalThis.ResizeObserver ??= class {
@@ -146,7 +166,9 @@ function renderForm(props: {
     render(
         <I18nextProvider i18n={createI18n('en')}>
             <QueryClientProvider client={new QueryClient()}>
-                <Harness {...props} onChange={onChange} />
+                <ModalProvider>
+                    <Harness {...props} onChange={onChange} />
+                </ModalProvider>
             </QueryClientProvider>
         </I18nextProvider>
     );
@@ -447,5 +469,149 @@ describe('ConfigForm OAuth client field', () => {
         fireEvent.click(screen.getByRole('button', {name: 'Create'}));
 
         await waitFor(() => expect(last()).toEqual({clientId: 'expose-prod'}));
+    });
+});
+
+describe('ConfigForm secret references', () => {
+    const apiKeyInput = () =>
+        screen.getByLabelText('API key') as HTMLInputElement;
+    const modeTab = (mode: 'value' | 'reference') =>
+        screen.getByTestId(`config-mode-${mode}-apiKey`);
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        secretsApi.getWorkspaceSecrets.mockResolvedValue(
+            page([
+                {
+                    id: 's1',
+                    name: 'BG_KEY',
+                    createdAt: '',
+                    updatedAt: '',
+                },
+            ])
+        );
+        secretsApi.getWorkspaceEnvs.mockResolvedValue(
+            page([{id: 'e1', name: 'BASE_URL'}])
+        );
+    });
+
+    it('opens a reference in reference mode, with the name only', async () => {
+        renderForm({initial: {apiKey: '${BG_KEY}'}});
+
+        expect(modeTab('reference').getAttribute('aria-selected')).toBe('true');
+        expect(apiKeyInput().value).toBe('BG_KEY');
+        await waitFor(() =>
+            expect(screen.getByTestId('secret-ref-status').textContent).toBe(
+                'Secret'
+            )
+        );
+        expect(secretsApi.getWorkspaceSecrets).toHaveBeenCalledWith(
+            {workspaceId: 'ws'},
+            expect.anything()
+        );
+    });
+
+    it('opens a literal value in value mode, masked for a secret', () => {
+        renderForm({initial: {apiKey: 'plain-key'}});
+
+        expect(modeTab('value').getAttribute('aria-selected')).toBe('true');
+        expect(apiKeyInput().type).toBe('password');
+        expect(apiKeyInput().value).toBe('plain-key');
+    });
+
+    it('keeps a value mixing text and references in value mode', () => {
+        renderForm({initial: {apiKey: 'https://${HOST}/x'}});
+
+        expect(modeTab('value').getAttribute('aria-selected')).toBe('true');
+        expect(apiKeyInput().value).toBe('https://${HOST}/x');
+    });
+
+    it('empties the field when switching mode', () => {
+        const {last} = renderForm({initial: {apiKey: 'plain-key'}});
+
+        fireEvent.mouseDown(modeTab('reference'));
+        expect(last()).toEqual({});
+        expect(modeTab('reference').getAttribute('aria-selected')).toBe('true');
+        fireEvent.change(apiKeyInput(), {target: {value: 'MY_KEY'}});
+        expect(last()).toEqual({apiKey: '${MY_KEY}'});
+
+        fireEvent.mouseDown(modeTab('value'));
+        expect(last()).toEqual({});
+    });
+
+    it('writes the reference to the secret picked in the list', async () => {
+        const {last} = renderForm({initial: {apiKey: '$OLD_KEY'}});
+        expect(apiKeyInput().value).toBe('OLD_KEY');
+
+        fireEvent.click(screen.getByTestId('secret-ref-choose'));
+        await waitFor(() =>
+            expect(screen.getByTestId('secret-ref-secret-BG_KEY')).toBeTruthy()
+        );
+        // Variables are offered too
+        expect(screen.getByTestId('secret-ref-env-BASE_URL')).toBeTruthy();
+
+        fireEvent.click(screen.getByTestId('secret-ref-secret-BG_KEY'));
+        expect(last()).toEqual({apiKey: '${BG_KEY}'});
+    });
+
+    it('tells a typed name is defined nowhere', async () => {
+        renderForm({initial: {apiKey: '${MISSING}'}});
+
+        await waitFor(() =>
+            expect(
+                screen.getByTestId('secret-ref-status').textContent
+            ).toContain('PWI_MISSING')
+        );
+    });
+
+    it('saves a typed secret as a secret of the workspace', async () => {
+        secretsApi.postWorkspaceSecret.mockImplementation(async d => ({
+            id: 's2',
+            name: d.name,
+            workspace: '/workspaces/ws',
+            createdAt: '',
+            updatedAt: '',
+        }));
+        const {last} = renderForm({initial: {apiKey: 'plain-key'}});
+
+        const save = await screen.findByTestId('config-save-secret-apiKey');
+        fireEvent.click(save);
+        const name = (await screen.findByLabelText('Name', {
+            selector: '#create-secret-name',
+        })) as HTMLInputElement;
+        expect(name.value).toBe('API_KEY');
+        fireEvent.click(screen.getByRole('button', {name: 'Create'}));
+
+        await waitFor(() => expect(last()).toEqual({apiKey: '${API_KEY}'}));
+        expect(secretsApi.postWorkspaceSecret).toHaveBeenCalledWith({
+            workspaceId: 'ws',
+            name: 'API_KEY',
+            value: 'plain-key',
+        });
+        expect(modeTab('reference').getAttribute('aria-selected')).toBe('true');
+    });
+
+    it('keeps the free typing, quietly, when the listing is forbidden', async () => {
+        const forbidden = new ApiError('Forbidden', 403, {});
+        secretsApi.getWorkspaceSecrets.mockRejectedValue(forbidden);
+        secretsApi.getWorkspaceEnvs.mockRejectedValue(forbidden);
+        const {last} = renderForm({initial: {apiKey: '${BG_KEY}'}});
+
+        await waitFor(() =>
+            expect(screen.queryByTestId('secret-ref-choose')).toBeNull()
+        );
+        expect(screen.getByTestId('secret-ref-status').textContent).toBe(
+            'Reference to a workspace secret or variable'
+        );
+        expect(screen.queryByText(/Forbidden/)).toBeNull();
+
+        fireEvent.change(apiKeyInput(), {target: {value: 'OTHER_KEY'}});
+        expect(last()).toEqual({apiKey: '${OTHER_KEY}'});
+
+        // Nor any secret to create from a value
+        fireEvent.mouseDown(modeTab('value'));
+        fireEvent.change(apiKeyInput(), {target: {value: 'plain'}});
+        expect(apiKeyInput().value).toBe('plain');
+        expect(screen.queryByTestId('config-save-secret-apiKey')).toBeNull();
     });
 });
