@@ -7,11 +7,8 @@ namespace App\Elasticsearch\Listener;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Service\Asset\Attribute\AttributeValueResolver;
-use Elastic\Elasticsearch\Traits\EndpointTrait;
-use Elastica\Index\Settings;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
-use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -20,10 +17,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 readonly class PopulateListener implements EventSubscriberInterface
 {
-    use EndpointTrait;
-
     public function __construct(
-        private IndexManager $indexManager,
         private CacheInterface $fosPopulateCache,
         private AssetPermissionComputer $assetPermissionComputer,
         private TemporaryCacheFactory $temporaryCacheFactory,
@@ -33,12 +27,6 @@ readonly class PopulateListener implements EventSubscriberInterface
 
     public function preIndexPopulate(PreIndexPopulateEvent $event): void
     {
-        $index = $this->indexManager->getIndex($event->getIndex());
-        $settings = $index->getSettings();
-        if ($settings->getIndex()->exists()) {
-            $settings->setRefreshInterval('-1');
-        }
-
         if ($this->fosPopulateCache instanceof CacheItemPoolInterface) {
             $this->fosPopulateCache->clear();
         }
@@ -53,16 +41,6 @@ readonly class PopulateListener implements EventSubscriberInterface
         $this->assetPermissionComputer->disableWorkspaceCache();
         $this->assetPermissionComputer->disableAssetCache();
         $this->attributeValueResolver->reset();
-
-        $index = $this->indexManager->getIndex($event->getIndex());
-
-        $request = $this->createRequest(
-            'POST',
-            '_forcemerge?max_num_segments=5',
-            [],
-        );
-        $index->getClient()->sendRequest($request);
-        $index->getSettings()->setRefreshInterval(Settings::DEFAULT_REFRESH_INTERVAL);
     }
 
     /**
