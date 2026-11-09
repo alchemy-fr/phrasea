@@ -78,6 +78,7 @@
     "upload.drop_here": "Suelte los archivos aquí…",
     "upload.drop_multiple": "Arrastre archivos aquí o haga clic para seleccionarlos",
     "upload.drop_single": "Arrastre un archivo aquí o haga clic para seleccionarlo",
+    "upload.drop_to_add": "Suelte los archivos para añadirlos al envío",
     "upload.duplicates_one": "{{count}} archivo ya estaba seleccionado: se ha ignorado.",
     "upload.duplicates_other": "{{count}} archivos ya estaban seleccionados: se han ignorado.",
     "upload.edit_form": "Editar el formulario",

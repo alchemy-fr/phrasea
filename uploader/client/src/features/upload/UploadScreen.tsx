@@ -1,6 +1,13 @@
 'use client';
 
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {
+    ReactNode,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import Link from 'next/link';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
@@ -39,6 +46,7 @@ import {targetsQueryKey} from '@/features/targets/TargetListScreen';
 import type {QueueSnapshot, UploadQueue} from './engine/UploadQueue';
 import {FileSelectionStep} from './FileSelectionStep';
 import {MetadataFormStep} from './MetadataFormStep';
+import {PreviewCacheProvider} from './previewCache';
 import {FileTile} from './FileTile';
 import {checkBatch} from './limits';
 import {useBatchIssueMessage, useFileDrop} from './useFileDrop';
@@ -94,6 +102,10 @@ export function UploadScreen({targetId}: {targetId: string}) {
     const [sent, setSent] = useState<Sent>({files: [], notify: false});
     const [showFiles, setShowFiles] = useState(false);
     const committing = useRef(false);
+    const uploadFiles = useMemo(
+        () => [...files, ...snapshot.items.map(i => i.file)],
+        [files, snapshot.items]
+    );
 
     useUnsavedChangesPrompt(files.length > 0 && step !== 'done');
 
@@ -233,234 +245,245 @@ export function UploadScreen({targetId}: {targetId: string}) {
     );
 
     return (
-        <Page title={target.data.name}>
-            {target.data.description ? (
-                <p
-                    data-testid="target-description"
-                    className="-mt-4 mb-6 text-sm whitespace-pre-line text-muted-foreground"
-                >
-                    {target.data.description}
-                </p>
-            ) : null}
-
-            <Stepper
-                step={step}
-                withForm={withForm}
-                uploadPercent={snapshot.complete ? undefined : percent}
-            />
-
-            {step === 'select' ? (
-                <>
-                    {schema.error ? (
-                        <Alert variant="destructive" className="mb-4">
-                            {getErrorMessage(schema.error)}
-                        </Alert>
-                    ) : null}
-                    <FileSelectionStep
-                        targetId={targetId}
-                        files={files}
-                        onChange={setFiles}
-                        onNext={startUpload}
-                        nextDisabled={schema.isPending || !!schema.error}
-                        withForm={withForm}
-                    />
-                </>
-            ) : null}
-
-            {step === 'form' && schema.data ? (
-                <div className="flex flex-col gap-4">
-                    <p className="text-sm text-muted-foreground">
-                        {snapshot.complete
-                            ? t(
-                                  'upload.form_hint_done',
-                                  'Your files have arrived: only this information is left.'
-                              )
-                            : t(
-                                  'upload.form_hint',
-                                  'Your files are being sent while you fill in this information.'
-                              )}
+        <PreviewCacheProvider files={uploadFiles}>
+            <Page title={target.data.name}>
+                {target.data.description ? (
+                    <p
+                        data-testid="target-description"
+                        className="-mt-4 mb-6 text-sm whitespace-pre-line text-muted-foreground"
+                    >
+                        {target.data.description}
                     </p>
-                    {batchStatus}
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            data-testid="toggle-files"
-                            aria-expanded={showFiles}
-                            onClick={() => setShowFiles(v => !v)}
-                        >
-                            {showFiles ? (
-                                <ChevronUpIcon />
-                            ) : (
-                                <ChevronDownIcon />
-                            )}
-                            {showFiles
-                                ? t('upload.hide_files', 'Hide the files')
-                                : t('upload.show_files', {
-                                      defaultValue_one: 'Show the file',
-                                      defaultValue_other:
-                                          'Show the {{count}} files',
-                                      count: snapshot.items.length,
-                                  })}
-                        </Button>
-                        <AddFilesButton queue={queue} snapshot={snapshot} />
-                    </div>
-                    {showFiles ? batchFiles : null}
-                    <div className="mt-2 border-t pt-6">
-                        <MetadataFormStep
-                            targetId={targetId}
-                            schema={schema.data}
-                            initialValues={formData}
-                            onCancel={cancel}
-                            onSubmit={values => {
-                                setFormData(values);
-                                setStep('progress');
-                            }}
-                        />
-                    </div>
-                </div>
-            ) : null}
+                ) : null}
 
-            {step === 'progress' ? (
-                <div
-                    className="flex flex-col gap-4"
-                    data-testid="upload-progress"
-                >
-                    {batchStatus}
-                    {withForm &&
-                    !snapshot.complete &&
-                    commitState.status === 'idle' ? (
+                <Stepper
+                    step={step}
+                    withForm={withForm}
+                    uploadPercent={snapshot.complete ? undefined : percent}
+                />
+
+                {step === 'select' ? (
+                    <>
+                        {schema.error ? (
+                            <Alert variant="destructive" className="mb-4">
+                                {getErrorMessage(schema.error)}
+                            </Alert>
+                        ) : null}
+                        <FileSelectionStep
+                            targetId={targetId}
+                            files={files}
+                            onChange={setFiles}
+                            onNext={startUpload}
+                            nextDisabled={schema.isPending || !!schema.error}
+                            withForm={withForm}
+                        />
+                    </>
+                ) : null}
+
+                {step === 'form' && schema.data ? (
+                    <BatchDropzone
+                        queue={queue}
+                        snapshot={snapshot}
+                        className="flex flex-col gap-4"
+                    >
                         <p className="text-sm text-muted-foreground">
-                            {t(
-                                'upload.finalize_hint',
-                                'Your information is saved: the upload will be finalized as soon as every file has arrived.'
-                            )}
+                            {snapshot.complete
+                                ? t(
+                                      'upload.form_hint_done',
+                                      'Your files have arrived: only this information is left.'
+                                  )
+                                : t(
+                                      'upload.form_hint',
+                                      'Your files are being sent while you fill in this information.'
+                                  )}
                         </p>
-                    ) : null}
-                    {batchFiles}
-                    {commitState.status === 'error' ? (
-                        <Alert
-                            variant="destructive"
-                            data-testid="commit-error"
-                            title={t(
-                                'upload.commit_failed',
-                                'The upload could not be finalized'
-                            )}
-                        >
-                            <div className="flex flex-col gap-3">
-                                <span className="whitespace-pre-line">
-                                    {commitState.message}
-                                </span>
-                                <div className="flex flex-wrap gap-2">
-                                    <Button
-                                        size="sm"
-                                        data-testid="commit-retry"
-                                        onClick={() => {
-                                            setCommitState({status: 'idle'});
-                                        }}
-                                    >
-                                        <RotateCwIcon />{' '}
-                                        {t('upload.commit_retry', 'Retry')}
-                                    </Button>
-                                    {schema.data ? (
+                        {batchStatus}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                data-testid="toggle-files"
+                                aria-expanded={showFiles}
+                                onClick={() => setShowFiles(v => !v)}
+                            >
+                                {showFiles ? (
+                                    <ChevronUpIcon />
+                                ) : (
+                                    <ChevronDownIcon />
+                                )}
+                                {showFiles
+                                    ? t('upload.hide_files', 'Hide the files')
+                                    : t('upload.show_files', {
+                                          defaultValue_one: 'Show the file',
+                                          defaultValue_other:
+                                              'Show the {{count}} files',
+                                          count: snapshot.items.length,
+                                      })}
+                            </Button>
+                            <AddFilesButton queue={queue} snapshot={snapshot} />
+                        </div>
+                        {showFiles ? batchFiles : null}
+                        <div className="mt-2 border-t pt-6">
+                            <MetadataFormStep
+                                targetId={targetId}
+                                schema={schema.data}
+                                initialValues={formData}
+                                onCancel={cancel}
+                                onSubmit={values => {
+                                    setFormData(values);
+                                    setStep('progress');
+                                }}
+                            />
+                        </div>
+                    </BatchDropzone>
+                ) : null}
+
+                {step === 'progress' ? (
+                    <div
+                        className="flex flex-col gap-4"
+                        data-testid="upload-progress"
+                    >
+                        {batchStatus}
+                        {withForm &&
+                        !snapshot.complete &&
+                        commitState.status === 'idle' ? (
+                            <p className="text-sm text-muted-foreground">
+                                {t(
+                                    'upload.finalize_hint',
+                                    'Your information is saved: the upload will be finalized as soon as every file has arrived.'
+                                )}
+                            </p>
+                        ) : null}
+                        {batchFiles}
+                        {commitState.status === 'error' ? (
+                            <Alert
+                                variant="destructive"
+                                data-testid="commit-error"
+                                title={t(
+                                    'upload.commit_failed',
+                                    'The upload could not be finalized'
+                                )}
+                            >
+                                <div className="flex flex-col gap-3">
+                                    <span className="whitespace-pre-line">
+                                        {commitState.message}
+                                    </span>
+                                    <div className="flex flex-wrap gap-2">
                                         <Button
                                             size="sm"
-                                            variant="outline"
+                                            data-testid="commit-retry"
                                             onClick={() => {
                                                 setCommitState({
                                                     status: 'idle',
                                                 });
-                                                setStep('form');
                                             }}
                                         >
-                                            <PencilIcon />{' '}
-                                            {t(
-                                                'upload.edit_form',
-                                                'Edit the form'
-                                            )}
+                                            <RotateCwIcon />{' '}
+                                            {t('upload.commit_retry', 'Retry')}
                                         </Button>
-                                    ) : null}
+                                        {schema.data ? (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => {
+                                                    setCommitState({
+                                                        status: 'idle',
+                                                    });
+                                                    setStep('form');
+                                                }}
+                                            >
+                                                <PencilIcon />{' '}
+                                                {t(
+                                                    'upload.edit_form',
+                                                    'Edit the form'
+                                                )}
+                                            </Button>
+                                        ) : null}
+                                    </div>
                                 </div>
-                            </div>
-                        </Alert>
-                    ) : null}
-                    <div>
-                        <Button
-                            variant="outline"
-                            data-testid="upload-cancel"
-                            disabled={commitState.status === 'pending'}
-                            onClick={cancel}
-                        >
-                            {t('upload.cancel', 'Cancel')}
-                        </Button>
-                    </div>
-                </div>
-            ) : null}
-
-            {step === 'done' ? (
-                <div className="flex flex-col gap-4" data-testid="upload-done">
-                    <Alert
-                        variant="success"
-                        icon={<CheckIcon />}
-                        title={t('upload.done_title', {
-                            defaultValue_one: '{{count}} file sent',
-                            defaultValue_other: '{{count}} files sent',
-                            count: sent.files.length,
-                        })}
-                    >
-                        {t('upload.done', {
-                            defaultValue_one:
-                                'Your file was delivered to {{target}}.',
-                            defaultValue_other:
-                                'Your files were delivered to {{target}}.',
-                            count: sent.files.length,
-                            target: target.data.name,
-                        })}
-                        {sent.notify
-                            ? ` ${t(
-                                  'upload.done_notify',
-                                  'You will be notified once they are processed.'
-                              )}`
-                            : null}
-                    </Alert>
-                    <ul
-                        data-testid="sent-files"
-                        className="divide-y rounded-md border text-sm"
-                    >
-                        {sent.files.map((f, i) => (
-                            <li
-                                key={i}
-                                className="flex items-center justify-between gap-3 px-3 py-2"
-                            >
-                                <span className="truncate">{f.name}</span>
-                                <span className="shrink-0 text-muted-foreground">
-                                    {formatFileSize(f.size)}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                    <div className="flex flex-wrap gap-2">
-                        <Button data-testid="upload-again" onClick={reset}>
-                            <UploadCloudIcon />{' '}
-                            {t('upload.send_more', 'Send more files')}
-                        </Button>
-                        {targets.data && targets.data.length > 1 ? (
-                            <Button variant="outline" asChild>
-                                <Link
-                                    href={routes.home()}
-                                    data-testid="other-target"
-                                >
-                                    {t(
-                                        'upload.other_target',
-                                        'Choose another destination'
-                                    )}
-                                </Link>
-                            </Button>
+                            </Alert>
                         ) : null}
+                        <div>
+                            <Button
+                                variant="outline"
+                                data-testid="upload-cancel"
+                                disabled={commitState.status === 'pending'}
+                                onClick={cancel}
+                            >
+                                {t('upload.cancel', 'Cancel')}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            ) : null}
-        </Page>
+                ) : null}
+
+                {step === 'done' ? (
+                    <div
+                        className="flex flex-col gap-4"
+                        data-testid="upload-done"
+                    >
+                        <Alert
+                            variant="success"
+                            icon={<CheckIcon />}
+                            title={t('upload.done_title', {
+                                defaultValue_one: '{{count}} file sent',
+                                defaultValue_other: '{{count}} files sent',
+                                count: sent.files.length,
+                            })}
+                        >
+                            {t('upload.done', {
+                                defaultValue_one:
+                                    'Your file was delivered to {{target}}.',
+                                defaultValue_other:
+                                    'Your files were delivered to {{target}}.',
+                                count: sent.files.length,
+                                target: target.data.name,
+                            })}
+                            {sent.notify
+                                ? ` ${t(
+                                      'upload.done_notify',
+                                      'You will be notified once they are processed.'
+                                  )}`
+                                : null}
+                        </Alert>
+                        <ul
+                            data-testid="sent-files"
+                            className="divide-y rounded-md border text-sm"
+                        >
+                            {sent.files.map((f, i) => (
+                                <li
+                                    key={i}
+                                    className="flex items-center justify-between gap-3 px-3 py-2"
+                                >
+                                    <span className="truncate">{f.name}</span>
+                                    <span className="shrink-0 text-muted-foreground">
+                                        {formatFileSize(f.size)}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="flex flex-wrap gap-2">
+                            <Button data-testid="upload-again" onClick={reset}>
+                                <UploadCloudIcon />{' '}
+                                {t('upload.send_more', 'Send more files')}
+                            </Button>
+                            {targets.data && targets.data.length > 1 ? (
+                                <Button variant="outline" asChild>
+                                    <Link
+                                        href={routes.home()}
+                                        data-testid="other-target"
+                                    >
+                                        {t(
+                                            'upload.other_target',
+                                            'Choose another destination'
+                                        )}
+                                    </Link>
+                                </Button>
+                            ) : null}
+                        </div>
+                    </div>
+                ) : null}
+            </Page>
+        </PreviewCacheProvider>
     );
 }
 
@@ -584,18 +607,16 @@ function BatchAlerts({
     );
 }
 
-/** Adds files to a batch already being sent, within the same limits */
-function AddFilesButton({
-    queue,
-    snapshot,
-}: {
-    queue: UploadQueue;
-    snapshot: QueueSnapshot;
-}) {
-    const {t} = useTranslation();
+/** A dropzone adding files to a batch already being sent, within the same limits */
+function useBatchFileDrop(
+    queue: UploadQueue,
+    snapshot: QueueSnapshot,
+    options: Parameters<typeof useFileDrop>[2]
+) {
     const {upload} = useConfig();
     const issueMessage = useBatchIssueMessage();
-    const {getInputProps, open} = useFileDrop(
+
+    return useFileDrop(
         snapshot.items.map(i => i.file),
         (files, added) => {
             const issues = checkBatch(files, upload);
@@ -606,8 +627,22 @@ function AddFilesButton({
             }
             queue.add(added);
         },
-        {noDrag: true}
+        {...options, disabled: upload.maxFileCount === 1}
     );
+}
+
+function AddFilesButton({
+    queue,
+    snapshot,
+}: {
+    queue: UploadQueue;
+    snapshot: QueueSnapshot;
+}) {
+    const {t} = useTranslation();
+    const {upload} = useConfig();
+    const {getInputProps, open} = useBatchFileDrop(queue, snapshot, {
+        noDrag: true,
+    });
 
     if (upload.maxFileCount === 1) {
         return null;
@@ -625,6 +660,52 @@ function AddFilesButton({
                 <PlusIcon /> {t('upload.add_files', 'Add files')}
             </Button>
         </>
+    );
+}
+
+/** Files dropped anywhere on its content join the batch being sent */
+function BatchDropzone({
+    queue,
+    snapshot,
+    className,
+    children,
+}: {
+    queue: UploadQueue;
+    snapshot: QueueSnapshot;
+    className?: string;
+    children: ReactNode;
+}) {
+    const {t} = useTranslation();
+    const {getRootProps, isDragActive} = useBatchFileDrop(queue, snapshot, {
+        noClick: true,
+        noKeyboard: true,
+    });
+
+    return (
+        <div
+            {...getRootProps({
+                'data-testid': 'batch-dropzone',
+                'className': cn('relative', className),
+            } as React.HTMLAttributes<HTMLElement>)}
+        >
+            {children}
+            {isDragActive ? (
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute -inset-2 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-primary bg-background/90 text-muted-foreground"
+                >
+                    <div className="flex flex-col items-center gap-2 text-center">
+                        <UploadCloudIcon className="size-10 text-primary" />
+                        <p className="font-medium text-foreground">
+                            {t(
+                                'upload.drop_to_add',
+                                'Drop the files to add them to the upload'
+                            )}
+                        </p>
+                    </div>
+                </div>
+            ) : null}
+        </div>
     );
 }
 

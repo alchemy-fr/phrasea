@@ -177,6 +177,7 @@
     "upload.drop_here": "Drop the files here…",
     "upload.drop_multiple": "Drag files here, or click to select them",
     "upload.drop_single": "Drag a file here, or click to select one",
+    "upload.drop_to_add": "Drop the files to add them to the upload",
     "upload.duplicates_one": "{{count}} file was already selected: it was left out.",
     "upload.duplicates_other": "{{count}} files were already selected: they were left out.",
     "upload.edit_form": "Edit the form",

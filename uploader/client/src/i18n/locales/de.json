@@ -78,6 +78,7 @@
     "upload.drop_here": "Dateien hier ablegen…",
     "upload.drop_multiple": "Dateien hierher ziehen oder klicken, um sie auszuwählen",
     "upload.drop_single": "Datei hierher ziehen oder klicken, um sie auszuwählen",
+    "upload.drop_to_add": "Dateien ablegen, um sie dem Upload hinzuzufügen",
     "upload.duplicates_one": "{{count}} Datei war bereits ausgewählt und wurde ignoriert.",
     "upload.duplicates_other": "{{count}} Dateien waren bereits ausgewählt und wurden ignoriert.",
     "upload.edit_form": "Formular bearbeiten",
