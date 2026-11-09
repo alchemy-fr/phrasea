@@ -1,6 +1,10 @@
 'use client';
 
-import {useDropzone, type FileRejection} from 'react-dropzone';
+import {
+    useDropzone,
+    type DropzoneOptions,
+    type FileRejection,
+} from 'react-dropzone';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import {useConfig} from '@/lib/config/ConfigProvider';
@@ -22,7 +26,10 @@ const MAX_LISTED_NAMES = 5;
 export function useFileDrop(
     files: File[],
     onSelect: (files: File[], added: File[]) => void,
-    {noDrag}: {noDrag?: boolean} = {}
+    options: Pick<
+        DropzoneOptions,
+        'noDrag' | 'noClick' | 'noKeyboard' | 'disabled'
+    > = {}
 ) {
     const {t} = useTranslation();
     const {upload} = useConfig();
@@ -123,7 +130,7 @@ export function useFileDrop(
         accept: toDropzoneAccept(upload.allowedTypes),
         maxSize: upload.maxFileSize,
         multiple: !single,
-        noDrag,
+        ...options,
         onDrop: (accepted, rejections) => {
             reportRejections(rejections);
             if (accepted.length === 0) {

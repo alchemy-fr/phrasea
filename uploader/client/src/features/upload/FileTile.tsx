@@ -1,6 +1,5 @@
 'use client';
 
-import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     AlertCircleIcon,
@@ -16,42 +15,9 @@ import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {formatFileSize} from '@/lib/utils/format';
-import {
-    FileKind,
-    getFileKind,
-    getMimeTypeFromFile,
-} from '@alchemy/next-ui/utils/mime';
+import {getMimeTypeFromFile} from '@alchemy/next-ui/utils/mime';
 import type {UploadStatus} from './engine/UploadQueue';
-
-/** Images larger than this are not previewed: decoding them costs too much */
-export const PREVIEW_MAX_SIZE = 15 * 1024 * 1024;
-
-/**
- * An object URL of the file when it is an image small enough to be previewed,
- * and a callback to give up on it when the browser cannot decode the format
- * (PSD, HEIC, TIFF… depending on the browser).
- */
-function useImagePreview(file: File): [string | undefined, () => void] {
-    const previewable =
-        getFileKind(getMimeTypeFromFile(file)) === FileKind.Image &&
-        file.size < PREVIEW_MAX_SIZE;
-    const [url, setUrl] = useState<string>();
-
-    useEffect(() => {
-        if (!previewable) {
-            return;
-        }
-        const objectUrl = URL.createObjectURL(file);
-        setUrl(objectUrl);
-
-        return () => {
-            URL.revokeObjectURL(objectUrl);
-            setUrl(undefined);
-        };
-    }, [file, previewable]);
-
-    return [url, () => setUrl(undefined)];
-}
+import {usePreview} from './previewCache';
 
 type Props = {
     file: File;
@@ -76,7 +42,7 @@ export function FileTile({
     onRetry,
 }: Props) {
     const {t} = useTranslation();
-    const [preview, dropPreview] = useImagePreview(file);
+    const [preview, dropPreview] = usePreview(file);
     const percent =
         status === 'done'
             ? 100
@@ -96,14 +62,14 @@ export function FileTile({
                 status === 'offline' && 'border-warning'
             )}
         >
-            <div className="relative flex aspect-square items-center justify-center bg-muted">
+            <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-muted">
                 {preview ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                         src={preview}
                         alt=""
                         data-testid="file-preview"
-                        className="size-full object-cover"
+                        className="absolute inset-0 size-full object-cover"
                         onError={dropPreview}
                     />
                 ) : (
