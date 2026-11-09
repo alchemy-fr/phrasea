@@ -17,6 +17,7 @@ use ApiPlatform\Metadata\QueryParameter;
 use App\DataProvider\TargetDataProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -50,13 +51,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Table]
 #[ORM\Entity]
+#[UniqueEntity(fields: ['slug'])]
 class Target extends AbstractUuidEntity implements \Stringable
 {
     final public const string GROUP_INDEX = 'target:i';
     final public const string GROUP_READ = 'target:r';
     public const string GROUP_WRITE = 'target:w';
 
-    #[Groups([self::GROUP_INDEX])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
     #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
     protected ?string $slug = null;
@@ -64,7 +66,7 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 1000)]
     #[Assert\Length(max: 1000)]
     #[Assert\NotBlank]
-    #[Groups([self::GROUP_INDEX, FormSchema::GROUP_INDEX, TargetParams::GROUP_INDEX])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE, FormSchema::GROUP_INDEX, TargetParams::GROUP_INDEX])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
@@ -75,7 +77,7 @@ class Target extends AbstractUuidEntity implements \Stringable
     private bool $hidden = false;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([self::GROUP_INDEX])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -108,7 +110,7 @@ class Target extends AbstractUuidEntity implements \Stringable
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups([self::GROUP_INDEX])]
-    private readonly \DateTimeImmutable $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\OneToOne(mappedBy: 'target', targetEntity: TargetParams::class)]
     private ?TargetParams $targetParams = null;
