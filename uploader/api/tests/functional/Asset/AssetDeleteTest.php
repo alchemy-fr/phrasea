@@ -64,6 +64,7 @@ class AssetDeleteTest extends AbstractUploaderTestCase
         $em->persist($commit);
         $em->flush();
         $em->getRepository(Asset::class)->attachCommit([$this->asset->getId()], $commit->getId());
+        $em->refresh($this->asset);
 
         $response = $this->requestDelete(KeycloakClientTestMock::USER_UID);
 
