@@ -14,3 +14,8 @@ export const databoxApiUrl = Cypress.expose('DATABOX_API_URL');
 export const databoxClientId = Cypress.expose('DATABOX_CLIENT_ID');
 export const databoxAdminClientId = Cypress.expose('DATABOX_ADMIN_CLIENT_ID');
 export const databoxAdminClientSecret = Cypress.expose('DATABOX_ADMIN_CLIENT_SECRET');
+
+// Uploader
+export const uploaderUrl = Cypress.expose('UPLOADER_CLIENT_URL');
+export const uploaderApiUrl = Cypress.expose('UPLOADER_API_URL');
+export const uploaderClientId = Cypress.expose('UPLOADER_CLIENT_ID');
