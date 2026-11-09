@@ -13,7 +13,7 @@ import {Slider} from '@alchemy/next-ui/ui/controls';
 import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
 import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {Masonry} from '@/components/ui/masonry';
-import {FileTypeChip} from '@/components/chips';
+import {FileTypeChip} from '@alchemy/next-ui/ui/file-icon';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {formatFileSize} from '@/lib/utils/format';
 import {cn} from '@alchemy/next-ui/utils/cn';

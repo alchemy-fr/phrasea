@@ -12,7 +12,7 @@ import {multipartUpload} from '@/lib/api/upload';
 import {patchAsset} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useConfig} from '@/lib/config/ConfigProvider';
-import {toDropzoneAccept} from '@/lib/utils/mime';
+import {toDropzoneAccept} from '@alchemy/next-ui/utils/mime';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function ReplaceSourceDialog({

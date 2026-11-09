@@ -5,10 +5,6 @@ import {useTranslation} from 'react-i18next';
 import {
     AlertCircleIcon,
     CheckCircle2Icon,
-    FileIcon,
-    FileTextIcon,
-    FileVideoIcon,
-    FileAudioIcon,
     Loader2Icon,
     RotateCwIcon,
     WifiOffIcon,
@@ -16,9 +12,14 @@ import {
 } from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {formatFileSize} from '@/lib/utils/format';
-import {FileKind, getFileKind, getMimeTypeFromFile} from '@/lib/utils/mime';
+import {
+    FileKind,
+    getFileKind,
+    getMimeTypeFromFile,
+} from '@alchemy/next-ui/utils/mime';
 import type {UploadStatus} from './engine/UploadQueue';
 
 /** Images larger than this are not previewed: decoding them costs too much */
@@ -46,14 +47,6 @@ function useImagePreview(file: File): string | undefined {
     return url;
 }
 
-const kindIcons = {
-    [FileKind.Video]: FileVideoIcon,
-    [FileKind.Audio]: FileAudioIcon,
-    [FileKind.Document]: FileTextIcon,
-    [FileKind.Image]: FileIcon,
-    [FileKind.Unknown]: FileIcon,
-};
-
 type Props = {
     file: File;
     /** Upload state; none while the file is only selected */
@@ -78,7 +71,6 @@ export function FileTile({
 }: Props) {
     const {t} = useTranslation();
     const preview = useImagePreview(file);
-    const Icon = kindIcons[getFileKind(getMimeTypeFromFile(file))];
     const percent =
         status === 'done'
             ? 100
@@ -107,7 +99,7 @@ export function FileTile({
                         className="size-full object-cover"
                     />
                 ) : (
-                    <Icon className="size-10 text-muted-foreground" />
+                    <FileFamilyIcon mimeType={getMimeTypeFromFile(file)} />
                 )}
                 {status && status !== 'done' ? (
                     // Veil shrinking from the right as the file is sent

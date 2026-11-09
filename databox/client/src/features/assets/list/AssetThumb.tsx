@@ -4,10 +4,10 @@ import {type CSSProperties, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {LayersIcon, ScanSearchIcon, Trash2Icon} from 'lucide-react';
 import type {Asset} from '@/types/api';
-import {FileKindIcon, FileTypeChip} from '@/components/chips';
+import {FileFamilyIcon, FileTypeChip} from '@alchemy/next-ui/ui/file-icon';
 import {useDisplayPreferences} from '@/features/preferences/store';
 import {cn} from '@alchemy/next-ui/utils/cn';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {usePreview} from '@/features/assets/list/preview/PreviewProvider';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
@@ -226,7 +226,7 @@ export function AssetThumb({
         >
             {pending && source ? (
                 <div className="flex flex-col items-center gap-2">
-                    <FileKindIcon mimeType={source.type} />
+                    <FileFamilyIcon mimeType={source.type} />
                     <AnalysisChip file={source} />
                 </div>
             ) : url ? (
@@ -253,7 +253,7 @@ export function AssetThumb({
                     renderImage()
                 )
             ) : (
-                <FileKindIcon
+                <FileFamilyIcon
                     mimeType={source?.type}
                     className="size-1/3 opacity-60"
                 />

@@ -2,7 +2,7 @@
 
 import {useEffect, useRef} from 'react';
 import type {Asset} from '@/types/api';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {
     isMediaTrackingEnabled,
     trackContentImpression,

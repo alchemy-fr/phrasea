@@ -11,7 +11,7 @@ import {LabeledControl, Slider, Switch} from '@alchemy/next-ui/ui/controls';
 import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {toastError} from '@alchemy/next-ui/utils/errors';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';

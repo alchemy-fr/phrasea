@@ -18,7 +18,7 @@ import {
 } from '@/lib/utils/format';
 import {Highlight} from '@/components/ui/highlight';
 import {pickTranslation} from '@/lib/utils/locale';
-import {FileFamily} from '@/lib/utils/mime';
+import {FileFamily} from '@alchemy/next-ui/utils/mime';
 import {
     AssetStatusChip,
     CollectionChip,

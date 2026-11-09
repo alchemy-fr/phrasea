@@ -31,7 +31,7 @@ import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {CopyButton} from '@/components/ui/copy-button';
 import {Badge} from '@alchemy/next-ui/ui/misc';
 import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {FileKindIcon} from '@/components/chips';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -836,7 +836,7 @@ function ShareAssets({
                                     className="size-full object-cover"
                                 />
                             ) : (
-                                <FileKindIcon
+                                <FileFamilyIcon
                                     mimeType={type}
                                     className="size-5"
                                 />

@@ -13,7 +13,7 @@ import {Button} from '@alchemy/next-ui/ui/button';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {Separator} from '@alchemy/next-ui/ui/misc';
-import {FileTypeChip} from '@/components/chips';
+import {FileTypeChip} from '@alchemy/next-ui/ui/file-icon';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {AttributeList} from '@/features/attributes/AttributeList';
 import {formatFileSize} from '@/lib/utils/format';

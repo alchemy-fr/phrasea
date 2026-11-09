@@ -4,9 +4,9 @@ import {useEffect, useState} from 'react';
 import dynamic from 'next/dynamic';
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {cn} from '@alchemy/next-ui/utils/cn';
-import {FileKindIcon} from '@/components/ui/file-icon';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {Spinner} from '@alchemy/next-ui/ui/loader';
 import {
     contentClick,
@@ -105,7 +105,7 @@ export function AssetPlayer({
                     className
                 )}
             >
-                <FileKindIcon mimeType={asset.mimeType} className="size-20" />
+                <FileFamilyIcon mimeType={asset.mimeType} className="size-20" />
             </div>
         );
     }
@@ -184,7 +184,7 @@ export function AssetPlayer({
                 className
             )}
         >
-            <FileKindIcon mimeType={type} className="size-20" />
+            <FileFamilyIcon mimeType={type} className="size-20" />
         </div>
     );
 }

@@ -7,7 +7,7 @@ import {
     type UploadPart,
 } from '@alchemy/api';
 import {api, isApiError} from './http';
-import {getMimeTypeFromFile} from '@/lib/utils/mime';
+import {getMimeTypeFromFile} from '@alchemy/next-ui/utils/mime';
 
 export type {MultipartUpload, UploadPart};
 

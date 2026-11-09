@@ -9,7 +9,7 @@ import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Textarea} from '@alchemy/next-ui/ui/input';
 import {CopyButton} from '@/components/ui/copy-button';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {getShareUrl} from './ShareDialog';
 
 export function EmbedDialog({
