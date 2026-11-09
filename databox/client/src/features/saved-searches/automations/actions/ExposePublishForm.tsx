@@ -14,14 +14,20 @@ import {
     getExposeProfiles,
     getExposePublications,
 } from '@/lib/api/expose';
-import {AsyncCombobox, type ComboOption} from '@/components/form/AsyncCombobox';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {type ModalProps, useModals} from '@/components/modals/ModalProvider';
-import {Button} from '@/components/ui/button';
-import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
-import {FieldError, FormRow, Input, Textarea} from '@/components/ui/input';
-import {InlineLoader} from '@/components/ui/loader';
-import {SimpleSelect} from '@/components/ui/select';
+import {
+    AsyncCombobox,
+    type ComboOption,
+} from '@alchemy/next-ui/form/AsyncCombobox';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {
+    type ModalProps,
+    useModals,
+} from '@alchemy/next-ui/modals/ModalProvider';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {FieldError, FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 import {useIntegrationAuth} from '@/features/integrations/useIntegrationAuth';
 import type {ActionDefinition, ActionFormProps} from './types';
