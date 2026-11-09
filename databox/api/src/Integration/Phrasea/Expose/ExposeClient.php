@@ -177,7 +177,7 @@ final readonly class ExposeClient
             }
 
             return array_merge([
-                'name' => $resolvedName,
+                'title' => $resolvedName,
                 'description' => $description,
                 'tracking_id' => $asset->getResolvedTrackingId(),
                 'translations' => $translations,
@@ -286,7 +286,7 @@ final readonly class ExposeClient
         AssetRendition $rendition,
         array $extraData = [],
         ?MediaClip $clip = null,
-    ): void {
+    ): string {
         $file = $rendition->getFile();
         $subDefFetchedFile = $this->fileFetcher->getFile($file);
         try {
@@ -322,6 +322,8 @@ final readonly class ExposeClient
             @unlink($subDefFetchedFile);
             $this->mediaClipper->cleanUp();
         }
+
+        return $subDefResponse['id'];
     }
 
     public function deleteAsset(IntegrationConfig $config, IntegrationToken $integrationToken, string $assetId): void

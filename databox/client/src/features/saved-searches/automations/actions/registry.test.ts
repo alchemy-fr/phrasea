@@ -28,6 +28,7 @@ describe('automation actions registry', () => {
             'trigger_workflow',
             'trash',
             'set_privacy',
+            'expose_publish',
         ]);
         expect(getActionDefinition('unknown')).toBeUndefined();
     });
@@ -95,6 +96,18 @@ describe('automation actions registry', () => {
         expect(
             getActionDefinition('set_privacy')!.isComplete({privacy: 9})
         ).toBe(false);
+        expect(
+            getActionDefinition('expose_publish')!.isComplete({
+                integrationId: 'i1',
+                publicationId: '',
+            })
+        ).toBe(false);
+        expect(
+            getActionDefinition('expose_publish')!.isComplete({
+                integrationId: 'i1',
+                publicationId: 'p1',
+            })
+        ).toBe(true);
     });
 
     it('completes the remote export configurations', () => {
@@ -168,6 +181,26 @@ describe('automation actions registry', () => {
         expect(
             getActionDefinition('set_privacy')!.summary({privacy: 5}, t)
         ).toBe('Privacy: Public');
+        const exposePublish = getActionDefinition('expose_publish')!;
+        expect(
+            exposePublish.summary(
+                {publicationId: 'p1', publicationTitle: 'Press kit'},
+                t
+            )
+        ).toBe('Publish to Press kit');
+        expect(
+            exposePublish.summary(
+                {
+                    publicationId: 'p1',
+                    publicationTitle: 'Press kit',
+                    removeMissing: true,
+                },
+                t
+            )
+        ).toBe('Publish to Press kit (mirror)');
+        expect(exposePublish.summary(exposePublish.defaultConfig(), t)).toBe(
+            'Publish to Expose'
+        );
     });
 
     it('parses the email addresses', () => {

@@ -15,7 +15,6 @@ import {toast} from 'sonner';
 import type {Basket, IntegrationData, WorkspaceIntegration} from '@/types/api';
 import {
     getIntegrationsOfContext,
-    getIntegrationTokens,
     IntegrationContext,
     IntegrationObjectType,
     runIntegrationAction,
@@ -26,11 +25,10 @@ import {Button} from '@alchemy/next-ui/ui/button';
 import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
 import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
-import {useConfig} from '@/lib/config/ConfigProvider';
-import {getAuthClient} from '@/lib/auth/client';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 import {useIntegrationData} from '@/features/integrations/useIntegrationData';
+import {useIntegrationAuth} from '@/features/integrations/useIntegrationAuth';
 
 /**
  * Basket integrations (context `basket`), notably Phrasea Expose: OAuth
@@ -83,38 +81,6 @@ export function BasketIntegrations({basket}: {basket: Basket}) {
             ))}
         </div>
     );
-}
-
-function useIntegrationAuth(integration: WorkspaceIntegration) {
-    const config = useConfig();
-    const tokens = useQuery({
-        queryKey: ['integration-tokens', integration.id],
-        queryFn: () => getIntegrationTokens(integration.id),
-    });
-    const valid = (tokens.data?.items ?? []).some(tk => !tk.expired);
-
-    const authorize = async () => {
-        // A popup cannot carry the impersonation header: the authorization
-        // is always granted as the signed-in user.
-        const token = await getAuthClient().getAccessToken();
-        const url = `${config.apiUrl}/integrations/${integration.id}/auth?access_token=${encodeURIComponent(token ?? '')}`;
-        const popup = window.open(
-            url,
-            'integration-auth',
-            'width=600,height=700'
-        );
-        await new Promise<void>(resolve => {
-            const timer = setInterval(() => {
-                if (!popup || popup.closed) {
-                    clearInterval(timer);
-                    resolve();
-                }
-            }, 500);
-        });
-        await tokens.refetch();
-    };
-
-    return {authorized: valid, authorize, loading: tokens.isLoading};
 }
 
 function ExposeIntegration({

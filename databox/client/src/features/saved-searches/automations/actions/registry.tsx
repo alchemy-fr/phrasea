@@ -8,6 +8,7 @@ import {webhookAction} from './WebhookForm';
 import {triggerWorkflowAction} from './TriggerWorkflowForm';
 import {trashAction} from './TrashActionForm';
 import {setPrivacyAction} from './SetPrivacyForm';
+import {exposePublishAction} from './ExposePublishForm';
 import type {ActionDefinition} from './types';
 
 /**
@@ -25,6 +26,7 @@ export const actionRegistry = {
     trigger_workflow: triggerWorkflowAction,
     trash: trashAction,
     set_privacy: setPrivacyAction,
+    expose_publish: exposePublishAction,
 } satisfies Record<string, ActionDefinition>;
 
 export type ActionType = keyof typeof actionRegistry;

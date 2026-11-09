@@ -1,12 +1,14 @@
 import type {FC, ReactNode} from 'react';
 import type {TFunction} from 'i18next';
-import type {AutomationActionConfig} from '@/types/api';
+import type {AutomationActionConfig, AutomationScope} from '@/types/api';
 
 export type ActionFormProps = {
     value: AutomationActionConfig;
     onChange: (value: AutomationActionConfig) => void;
     /** Messages indexed by configuration key */
     errors?: Record<string, string>;
+    /** Scope of the automation, some options depend on it */
+    scope?: AutomationScope;
 };
 
 /**

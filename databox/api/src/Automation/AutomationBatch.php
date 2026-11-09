@@ -12,14 +12,29 @@ use App\Entity\Core\Asset;
 final readonly class AutomationBatch
 {
     /**
-     * @param Asset[] $assets
+     * @param Asset[]       $assets          the assets to process
+     * @param string[]      $matchedAssetIds the IDs of all the assets of the batch, including those failed by a previous action
+     * @param \Closure|null $keepAlive       extends the lock of the run
      */
     public function __construct(
         public array $assets,
         public array $config,
         public AutomationActionState $state,
         public AutomationRunContext $context,
+        public array $matchedAssetIds = [],
+        private ?\Closure $keepAlive = null,
     ) {
+    }
+
+    /**
+     * To call between the assets by an action which may take a while on each of them
+     * (e.g. uploads): the run is otherwise only kept alive between the batches.
+     */
+    public function keepAlive(): void
+    {
+        if (null !== $this->keepAlive) {
+            ($this->keepAlive)();
+        }
     }
 
     /**

@@ -174,7 +174,7 @@ final readonly class AutomationRunner
             $counts['new'] += $batch->newCount;
 
             if (!$context->dryRun && !empty($batch->assets)) {
-                $succeeded = $this->processBatch($batch->assets, $actions, $context);
+                $succeeded = $this->processBatch($batch->assets, $actions, $context, $lock);
                 $counts['processed'] += count($succeeded);
                 $counts['failed'] += count($batch->assets) - count($succeeded);
                 $this->seenAssetRepository->markSeen($automationId, $succeeded, $runId);
@@ -211,8 +211,10 @@ final readonly class AutomationRunner
      *
      * @return string[] the IDs of the assets every action succeeded on
      */
-    private function processBatch(array $assets, array $actions, AutomationRunContext $context): array
+    private function processBatch(array $assets, array $actions, AutomationRunContext $context, LockInterface $lock): array
     {
+        $matchedAssetIds = array_map(fn (Asset $asset): string => $asset->getId(), $assets);
+        $keepAlive = static fn () => $lock->refresh();
         $remaining = $assets;
         $aborted = false;
         foreach ($actions as $action) {
@@ -228,7 +230,7 @@ final readonly class AutomationRunner
             }
 
             try {
-                $action['action']->processBatch(new AutomationBatch($remaining, $action['config'], $state, $context));
+                $action['action']->processBatch(new AutomationBatch($remaining, $action['config'], $state, $context, $matchedAssetIds, $keepAlive));
             } catch (\Throwable $e) {
                 $this->logger->error(sprintf('Automation action "%s" failed: %s', $state->type, $e->getMessage()), [
                     'exception' => $e,

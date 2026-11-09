@@ -510,6 +510,7 @@ export function AutomationFormDialog({
                                         updateAction(action.key, config)
                                     }
                                     errors={errors.actions[i]}
+                                    scope={scope}
                                 />
                             ) : (
                                 <p className="text-xs text-muted-foreground">

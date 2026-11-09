@@ -129,7 +129,7 @@ class WorkspaceIntegrationTest extends AbstractDataboxTestCase
         $this->assertSame('Publishes baskets as public galleries on Phrasea Expose.', $data['description']);
         $this->assertSame(['publication'], $data['categories']);
         $this->assertFalse($data['requiresWorkspace']);
-        $this->assertSame(['basket'], $data['features']);
+        $this->assertSame(['basket', 'automation'], $data['features']);
     }
 
     public function testIntegrationTypeDescriptionIsTranslated(): void

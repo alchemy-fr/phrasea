@@ -6,6 +6,7 @@ namespace App\Api\Mapper\Input;
 
 use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\Model\Input\Automation\SavedSearchAutomationInput;
+use App\Automation\Action\ScopeAwareActionInterface;
 use App\Automation\ActionConfigSecretsHandler;
 use App\Automation\AutomationActionRegistry;
 use App\Automation\Schedule\CronHelper;
@@ -83,6 +84,9 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
         if (null !== $data->actions) {
             $object->setActions($this->mapActions($data->actions, $object->getActions()));
         }
+        if (null === $target || null !== $data->scope || null !== $data->actions) {
+            $this->checkScope($object, null !== $data->actions);
+        }
 
         if (null === $target || null !== $data->schedule || null !== $data->timezone || null !== $data->enabled) {
             $object->setNextRunAt($object->isEnabled() && null !== $object->getSchedule()
@@ -145,6 +149,36 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
         }
 
         return $mapped;
+    }
+
+    /**
+     * Some options of the actions depend on the scope of the automation.
+     *
+     * @param bool $actionsWritten whether to report the violations on the actions, or on the scope
+     */
+    private function checkScope(SavedSearchAutomation $automation, bool $actionsWritten): void
+    {
+        $violations = new ConstraintViolationList();
+        foreach ($automation->getActions() as $i => $definition) {
+            $type = (string) ($definition['type'] ?? '');
+            if (!$this->actionRegistry->has($type)) {
+                continue;
+            }
+            $action = $this->actionRegistry->get($type);
+            if (!$action instanceof ScopeAwareActionInterface) {
+                continue;
+            }
+
+            $config = $this->secretsHandler->decrypt($type, $definition['config'] ?? []);
+            foreach ($action->getScopeViolations($config, $automation->getScope()) as $key => $message) {
+                $path = $actionsWritten ? sprintf('actions[%d].config.%s', $i, $key) : 'scope';
+                $violations->add(new ConstraintViolation($message, $message, [], null, $path, null));
+            }
+        }
+
+        if (count($violations) > 0) {
+            throw new ValidationException($violations);
+        }
     }
 
     private static function throwViolation(string $path, string $message): never

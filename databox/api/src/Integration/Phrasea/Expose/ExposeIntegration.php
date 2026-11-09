@@ -252,6 +252,6 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
     #[\Override]
     public function getSupportedContexts(): array
     {
-        return [IntegrationContext::Basket];
+        return [IntegrationContext::Basket, IntegrationContext::Automation];
     }
 }
