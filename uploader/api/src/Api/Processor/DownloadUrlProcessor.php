@@ -45,8 +45,10 @@ final class DownloadUrlProcessor implements ProcessorInterface
         $this->denyAccessUnlessGranted(TargetVoter::UPLOAD, $target);
 
         $request = $this->requestStack->getCurrentRequest();
-        if (null !== $data->formData) {
-            $errors = $this->formValidator->validateForm($data->formData, $target, $request);
+        $formData = $data->formData;
+        if (null !== $formData) {
+            $formData = $this->formValidator->prepareData($formData, $target, $request);
+            $errors = $this->formValidator->validateForm($formData, $target, $request);
             if (!empty($errors)) {
                 return new JsonResponse(['errors' => $errors]);
             }
@@ -59,7 +61,7 @@ final class DownloadUrlProcessor implements ProcessorInterface
             $request->getLocale() ?? $request->getDefaultLocale(),
             $data->schemaId,
             $data->data,
-            $data->formData,
+            $formData,
         ));
 
         return new JsonResponse(true);

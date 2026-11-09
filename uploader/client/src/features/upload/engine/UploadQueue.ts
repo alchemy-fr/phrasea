@@ -163,6 +163,29 @@ export class UploadQueue {
         this.pump();
     }
 
+    /** Sends every failed file again */
+    retryFailed(): void {
+        if (!this.items.some(i => i.status === 'error')) {
+            return;
+        }
+        this.items = this.items.map(i =>
+            i.status === 'error'
+                ? {...i, status: 'queued', attempts: 0, error: undefined}
+                : i
+        );
+        this.emit();
+        this.pump();
+    }
+
+    /** Drops every failed file from the batch; none of them is running */
+    removeFailed(): void {
+        const items = this.items.filter(i => i.status !== 'error');
+        if (items.length !== this.items.length) {
+            this.items = items;
+            this.emit();
+        }
+    }
+
     /** Drops a file from the batch, stopping its transfer */
     remove(id: string): void {
         this.stop(id);

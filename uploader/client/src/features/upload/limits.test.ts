@@ -43,16 +43,22 @@ describe('mergeSelection', () => {
     it('adds the dropped files, once', () => {
         const a = file('a', 1);
         const b = file('b', 1);
-        expect(
-            mergeSelection([a], [file('a', 1), b], {}).map(f => f.name)
-        ).toEqual(['a', 'b']);
+        const {files, duplicates} = mergeSelection(
+            [a],
+            [file('a', 1), b, file('b', 1)],
+            {}
+        );
+        expect(files.map(f => f.name)).toEqual(['a', 'b']);
+        expect(duplicates).toBe(2);
     });
 
     it('replaces the selection in single file mode', () => {
-        expect(
-            mergeSelection([file('a', 1)], [file('b', 1)], {
-                maxFileCount: 1,
-            }).map(f => f.name)
-        ).toEqual(['b']);
+        const {files, duplicates} = mergeSelection(
+            [file('a', 1)],
+            [file('b', 1)],
+            {maxFileCount: 1}
+        );
+        expect(files.map(f => f.name)).toEqual(['b']);
+        expect(duplicates).toBe(0);
     });
 });

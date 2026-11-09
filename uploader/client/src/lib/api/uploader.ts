@@ -12,6 +12,13 @@ import type {
     UploaderUser,
 } from '@/types/api';
 import type {LiFormSchema} from '@/features/liform/types';
+import type {
+    DataboxField,
+    DataboxWorkspace,
+    FieldOptionsPage,
+    FieldOptionsQuery,
+    FormDefinition,
+} from '@/features/form-builder/types';
 import type {MultipartUpload} from './upload';
 
 export function iri(resource: 'targets' | 'form-schemas', id: string): string {
@@ -85,9 +92,12 @@ export async function getTargetFormSchema(
             `/targets/${targetId}/form-schema`
         );
 
-        return schema && typeof schema === 'object' && schema.data
-            ? schema
-            : null;
+        if (!schema || typeof schema !== 'object' || !schema.data) {
+            return null;
+        }
+
+        // Schemas saved before the builder existed have no format
+        return {...schema, format: schema.format ?? 'liform'} as FormSchema;
     } catch (e) {
         if (isApiError(e, 404)) {
             return null;
@@ -163,8 +173,10 @@ export type FormSchemaInput = {
     target: string;
     locale: string | null;
     localeMode: LocaleMode;
-    data: LiFormSchema;
-};
+} & (
+    | {format: 'liform'; data: LiFormSchema}
+    | {format: 'builder'; data: FormDefinition}
+);
 
 export async function getFormSchemas(): Promise<FormSchema[]> {
     const first = api
@@ -191,6 +203,78 @@ export function saveFormSchema(
 
 export function deleteFormSchema(id: string): Promise<void> {
     return api.delete(`/form-schemas/${id}`);
+}
+
+// -- Databox, read through the uploader API ------------------------------
+
+function optionsParams(query: FieldOptionsQuery) {
+    return {
+        query: query.query || undefined,
+        ids: query.ids?.length ? query.ids : undefined,
+        page: query.page && query.page > 1 ? query.page : undefined,
+    };
+}
+
+/** The values of an entity or tag field of the target's form */
+export function getFormFieldOptions(
+    targetId: string,
+    key: string,
+    query: FieldOptionsQuery
+): Promise<FieldOptionsPage> {
+    return api.get<FieldOptionsPage>(
+        `/targets/${targetId}/form-fields/${encodeURIComponent(key)}/options`,
+        {params: optionsParams(query)}
+    );
+}
+
+export function getDataboxWorkspaces(): Promise<DataboxWorkspace[]> {
+    return api.get<DataboxWorkspace[]>('/databox/workspaces');
+}
+
+export function getDataboxWorkspace(id: string): Promise<DataboxWorkspace> {
+    return api.get<DataboxWorkspace>(`/databox/workspaces/${id}`);
+}
+
+/** The attributes of the workspace an uploader can fill */
+export function getDataboxFields(workspaceId: string): Promise<DataboxField[]> {
+    return api.get<DataboxField[]>(`/databox/workspaces/${workspaceId}/fields`);
+}
+
+export function getDataboxEntityValues(
+    entityListId: string,
+    query: FieldOptionsQuery
+): Promise<FieldOptionsPage> {
+    return api.get<FieldOptionsPage>(
+        `/databox/entity-lists/${entityListId}/values`,
+        {params: optionsParams(query)}
+    );
+}
+
+export function getDataboxTags(
+    workspaceId: string,
+    query: FieldOptionsQuery
+): Promise<FieldOptionsPage> {
+    return api.get<FieldOptionsPage>(
+        `/databox/workspaces/${workspaceId}/tags`,
+        {
+            params: optionsParams(query),
+        }
+    );
+}
+
+/** The Databox collection the target uploads to by default, if any */
+export async function getTargetDestination(
+    targetId: string
+): Promise<{id: string; title: string; workspaceId: string | null} | null> {
+    const res = await api.get<{
+        collection: {
+            id: string;
+            title: string;
+            workspaceId: string | null;
+        } | null;
+    }>(`/databox/targets/${targetId}/destination`);
+
+    return res.collection;
 }
 
 // -- Admin: target params ------------------------------------------------

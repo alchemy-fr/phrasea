@@ -5,6 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {
     AlertCircleIcon,
     CheckCircle2Icon,
+    ClockIcon,
     Loader2Icon,
     RotateCwIcon,
     WifiOffIcon,
@@ -25,7 +26,12 @@ import type {UploadStatus} from './engine/UploadQueue';
 /** Images larger than this are not previewed: decoding them costs too much */
 export const PREVIEW_MAX_SIZE = 15 * 1024 * 1024;
 
-function useImagePreview(file: File): string | undefined {
+/**
+ * An object URL of the file when it is an image small enough to be previewed,
+ * and a callback to give up on it when the browser cannot decode the format
+ * (PSD, HEIC, TIFF… depending on the browser).
+ */
+function useImagePreview(file: File): [string | undefined, () => void] {
     const previewable =
         getFileKind(getMimeTypeFromFile(file)) === FileKind.Image &&
         file.size < PREVIEW_MAX_SIZE;
@@ -44,7 +50,7 @@ function useImagePreview(file: File): string | undefined {
         };
     }, [file, previewable]);
 
-    return url;
+    return [url, () => setUrl(undefined)];
 }
 
 type Props = {
@@ -70,7 +76,7 @@ export function FileTile({
     onRetry,
 }: Props) {
     const {t} = useTranslation();
-    const preview = useImagePreview(file);
+    const [preview, dropPreview] = useImagePreview(file);
     const percent =
         status === 'done'
             ? 100
@@ -96,22 +102,31 @@ export function FileTile({
                     <img
                         src={preview}
                         alt=""
+                        data-testid="file-preview"
                         className="size-full object-cover"
+                        onError={dropPreview}
                     />
                 ) : (
                     <FileFamilyIcon mimeType={getMimeTypeFromFile(file)} />
                 )}
-                {status && status !== 'done' ? (
-                    // Veil shrinking from the right as the file is sent
+                {status ? (
+                    // Veil shrinking from the right as the file is sent; kept
+                    // once done so that it slides out instead of vanishing
                     <div
                         aria-hidden
-                        className="absolute inset-y-0 right-0 bg-background/70 transition-[width] duration-300"
+                        data-testid="file-progress-veil"
+                        className="absolute inset-y-0 right-0 bg-white opacity-70 transition-[width] duration-600 ease-[ease]"
                         style={{width: `${100 - percent}%`}}
                     />
                 ) : null}
                 <div className="absolute top-1 left-1 flex items-center gap-1">
                     {status === 'done' ? (
                         <CheckCircle2Icon className="size-5 rounded-full bg-background text-success" />
+                    ) : status === 'queued' ? (
+                        <ClockIcon
+                            aria-hidden
+                            className="size-5 rounded-full bg-background p-0.5 text-muted-foreground"
+                        />
                     ) : status === 'uploading' || status === 'retrying' ? (
                         <Loader2Icon className="size-5 animate-spin rounded-full bg-background p-0.5 text-primary" />
                     ) : status === 'offline' ? (
@@ -127,6 +142,7 @@ export function FileTile({
                         </Tooltip>
                     ) : null}
                 </div>
+                {/* The tile may sit in a dropzone, which opens the file picker on click */}
                 <div className="absolute top-1 right-1 flex gap-1">
                     {onRetry && failed ? (
                         <Button
@@ -135,7 +151,10 @@ export function FileTile({
                             variant="secondary"
                             data-testid="file-retry"
                             aria-label={t('upload.file.retry', 'Retry')}
-                            onClick={onRetry}
+                            onClick={e => {
+                                e.stopPropagation();
+                                onRetry();
+                            }}
                         >
                             <RotateCwIcon />
                         </Button>
@@ -153,7 +172,10 @@ export function FileTile({
                                     name: file.name,
                                 }
                             )}
-                            onClick={onRemove}
+                            onClick={e => {
+                                e.stopPropagation();
+                                onRemove();
+                            }}
                         >
                             <XIcon />
                         </Button>
@@ -163,9 +185,11 @@ export function FileTile({
             <div className="flex flex-col gap-0.5 p-2 text-xs">
                 <span className="truncate font-medium">{file.name}</span>
                 <span className="text-muted-foreground">
-                    {status && status !== 'done'
-                        ? `${percent}% · ${formatFileSize(file.size)}`
-                        : formatFileSize(file.size)}
+                    {status === 'queued'
+                        ? `${t('upload.file.queued', 'Waiting')} · ${formatFileSize(file.size)}`
+                        : status && status !== 'done'
+                          ? `${percent}% · ${formatFileSize(file.size)}`
+                          : formatFileSize(file.size)}
                 </span>
                 {failed && error ? (
                     <span className="line-clamp-2 text-destructive">

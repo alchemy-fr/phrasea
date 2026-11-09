@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {render, screen} from '@testing-library/react';
+import {fireEvent, render, screen} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import {FileTile, PREVIEW_MAX_SIZE} from './FileTile';
@@ -30,14 +30,25 @@ describe('FileTile', () => {
     it('previews a small image', () => {
         renderTile(makeFile('a.jpg', 'image/jpeg', 1024));
 
-        expect(document.querySelector('img')).toBeTruthy();
+        expect(screen.getByTestId('file-preview')).toBeTruthy();
         expect(screen.queryByTestId('file-family-icon')).toBeNull();
     });
 
     it('shows the image icon of a too large image', () => {
         renderTile(makeFile('a.jpg', 'image/jpeg', PREVIEW_MAX_SIZE + 1));
 
-        expect(document.querySelector('img')).toBeNull();
+        expect(screen.queryByTestId('file-preview')).toBeNull();
+        expect(screen.getByTestId('file-family-icon').dataset.family).toBe(
+            'image'
+        );
+    });
+
+    it('shows the image icon when the browser cannot decode the image', () => {
+        renderTile(makeFile('a.psd', '', 1024));
+
+        fireEvent.error(screen.getByTestId('file-preview'));
+
+        expect(screen.queryByTestId('file-preview')).toBeNull();
         expect(screen.getByTestId('file-family-icon').dataset.family).toBe(
             'image'
         );

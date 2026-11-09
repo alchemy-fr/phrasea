@@ -14,12 +14,16 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Provider\TargetFormSchemaProvider;
+use App\Form\Builder\FormDefinition;
+use App\Form\Builder\InvalidFormDefinitionException;
 use App\Security\Voter\FormDataEditorVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'form-schema',
@@ -49,12 +53,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_target_locale', columns: ['locale', 'target_id'])]
+#[UniqueEntity(fields: ['target', 'locale'], message: 'Form schema for this target and locale already exists', ignoreNull: false)]
 #[ORM\Entity(repositoryClass: FormSchemaRepository::class)]
 class FormSchema extends AbstractUuidEntity implements AclObjectInterface
 {
     final public const int LOCALE_MODE_NO_LOCALE = 0;
     final public const int LOCALE_MODE_USE_UA = 1;
     final public const int LOCALE_MODE_FORCED = 2;
+
+    final public const string FORMAT_LIFORM = 'liform';
+    final public const string FORMAT_BUILDER = 'builder';
+    final public const array FORMATS = [self::FORMAT_LIFORM, self::FORMAT_BUILDER];
 
     public const string GROUP_INDEX = 'formschema:i';
     public const string GROUP_WRITE = 'formschema:w';
@@ -73,7 +82,13 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
     #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private int $localeMode = 0;
 
+    #[ORM\Column(type: Types::STRING, length: 20, options: ['default' => self::FORMAT_LIFORM])]
+    #[Assert\Choice(choices: self::FORMATS)]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
+    private string $format = self::FORMAT_LIFORM;
+
     #[ORM\Column(type: Types::JSON)]
+    #[Assert\NotBlank]
     #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private array $data = [];
 
@@ -105,6 +120,37 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
     public function setLocale(?string $locale): void
     {
         $this->locale = $locale;
+    }
+
+    public function getFormat(): string
+    {
+        return $this->format;
+    }
+
+    public function setFormat(string $format): void
+    {
+        $this->format = $format;
+    }
+
+    public function isBuilder(): bool
+    {
+        return self::FORMAT_BUILDER === $this->format;
+    }
+
+    #[Assert\Callback]
+    public function validateBuilderDefinition(ExecutionContextInterface $context): void
+    {
+        if (!$this->isBuilder()) {
+            return;
+        }
+
+        try {
+            FormDefinition::fromArray($this->data);
+        } catch (InvalidFormDefinitionException $e) {
+            $context->buildViolation($e->getMessage())
+                ->atPath('data'.($e->path ? '.'.$e->path : ''))
+                ->addViolation();
+        }
     }
 
     public function getData(): array

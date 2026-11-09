@@ -1,19 +1,25 @@
 'use client';
 
 import Link from 'next/link';
-import {useDropzone, type FileRejection} from 'react-dropzone';
 import {Trans, useTranslation} from 'react-i18next';
-import {toast} from 'sonner';
-import {ArrowRightIcon, UploadCloudIcon} from 'lucide-react';
+import {
+    ArrowRightIcon,
+    LinkIcon,
+    PlusIcon,
+    SendIcon,
+    Trash2Icon,
+    UploadCloudIcon,
+} from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Alert} from '@alchemy/next-ui/ui/misc';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {routes} from '@/lib/routes';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {formatFileSize} from '@/lib/utils/format';
-import {toDropzoneAccept} from '@alchemy/next-ui/utils/mime';
+import {describeAllowedTypes} from '@alchemy/next-ui/utils/mime';
 import {FileTile} from './FileTile';
-import {checkBatch, mergeSelection, totalSize, type BatchIssue} from './limits';
+import {checkBatch, totalSize} from './limits';
+import {useBatchIssueMessage, useFileDrop} from './useFileDrop';
 
 type Props = {
     targetId: string;
@@ -22,6 +28,8 @@ type Props = {
     onNext: () => void;
     /** The form schema of the target is not known yet */
     nextDisabled?: boolean;
+    /** A form follows; without one, the next step sends the batch */
+    withForm: boolean;
 };
 
 export function FileSelectionStep({
@@ -30,52 +38,18 @@ export function FileSelectionStep({
     onChange,
     onNext,
     nextDisabled,
+    withForm,
 }: Props) {
     const {t} = useTranslation();
     const {upload} = useConfig();
     const single = upload.maxFileCount === 1;
     const issues = checkBatch(files, upload);
+    const issueMessage = useBatchIssueMessage();
     const size = totalSize(files);
-
-    const reportRejections = (rejections: FileRejection[]) => {
-        for (const {file, errors} of rejections) {
-            const codes = errors.map(e => e.code);
-            if (codes.includes('file-too-large')) {
-                toast.error(
-                    t(
-                        'upload.file_too_large',
-                        'Size of {{filename}} is higher than the maximum allowed size ({{max}})',
-                        {
-                            filename: file.name,
-                            max: formatFileSize(upload.maxFileSize ?? 0),
-                        }
-                    )
-                );
-            } else if (codes.includes('file-invalid-type')) {
-                toast.error(
-                    t(
-                        'upload.file_type_not_allowed',
-                        '{{filename}} is not an allowed file type',
-                        {filename: file.name}
-                    )
-                );
-            } else if (!codes.includes('too-many-files')) {
-                toast.error(`${file.name}: ${errors[0]?.message ?? ''}`);
-            }
-        }
-    };
-
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({
-        accept: toDropzoneAccept(upload.allowedTypes),
-        maxSize: upload.maxFileSize,
-        multiple: !single,
-        onDrop: (accepted, rejections) => {
-            reportRejections(rejections);
-            if (accepted.length > 0) {
-                onChange(mergeSelection(files, accepted, upload));
-            }
-        },
-    });
+    const {getRootProps, getInputProps, isDragActive, open} = useFileDrop(
+        files,
+        onChange
+    );
 
     return (
         <div className="flex flex-col gap-4">
@@ -98,7 +72,7 @@ export function FileSelectionStep({
                 {files.length === 0 ? (
                     <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
                         <UploadCloudIcon className="size-10" />
-                        <p>
+                        <p className="font-medium text-foreground">
                             {isDragActive
                                 ? t('upload.drop_here', 'Drop the files here…')
                                 : single
@@ -126,47 +100,69 @@ export function FileSelectionStep({
                                 }
                             />
                         ))}
+                        <li className="flex">
+                            <button
+                                type="button"
+                                data-testid="add-files"
+                                className="flex min-h-36 w-36 flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed p-2 text-center text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+                                onClick={e => {
+                                    // The dropzone would open the picker too
+                                    e.stopPropagation();
+                                    open();
+                                }}
+                            >
+                                <PlusIcon className="size-6" />
+                                {single
+                                    ? t(
+                                          'upload.replace_file',
+                                          'Choose another file'
+                                      )
+                                    : t('upload.add_files', 'Add files')}
+                            </button>
+                        </li>
                     </ul>
                 )}
             </div>
 
-            <div
-                data-testid="selection-summary"
-                className="flex flex-col gap-1 text-sm text-muted-foreground"
-            >
-                <span>
-                    {t('upload.selected_count', {
-                        defaultValue_one: '{{count}} file selected',
-                        defaultValue_other: '{{count}} files selected',
-                        count: files.length,
-                    })}
-                </span>
-                <span>
-                    {upload.maxCommitSize
-                        ? t(
-                              'upload.total_size_max',
-                              'Total size: {{size}} / {{max}}',
-                              {
-                                  size: formatFileSize(size),
-                                  max: formatFileSize(upload.maxCommitSize),
-                              }
-                          )
-                        : t('upload.total_size', 'Total size: {{size}}', {
-                              size: formatFileSize(size),
-                          })}
-                </span>
-                {upload.maxFileSize ? (
+            <UploadConstraints />
+
+            {files.length > 0 ? (
+                <div
+                    data-testid="selection-summary"
+                    className="flex flex-wrap items-center justify-between gap-2 text-sm"
+                >
                     <span>
-                        {t(
-                            'upload.max_file_size',
-                            'Maximum file size: {{max}}',
-                            {
-                                max: formatFileSize(upload.maxFileSize),
-                            }
-                        )}
+                        {t('upload.selected_count', {
+                            defaultValue_one: '{{count}} file selected',
+                            defaultValue_other: '{{count}} files selected',
+                            count: files.length,
+                        })}
+                        <span className="text-muted-foreground">
+                            {' · '}
+                            {upload.maxCommitSize
+                                ? t(
+                                      'upload.size_of_max',
+                                      '{{size}} of {{max}}',
+                                      {
+                                          size: formatFileSize(size),
+                                          max: formatFileSize(
+                                              upload.maxCommitSize
+                                          ),
+                                      }
+                                  )
+                                : formatFileSize(size)}
+                        </span>
                     </span>
-                ) : null}
-            </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        data-testid="remove-all"
+                        onClick={() => onChange([])}
+                    >
+                        <Trash2Icon /> {t('upload.remove_all', 'Remove all')}
+                    </Button>
+                </div>
+            ) : null}
 
             {issues.map(issue => (
                 <Alert
@@ -174,25 +170,28 @@ export function FileSelectionStep({
                     variant="destructive"
                     data-testid="batch-issue"
                 >
-                    <BatchIssueMessage issue={issue} />
+                    {issueMessage(issue)}
                 </Alert>
             ))}
 
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="text-sm text-muted-foreground">
-                    <Trans
-                        i18nKey="upload.or_download"
-                        defaults="or just <anchor>download</anchor> URLs"
-                        components={{
-                            anchor: (
-                                <Link
-                                    href={routes.download(targetId)}
-                                    data-testid="download-link"
-                                    className="font-medium text-primary underline-offset-4 hover:underline"
-                                />
-                            ),
-                        }}
-                    />
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <LinkIcon className="size-4 shrink-0" />
+                    <span>
+                        <Trans
+                            i18nKey="upload.or_import_url"
+                            defaults="or <anchor>import a file from a URL</anchor>"
+                            components={{
+                                anchor: (
+                                    <Link
+                                        href={routes.download(targetId)}
+                                        data-testid="download-link"
+                                        className="font-medium text-primary underline-offset-4 hover:underline"
+                                    />
+                                ),
+                            }}
+                        />
+                    </span>
                 </span>
                 <Button
                     data-testid="selection-next"
@@ -201,31 +200,65 @@ export function FileSelectionStep({
                     }
                     onClick={onNext}
                 >
-                    {t('upload.next', 'Next')} <ArrowRightIcon />
+                    {withForm ? (
+                        <>
+                            {t('upload.next', 'Next')} <ArrowRightIcon />
+                        </>
+                    ) : (
+                        <>
+                            <SendIcon />{' '}
+                            {files.length > 0
+                                ? t('upload.send_files', {
+                                      defaultValue_one: 'Send {{count}} file',
+                                      defaultValue_other:
+                                          'Send {{count}} files',
+                                      count: files.length,
+                                  })
+                                : t('upload.send', 'Send')}
+                        </>
+                    )}
                 </Button>
             </div>
         </div>
     );
 }
 
-function BatchIssueMessage({issue}: {issue: BatchIssue}) {
+/** The limits of a batch, told before the files are chosen */
+function UploadConstraints() {
     const {t} = useTranslation();
+    const {upload} = useConfig();
+    const types = describeAllowedTypes(upload.allowedTypes);
+    const constraints = [
+        types
+            ? t('upload.accepted_types', 'Accepted types: {{types}}', {types})
+            : undefined,
+        upload.maxFileSize
+            ? t('upload.max_file_size', 'Up to {{max}} per file', {
+                  max: formatFileSize(upload.maxFileSize),
+              })
+            : undefined,
+        upload.maxFileCount && upload.maxFileCount > 1
+            ? t('upload.max_file_count', 'Up to {{max}} files per upload', {
+                  max: upload.maxFileCount,
+              })
+            : undefined,
+        upload.maxCommitSize
+            ? t('upload.max_commit_size', 'Up to {{max}} per upload', {
+                  max: formatFileSize(upload.maxCommitSize),
+              })
+            : undefined,
+    ].filter(Boolean);
 
-    switch (issue.type) {
-        case 'too_many_files':
-            return t(
-                'upload.too_many_files',
-                'You selected {{count}} files, at most {{max}} can be sent at once.',
-                {count: issue.count, max: issue.max}
-            );
-        case 'too_large_batch':
-            return t(
-                'upload.too_large_batch',
-                'The files weigh {{size}}, at most {{max}} can be sent at once.',
-                {
-                    size: formatFileSize(issue.size),
-                    max: formatFileSize(issue.max),
-                }
-            );
+    if (constraints.length === 0) {
+        return null;
     }
+
+    return (
+        <p
+            data-testid="upload-constraints"
+            className="-mt-2 text-xs text-muted-foreground"
+        >
+            {constraints.join(' · ')}
+        </p>
+    );
 }

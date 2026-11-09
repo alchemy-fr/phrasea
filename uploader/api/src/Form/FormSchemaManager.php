@@ -13,17 +13,11 @@ class FormSchemaManager
     {
     }
 
-    public function loadSchema(string $targetId, ?string $locale): array
+    public function loadSchema(string $targetId, ?string $locale): ?FormSchema
     {
-        $formSchema = $this
+        return $this
             ->em
             ->getRepository(FormSchema::class)
             ->getSchemaForLocale($targetId, $locale);
-
-        if (null === $formSchema) {
-            return [];
-        }
-
-        return $formSchema->getData();
     }
 }

@@ -37,7 +37,7 @@ import {
     SortableRow,
     sortableMeasuring,
     useSortableRow,
-} from '@/components/ui/sortable';
+} from '@alchemy/next-ui/ui/sortable';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 
 type Row = {name: string; label: string; hidden: boolean};

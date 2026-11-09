@@ -125,7 +125,7 @@ Documentation and example [form](../../tech/Uploader/form_config.md)
    
 Click on a Target.
 
-The form editor allows you to describe the form in JSON and see the instant rendering.
+The form editor builds the form by dragging the attributes of a Databox workspace (entity lists included), Databox values (name, tags, story), custom fields and sections, and shows its rendering. Forms described in JSON (LiForm) are still supported and can be converted to the builder.
 
 Example:
 

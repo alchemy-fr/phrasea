@@ -41,4 +41,3 @@ This prevents actual asset consumption and is useful for testing.
 - [Uploader Configuration](./configuration.md)
 - [Request Flow](./request_flow.md)
 - [Form Configuration](./form_config.md)
-- [Form Steps](./form-steps.md)

@@ -4,7 +4,7 @@ import {useId, useState} from 'react';
 import Link from 'next/link';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
-import {ArrowLeftIcon, CheckIcon, DownloadIcon} from 'lucide-react';
+import {ArrowLeftIcon, CheckIcon, LinkIcon} from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Alert} from '@alchemy/next-ui/ui/misc';
 import {Input, FormRow} from '@alchemy/next-ui/ui/input';
@@ -14,10 +14,13 @@ import {downloadUrl, getTarget, hasFormErrors} from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
-import {LiFormBody} from '@/features/liform/LiFormBody';
-import {fromServerErrors, useLiForm} from '@/features/liform/useLiForm';
 import {useTargetFormSchema} from '@/features/upload/UploadScreen';
-import type {LiFormSchema} from '@/features/liform/types';
+import {
+    UploadFormBody,
+    useTargetOptionsLoader,
+    useUploadForm,
+} from '@/features/upload/UploadForm';
+import type {FormSchema} from '@/types/api';
 
 export function isHttpUrl(value: string): boolean {
     try {
@@ -59,7 +62,7 @@ export function DownloadScreen({targetId}: {targetId: string}) {
 
     return (
         <Page
-            title={t('download.title', 'Download Asset')}
+            title={t('download.title', 'Import from a URL')}
             actions={
                 <Button variant="outline" asChild>
                     <Link href={routes.home()} data-testid="download-back">
@@ -71,7 +74,7 @@ export function DownloadScreen({targetId}: {targetId: string}) {
             <p className="mb-6 text-muted-foreground">
                 {t(
                     'download.subtitle',
-                    'Fill the form to download your asset into {{target}}.',
+                    'The file is fetched from its URL, then sent to {{target}}.',
                     {target: target.data.name}
                 )}
             </p>
@@ -81,7 +84,11 @@ export function DownloadScreen({targetId}: {targetId: string}) {
                     data-testid="download-done"
                 >
                     <Alert variant="success" icon={<CheckIcon />}>
-                        {t('download.done', 'Your file will be downloaded!')}
+                        {t(
+                            'download.done',
+                            'Import started: the file will be added to {{target}} once fetched. You can leave this page.',
+                            {target: target.data.name}
+                        )}
                     </Alert>
                     <div>
                         <Button
@@ -91,8 +98,8 @@ export function DownloadScreen({targetId}: {targetId: string}) {
                                 setDone(false);
                             }}
                         >
-                            <DownloadIcon />{' '}
-                            {t('download.another', 'Download Another')}
+                            <LinkIcon />{' '}
+                            {t('download.another', 'Import another file')}
                         </Button>
                     </div>
                 </div>
@@ -100,8 +107,7 @@ export function DownloadScreen({targetId}: {targetId: string}) {
                 <DownloadForm
                     key={round}
                     targetId={targetId}
-                    schema={schema.data?.data}
-                    schemaId={schema.data?.id}
+                    schema={schema.data}
                     onDone={() => setDone(true)}
                 />
             )}
@@ -112,17 +118,17 @@ export function DownloadScreen({targetId}: {targetId: string}) {
 function DownloadForm({
     targetId,
     schema,
-    schemaId,
     onDone,
 }: {
     targetId: string;
-    schema: LiFormSchema | undefined;
-    schemaId: string | undefined;
+    schema: FormSchema | null | undefined;
     onDone: () => void;
 }) {
     const {t} = useTranslation();
     const urlId = useId();
-    const form = useLiForm(schema);
+    const form = useUploadForm(schema);
+    const loadOptions = useTargetOptionsLoader(targetId);
+    const schemaId = schema?.id;
     const [url, setUrl] = useState('');
     const [urlError, setUrlError] = useState<string>();
     const [submitting, setSubmitting] = useState(false);
@@ -150,7 +156,7 @@ function DownloadForm({
                 schemaId,
             });
             if (hasFormErrors(errors)) {
-                form.setErrors(fromServerErrors(errors));
+                form.setServerErrors(errors);
                 setSubmitting(false);
 
                 return;
@@ -196,7 +202,11 @@ function DownloadForm({
                     onChange={e => setUrl(e.target.value)}
                 />
             </FormRow>
-            <LiFormBody form={form} disabled={submitting} />
+            <UploadFormBody
+                form={form}
+                loadOptions={loadOptions}
+                disabled={submitting}
+            />
             {error ? (
                 <Alert variant="destructive" className="mb-4">
                     {error}
@@ -213,7 +223,7 @@ function DownloadForm({
                     loading={submitting}
                     data-testid="download-submit"
                 >
-                    <DownloadIcon /> {t('download.submit', 'Download')}
+                    <LinkIcon /> {t('download.submit', 'Import')}
                 </Button>
             </div>
         </form>
