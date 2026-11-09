@@ -117,7 +117,9 @@ operator is not created again with the default password.
 Install, with the root `bin/setup.sh [preset...]`:
 
 1. start the infrastructure (`traefik minio rabbitmq db redis elasticsearch`,
-   plus `keycloak` unless `CONFIGURATOR_CONFIGURE_KEYCLOAK=false`);
+   plus `keycloak` unless `CONFIGURATOR_CONFIGURE_KEYCLOAK=false`), keeping only
+   the services of the active profiles: `bin/setup.sh` sets `COMPOSE_PROFILES`
+   itself, with every infrastructure profile;
 2. `pre-install` on the configurator (with `CONFIGURATOR_PRESETS` set from the
    arguments), then on the three APIs in parallel;
 3. `docker compose up -d`;
@@ -125,7 +127,9 @@ Install, with the root `bin/setup.sh [preset...]`:
 
 Upgrade, with the root `bin/migrate.sh`:
 
-1. start the infrastructure only (same list);
+1. start the infrastructure only (same list). `bin/migrate.sh` keeps your
+   `COMPOSE_PROFILES`: a service whose profile is not active (an external
+   database, search engine or bucket) is not started;
 2. `pre-upgrade` on the configurator, then on the APIs, in one-off containers
    (`docker compose run --rm`), so with the new images while the old containers
    may still run;
