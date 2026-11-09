@@ -7,6 +7,8 @@ namespace App\Tests\Functional\Api\Asset;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
@@ -253,6 +255,41 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(422);
+    }
+
+    public function testAMultipleDefinitionFilledFromTheNameIsIgnored(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        // Persisted without validation, like an inconsistent definition already in the database
+        $keywords = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Keywords',
+            'multiple' => true,
+            'no_flush' => true,
+        ]);
+        $keywords->setFillFromName(true);
+        self::getEntityManager()->flush();
+
+        $data = $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'name' => 'Sunset',
+        ])->toArray();
+
+        $this->assertResponseStatusCodeSame(201);
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertSame([], $em->getRepository(Attribute::class)->findBy(['definition' => $keywords->getId()]));
+
+        $nameDefinition = $em->getRepository(AttributeDefinition::class)->findOneBy([
+            'workspace' => $workspace->getId(),
+            'slug' => 'name',
+        ]);
+        $nameAttributes = $em->getRepository(Attribute::class)->findBy([
+            'definition' => $nameDefinition->getId(),
+            'asset' => $data['id'],
+        ]);
+        $this->assertCount(1, $nameAttributes);
+        $this->assertSame('Sunset', $nameAttributes[0]->getValue());
     }
 
     /**

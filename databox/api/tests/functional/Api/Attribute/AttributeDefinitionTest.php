@@ -446,6 +446,70 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(422);
     }
 
+    public function testAMultipleDefinitionCannotBeFilledFromOrUsedAsTheName(): void
+    {
+        $this->setUpScene();
+
+        $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
+            'multiple' => true,
+            'fillFromName' => true,
+        ]));
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['violations' => [['propertyPath' => 'fillFromName']]]);
+
+        $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
+            'multiple' => true,
+            'namePriority' => 1,
+        ]));
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['violations' => [['propertyPath' => 'namePriority']]]);
+
+        $response = $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
+            'multiple' => true,
+            'fillFromName' => false,
+        ]));
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertTrue($response->toArray()['multiple']);
+    }
+
+    public function testADefinitionFilledFromTheNameCannotBecomeMultiple(): void
+    {
+        $this->setUpScene();
+        $definition = $this->createAttributeDefinition(['name' => 'Title']);
+        $definition->setFillFromName(true);
+        $this->persistDefinition($definition);
+
+        $this->api('PATCH', '/attribute-definitions/'.$definition->getId(), self::USER, [
+            'multiple' => true,
+        ]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['violations' => [['propertyPath' => 'fillFromName']]]);
+
+        self::getEntityManager()->clear();
+        $this->assertFalse(self::getEntityManager()->find(AttributeDefinition::class, $definition->getId())->isMultiple());
+    }
+
+    public function testAnEntityDefinitionCannotBeTranslatable(): void
+    {
+        $this->setUpScene();
+        $list = $this->createEntityList(['name' => 'Colors']);
+
+        $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
+            'type' => EntityAttributeType::NAME,
+            'entityList' => '/entity-lists/'.$list->getId(),
+            'translatable' => true,
+        ]));
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['violations' => [['propertyPath' => 'translatable']]]);
+
+        $response = $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
+            'type' => EntityAttributeType::NAME,
+            'entityList' => '/entity-lists/'.$list->getId(),
+        ]));
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertFalse($response->toArray()['translatable']);
+    }
+
     public function testAnUnknownTypeIsRejected(): void
     {
         $this->markTestIncomplete('BUG: an unknown attribute type answers 500: AttributeDefinition::$type has no Choice constraint (src/Entity/Core/AttributeDefinition.php:202), so the definition is stored and AttributeTypeRegistry::getStrictType() throws when the output is built');
@@ -722,7 +786,8 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
             'name' => 'Color',
             'type' => EntityAttributeType::NAME,
             'list' => $list,
-            'multiple' => true,
+            // A multiple definition cannot be filled from the name, set below
+            'multiple' => false,
             'searchable' => false,
             'allow_invalid' => true,
             'fallback' => ['en' => '{{ file.filename }}'],

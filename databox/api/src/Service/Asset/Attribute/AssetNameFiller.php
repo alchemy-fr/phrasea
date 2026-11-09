@@ -10,10 +10,12 @@ use App\Attribute\AttributeValidator;
 use App\Entity\Core\Asset;
 use App\Model\AssetTypeEnum;
 use App\Repository\Core\AttributeDefinitionRepository;
+use Psr\Log\LoggerInterface;
 
 final readonly class AssetNameFiller
 {
     public function __construct(
+        private LoggerInterface $logger,
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeAssigner $attributeAssigner,
         private AttributeValidator $attributeValidator,
@@ -48,6 +50,11 @@ final readonly class AssetNameFiller
             }
 
             if (!$nameAttribute->isForTarget($target)) {
+                continue;
+            }
+
+            if ($nameAttribute->isMultiple()) {
+                $this->logger->warning(sprintf('Cannot fill multiple attribute definition "%s" from name', $nameAttribute->getId()));
                 continue;
             }
 

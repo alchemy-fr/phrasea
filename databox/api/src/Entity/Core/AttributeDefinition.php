@@ -29,6 +29,7 @@ use App\Api\Processor\DuplicateAttributeDefinitionProcessor;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\Sort\AttributeDefinitionSortProcessor;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\EntityAttributeType;
 use App\Audit\AuditableInterface;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\ErrorDisableInterface;
@@ -47,6 +48,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'attribute-definition',
@@ -897,5 +899,21 @@ class AttributeDefinition extends AbstractUuidEntity implements AuditableInterfa
     public function getOwnerId(): ?string
     {
         return $this->getWorkspace()?->getOwnerId();
+    }
+
+    #[Assert\Callback]
+    public function validateOptionsConsistency(ExecutionContextInterface $context): void
+    {
+        if ($this->multiple && ($this->fillFromName || null !== $this->namePriority)) {
+            $context->buildViolation('A multiple values attribute cannot be filled from or used as the asset name.')
+                ->atPath($this->fillFromName ? 'fillFromName' : 'namePriority')
+                ->addViolation();
+        }
+
+        if ($this->translatable && EntityAttributeType::NAME === $this->type) {
+            $context->buildViolation('An entity attribute cannot be translatable: translations come from the entity list.')
+                ->atPath('translatable')
+                ->addViolation();
+        }
     }
 }
