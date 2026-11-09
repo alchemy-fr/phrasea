@@ -52,13 +52,26 @@ function compose_up_services {
 
 # The infrastructure services the lifecycle phases need (see
 # doc/tech/Deployment/lifecycle.md), started before pre-install and pre-upgrade.
-# Keycloak is left out when its configuration is disabled.
+# Keycloak is left out when its configuration is disabled, and so is every service
+# whose profile is not active (an external database, search engine or bucket):
+# naming a service on the command line would start it whatever COMPOSE_PROFILES says.
 # Usage: docker compose up -d $(infra_services)
 function infra_services {
-  local services="traefik minio rabbitmq db redis elasticsearch"
+  local wanted="traefik minio rabbitmq db redis elasticsearch"
   if [ "${CONFIGURATOR_CONFIGURE_KEYCLOAK}" != "false" ]; then
-    services="${services} keycloak"
+    wanted="${wanted} keycloak"
   fi
+
+  local enabled
+  enabled=$(docker compose config --services)
+
+  local service
+  local services=""
+  for service in ${wanted}; do
+    if printf '%s\n' "${enabled}" | grep -qx "${service}"; then
+      services="${services} ${service}"
+    fi
+  done
   echo "${services}"
 }
 
