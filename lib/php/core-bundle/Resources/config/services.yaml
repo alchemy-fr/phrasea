@@ -20,5 +20,4 @@ services:
     Alchemy\CoreBundle\Listener\ClientExceptionListener: ~
     Alchemy\CoreBundle\Cache\TemporaryCacheFactory: ~
     Alchemy\CoreBundle\Command\DocumentationDumperCommand: ~
-    Alchemy\CoreBundle\Command\LifecycleStateCommand: ~
     Alchemy\CoreBundle\Upload\MultipartUploader: ~
