@@ -165,6 +165,8 @@ settings:
 overrides:
   i18next: 24.2.1
 
+packageExtensionsChecksum: sha256-VWyJeY8dqIKOySCkxUhHR3P1d8xms0/+YPsZawivLCw=
+
 importers:
 
   .:
@@ -325,13 +327,13 @@ importers:
         version: link:../../lib/js/next-ui
       '@dnd-kit/core':
         specifier: ^6.3.1
-        version: 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/sortable':
         specifier: ^10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 10.0.0(@dnd-kit/core@6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)
       '@dnd-kit/utilities':
         specifier: ^3.2.2
-        version: 3.2.2(react@19.3.1)
+        version: 3.2.2(@types/react@19.3.0)(react@19.3.1)
       '@emoji-mart/data':
         specifier: ^1.2.1
         version: 1.2.1
@@ -1008,13 +1010,13 @@ importers:
         version: link:../next-i18n
       '@dnd-kit/core':
         specifier: ^6.3.1
-        version: 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/sortable':
         specifier: ^10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 10.0.0(@dnd-kit/core@6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)
       '@dnd-kit/utilities':
         specifier: ^3.2.2
-        version: 3.2.2(react@19.3.1)
+        version: 3.2.2(@types/react@19.3.0)(react@19.3.1)
       '@tanstack/react-query':
         specifier: ^5.105.3
         version: 5.105.3(@types/react@19.3.0)(react@19.3.1)
@@ -1113,13 +1115,13 @@ importers:
         version: link:../../lib/js/next-ui
       '@dnd-kit/core':
         specifier: ^6.3.1
-        version: 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/sortable':
         specifier: ^10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 10.0.0(@dnd-kit/core@6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)
       '@dnd-kit/utilities':
         specifier: ^3.2.2
-        version: 3.2.2(react@19.3.1)
+        version: 3.2.2(@types/react@19.3.0)(react@19.3.1)
       '@tanstack/react-query':
         specifier: ^5.105.3
         version: 5.105.3(@types/react@19.3.0)(react@19.3.1)
@@ -1398,19 +1400,31 @@ packages:
   '@dnd-kit/core@6.3.1':
     resolution: {integrity: sha512-xkGBRQQab4RLwgXxoqETICr6S5JlogafbhNsidmrkVv2YRs5MLwpjoF2qpiGjQt8S9AoxtIV603s0GIUpY5eYQ==}
     peerDependencies:
+      '@types/react': '*'
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@dnd-kit/sortable@10.0.0':
     resolution: {integrity: sha512-+xqhmIIzvAYMGfBYYnbKuNicfSsk4RksY2XdmJhT+HAC01nix6fHCztU68jooFiMUB01Ky3F0FyOvhG/BZrWkg==}
     peerDependencies:
       '@dnd-kit/core': ^6.3.0
+      '@types/react': '*'
       react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@dnd-kit/utilities@3.2.2':
     resolution: {integrity: sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==}
     peerDependencies:
+      '@types/react': '*'
       react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
@@ -9088,25 +9102,31 @@ snapshots:
       react: 19.3.1
       tslib: 2.9.1
 
-  '@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@dnd-kit/core@6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@dnd-kit/accessibility': 3.1.1(react@19.3.1)
-      '@dnd-kit/utilities': 3.2.2(react@19.3.1)
+      '@dnd-kit/utilities': 3.2.2(@types/react@19.3.0)(react@19.3.1)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       tslib: 2.9.1
+    optionalDependencies:
+      '@types/react': 19.3.0
 
-  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
+  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
-      '@dnd-kit/core': 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      '@dnd-kit/utilities': 3.2.2(react@19.3.1)
+      '@dnd-kit/core': 6.3.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@dnd-kit/utilities': 3.2.2(@types/react@19.3.0)(react@19.3.1)
       react: 19.3.1
       tslib: 2.9.1
+    optionalDependencies:
+      '@types/react': 19.3.0
 
-  '@dnd-kit/utilities@3.2.2(react@19.3.1)':
+  '@dnd-kit/utilities@3.2.2(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
       react: 19.3.1
       tslib: 2.9.1
+    optionalDependencies:
+      '@types/react': 19.3.0
 
   '@emnapi/runtime@1.11.3':
     dependencies:

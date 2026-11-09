@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useDraggable} from '@dnd-kit/core';
 import {GripVerticalIcon, PlusIcon, SearchIcon} from 'lucide-react';
@@ -24,7 +24,7 @@ export type PaletteGroup = {
     title: string;
     items: PaletteItem[];
     /** Shown instead of the items (loading, error, nothing to offer) */
-    status?: React.ReactNode;
+    status?: ReactNode;
 };
 
 export function FieldPalette({
