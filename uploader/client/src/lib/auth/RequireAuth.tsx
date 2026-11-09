@@ -15,14 +15,14 @@ import {Button} from '@alchemy/next-ui/ui/button';
  */
 export function RequireAuth({children}: PropsWithChildren) {
     const {t} = useTranslation();
-    const {status, login, redirecting} = useAuth();
+    const {status, login, redirecting, loggingOut} = useAuth();
     const loggedOut = useSearchParams().has(LOGGED_OUT_PARAM);
 
     useEffect(() => {
-        if (status === 'anonymous' && !loggedOut) {
+        if (status === 'anonymous' && !loggedOut && !loggingOut) {
             login();
         }
-    }, [status, loggedOut, login]);
+    }, [status, loggedOut, loggingOut, login]);
 
     if (status === 'anonymous' && loggedOut) {
         return (
