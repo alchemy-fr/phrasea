@@ -37,6 +37,12 @@ export type AuthContextValue = {
      */
     redirecting: boolean;
     logout: () => void;
+    /**
+     * A sign-out is under way: the session is cleared and the browser is
+     * leaving for Keycloak. Private screens must not ask for a sign-in
+     * meanwhile, it would replace the sign-out navigation.
+     */
+    loggingOut: boolean;
     hasRole: (role: string) => boolean;
     sessionExpired: boolean;
     /** Closes the "session expired" dialog and stays signed out */
@@ -58,6 +64,7 @@ export function AuthProvider({children}: PropsWithChildren) {
     const [user, setUser] = useState<AuthUser | undefined>();
     const [sessionExpired, setSessionExpired] = useState(false);
     const [redirecting, setRedirecting] = useState(false);
+    const [loggingOut, setLoggingOut] = useState(false);
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -108,6 +115,7 @@ export function AuthProvider({children}: PropsWithChildren) {
         const onPageShow = (e: PageTransitionEvent) => {
             if (e.persisted) {
                 setRedirecting(false);
+                setLoggingOut(false);
             }
         };
         window.addEventListener('pageshow', onPageShow);
@@ -138,6 +146,7 @@ export function AuthProvider({children}: PropsWithChildren) {
     // a private page offers to sign in again
     const logout = useCallback(() => {
         setLoggedOut();
+        setLoggingOut(true);
         void getAuthClient().logout({
             redirectUri: window.location.href.split('#')[0],
         });
@@ -157,6 +166,7 @@ export function AuthProvider({children}: PropsWithChildren) {
             loginInWindow: openLoginWindow,
             redirecting,
             logout,
+            loggingOut,
             hasRole: role => !!user?.roles.includes(role),
             sessionExpired,
             dismissSessionExpired,
@@ -167,6 +177,7 @@ export function AuthProvider({children}: PropsWithChildren) {
             login,
             redirecting,
             logout,
+            loggingOut,
             sessionExpired,
             dismissSessionExpired,
         ]
