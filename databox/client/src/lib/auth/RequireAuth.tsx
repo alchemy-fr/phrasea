@@ -9,13 +9,13 @@ import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
  * restored and redirects to Keycloak when the user is anonymous.
  */
 export function RequireAuth({children}: PropsWithChildren) {
-    const {status, login} = useAuth();
+    const {status, login, loggingOut} = useAuth();
 
     useEffect(() => {
-        if (status === 'anonymous') {
+        if (status === 'anonymous' && !loggingOut) {
             login();
         }
-    }, [status, login]);
+    }, [status, loggingOut, login]);
 
     if (status !== 'authenticated') {
         return <FullPageLoader />;
