@@ -246,10 +246,12 @@ export function UploadScreen({targetId}: {targetId: string}) {
         );
     }
 
-    const percent =
-        snapshot.total > 0
-            ? Math.round((snapshot.loaded / snapshot.total) * 100)
-            : 0;
+    // 100% only once every file is created on the API, not when its bytes are sent
+    const percent = snapshot.complete
+        ? 100
+        : snapshot.total > 0
+          ? Math.min(99, Math.round((snapshot.loaded / snapshot.total) * 100))
+          : 0;
     const withForm = !!schema.data;
 
     const batchFiles = (
@@ -387,12 +389,26 @@ export function UploadScreen({targetId}: {targetId: string}) {
                         {withForm &&
                         !snapshot.complete &&
                         commitState.status === 'idle' ? (
-                            <p className="text-sm text-muted-foreground">
-                                {t(
-                                    'upload.finalize_hint',
-                                    'Your information is saved: the upload will be finalized as soon as every file has arrived.'
-                                )}
-                            </p>
+                            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                                <p className="text-sm text-muted-foreground">
+                                    {t(
+                                        'upload.finalize_hint',
+                                        'Your information is saved: the upload will be finalized as soon as every file has arrived.'
+                                    )}
+                                </p>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    data-testid="edit-information"
+                                    onClick={() => setStep('form')}
+                                >
+                                    <PencilIcon />{' '}
+                                    {t(
+                                        'upload.edit_information',
+                                        'Edit the information'
+                                    )}
+                                </Button>
+                            </div>
                         ) : null}
                         {batchFiles}
                         {commitState.status === 'error' ? (
@@ -461,30 +477,35 @@ export function UploadScreen({targetId}: {targetId: string}) {
                         className="flex flex-col gap-4"
                         data-testid="upload-done"
                     >
-                        <Alert
-                            variant="success"
-                            icon={<CheckIcon />}
-                            title={t('upload.done_title', {
-                                defaultValue_one: '{{count}} file sent',
-                                defaultValue_other: '{{count}} files sent',
-                                count: sent.files.length,
-                            })}
+                        <div
+                            role="status"
+                            className="flex flex-col items-center gap-2 py-4 text-center"
                         >
-                            {t('upload.done', {
-                                defaultValue_one:
-                                    'Your file was delivered to {{target}}.',
-                                defaultValue_other:
-                                    'Your files were delivered to {{target}}.',
-                                count: sent.files.length,
-                                target: target.data.name,
-                            })}
-                            {sent.notify
-                                ? ` ${t(
-                                      'upload.done_notify',
-                                      'You will be notified once they are processed.'
-                                  )}`
-                                : null}
-                        </Alert>
+                            <SuccessCheck />
+                            <p className="mt-2 text-lg font-semibold">
+                                {t('upload.done_title', {
+                                    defaultValue_one: '{{count}} file sent',
+                                    defaultValue_other: '{{count}} files sent',
+                                    count: sent.files.length,
+                                })}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                {t('upload.done', {
+                                    defaultValue_one:
+                                        'Your file was delivered to {{target}}.',
+                                    defaultValue_other:
+                                        'Your files were delivered to {{target}}.',
+                                    count: sent.files.length,
+                                    target: target.data.name,
+                                })}
+                                {sent.notify
+                                    ? ` ${t(
+                                          'upload.done_notify',
+                                          'You will be notified once they are processed.'
+                                      )}`
+                                    : null}
+                            </p>
+                        </div>
                         <ul
                             data-testid="sent-files"
                             className="divide-y rounded-md border text-sm"
@@ -561,9 +582,20 @@ function BatchProgress({
         <div className="flex flex-col gap-1.5" data-testid="batch-progress">
             <div className="flex flex-wrap justify-between gap-x-3 text-sm text-muted-foreground">
                 <span>{label}</span>
-                <span>
+                <span className="tabular-nums">
                     {formatFileSize(snapshot.loaded)} /{' '}
                     {formatFileSize(snapshot.total)}
+                    {committing ? null : (
+                        <>
+                            {' · '}
+                            <span
+                                data-testid="batch-percent"
+                                className="font-medium text-foreground"
+                            >
+                                {t('upload.percent', '{{percent}}%', {percent})}
+                            </span>
+                        </>
+                    )}
                 </span>
             </div>
             <Progress
@@ -780,6 +812,7 @@ function Stepper({
         {id: 'done', label: t('upload.step.done', 'Done')},
     ];
     const current = steps.findIndex(s => s.id === step);
+    const finished = step === 'done';
 
     return (
         <>
@@ -797,14 +830,20 @@ function Stepper({
                             <span aria-hidden className="h-px w-6 bg-border" />
                         ) : null}
                         <span
+                            data-testid={`stepper-mark-${s.id}`}
                             className={cn(
                                 'flex size-6 items-center justify-center rounded-full border text-xs',
                                 i < current &&
                                     'border-primary bg-primary text-primary-foreground',
-                                i === current && 'border-primary text-primary'
+                                i === current &&
+                                    !finished &&
+                                    'border-primary text-primary',
+                                i === current &&
+                                    finished &&
+                                    'border-success bg-success text-success-foreground animate-in duration-500 zoom-in-50 motion-reduce:animate-none'
                             )}
                         >
-                            {i < current ? (
+                            {i < current || finished ? (
                                 <CheckIcon className="size-3.5" />
                             ) : (
                                 i + 1
@@ -849,5 +888,42 @@ function Stepper({
                 )}
             </p>
         </>
+    );
+}
+
+/** A check drawing itself in a circle, at the end of the upload */
+function SuccessCheck() {
+    return (
+        <div
+            aria-hidden
+            data-testid="success-animation"
+            className="relative size-20 animate-in duration-300 fade-in zoom-in-50 motion-reduce:animate-none"
+        >
+            <span className="absolute inset-0 animate-success-ring rounded-full opacity-0 bg-success/30 motion-reduce:hidden" />
+            <svg
+                viewBox="0 0 52 52"
+                className="relative size-full text-success"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <circle
+                    cx="26"
+                    cy="26"
+                    r="24"
+                    pathLength={1}
+                    strokeDasharray={1}
+                    className="animate-draw-stroke fill-success/10 motion-reduce:animate-none"
+                />
+                <path
+                    d="M15 27l7 7 15-16"
+                    pathLength={1}
+                    strokeDasharray={1}
+                    className="animate-draw-stroke [animation-delay:350ms] motion-reduce:animate-none"
+                />
+            </svg>
+        </div>
     );
 }
