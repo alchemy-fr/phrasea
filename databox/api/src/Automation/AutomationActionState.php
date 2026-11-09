@@ -49,6 +49,12 @@ final class AutomationActionState
      */
     public array $data = [];
 
+    /**
+     * Set before finish() when the run stopped at its limit of assets: the results after
+     * the limit were not gone through (an action mirroring the results must not remove them).
+     */
+    public bool $runTruncated = false;
+
     public function __construct(
         public readonly string $type,
     ) {
@@ -98,6 +104,14 @@ final class AutomationActionState
     public function setError(string $message): void
     {
         $this->error = $message;
+        $this->addError(null, $message);
+    }
+
+    /**
+     * A message on the run not related to an asset, which does not fail the action.
+     */
+    public function addNotice(string $message): void
+    {
         $this->addError(null, $message);
     }
 

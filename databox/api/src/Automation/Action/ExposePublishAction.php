@@ -35,7 +35,8 @@ use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
  * Each published asset is annotated with the automation and the asset it comes from: a run only
  * sends what changed since the previous one, and only touches the assets published by its automation.
  * With "removeMissing" (scope "all" only), the assets of the automation which are no longer in the
- * results are removed from the publication at the end of the run.
+ * results are removed from the publication at the end of the run, unless the run stopped at its limit
+ * of assets (the results after the limit were not gone through).
  */
 #[AsTaggedItem(index: self::TYPE)]
 final class ExposePublishAction extends AbstractAutomationAction implements ScopeAwareActionInterface
@@ -43,6 +44,7 @@ final class ExposePublishAction extends AbstractAutomationAction implements Scop
     public const string TYPE = 'expose_publish';
 
     final public const string MISSING_ACCESS = 'Expose access missing for the automation owner: authorize the Expose integration again';
+    final public const string RUN_TRUNCATED = 'The assets which left the results were not removed: the run stopped at its limit of assets';
 
     /** @var string array<string, ExposeAsset>, the assets of the automation in the publication, by asset ID */
     private const string STATE_INDEX = 'index';
@@ -203,6 +205,11 @@ final class ExposePublishAction extends AbstractAutomationAction implements Scop
             }
             // A failed asset is never removed: the assets this action did not see are only known when it failed them
             if (isset($state->data[self::STATE_ERROR]) || $state->getFailed() > ($state->data[self::STATE_FAILED] ?? 0)) {
+                return;
+            }
+            if ($state->runTruncated) {
+                $state->addNotice(self::RUN_TRUNCATED);
+
                 return;
             }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Automation;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Automation\Action\ExposePublishAction;
 use App\Automation\Action\MoveToCollectionAction;
 use App\Automation\Action\TagsAction;
 use App\Automation\AutomationCursor;
@@ -20,11 +21,15 @@ use App\Model\AutomationScopeEnum;
 use App\Model\AutomationTriggerEnum;
 use App\Repository\Automation\AutomationSeenAssetRepository;
 use App\Tests\Functional\AbstractSearchTestCase;
+use App\Tests\Functional\Integration\Expose\ExposeHttpClientMock;
+use App\Tests\Functional\Integration\Expose\ExposeTestTrait;
+use App\Tests\Functional\Integration\Expose\FakeExposeApi;
 use Symfony\Component\Lock\LockFactory;
 
 final class AutomationRunnerTest extends AbstractSearchTestCase
 {
     use AutomationTestTrait;
+    use ExposeTestTrait;
 
     private const string OWNER = KeycloakClientTestMock::USER_UID;
 
@@ -112,9 +117,11 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
         $savedSearch = $this->setUpSearch();
         $automation = $this->createAutomationEntity($savedSearch, [$this->tagAction()], AutomationScopeEnum::All);
         $id = $automation->getId();
+        $this->assertSame(1000, $this->findAutomation($id)->getMaxAssetsPerRun());
 
         $run = $this->runAutomation($id);
         $this->assertSame(AutomationRunStatusEnum::Success, $run->getStatus(), (string) $run->getError());
+        $this->assertFalse($run->isLimitReached());
         $this->assertSame(2, $run->getMatchedCount());
         $this->assertSame(2, $run->getNewCount());
         $this->assertSame(2, $run->getProcessedCount());
@@ -162,6 +169,113 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
         $this->assertSame(1, $run->getProcessedCount());
         $this->assertSame(['Asset 1', 'Asset 2', 'Asset 3'], $this->getTaggedAssetNames());
         $this->assertSame(3, $this->countSeen($id));
+    }
+
+    public function testLimitWithScopeNewHandlesTheRestAtTheNextRun(): void
+    {
+        $savedSearch = $this->setUpSearch();
+        $id = $this->createAutomationEntity($savedSearch, [$this->tagAction()], options: ['maxAssetsPerRun' => 1])->getId();
+
+        $run = $this->runAutomation($id);
+        $this->assertSame(AutomationRunStatusEnum::Success, $run->getStatus(), (string) $run->getError());
+        $this->assertTrue($run->isLimitReached());
+        $this->assertSame(1, $run->getProcessedCount());
+        $this->assertSame(0, $run->getFailedCount());
+        $this->assertCount(1, $this->getTaggedAssetNames());
+        $this->assertSame(1, $this->countSeen($id));
+
+        $run = $this->runAutomation($id);
+        $this->assertSame(AutomationRunStatusEnum::Success, $run->getStatus(), (string) $run->getError());
+        $this->assertFalse($run->isLimitReached());
+        $this->assertSame(1, $run->getProcessedCount());
+        $this->assertSame(1, $run->getNewCount());
+        $this->assertSame(['Asset 1', 'Asset 2'], $this->getTaggedAssetNames());
+        $this->assertSame(2, $this->countSeen($id));
+
+        // The assets already seen do not count
+        $run = $this->runAutomation($id);
+        $this->assertFalse($run->isLimitReached());
+        $this->assertSame(0, $run->getProcessedCount());
+    }
+
+    public function testLimitWithScopeAll(): void
+    {
+        $savedSearch = $this->setUpSearch();
+        $id = $this->createAutomationEntity($savedSearch, [$this->tagAction()], AutomationScopeEnum::All, ['maxAssetsPerRun' => 1])->getId();
+
+        for ($i = 0; $i < 2; ++$i) {
+            $run = $this->runAutomation($id);
+            $this->assertSame(AutomationRunStatusEnum::Success, $run->getStatus(), (string) $run->getError());
+            $this->assertTrue($run->isLimitReached());
+            $this->assertSame(1, $run->getProcessedCount());
+        }
+    }
+
+    public function testDryRunReportsTheLimitWithoutTouchingTheCursor(): void
+    {
+        $savedSearch = $this->setUpSearch();
+        $id = $this->createAutomationEntity($savedSearch, [$this->tagAction()], options: ['maxAssetsPerRun' => 1])->getId();
+
+        $run = $this->runAutomation($id, dryRun: true);
+        $this->assertSame(AutomationRunStatusEnum::Success, $run->getStatus(), (string) $run->getError());
+        $this->assertTrue($run->isLimitReached());
+        $this->assertSame(2, $run->getMatchedCount());
+        $this->assertSame(2, $run->getNewCount());
+        $this->assertSame(0, $run->getProcessedCount());
+        $this->assertSame([], $this->getTaggedAssetNames());
+        $this->assertSame(0, $this->countSeen($id));
+    }
+
+    public function testLimitEqualToTheResultsIsNotReached(): void
+    {
+        $savedSearch = $this->setUpSearch();
+        $id = $this->createAutomationEntity($savedSearch, [$this->tagAction()], options: ['maxAssetsPerRun' => 2])->getId();
+
+        $run = $this->runAutomation($id, dryRun: true);
+        $this->assertFalse($run->isLimitReached());
+
+        $run = $this->runAutomation($id);
+        $this->assertSame(AutomationRunStatusEnum::Success, $run->getStatus(), (string) $run->getError());
+        $this->assertFalse($run->isLimitReached());
+        $this->assertSame(2, $run->getProcessedCount());
+    }
+
+    public function testATruncatedRunDoesNotMirrorTheResults(): void
+    {
+        $savedSearch = $this->setUpSearch();
+        $api = new FakeExposeApi();
+        ExposeHttpClientMock::$api = $api;
+        try {
+            $integration = $this->createExposeIntegration(null, self::OWNER);
+            $this->createExposeToken($integration, self::OWNER);
+            $publicationId = $api->addPublication('Press kit');
+            $id = $this->createAutomationEntity($savedSearch, [[
+                'type' => ExposePublishAction::TYPE,
+                'config' => ['integrationId' => $integration->getId(), 'publicationId' => $publicationId, 'removeMissing' => true],
+            ]], AutomationScopeEnum::All, ['maxAssetsPerRun' => 1])->getId();
+            // Published by a previous run, no longer in the results
+            $api->addAsset($publicationId, ['automationId' => $id, 'assetId' => 'left-the-results', 'fileId' => 'f1'], 'left.jpg');
+
+            // The assets of the search have no file: the action skips them
+            $run = $this->runAutomation($id);
+            $this->assertSame(AutomationRunStatusEnum::Success, $run->getStatus(), (string) $run->getError());
+            $this->assertTrue($run->isLimitReached());
+            $result = $run->getActionResults()[0];
+            $this->assertSame('success', $result['status']);
+            $this->assertSame(1, $result['skipped']);
+            $this->assertSame(ExposePublishAction::RUN_TRUNCATED, end($result['errors'])['message']);
+            $this->assertCount(1, $api->getPublicationAssets($publicationId));
+
+            $automation = $this->findAutomation($id);
+            $automation->setMaxAssetsPerRun(2);
+            self::getEntityManager()->flush();
+            $run = $this->runAutomation($id);
+            $this->assertFalse($run->isLimitReached());
+            $this->assertSame(2, $run->getActionResults()[0]['skipped']);
+            $this->assertSame([], $api->getPublicationAssets($publicationId));
+        } finally {
+            ExposeHttpClientMock::$api = null;
+        }
     }
 
     public function testDryRunDoesNotTouchTheCursor(): void

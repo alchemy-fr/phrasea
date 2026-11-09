@@ -106,6 +106,8 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     // Scheduled runs failing in a row before the automation is disabled
     final public const int MAX_CONSECUTIVE_FAILURES = 5;
 
+    final public const int DEFAULT_MAX_ASSETS_PER_RUN = 1000;
+
     #[Assert\NotNull]
     #[ORM\ManyToOne(targetEntity: SavedSearch::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -140,6 +142,13 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     #[Assert\Count(min: 1, minMessage: 'An automation needs at least one action.')]
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $actions = [];
+
+    /**
+     * Assets handed to the actions per run: a run stops once reached, the "new" scope handles the rest at the next runs.
+     */
+    #[Assert\Positive]
+    #[ORM\Column(type: Types::INTEGER, nullable: false, options: ['default' => self::DEFAULT_MAX_ASSETS_PER_RUN])]
+    private int $maxAssetsPerRun = self::DEFAULT_MAX_ASSETS_PER_RUN;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[AuditIgnore]
@@ -245,6 +254,16 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     public function setActions(array $actions): void
     {
         $this->actions = $actions;
+    }
+
+    public function getMaxAssetsPerRun(): int
+    {
+        return $this->maxAssetsPerRun;
+    }
+
+    public function setMaxAssetsPerRun(int $maxAssetsPerRun): void
+    {
+        $this->maxAssetsPerRun = $maxAssetsPerRun;
     }
 
     public function getNextRunAt(): ?\DateTimeImmutable

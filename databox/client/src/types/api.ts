@@ -735,6 +735,8 @@ export interface SavedSearchAutomation extends HydraObject, Entity {
     schedule?: string | null;
     timezone: string;
     scope: AutomationScope;
+    /** Maximum number of assets handed to the actions per run */
+    maxAssetsPerRun: number;
     actions: AutomationAction[];
     nextRunAt?: string | null;
     lastRunAt?: string | null;
@@ -767,6 +769,8 @@ export interface AutomationRun extends HydraObject, Entity {
     newCount: number;
     processedCount: number;
     failedCount: number;
+    /** Eligible assets were left out by the limit of assets per run (dry run: would be) */
+    limitReached: boolean;
     actionResults: AutomationActionResult[];
     error?: string | null;
     createdAt: string;

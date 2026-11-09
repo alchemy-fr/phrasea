@@ -37,6 +37,11 @@ class SavedSearchAutomationInput
     public ?string $scope = null;
 
     /**
+     * Maximum number of assets handed to the actions per run, 1000 by default.
+     */
+    public ?int $maxAssetsPerRun = null;
+
+    /**
      * Ordered list of {type, config}. A secret left empty keeps its current value.
      *
      * @var array<int, array{type: string, config: array}>|null

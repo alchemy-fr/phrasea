@@ -45,6 +45,7 @@ class SavedSearchAutomationOutputMapper implements OutputMapperInterface
         $output->schedule = $data->getSchedule();
         $output->timezone = $data->getTimezone();
         $output->scope = $data->getScope()->value;
+        $output->maxAssetsPerRun = $data->getMaxAssetsPerRun();
         $output->actions = array_map(fn (array $action): array => [
             'type' => $action['type'],
             'config' => $this->secretsHandler->mask($action['type'], $action['config'] ?? []),

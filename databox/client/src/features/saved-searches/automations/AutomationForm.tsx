@@ -109,6 +109,9 @@ export function AutomationFormDialog({
     const [scope, setScope] = useState<AutomationScope>(
         automation?.scope ?? AutomationScope.New
     );
+    const [maxAssetsPerRun, setMaxAssetsPerRun] = useState(
+        String(automation?.maxAssetsPerRun ?? 1000)
+    );
     const [ignoreExisting, setIgnoreExisting] = useState(false);
     const [actions, setActions] = useState<ActionItem[]>(() =>
         (automation?.actions ?? []).map(a => ({
@@ -125,8 +128,11 @@ export function AutomationFormDialog({
 
     const schedule = presetToCron(preset);
     const scheduleUnchanged = (automation?.schedule ?? null) === schedule;
+    const maxAssets = Number(maxAssetsPerRun);
     const canSubmit =
         !!name.trim() &&
+        Number.isInteger(maxAssets) &&
+        maxAssets > 0 &&
         actions.length > 0 &&
         actions.every(
             a => getActionDefinition(a.type)?.isComplete(a.config) ?? true
@@ -162,6 +168,7 @@ export function AutomationFormDialog({
             schedule: schedule ?? '',
             timezone,
             scope,
+            maxAssetsPerRun: maxAssets,
             actions: actions.map(({type, config}) => ({type, config})),
         };
 
@@ -419,6 +426,26 @@ export function AutomationFormDialog({
                     />
                 </LabeledControl>
             ) : null}
+            <FormRow
+                label={t(
+                    'automation.max_assets_per_run',
+                    'Max. assets per run'
+                )}
+                error={errors.fields.maxAssetsPerRun}
+                help={t(
+                    'automation.max_assets_per_run_help',
+                    'A run stops once this number of assets has been handed to the actions. With "New results only", the remaining assets are processed by the next runs.'
+                )}
+            >
+                <Input
+                    type="number"
+                    min={1}
+                    step={1}
+                    className="w-32"
+                    value={maxAssetsPerRun}
+                    onChange={e => setMaxAssetsPerRun(e.target.value)}
+                />
+            </FormRow>
 
             <div className="space-y-3">
                 <div className="flex items-center justify-between">

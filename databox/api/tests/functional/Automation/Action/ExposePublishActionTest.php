@@ -97,10 +97,12 @@ final class ExposePublishActionTest extends AbstractDataboxTestCase
     /**
      * Runs the action as the runner does, on batches of assets, then finishes it.
      *
-     * @param list<array{0: Asset[], 1?: Asset[]}> $batches the assets to process, and the other assets
-     *                                                      of the results (failed by a previous action)
+     * @param list<array{0: Asset[], 1?: Asset[]}> $batches      the assets to process, and the other assets
+     *                                                           of the results (failed by a previous action)
+     * @param bool                                 $runTruncated whether the run stopped at its limit of assets
+     *                                                           after these batches
      */
-    private function publish(array $config, array $batches, AutomationScopeEnum $scope = AutomationScopeEnum::All, string $automationId = self::AUTOMATION): AutomationActionState
+    private function publish(array $config, array $batches, AutomationScopeEnum $scope = AutomationScopeEnum::All, string $automationId = self::AUTOMATION, bool $runTruncated = false): AutomationActionState
     {
         $config = $this->validate($config);
         $action = $this->createAction();
@@ -118,7 +120,7 @@ final class ExposePublishActionTest extends AbstractDataboxTestCase
             scope: $scope,
         );
 
-        self::getService(UserContextSwitcher::class)->runAs(self::OWNER, function () use ($action, $config, $batches, $state, $em, $context): void {
+        self::getService(UserContextSwitcher::class)->runAs(self::OWNER, function () use ($action, $config, $batches, $state, $em, $context, $runTruncated): void {
             foreach ($batches as $batch) {
                 $em->clear();
                 $reload = fn (Asset $asset): Asset => $em->find(Asset::class, $asset->getId());
@@ -127,6 +129,7 @@ final class ExposePublishActionTest extends AbstractDataboxTestCase
                 $state->beginBatch();
                 $action->processBatch(new AutomationBatch($assets, $config, $state, $context, $matched));
             }
+            $state->runTruncated = $runTruncated;
             $action->finish($state, $config, $context);
         });
         $em->clear();
@@ -306,6 +309,29 @@ final class ExposePublishActionTest extends AbstractDataboxTestCase
 
         $this->assertSame([], $state->getErrors());
         $this->assertSame(['basket', 'failed.jpg', 'kept.jpg', 'other automation'], array_keys($this->published()));
+    }
+
+    public function testMirrorKeepsTheAssetsAfterTheLimitOfATruncatedRun(): void
+    {
+        $first = $this->asset('first.jpg');
+        $second = $this->asset('second.jpg');
+        $third = $this->asset('third.jpg');
+        $this->publish($this->config(['removeMissing' => true]), [[[$first, $second, $third]]]);
+
+        // A limit of 1 asset: the run only went through the first result
+        $state = $this->publish($this->config(['removeMissing' => true]), [[[$first]]], runTruncated: true);
+
+        $this->assertSame(1, $state->getProcessed());
+        $this->assertSame(0, $state->getFailed());
+        $this->assertSame(AutomationActionState::STATUS_SUCCESS, $state->getStatus());
+        $this->assertSame([['message' => ExposePublishAction::RUN_TRUNCATED]], $state->getErrors());
+        $this->assertSame(['first.jpg', 'second.jpg', 'third.jpg'], array_keys($this->published()));
+
+        // Without the limit reached, the assets out of the results are removed
+        $state = $this->publish($this->config(['removeMissing' => true]), [[[$first]]]);
+
+        $this->assertSame([], $state->getErrors());
+        $this->assertSame(['first.jpg'], array_keys($this->published()));
     }
 
     public function testMirrorEmptiesThePublicationWithoutResults(): void

@@ -29,6 +29,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * The cursor only moves forward on success: an asset is marked as seen once every action
  * succeeded on it, a failed asset stays "new" and is retried at the next run.
+ *
+ * A run hands at most maxAssetsPerRun assets to the actions (failed ones included) and then stops,
+ * flagging the run with limitReached: with the "new" scope, the assets left out are still "new" and
+ * are handled by the next runs; with the "all" scope, each run handles the first results only.
+ * The actions still finish on the handled assets, told that the run was truncated.
  */
 final readonly class AutomationRunner
 {
@@ -167,21 +172,49 @@ final readonly class AutomationRunner
             ];
         }
 
-        $counts = ['matched' => 0, 'new' => 0, 'processed' => 0, 'failed' => 0];
+        $counts = ['matched' => 0, 'new' => 0, 'processed' => 0, 'failed' => 0, 'limitReached' => false];
         $onlyNew = AutomationScopeEnum::New === $automation->getScope();
+        $maxAssets = $automation->getMaxAssetsPerRun();
+        // Assets a real run hands to the actions
+        $eligible = 0;
         foreach ($this->assetIterator->iterate($automation, $user, $onlyNew) as $batch) {
+            $assets = $batch->assets;
+
+            if ($context->dryRun) {
+                // A dry run only counts: it goes through all the results
+                $eligible += count($assets);
+                if ($eligible > $maxAssets) {
+                    $counts['limitReached'] = true;
+                }
+            } else {
+                $budget = $maxAssets - $eligible;
+                if ($budget <= 0 && !empty($assets)) {
+                    $counts['limitReached'] = true;
+                    break;
+                }
+                if (count($assets) > $budget) {
+                    $assets = array_slice($assets, 0, $budget);
+                    $counts['limitReached'] = true;
+                }
+                $eligible += count($assets);
+            }
+
             $counts['matched'] += $batch->matchedCount;
             $counts['new'] += $batch->newCount;
 
-            if (!$context->dryRun && !empty($batch->assets)) {
-                $succeeded = $this->processBatch($batch->assets, $actions, $context, $lock);
+            if (!$context->dryRun && !empty($assets)) {
+                $succeeded = $this->processBatch($assets, $actions, $context, $lock);
                 $counts['processed'] += count($succeeded);
-                $counts['failed'] += count($batch->assets) - count($succeeded);
+                $counts['failed'] += count($assets) - count($succeeded);
                 $this->seenAssetRepository->markSeen($automationId, $succeeded, $runId);
             }
 
             $this->saveProgress($runId, $counts, $states);
             $lock->refresh();
+
+            if (!$context->dryRun && $counts['limitReached']) {
+                break;
+            }
         }
 
         $this->saveProgress($runId, $counts, $states);
@@ -191,6 +224,7 @@ final readonly class AutomationRunner
         }
 
         foreach ($actions as $action) {
+            $action['state']->runTruncated = $counts['limitReached'];
             try {
                 $action['action']->finish($action['state'], $action['config'], $context);
             } catch (\Throwable $e) {
@@ -253,8 +287,8 @@ final readonly class AutomationRunner
     /**
      * Persists the progress and frees the memory before the next batch.
      *
-     * @param array{matched: int, new: int, processed: int, failed: int} $counts
-     * @param \ArrayObject<int, AutomationActionState>                   $states
+     * @param array{matched: int, new: int, processed: int, failed: int, limitReached: bool} $counts
+     * @param \ArrayObject<int, AutomationActionState>                                       $states
      */
     private function saveProgress(string $runId, array $counts, \ArrayObject $states): void
     {
@@ -266,6 +300,7 @@ final readonly class AutomationRunner
         $run->setNewCount($counts['new']);
         $run->setProcessedCount($counts['processed']);
         $run->setFailedCount($counts['failed']);
+        $run->setLimitReached($counts['limitReached']);
         $run->setActionResults(self::normalizeStates($states));
         $this->em->flush();
         $this->em->clear();

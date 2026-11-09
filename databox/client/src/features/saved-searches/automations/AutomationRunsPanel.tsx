@@ -179,6 +179,24 @@ function RunSummary({run, lang}: {run: AutomationRun; lang: string}) {
                     {t('automation.run.dry_run', 'Dry run')}
                 </Badge>
             ) : null}
+            {run.limitReached ? (
+                <Badge
+                    variant="outline"
+                    title={
+                        run.dryRun
+                            ? t(
+                                  'automation.run.limit_would_be_reached_help',
+                                  'Maximum number of assets per run would be reached: the rest would be handled by the next runs'
+                              )
+                            : t(
+                                  'automation.run.limit_reached_help',
+                                  'Maximum number of assets per run reached: the rest will be handled by the next runs'
+                              )
+                    }
+                >
+                    {t('automation.run.limit_reached', 'Limit reached')}
+                </Badge>
+            ) : null}
             <span className="text-muted-foreground">
                 {run.trigger === 'schedule'
                     ? t('automation.run.trigger.schedule', 'Scheduled')

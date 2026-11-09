@@ -66,6 +66,9 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
                 ?? self::throwViolation('scope', sprintf('The scope must be one of: %s.', implode(', ', AutomationScopeEnum::values())));
             $object->setScope($scope);
         }
+        if (null !== $data->maxAssetsPerRun) {
+            $object->setMaxAssetsPerRun($data->maxAssetsPerRun);
+        }
         if (null !== $data->timezone) {
             if (!CronHelper::isValidTimezone($data->timezone)) {
                 self::throwViolation('timezone', 'This value is not a valid timezone.');

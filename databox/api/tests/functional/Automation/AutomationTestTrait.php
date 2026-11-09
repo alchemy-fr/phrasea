@@ -45,6 +45,9 @@ trait AutomationTestTrait
         $automation->setSchedule($options['schedule'] ?? null);
         $automation->setNextRunAt($options['nextRunAt'] ?? null);
         $automation->setConsecutiveFailures($options['consecutiveFailures'] ?? 0);
+        if (isset($options['maxAssetsPerRun'])) {
+            $automation->setMaxAssetsPerRun($options['maxAssetsPerRun']);
+        }
         $em->persist($automation);
         $em->flush();
 

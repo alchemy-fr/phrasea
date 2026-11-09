@@ -77,6 +77,7 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
         $this->assertSame('*/5 * * * *', $data['schedule']);
         $this->assertSame('Europe/Paris', $data['timezone']);
         $this->assertSame('new', $data['scope']);
+        $this->assertSame(1000, $data['maxAssetsPerRun']);
         $this->assertSame([
             ['type' => TagsAction::TYPE, 'config' => ['add' => [$tag->getId()], 'remove' => []]],
         ], $data['actions']);
@@ -93,6 +94,10 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
 
         // The capability is exposed on the saved search
         $this->assertTrue($this->apiJson('GET', '/saved-searches/'.$savedSearch->getId(), self::USER)['capabilities']['manageAutomations']);
+
+        $uri = '/saved-search-automations/'.$data['id'];
+        $this->assertSame(50, $this->apiJson('PATCH', $uri, self::USER, ['maxAssetsPerRun' => 50])['maxAssetsPerRun']);
+        $this->assertSame(50, $this->apiJson('GET', $uri, self::USER)['maxAssetsPerRun']);
     }
 
     public function testUpdateRecomputesNextRun(): void
@@ -143,6 +148,7 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
             'invalid timezone' => [['timezone' => 'Mars/Olympus'], 'timezone'],
             'invalid scope' => [['scope' => 'some'], 'scope'],
             'no action' => [['actions' => []], 'actions'],
+            'zero max assets' => [['maxAssetsPerRun' => 0], 'maxAssetsPerRun'],
             'unknown action' => [['actions' => [['type' => 'teleport', 'config' => []]]], 'actions[0].type'],
             'invalid action config' => [['actions' => [['type' => TagsAction::TYPE, 'config' => ['add' => []]]]], 'actions[0].config.add'],
             'unknown tag' => [['actions' => [['type' => TagsAction::TYPE, 'config' => ['add' => ['00000000-0000-4000-8000-000000000000']]]]], 'actions[0].config.add'],
@@ -201,6 +207,7 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
         $this->assertSame('pending', $data['status']);
         $this->assertSame('manual', $data['trigger']);
         $this->assertTrue($data['dryRun']);
+        $this->assertFalse($data['limitReached']);
         $this->assertSame(self::USER, $data['initiator']['id']);
         $this->assertSame($id, $data['automationId']);
 

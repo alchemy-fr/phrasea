@@ -18,6 +18,8 @@ export type SavedSearchAutomationInput = {
     schedule?: string;
     timezone?: string;
     scope?: AutomationScope;
+    /** 1000 by default */
+    maxAssetsPerRun?: number;
     /** A secret left empty keeps its current value */
     actions?: AutomationAction[];
 };
