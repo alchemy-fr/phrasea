@@ -8,7 +8,7 @@ import {
 } from '@alchemy/api';
 import {api} from './http';
 import {getConfig} from '@/lib/config/ConfigProvider';
-import {getMimeTypeFromFile} from '@/lib/utils/mime';
+import {getMimeTypeFromFile} from '@alchemy/next-ui/utils/mime';
 
 export type {MultipartUpload, UploadPart};
 

@@ -75,7 +75,7 @@ import {
     fileFamilyLabels,
     privacyLabels,
 } from '@/features/attributes/types/registry';
-import {fileFamilies} from '@/lib/utils/mime';
+import {fileFamilies} from '@alchemy/next-ui/utils/mime';
 import {ResolveStatus, useEntitiesStore, useEntity} from '../entitiesStore';
 import {idFromIri, iri} from '@/lib/utils/iri';
 

@@ -7,7 +7,7 @@ import type {Asset} from '@/types/api';
 import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
 import {Checkbox} from '@alchemy/next-ui/ui/controls';
-import {FileTypeChip} from '@/components/chips';
+import {FileTypeChip} from '@alchemy/next-ui/ui/file-icon';
 import {formatFileSize} from '@/lib/utils/format';
 import {saveUrlAs} from '@alchemy/next-ui/utils/misc';
 import {cn} from '@alchemy/next-ui/utils/cn';

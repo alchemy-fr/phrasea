@@ -1,5 +1,5 @@
 import type {TFunction} from 'i18next';
-import {getMimeTypeFromFile} from '@/lib/utils/mime';
+import {getMimeTypeFromFile} from '@alchemy/next-ui/utils/mime';
 import {formatFileSize} from '@/lib/utils/format';
 
 /*

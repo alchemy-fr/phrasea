@@ -2,8 +2,8 @@
 
 import {useState} from 'react';
 import type {Asset} from '@/types/api';
-import {FileKindIcon} from '@/components/ui/file-icon';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {cn} from '@alchemy/next-ui/utils/cn';
 
 /** The image standing for an asset: its thumbnail, else its preview image */
@@ -48,7 +48,7 @@ export function Thumbnail({
                     className
                 )}
             >
-                <FileKindIcon mimeType={asset.mimeType} />
+                <FileFamilyIcon mimeType={asset.mimeType} />
             </div>
         );
     }

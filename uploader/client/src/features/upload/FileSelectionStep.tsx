@@ -11,7 +11,7 @@ import {useConfig} from '@/lib/config/ConfigProvider';
 import {routes} from '@/lib/routes';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {formatFileSize} from '@/lib/utils/format';
-import {toDropzoneAccept} from '@/lib/utils/mime';
+import {toDropzoneAccept} from '@alchemy/next-ui/utils/mime';
 import {FileTile} from './FileTile';
 import {checkBatch, mergeSelection, totalSize, type BatchIssue} from './limits';
 

@@ -7,7 +7,7 @@ import type {Asset} from '@/types/api';
 import {GeoCluster, searchAssets, SearchAssetsOptions} from '@/lib/api/assets';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Spinner} from '@alchemy/next-ui/ui/loader';
-import {FileKindIcon} from '@/components/chips';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {formatNumber} from '@/lib/utils/format';
 import {useHoverPreview} from './useHoverPreview';
@@ -46,7 +46,7 @@ function Thumb({asset, onClick}: {asset: Asset; onClick: () => void}) {
                 />
             ) : (
                 <span className="flex size-full items-center justify-center">
-                    <FileKindIcon
+                    <FileFamilyIcon
                         mimeType={asset.source?.type}
                         className="size-6"
                     />

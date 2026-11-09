@@ -10,7 +10,7 @@ import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {Checkbox, LabeledControl, Slider} from '@alchemy/next-ui/ui/controls';
 import {postRendition} from '@/lib/api/misc';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {clamp} from '@alchemy/next-ui/utils/misc';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {

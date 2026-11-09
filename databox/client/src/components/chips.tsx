@@ -3,11 +3,6 @@
 import {getUserDisplayName} from '@/lib/users';
 import {useTranslation} from 'react-i18next';
 import {
-    FileIcon,
-    FileImageIcon,
-    FileAudioIcon,
-    FileVideoIcon,
-    FileTextIcon,
     FolderIcon,
     LayersIcon,
     LockIcon,
@@ -29,7 +24,6 @@ import {
     assetStatusLabels,
     privacyLabels,
 } from '@/features/attributes/types/registry';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {pickTranslation} from '@/lib/utils/locale';
 import {AssetStatus as AssetStatusEnum} from '@/types/api';
@@ -282,47 +276,5 @@ export function AssetStatusChip({
         >
             {label}
         </Chip>
-    );
-}
-
-export function FileKindIcon({
-    mimeType,
-    className,
-}: {
-    mimeType: string | undefined;
-    className?: string;
-}) {
-    const cls = cn('size-10 text-muted-foreground', className);
-    switch (getFileKind(mimeType)) {
-        case FileKind.Image:
-            return <FileImageIcon className={cls} />;
-        case FileKind.Audio:
-            return <FileAudioIcon className={cls} />;
-        case FileKind.Video:
-            return <FileVideoIcon className={cls} />;
-        case FileKind.Document:
-            return <FileTextIcon className={cls} />;
-        default:
-            return <FileIcon className={cls} />;
-    }
-}
-
-export function FileTypeChip({
-    mimeType,
-    extension,
-}: {
-    mimeType?: string;
-    extension?: string;
-}) {
-    const label =
-        extension?.toUpperCase() ?? mimeType?.split('/')[1]?.toUpperCase();
-    if (!label) {
-        return null;
-    }
-
-    return (
-        <span className="rounded bg-black/60 px-1 py-0.5 font-mono text-[10px] font-semibold text-white uppercase">
-            {label}
-        </span>
     );
 }

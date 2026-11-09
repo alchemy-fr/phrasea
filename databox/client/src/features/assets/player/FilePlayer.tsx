@@ -3,8 +3,8 @@
 import {type CSSProperties, useEffect, useRef, useState} from 'react';
 import dynamic from 'next/dynamic';
 import type {ApiFile, ClipCrop, ClipTimeRange, MediaClip} from '@/types/api';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
-import {FileKindIcon} from '@/components/chips';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
@@ -112,14 +112,14 @@ export function FilePlayer({
                     className
                 )}
             >
-                <FileKindIcon mimeType={file.type} />
+                <FileFamilyIcon mimeType={file.type} />
                 <AnalysisChip file={file} />
             </div>
         );
     }
     if (!file.url) {
         return (
-            <FileKindIcon
+            <FileFamilyIcon
                 mimeType={file.type}
                 className={cn('size-16', className)}
             />
@@ -227,14 +227,14 @@ export function FilePlayer({
             }
 
             return (
-                <FileKindIcon
+                <FileFamilyIcon
                     mimeType={file.type}
                     className={cn('size-16', className)}
                 />
             );
         default:
             return (
-                <FileKindIcon
+                <FileFamilyIcon
                     mimeType={file.type}
                     className={cn('size-16', className)}
                 />

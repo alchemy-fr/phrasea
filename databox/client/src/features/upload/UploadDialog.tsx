@@ -45,7 +45,7 @@ import {
 import {PrivacyField} from '@/components/form/PrivacyField';
 import {TagSelect} from '@/components/form/selects';
 import {useConfig} from '@/lib/config/ConfigProvider';
-import {toDropzoneAccept} from '@/lib/utils/mime';
+import {toDropzoneAccept} from '@alchemy/next-ui/utils/mime';
 import {formatFileSize} from '@/lib/utils/format';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {

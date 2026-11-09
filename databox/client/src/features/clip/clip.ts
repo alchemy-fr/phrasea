@@ -1,5 +1,5 @@
 import type {CSSProperties} from 'react';
-import {FileFamily, getFileFamily} from '@/lib/utils/mime';
+import {FileFamily, getFileFamily} from '@alchemy/next-ui/utils/mime';
 import {formatDuration} from '@/lib/utils/format';
 import type {Asset} from '@/types/api';
 import type {

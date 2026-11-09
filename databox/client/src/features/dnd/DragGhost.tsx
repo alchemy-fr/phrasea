@@ -3,7 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import {BanIcon, CheckIcon, FolderIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
-import {FileKindIcon} from '@/components/chips';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {assetKey} from '@/features/assets/list/SelectionProvider';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {useDragOver, useDragPayload} from './DragContext';
@@ -104,7 +104,7 @@ function ThumbStack({assets}: {assets: Asset[]}) {
                                 draggable={false}
                             />
                         ) : (
-                            <FileKindIcon
+                            <FileFamilyIcon
                                 mimeType={asset.source?.type}
                                 className="size-4 text-muted-foreground"
                             />
