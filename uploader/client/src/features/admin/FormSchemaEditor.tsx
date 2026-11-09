@@ -5,11 +5,10 @@ import {useRouter} from 'next/navigation';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
-import {SaveIcon} from 'lucide-react';
+import {WandSparklesIcon} from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Alert} from '@alchemy/next-ui/ui/misc';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {FormRow} from '@alchemy/next-ui/ui/input';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
 import {
     Dialog,
@@ -22,15 +21,17 @@ import {iri, saveFormSchema} from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
-import {LocaleMode, type FormSchema} from '@/types/api';
+import {LocaleMode, type LiFormFormSchema} from '@/types/api';
 import {LiFormBody} from '@/features/liform/LiFormBody';
 import {useLiForm} from '@/features/liform/useLiForm';
 import type {LiFormSchema, LiFormValues} from '@/features/liform/types';
 import {parseJsonObject, toJson} from './json';
-import {TargetSelect} from './TargetSelect';
+import type {FormDefinition} from '@/features/form-builder/types';
+import {ConvertLiFormDialog} from './ConvertLiFormDialog';
+import {FormSchemaMetaFields} from './FormSchemaMetaFields';
+import {formSchemasQueryKey} from './queryKeys';
+import {SaveBar} from './SaveBar';
 import {violationsByField} from './violations';
-
-export const formSchemasQueryKey = ['form-schemas'] as const;
 
 export const NEW_FORM_SCHEMA: LiFormSchema = {
     type: 'object',
@@ -43,14 +44,19 @@ export const NEW_FORM_SCHEMA: LiFormSchema = {
     },
 };
 
-export function FormSchemaEditor({schema}: {schema?: FormSchema}) {
+export function FormSchemaEditor({
+    schema,
+    onConvert,
+}: {
+    schema?: LiFormFormSchema;
+    /** Opens the converted schema in the form builder */
+    onConvert?: (definition: FormDefinition) => void;
+}) {
     const {t} = useTranslation();
     const router = useRouter();
     const queryClient = useQueryClient();
-    const targetId = useId();
-    const localeId = useId();
-    const localeModeId = useId();
     const jsonId = useId();
+    const [converting, setConverting] = useState(false);
     const [target, setTarget] = useState(schema?.target.id);
     const [locale, setLocale] = useState(schema?.locale ?? '');
     const [localeMode, setLocaleMode] = useState<LocaleMode>(
@@ -66,7 +72,12 @@ export function FormSchemaEditor({schema}: {schema?: FormSchema}) {
         setPreviewSchema(parsed.value);
     }
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const {markSaved} = useDirtyState({target, locale, localeMode, json});
+    const {dirty, markSaved} = useDirtyState({
+        target,
+        locale,
+        localeMode,
+        json,
+    });
 
     const save = useMutation({
         mutationFn: () =>
@@ -74,6 +85,7 @@ export function FormSchemaEditor({schema}: {schema?: FormSchema}) {
                 target: iri('targets', target!),
                 locale: locale.trim() || null,
                 localeMode,
+                format: 'liform',
                 data: parsed.value!,
             }),
         onSuccess: saved => {
@@ -108,21 +120,6 @@ export function FormSchemaEditor({schema}: {schema?: FormSchema}) {
         }
     };
 
-    const localeModes = [
-        {
-            value: String(LocaleMode.NoLocale),
-            label: t('admin.locale_mode.none', 'No locale'),
-        },
-        {
-            value: String(LocaleMode.UserAgent),
-            label: t('admin.locale_mode.user_agent', "User's language"),
-        },
-        {
-            value: String(LocaleMode.Forced),
-            label: t('admin.locale_mode.forced', 'Forced to this locale'),
-        },
-    ];
-
     return (
         <div className="grid gap-8 lg:grid-cols-2">
             <form
@@ -133,56 +130,16 @@ export function FormSchemaEditor({schema}: {schema?: FormSchema}) {
                     submit();
                 }}
             >
-                <FormRow
-                    label={t('admin.form_schema.target', 'Target')}
-                    htmlFor={targetId}
-                    error={errors.target}
-                >
-                    <TargetSelect
-                        id={targetId}
-                        value={target}
-                        onChange={setTarget}
-                        disabled={save.isPending}
-                    />
-                </FormRow>
-                <div className="grid gap-x-4 sm:grid-cols-2">
-                    <FormRow
-                        label={t('admin.form_schema.locale', 'Locale')}
-                        htmlFor={localeId}
-                        error={errors.locale}
-                        help={t(
-                            'admin.form_schema.locale_help',
-                            'e.g. "en", "fr"; empty for every language.'
-                        )}
-                    >
-                        <Input
-                            id={localeId}
-                            name="locale"
-                            maxLength={5}
-                            value={locale}
-                            disabled={save.isPending}
-                            onChange={e => setLocale(e.target.value)}
-                        />
-                    </FormRow>
-                    <FormRow
-                        label={t(
-                            'admin.form_schema.locale_mode',
-                            'Locale of the commit'
-                        )}
-                        htmlFor={localeModeId}
-                        error={errors.localeMode}
-                    >
-                        <SimpleSelect<string>
-                            id={localeModeId}
-                            value={String(localeMode)}
-                            options={localeModes}
-                            disabled={save.isPending}
-                            onValueChange={v =>
-                                setLocaleMode(Number(v) as LocaleMode)
-                            }
-                        />
-                    </FormRow>
-                </div>
+                <FormSchemaMetaFields
+                    value={{target, locale, localeMode}}
+                    onChange={meta => {
+                        setTarget(meta.target);
+                        setLocale(meta.locale);
+                        setLocaleMode(meta.localeMode);
+                    }}
+                    errors={errors}
+                    disabled={save.isPending}
+                />
                 <FormRow
                     label={t('admin.form_schema.data', 'Schema (JSON)')}
                     htmlFor={jsonId}
@@ -214,13 +171,34 @@ export function FormSchemaEditor({schema}: {schema?: FormSchema}) {
                         {getErrorMessage(save.error)}
                     </Alert>
                 ) : null}
-                <Button
-                    type="submit"
-                    loading={save.isPending}
-                    data-testid="form-schema-save"
-                >
-                    <SaveIcon /> {t('admin.save', 'Save Form')}
-                </Button>
+                <SaveBar dirty={dirty} saving={save.isPending}>
+                    {onConvert ? (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            disabled={!parsed.value || save.isPending}
+                            data-testid="form-schema-convert"
+                            onClick={() => setConverting(true)}
+                        >
+                            <WandSparklesIcon />{' '}
+                            {t(
+                                'builder.convert.title',
+                                'Convert to the form builder'
+                            )}
+                        </Button>
+                    ) : null}
+                </SaveBar>
+                {onConvert && parsed.value ? (
+                    <ConvertLiFormDialog
+                        open={converting}
+                        onOpenChange={setConverting}
+                        schemaId={schema?.id}
+                        targetId={target}
+                        locale={locale.trim() || null}
+                        liForm={parsed.value}
+                        onConverted={onConvert}
+                    />
+                ) : null}
             </form>
 
             <section aria-labelledby={`${jsonId}-preview`}>

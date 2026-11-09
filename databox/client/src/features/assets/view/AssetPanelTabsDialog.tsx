@@ -29,7 +29,7 @@ import {
     SortableRow,
     sortableMeasuring,
     useSortableRow,
-} from '@/components/ui/sortable';
+} from '@alchemy/next-ui/ui/sortable';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {mergeOrder} from '@/lib/utils/order';
 import {cn} from '@alchemy/next-ui/utils/cn';

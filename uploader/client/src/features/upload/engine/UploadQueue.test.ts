@@ -167,6 +167,33 @@ describe('UploadQueue', () => {
         expect(queue.getSnapshot()).toMatchObject({complete: true, failed: 0});
     });
 
+    it('sends every failed file again on demand', async () => {
+        const {queue, calls} = setup();
+        queue.add([file('a'), file('b'), file('c')]);
+        calls[0].reject(new ApiError('Nope', 400, {}));
+        calls[1].reject(new ApiError('Nope', 400, {}));
+        await vi.runAllTimersAsync();
+        calls[2].resolve('asset-c');
+        await vi.runAllTimersAsync();
+        expect(queue.getSnapshot().failed).toBe(2);
+
+        queue.retryFailed();
+        expect(queue.getSnapshot().failed).toBe(0);
+        expect(calls.map(c => c.file.name)).toEqual(['a', 'b', 'c', 'a', 'b']);
+    });
+
+    it('drops every failed file at once', async () => {
+        const {queue, calls} = setup();
+        queue.add([file('a'), file('b')]);
+        calls[0].reject(new ApiError('Nope', 400, {}));
+        calls[1].resolve('asset-b');
+        await vi.runAllTimersAsync();
+
+        queue.removeFailed();
+        expect(queue.getSnapshot()).toMatchObject({complete: true, failed: 0});
+        expect(queue.getSnapshot().items.map(i => i.file.name)).toEqual(['b']);
+    });
+
     it('waits for the connection to come back', async () => {
         const {queue, calls, setOnline} = setup();
         queue.add([file('a')]);

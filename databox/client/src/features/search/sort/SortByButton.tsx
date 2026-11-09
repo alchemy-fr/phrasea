@@ -41,7 +41,7 @@ import {
     SortableRow,
     sortableMeasuring,
     useSortableRow,
-} from '@/components/ui/sortable';
+} from '@alchemy/next-ui/ui/sortable';
 
 type Row = SortBy & {enabled: boolean};
 

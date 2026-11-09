@@ -41,18 +41,31 @@ export function isTooLarge(
 
 /**
  * The selection after a drop: added to the current one, or replacing it in
- * single file mode. A file dropped twice is kept once.
+ * single file mode. A file dropped twice is kept once, and counted in
+ * `duplicates`.
  */
 export function mergeSelection(
     current: File[],
     dropped: File[],
     {maxFileCount}: Pick<UploadConfig, 'maxFileCount'>
-): File[] {
+): {files: File[]; duplicates: number} {
     if (maxFileCount === 1) {
-        return dropped.slice(-1);
+        return {files: dropped.slice(-1), duplicates: 0};
     }
     const key = (f: File) => `${f.name}:${f.size}:${f.lastModified}`;
     const known = new Set(current.map(key));
+    const added = dropped.filter(f => {
+        const k = key(f);
+        if (known.has(k)) {
+            return false;
+        }
+        known.add(k);
 
-    return [...current, ...dropped.filter(f => !known.has(key(f)))];
+        return true;
+    });
+
+    return {
+        files: [...current, ...added],
+        duplicates: dropped.length - added.length,
+    };
 }

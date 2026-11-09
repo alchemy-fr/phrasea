@@ -51,6 +51,13 @@ class FormSchemaCrudController extends AbstractAclAdminCrudController
                 'Force with this locale' => FormSchema::LOCALE_MODE_FORCED,
             ])
         ;
+        yield ChoiceField::new('format')
+            ->setChoices([
+                'LiForm (JSON Schema)' => FormSchema::FORMAT_LIFORM,
+                'Form builder' => FormSchema::FORMAT_BUILDER,
+            ])
+            ->setHelp('Builder forms are designed from the Uploader client')
+        ;
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

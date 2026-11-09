@@ -4,6 +4,7 @@
  */
 
 import type {LiFormSchema} from '@/features/liform/types';
+import type {FormDefinition} from '@/features/form-builder/types';
 
 export interface HydraObject {
     '@id': string;
@@ -54,13 +55,33 @@ export enum LocaleMode {
     Forced = 2,
 }
 
-export type FormSchema = HydraObject & {
+/** Matches `FormSchema::FORMAT_*` of the API */
+export type FormSchemaFormat = 'liform' | 'builder';
+
+type FormSchemaBase = HydraObject & {
     id: string;
     target: Target;
     locale?: string | null;
     localeMode: LocaleMode;
+};
+
+export type LiFormFormSchema = FormSchemaBase & {
+    format: 'liform';
     data: LiFormSchema;
 };
+
+export type BuilderFormSchema = FormSchemaBase & {
+    format: 'builder';
+    data: FormDefinition;
+};
+
+export type FormSchema = LiFormFormSchema | BuilderFormSchema;
+
+export function isBuilderSchema(
+    schema: FormSchema | null | undefined
+): schema is BuilderFormSchema {
+    return schema?.format === 'builder';
+}
 
 export type TargetParams = HydraObject & {
     id: string;

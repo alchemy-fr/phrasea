@@ -125,7 +125,7 @@ Documentation et exemple de [formulaire](../../tech/Uploader/form_config.md)
    
 Cliquer sur une Target.
 
-L’éditeur de formulaire permet de décrire le formulaire en JSON et d’en voir le rendu instantané.
+L’éditeur de formulaire permet de construire le formulaire en glissant les attributs d’un workspace Databox (dont les listes d’entités), des valeurs Databox (nom, tags, story), des champs personnalisés et des sections, puis d’en voir le rendu. Les anciens formulaires décrits en JSON (LiForm) restent pris en charge et peuvent être convertis vers le constructeur.
 
 Exemple :
 

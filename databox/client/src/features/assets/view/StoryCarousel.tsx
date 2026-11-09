@@ -55,7 +55,7 @@ import {
     sortableMeasuring,
     SortableRow,
     useSortableRow,
-} from '@/components/ui/sortable';
+} from '@alchemy/next-ui/ui/sortable';
 import {iri} from '@/lib/utils/iri';
 import {toastError} from '@alchemy/next-ui/utils/errors';
 import {cn} from '@alchemy/next-ui/utils/cn';

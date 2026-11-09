@@ -1,11 +1,19 @@
 'use client';
 
+import {useState} from 'react';
 import Link from 'next/link';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {PencilIcon, PlusIcon, Trash2Icon} from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
-import {Alert, EmptyState} from '@alchemy/next-ui/ui/misc';
+import {
+    Alert,
+    Badge,
+    EmptyState,
+    Tabs,
+    TabsList,
+    TabsTrigger,
+} from '@alchemy/next-ui/ui/misc';
 import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {Page} from '@/components/layout/AppShell';
@@ -16,7 +24,11 @@ import {
 } from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
-import {FormSchemaEditor, formSchemasQueryKey} from './FormSchemaEditor';
+import {isBuilderSchema, type FormSchemaFormat} from '@/types/api';
+import type {FormDefinition} from '@/features/form-builder/types';
+import {FormSchemaEditor} from './FormSchemaEditor';
+import {formSchemasQueryKey} from './queryKeys';
+import {FormBuilderEditor} from './FormBuilderEditor';
 import {RequirePermission} from './RequirePermission';
 
 export function FormSchemaListScreen() {
@@ -77,12 +89,30 @@ function FormSchemaList() {
                                 <div className="truncate font-medium">
                                     {schema.target.name}
                                 </div>
-                                <div className="text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     {schema.locale ||
                                         t(
                                             'admin.form_schemas.all_locales',
                                             'All locales'
                                         )}
+                                    <Badge
+                                        variant={
+                                            schema.format === 'builder'
+                                                ? 'secondary'
+                                                : 'outline'
+                                        }
+                                        data-testid="form-schema-format"
+                                    >
+                                        {schema.format === 'builder'
+                                            ? t(
+                                                  'admin.form_schemas.format_builder',
+                                                  'Form builder'
+                                              )
+                                            : t(
+                                                  'admin.form_schemas.format_liform',
+                                                  'LiForm (JSON)'
+                                              )}
+                                    </Badge>
                                 </div>
                             </div>
                             <Button variant="outline" size="sm" asChild>
@@ -142,11 +172,42 @@ function FormSchemaList() {
 
 export function FormSchemaCreateScreen() {
     const {t} = useTranslation();
+    const [format, setFormat] = useState<FormSchemaFormat>('builder');
 
     return (
         <RequirePermission permission="form_schema">
             <Page title={t('admin.form_schemas.new', 'New Form Schema')} wide>
-                <FormSchemaEditor />
+                <Tabs
+                    value={format}
+                    onValueChange={v => setFormat(v as FormSchemaFormat)}
+                    className="mb-4"
+                >
+                    <TabsList>
+                        <TabsTrigger
+                            value="builder"
+                            data-testid="form-schema-format-builder"
+                        >
+                            {t(
+                                'admin.form_schemas.format_builder',
+                                'Form builder'
+                            )}
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="liform"
+                            data-testid="form-schema-format-liform"
+                        >
+                            {t(
+                                'admin.form_schemas.format_liform',
+                                'LiForm (JSON)'
+                            )}
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+                {format === 'builder' ? (
+                    <FormBuilderEditor />
+                ) : (
+                    <FormSchemaEditor />
+                )}
             </Page>
         </RequirePermission>
     );
@@ -162,6 +223,7 @@ export function FormSchemaEditScreen({id}: {id: string}) {
 
 function FormSchemaEdit({id}: {id: string}) {
     const {t} = useTranslation();
+    const [converted, setConverted] = useState<FormDefinition>();
     const {data, error, isPending} = useQuery({
         queryKey: [...formSchemasQueryKey, id],
         queryFn: () => getFormSchema(id),
@@ -187,7 +249,21 @@ function FormSchemaEdit({id}: {id: string}) {
             })}
             wide
         >
-            <FormSchemaEditor key={data.id} schema={data} />
+            {isBuilderSchema(data) || converted ? (
+                <FormBuilderEditor
+                    key={data.id}
+                    schema={data}
+                    initialDefinition={
+                        isBuilderSchema(data) ? undefined : converted
+                    }
+                />
+            ) : (
+                <FormSchemaEditor
+                    key={data.id}
+                    schema={data}
+                    onConvert={setConverted}
+                />
+            )}
         </Page>
     );
 }

@@ -2,22 +2,26 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {ArrowRightIcon} from 'lucide-react';
+import {SendIcon} from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Alert} from '@alchemy/next-ui/ui/misc';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {hasFormErrors, validateForm} from '@/lib/api/uploader';
-import {LiFormBody} from '@/features/liform/LiFormBody';
-import {fromServerErrors, useLiForm} from '@/features/liform/useLiForm';
-import type {LiFormSchema, LiFormValues} from '@/features/liform/types';
+import type {FormValues} from '@/features/form-builder/types';
+import type {FormSchema} from '@/types/api';
+import {
+    UploadFormBody,
+    useTargetOptionsLoader,
+    useUploadForm,
+} from './UploadForm';
 
 type Props = {
     targetId: string;
-    schema: LiFormSchema;
+    schema: FormSchema;
     /** Values entered earlier (back from a refused commit) */
-    initialValues?: LiFormValues;
+    initialValues?: FormValues;
     onCancel: () => void;
-    onSubmit: (values: LiFormValues) => void;
+    onSubmit: (values: FormValues) => void;
 };
 
 /**
@@ -33,7 +37,8 @@ export function MetadataFormStep({
     onSubmit,
 }: Props) {
     const {t} = useTranslation();
-    const form = useLiForm(schema, initialValues);
+    const form = useUploadForm(schema, initialValues);
+    const loadOptions = useTargetOptionsLoader(targetId);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string>();
 
@@ -47,7 +52,7 @@ export function MetadataFormStep({
         try {
             const errors = await validateForm(targetId, values);
             if (hasFormErrors(errors)) {
-                form.setErrors(fromServerErrors(errors));
+                form.setServerErrors(errors);
 
                 return;
             }
@@ -68,7 +73,11 @@ export function MetadataFormStep({
                 void submit();
             }}
         >
-            <LiFormBody form={form} disabled={submitting} />
+            <UploadFormBody
+                form={form}
+                loadOptions={loadOptions}
+                disabled={submitting}
+            />
             {error ? (
                 <Alert variant="destructive" className="mb-4">
                     {error}
@@ -77,7 +86,7 @@ export function MetadataFormStep({
             <div className="flex justify-between gap-3">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     data-testid="upload-cancel"
                     onClick={onCancel}
                 >
@@ -88,7 +97,7 @@ export function MetadataFormStep({
                     loading={submitting}
                     data-testid="metadata-submit"
                 >
-                    {t('upload.next', 'Next')} <ArrowRightIcon />
+                    <SendIcon /> {t('upload.submit_form', 'Confirm and send')}
                 </Button>
             </div>
         </form>
