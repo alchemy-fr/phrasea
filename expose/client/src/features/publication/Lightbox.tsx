@@ -83,7 +83,7 @@ export function Lightbox({
                         </>
                     ) : null}
                 </div>
-                <aside className="h-[40%] shrink-0 overflow-y-auto border-t p-4 pr-12 md:h-auto md:w-80 md:border-t-0 md:border-l lg:w-96">
+                <aside className="h-[40%] shrink-0 overflow-y-auto p-4 pr-12 md:h-auto md:w-80 lg:w-96">
                     <AssetLegend publication={publication} asset={current} />
                 </aside>
             </div>
@@ -92,7 +92,7 @@ export function Lightbox({
                     assets={assets}
                     currentId={current.id}
                     onSelect={onMove}
-                    className="border-t bg-background/80"
+                    className="bg-background/80"
                 />
             ) : null}
             <Button

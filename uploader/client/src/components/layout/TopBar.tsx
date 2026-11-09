@@ -67,7 +67,7 @@ export function TopBar() {
     return (
         <header
             data-testid="topbar"
-            className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-2"
+            className="flex h-12 shrink-0 items-center gap-2 bg-background px-2"
         >
             <AppLogo
                 href={routes.home()}
