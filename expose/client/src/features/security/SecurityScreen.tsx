@@ -153,14 +153,23 @@ function PasswordMethod({publication, reload}: Props) {
 
 function AuthenticationMethod({publication, reload}: Props) {
     const {t} = useTranslation();
-    const {status, user, login, loginInWindow, logout, redirecting} = useAuth();
+    const {
+        status,
+        user,
+        login,
+        loginInWindow,
+        logout,
+        loggingOut,
+        redirecting,
+    } = useAuth();
     const queryClient = useQueryClient();
     const [embedded] = useState(isInIframe);
     const [loggedOut] = useState(hasLoggedOut);
     const [opening, setOpening] = useState(false);
     // Straight to Keycloak, unless the page is framed (Keycloak cannot be)
     // or the user just signed out
-    const autoLogin = status === 'anonymous' && !embedded && !loggedOut;
+    const autoLogin =
+        status === 'anonymous' && !embedded && !loggedOut && !loggingOut;
 
     useEffect(() => {
         if (autoLogin) {
@@ -168,7 +177,7 @@ function AuthenticationMethod({publication, reload}: Props) {
         }
     }, [autoLogin, login]);
 
-    if (status === 'loading' || autoLogin) {
+    if (status === 'loading' || autoLogin || loggingOut) {
         return <FullPageLoader />;
     }
 
