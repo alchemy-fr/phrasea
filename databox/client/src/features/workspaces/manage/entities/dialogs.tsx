@@ -1,12 +1,14 @@
 'use client';
 
 import {useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {DownloadIcon, MergeIcon, UploadIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AttributeEntity, EntityList} from '@/types/api';
 import {
     exportEntityList,
+    getLocales,
     importEntityList,
     mergeAttributeEntities,
 } from '@/lib/api/metadata';
@@ -15,6 +17,16 @@ import {SimpleSelect} from '@/components/ui/select';
 import {type ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
 import {downloadUrl} from '@/lib/utils/misc';
+import {getErrorMessage} from '@/lib/utils/errors';
+
+export const THESAURUS_FORMAT = 'thesaurus';
+const NO_DEFAULT_LOCALE = '__none';
+
+const THESAURUS_EXAMPLE = `animal
+    mammifère [fr]; mammal [en]
+        {#ff0000} chien [fr]; dog [en]
+        ! {#00f800} cat [en]; chat [fr]
+    ? oiseau [fr]`;
 
 export function MergeEntitiesDialog({
     open,
@@ -167,6 +179,137 @@ export function ImportEntitiesDialog({
                 className="min-h-40 font-mono text-xs"
                 placeholder={'value,locale,translation\n…'}
             />
+        </FormDialog>
+    );
+}
+
+/**
+ * Imports a tabulated thesaurus: one entity per line, indented under its
+ * parent. The syntax errors reported by the server are shown in place.
+ */
+export function ImportThesaurusDialog({
+    open,
+    onOpenChange,
+    list,
+    onImported,
+}: ModalProps & {list: EntityList; onImported: () => void}) {
+    const {t} = useTranslation();
+    const [data, setData] = useState('');
+    const [error, setError] = useState<string>();
+    const [defaultLocale, setDefaultLocale] = useState(NO_DEFAULT_LOCALE);
+    const locales = useQuery({queryKey: ['locales'], queryFn: getLocales});
+
+    return (
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            size="md"
+            title={t(
+                'entity.thesaurus.import_title',
+                'Import a tabulated thesaurus into "{{name}}"',
+                {name: list.name}
+            )}
+            submitLabel={t('entity.import', 'Import')}
+            submitIcon={<UploadIcon />}
+            canSubmit={!!data.trim()}
+            dirty={!!data.trim()}
+            bodyClassName="space-y-3"
+            onSubmit={async () => {
+                try {
+                    await importEntityList(list.id, THESAURUS_FORMAT, data, {
+                        defaultLocale:
+                            defaultLocale === NO_DEFAULT_LOCALE
+                                ? undefined
+                                : defaultLocale,
+                    });
+                } catch (e) {
+                    setError(getErrorMessage(e));
+
+                    return false;
+                }
+                toast.success(t('entity.imported', 'Values imported'));
+                onImported();
+            }}
+        >
+            <p className="text-sm text-muted-foreground">
+                {t(
+                    'entity.thesaurus.import_help',
+                    'One entity per line, indented under its parent. A leading "?" makes it pending, "!" rejected; {#rrggbb} sets its color; the terms are separated by ";", "term [locale]" being a translation. An entity of the same value is updated, or moved when it is the only one of the list.'
+                )}
+            </p>
+            <FormRow
+                label={t(
+                    'entity.thesaurus.default_locale',
+                    'Language of the terms without language'
+                )}
+                help={t(
+                    'entity.thesaurus.default_locale_help',
+                    'The first one becomes the translation in this language, the next ones its synonyms.'
+                )}
+            >
+                <SimpleSelect
+                    value={defaultLocale}
+                    onValueChange={v => {
+                        setDefaultLocale(v);
+                        setError(undefined);
+                    }}
+                    options={[
+                        {
+                            value: NO_DEFAULT_LOCALE,
+                            label: t(
+                                'entity.thesaurus.no_default_locale',
+                                'None (labels without language)'
+                            ),
+                        },
+                        ...(locales.data ?? []).map(l => ({
+                            value: l.id,
+                            label: `${l.name} (${l.id})`,
+                        })),
+                    ]}
+                />
+            </FormRow>
+            <Input
+                type="file"
+                accept=".txt,text/plain"
+                onChange={async e => {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                        setData(await f.text());
+                        setError(undefined);
+                    }
+                }}
+            />
+            <Textarea
+                value={data}
+                onChange={e => {
+                    setData(e.target.value);
+                    setError(undefined);
+                }}
+                onKeyDown={e => {
+                    // Tab indents instead of leaving the field
+                    if (e.key === 'Tab' && !e.shiftKey) {
+                        e.preventDefault();
+                        const el = e.currentTarget;
+                        const {selectionStart: start, selectionEnd: end} = el;
+                        const next = `${data.slice(0, start)}\t${data.slice(end)}`;
+                        setData(next);
+                        requestAnimationFrame(() =>
+                            el.setSelectionRange(start + 1, start + 1)
+                        );
+                    }
+                }}
+                className="min-h-60 font-mono text-xs [tab-size:4]"
+                placeholder={THESAURUS_EXAMPLE}
+                data-testid="thesaurus-data"
+            />
+            {error ? (
+                <pre
+                    className="max-h-40 overflow-auto rounded-md border border-destructive/50 bg-destructive/10 p-2 text-xs whitespace-pre-wrap text-destructive"
+                    data-testid="thesaurus-error"
+                >
+                    {error}
+                </pre>
+            ) : null}
         </FormDialog>
     );
 }

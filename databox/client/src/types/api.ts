@@ -357,6 +357,11 @@ export interface BaseAttributeDefinition extends Entity {
     searchable: boolean;
     sortable: boolean;
     entityList?: EntityList | string | null;
+    /** Depths of the entity list hierarchy whose entities are accepted, bounds included (0: the top level; null: open bound) */
+    entityHierarchyDepthMin?: number | null;
+    entityHierarchyDepthMax?: number | null;
+    /** A value fills the attributes bound to the ancestor depths */
+    autoFillParents?: boolean;
     multiple: boolean;
     facetEnabled: boolean;
     slug: string;
@@ -407,7 +412,13 @@ export interface AttributePolicy extends HydraObject, Entity {
     workspace: Workspace | string;
 }
 
-export type AttributeOrigin = 'human' | 'machine' | 'fallback' | 'initial';
+export type AttributeOrigin =
+    | 'human'
+    | 'machine'
+    | 'fallback'
+    | 'initial'
+    /** Filled from the hierarchy of a deeper value */
+    | 'hierarchy';
 
 export interface Attribute extends Partial<HydraObject>, Entity {
     definition: AttributeDefinition;
@@ -460,7 +471,24 @@ export interface AttributeEntity extends HydraObject, Entity {
     status: AttributeEntityStatus;
     /** Attribute values referencing the entity, with the `usage` parameter */
     usage?: {attributes: number; humanAttributes: number};
+    /** Order among the siblings of the hierarchy */
+    position?: number;
+    parentId?: string | null;
+    /** Depth in the list hierarchy (0: no parent) */
+    hierarchyDepth?: number;
+    /** Fills an empty level of the hierarchy: never selectable */
+    placeholder?: boolean;
+    /** Ancestors from the top (placeholders left out) */
+    path?: AttributeEntityPathItem[];
+    /** Direct children, in listings */
+    childCount?: number | null;
 }
+
+export type AttributeEntityPathItem = {
+    id: string;
+    value: string;
+    translations?: Translations | null;
+};
 
 export interface EntityList extends HydraObject, Entity {
     name: string;
@@ -472,6 +500,8 @@ export interface EntityList extends HydraObject, Entity {
     withEmojis?: boolean;
     withColors?: boolean;
     withImages?: boolean;
+    /** The entities may form a hierarchy (the "Tree" view) */
+    isHierarchy?: boolean;
     workspace?: Workspace | string;
     createdAt: string;
     updatedAt: string;

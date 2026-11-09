@@ -16,6 +16,7 @@ import {
     HydraCollection,
     Locale,
     MetadataTag,
+    OperationTaskStatus,
     Page,
     Tag,
 } from '@/types/api';
@@ -270,15 +271,62 @@ export async function exportEntityList(
     return {blob: await res.blob(), filename};
 }
 
-export function importEntityList(
+type EntityListImportTask = {
+    status: OperationTaskStatus;
+    output: string | null;
+};
+
+export function getEntityListImportTask(
+    listId: string,
+    taskId: string
+): Promise<EntityListImportTask> {
+    return api.get<EntityListImportTask>(
+        `/${EntityName.EntityList}/${listId}/import-tasks/${taskId}`
+    );
+}
+
+const IMPORT_POLL_INTERVAL = 1000;
+
+/**
+ * Queues the import, then waits for its task: a large import outlasts an
+ * HTTP request. Rejects with the syntax errors (at once) or with the error of
+ * the failed task.
+ */
+export async function importEntityList(
     listId: string,
     format: string,
-    data: string
+    data: string,
+    options: {
+        /** Locale of the labels given without one (tabulated thesaurus) */
+        defaultLocale?: string;
+    } = {}
 ): Promise<void> {
-    return api.post(`/${EntityName.EntityList}/${listId}/import`, {
-        format,
-        data,
-    });
+    const res = await api.post<{taskId?: string}>(
+        `/${EntityName.EntityList}/${listId}/import`,
+        {
+            format,
+            data,
+            ...options,
+        }
+    );
+    if (!res?.taskId) {
+        // Nothing to import
+        return;
+    }
+
+    while (true) {
+        await new Promise(resolve => setTimeout(resolve, IMPORT_POLL_INTERVAL));
+        const task = await getEntityListImportTask(listId, res.taskId);
+        if (task.status === OperationTaskStatus.Completed) {
+            return;
+        }
+        if (
+            task.status === OperationTaskStatus.Failed ||
+            task.status === OperationTaskStatus.Cancelled
+        ) {
+            throw new Error(task.output?.trim() || 'Import failed');
+        }
+    }
 }
 
 export function clearEntityList(listId: string): Promise<void> {
@@ -286,7 +334,7 @@ export function clearEntityList(listId: string): Promise<void> {
 }
 
 export type AttributeEntitySortField =
-    'value' | 'status' | 'note' | 'createdAt' | 'updatedAt';
+    'value' | 'status' | 'note' | 'position' | 'createdAt' | 'updatedAt';
 
 export async function getAttributeEntities(options: {
     list?: string;
@@ -301,6 +349,15 @@ export async function getAttributeEntities(options: {
     status?: AttributeEntityStatus | AttributeEntityStatus[];
     /** Also count the attribute values referencing each entity (`usage`) */
     usage?: boolean;
+    /** Direct children of this entity */
+    parent?: string;
+    /** Entities at this depth of the hierarchy (0: the top level) */
+    depth?: number;
+    /** Descendants of this entity */
+    branch?: string;
+    placeholder?: boolean;
+    /** Entities accepted by this attribute definition (its depth and branch) */
+    definition?: string;
     limit?: number;
     /** Defaults to `{value: 'asc'}` */
     order?: Partial<Record<AttributeEntitySortField, 'asc' | 'desc'>>;
@@ -321,6 +378,11 @@ export async function getAttributeEntities(options: {
                           note: options.note,
                           status: options.status,
                           usage: options.usage ? 1 : undefined,
+                          parent: options.parent,
+                          depth: options.depth,
+                          branch: options.branch,
+                          placeholder: options.placeholder,
+                          definition: options.definition,
                           limit: options.limit,
                           ...Object.fromEntries(
                               Object.entries(
@@ -371,6 +433,77 @@ export function postAttributeEntity(
         ...data,
         list: `/${EntityName.EntityList}/${listId}`,
     });
+}
+
+/**
+ * Moves an entity in the hierarchy of its list (null: the top level), at a
+ * position among its new siblings.
+ */
+export function moveAttributeEntity(
+    id: string,
+    parentId: string | null,
+    position: number
+): Promise<AttributeEntity> {
+    return api.patch<AttributeEntity>(`/${EntityName.AttributeEntity}/${id}`, {
+        parent: parentId ? `/${EntityName.AttributeEntity}/${parentId}` : null,
+        position,
+    });
+}
+
+export type EntityHierarchyImpact = {
+    id: string;
+    /** The entity and its descendants */
+    entityCount: number;
+    attributeCount: number;
+    humanAttributeCount: number;
+    definitions: {
+        id: string;
+        name: string;
+        depthMin: number | null;
+        depthMax: number | null;
+        autoFillParents: boolean;
+    }[];
+};
+
+export function getEntityHierarchyImpact(
+    id: string
+): Promise<EntityHierarchyImpact> {
+    return api.get<EntityHierarchyImpact>(
+        `/${EntityName.AttributeEntity}/${id}/hierarchy-impact`
+    );
+}
+
+export type EntityHierarchyImportReport = {
+    applied: number;
+    rejected: {line: number; entity: string | null; reason: string}[];
+};
+
+/**
+ * CSV: entity_external_id, parent_external_id (empty: the top level), position.
+ */
+export function importEntityHierarchy(
+    listId: string,
+    data: string,
+    dryRun: boolean
+): Promise<EntityHierarchyImportReport> {
+    return api.post<EntityHierarchyImportReport>(
+        `/${EntityName.EntityList}/${listId}/hierarchy-import`,
+        {data, dryRun}
+    );
+}
+
+export async function exportEntityHierarchy(
+    listId: string
+): Promise<{blob: Blob; filename: string}> {
+    const res = await api.raw(
+        `/${EntityName.EntityList}/${listId}/hierarchy-export`,
+        {method: 'post', json: {}}
+    );
+    const disposition = res.headers.get('content-disposition');
+    const filename =
+        disposition?.match(/filename="?([^"]+)"?/)?.[1] ?? 'hierarchy.csv';
+
+    return {blob: await res.blob(), filename};
 }
 
 export function putAttributeEntity(

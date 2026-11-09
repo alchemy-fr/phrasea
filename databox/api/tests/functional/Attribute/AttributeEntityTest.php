@@ -92,15 +92,18 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity1->getId(),
+                        'branch' => [$entity1->getId()],
                         'value' => 'ae1',
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'value' => 'ae2',
                     ],
                 ],
                 'single_entity_s' => [
                     'id' => $entity1->getId(),
+                    'branch' => [$entity1->getId()],
                     'value' => 'ae1',
                 ],
                 'name_text_s' => 'Asset1',
@@ -109,6 +112,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity1->getId(),
+                        'branch' => [$entity1->getId()],
                         'synonyms' => [
                             'ae1en1',
                             'ae1en2',
@@ -116,6 +120,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'synonyms' => [
                             'ae2en1',
                             'ae2en2',
@@ -124,6 +129,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 ],
                 'single_entity_s' => [
                     'id' => $entity1->getId(),
+                    'branch' => [$entity1->getId()],
                     'synonyms' => [
                         'ae1en1',
                         'ae1en2',
@@ -134,6 +140,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity1->getId(),
+                        'branch' => [$entity1->getId()],
                         'synonyms' => [
                             'ae1fr1',
                             'ae1fr2',
@@ -141,6 +148,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
@@ -149,6 +157,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 ],
                 'single_entity_s' => [
                     'id' => $entity1->getId(),
+                    'branch' => [$entity1->getId()],
                     'synonyms' => [
                         'ae1fr1',
                         'ae1fr2',
@@ -188,15 +197,18 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity1->getId(),
+                        'branch' => [$entity1->getId()],
                         'value' => 'ae1-bis',
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'value' => 'ae2',
                     ],
                 ],
                 'single_entity_s' => [
                     'id' => $entity1->getId(),
+                    'branch' => [$entity1->getId()],
                     'value' => 'ae1-bis',
                 ],
                 'name_text_s' => 'Asset1',
@@ -205,6 +217,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity1->getId(),
+                        'branch' => [$entity1->getId()],
                         'synonyms' => [
                             'ae1en1-bis',
                             'ae1en2-bis',
@@ -212,6 +225,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'synonyms' => [
                             'ae2en1',
                             'ae2en2',
@@ -220,6 +234,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 ],
                 'single_entity_s' => [
                     'id' => $entity1->getId(),
+                    'branch' => [$entity1->getId()],
                     'synonyms' => [
                         'ae1en1-bis',
                         'ae1en2-bis',
@@ -230,6 +245,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity1->getId(),
+                        'branch' => [$entity1->getId()],
                         'synonyms' => [
                             'ae1fr1-bis',
                             'ae1fr2-bis',
@@ -237,6 +253,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
@@ -245,6 +262,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 ],
                 'single_entity_s' => [
                     'id' => $entity1->getId(),
+                    'branch' => [$entity1->getId()],
                     'synonyms' => [
                         'ae1fr1-bis',
                         'ae1fr2-bis',
@@ -310,6 +328,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'value' => 'ae2',
                         'synonyms' => [
                             'ae1-bis',
@@ -317,6 +336,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'value' => 'ae2',
                         'synonyms' => [
                             'ae1-bis',
@@ -325,6 +345,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 ],
                 'single_entity_s' => [
                     'id' => $entity2->getId(),
+                    'branch' => [$entity2->getId()],
                     'value' => 'ae2',
                     'synonyms' => [
                         'ae1-bis',
@@ -336,6 +357,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'synonyms' => [
                             'ae2en1',
                             'ae2en2',
@@ -345,6 +367,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'synonyms' => [
                             'ae2en1',
                             'ae2en2',
@@ -355,6 +378,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 ],
                 'single_entity_s' => [
                     'id' => $entity2->getId(),
+                    'branch' => [$entity2->getId()],
                     'synonyms' => [
                         'ae2en1',
                         'ae2en2',
@@ -367,6 +391,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
@@ -377,6 +402,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                     ],
                     [
                         'id' => $entity2->getId(),
+                        'branch' => [$entity2->getId()],
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
@@ -388,6 +414,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 ],
                 'single_entity_s' => [
                     'id' => $entity2->getId(),
+                    'branch' => [$entity2->getId()],
                     'synonyms' => [
                         'ae2fr1',
                         'ae2fr2',
@@ -806,6 +833,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity2Id,
+                        'branch' => [$entity2Id],
                         'value' => 'ae2',
                     ],
                 ],
@@ -815,6 +843,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity2Id,
+                        'branch' => [$entity2Id],
                         'synonyms' => [
                             'ae2en1',
                             'ae2en2',
@@ -826,6 +855,7 @@ class AttributeEntityTest extends AbstractSearchTestCase
                 'many_entity_m' => [
                     [
                         'id' => $entity2Id,
+                        'branch' => [$entity2Id],
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',

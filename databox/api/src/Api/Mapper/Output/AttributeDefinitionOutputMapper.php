@@ -51,6 +51,9 @@ class AttributeDefinitionOutputMapper implements OutputMapperInterface
         $output->fileType = $data->getFileType();
         $output->type = $data->getType();
         $output->entityList = $data->getEntityList();
+        $output->entityHierarchyDepthMin = $data->getEntityHierarchyDepthMin();
+        $output->entityHierarchyDepthMax = $data->getEntityHierarchyDepthMax();
+        $output->autoFillParents = $data->isAutoFillParents();
         $output->searchable = $data->isSearchable();
         $output->sortable = $data->isSortable();
         $output->enabled = $data->isEnabled();

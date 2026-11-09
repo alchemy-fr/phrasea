@@ -99,17 +99,20 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTestCase
         $entity->method('getValue')->willReturn('Hello');
         $entity->method('getId')->willReturn('17e9152c-fa5f-4f53-83ac-62674f6f6f8d');
         $entity->method('getSynonyms')->willReturn(['fr' => ['salut']]);
+        $entity->method('getBranchIds')->willReturn(['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', 'parent-id']);
 
         $this->repository->method('find')->willReturn($entity);
 
         $this->assertEquals([
             'fr' => [
                 'id' => '17e9152c-fa5f-4f53-83ac-62674f6f6f8d',
+                'branch' => ['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', 'parent-id'],
                 'value' => 'Bonjour',
                 'synonyms' => ['salut'],
             ],
             AttributeInterface::NO_LOCALE => [
                 'id' => '17e9152c-fa5f-4f53-83ac-62674f6f6f8d',
+                'branch' => ['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', 'parent-id'],
                 'value' => 'Hello',
             ],
         ], $this->getType()->normalizeElasticsearchValue('17e9152c-fa5f-4f53-83ac-62674f6f6f8d'));

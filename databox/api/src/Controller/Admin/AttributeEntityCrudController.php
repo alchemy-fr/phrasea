@@ -13,12 +13,16 @@ use App\Entity\Core\AttributeEntity;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class AttributeEntityCrudController extends AbstractAdminCrudController
@@ -41,6 +45,9 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
             ->add(EntityFilter::new('workspace'))
             ->add(EntityFilter::new('list'))
             ->add(TextFilter::new('value'))
+            ->add(EntityFilter::new('parent'))
+            ->add(NumericFilter::new('hierarchyDepth'))
+            ->add(BooleanFilter::new('placeholder'))
             ->add(DateTimeFilter::new('createdAt'))
             ->add($this->userChoiceFilter->createFilter('creatorId'))
             ->add(ChoiceFilter::new('status')
@@ -68,6 +75,17 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         yield AssociationField::new('list')
             ->autocomplete();
         yield TextField::new('value');
+        // The hierarchy is edited through the API only, which shifts the depth
+        // of the moved subtree and indexes it again (EntityHierarchyManager)
+        yield AssociationField::new('parent')
+            ->hideOnForm();
+        yield IntegerField::new('hierarchyDepth')
+            ->hideOnForm();
+        yield BooleanField::new('placeholder')
+            ->renderAsSwitch(false)
+            ->hideOnForm();
+        yield IntegerField::new('position')
+            ->hideOnForm();
         yield TextField::new('note');
         yield TextField::new('emoji');
         yield JsonField::new('synonyms')

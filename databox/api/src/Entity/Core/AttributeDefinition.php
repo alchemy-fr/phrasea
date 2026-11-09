@@ -294,6 +294,22 @@ class AttributeDefinition extends AbstractUuidEntity implements AuditableInterfa
     #[ORM\JoinColumn(nullable: true)]
     protected ?EntityList $entityList = null;
 
+    /**
+     * Depths of the entity list hierarchy whose entities this attribute accepts (0: the entities without parent),
+     * bounds included. A null bound is open; both null: any entity of the list (no hierarchy binding).
+     */
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $entityHierarchyDepthMin = null;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $entityHierarchyDepthMax = null;
+
+    /**
+     * A value of this attribute fills the attributes bound to the ancestor depths of the same list.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $autoFillParents = false;
+
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $searchable = true;
 
@@ -755,6 +771,53 @@ class AttributeDefinition extends AbstractUuidEntity implements AuditableInterfa
     public function setSuggest(bool $suggest): void
     {
         $this->suggest = $suggest;
+    }
+
+    public function getEntityHierarchyDepthMin(): ?int
+    {
+        return $this->entityHierarchyDepthMin;
+    }
+
+    public function setEntityHierarchyDepthMin(?int $entityHierarchyDepthMin): void
+    {
+        $this->entityHierarchyDepthMin = $entityHierarchyDepthMin;
+    }
+
+    public function getEntityHierarchyDepthMax(): ?int
+    {
+        return $this->entityHierarchyDepthMax;
+    }
+
+    public function setEntityHierarchyDepthMax(?int $entityHierarchyDepthMax): void
+    {
+        $this->entityHierarchyDepthMax = $entityHierarchyDepthMax;
+    }
+
+    /**
+     * Whether an entity at this depth is accepted (always when the attribute is not bound to the hierarchy).
+     */
+    public function acceptsHierarchyDepth(int $depth): bool
+    {
+        return (null === $this->entityHierarchyDepthMin || $depth >= $this->entityHierarchyDepthMin)
+            && (null === $this->entityHierarchyDepthMax || $depth <= $this->entityHierarchyDepthMax);
+    }
+
+    public function isAutoFillParents(): bool
+    {
+        return $this->autoFillParents;
+    }
+
+    public function setAutoFillParents(bool $autoFillParents): void
+    {
+        $this->autoFillParents = $autoFillParents;
+    }
+
+    /**
+     * Whether the attribute is bound to depths of its entity list hierarchy.
+     */
+    public function isHierarchical(): bool
+    {
+        return (null !== $this->entityHierarchyDepthMin || null !== $this->entityHierarchyDepthMax) && null !== $this->entityList;
     }
 
     public function getEntityList(): ?EntityList

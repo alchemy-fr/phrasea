@@ -10,6 +10,7 @@ import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {DefinitionManager} from '../DefinitionManager';
 import {
     deleteEntityList,
+    getAttributeEntities,
     getEntityList,
     getEntityLists,
     postEntityList,
@@ -21,8 +22,11 @@ import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {Badge} from '@/components/ui/misc';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
+import {ConfirmDialog} from '@/components/ui/confirm';
+import {useModals} from '@/components/modals/ModalProvider';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityGrid} from './EntityGrid';
+import {hierarchyQueryKey} from './hierarchy/EntityTree';
 
 export function EntityListsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -71,6 +75,8 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
             onDelete={l => deleteEntityList(l.id)}
             createLabel={t('entity_list.create', 'New list')}
             manageLabel={t('entity_list.manage', 'Values')}
+            // The rows carry several actions: a wide list, a narrow form
+            columnsClassName="lg:grid-cols-[minmax(0,2fr)_minmax(16rem,1fr)]"
             renderRowActions={l => (
                 <ExploreEntityListButton
                     listId={l.id}
@@ -111,11 +117,61 @@ function ListForm({
         withEmojis: list?.withEmojis ?? false,
         withColors: list?.withColors ?? false,
         withImages: list?.withImages ?? false,
+        isHierarchy: list?.isHierarchy ?? false,
     });
     const [saving, setSaving] = useState(false);
+    const {openModal} = useModals();
+    const queryClient = useQueryClient();
     const {markSaved} = useDirtyState(form);
     const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
         setForm(f => ({...f, [k]: v}));
+
+    /** Whether the list has entities below the top level or empty levels */
+    const hasHierarchy = async (listId: string): Promise<boolean> => {
+        const [nested, placeholders] = await Promise.all([
+            getAttributeEntities({list: listId, depth: 1, limit: 1}),
+            getAttributeEntities({list: listId, placeholder: true, limit: 1}),
+        ]);
+
+        return nested.total > 0 || placeholders.total > 0;
+    };
+
+    const submit = async () => {
+        if (list?.isHierarchy && !form.isHierarchy) {
+            setSaving(true);
+            let flatten = false;
+            try {
+                flatten = await hasHierarchy(list.id);
+            } catch (e: any) {
+                toast.error(e?.message);
+                setSaving(false);
+
+                return;
+            }
+            setSaving(false);
+            if (flatten) {
+                openModal(ConfirmDialog, {
+                    title: t(
+                        'entity_list.flatten_title',
+                        'The hierarchy will be deleted'
+                    ),
+                    description: t(
+                        'entity_list.flatten_confirm',
+                        'Every value goes back to the top level, the empty levels are removed, the attribute definitions are no longer bound to hierarchy levels and the values filled by the hierarchy are removed from the assets.'
+                    ),
+                    confirmLabel: t(
+                        'entity_list.flatten',
+                        'Delete the hierarchy'
+                    ),
+                    destructive: true,
+                    onConfirm: save,
+                });
+
+                return;
+            }
+        }
+        await save();
+    };
 
     const save = async () => {
         setSaving(true);
@@ -124,6 +180,18 @@ function ListForm({
                 ? await putEntityList(list.id, form)
                 : await postEntityList(workspaceId, form);
             toast.success(t('entity_list.saved', 'List saved'));
+            queryClient.invalidateQueries({
+                queryKey: ['entity-list', saved.id],
+            });
+            if (!!list?.isHierarchy !== !!saved.isHierarchy) {
+                // Flattened, or flagged again: the cached tree is obsolete
+                queryClient.removeQueries({
+                    queryKey: hierarchyQueryKey(saved.id),
+                });
+                queryClient.invalidateQueries({
+                    queryKey: ['attribute-entities'],
+                });
+            }
             markSaved();
             onSaved(saved);
         } catch (e: any) {
@@ -156,6 +224,10 @@ function ListForm({
         ['withEmojis', t('entity_list.with_emojis', 'Emojis')],
         ['withColors', t('entity_list.with_colors', 'Colors')],
         ['withImages', t('entity_list.with_images', 'Photos')],
+        [
+            'isHierarchy',
+            t('entity_list.is_hierarchy', 'Hierarchy (tree of values)'),
+        ],
     ];
 
     return (
@@ -166,7 +238,7 @@ function ListForm({
                     onChange={e => set('name', e.target.value)}
                 />
             </FormRow>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2">
                 {flags.map(([k, label]) => (
                     <LabeledControl key={k} label={label}>
                         <Checkbox
@@ -178,7 +250,7 @@ function ListForm({
             </div>
             <div className="flex justify-end">
                 <Button
-                    onClick={save}
+                    onClick={submit}
                     loading={saving}
                     disabled={!form.name.trim()}
                 >

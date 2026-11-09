@@ -7,6 +7,7 @@ namespace App\Api\Processor;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Attribute\Hierarchy\EntityHierarchyManager;
 use App\Consumer\Handler\Entity\AttributeEntityPendingNotify;
 use App\Entity\Core\AttributeEntity;
 use App\Security\Voter\AbstractVoter;
@@ -20,6 +21,7 @@ class AddAttributeEntityProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly MessageBusInterface $bus,
+        private readonly EntityHierarchyManager $hierarchyManager,
     ) {
     }
 
@@ -33,6 +35,8 @@ class AddAttributeEntityProcessor implements ProcessorInterface
         if (!$data->getList()->isApproveNewValues() && !$this->isGranted(AbstractVoter::EDIT, $data->getList())) {
             $data->setStatus(AttributeEntity::STATUS_PENDING);
         }
+
+        $this->hierarchyManager->placeNew($data);
 
         $this->em->persist($data);
         $this->em->flush();
