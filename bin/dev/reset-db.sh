@@ -24,5 +24,5 @@ for entry in "databox-api-php:${DATABOX_DB_NAME}" "expose-api-php:${EXPOSE_DB_NA
   db_name="${entry#*:}"
   echo "## Resetting database for ${service}..."
   exec_container db "psql -U \"${POSTGRES_USER}\" -c 'DROP DATABASE IF EXISTS ${db_name} WITH (FORCE);'"
-  docker compose run --rm ${service} /bin/ash -c 'bin/console doctrine:database:create && (!(bin/console | grep app:database:configure) || bin/console app:database:configure)'
+  docker compose run --rm ${service} su app -c 'bin/console doctrine:database:create && (!(bin/console | grep app:database:configure) || bin/console app:database:configure)'
 done
