@@ -112,6 +112,7 @@ export class OidcClient {
     private refreshPromise: Promise<Tokens | undefined> | undefined;
     private refreshTimer: ReturnType<typeof setTimeout> | undefined;
     private silentLoginPromise: Promise<AuthUser | undefined> | undefined;
+    private initPromise: Promise<AuthUser | undefined> | undefined;
     private readonly callbackPromises = new Map<string, Promise<string>>();
     private readonly listeners = new Set<Listener>();
     private readonly storageKey: string;
@@ -301,6 +302,15 @@ export class OidcClient {
         if (this.tokens && this.tokens.expiresAt > now() + 10) {
             return this.tokens.accessToken;
         }
+        // The first requests of the page are sent while the session is being
+        // restored (silent sign-in in particular): sent without a token, they
+        // would get the answer meant for an anonymous visitor.
+        if (this.initPromise) {
+            await this.initPromise;
+            if (this.tokens && this.tokens.expiresAt > now() + 10) {
+                return this.tokens.accessToken;
+            }
+        }
 
         const tokens = await this.refresh();
 
@@ -313,10 +323,26 @@ export class OidcClient {
      * the Keycloak SSO session through a silent sign-in.
      *
      * Never rejects: resolves to undefined when the user stays anonymous.
+     * Until it resolves, `getAccessToken()` waits for it.
      */
-    public async init({silent = false}: {silent?: boolean} = {}): Promise<
-        AuthUser | undefined
-    > {
+    public init(
+        options: {silent?: boolean} = {}
+    ): Promise<AuthUser | undefined> {
+        const promise = this.doInit(options).finally(() => {
+            if (this.initPromise === promise) {
+                this.initPromise = undefined;
+            }
+        });
+        this.initPromise = promise;
+
+        return promise;
+    }
+
+    private async doInit({
+        silent = false,
+    }: {
+        silent?: boolean;
+    }): Promise<AuthUser | undefined> {
         if (this.tokens) {
             return this.getUser();
         }

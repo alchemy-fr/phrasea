@@ -332,3 +332,36 @@ describe('OidcClient.init', () => {
         expect(document.querySelector('iframe')).toBeNull();
     });
 });
+
+describe('OidcClient.getAccessToken', () => {
+    it('waits for the silent sign-in under way', async () => {
+        fetchMock.mockResolvedValue(tokenResponse());
+        const client = createClient();
+
+        const init = client.init({silent: true});
+        const token = client.getAccessToken();
+        const iframe = await findIframe();
+        postFromIframe(
+            iframe,
+            `state=${authParams(iframe).get('state')}&code=abc`
+        );
+
+        expect(await token).toBe(accessToken);
+        expect((await init)?.id).toBe('alice-id');
+    });
+
+    it('resolves to undefined once the visitor stays anonymous', async () => {
+        const client = createClient();
+
+        client.init({silent: true});
+        const token = client.getAccessToken();
+        const iframe = await findIframe();
+        postFromIframe(
+            iframe,
+            `error=login_required&state=${authParams(iframe).get('state')}`
+        );
+
+        expect(await token).toBeUndefined();
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+});
