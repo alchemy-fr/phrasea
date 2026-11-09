@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {render, screen, waitFor} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import {FileTile} from './FileTile';
@@ -132,5 +132,27 @@ describe('FileTile', () => {
 
         unmount();
         expect(URL.revokeObjectURL).toHaveBeenLastCalledWith('blob:2');
+    });
+
+    it('removes a file already sent', () => {
+        const onRemove = vi.fn();
+        render(
+            <I18nextProvider i18n={createI18n('en')}>
+                <PreviewCacheProvider files={[]}>
+                    <ul>
+                        <FileTile
+                            file={makeFile('a.mp4', 'video/mp4', 1024)}
+                            status="done"
+                            loaded={1024}
+                            onRemove={onRemove}
+                        />
+                    </ul>
+                </PreviewCacheProvider>
+            </I18nextProvider>
+        );
+
+        fireEvent.click(screen.getByRole('button', {name: 'Remove a.mp4'}));
+
+        expect(onRemove).toHaveBeenCalledOnce();
     });
 });

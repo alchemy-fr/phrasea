@@ -229,6 +229,25 @@ describe('UploadQueue', () => {
         expect(calls.map(c => c.file.name)).toEqual(['a', 'b', 'c']);
     });
 
+    it('drops a file already sent from the batch', async () => {
+        const {queue, calls} = setup();
+        queue.add([file('a', 4), file('b', 6)]);
+        calls[0].resolve('asset-a');
+        calls[1].resolve('asset-b');
+        await vi.runAllTimersAsync();
+
+        queue.remove(queue.getSnapshot().items[0].id);
+
+        expect(queue.getSnapshot()).toMatchObject({
+            loaded: 6,
+            total: 6,
+            complete: true,
+        });
+        expect(queue.getSnapshot().items.map(i => i.assetId)).toEqual([
+            'asset-b',
+        ]);
+    });
+
     it('keeps the same snapshot until something changes', () => {
         const {queue} = setup();
         expect(queue.getSnapshot()).toBe(queue.getSnapshot());

@@ -129,6 +129,11 @@ export function createAsset(
     return api.post<UploadedAsset>('/assets', {targetId, multipart}, {signal});
 }
 
+/** Withdraws a file sent to a batch not committed yet */
+export function deleteAsset(id: string): Promise<void> {
+    return api.delete(`/assets/${id}`);
+}
+
 export async function commit(input: {
     targetId: string;
     files: string[];
