@@ -193,10 +193,10 @@ export function AclEditor({
                     <table className="w-full text-sm">
                         <thead className="bg-muted/50 text-xs text-muted-foreground">
                             <tr>
-                                <th className="px-3 py-2 text-left align-bottom font-medium">
+                                <th className="w-full px-3 py-2 text-left align-bottom font-medium">
                                     {t('acl.subject', 'User / group')}
                                 </th>
-                                <th className="px-2 py-2 text-center align-bottom font-medium">
+                                <th className="w-10 min-w-10 px-2 py-2 text-center align-bottom font-medium">
                                     <VerticalLabel>
                                         {t('acl.all', 'All')}
                                     </VerticalLabel>
@@ -204,7 +204,7 @@ export function AclEditor({
                                 {definitions.map(d => (
                                     <th
                                         key={`${d.type}-${d.key}`}
-                                        className="px-2 py-2 text-center align-bottom font-medium"
+                                        className="w-10 min-w-10 px-2 py-2 text-center align-bottom font-medium"
                                     >
                                         <Tooltip
                                             content={d.description}
