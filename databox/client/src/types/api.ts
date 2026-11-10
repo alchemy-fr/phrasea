@@ -699,7 +699,7 @@ export interface SavedSearch
  */
 export type InstanceCapabilities = {
     createWorkspace: boolean;
-    createProfile: boolean;
+    shareProfile: boolean;
     shareBasket: boolean;
     publishSavedSearch: boolean;
 };
@@ -847,7 +847,8 @@ export type ProfileItem = {
     defaultQuery?: string | null;
 };
 
-export interface DisplayProfile extends WithCapabilities, Entity {
+export interface DisplayProfile
+    extends WithCapabilities<{share: boolean}>, Entity {
     name: string;
     description?: string;
     items?: ProfileItem[];

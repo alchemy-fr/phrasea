@@ -77,7 +77,7 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
     {
         $this->assertSame([
             'createWorkspace' => false,
-            'createProfile' => false,
+            'shareProfile' => false,
             'shareBasket' => false,
             'publishSavedSearch' => false,
         ], $this->getCapabilities(self::USER));
@@ -87,7 +87,7 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
     {
         $this->assertSame([
             'createWorkspace' => true,
-            'createProfile' => true,
+            'shareProfile' => true,
             'shareBasket' => true,
             'publishSavedSearch' => true,
         ], $this->getCapabilities(self::ADMIN));
@@ -101,7 +101,7 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
     public static function getCapabilityGrants(): iterable
     {
         yield 'create workspace' => [Workspace::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_CREATE_WORKSPACE, 'createWorkspace'];
-        yield 'create profile' => [Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_CREATE_PROFILE, 'createProfile'];
+        yield 'share profile' => [Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_PROFILE, 'shareProfile'];
         yield 'share basket' => [Basket::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_BASKET, 'shareBasket'];
         yield 'publish saved search' => [SavedSearch::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_PUBLISH_SAVED_SEARCH, 'publishSavedSearch'];
     }
@@ -162,25 +162,79 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
         $this->assertTrue($capabilities['share']);
     }
 
-    public function testProfileCreation(): void
+    public function testProfileCreationIsOpen(): void
     {
-        $this->assertRequestStatus(403, 'POST', '/profiles', self::USER, ['name' => 'Mine']);
-        // The default profile is not created implicitly either
-        $this->assertRequestStatus(403, 'POST', '/profiles/default/items', self::USER, ['items' => []]);
-        $this->assertSame(0, self::getEntityManager()->getRepository(Profile::class)->count([]));
-
-        $this->assertRequestStatus(201, 'POST', '/profiles', self::ADMIN, ['name' => 'Admin']);
-
-        $this->grantType(Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_CREATE_PROFILE, self::GROUP, AccessControlEntryInterface::TYPE_GROUP_VALUE);
-        $this->assertRequestStatus(403, 'POST', '/profiles', self::USER, ['name' => 'Mine']);
-        $data = $this->assertRequestStatus(201, 'POST', '/profiles', self::USER, ['name' => 'Mine'], [self::GROUP])->toArray();
+        $data = $this->assertRequestStatus(201, 'POST', '/profiles', self::USER, ['name' => 'Mine'])->toArray();
         $this->assertSame(self::USER, $data['owner']['id']);
-        $this->assertRequestStatus(201, 'POST', '/profiles/default/items', self::OTHER, ['items' => []], [self::GROUP]);
+        $this->assertFalse($data['public']);
+        // The default profile is created implicitly as well
+        $data = $this->assertRequestStatus(201, 'POST', '/profiles/default/items', self::OTHER, ['items' => []])->toArray();
+        $this->assertSame(self::OTHER, $data['owner']['id']);
     }
 
-    public function testProfileCreationDoesNotGrantTheProfilesOfOthers(): void
+    public function testProfileSharing(): void
     {
-        $this->grantType(Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_CREATE_PROFILE);
+        $ace = static fn (string $profileId): array => [
+            'objectType' => Profile::OBJECT_TYPE,
+            'objectId' => $profileId,
+            'userType' => 'user',
+            'userId' => self::OTHER,
+            'mask' => PermissionInterface::VIEW,
+        ];
+
+        $this->assertRequestStatus(403, 'POST', '/profiles', self::USER, ['name' => 'Public', 'public' => true]);
+        $this->assertSame(0, self::getEntityManager()->getRepository(Profile::class)->count([]));
+
+        $data = $this->assertRequestStatus(201, 'POST', '/profiles', self::USER, ['name' => 'Mine', 'public' => false])->toArray();
+        // The owner still edits and deletes its profile
+        $this->assertTrue($data['capabilities']['edit']);
+        $this->assertTrue($data['capabilities']['delete']);
+        $this->assertFalse($data['capabilities']['share']);
+        $this->assertFalse($data['capabilities']['editPermissions']);
+        $uri = '/profiles/'.$data['id'];
+        $this->assertRequestStatus(403, 'PATCH', $uri, self::USER, ['public' => true]);
+        $this->assertFalse($this->findProfile($data['id'])->isPublic());
+        $this->assertRequestStatus(403, 'PUT', '/permissions/ace', self::USER, $ace($data['id']));
+
+        $this->grantType(Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_PROFILE, self::GROUP, AccessControlEntryInterface::TYPE_GROUP_VALUE);
+        $this->assertRequestStatus(403, 'PATCH', $uri, self::USER, ['public' => true]);
+        $data = $this->assertRequestStatus(200, 'PATCH', $uri, self::USER, ['public' => true], [self::GROUP])->toArray();
+        $this->assertTrue($data['public']);
+        $this->assertTrue($data['capabilities']['share']);
+        $this->assertTrue($data['capabilities']['editPermissions']);
+        $this->assertRequestStatus(200, 'PUT', '/permissions/ace', self::USER, $ace($data['id']), [self::GROUP]);
+
+        $data = $this->assertRequestStatus(201, 'POST', '/profiles', self::USER, ['name' => 'Public', 'public' => true], [self::GROUP])->toArray();
+        $this->assertTrue($data['public']);
+    }
+
+    public function testASharedProfileStaysEditableWithoutTheCapability(): void
+    {
+        $em = self::getEntityManager();
+        $profile = new Profile();
+        $profile->setName('Public');
+        $profile->setOwnerId(self::USER);
+        $profile->setPublic(true);
+        $em->persist($profile);
+        $em->flush();
+        $uri = '/profiles/'.$profile->getId();
+
+        $data = $this->assertRequestStatus(200, 'PATCH', $uri, self::USER, [
+            'name' => 'Renamed',
+            'public' => true,
+        ])->toArray();
+        $this->assertSame('Renamed', $data['name']);
+        $this->assertTrue($data['public']);
+        $this->assertFalse($data['capabilities']['share']);
+
+        $this->assertRequestStatus(200, 'PATCH', $uri, self::USER, ['public' => false]);
+        $this->assertRequestStatus(403, 'PATCH', $uri, self::USER, ['public' => true]);
+        $this->assertFalse($this->findProfile($profile->getId())->isPublic());
+    }
+
+    public function testProfileSharingDoesNotGrantTheProfilesOfOthers(): void
+    {
+        $this->grantType(Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_PROFILE);
         $em = self::getEntityManager();
         $profile = new Profile();
         $profile->setName('Other');
@@ -190,6 +244,27 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
 
         $this->assertRequestStatus(403, 'GET', '/profiles/'.$profile->getId(), self::USER);
         $this->assertRequestStatus(403, 'PATCH', '/profiles/'.$profile->getId(), self::USER, ['name' => 'Hijack']);
+        $this->assertRequestStatus(403, 'PUT', '/permissions/ace', self::USER, [
+            'objectType' => Profile::OBJECT_TYPE,
+            'objectId' => $profile->getId(),
+            'userType' => 'user',
+            'userId' => self::USER,
+            'mask' => PermissionInterface::OWNER,
+        ]);
+
+        // EDIT on the profile does not grant its sharing
+        $this->grantUserOnObject(self::USER, $profile, PermissionInterface::VIEW | PermissionInterface::EDIT);
+        $capabilities = $this->assertRequestStatus(200, 'GET', '/profiles/'.$profile->getId(), self::USER)->toArray()['capabilities'];
+        $this->assertTrue($capabilities['edit']);
+        $this->assertFalse($capabilities['share']);
+        $this->assertFalse($capabilities['editPermissions']);
+        $this->assertRequestStatus(403, 'PATCH', '/profiles/'.$profile->getId(), self::USER, ['public' => true]);
+
+        // OWNER on the profile itself still grants it
+        $this->grantUserOnObject(self::USER, $profile, PermissionInterface::VIEW | PermissionInterface::EDIT | PermissionInterface::OWNER);
+        $capabilities = $this->assertRequestStatus(200, 'GET', '/profiles/'.$profile->getId(), self::USER)->toArray()['capabilities'];
+        $this->assertTrue($capabilities['share']);
+        $this->assertTrue($capabilities['editPermissions']);
     }
 
     public function testWorkspaceCreation(): void
@@ -352,7 +427,7 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
             'userType' => 'group',
             'userId' => self::GROUP,
             'mask' => 0,
-            'metadata' => [DataboxExtraPermissionInterface::PERM_CREATE_PROFILE],
+            'metadata' => [DataboxExtraPermissionInterface::PERM_SHARE_PROFILE],
         ];
         $query = ['objectType' => Profile::OBJECT_TYPE, 'objectId' => 'null'];
 
@@ -361,12 +436,12 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
         $this->assertRequestStatus(403, 'PUT', '/permissions/ace', self::USER, $ace);
         $this->assertRequestStatus(403, 'DELETE', '/permissions/ace', self::USER, $ace);
         // Not even with the capability
-        $this->grantType(Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_CREATE_PROFILE);
+        $this->grantType(Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_PROFILE);
         $this->assertRequestStatus(403, 'PUT', '/permissions/ace', self::USER, $ace);
 
         $written = $this->assertRequestStatus(200, 'PUT', '/permissions/ace', self::ADMIN, $ace)->toArray();
         $this->assertNull($written['objectId']);
-        $this->assertSame([DataboxExtraPermissionInterface::PERM_CREATE_PROFILE], $written['metadata']);
+        $this->assertSame([DataboxExtraPermissionInterface::PERM_SHARE_PROFILE], $written['metadata']);
 
         $response = $this->request('GET', '/permissions/aces', self::ADMIN, query: $query);
         $this->assertSame(200, $response->getStatusCode());
@@ -378,14 +453,22 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
         $this->assertNull($entry->getObjectId());
         $this->assertSame(Profile::OBJECT_TYPE, $entry->getObjectType());
 
-        $this->assertTrue($this->getCapabilities(self::OTHER, [self::GROUP])['createProfile']);
+        $this->assertTrue($this->getCapabilities(self::OTHER, [self::GROUP])['shareProfile']);
 
         // A write without metadata (the EasyAdmin editor only sends the mask) keeps the capability
         $this->assertRequestStatus(200, 'PUT', '/permissions/ace', self::ADMIN, ['mask' => PermissionInterface::VIEW] + array_diff_key($ace, ['metadata' => true]));
-        $this->assertTrue($this->getCapabilities(self::OTHER, [self::GROUP])['createProfile']);
+        $this->assertTrue($this->getCapabilities(self::OTHER, [self::GROUP])['shareProfile']);
 
         $this->assertRequestStatus(200, 'DELETE', '/permissions/ace', self::ADMIN, $ace);
-        $this->assertFalse($this->getCapabilities(self::OTHER, [self::GROUP])['createProfile']);
+        $this->assertFalse($this->getCapabilities(self::OTHER, [self::GROUP])['shareProfile']);
+    }
+
+    private function findProfile(string $id): Profile
+    {
+        $em = self::getEntityManager();
+        $em->clear();
+
+        return $em->find(Profile::class, $id);
     }
 
     private function findSavedSearch(string $id): SavedSearch

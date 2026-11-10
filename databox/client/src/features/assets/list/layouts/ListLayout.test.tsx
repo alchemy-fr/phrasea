@@ -16,7 +16,7 @@ vi.mock('next/navigation', () => ({
 vi.mock('@/features/permissions/useInstanceCapabilities', () => ({
     useInstanceCapabilities: () => ({
         createWorkspace: false,
-        createProfile: false,
+        shareProfile: false,
         shareBasket: false,
         publishSavedSearch: false,
     }),

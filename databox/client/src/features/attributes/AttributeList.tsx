@@ -24,7 +24,6 @@ import {Button} from '@alchemy/next-ui/ui/button';
 import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {Separator} from '@alchemy/next-ui/ui/misc';
 import {useProfileStore} from '@/features/profiles/profileStore';
-import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabilities';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {AttributeType} from '@/types/api';
 
@@ -71,8 +70,6 @@ export function AttributeList({
     const currentProfile = useProfileStore(s => s.current);
     const profile = ignoreProfile ? null : currentProfile;
     const toggleDefinition = useProfileStore(s => s.toggleDefinition);
-    // Pinning without profile creates the default one
-    const {createProfile} = useInstanceCapabilities();
     const pinnedItems = useMemo(
         () =>
             (profile?.items ?? []).filter(
@@ -217,10 +214,8 @@ export function AttributeList({
                         builtInValue={item.builtInValue}
                         format={item.format}
                         controls={controls}
-                        pinnable={
-                            !ignoreProfile &&
-                            (!!currentProfile || createProfile)
-                        }
+                        // Pinning without profile creates the default one
+                        pinnable={!ignoreProfile}
                         pinned={pinnedItems.some(
                             p =>
                                 p.definition === def.id ||

@@ -20,7 +20,7 @@ use App\Security\Voter\DataboxExtraPermissionInterface;
 final class InstancePermission
 {
     public const string CREATE_WORKSPACE = 'INSTANCE_CREATE_WORKSPACE';
-    public const string CREATE_PROFILE = 'INSTANCE_CREATE_PROFILE';
+    public const string SHARE_PROFILE = 'INSTANCE_SHARE_PROFILE';
     public const string SHARE_BASKET = 'INSTANCE_SHARE_BASKET';
     public const string PUBLISH_SAVED_SEARCH = 'INSTANCE_PUBLISH_SAVED_SEARCH';
 
@@ -29,7 +29,7 @@ final class InstancePermission
      */
     private const array DEFINITIONS = [
         self::CREATE_WORKSPACE => [Workspace::class, DataboxExtraPermissionInterface::PERM_CREATE_WORKSPACE],
-        self::CREATE_PROFILE => [Profile::class, DataboxExtraPermissionInterface::PERM_CREATE_PROFILE],
+        self::SHARE_PROFILE => [Profile::class, DataboxExtraPermissionInterface::PERM_SHARE_PROFILE],
         self::SHARE_BASKET => [Basket::class, DataboxExtraPermissionInterface::PERM_SHARE_BASKET],
         self::PUBLISH_SAVED_SEARCH => [SavedSearch::class, DataboxExtraPermissionInterface::PERM_PUBLISH_SAVED_SEARCH],
     ];
@@ -39,7 +39,7 @@ final class InstancePermission
      */
     public const array API_KEYS = [
         self::CREATE_WORKSPACE => 'createWorkspace',
-        self::CREATE_PROFILE => 'createProfile',
+        self::SHARE_PROFILE => 'shareProfile',
         self::SHARE_BASKET => 'shareBasket',
         self::PUBLISH_SAVED_SEARCH => 'publishSavedSearch',
     ];

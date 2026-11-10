@@ -48,7 +48,7 @@ export enum AclExtraPermission {
     QUARANTINE_BY_PASS = 4,
     // Instance capabilities, set on the ACEs of a whole object type
     CREATE_WORKSPACE = 5,
-    CREATE_PROFILE = 6,
+    SHARE_PROFILE = 6,
     SHARE_BASKET = 7,
     PUBLISH_SAVED_SEARCH = 8,
 }

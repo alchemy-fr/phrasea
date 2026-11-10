@@ -38,7 +38,6 @@ import {cn} from '@alchemy/next-ui/utils/cn';
 
 export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
     const {t} = useTranslation();
-    const capabilities = useInstanceCapabilities();
     const {user} = useAuth();
     const router = useRouter();
     const {openModal} = useModals();
@@ -63,18 +62,16 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
             submitLabel={t('common.close', 'Close')}
             bodyClassName="space-y-2"
             footerStart={
-                capabilities.createProfile ? (
-                    <Button
-                        variant="outline"
-                        onClick={() =>
-                            openModal(CreateProfileDialog, {
-                                onCreated: () => onOpenChange(false),
-                            })
-                        }
-                    >
-                        <PlusIcon /> {t('profile.create', 'New profile')}
-                    </Button>
-                ) : undefined
+                <Button
+                    variant="outline"
+                    onClick={() =>
+                        openModal(CreateProfileDialog, {
+                            onCreated: () => onOpenChange(false),
+                        })
+                    }
+                >
+                    <PlusIcon /> {t('profile.create', 'New profile')}
+                </Button>
             }
         >
             <ProfileRow
@@ -254,6 +251,7 @@ export function CreateProfileDialog({
 }) {
     const {t} = useTranslation();
     const router = useRouter();
+    const {shareProfile} = useInstanceCapabilities();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPublic, setIsPublic] = useState(false);
@@ -266,7 +264,7 @@ export function CreateProfileDialog({
         const profile = await postProfile({
             name,
             description,
-            public: isPublic,
+            public: shareProfile && isPublic,
             data: data as any,
         });
         upsert(profile);
@@ -304,9 +302,11 @@ export function CreateProfileDialog({
                     onChange={e => setDescription(e.target.value)}
                 />
             </FormRow>
-            <LabeledControl label={t('common.public', 'Public')}>
-                <Switch checked={isPublic} onCheckedChange={setIsPublic} />
-            </LabeledControl>
+            {shareProfile ? (
+                <LabeledControl label={t('common.public', 'Public')}>
+                    <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+                </LabeledControl>
+            ) : null}
         </FormDialog>
     );
 }

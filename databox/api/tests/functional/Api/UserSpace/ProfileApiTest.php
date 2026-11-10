@@ -25,8 +25,8 @@ final class ProfileApiTest extends AbstractDataboxTestCase
     {
         parent::setUp();
 
-        // Creating profiles is granted to admins only by default
-        $this->grantOnType(self::USER, Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_CREATE_PROFILE);
+        // Sharing its profiles (making them public) is granted to admins only by default
+        $this->grantOnType(self::USER, Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_PROFILE);
     }
 
     private const string UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
@@ -51,6 +51,7 @@ final class ProfileApiTest extends AbstractDataboxTestCase
         $this->assertSame([
             'edit' => true,
             'delete' => true,
+            'share' => true,
             'editPermissions' => true,
         ], $data['capabilities']);
 

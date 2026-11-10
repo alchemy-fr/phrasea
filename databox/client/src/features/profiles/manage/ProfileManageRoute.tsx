@@ -231,8 +231,9 @@ function SettingsForm({profile, refresh}: ProfileTabProps) {
 }
 
 /**
- * Who sees the profile: public or not (saved at once), then the ACL. The
- * visibility only takes the edit right, the ACL the permissions one.
+ * Who sees the profile: public or not (saved at once), then the ACL. Making
+ * the profile private only takes the edit right; making it public also takes
+ * the share right, and the ACL the permissions one.
  */
 function PermissionsTab({profile}: ProfileTabProps) {
     const {t} = useTranslation();
@@ -240,6 +241,7 @@ function PermissionsTab({profile}: ProfileTabProps) {
     const upsert = useProfileStore(s => s.upsert);
     const [isPublic, setIsPublic] = useState(!!profile.public);
     const [saving, setSaving] = useState(false);
+    const publishDenied = !profile.capabilities.share && !isPublic;
 
     const changePublic = async (value: boolean) => {
         setIsPublic(value);
@@ -276,15 +278,22 @@ function PermissionsTab({profile}: ProfileTabProps) {
                 <section className="max-w-2xl rounded-lg border p-3">
                     <LabeledControl
                         label={t('common.public', 'Public')}
-                        description={t(
-                            'profile.public_help',
-                            'Every user can select a public profile.'
-                        )}
+                        description={
+                            publishDenied
+                                ? t(
+                                      'profile.public_not_allowed',
+                                      'You are not allowed to share profiles.'
+                                  )
+                                : t(
+                                      'profile.public_help',
+                                      'Every user can select a public profile.'
+                                  )
+                        }
                     >
                         <Switch
                             data-testid="profile-public"
                             checked={isPublic}
-                            disabled={saving}
+                            disabled={saving || publishDenied}
                             onCheckedChange={v => void changePublic(v)}
                         />
                     </LabeledControl>

@@ -1,7 +1,7 @@
 # Instance permissions
 
-Some Databox capabilities do not belong to any workspace: creating a workspace or a
-display profile, sharing one's baskets, publishing one's saved searches. They are
+Some Databox capabilities do not belong to any workspace: creating a workspace,
+sharing one's display profiles and one's baskets, publishing one's saved searches. They are
 granted at the **instance level**, to users or groups, by a **metadata** of an access
 control entry (ACE) set on a whole object type: an ACE with an object type and **no
 object id**.
@@ -9,7 +9,7 @@ object id**.
 | Capability                 | Object type    | Metadata | Effect                                                                                                         |
 |----------------------------|----------------|----------|----------------------------------------------------------------------------------------------------------------|
 | Create a workspace         | `workspace`    | `5`      | `POST /workspaces`; the creator owns the workspace (only admins choose another owner).                         |
-| Create a profile           | `profile`      | `6`      | `POST /profiles`, and the implicit creation of the default profile (`POST /profiles/default/items`).           |
+| Share own profiles         | `profile`      | `6`      | The owner of a profile may make it public and edit its ACL (`share` and `editPermissions` capabilities).       |
 | Share own baskets          | `basket`       | `7`      | The owner of a basket may share it and edit its ACL (`share` and `editPermissions` capabilities).              |
 | Publish own saved searches | `saved_search` | `8`      | The owner of a saved search may make it Private or Public, and edit its ACL (`publish` and `editPermissions`). |
 
@@ -20,11 +20,15 @@ The source of truth is `App\Security\InstancePermission` and
 ## Defaults
 
 **Admins only.** Admins have every capability (`AdminVoter`); nobody else has any until it
-is granted. Creating baskets and saved searches stays open to every authenticated user.
+is granted. Creating baskets, saved searches and display profiles stays open to every
+authenticated user (including the implicit creation of the default profile,
+`POST /profiles/default/items`).
 
-What already exists is kept: baskets shared and searches published before a user lost the
-capability stay as they are. The owner of a Public search may still rename it, or make it
-Secret, but not publish it again.
+What already exists is kept: profiles made public, baskets shared and searches published
+before a user lost the capability stay as they are. The owner of a public profile may still
+rename it or edit its items, or make it private, but not make it public again; likewise,
+the owner of a Public search may still rename it, or make it Secret, but not publish it
+again.
 
 ## Granting
 
@@ -37,7 +41,7 @@ these ACEs: it neither shows nor grants the capabilities, and keeps them when it
 The current user's capabilities are answered by `GET /capabilities`:
 
 ```json
-{"createWorkspace": false, "createProfile": true, "shareBasket": true, "publishSavedSearch": false}
+{"createWorkspace": false, "shareProfile": true, "shareBasket": true, "publishSavedSearch": false}
 ```
 
 The ACEs without object id are read and written through `/permissions/ace(s)` by admins only.
