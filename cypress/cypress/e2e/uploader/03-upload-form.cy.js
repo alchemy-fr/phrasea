@@ -146,6 +146,26 @@ describe('Uploader upload with a form', () => {
         cy.getBySel('batch-files').should('not.exist');
     });
 
+    it('asks before removing a file already sent', () => {
+        cy.intercept('DELETE', /\/assets\/[^/]+$/).as('deleteAsset');
+        goToForm(['cypress/fixtures/e2e-image.png', pngFile('e2e-removed.png')]);
+
+        cy.getBySel('toggle-files').click();
+        cy.getBySel('batch-files')
+            .find('[data-testid=file-tile]', {timeout: 30000})
+            .should($tiles => {
+                expect($tiles.toArray().map(t => t.dataset.status)).to.deep.eq(['done', 'done']);
+            });
+        cy.getBySel('batch-files').find('[data-testid=file-tile][title="e2e-removed.png"]').findBySel('file-remove').click();
+        cy.dialog().should('contain', 'The file was already sent: it will be deleted.');
+        confirmDialog('Remove');
+
+        cy.wait('@deleteAsset');
+        cy.getBySel('batch-files').find('[data-testid=file-tile]').should('have.length', 1);
+        cy.getBySel('batch-files').find('[data-testid=file-tile][title="e2e-removed.png"]').should('not.exist');
+        stepIs('Information');
+    });
+
     it('cancels the upload from the information step', () => {
         goToForm();
         builderField('album').find('input').type('Never sent');

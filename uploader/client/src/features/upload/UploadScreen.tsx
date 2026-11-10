@@ -164,9 +164,30 @@ export function UploadScreen({targetId}: {targetId: string}) {
         }
     };
 
-    const removeItem = (item: UploadItem) => {
-        queue.remove(item.id);
-        discard([item]);
+    const removeItem = async (item: UploadItem) => {
+        const confirmed = await confirm({
+            title: t('upload.remove_file_title', 'Remove {{name}}', {
+                name: item.file.name,
+            }),
+            description: item.assetId
+                ? t(
+                      'upload.remove_sent_confirm',
+                      'The file was already sent: it will be deleted.'
+                  )
+                : t('upload.remove_file_confirm', 'The file will not be sent.'),
+            confirmLabel: t('upload.remove_yes', 'Remove'),
+            destructive: true,
+        });
+        if (!confirmed || committing.current || committed.current) {
+            return;
+        }
+        // It may have finished sending while the dialog was open
+        const current = queue.getSnapshot().items.find(i => i.id === item.id);
+        if (!current) {
+            return;
+        }
+        queue.remove(current.id);
+        discard([current]);
     };
 
     const startUpload = () => {
@@ -616,7 +637,34 @@ function BatchAlerts({
     queue: UploadQueue;
 }) {
     const {t} = useTranslation();
+    const confirm = useConfirm();
     const offline = snapshot.items.some(i => i.status === 'offline');
+
+    const removeFailed = async () => {
+        const count = snapshot.failed;
+        if (
+            await confirm({
+                title: t('upload.remove_failed_title', {
+                    defaultValue_one: 'Remove the failed file',
+                    defaultValue_other: 'Remove the failed files',
+                    count,
+                }),
+                description: t('upload.remove_failed_confirm', {
+                    defaultValue_one: 'It will not be sent.',
+                    defaultValue_other: 'They will not be sent.',
+                    count,
+                }),
+                confirmLabel: t('upload.remove_failed', {
+                    defaultValue_one: 'Remove the file',
+                    defaultValue_other: 'Remove these files',
+                    count,
+                }),
+                destructive: true,
+            })
+        ) {
+            queue.removeFailed();
+        }
+    };
 
     return (
         <>
@@ -662,7 +710,7 @@ function BatchAlerts({
                                 size="sm"
                                 variant="ghost"
                                 data-testid="remove-failed"
-                                onClick={() => queue.removeFailed()}
+                                onClick={removeFailed}
                             >
                                 <XIcon />{' '}
                                 {t('upload.remove_failed', {

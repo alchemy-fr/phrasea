@@ -3,7 +3,7 @@
  * upload, commit.
  */
 import {ensureTarget, iri, removeFormSchemas, removeTargetParams, TARGETS, waitForCommit} from './lib/api';
-import {expectToastText, fileTile, login, pngFile, selectFiles, stepIs, visitUpload} from './lib/app';
+import {confirmDialog, expectToastText, fileTile, login, pngFile, selectFiles, stepIs, visitUpload} from './lib/app';
 
 describe('Uploader upload without form', () => {
     let target;
@@ -31,7 +31,9 @@ describe('Uploader upload without form', () => {
             cy.contains('Information').should('not.exist');
         });
         stepIs('Files');
-        cy.getBySel('upload-constraints').should('contain', 'Accepted types');
+        cy.getBySel('upload-constraints').should('not.contain', 'Accepted types');
+        cy.getBySel('accepted-types-info').click();
+        cy.getBySel('accepted-types').should('contain', 'Accepted types');
         cy.getBySel('selection-next').should('be.disabled');
     });
 
@@ -49,6 +51,7 @@ describe('Uploader upload without form', () => {
         cy.getBySel('selection-summary').should('contain', '2 files selected');
 
         cy.getBySel('remove-all').click();
+        confirmDialog('Remove all');
         cy.getBySel('file-list').should('not.exist');
         cy.getBySel('selection-summary').should('not.exist');
         cy.getBySel('selection-next').should('be.disabled');
@@ -70,6 +73,8 @@ describe('Uploader upload without form', () => {
         selectFiles({contents: Cypress.Buffer.from('Not an image'), fileName: 'e2e-notes.txt', mimeType: 'text/plain'});
 
         expectToastText('e2e-notes.txt is not an accepted file type.');
+        cy.getBySel('upload-constraints').should('contain', 'Accepted types');
+        cy.getBySel('accepted-types-info').should('not.exist');
         cy.getBySel('file-list').should('not.exist');
         cy.getBySel('selection-next').should('be.disabled');
     });

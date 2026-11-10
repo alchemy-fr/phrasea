@@ -1,5 +1,6 @@
 'use client';
 
+import {useState} from 'react';
 import {
     useDropzone,
     type DropzoneOptions,
@@ -22,6 +23,7 @@ const MAX_LISTED_NAMES = 5;
  * A dropzone adding files to `files` within the limits of the uploader. The
  * refused files are reported grouped by reason, and so are the files that
  * were already selected. `added` is what the drop brought in.
+ * `typeRejected` tells that a file was refused for its type since mount.
  */
 export function useFileDrop(
     files: File[],
@@ -34,6 +36,7 @@ export function useFileDrop(
     const {t} = useTranslation();
     const {upload} = useConfig();
     const single = upload.maxFileCount === 1;
+    const [typeRejected, setTypeRejected] = useState(false);
 
     const listNames = (list: File[]): string => {
         const names = list
@@ -93,6 +96,7 @@ export function useFileDrop(
             );
         }
         if (wrongType.length > 0) {
+            setTypeRejected(true);
             const types = describeAllowedTypes(upload.allowedTypes);
             toast.error(
                 t('upload.file_type_not_allowed', {
@@ -126,7 +130,7 @@ export function useFileDrop(
         }
     };
 
-    return useDropzone({
+    const dropzone = useDropzone({
         accept: toDropzoneAccept(upload.allowedTypes),
         maxSize: upload.maxFileSize,
         multiple: !single,
@@ -171,6 +175,8 @@ export function useFileDrop(
             }
         },
     });
+
+    return {...dropzone, typeRejected};
 }
 
 /** What prevents the batch from being sent, and what to do about it */

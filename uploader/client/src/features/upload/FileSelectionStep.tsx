@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {Trans, useTranslation} from 'react-i18next';
 import {
     ArrowRightIcon,
+    InfoIcon,
     LinkIcon,
     PlusIcon,
     SendIcon,
@@ -11,7 +12,13 @@ import {
     UploadCloudIcon,
 } from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {Alert} from '@alchemy/next-ui/ui/misc';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@alchemy/next-ui/ui/overlays';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {routes} from '@/lib/routes';
 import {cn} from '@alchemy/next-ui/utils/cn';
@@ -42,14 +49,31 @@ export function FileSelectionStep({
 }: Props) {
     const {t} = useTranslation();
     const {upload} = useConfig();
+    const confirm = useConfirm();
     const single = upload.maxFileCount === 1;
     const issues = checkBatch(files, upload);
     const issueMessage = useBatchIssueMessage();
     const size = totalSize(files);
-    const {getRootProps, getInputProps, isDragActive, open} = useFileDrop(
-        files,
-        onChange
-    );
+    const {getRootProps, getInputProps, isDragActive, open, typeRejected} =
+        useFileDrop(files, onChange);
+
+    const removeAll = async () => {
+        if (
+            await confirm({
+                title: t('upload.remove_all_title', 'Remove all the files'),
+                description: t('upload.remove_all_confirm', {
+                    defaultValue_one: 'The selected file will be removed.',
+                    defaultValue_other:
+                        'The {{count}} selected files will be removed.',
+                    count: files.length,
+                }),
+                confirmLabel: t('upload.remove_all_yes', 'Remove all'),
+                destructive: true,
+            })
+        ) {
+            onChange([]);
+        }
+    };
 
     return (
         <div className="flex flex-col gap-4">
@@ -124,7 +148,7 @@ export function FileSelectionStep({
                 )}
             </div>
 
-            <UploadConstraints />
+            <UploadConstraints showTypes={typeRejected} />
 
             {files.length > 0 ? (
                 <div
@@ -157,7 +181,7 @@ export function FileSelectionStep({
                         variant="ghost"
                         size="sm"
                         data-testid="remove-all"
-                        onClick={() => onChange([])}
+                        onClick={removeAll}
                     >
                         <Trash2Icon /> {t('upload.remove_all', 'Remove all')}
                     </Button>
@@ -223,15 +247,20 @@ export function FileSelectionStep({
     );
 }
 
-/** The limits of a batch, told before the files are chosen */
-function UploadConstraints() {
+/**
+ * The limits of a batch, told before the files are chosen. The accepted types
+ * are behind an info button until a file is refused for its type.
+ */
+function UploadConstraints({showTypes}: {showTypes: boolean}) {
     const {t} = useTranslation();
     const {upload} = useConfig();
     const types = describeAllowedTypes(upload.allowedTypes);
+    const typesLabel = types
+        ? t('upload.accepted_types', 'Accepted types: {{types}}', {types})
+        : undefined;
+    const typesHidden = !!typesLabel && !showTypes;
     const constraints = [
-        types
-            ? t('upload.accepted_types', 'Accepted types: {{types}}', {types})
-            : undefined,
+        showTypes ? typesLabel : undefined,
         upload.maxFileSize
             ? t('upload.max_file_size', 'Up to {{max}} per file', {
                   max: formatFileSize(upload.maxFileSize),
@@ -249,16 +278,42 @@ function UploadConstraints() {
             : undefined,
     ].filter(Boolean);
 
-    if (constraints.length === 0) {
+    if (constraints.length === 0 && !typesHidden) {
         return null;
     }
 
     return (
-        <p
+        <div
             data-testid="upload-constraints"
-            className="-mt-2 text-xs text-muted-foreground"
+            className="-mt-2 flex items-start justify-between gap-2 text-xs text-muted-foreground"
         >
-            {constraints.join(' · ')}
-        </p>
+            <p>{constraints.join(' · ')}</p>
+            {typesHidden ? (
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="ghost"
+                            className="-my-1.5 shrink-0"
+                            data-testid="accepted-types-info"
+                            aria-label={t(
+                                'upload.accepted_types_info',
+                                'Accepted file types'
+                            )}
+                        >
+                            <InfoIcon />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                        align="end"
+                        className="max-w-xs text-xs"
+                        data-testid="accepted-types"
+                    >
+                        {typesLabel}
+                    </PopoverContent>
+                </Popover>
+            ) : null}
+        </div>
     );
 }
