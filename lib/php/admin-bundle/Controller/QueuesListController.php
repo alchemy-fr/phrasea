@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Controller;
 
+use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPSSLConnection;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPProtocolChannelException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -51,36 +54,62 @@ class QueuesListController extends AbstractController
 
         $channel = $connection->channel();
         $queuesStatus = [];
+        $transportsSetUp = false;
 
         foreach ($this->queues as $queueName) {
-            try {
-                [$queueName, $messageCount, $consumerCount] = $channel->queue_declare($queueName, true);
-            } catch (\Exception $e) {
-                $application = new Application($this->kernel);
-                $application->setAutoExit(false);
-                $input = new ArrayInput([
-                    'command' => 'messenger:setup-transports',
-                ]);
-                $code = $application->run($input, new NullOutput());
+            $status = $this->getQueueStatus($connection, $channel, $queueName);
+            if (null === $status && !$transportsSetUp) {
+                $this->setupTransports();
+                $transportsSetUp = true;
 
-                if (0 !== $code) {
-                    throw new \RuntimeException(sprintf('Cannot setup transports, command exited with code %d', $code));
-                }
-
-                $connection->getConnection()->reconnect();
+                $connection->reconnect();
                 $channel = $connection->channel();
-                [$queueName, $messageCount, $consumerCount] = $channel->queue_declare($queueName, true);
+                $status = $this->getQueueStatus($connection, $channel, $queueName);
             }
 
-            $queuesStatus[$queueName] = [
+            $queuesStatus[$queueName] = $status ?? [
                 'queueName' => $queueName,
-                'messageCount' => $messageCount,
-                'consumerCount' => $consumerCount,
+                'messageCount' => null,
+                'consumerCount' => null,
             ];
         }
 
         return $this->render('@AlchemyAdmin/queues_list.html.twig', [
             'queuesStatus' => $queuesStatus,
         ]);
+    }
+
+    /**
+     * @return array{queueName: string, messageCount: int, consumerCount: int}|null null when the queue does not exist
+     */
+    private function getQueueStatus(AbstractConnection $connection, AMQPChannel &$channel, string $queueName): ?array
+    {
+        try {
+            [, $messageCount, $consumerCount] = $channel->queue_declare($queueName, true);
+        } catch (AMQPProtocolChannelException) {
+            // The broker closes the channel when a passive declare fails
+            $channel = $connection->channel();
+
+            return null;
+        }
+
+        return [
+            'queueName' => $queueName,
+            'messageCount' => $messageCount,
+            'consumerCount' => $consumerCount,
+        ];
+    }
+
+    private function setupTransports(): void
+    {
+        $application = new Application($this->kernel);
+        $application->setAutoExit(false);
+        $code = $application->run(new ArrayInput([
+            'command' => 'messenger:setup-transports',
+        ]), new NullOutput());
+
+        if (0 !== $code) {
+            throw new \RuntimeException(sprintf('Cannot setup transports, command exited with code %d', $code));
+        }
     }
 }
