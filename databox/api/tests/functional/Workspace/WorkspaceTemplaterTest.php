@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Workspace;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Entity\Automation\AutomationShare;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetImport;
@@ -49,6 +50,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
     private const array NOT_IN_TEMPLATE = [
         Asset::class,
         AssetImport::class,
+        AutomationShare::class,
         Collection::class,
         CollectionAccess::class,
         File::class,

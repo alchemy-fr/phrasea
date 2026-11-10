@@ -7,6 +7,7 @@ namespace App\Api\Mapper\Input;
 use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\Model\Input\Automation\SavedSearchAutomationInput;
 use App\Automation\Action\ScopeAwareActionInterface;
+use App\Automation\Action\ShareExportAction;
 use App\Automation\ActionConfigSecretsHandler;
 use App\Automation\AutomationActionRegistry;
 use App\Automation\Schedule\CronHelper;
@@ -112,6 +113,14 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
      */
     private function mapActions(array $actions, array $previousActions): array
     {
+        // The automation keeps a single share per workspace
+        $shareExports = 0;
+        foreach (array_values($actions) as $i => $action) {
+            if (is_array($action) && ShareExportAction::TYPE === ($action['type'] ?? null) && ++$shareExports > 1) {
+                self::throwViolation(sprintf('actions[%d].type', $i), 'An automation can only have one share export action.');
+            }
+        }
+
         $mapped = [];
         foreach (array_values($actions) as $i => $action) {
             $type = is_array($action) ? ($action['type'] ?? null) : null;

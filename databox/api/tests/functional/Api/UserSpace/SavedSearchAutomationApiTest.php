@@ -6,6 +6,7 @@ namespace App\Tests\Functional\Api\UserSpace;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\MessengerBundle\Transport\TestTransport;
+use App\Automation\Action\ShareExportAction;
 use App\Automation\Action\TagsAction;
 use App\Consumer\Handler\Automation\ResetAutomationCursor;
 use App\Consumer\Handler\Automation\RunAutomation;
@@ -152,6 +153,11 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
             'unknown action' => [['actions' => [['type' => 'teleport', 'config' => []]]], 'actions[0].type'],
             'invalid action config' => [['actions' => [['type' => TagsAction::TYPE, 'config' => ['add' => []]]]], 'actions[0].config.add'],
             'unknown tag' => [['actions' => [['type' => TagsAction::TYPE, 'config' => ['add' => ['00000000-0000-4000-8000-000000000000']]]]], 'actions[0].config.add'],
+            'two share exports' => [['actions' => [
+                ['type' => ShareExportAction::TYPE, 'config' => []],
+                ['type' => TagsAction::TYPE, 'config' => ['add' => []]],
+                ['type' => ShareExportAction::TYPE, 'config' => []],
+            ]], 'actions[2].type'],
         ];
     }
 

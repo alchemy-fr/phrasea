@@ -24,6 +24,7 @@ describe('automation actions registry', () => {
             'tags',
             'email_report',
             'remote_export',
+            'share_export',
             'webhook',
             'trigger_workflow',
             'trash',
@@ -150,6 +151,41 @@ describe('automation actions registry', () => {
         ).toBe(true);
     });
 
+    it('completes the share export configurations', () => {
+        const shareExport = getActionDefinition('share_export')!;
+        const ftp = {
+            ...shareExport.defaultConfig(),
+            protocol: 'ftp',
+            ftp: {host: 'h', username: 'anonymous'},
+        };
+        // At least one rendition
+        expect(shareExport.isComplete(ftp)).toBe(false);
+        expect(shareExport.isComplete({...ftp, renditions: ['preview']})).toBe(
+            true
+        );
+        expect(
+            shareExport.isComplete({
+                ...ftp,
+                renditions: ['preview'],
+                attributes: Array.from({length: 51}, (_, i) => `a${i}`),
+            })
+        ).toBe(false);
+        expect(
+            shareExport.isComplete({
+                ...shareExport.defaultConfig(),
+                renditions: ['preview'],
+                s3: {bucket: 'b', accessKeyId: 'id'},
+            })
+        ).toBe(false);
+        expect(
+            shareExport.isComplete({
+                ...shareExport.defaultConfig(),
+                renditions: ['preview'],
+                s3: {bucket: 'b', accessKeyId: 'id', secretAccessKeySet: true},
+            })
+        ).toBe(true);
+    });
+
     it('summarizes the configurations', () => {
         expect(
             getActionDefinition('tags')!.summary(
@@ -172,6 +208,13 @@ describe('automation actions registry', () => {
                 t
             )
         ).toBe('Export to SFTP (files.example.com)');
+        const shareExport = getActionDefinition('share_export')!;
+        expect(
+            shareExport.summary({protocol: 's3', s3: {bucket: 'reports'}}, t)
+        ).toBe('Share and export the links to S3 (reports)');
+        expect(shareExport.summary(shareExport.defaultConfig(), t)).toBe(
+            'Share and export the links (XLSX)'
+        );
         expect(
             getActionDefinition('webhook')!.summary(
                 {url: 'https://hooks.example.com:8443/phrasea'},

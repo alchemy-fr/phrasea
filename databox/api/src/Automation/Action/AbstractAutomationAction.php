@@ -29,7 +29,7 @@ abstract class AbstractAutomationAction implements AutomationActionInterface
      *
      * @throws ValidationException
      */
-    protected static function throwViolations(array $errors): never
+    public static function throwViolations(array $errors): never
     {
         $list = new ConstraintViolationList();
         foreach ($errors as $path => $message) {
