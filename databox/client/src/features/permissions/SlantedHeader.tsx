@@ -9,6 +9,12 @@ import {
 } from 'react';
 import {cn} from '@alchemy/next-ui/utils/cn';
 
+/**
+ * Table with slanted headers: the paint containment clips the bands at its
+ * right edge, where they would otherwise widen the scrollable area
+ */
+export const slantedTableClassName = 'w-full text-sm [contain:paint]';
+
 /** Width of a permission column: a checkbox under a slanted label */
 export const slantedColumnClassName =
     'relative w-10 min-w-10 p-0 align-bottom font-medium';
@@ -19,15 +25,14 @@ export const slantedCellClassName = 'border-l px-2 py-1.5 text-center';
 const highlightClassName = 'bg-primary/10';
 
 const labelSelector = '[data-slanted-label]';
-const bandSelector = 'th:not([data-slanted-end]) > [data-slanted-band]';
 const endSelector = '[data-slanted-end]';
 const gap = 8;
 
 /**
- * The slanted labels and bands are absolutely positioned, so the table does
- * not make room for them: the header row gets the height of the tallest label,
- * and the last column ([data-slanted-end]) the width of the overflow on the
- * right.
+ * The slanted labels are absolutely positioned, so the table does not make
+ * room for them: the header row gets the height of the tallest one, and the
+ * last column ([data-slanted-end]) the width of their overflow on the right.
+ * The bands are not measured: they are clipped (see slantedTableClassName).
  */
 export function useSlantedHeader(deps: DependencyList) {
     const ref = useRef<HTMLTableRowElement>(null);
@@ -42,25 +47,16 @@ export function useSlantedHeader(deps: DependencyList) {
         const rowRect = row.getBoundingClientRect();
         // The rects are scaled by the transforms of the ancestors (dialog opening)
         const scale = row.offsetWidth / rowRect.width || 1;
-        const labels = row.querySelectorAll(labelSelector);
-        let height = 0;
-        labels.forEach(label => {
-            height = Math.max(
-                height,
-                rowRect.bottom - label.getBoundingClientRect().top
-            );
-        });
-        row.style.height = `${Math.ceil(height * scale + gap)}px`;
-
-        // The bands lean as far to the right as the row is high
         const endLeft = end.getBoundingClientRect().left;
+        let height = 0;
         let width = 0;
-        [...labels, ...row.querySelectorAll(bandSelector)].forEach(element => {
-            width = Math.max(
-                width,
-                element.getBoundingClientRect().right - endLeft
-            );
+        row.querySelectorAll(labelSelector).forEach(label => {
+            const rect = label.getBoundingClientRect();
+            height = Math.max(height, rowRect.bottom - rect.top);
+            width = Math.max(width, rect.right - endLeft);
         });
+
+        row.style.height = `${Math.ceil(height * scale + gap)}px`;
         end.style.width =
             end.style.minWidth = `${Math.ceil(width * scale + gap)}px`;
     }, []);

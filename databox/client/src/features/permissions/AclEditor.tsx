@@ -32,6 +32,7 @@ import {
     SlantedLabel,
     slantedCellClassName,
     slantedColumnClassName,
+    slantedTableClassName,
     useColumnHover,
     useSlantedHeader,
 } from './SlantedHeader';
@@ -209,7 +210,7 @@ export function AclEditor({
                 <Skeleton className="h-32" />
             ) : (
                 <div className="overflow-x-auto rounded-md border">
-                    <table className="w-full text-sm" {...tableProps}>
+                    <table className={slantedTableClassName} {...tableProps}>
                         <thead className="bg-muted/50 text-xs text-muted-foreground">
                             <tr ref={headerRef}>
                                 <th className="w-full px-3 py-2 text-left align-bottom font-medium">

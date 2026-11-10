@@ -22,6 +22,7 @@ import {
     SlantedLabel,
     slantedCellClassName,
     slantedColumnClassName,
+    slantedTableClassName,
     useColumnHover,
     useSlantedHeader,
 } from './SlantedHeader';
@@ -223,7 +224,7 @@ export function InstancePermissionsDialog({open, onOpenChange}: ModalProps) {
                     className="overflow-x-auto rounded-md border"
                     data-testid="instance-permissions"
                 >
-                    <table className="w-full text-sm" {...tableProps}>
+                    <table className={slantedTableClassName} {...tableProps}>
                         <thead className="bg-muted/50 text-xs text-muted-foreground">
                             <tr ref={headerRef}>
                                 <th className="w-full px-3 py-2 text-left align-bottom font-medium">
