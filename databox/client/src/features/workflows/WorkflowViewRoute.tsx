@@ -16,6 +16,7 @@ import {pathOf} from '@/components/modals/routeOrigins';
 import {DialogTitle} from '@alchemy/next-ui/ui/dialog';
 import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {workflowChannel} from '@/lib/realtime/channels';
 import {pushPath, splitRoutePath} from '@/lib/navigation/routePath';
 import {routes, UNKNOWN_RENDITION} from '@/lib/routes';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
@@ -53,8 +54,8 @@ function assetViewUrl(origin: string, assetId: string): string {
 
 /**
  * Workflow run: the runs of its asset on the left, the node graph of its jobs
- * — refreshed in realtime on `workflow-{id}` — and the details of the job
- * selected on the right, from which it can be rerun. The job selected is in
+ * — refreshed in realtime on `private-workflow-{id}` — and the details of the
+ * job selected on the right, from which it can be rerun. The job selected is in
  * the URL (`/jobs/:jobId`): a refresh or a shared link lands on it.
  *
  * Closing leads to the asset, unless the run was opened from the list of all
@@ -120,7 +121,7 @@ function WorkflowScreen({
     const close = useCloseRouteDialog();
     const origin = useRouteDialogOrigin();
 
-    useChannelEvent(`workflow-${workflowId}`, 'job_update', () => {
+    useChannelEvent(workflowChannel(workflowId), 'job_update', () => {
         void queryClient.invalidateQueries({queryKey});
         if (assetId) {
             void queryClient.invalidateQueries({

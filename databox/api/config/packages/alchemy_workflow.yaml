@@ -1,7 +1,8 @@
 alchemy_workflow:
     doctrine:
         workflow_state_entity: App\Entity\Workflow\WorkflowState
-    pusher: ~
+    pusher:
+        channel_prefix: !php/const App\Realtime\RealtimeChannel::WORKFLOW
 
 when@test:
     alchemy_workflow:

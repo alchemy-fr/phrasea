@@ -14,6 +14,7 @@ import {Button} from '@alchemy/next-ui/ui/button';
 import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {fileChannel} from '@/lib/realtime/channels';
 import {PhotoEditorDialog} from './PhotoEditorDialog';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 
@@ -47,7 +48,7 @@ export function TuiPhotoEditorPanel({
     });
     const reload = () => queryClient.invalidateQueries({queryKey});
 
-    useChannelEvent(`file-${file.id}`, `integration:${tuiPhotoEditor}`, () =>
+    useChannelEvent(fileChannel(file.id), `integration:${tuiPhotoEditor}`, () =>
         reload()
     );
 

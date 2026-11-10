@@ -14,6 +14,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Discussion\Message;
 use App\Entity\Discussion\Thread;
+use App\Realtime\RealtimeChannel;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -280,10 +281,10 @@ final class DiscussionTest extends AbstractDataboxTestCase
 
         $pushes = array_values(array_filter(
             array_map(static fn ($e) => $e->getMessage(), $realtime->getSent()),
-            static fn ($m): bool => $m instanceof PusherMessage && str_starts_with($m->getChannel(), 'thread-'),
+            static fn ($m): bool => $m instanceof PusherMessage && str_starts_with($m->getChannel(), RealtimeChannel::THREAD),
         ));
         $this->assertCount(1, $pushes);
-        $this->assertSame('thread-'.self::threadKey($this->asset), $pushes[0]->getChannel());
+        $this->assertSame(RealtimeChannel::thread(self::threadKey($this->asset)), $pushes[0]->getChannel());
         $this->assertSame('message', $pushes[0]->getEvent());
         $this->assertSame(['id' => $data['id']], $pushes[0]->getPayload());
     }

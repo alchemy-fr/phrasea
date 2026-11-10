@@ -29,6 +29,7 @@ import {formatFileSize} from '@/lib/utils/format';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {assetChannel, RENDITION_UPDATE_EVENT} from '@/lib/realtime/channels';
 import {UploadRenditionDialog} from '../dialogs/UploadRenditionDialog';
 import {CreateDynamicRenditionDialog} from '../dialogs/CreateDynamicRenditionDialog';
 import {SaveAsDialog} from '@/features/assets/actions/SaveAsDialog';
@@ -71,11 +72,7 @@ export function AssetRenditionsTab({
         },
     });
     const refresh = () => queryClient.invalidateQueries({queryKey});
-    useChannelEvent(
-        'assets',
-        'rendition-update',
-        (e: {assetId: string}) => e.assetId === asset.id && refresh()
-    );
+    useChannelEvent(assetChannel(asset.id), RENDITION_UPDATE_EVENT, refresh);
 
     if (query.isLoading) {
         return (

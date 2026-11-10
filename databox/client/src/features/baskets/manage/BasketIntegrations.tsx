@@ -25,6 +25,7 @@ import {Button} from '@alchemy/next-ui/ui/button';
 import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
 import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {basketChannel} from '@/lib/realtime/channels';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 import {useIntegrationData} from '@/features/integrations/useIntegrationData';
@@ -114,7 +115,7 @@ function ExposeIntegration({
     >({});
 
     useChannelEvent(
-        `basket-${basket.id}`,
+        basketChannel(basket.id),
         `integration:${integration.integration}`,
         (e: any) => {
             if (e?.id) {

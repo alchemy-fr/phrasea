@@ -31,6 +31,7 @@ import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {threadChannel} from '@/lib/realtime/channels';
 import {formatDateTime} from '@/lib/utils/format';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
@@ -56,7 +57,8 @@ const messageActionClass =
 
 /**
  * Comment thread attached to an entity (asset). Realtime updates through the
- * `thread-{key}` channel; `#discussion-{id}` in the URL highlights a message.
+ * `private-thread-{key}` channel; `#discussion-{id}` in the URL highlights a
+ * message.
  *
  * In an asset view, shapes drawn over the asset (see `features/annotations`)
  * are attached to the message written, and the ones of a posted message are
@@ -189,11 +191,15 @@ export function Discussion({
 
     // The event only carries the id: the message itself is read back with the
     // recipient's own permissions.
-    useChannelEvent(`thread-${threadKey}`, 'message', ({id}: {id: string}) => {
-        void getMessage(id).then(upsertLocal);
-    });
     useChannelEvent(
-        `thread-${threadKey}`,
+        threadChannel(threadKey),
+        'message',
+        ({id}: {id: string}) => {
+            void getMessage(id).then(upsertLocal);
+        }
+    );
+    useChannelEvent(
+        threadChannel(threadKey),
         'message-delete',
         (m: {id: string}) => removeLocal(m.id)
     );

@@ -1266,6 +1266,10 @@ services:
       - SOCKUDO_DEFAULT_APP_KEY=${SOCKUDO_KEY}
       - SOCKUDO_DEFAULT_APP_SECRET=${SOCKUDO_SECRET}
       - SOCKUDO_DEFAULT_APP_MAX_CONNECTIONS=100
+      # The app key is public: the clients only receive events (channels are
+      # all private, authorized by the APIs) and connect from these origins.
+      - SOCKUDO_DEFAULT_APP_ENABLE_CLIENT_MESSAGES=false
+      - SOCKUDO_DEFAULT_APP_ALLOWED_ORIGINS=${DATABOX_CLIENT_URL},${EXPOSE_CLIENT_URL},${UPLOADER_CLIENT_URL},${DASHBOARD_CLIENT_URL}
       # Single node: explicit drivers rather than the example config bundled
       # in the image.
       - ADAPTER_DRIVER=local

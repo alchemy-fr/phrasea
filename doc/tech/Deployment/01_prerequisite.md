@@ -120,6 +120,7 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
     - [Version and Setting](../Configuration/01_env_var.mdx#elasticsearch-settings)
 - **Sockudo** – WebSocket server.
     - [Version and Setting](../Configuration/01_env_var.mdx#sockudo-websocket-server-settings)
+    - Its app key is public: every channel is private, and the APIs authorize a subscription (`POST /pusher/auth`) only to whoever may read the related object, anonymous visitors included on public content. Client messages are disabled (`SOCKUDO_DEFAULT_APP_ENABLE_CLIENT_MESSAGES=false`) and connections are only accepted from the client origins (`SOCKUDO_DEFAULT_APP_ALLOWED_ORIGINS`, comma-separated).
 
 #### Additional tools useful for development and stack testing:
 

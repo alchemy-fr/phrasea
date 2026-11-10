@@ -142,10 +142,19 @@ export function RealtimeProvider({children}: PropsWithChildren) {
         [enabled, getPusher]
     );
 
-    // Reconnect private channels after login
+    // Channels are authorized for the current visitor. Once they log in or
+    // out, restarting the connection makes pusher-js subscribe again to every
+    // channel it holds, the refused ones included, through the auth endpoint.
+    const lastStatus = useRef(status);
     useEffect(() => {
-        if (status === 'authenticated' && pusherRef.current) {
-            pusherRef.current.connect();
+        if (status === 'loading' || status === lastStatus.current) {
+            return;
+        }
+        lastStatus.current = status;
+        const pusher = pusherRef.current;
+        if (pusher) {
+            pusher.disconnect();
+            pusher.connect();
         }
     }, [status]);
 

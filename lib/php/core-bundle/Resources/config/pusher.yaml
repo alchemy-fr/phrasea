@@ -15,6 +15,8 @@ services:
 
     # Pusher/Sockudo private-channel authorization endpoint (POST /pusher/auth).
     # Registered only when Pusher is enabled, so PusherManager is guaranteed.
-    Alchemy\CoreBundle\Controller\RealtimeAuthController:
+    Alchemy\CoreBundle\Controller\RealtimeAuthController: ~
+
+    Alchemy\CoreBundle\Pusher\UserChannelAuthorizer:
         arguments:
             $channelPrefix: '%alchemy_core.pusher.channel_prefix%'

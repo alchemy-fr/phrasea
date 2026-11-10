@@ -493,6 +493,11 @@ export function exportAssets(data: {
     return api.post<AssetExport>('/asset-exports', data);
 }
 
+/** Readable by the owner of the export only: once ready, it carries the signed URL of the archive */
+export function getAssetExport(id: string): Promise<AssetExport> {
+    return api.get<AssetExport>(`/asset-exports/${id}`);
+}
+
 // Attachments --------------------------------------------------------------
 
 export function postAttachment(data: {

@@ -164,7 +164,9 @@ describe('FaceRecognitionPanel', () => {
         expect(screen.getByText('Unnamed')).toBeTruthy();
         expect(screen.getByText('Recognized · 75%')).toBeTruthy();
         expect(
-            realtime.handlers['asset-asset-1|integration:core.face_recognition']
+            realtime.handlers[
+                'private-asset-asset-1|integration:core.face_recognition'
+            ]
         ).toBeTypeOf('function');
 
         fireEvent.click(

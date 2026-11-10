@@ -14,6 +14,7 @@ use App\Entity\Core\File;
 use App\Entity\Traits\AssetAnnotationsInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\PusherTrait;
+use App\Realtime\RealtimeChannel;
 use App\Repository\Core\AttributeRepository;
 use App\Service\Asset\FileFetcher;
 use App\Service\Image\ImageDownscaler;
@@ -157,7 +158,7 @@ final class FaceRecognitionAnalyzer
 
         $this->faceManager->removeOrphanUnknowns($this->configResolver->getEntityList($config), array_keys($previousValues));
 
-        $this->triggerPush('asset-'.$asset->getId(), 'integration:'.FaceRecognitionIntegration::getName(), [
+        $this->triggerPush(RealtimeChannel::asset($asset->getId()), 'integration:'.FaceRecognitionIntegration::getName(), [
             'count' => count($faces),
         ], direct: true);
 

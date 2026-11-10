@@ -16,7 +16,7 @@ import {isAbortError} from '@/lib/api/http';
 import {useSearch} from './SearchProvider';
 import {conditionQuery, resolveSortBy} from './searchState';
 import {useAssetStore} from '@/features/assets/assetStore';
-import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {useRenditionUpdate} from '@/lib/realtime/renditionUpdates';
 import {trackSiteSearch} from '@alchemy/next-core/analytics/matomo';
 
 export type ResultContextValue = {
@@ -77,13 +77,9 @@ export function ResultProvider({
     const storeAssets = useAssetStore(s => s.setAssets);
     const reloadAsset = useAssetStore(s => s.reloadAsset);
 
-    useChannelEvent(
-        'assets',
-        'rendition-update',
-        (event: {assetId: string}) => {
-            void reloadAsset(event.assetId);
-        }
-    );
+    useRenditionUpdate(event => {
+        void reloadAsset(event.assetId);
+    });
 
     const extraOptionsKey = JSON.stringify(extraOptions ?? null);
     const stableExtraOptions = useMemo(

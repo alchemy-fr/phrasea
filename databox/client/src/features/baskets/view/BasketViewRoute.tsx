@@ -38,6 +38,7 @@ import {SelectionActions} from '@/features/assets/list/toolbar/SelectionActions'
 import {DisplayOptionsMenu} from '@/features/assets/list/toolbar/DisplayOptionsMenu';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {basketChannel} from '@/lib/realtime/channels';
 import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@alchemy/next-ui/utils/cn';
@@ -83,7 +84,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
         initialPageParam: undefined as string | undefined,
         getNextPageParam: last => last.next,
     });
-    useChannelEvent(`basket-${basketId}`, 'basket:update', () =>
+    useChannelEvent(basketChannel(basketId), 'basket:update', () =>
         invalidateBasket(queryClient, basketId)
     );
 

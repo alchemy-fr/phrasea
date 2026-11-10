@@ -35,6 +35,7 @@ import {
 import {AssetViewActions} from './AssetViewActions';
 import {useNavigationContextStore} from '@/features/assets/navigationContext';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {assetChannel, RENDITION_UPDATE_EVENT} from '@/lib/realtime/channels';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
@@ -140,13 +141,11 @@ export function AssetViewRoute({
         staleTime: 2000,
     });
 
-    useChannelEvent(`asset-${assetId}`, 'asset_ingested', () =>
+    useChannelEvent(assetChannel(assetId), 'asset_ingested', () =>
         queryClient.invalidateQueries({queryKey})
     );
-    useChannelEvent('assets', 'rendition-update', (e: {assetId: string}) => {
-        if (e.assetId === assetId) {
-            void queryClient.invalidateQueries({queryKey});
-        }
+    useChannelEvent(assetChannel(assetId), RENDITION_UPDATE_EVENT, () => {
+        void queryClient.invalidateQueries({queryKey});
     });
 
     const asset = query.data?.asset;

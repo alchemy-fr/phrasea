@@ -35,7 +35,10 @@ import {DuplicatesList} from './DuplicatesList';
 import {QuarantineActions} from './QuarantineActions';
 import {fileAnalysis, hasAnalysisReport, quarantineCondition} from './analysis';
 import {quarantineQueueKey, useQuarantineQueueStore} from './quarantineQueue';
-import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {
+    useRenditionUpdate,
+    useWatchWorkspaces,
+} from '@/lib/realtime/renditionUpdates';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
@@ -90,20 +93,23 @@ export function QuarantineScreen() {
         refetchInterval: 60000,
     });
 
-    // Assets being ingested announce their renditions on this channel: it is
-    // the signal that new ones may have landed in quarantine. Bulk uploads
-    // emit one event per rendition, hence the trailing debounce.
-    const refresh = useRef<ReturnType<typeof setTimeout>>(undefined);
-    useChannelEvent('assets', 'rendition-update', () => {
-        clearTimeout(refresh.current);
-        refresh.current = setTimeout(() => void queue.refetch(), 2000);
-    });
-    useEffect(() => () => clearTimeout(refresh.current), []);
-
     const loaded = useMemo(
         () => queue.data?.pages.flatMap(p => p.items) ?? [],
         [queue.data]
     );
+
+    // Assets being ingested announce their renditions on the channel of their
+    // workspace: it is the signal that new ones may have landed in quarantine.
+    // Only the workspaces of the queue are followed: the refetch interval
+    // catches the others. Bulk uploads emit one event per rendition, hence the
+    // trailing debounce.
+    useWatchWorkspaces(loaded.map(a => a.workspace?.id));
+    const refresh = useRef<ReturnType<typeof setTimeout>>(undefined);
+    useRenditionUpdate(() => {
+        clearTimeout(refresh.current);
+        refresh.current = setTimeout(() => void queue.refetch(), 2000);
+    });
+    useEffect(() => () => clearTimeout(refresh.current), []);
     const assets = useMemo(
         () => loaded.filter(a => !resolved.includes(a.id)),
         [loaded, resolved]

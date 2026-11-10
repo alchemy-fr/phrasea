@@ -15,6 +15,7 @@ import {ImpersonationBanner} from '@/features/impersonation/ImpersonationBanner'
 import {useResizablePanel} from '@/hooks/useResizablePanel';
 import {ResizeHandle} from '@/components/ui/resize-handle';
 import {useStoryRenditionRefresh} from '@/features/stories/useStoryRenditionRefresh';
+import {RenditionUpdateFeed} from '@/lib/realtime/renditionUpdates';
 
 export function AppShell({children}: PropsWithChildren) {
     const {status} = useAuth();
@@ -53,6 +54,7 @@ export function AppShell({children}: PropsWithChildren) {
                         {children}
                     </main>
                 </div>
+                <RenditionUpdateFeed />
                 {status === 'authenticated' ? (
                     <>
                         <GlobalToasts />
