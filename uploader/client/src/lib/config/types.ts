@@ -1,4 +1,5 @@
 import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
+import type {SentryClientConfig} from '@alchemy/next-core/monitoring/sentry';
 
 /**
  * Runtime configuration of the client. It is resolved on the server at request
@@ -42,6 +43,8 @@ export type AppConfig = {
     displayServicesMenu: boolean;
     devMode: boolean;
     analytics: AnalyticsConfig;
+    /** `SENTRY_DSN`: the browser errors are reported to Sentry */
+    sentry?: SentryClientConfig;
     upload: UploadConfig;
     logo?: {
         src?: string;

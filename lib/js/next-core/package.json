@@ -2,7 +2,7 @@
     "name": "@alchemy/next-core",
     "version": "1.0.0",
     "private": true,
-    "description": "Plumbing of the Next.js clients: OIDC session, runtime and stack configuration, analytics",
+    "description": "Plumbing of the Next.js clients: OIDC session, runtime and stack configuration, analytics, error monitoring",
     "type": "module",
     "license": "MIT",
     "sideEffects": [
@@ -16,7 +16,12 @@
         "./config/stackConfig": "./src/config/stackConfig.ts",
         "./analytics/matomo": "./src/analytics/matomo.ts",
         "./analytics/MatomoTracker": "./src/analytics/MatomoTracker.tsx",
-        "./server/http": "./src/server/http.ts"
+        "./monitoring/sentry": "./src/monitoring/sentry.ts",
+        "./monitoring/SentryInit": "./src/monitoring/SentryInit.tsx",
+        "./monitoring/SentryUser": "./src/monitoring/SentryUser.tsx",
+        "./server/http": "./src/server/http.ts",
+        "./server/rateLimit": "./src/server/rateLimit.ts",
+        "./server/sentryTunnel": "./src/server/sentryTunnel.ts"
     },
     "scripts": {
         "typecheck": "tsc --noEmit",
@@ -29,7 +34,8 @@
         "test:watch": "vitest"
     },
     "dependencies": {
-        "@alchemy/next-ui": "workspace:*"
+        "@alchemy/next-ui": "workspace:*",
+        "@sentry/react": "^11.11.0"
     },
     "peerDependencies": {
         "next": "^16.4.4",

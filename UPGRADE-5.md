@@ -118,7 +118,11 @@ The Databox client is no longer static files served by nginx.
   HSTS, `X-Robots-Tag`, `X-Content-Type-Options`) and `robots.txt` are no longer
   emitted: set them on your reverse proxy. `phrasea-manifest.json` is no longer
   served.
-- Sentry is not wired: `CLIENT_SENTRY_DSN` has no effect on Databox.
+- Sentry (`CLIENT_SENTRY_DSN`) only reports the browser errors: no tracing, no
+  replay, no source maps uploaded. The SDK sends them to the same origin route
+  `/api/relay`, which relays them to the project of the DSN behind a rate limit
+  per client process (`SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, 30 per minute and per
+  IP; `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL`, 300 per minute).
 - Theme: the global `theme` entry (MUI theme options) no longer applies to
   Databox, which reads `databox.theme` (JSON, edited from the admin "Customize
   theme" screen or `PUT /client-theme`). The global `logo` is still honoured.
@@ -148,14 +152,15 @@ The three clients follow the Databox client (see above): same images
   `EXPOSE_ALLOWED_FRAME_ANCESTORS`).
 - The OAuth callback moves from `/auth/check` to `/auth/callback`. Only Keycloak
   redirect URIs configured by hand without a `/*` wildcard need updating.
-- Sentry is not wired: `CLIENT_SENTRY_DSN` has no effect on these clients.
+- Sentry (`CLIENT_SENTRY_DSN`) reports the browser errors through `/api/relay`,
+  as in Databox.
 - Theme: the global `theme` entry (MUI theme options) no longer applies; they
   offer the organisation theme `databox.theme`. The global `logo` (and
   `uploader.client.logo`) is still honoured.
 - Dashboard: `/menu.html` is gone. The services menu of the API admins now
   frames the dashboard root, and the dashboard lets the API origins frame it.
   `/git-log.html` redirects to `/git-log`. The dashboard no longer reads
-  `REPORT_API_URL`, `SAML_URL`, `SAML2_URL` nor `SENTRY_*`.
+  `REPORT_API_URL`, `SAML_URL` nor `SAML2_URL`.
 - The `nginx-client-base` image is no longer built nor used.
 
 ### Scheduler containers replace the cron jobs

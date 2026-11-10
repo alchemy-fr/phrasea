@@ -108,6 +108,13 @@ export function getServerConfig(
                       },
                   }
                 : {},
+        sentry: env.SENTRY_DSN
+            ? {
+                  dsn: env.SENTRY_DSN,
+                  environment: env.SENTRY_ENVIRONMENT,
+                  release: env.SENTRY_RELEASE,
+              }
+            : undefined,
         logo: logoFrom(stackConfig),
     };
 }

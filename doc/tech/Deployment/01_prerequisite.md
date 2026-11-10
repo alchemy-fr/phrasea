@@ -233,6 +233,7 @@ Disk capacity for temporary volumes: 100 GB
 * Monitoring: Set up logging and monitoring for capturing containers' standard output (e.g., Fluent Bit, Prometheus, Grafana).
 * APM: You can use the [Sentry](https://sentry.io/welcome/) SaaS service for capturing stack errors; both front-end and back-end agents are installed in Phrasea's images.
   Set up your Sentry [credentials here](../Configuration/01_env_var.mdx#php_sentry_dsn).
+  `CLIENT_SENTRY_DSN` enables the browser SDK of the clients (errors only). It sends its envelopes to the same origin route `/api/relay` of each client, which relays them to the project of that DSN only, behind a rate limit (`SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL`, envelopes per minute). The limits are kept in memory, per client process: they are multiplied by the number of replicas.
 * Backups: Implement regular backups for PostgreSQL and object storage.
 * Elasticsearch is not a primary datastore, but indexation time can be significant when the number of assets is large. Backing up Elasticsearch indexes allows for quick recovery after a failure. It is also advisable to use an external cluster for Elasticsearch.
 * RabbitMQ database needs to be persisted in case of failure and container restart.

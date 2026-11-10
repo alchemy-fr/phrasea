@@ -42,12 +42,24 @@ baked at build time.
 | `ALLOWED_FRAME_ANCESTORS` | Sites allowed to embed the pages (CSP `frame-ancestors`, space separated), set by `src/proxy.ts` |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES` | Matomo analytics |
-| `SENTRY_DSN`, `SENTRY_ENVIRONMENT` | Monitoring (exposed, no SDK wired yet) |
+| `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `CONFIGURATOR_S3_*`, `CONFIG_IS_PUBLIC`, `STACK_CONFIG_SRC`, `STACK_CONFIG_REFRESH_INTERVAL` | Stack configuration (logo, organisation theme), as for `databox/client` |
 
 The organisation theme is the one administrators define in the Databox
 client (`databox.theme` entry of the stack configuration): it is offered in
 the theme menu next to the built-in presets.
+
+## Error monitoring (Sentry)
+
+When `SENTRY_DSN` is set (`CLIENT_SENTRY_DSN` of the stack), the browser
+errors are reported to Sentry by the browser SDK (`@sentry/react`, errors
+only: neither tracing nor replay), tagged with `app.id` / `app.name` and the
+signed-in user. The SDK posts its envelopes to the same origin route
+`/api/relay` (no ad blocker, no CORS), which relays them to the project of
+`SENTRY_DSN` only, behind an in-memory rate limit of the client process:
+`SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
+`SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
+code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel`).
 
 ## Routes
 
@@ -106,4 +118,3 @@ changes the URL, the grid and the media loaded stay in place.
 - Edition of the date of a publication: the API does not accept it.
 - Map layout, edition of the description, translations, CSS, theme, logo
   and assets of a publication (EasyAdmin of the API).
-- Sentry wiring (variables exposed, no SDK yet).

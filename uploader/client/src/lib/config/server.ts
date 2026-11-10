@@ -118,6 +118,13 @@ export function getServerConfig(
                       },
                   }
                 : {},
+        sentry: env.SENTRY_DSN
+            ? {
+                  dsn: env.SENTRY_DSN,
+                  environment: env.SENTRY_ENVIRONMENT,
+                  release: env.SENTRY_RELEASE,
+              }
+            : undefined,
         upload: {
             maxFileSize:
                 positiveInt(uploader.max_upload_file_size) ??

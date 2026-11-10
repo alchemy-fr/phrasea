@@ -47,6 +47,7 @@ visitor with the page.
 | `STACK_NAME`, `STACK_VERSION` | Title and version of the stack (compose project name and `DOCKER_TAG`) |
 | `DEV_MODE` | "Developer mode" banner |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_DISABLE_COOKIES` | Page views sent to Matomo |
+| `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `VERIFY_SSL` | Certificate check of the API probes and of the stack configuration |
 | `STATUS_TTL` | Seconds an API status is kept before probing again (15) |
 | `GIT_LOG_SRC` | Commit history file (`build-info/git-log.tsv`) |
@@ -55,6 +56,18 @@ visitor with the page.
 The organisation theme is the one administrators define in the Databox
 client (`databox.theme` entry of the stack configuration): it is offered in
 the theme menu next to the built-in presets.
+
+## Error monitoring (Sentry)
+
+When `SENTRY_DSN` is set (`CLIENT_SENTRY_DSN` of the stack), the browser
+errors are reported to Sentry by the browser SDK (`@sentry/react`, errors
+only: neither tracing nor replay), tagged with `app.id` / `app.name` and the
+signed-in user. The SDK posts its envelopes to the same origin route
+`/api/relay` (no ad blocker, no CORS), which relays them to the project of
+`SENTRY_DSN` only, behind an in-memory rate limit of the client process:
+`SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
+`SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
+code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel`).
 
 ## Routes
 
@@ -99,6 +112,5 @@ the theme menu next to the built-in presets.
 
 - **ACL-based admin links**: the APIs expose no "can I open the admin"
   endpoint; the role rule is the one their `access_control` applies;
-- **Sentry**: not wired, like in the other Next.js clients;
 - **Status of Keycloak and of the tools**: they have no health route
   reachable from the client.

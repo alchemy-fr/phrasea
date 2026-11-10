@@ -36,5 +36,23 @@ describe('getServerConfig', () => {
             style: 'margin: 4px',
         });
         expect(config.keycloak.clientId).toBe('dashboard-app');
+        expect(config.sentry).toBeUndefined();
+    });
+
+    it('reports the browser errors to Sentry when a DSN is set', () => {
+        const config = getServerConfig(
+            {},
+            {
+                SENTRY_DSN: 'https://public@o1.ingest.sentry.io/42',
+                SENTRY_ENVIRONMENT: 'staging',
+                SENTRY_RELEASE: '1.2.3',
+            }
+        );
+
+        expect(config.sentry).toEqual({
+            dsn: 'https://public@o1.ingest.sentry.io/42',
+            environment: 'staging',
+            release: '1.2.3',
+        });
     });
 });

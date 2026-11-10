@@ -26,6 +26,7 @@ export type TicketingConfig = {
 };
 
 import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
+import type {SentryClientConfig} from '@alchemy/next-core/monitoring/sentry';
 
 export type AppConfig = {
     appId: string;
@@ -49,11 +50,8 @@ export type AppConfig = {
     };
     notifications: boolean;
     analytics: AnalyticsConfig;
-    sentry?: {
-        dsn: string;
-        environment?: string;
-        release?: string;
-    };
+    /** `SENTRY_DSN`: the browser errors are reported to Sentry */
+    sentry?: SentryClientConfig;
     upload: UploadConfig;
     ticketing: TicketingConfig;
     /** The map layout of the results is only offered when a token is set */

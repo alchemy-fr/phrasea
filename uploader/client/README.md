@@ -40,6 +40,7 @@ container environment and the stack configuration at request time (see
 | `S3_MAX_OBJECT_SIZE`, `ALLOWED_FILE_TYPES` | Upload limits (see below) |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_DISABLE_COOKIES` | Page views sent to Matomo |
+| `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `DEV_MODE` | "Debug user" entry of the user menu |
 | `CONFIGURATOR_S3_*`, `CONFIG_IS_PUBLIC`, `STACK_CONFIG_SRC`, `STACK_CONFIG_REFRESH_INTERVAL` | Stack configuration, read like the Databox client does |
 | stack `uploader.max_upload_file_size` | Maximum size of a file (falls back to `S3_MAX_OBJECT_SIZE`) |
@@ -49,6 +50,18 @@ container environment and the stack configuration at request time (see
 | stack `databox.theme` | Organisation theme, defined in Databox and shared |
 
 The batch limits are also enforced by the API on commit.
+
+## Error monitoring (Sentry)
+
+When `SENTRY_DSN` is set (`CLIENT_SENTRY_DSN` of the stack), the browser
+errors are reported to Sentry by the browser SDK (`@sentry/react`, errors
+only: neither tracing nor replay), tagged with `app.id` / `app.name` and the
+signed-in user. The SDK posts its envelopes to the same origin route
+`/api/relay` (no ad blocker, no CORS), which relays them to the project of
+`SENTRY_DSN` only, behind an in-memory rate limit of the client process:
+`SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
+`SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
+code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel`).
 
 ## Layout
 
@@ -92,5 +105,4 @@ PUT at a time, two files at a time.
   endpoint (see `uploader/api/config/routes/alchemy_notifier.yaml`), so
   there is no bell nor realtime connection;
 - **multi-step forms**: `doc/tech/Uploader/form-steps.md` describes a
-  `POST /schema` endpoint the API does not implement;
-- **Sentry**: not wired, like in the Databox client.
+  `POST /schema` endpoint the API does not implement.
