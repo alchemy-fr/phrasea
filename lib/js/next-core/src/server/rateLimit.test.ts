@@ -28,6 +28,15 @@ describe('createFixedWindowLimiter', () => {
         expect(limiter.consume('a', now + 60_001).allowed).toBe(false);
     });
 
+    it('reopens an expired window that is not at the head of the map', () => {
+        const limiter = createFixedWindowLimiter({max: 1, windowMs: 60_000});
+        limiter.consume('a', now);
+        limiter.consume('b', now - 1_000);
+
+        expect(limiter.consume('b', now + 59_500).allowed).toBe(true);
+        expect(limiter.consume('a', now + 59_500).allowed).toBe(false);
+    });
+
     it('rounds the retry delay up to the second', () => {
         const limiter = createFixedWindowLimiter({max: 1, windowMs: 60_000});
         limiter.consume('a', now);

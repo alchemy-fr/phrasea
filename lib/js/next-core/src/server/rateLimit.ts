@@ -25,18 +25,23 @@ export function createFixedWindowLimiter({
     max: number;
     windowMs: number;
 }): FixedWindowLimiter {
+    // Every window has the same length and a bucket is (re)inserted at the
+    // end when it opens: the map is ordered by expiry, the expired buckets are
+    // at its head. A clock going backwards only delays their eviction.
     const buckets = new Map<string, Bucket>();
 
     return {
         consume(key, now = Date.now()) {
             for (const [k, bucket] of buckets) {
-                if (bucket.resetAt <= now) {
-                    buckets.delete(k);
+                if (bucket.resetAt > now) {
+                    break;
                 }
+                buckets.delete(k);
             }
 
             const bucket = buckets.get(key);
-            if (!bucket) {
+            if (!bucket || bucket.resetAt <= now) {
+                buckets.delete(key);
                 buckets.set(key, {count: 1, resetAt: now + windowMs});
 
                 return {allowed: true, retryAfter: 0};
