@@ -55,14 +55,16 @@ export function DialogOverlay({
     );
 }
 
-export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 
 const sizeClasses: Record<DialogSize, string> = {
-    sm: 'sm:max-w-md',
-    md: 'sm:max-w-xl',
-    lg: 'sm:max-w-3xl',
-    xl: 'sm:max-w-6xl',
-    full: 'h-[100dvh] max-h-none w-screen max-w-none rounded-none border-0 sm:max-w-none',
+    'sm': 'sm:max-w-md',
+    'md': 'sm:max-w-xl',
+    'lg': 'sm:max-w-3xl',
+    'xl': 'sm:max-w-6xl',
+    // Almost the whole window, up to 100rem
+    '2xl': 'sm:max-w-[min(100rem,calc(100%-4rem))]',
+    'full': 'h-[100dvh] max-h-none w-screen max-w-none rounded-none border-0 sm:max-w-none',
 };
 
 export function DialogContent({
