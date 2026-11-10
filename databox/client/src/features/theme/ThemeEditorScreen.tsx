@@ -52,6 +52,7 @@ import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChange
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {usePreferencesStore} from '@/features/preferences/store';
 import {routes} from '@/lib/routes';
+import {ScrollablePage} from '@/components/layout/ScrollablePage';
 
 type Palette = Record<ThemeColorToken, string>;
 
@@ -343,8 +344,8 @@ export function ThemeEditorScreen() {
                     )}
                 />
             ) : (
-                <div
-                    className="mx-auto w-full max-w-5xl space-y-4 overflow-y-auto p-4"
+                <ScrollablePage
+                    className="max-w-5xl"
                     data-testid="theme-editor"
                 >
                     <div className="flex flex-wrap items-center gap-2">
@@ -697,7 +698,7 @@ export function ThemeEditorScreen() {
                             </aside>
                         </div>
                     )}
-                </div>
+                </ScrollablePage>
             )}
         </RequireAuth>
     );

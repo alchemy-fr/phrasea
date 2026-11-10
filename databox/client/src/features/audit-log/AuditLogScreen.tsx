@@ -22,7 +22,10 @@ import {Button} from '@alchemy/next-ui/ui/button';
 import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {Input, Label} from '@alchemy/next-ui/ui/input';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {AsyncCombobox, type ComboOption} from '@alchemy/next-ui/form/AsyncCombobox';
+import {
+    AsyncCombobox,
+    type ComboOption,
+} from '@alchemy/next-ui/form/AsyncCombobox';
 import {UserSelect, WorkspaceSelect} from '@/components/form/selects';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {formatDateTime} from '@/lib/utils/format';
@@ -36,6 +39,7 @@ import {
     auditLogObjectHref,
     auditLogObjectTypeLabel,
 } from './auditLogLabels';
+import {ScrollablePage} from '@/components/layout/ScrollablePage';
 
 const ALL = '_all';
 
@@ -208,9 +212,9 @@ export function AuditLogScreen() {
                     )}
                 />
             ) : (
-                <div
+                <ScrollablePage
                     data-testid="audit-log-screen"
-                    className="mx-auto w-full max-w-6xl space-y-4 overflow-y-auto p-4"
+                    className="max-w-6xl"
                 >
                     <div className="flex flex-wrap items-center gap-3">
                         <ScrollTextIcon className="size-5 text-muted-foreground" />
@@ -475,7 +479,7 @@ export function AuditLogScreen() {
                             {t('common.load_more', 'Load more')}
                         </Button>
                     ) : null}
-                </div>
+                </ScrollablePage>
             )}
         </RequireAuth>
     );

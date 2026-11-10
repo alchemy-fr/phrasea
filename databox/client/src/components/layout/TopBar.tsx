@@ -41,7 +41,6 @@ import {languages} from '@/i18n';
 import {routes} from '@/lib/routes';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
-import {InstancePermissionsDialog} from '@/features/permissions/InstancePermissionsDialog';
 import {
     SWITCH_USER_SHORTCUT,
     useSwitchUserShortcut,
@@ -245,7 +244,7 @@ export function TopBar({
                         <DropdownMenuItem
                             data-testid="settings-instance-permissions"
                             onSelect={() =>
-                                openModal(InstancePermissionsDialog, {})
+                                router.push(routes.instancePermissions())
                             }
                         >
                             <ShieldIcon />{' '}

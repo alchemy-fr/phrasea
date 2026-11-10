@@ -41,6 +41,8 @@ export const routes = {
     operationTaskDetails: (id: string) => `/admin/tasks/${id}/details`,
     themeSettings: () => '/admin/theme',
     instanceIntegrations: () => '/admin/integrations',
+    /** Capabilities granted outside any workspace (admins) */
+    instancePermissions: () => '/admin/permissions',
     /** Who did what on the instance (admins) */
     auditLog: () => '/admin/audit-log',
     share: (id: string, token: string) => `/s/${id}/${token}`,

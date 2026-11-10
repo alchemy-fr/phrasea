@@ -38,6 +38,7 @@ import {
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {routes} from '@/lib/routes';
+import {ScrollablePage} from '@/components/layout/ScrollablePage';
 
 type TaskField = {
     name: string;
@@ -256,7 +257,7 @@ export function OperationTasksScreen() {
                     )}
                 />
             ) : (
-                <div className="mx-auto w-full max-w-4xl space-y-4 overflow-y-auto p-4">
+                <ScrollablePage className="max-w-4xl">
                     <div className="flex items-center gap-2">
                         {view.type !== 'list' ? (
                             <Button
@@ -412,7 +413,7 @@ export function OperationTasksScreen() {
                     {view.type === 'details' ? (
                         <TaskDetails id={view.id} types={types} />
                     ) : null}
-                </div>
+                </ScrollablePage>
             )}
         </RequireAuth>
     );
