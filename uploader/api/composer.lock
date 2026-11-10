@@ -4,24 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2937a000c577b75de51516e8ce94b921",
+    "content-hash": "ce0d4537a4e73aa645bc06f40c67fe6d",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "1.5.2",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "fa493dbc1a591bef3e9cc41d5a30b36fab82ba1e"
+                "reference": "7153a26b4c9cc9fcfb57dce5a27fdc6f438a3ffe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/fa493dbc1a591bef3e9cc41d5a30b36fab82ba1e",
-                "reference": "fa493dbc1a591bef3e9cc41d5a30b36fab82ba1e",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/7153a26b4c9cc9fcfb57dce5a27fdc6f438a3ffe",
+                "reference": "7153a26b4c9cc9fcfb57dce5a27fdc6f438a3ffe",
                 "shasum": ""
             },
             "require": {
-                "doctrine/orm": "^2.6|^3.6.1",
+                "doctrine/doctrine-bundle": "^2.10|^3.0",
+                "doctrine/orm": "^2.14|^3.6.1",
                 "ext-json": "*",
                 "php": "^8.5",
                 "ramsey/uuid-doctrine": "^1.5|^2.1.0",
@@ -32,10 +33,13 @@
                 "symfony/yaml": "^6.4|^7.4|^8.0"
             },
             "require-dev": {
-                "doctrine/doctrine-bundle": "^2.10|^3.0",
                 "friendsofphp/php-cs-fixer": "^3",
                 "phpunit/phpunit": "^10.2.2|^11.5",
                 "rector/rector": "^2.0.7"
+            },
+            "suggest": {
+                "symfony/form": "To use the bundled form types (object type, permission, user type)",
+                "symfony/twig-bundle": "To render the admin templates"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -54,9 +58,9 @@
             "homepage": "https://www.alchemy.fr/",
             "support": {
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
-                "source": "https://github.com/alchemy-fr/acl-bundle/tree/1.5.2"
+                "source": "https://github.com/alchemy-fr/acl-bundle/tree/2.0.0"
             },
-            "time": "2026-11-04T23:12:09+00:00"
+            "time": "2026-11-10T23:22:21+00:00"
         },
         {
             "name": "alchemy/admin-bundle",

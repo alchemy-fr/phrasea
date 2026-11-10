@@ -86,7 +86,7 @@
         "php": "^8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "alchemy/acl-bundle": "^1.5.2",
+        "alchemy/acl-bundle": "^2.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "@dev",
         "alchemy/configurator-bundle": "@dev",

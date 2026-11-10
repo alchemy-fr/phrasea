@@ -1701,7 +1701,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     role_mapping?: array<string, scalar|Param|null>,
  * }
  * @psalm-type AlchemyAclConfig = array{
- *     enabled_permissions?: list<scalar|Param|null>,
+ *     enabled_permissions?: list<"VIEW"|"CREATE"|"EDIT"|"DELETE"|"UNDELETE"|"OPERATOR"|"MASTER"|"OWNER"|"SHARE"|"CHILD_VIEW"|"CHILD_CREATE"|"CHILD_EDIT"|"CHILD_DELETE"|"CHILD_UNDELETE"|"CHILD_OPERATOR"|"CHILD_MASTER"|"CHILD_OWNER"|"CHILD_SHARE"|Param>,
  *     objects?: array<string, scalar|Param|null>,
  * }
  * @psalm-type MonologConfig = array{

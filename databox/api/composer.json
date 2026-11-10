@@ -152,7 +152,7 @@
         "ext-json": "*",
         "ext-sodium": "*",
         "ext-zip": "*",
-        "alchemy/acl-bundle": "^1.5.2",
+        "alchemy/acl-bundle": "^2.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
         "alchemy/configurator-bundle": "@dev",

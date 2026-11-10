@@ -82,7 +82,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-zip": "*",
-        "alchemy/acl-bundle": "^1.5.2",
+        "alchemy/acl-bundle": "^2.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
