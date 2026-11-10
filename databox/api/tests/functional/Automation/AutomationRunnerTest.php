@@ -171,6 +171,26 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
         $this->assertSame(3, $this->countSeen($id));
     }
 
+    public function testTheWorkspaceOfTheAutomationLimitsTheResults(): void
+    {
+        $this->setUpSearch();
+        $other = $this->createWorkspace(['ownerId' => self::OWNER, 'name' => 'Other', 'slug' => 'other']);
+        $this->createAsset(['workspace' => $other, 'ownerId' => self::OWNER, 'name' => 'Elsewhere']);
+        $this->indexAssets();
+        // Every asset of both workspaces
+        $savedSearch = $this->createSavedSearchWith(self::OWNER, ['query' => '']);
+
+        $id = $this->createAutomationEntity($savedSearch, [$this->tagAction()], AutomationScopeEnum::All)->getId();
+        $this->assertSame(4, $this->runAutomation($id, dryRun: true)->getMatchedCount());
+
+        $id = $this->createAutomationEntity($savedSearch, [$this->tagAction()], AutomationScopeEnum::All, ['workspace' => $this->workspace])->getId();
+        $run = $this->runAutomation($id);
+        $this->assertSame(AutomationRunStatusEnum::Success, $run->getStatus(), (string) $run->getError());
+        $this->assertSame(3, $run->getMatchedCount());
+        $this->assertSame(3, $run->getProcessedCount());
+        $this->assertSame(0, $run->getFailedCount());
+    }
+
     public function testLimitWithScopeNewHandlesTheRestAtTheNextRun(): void
     {
         $savedSearch = $this->setUpSearch();

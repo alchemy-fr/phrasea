@@ -33,6 +33,12 @@ class SavedSearchAutomationOutput extends AbstractUuidOutput
     #[Groups([SavedSearchAutomation::GROUP_LIST, SavedSearchAutomation::GROUP_READ])]
     public ?string $savedSearchId = null;
 
+    /**
+     * The workspace the results of the saved search are limited to.
+     */
+    #[Groups([SavedSearchAutomation::GROUP_LIST, SavedSearchAutomation::GROUP_READ])]
+    public ?string $workspaceId = null;
+
     #[Groups([SavedSearchAutomation::GROUP_LIST, SavedSearchAutomation::GROUP_READ])]
     public ?string $name = null;
 

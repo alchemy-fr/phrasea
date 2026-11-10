@@ -40,6 +40,7 @@ class SavedSearchAutomationOutputMapper implements OutputMapperInterface
         $output->setUpdatedAt($data->getUpdatedAt());
 
         $output->savedSearchId = $data->getSavedSearch()?->getId();
+        $output->workspaceId = $data->getWorkspaceId();
         $output->name = $data->getName();
         $output->enabled = $data->isEnabled();
         $output->schedule = $data->getSchedule();

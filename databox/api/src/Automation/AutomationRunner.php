@@ -158,6 +158,7 @@ final readonly class AutomationRunner
             trigger: $run->getTrigger(),
             dryRun: $run->isDryRun(),
             scope: $automation->getScope(),
+            workspaceId: $automation->getWorkspaceId(),
         );
 
         $actions = [];

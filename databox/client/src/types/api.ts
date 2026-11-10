@@ -731,6 +731,8 @@ export type AutomationAction = {
 
 export interface SavedSearchAutomation extends HydraObject, Entity {
     savedSearchId: string;
+    /** Workspace the results of the saved search are limited to */
+    workspaceId?: string | null;
     name: string;
     enabled: boolean;
     /** Cron expression, null when run on demand only */

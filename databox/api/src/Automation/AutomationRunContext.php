@@ -24,6 +24,8 @@ final readonly class AutomationRunContext
         public AutomationTriggerEnum $trigger,
         public bool $dryRun,
         public AutomationScopeEnum $scope = AutomationScopeEnum::New,
+        // The workspace the results are limited to, null for every workspace of the saved search
+        public ?string $workspaceId = null,
     ) {
     }
 }

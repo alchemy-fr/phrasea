@@ -153,37 +153,83 @@ describe('automation actions registry', () => {
 
     it('completes the share export configurations', () => {
         const shareExport = getActionDefinition('share_export')!;
+        const context = {workspaceId: 'ws1'};
         const ftp = {
             ...shareExport.defaultConfig(),
             protocol: 'ftp',
             ftp: {host: 'h', username: 'anonymous'},
         };
         // At least one rendition
-        expect(shareExport.isComplete(ftp)).toBe(false);
-        expect(shareExport.isComplete({...ftp, renditions: ['preview']})).toBe(
-            true
+        expect(shareExport.isComplete(ftp, context)).toBe(false);
+        expect(
+            shareExport.isComplete({...ftp, renditionIds: ['r1']}, context)
+        ).toBe(true);
+        // The automation needs a workspace
+        expect(shareExport.isComplete({...ftp, renditionIds: ['r1']})).toBe(
+            false
+        );
+        expect(shareExport.isComplete({...ftp, renditionIds: ['r1']}, {})).toBe(
+            false
         );
         expect(
-            shareExport.isComplete({
-                ...ftp,
-                renditions: ['preview'],
-                attributes: Array.from({length: 51}, (_, i) => `a${i}`),
-            })
+            shareExport.isComplete(
+                {
+                    ...ftp,
+                    renditionIds: ['r1'],
+                    attributeIds: Array.from({length: 51}, (_, i) => `a${i}`),
+                },
+                context
+            )
         ).toBe(false);
         expect(
-            shareExport.isComplete({
-                ...shareExport.defaultConfig(),
-                renditions: ['preview'],
-                s3: {bucket: 'b', accessKeyId: 'id'},
-            })
+            shareExport.isComplete(
+                {
+                    ...shareExport.defaultConfig(),
+                    renditionIds: ['r1'],
+                    s3: {bucket: 'b', accessKeyId: 'id'},
+                },
+                context
+            )
         ).toBe(false);
         expect(
-            shareExport.isComplete({
-                ...shareExport.defaultConfig(),
-                renditions: ['preview'],
-                s3: {bucket: 'b', accessKeyId: 'id', secretAccessKeySet: true},
-            })
+            shareExport.isComplete(
+                {
+                    ...shareExport.defaultConfig(),
+                    renditionIds: ['r1'],
+                    s3: {
+                        bucket: 'b',
+                        accessKeyId: 'id',
+                        secretAccessKeySet: true,
+                    },
+                },
+                context
+            )
         ).toBe(true);
+    });
+
+    it('resets the definitions of the share export with the workspace', () => {
+        const shareExport = getActionDefinition('share_export')!;
+        expect(shareExport.defaultConfig()).toMatchObject({
+            renditionIds: [],
+            attributeIds: [],
+        });
+        expect(
+            shareExport.onWorkspaceChange!({
+                ...shareExport.defaultConfig(),
+                pathTemplate: 'x.xlsx',
+                renditionIds: ['r1'],
+                attributeIds: ['a1'],
+            })
+        ).toEqual({
+            ...shareExport.defaultConfig(),
+            pathTemplate: 'x.xlsx',
+            renditionIds: [],
+            attributeIds: [],
+        });
+        // The other actions do not depend on the workspace
+        expect(getActionDefinition('remote_export')!.onWorkspaceChange).toBe(
+            undefined
+        );
     });
 
     it('summarizes the configurations', () => {

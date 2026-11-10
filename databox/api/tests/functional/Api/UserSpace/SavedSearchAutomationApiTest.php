@@ -12,7 +12,9 @@ use App\Consumer\Handler\Automation\ResetAutomationCursor;
 use App\Consumer\Handler\Automation\RunAutomation;
 use App\Entity\Automation\AutomationRun;
 use App\Entity\Automation\SavedSearchAutomation;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
+use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\AutomationScopeEnum;
 use App\Model\SavedSearchPrivacyEnum;
@@ -159,6 +161,106 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
                 ['type' => ShareExportAction::TYPE, 'config' => []],
             ]], 'actions[2].type'],
         ];
+    }
+
+    /**
+     * The "Preview" definition every workspace is created with (of its public policy).
+     */
+    private function getPreviewRendition(Workspace $workspace): RenditionDefinition
+    {
+        return self::getEntityManager()->getRepository(RenditionDefinition::class)->findOneBy([
+            'workspace' => $workspace->getId(),
+            'key' => 'preview',
+        ]);
+    }
+
+    private static function shareExportAction(RenditionDefinition $definition): array
+    {
+        return ['type' => ShareExportAction::TYPE, 'config' => [
+            'protocol' => 's3',
+            's3' => ['bucket' => 'exports', 'accessKeyId' => 'AKIA', 'secretAccessKey' => 's3cr3t'],
+            'renditionIds' => [$definition->getId()],
+        ]];
+    }
+
+    private function assertViolation(string $expectedPath, string $method, string $uri, array $json): void
+    {
+        $response = $this->api($method, $uri, self::USER, $json);
+        $this->assertSame(422, $response->getStatusCode(), $response->getContent(false));
+        $this->assertContains($expectedPath, array_column($response->toArray(false)['violations'] ?? [], 'propertyPath'), $response->getContent(false));
+        // The kernel is not rebooted between requests: drop the changes the rejected request mapped onto the managed entities
+        self::getEntityManager()->clear();
+    }
+
+    public function testWorkspace(): void
+    {
+        $savedSearch = $this->createSavedSearch();
+        $tag = $this->createTag();
+        $workspace = $this->getOrCreateDefaultWorkspace();
+        $preview = $this->getPreviewRendition($workspace);
+
+        // Optional for the other actions
+        $data = $this->createAutomation($savedSearch, $tag, ['workspaceId' => $workspace->getId()]);
+        $this->assertSame($workspace->getId(), $data['workspaceId']);
+        $uri = '/saved-search-automations/'.$data['id'];
+        $this->assertSame($workspace->getId(), $this->apiJson('GET', $uri, self::USER)['workspaceId']);
+        $this->assertNull($this->apiJson('PATCH', $uri, self::USER, ['workspaceId' => ''])['workspaceId'] ?? null);
+        $this->assertNull($this->findAutomationEntity($data['id'])->getWorkspace());
+
+        // Required by the share export
+        $this->assertViolation('workspaceId', 'POST', '/saved-search-automations', $this->payload($savedSearch, $tag, [
+            'workspaceId' => null,
+            'actions' => [self::shareExportAction($preview)],
+        ]));
+        $this->assertViolation('actions[0].config.workspace', 'POST', '/saved-search-automations', $this->payload($savedSearch, $tag, [
+            'actions' => [self::shareExportAction($preview)],
+        ]));
+
+        $data = $this->createAutomation($savedSearch, $tag, [
+            'workspaceId' => $workspace->getId(),
+            'actions' => [self::shareExportAction($preview)],
+        ]);
+        $this->assertSame($workspace->getId(), $data['workspaceId']);
+        $this->assertSame([$preview->getId()], $data['actions'][0]['config']['renditionIds']);
+        $this->assertSame([], $data['actions'][0]['config']['attributeIds']);
+        $uri = '/saved-search-automations/'.$data['id'];
+
+        // Its workspace cannot be removed
+        $this->assertViolation('workspaceId', 'PATCH', $uri, ['workspaceId' => '']);
+        $this->assertViolation('workspaceId', 'PATCH', $uri, ['workspaceId' => null]);
+
+        // The renditions belong to the workspace of the automation
+        $other = $this->createOtherWorkspace(self::USER, 'other');
+        $otherPreview = $this->getPreviewRendition($other);
+        $this->assertViolation('actions[0].config.renditionIds', 'PATCH', $uri, ['actions' => [self::shareExportAction($otherPreview)]]);
+        // Changing the workspace checks the actions again
+        $this->assertViolation('workspaceId', 'PATCH', $uri, ['workspaceId' => $other->getId()]);
+
+        $data = $this->apiJson('PATCH', $uri, self::USER, [
+            'workspaceId' => $other->getId(),
+            'actions' => [self::shareExportAction($otherPreview)],
+        ]);
+        $this->assertSame($other->getId(), $data['workspaceId']);
+        $this->assertSame([$otherPreview->getId()], $data['actions'][0]['config']['renditionIds']);
+    }
+
+    public function testWorkspaceNotReadable(): void
+    {
+        $savedSearch = $this->createSavedSearch();
+        $tag = $this->createTag();
+        $other = $this->createOtherWorkspace(self::OTHER, 'other');
+
+        $this->assertViolation('workspaceId', 'POST', '/saved-search-automations', $this->payload($savedSearch, $tag, ['workspaceId' => $other->getId()]));
+        $this->assertViolation('workspaceId', 'POST', '/saved-search-automations', $this->payload($savedSearch, $tag, ['workspaceId' => '00000000-0000-4000-8000-000000000000']));
+        $this->assertViolation('workspaceId', 'POST', '/saved-search-automations', $this->payload($savedSearch, $tag, ['workspaceId' => 'not-an-id']));
+    }
+
+    private function findAutomationEntity(string $id): SavedSearchAutomation
+    {
+        $em = self::getEntityManager();
+        $em->clear();
+
+        return $em->find(SavedSearchAutomation::class, $id);
     }
 
     public function testOnlyTheOwnerOfTheSavedSearchManagesItsAutomations(): void

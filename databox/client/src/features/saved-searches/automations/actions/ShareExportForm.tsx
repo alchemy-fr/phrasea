@@ -5,8 +5,9 @@ import {useQuery} from '@tanstack/react-query';
 import {FileSpreadsheetIcon} from 'lucide-react';
 import type {AutomationActionConfig} from '@/types/api';
 import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
+import {getRenditionDefinitions} from '@/lib/api/misc';
 import {fetchAllPages} from '@/lib/api/hydra';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {FieldError, FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {
@@ -14,7 +15,6 @@ import {
     isRemoteDestinationComplete,
     RemoteDestinationFields,
 } from './RemoteDestinationFields';
-import {useRenditionNames} from './RemoteExportForm';
 import type {ActionDefinition, ActionFormProps} from './types';
 
 /** Same bounds and defaults as ShareExportAction in the API */
@@ -30,52 +30,83 @@ const reportPathVariables = [
     'runId',
 ];
 
-type AttributeChoice = {slug: string; label: string};
+type Choice = {id: string; label: string; description?: string};
+
+const byLabel = (a: Choice, b: Choice) => a.label.localeCompare(b.label);
 
 /**
- * The attribute definitions the user can read, in all workspaces, by slug:
- * the action picks the attributes by slug.
+ * The rendition definitions of the workspace: the action picks them by ID.
  */
-async function getAttributeChoices(): Promise<AttributeChoice[]> {
+async function getRenditionChoices(workspaceId: string): Promise<Choice[]> {
     const definitions = await fetchAllPages(
-        getAttributeDefinitionsPage({limit: 100}),
+        getRenditionDefinitions({workspaceId, limit: 100}),
+        url => getRenditionDefinitions({url})
+    );
+
+    return definitions.map(d => ({id: d.id, label: d.name})).sort(byLabel);
+}
+
+/**
+ * The attribute definitions of the workspace the user can read: the action picks them by ID.
+ */
+async function getAttributeChoices(workspaceId: string): Promise<Choice[]> {
+    const definitions = await fetchAllPages(
+        getAttributeDefinitionsPage({workspaceId, limit: 100}),
         url => getAttributeDefinitionsPage({url})
     );
 
-    const bySlug = new Map<string, string>();
-    for (const d of definitions) {
-        if (d.slug && !bySlug.has(d.slug)) {
-            bySlug.set(d.slug, d.displayName || d.name);
-        }
-    }
+    return definitions
+        .map(d => ({
+            id: d.id,
+            label: d.displayName || d.name,
+            description: d.slug ?? undefined,
+        }))
+        .sort(byLabel);
+}
 
-    return [...bySlug.entries()]
-        .map(([slug, label]) => ({slug, label}))
-        .sort((a, b) => a.label.localeCompare(b.label));
+/**
+ * The listed choices, with the IDs of the configuration kept visible even if no longer listed.
+ */
+function withSelected(
+    listed: Choice[] | undefined,
+    selected: string[]
+): Choice[] {
+    const choices = listed ?? [];
+
+    return [
+        ...choices,
+        ...selected
+            .filter(id => !choices.some(c => c.id === id))
+            .map(id => ({id, label: id})),
+    ];
 }
 
 function toggleItem(list: string[], item: string, checked: boolean): string[] {
     return checked ? [...list, item] : list.filter(i => i !== item);
 }
 
-export function ShareExportForm({value, onChange, errors}: ActionFormProps) {
+export function ShareExportForm({
+    value,
+    onChange,
+    errors,
+    workspaceId,
+}: ActionFormProps) {
     const {t} = useTranslation();
-    const renditions: string[] = value.renditions ?? [];
-    const attributes: string[] = value.attributes ?? [];
-    const renditionNames = useRenditionNames(renditions);
+    const renditionIds: string[] = value.renditionIds ?? [];
+    const attributeIds: string[] = value.attributeIds ?? [];
 
-    const attributeChoices = useQuery({
-        queryKey: ['attribute-definitions', 'slugs'],
-        queryFn: getAttributeChoices,
+    const renditionChoices = useQuery({
+        queryKey: ['rendition-definitions', 'automation', workspaceId],
+        queryFn: () => getRenditionChoices(workspaceId!),
+        enabled: !!workspaceId,
     });
-    // Keep the slugs of the configuration visible, even if no longer listed
-    const listed = attributeChoices.data ?? [];
-    const allAttributes: AttributeChoice[] = [
-        ...listed,
-        ...attributes
-            .filter(slug => !listed.some(c => c.slug === slug))
-            .map(slug => ({slug, label: slug})),
-    ];
+    const attributeChoices = useQuery({
+        queryKey: ['attribute-definitions', 'automation', workspaceId],
+        queryFn: () => getAttributeChoices(workspaceId!),
+        enabled: !!workspaceId,
+    });
+    const allRenditions = withSelected(renditionChoices.data, renditionIds);
+    const allAttributes = withSelected(attributeChoices.data, attributeIds);
 
     const set = (patch: AutomationActionConfig) =>
         onChange({...value, ...patch});
@@ -113,80 +144,99 @@ export function ShareExportForm({value, onChange, errors}: ActionFormProps) {
                 />
             </FormRow>
 
-            <FormRow
-                label={t(
-                    'automation.action.share_export.renditions',
-                    'Shared renditions'
-                )}
-                error={errors?.renditions}
-                help={t(
-                    'automation.action.share_export.renditions_help',
-                    'One column of links per rendition. Renditions are chosen by name, in every workspace; only those of a public policy are shared.'
-                )}
-            >
-                {renditionNames.isLoading ? <InlineLoader /> : null}
-                <div className="max-h-48 space-y-1.5 overflow-y-auto">
-                    {renditionNames.names.map(name => (
-                        <LabeledControl key={name} label={name}>
-                            <Checkbox
-                                checked={renditions.includes(name)}
-                                onCheckedChange={checked =>
-                                    set({
-                                        renditions: toggleItem(
-                                            renditions,
-                                            name,
-                                            !!checked
-                                        ),
-                                    })
-                                }
-                            />
-                        </LabeledControl>
-                    ))}
-                </div>
-            </FormRow>
+            {workspaceId ? (
+                <>
+                    <FormRow
+                        label={t(
+                            'automation.action.share_export.renditions',
+                            'Shared renditions'
+                        )}
+                        error={errors?.renditionIds}
+                        help={t(
+                            'automation.action.share_export.renditions_help',
+                            'One column of links per rendition of the workspace. Only those of a public policy are shared.'
+                        )}
+                    >
+                        {renditionChoices.isLoading ? <InlineLoader /> : null}
+                        <div className="max-h-48 space-y-1.5 overflow-y-auto">
+                            {allRenditions.map(({id, label}) => (
+                                <LabeledControl key={id} label={label}>
+                                    <Checkbox
+                                        checked={renditionIds.includes(id)}
+                                        onCheckedChange={checked =>
+                                            set({
+                                                renditionIds: toggleItem(
+                                                    renditionIds,
+                                                    id,
+                                                    !!checked
+                                                ),
+                                            })
+                                        }
+                                    />
+                                </LabeledControl>
+                            ))}
+                        </div>
+                    </FormRow>
 
-            <FormRow
-                label={t(
-                    'automation.action.share_export.attributes',
-                    'Attribute columns'
-                )}
-                error={errors?.attributes}
-                help={t(
-                    'automation.action.share_export.attributes_help',
-                    'Optional, {{max}} at most. Attributes are chosen by slug, in every workspace.',
-                    {max: MAX_ATTRIBUTES}
-                )}
-            >
-                {attributeChoices.isLoading ? <InlineLoader /> : null}
-                <div className="max-h-48 space-y-1.5 overflow-y-auto">
-                    {allAttributes.map(({slug, label}) => (
-                        <LabeledControl
-                            key={slug}
-                            label={label}
-                            description={label !== slug ? slug : undefined}
-                        >
-                            <Checkbox
-                                checked={attributes.includes(slug)}
-                                disabled={
-                                    !attributes.includes(slug) &&
-                                    attributes.length >= MAX_ATTRIBUTES
-                                }
-                                onCheckedChange={checked =>
-                                    set({
-                                        attributes: toggleItem(
-                                            attributes,
-                                            slug,
-                                            !!checked
-                                        ),
-                                    })
-                                }
-                            />
-                        </LabeledControl>
-                    ))}
+                    <FormRow
+                        label={t(
+                            'automation.action.share_export.attributes',
+                            'Attribute columns'
+                        )}
+                        error={errors?.attributeIds}
+                        help={t(
+                            'automation.action.share_export.attributes_help',
+                            'Optional, {{max}} at most, among the attributes of the workspace.',
+                            {max: MAX_ATTRIBUTES}
+                        )}
+                    >
+                        {attributeChoices.isLoading ? <InlineLoader /> : null}
+                        <div className="max-h-48 space-y-1.5 overflow-y-auto">
+                            {allAttributes.map(({id, label, description}) => (
+                                <LabeledControl
+                                    key={id}
+                                    label={label}
+                                    description={
+                                        description && description !== label
+                                            ? description
+                                            : undefined
+                                    }
+                                >
+                                    <Checkbox
+                                        checked={attributeIds.includes(id)}
+                                        disabled={
+                                            !attributeIds.includes(id) &&
+                                            attributeIds.length >=
+                                                MAX_ATTRIBUTES
+                                        }
+                                        onCheckedChange={checked =>
+                                            set({
+                                                attributeIds: toggleItem(
+                                                    attributeIds,
+                                                    id,
+                                                    !!checked
+                                                ),
+                                            })
+                                        }
+                                    />
+                                </LabeledControl>
+                            ))}
+                        </div>
+                    </FormRow>
+                </>
+            ) : (
+                <div className="mb-4">
+                    <p className="text-sm text-muted-foreground">
+                        {t(
+                            'automation.action.share_export.no_workspace',
+                            'Choose the workspace of the automation first: the renditions and attributes are those of this workspace.'
+                        )}
+                    </p>
+                    <FieldError>{errors?.workspace}</FieldError>
                 </div>
-            </FormRow>
+            )}
 
-            {attributes.length > 0 ? (
+            {attributeIds.length > 0 ? (
                 <FormRow
                     label={t(
                         'automation.action.share_export.locale',
@@ -250,14 +300,21 @@ export const shareExportAction: ActionDefinition = {
     },
     defaultConfig: () => ({
         protocol: 's3',
-        renditions: [],
-        attributes: [],
+        renditionIds: [],
+        attributeIds: [],
         locale: null,
         pathTemplate: defaultReportPathTemplate,
         uploadWhenEmpty: false,
     }),
-    isComplete: config =>
+    isComplete: (config, context) =>
+        !!context?.workspaceId &&
         isRemoteDestinationComplete(config) &&
-        (config.renditions?.length ?? 0) > 0 &&
-        (config.attributes?.length ?? 0) <= MAX_ATTRIBUTES,
+        (config.renditionIds?.length ?? 0) > 0 &&
+        (config.attributeIds?.length ?? 0) <= MAX_ATTRIBUTES,
+    // The renditions and attributes are definitions of the workspace
+    onWorkspaceChange: config => ({
+        ...config,
+        renditionIds: [],
+        attributeIds: [],
+    }),
 };

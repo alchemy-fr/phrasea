@@ -61,14 +61,14 @@ final readonly class ShareRenditionUrlGenerator
     }
 
     /**
-     * @return array<string, string> the URLs of the shared renditions, indexed by definition name
+     * @return array<string, string> the URLs of the shared renditions, indexed by definition ID
      */
     public function getRenditionUrls(Share $share, Asset $asset): array
     {
         $urls = [];
         foreach ($this->getSharedRenditions($share, $asset) as $rendition) {
             $definition = $rendition->getDefinition();
-            $urls[$definition->getName()] ??= $this->generateUrl($share, $asset, $definition);
+            $urls[$definition->getId()] ??= $this->generateUrl($share, $asset, $definition);
         }
 
         return $urls;

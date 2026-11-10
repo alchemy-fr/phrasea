@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Automation\AutomationShare;
+use App\Entity\Automation\SavedSearchAutomation;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetImport;
@@ -56,6 +57,8 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         File::class,
         // Photos of the entity list values and logos are not carried by templates
         ImageSet::class,
+        // Automations belong to saved searches, the workspace only limits their results
+        SavedSearchAutomation::class,
     ];
 
     private const array IN_TEMPLATE = [

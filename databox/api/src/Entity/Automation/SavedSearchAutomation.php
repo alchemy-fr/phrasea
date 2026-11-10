@@ -25,6 +25,7 @@ use App\Api\Processor\TriggerAutomationProcessor;
 use App\Api\Provider\SavedSearchAutomationCollectionProvider;
 use App\Audit\AuditableInterface;
 use App\Audit\AuditIgnore;
+use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\AutomationRunStatusEnum;
 use App\Model\AutomationScopeEnum;
@@ -113,6 +114,14 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?SavedSearch $savedSearch = null;
 
+    /**
+     * Limits the results of the saved search to this workspace, whatever its conditions.
+     * The automation goes with its workspace: without it, it would act on every workspace.
+     */
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Workspace $workspace = null;
+
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
@@ -180,6 +189,21 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     public function setSavedSearch(?SavedSearch $savedSearch): void
     {
         $this->savedSearch = $savedSearch;
+    }
+
+    public function getWorkspace(): ?Workspace
+    {
+        return $this->workspace;
+    }
+
+    public function setWorkspace(?Workspace $workspace): void
+    {
+        $this->workspace = $workspace;
+    }
+
+    public function getWorkspaceId(): ?string
+    {
+        return $this->workspace?->getId();
     }
 
     /**

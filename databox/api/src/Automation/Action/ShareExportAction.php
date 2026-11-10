@@ -34,22 +34,25 @@ use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Writer;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
  * Adds the assets to a share link and uploads, at the end of the run, an XLSX file listing them
  * with the public URLs (permalinks) of the chosen renditions, to an S3 bucket, an SFTP or an FTP server.
  *
- * The automation keeps one share per workspace (a share only holds assets of a single workspace),
- * filled run after run: the permalinks stay the same from one file to the next. A deleted share is
- * created again at the next run. The share only delivers the chosen renditions, among those of a
- * public policy. The file lists the assets of the run only.
+ * Works on a single workspace, the one the automation limits its results to (a share only holds
+ * assets of a single workspace): the renditions and attributes are definitions of this workspace.
+ * The automation keeps one share for it, filled run after run: the permalinks stay the same from
+ * one file to the next. A deleted share is created again at the next run; another workspace chosen
+ * for the automation gets a new share. The share only delivers the chosen renditions, among those
+ * of a public policy. The file lists the assets of the run only.
  *
  * As the assets are marked as handled after each batch, a failed upload does not bring them back:
  * with the scope "new", they are only listed again after a reset of the cursor.
  */
 #[AsTaggedItem(index: self::TYPE)]
-final class ShareExportAction extends AbstractAutomationAction
+final class ShareExportAction extends AbstractAutomationAction implements AutomationAwareActionInterface
 {
     public const string TYPE = 'share_export';
 
@@ -67,9 +70,9 @@ final class ShareExportAction extends AbstractAutomationAction
     private const string STATE_FILE = 'file';
     /** @var string the number of assets written */
     private const string STATE_ROWS = 'rows';
-    /** @var string array<string, string|null>, the share ID by workspace ID, null without any shareable rendition */
-    private const string STATE_SHARES = 'shares';
-    /** @var string array<string, string[]>, the IDs of the shared rendition definitions by workspace ID */
+    /** @var string string|null, the share ID, null without any shareable rendition */
+    private const string STATE_SHARE = 'share';
+    /** @var string string[], the IDs of the shared rendition definitions */
     private const string STATE_DEFINITIONS = 'definitions';
 
     public function __construct(
@@ -114,22 +117,61 @@ final class ShareExportAction extends AbstractAutomationAction
         return [
             'protocol' => $protocol,
             'pathTemplate' => $pathTemplate,
-            'renditions' => $this->validateRenditions($config),
-            'attributes' => self::validateAttributes($config),
+            'renditionIds' => self::validateRenditionIds($config),
+            'attributeIds' => self::validateAttributeIds($config),
             'locale' => self::validateLocale($config),
             'uploadWhenEmpty' => $uploadWhenEmpty,
             $protocol => $destination[$protocol],
         ];
     }
 
+    public function getAutomationViolations(array $config, SavedSearchAutomation $automation): array
+    {
+        $workspaceId = $automation->getWorkspaceId();
+        if (null === $workspaceId) {
+            return [self::WORKSPACE_KEY => 'Choose the workspace of the automation: this action only works on one workspace.'];
+        }
+
+        $violations = [];
+        foreach ($config['renditionIds'] ?? [] as $id) {
+            $definition = $this->em->find(RenditionDefinition::class, $id);
+            if (null === $definition || $definition->getWorkspaceId() !== $workspaceId || !$this->isGranted(AbstractVoter::READ, $definition)) {
+                $violations['renditionIds'] = sprintf('Rendition "%s" not found in the workspace.', $id);
+                break;
+            }
+        }
+        foreach ($config['attributeIds'] ?? [] as $id) {
+            $definition = $this->em->find(AttributeDefinition::class, $id);
+            if (null === $definition || $definition->getWorkspaceId() !== $workspaceId || !$this->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition)) {
+                $violations['attributeIds'] = sprintf('Attribute "%s" not found in the workspace.', $id);
+                break;
+            }
+        }
+
+        return $violations;
+    }
+
     public function processBatch(AutomationBatch $batch): void
     {
         $state = $batch->state;
         $config = $batch->config;
+        $workspaceId = $batch->context->workspaceId;
+        if (null === $workspaceId) {
+            foreach ($batch->assets as $asset) {
+                $state->markFailed($asset, 'The automation has no workspace: edit it to choose one');
+            }
+
+            return;
+        }
+
         $writer = $this->getWriter($state, $config);
 
         $shared = [];
         foreach ($batch->assets as $asset) {
+            if ($asset->getWorkspaceId() !== $workspaceId) {
+                $state->markSkipped($asset, 'The asset belongs to another workspace');
+                continue;
+            }
             if (!$this->isGranted(AssetVoter::READ, $asset) || !$this->isGranted(AssetVoter::SHARE, $asset)) {
                 $state->markSkipped($asset, 'Not allowed to share the asset');
                 continue;
@@ -156,6 +198,10 @@ final class ShareExportAction extends AbstractAutomationAction
     public function finish(AutomationActionState $state, array $config, AutomationRunContext $context): void
     {
         try {
+            if (null === $context->workspaceId) {
+                return;
+            }
+
             $rows = $state->data[self::STATE_ROWS] ?? 0;
             if (0 === $rows && !($config['uploadWhenEmpty'] ?? false)) {
                 return;
@@ -235,31 +281,29 @@ final class ShareExportAction extends AbstractAutomationAction
     }
 
     /**
-     * The share of the automation for this workspace, created if missing,
-     * or null when none of the chosen renditions can be shared there.
+     * The share of the automation for its workspace, created if missing,
+     * or null when none of the chosen renditions can be shared.
      */
     private function getShare(AutomationActionState $state, array $config, AutomationRunContext $context, Workspace $workspace): ?Share
     {
-        $workspaceId = $workspace->getId();
-        $known = $state->data[self::STATE_SHARES] ?? [];
-        if (array_key_exists($workspaceId, $known)) {
-            if (null === $known[$workspaceId]) {
+        if (array_key_exists(self::STATE_SHARE, $state->data)) {
+            if (null === $state->data[self::STATE_SHARE]) {
                 return null;
             }
             // The entity manager is cleared between the batches
-            if (null !== $share = $this->em->find(Share::class, $known[$workspaceId])) {
+            if (null !== $share = $this->em->find(Share::class, $state->data[self::STATE_SHARE])) {
                 return $share;
             }
         }
 
         $definitions = $this->getSharedDefinitions($state, $config, $workspace);
         if (empty($definitions)) {
-            $state->data[self::STATE_SHARES][$workspaceId] = null;
+            $state->data[self::STATE_SHARE] = null;
 
             return null;
         }
 
-        $share = $this->automationShareRepository->findOneByAutomationAndWorkspace($context->automationId, $workspaceId)?->getShare();
+        $share = $this->automationShareRepository->findOneByAutomationAndWorkspace($context->automationId, $workspace->getId())?->getShare();
         if (null === $share) {
             $share = new Share();
             $share->setName(mb_substr(sprintf('%s Automation %s', $context->savedSearchName ?? 'Saved search', $context->automationName), 0, self::MAX_SHARE_NAME_LENGTH));
@@ -277,50 +321,41 @@ final class ShareExportAction extends AbstractAutomationAction
             $share->addRenditionDefinition($definition);
         }
 
-        $state->data[self::STATE_SHARES][$workspaceId] = $share->getId();
+        $state->data[self::STATE_SHARE] = $share->getId();
 
         return $share;
     }
 
     /**
-     * The definitions of the workspace with the chosen names a share may deliver (of a public policy),
-     * reporting the others once per run.
+     * The chosen definitions a share may deliver (of a public policy), reporting the others once per run.
      *
      * @return RenditionDefinition[]
      */
     private function getSharedDefinitions(AutomationActionState $state, array $config, Workspace $workspace): array
     {
-        $workspaceId = $workspace->getId();
-        if (!isset($state->data[self::STATE_DEFINITIONS][$workspaceId])) {
-            /** @var RenditionDefinition[] $definitions */
-            $definitions = $this->em->getRepository(RenditionDefinition::class)->findBy([
-                'workspace' => $workspaceId,
-                'name' => $config['renditions'],
-            ]);
-
+        if (!isset($state->data[self::STATE_DEFINITIONS])) {
             $ids = [];
-            $notPublic = [];
-            foreach ($definitions as $definition) {
-                if (true === $definition->getPolicy()?->isPublic()) {
+            foreach ($config['renditionIds'] as $id) {
+                $definition = $this->em->find(RenditionDefinition::class, $id);
+                if (null === $definition || $definition->getWorkspaceId() !== $workspace->getId()) {
+                    $state->addNotice(sprintf('Rendition %s no longer exists', $id));
+                } elseif (true === $definition->getPolicy()?->isPublic()) {
                     $ids[] = $definition->getId();
                 } else {
-                    $notPublic[$definition->getName()] = true;
+                    $state->addNotice(sprintf('Rendition "%s" of workspace "%s" cannot be shared: its policy is not public', $definition->getName(), $workspace->getName()));
                 }
             }
 
-            foreach (array_keys($notPublic) as $name) {
-                $state->addNotice(sprintf('Rendition "%s" of workspace "%s" cannot be shared: its policy is not public', $name, $workspace->getName()));
-            }
             if (empty($ids)) {
                 $state->addNotice(sprintf('None of the renditions can be shared in workspace "%s": its assets are listed without links', $workspace->getName()));
             }
 
-            $state->data[self::STATE_DEFINITIONS][$workspaceId] = $ids;
+            $state->data[self::STATE_DEFINITIONS] = $ids;
         }
 
         return array_values(array_filter(array_map(
             fn (string $id): ?RenditionDefinition => $this->em->find(RenditionDefinition::class, $id),
-            $state->data[self::STATE_DEFINITIONS][$workspaceId],
+            $state->data[self::STATE_DEFINITIONS],
         )));
     }
 
@@ -329,30 +364,26 @@ final class ShareExportAction extends AbstractAutomationAction
      */
     private function getHeaders(array $config): array
     {
-        $labels = [];
-        foreach ($config['attributes'] as $slug) {
-            $labels[$slug] = null;
-        }
-        if (!empty($labels)) {
-            /** @var AttributeDefinition[] $definitions */
-            $definitions = $this->em->getRepository(AttributeDefinition::class)->findBy(['slug' => array_keys($labels)]);
-            foreach ($definitions as $definition) {
-                $slug = (string) $definition->getSlug();
-                if (null === $labels[$slug] && $this->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition)) {
-                    $labels[$slug] = $definition->getName();
-                }
-            }
-        }
+        $renditions = array_map(
+            fn (string $id): string => (string) ($this->em->find(RenditionDefinition::class, $id)?->getName() ?? $id),
+            $config['renditionIds'],
+        );
+        $attributes = array_map(function (string $id): string {
+            $definition = $this->em->find(AttributeDefinition::class, $id);
+
+            return null !== $definition && $this->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition)
+                ? (string) $definition->getName()
+                : $id;
+        }, $config['attributeIds']);
 
         return [
             'ID',
             'Title',
-            'Workspace',
             'Collection',
             'Created at',
             'Share URL',
-            ...$config['renditions'],
-            ...array_map(fn (string $slug): string => $labels[$slug] ?? $slug, array_keys($labels)),
+            ...$renditions,
+            ...$attributes,
         ];
     }
 
@@ -367,26 +398,25 @@ final class ShareExportAction extends AbstractAutomationAction
         $values = [
             $asset->getId(),
             $this->assetNameResolver->resolveNameAsString($asset, $attributes),
-            $asset->getWorkspace()?->getName(),
             null !== $collection && $this->isGranted(AbstractVoter::READ, $collection) ? $collection->getName() : null,
             $asset->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             null !== $share ? sprintf('%s/s/%s/%s', rtrim($this->databoxClientBaseUrl, '/'), $share->getId(), $share->getToken()) : null,
         ];
 
         $urls = null !== $share ? $this->renditionUrlGenerator->getRenditionUrls($share, $asset) : [];
-        foreach ($config['renditions'] as $name) {
-            $values[] = $urls[$name] ?? null;
+        foreach ($config['renditionIds'] as $id) {
+            $values[] = $urls[$id] ?? null;
         }
 
-        if (!empty($config['attributes'])) {
+        if (!empty($config['attributeIds'])) {
             $locales = array_values(array_unique(array_filter([
                 $config['locale'] ?? null,
                 ...($asset->getWorkspace()?->getLocaleFallbacks() ?? []),
                 AttributeInterface::NO_LOCALE,
             ])));
-            $bySlug = self::indexBySlug($attributes);
-            foreach ($config['attributes'] as $slug) {
-                $values[] = $this->getAttributeValue($bySlug[$slug] ?? null, $locales);
+            $byDefinitionId = self::indexByDefinitionId($attributes);
+            foreach ($config['attributeIds'] as $id) {
+                $values[] = $this->getAttributeValue($byDefinitionId[$id] ?? null, $locales);
             }
         }
 
@@ -394,19 +424,16 @@ final class ShareExportAction extends AbstractAutomationAction
     }
 
     /**
-     * @return array<string, array<string, Attribute|Attribute[]>> the values by definition slug, then by locale
+     * @return array<string, array<string, Attribute|Attribute[]>> the values by definition ID, then by locale
      */
-    private static function indexBySlug(AttributeIndex $index): array
+    private static function indexByDefinitionId(AttributeIndex $index): array
     {
-        $bySlug = [];
+        $byId = [];
         foreach ($index->getDefinitions() as $definitionIndex) {
-            $slug = $definitionIndex->getDefinition()->getSlug();
-            if (null !== $slug) {
-                $bySlug[$slug] = $definitionIndex->getLocales();
-            }
+            $byId[$definitionIndex->getDefinition()->getId()] = $definitionIndex->getLocales();
         }
 
-        return $bySlug;
+        return $byId;
     }
 
     /**
@@ -468,62 +495,47 @@ final class ShareExportAction extends AbstractAutomationAction
     }
 
     /**
-     * @return string[]
+     * Whether they exist in the workspace of the automation is checked by getAutomationViolations().
+     *
+     * @return string[] rendition definition IDs
      */
-    private function validateRenditions(array $config): array
+    private static function validateRenditionIds(array $config): array
     {
-        $value = $config['renditions'] ?? [];
-        if (!is_array($value)) {
-            self::throwViolations(['renditions' => 'This value should be a list.']);
+        $ids = self::getUuidList($config, 'renditionIds');
+        if (empty($ids)) {
+            self::throwViolations(['renditionIds' => 'Choose at least one rendition.']);
         }
 
-        $names = [];
-        foreach ($value as $name) {
-            if (!is_string($name) || '' === trim($name)) {
-                self::throwViolations(['renditions' => 'This value should be a list of rendition names.']);
-            }
-            $names[] = trim($name);
-        }
-        $names = array_values(array_unique($names));
-        if (empty($names)) {
-            self::throwViolations(['renditions' => 'Choose at least one rendition.']);
-        }
-
-        foreach ($names as $name) {
-            /** @var RenditionDefinition[] $definitions */
-            $definitions = $this->em->getRepository(RenditionDefinition::class)->findBy(['name' => $name]);
-            $readable = array_filter($definitions, fn (RenditionDefinition $definition): bool => $this->isGranted(AbstractVoter::READ, $definition));
-            if (empty($readable)) {
-                self::throwViolations(['renditions' => sprintf('Rendition "%s" not found.', $name)]);
-            }
-        }
-
-        return $names;
+        return $ids;
     }
 
     /**
-     * @return string[] attribute definition slugs
+     * @return string[] attribute definition IDs
      */
-    private static function validateAttributes(array $config): array
+    private static function validateAttributeIds(array $config): array
     {
-        $value = $config['attributes'] ?? [];
-        if (!is_array($value)) {
-            self::throwViolations(['attributes' => 'This value should be a list.']);
+        $ids = self::getUuidList($config, 'attributeIds');
+        if (count($ids) > self::MAX_ATTRIBUTES) {
+            self::throwViolations(['attributeIds' => sprintf('There cannot be more than %d attributes.', self::MAX_ATTRIBUTES)]);
         }
 
-        $slugs = [];
-        foreach ($value as $slug) {
-            if (!is_string($slug) || '' === trim($slug)) {
-                self::throwViolations(['attributes' => 'This value should be a list of attribute slugs.']);
+        return $ids;
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function getUuidList(array $config, string $key): array
+    {
+        $ids = [];
+        foreach (self::getIdList($config, $key) as $id) {
+            if (!Uuid::isValid($id)) {
+                self::throwViolations([$key => 'This value should be a list of IDs.']);
             }
-            $slugs[] = trim($slug);
-        }
-        $slugs = array_values(array_unique($slugs));
-        if (count($slugs) > self::MAX_ATTRIBUTES) {
-            self::throwViolations(['attributes' => sprintf('There cannot be more than %d attributes.', self::MAX_ATTRIBUTES)]);
+            $ids[] = strtolower($id);
         }
 
-        return $slugs;
+        return array_values(array_unique($ids));
     }
 
     private static function validateLocale(array $config): ?string

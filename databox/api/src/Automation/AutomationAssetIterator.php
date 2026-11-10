@@ -14,8 +14,8 @@ use App\Security\Voter\AbstractVoter;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * Iterates over the results of the saved search of an automation, as the given user
- * (who must be the current user: READ is checked on each asset).
+ * Iterates over the results of the saved search of an automation, limited to the workspace
+ * of the automation if any, as the given user (who must be the current user: READ is checked on each asset).
  */
 final readonly class AutomationAssetIterator
 {
@@ -36,9 +36,14 @@ final readonly class AutomationAssetIterator
     public function iterate(SavedSearchAutomation $automation, JwtUser $user, bool $onlyNew): \Generator
     {
         $automationId = $automation->getId();
-        $ids = $this->assetSearch->iterateIds($user->getId(), $user->getGroups(), [
+        $options = [
             'savedSearch' => $automation->getSavedSearch()->getId(),
-        ], self::SEARCH_BATCH_SIZE);
+        ];
+        if (null !== $workspaceId = $automation->getWorkspaceId()) {
+            // A filter of its own: the conditions of the saved search cannot widen it
+            $options['workspaces'] = [$workspaceId];
+        }
+        $ids = $this->assetSearch->iterateIds($user->getId(), $user->getGroups(), $options, self::SEARCH_BATCH_SIZE);
 
         foreach ($ids as $searchBatch) {
             foreach (array_chunk($searchBatch, self::LOAD_BATCH_SIZE) as $chunk) {

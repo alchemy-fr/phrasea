@@ -46,6 +46,7 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
 
     private const string OWNER = KeycloakClientTestMock::USER_UID;
     private const string CLIENT_URL = 'https://databox.test';
+    private const string UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
 
     private Workspace $workspace;
     private SavedSearchAutomation $automation;
@@ -112,7 +113,7 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
      *
      * @param Asset[][] $batches
      */
-    private function process(array $config, array $batches, string $userId = self::OWNER, ?ShareExportAction $action = null): AutomationActionState
+    private function process(array $config, array $batches, string $userId = self::OWNER, ?ShareExportAction $action = null, bool $withWorkspace = true): AutomationActionState
     {
         $action ??= $this->createAction();
         $state = new AutomationActionState(ShareExportAction::TYPE);
@@ -126,6 +127,7 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
             ownerId: $userId,
             trigger: AutomationTriggerEnum::Manual,
             dryRun: false,
+            workspaceId: $withWorkspace ? $this->workspace->getId() : null,
         );
 
         $config = $this->validate($config, $action);
@@ -159,8 +161,18 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
                 'accessKeyId' => 'AKIA',
                 'secretAccessKey' => 's3cr3t',
             ],
-            'renditions' => ['preview'],
+            'renditionIds' => [self::UNKNOWN_ID],
         ], $overrides);
+    }
+
+    /**
+     * @param RenditionDefinition[] $definitions
+     */
+    private static function renditionConfig(array $definitions, array $overrides = []): array
+    {
+        return self::config([
+            'renditionIds' => array_map(fn (RenditionDefinition $definition): string => $definition->getId(), $definitions),
+        ] + $overrides);
     }
 
     private function createDefinition(string $name, bool $public = true, ?Workspace $workspace = null): RenditionDefinition
@@ -286,9 +298,8 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         ]);
         $second = $this->createAssetWithRenditions('second', []);
 
-        $state = $this->process(self::config([
-            'renditions' => ['preview', 'hd'],
-            'attributes' => ['description', 'unknown'],
+        $state = $this->process(self::renditionConfig([$preview, $hd], [
+            'attributeIds' => [$description->getId(), self::UNKNOWN_ID],
         ]), [[$first, $second]]);
 
         $this->assertSame(2, $state->getProcessed(), json_encode($state->getErrors()));
@@ -311,25 +322,24 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
 
         $rows = $this->readExport();
         $this->assertCount(3, $rows);
-        $this->assertSame(['ID', 'Title', 'Workspace', 'Collection', 'Created at', 'Share URL', 'preview', 'hd', 'Description', 'unknown'], $rows[0]);
+        $this->assertSame(['ID', 'Title', 'Collection', 'Created at', 'Share URL', 'preview', 'hd', 'Description', self::UNKNOWN_ID], $rows[0]);
 
         $byId = array_column(array_slice($rows, 1), null, 0);
         $row = $byId[$first->getId()];
-        $this->assertSame('My workspace', $row[2]);
-        $this->assertSame('My Folder', $row[3]);
-        $this->assertNotSame('', $row[4]);
-        $this->assertSame(sprintf('%s/s/%s/%s', self::CLIENT_URL, $share->getId(), $share->getToken()), $row[5]);
-        self::assertRenditionUrl($share, $first, $preview, $row[6]);
+        $this->assertSame('My Folder', $row[2]);
+        $this->assertNotSame('', $row[3]);
+        $this->assertSame(sprintf('%s/s/%s/%s', self::CLIENT_URL, $share->getId(), $share->getToken()), $row[4]);
+        self::assertRenditionUrl($share, $first, $preview, $row[5]);
         // Not public: never in a share
-        $this->assertSame('', $row[7]);
+        $this->assertSame('', $row[6]);
         // Written as a text, not as a formula
-        $this->assertSame('=1+1', $row[8]);
-        $this->assertSame('', $row[9]);
+        $this->assertSame('=1+1', $row[7]);
+        $this->assertSame('', $row[8]);
 
         $row = $byId[$second->getId()];
-        $this->assertSame($row[5], $byId[$first->getId()][5]);
+        $this->assertSame($row[4], $byId[$first->getId()][4]);
         // No rendition
-        $this->assertSame('', $row[6]);
+        $this->assertSame('', $row[5]);
 
         $messages = array_column($state->getErrors(), 'message');
         $this->assertContains('Rendition "hd" of workspace "My workspace" cannot be shared: its policy is not public', $messages);
@@ -344,13 +354,13 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $third = $this->createAssetWithRenditions('third', [$preview]);
 
         // Two batches: the share is found again after the entity manager is cleared
-        $this->process(self::config(), [[$first], [$second]]);
+        $this->process(self::renditionConfig([$preview]), [[$first], [$second]]);
         $shareId = $this->findAutomationShare()->getShare()->getId();
         $this->assertCount(2, $this->findAutomationShare()->getShare()->getAssetsList());
         FilesystemUtils::rrmdir($this->remoteDir);
         mkdir($this->remoteDir);
 
-        $this->process(self::config(), [[$third]]);
+        $this->process(self::renditionConfig([$preview]), [[$third]]);
         $share = $this->findAutomationShare()->getShare();
         $this->assertSame($shareId, $share->getId());
         $this->assertCount(3, $share->getAssetsList());
@@ -358,7 +368,7 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $rows = $this->readExport();
         $this->assertCount(2, $rows);
         $this->assertSame($third->getId(), $rows[1][0]);
-        self::assertRenditionUrl($share, $third, $preview, $rows[1][6]);
+        self::assertRenditionUrl($share, $third, $preview, $rows[1][5]);
 
         // The link goes with its share (ON DELETE CASCADE, not enforced by SQLite)
         $em = self::getEntityManager();
@@ -367,13 +377,13 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $em->flush();
         $this->assertNull($this->findAutomationShare());
 
-        $this->process(self::config(), [[$first]]);
+        $this->process(self::renditionConfig([$preview]), [[$first]]);
         $share = $this->findAutomationShare()->getShare();
         $this->assertNotSame($shareId, $share->getId());
         $this->assertSame([$first->getId()], array_map(fn (Asset $a): string => $a->getId(), $share->getAssetsList()));
     }
 
-    public function testOneSharePerWorkspace(): void
+    public function testAssetsOfAnotherWorkspaceAreSkipped(): void
     {
         $other = $this->createOtherWorkspace(self::OWNER, 'other');
         $preview = $this->createDefinition('preview');
@@ -381,18 +391,50 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $first = $this->createAssetWithRenditions('first', [$preview]);
         $second = $this->createAssetWithRenditions('second', [$otherPreview], ['workspace' => $other]);
 
-        $state = $this->process(self::config(), [[$first, $second]]);
-        $this->assertSame(2, $state->getProcessed(), json_encode($state->getErrors()));
+        $state = $this->process(self::renditionConfig([$preview]), [[$first, $second]]);
+        $this->assertSame(1, $state->getProcessed(), json_encode($state->getErrors()));
+        $this->assertSame(1, $state->getSkipped());
+        $this->assertContains(['assetId' => $second->getId(), 'message' => 'The asset belongs to another workspace'], $state->getErrors());
 
         $share = $this->findAutomationShare()->getShare();
-        $otherShare = $this->findAutomationShare($other)->getShare();
-        $this->assertNotSame($share->getId(), $otherShare->getId());
-        $this->assertSame([$second->getId()], array_map(fn (Asset $a): string => $a->getId(), $otherShare->getAssetsList()));
-        $this->assertSame([$otherPreview->getId()], array_map(fn (RenditionDefinition $d): string => $d->getId(), $otherShare->getRenditionDefinitions()->getValues()));
+        $this->assertSame([$first->getId()], array_map(fn (Asset $a): string => $a->getId(), $share->getAssetsList()));
+        $this->assertNull($this->findAutomationShare($other));
 
-        $byId = array_column(array_slice($this->readExport(), 1), null, 0);
-        self::assertRenditionUrl($share, $first, $preview, $byId[$first->getId()][6]);
-        self::assertRenditionUrl($otherShare, $second, $otherPreview, $byId[$second->getId()][6]);
+        $rows = $this->readExport();
+        $this->assertCount(2, $rows);
+        $this->assertSame($first->getId(), $rows[1][0]);
+        self::assertRenditionUrl($share, $first, $preview, $rows[1][5]);
+    }
+
+    public function testWithoutWorkspaceTheAssetsFail(): void
+    {
+        $preview = $this->createDefinition('preview');
+        $first = $this->createAssetWithRenditions('first', [$preview]);
+        $second = $this->createAssetWithRenditions('second', [$preview]);
+
+        $state = $this->process(self::renditionConfig([$preview], ['uploadWhenEmpty' => true]), [[$first, $second]], withWorkspace: false);
+
+        $this->assertSame(0, $state->getProcessed());
+        $this->assertSame(2, $state->getFailed());
+        $this->assertContains(['assetId' => $first->getId(), 'message' => 'The automation has no workspace: edit it to choose one'], $state->getErrors());
+        $this->assertNull($this->findAutomationShare());
+        $this->assertSame([], $this->listRemoteFiles());
+    }
+
+    public function testADeletedRenditionIsReported(): void
+    {
+        $preview = $this->createDefinition('preview');
+        $asset = $this->createAssetWithRenditions('first', [$preview]);
+
+        $state = $this->process(self::config(['renditionIds' => [$preview->getId(), self::UNKNOWN_ID]]), [[$asset]]);
+
+        $this->assertSame(1, $state->getProcessed(), json_encode($state->getErrors()));
+        $this->assertContains(sprintf('Rendition %s no longer exists', self::UNKNOWN_ID), array_column($state->getErrors(), 'message'));
+        $share = $this->findAutomationShare()->getShare();
+        $rows = $this->readExport();
+        $this->assertSame(['ID', 'Title', 'Collection', 'Created at', 'Share URL', 'preview', self::UNKNOWN_ID], $rows[0]);
+        self::assertRenditionUrl($share, $asset, $preview, $rows[1][5]);
+        $this->assertSame('', $rows[1][6]);
     }
 
     public function testAssetsWhichCannotBeSharedAreSkipped(): void
@@ -405,7 +447,7 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $this->grantUserOnObject($other, $readOnly, PermissionInterface::VIEW);
         $this->grantUserOnObject($other, $shareable, PermissionInterface::VIEW | PermissionInterface::SHARE);
 
-        $state = $this->process(self::config(), [[$readOnly, $shareable]], $other);
+        $state = $this->process(self::renditionConfig([$preview]), [[$readOnly, $shareable]], $other);
 
         $this->assertSame(1, $state->getProcessed(), json_encode($state->getErrors()));
         $this->assertSame(1, $state->getSkipped());
@@ -424,7 +466,7 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $hd = $this->createDefinition('hd', public: false);
         $asset = $this->createAssetWithRenditions('first', [$hd]);
 
-        $state = $this->process(self::config(['renditions' => ['hd']]), [[$asset]]);
+        $state = $this->process(self::renditionConfig([$hd]), [[$asset]]);
 
         $this->assertSame(1, $state->getProcessed(), json_encode($state->getErrors()));
         $this->assertNull($this->findAutomationShare());
@@ -435,25 +477,25 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $rows = $this->readExport();
         $this->assertCount(2, $rows);
         $this->assertSame($asset->getId(), $rows[1][0]);
+        $this->assertSame('', $rows[1][4]);
         $this->assertSame('', $rows[1][5]);
-        $this->assertSame('', $rows[1][6]);
     }
 
     public function testNothingIsUploadedWithoutAssetsUnlessAsked(): void
     {
-        $this->createDefinition('preview');
+        $preview = $this->createDefinition('preview');
 
-        $state = $this->process(self::config(), []);
+        $state = $this->process(self::renditionConfig([$preview]), []);
         $this->assertSame([], $this->listRemoteFiles());
         $this->assertSame([], $state->getErrors());
 
-        $this->process(self::config([
+        $this->process(self::renditionConfig([$preview], [
             'uploadWhenEmpty' => true,
             'pathTemplate' => 'reports/{automation}/{date}-{runId}.xlsx',
         ]), []);
         $files = $this->listRemoteFiles();
         $this->assertMatchesRegularExpression('#^reports/Daily-export/\d{4}-\d{2}-\d{2}-run-1\.xlsx$#', $files[0]);
-        $this->assertSame([['ID', 'Title', 'Workspace', 'Collection', 'Created at', 'Share URL', 'preview']], $this->readExport());
+        $this->assertSame([['ID', 'Title', 'Collection', 'Created at', 'Share URL', 'preview']], $this->readExport());
     }
 
     public function testAnUnreachableDestinationFailsTheRun(): void
@@ -462,7 +504,7 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $asset = $this->createAssetWithRenditions('first', [$preview]);
 
         try {
-            $this->process(self::config([
+            $this->process(self::renditionConfig([$preview], [
                 'protocol' => 'ftp',
                 'ftp' => ['host' => '127.0.0.1', 'port' => 1, 'username' => 'anonymous'],
             ]), [[$asset]], action: $this->createAction(new RemoteFilesystemFactory()));
@@ -477,13 +519,15 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
 
     public function testConfigIsNormalized(): void
     {
-        $this->createDefinition('preview');
+        $preview = $this->createDefinition('preview');
+        $title = '11111111-1111-4111-8111-111111111111';
+        $keywords = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
         $this->assertSame([
             'protocol' => 'ftp',
             'pathTemplate' => '{savedSearch}/{automation}-{datetime}.xlsx',
-            'renditions' => ['preview'],
-            'attributes' => ['title', 'keywords'],
+            'renditionIds' => [$preview->getId()],
+            'attributeIds' => [$title, $keywords],
             'locale' => 'fr',
             'uploadWhenEmpty' => false,
             'ftp' => [
@@ -498,8 +542,8 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         ], $this->validate([
             'protocol' => 'ftp',
             'pathTemplate' => '',
-            'renditions' => [' preview', 'preview'],
-            'attributes' => ['title', ' keywords ', 'title'],
+            'renditionIds' => [' '.$preview->getId(), '/rendition-definitions/'.$preview->getId()],
+            'attributeIds' => [$title, ' '.strtoupper($keywords).' ', $title],
             'locale' => 'fr',
             'ftp' => ['host' => 'ftp.example.com', 'username' => 'bob'],
             's3' => ['bucket' => 'b'],
@@ -511,13 +555,14 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         return [
             'unknown protocol' => [self::config(['protocol' => 'webdav']), 'protocol'],
             'missing bucket' => [self::config(['s3' => ['accessKeyId' => 'a']]), 's3.bucket'],
-            'no rendition' => [self::config(['renditions' => []]), 'renditions'],
-            'blank rendition' => [self::config(['renditions' => ['']]), 'renditions'],
-            'unknown rendition' => [self::config(['renditions' => ['does-not-exist']]), 'renditions'],
+            'no rendition' => [self::config(['renditionIds' => []]), 'renditionIds'],
+            'blank rendition' => [self::config(['renditionIds' => ['']]), 'renditionIds'],
+            'rendition name' => [self::config(['renditionIds' => ['preview']]), 'renditionIds'],
             'parent directory' => [self::config(['pathTemplate' => '../{automation}.xlsx']), 'pathTemplate'],
             'asset variable' => [self::config(['pathTemplate' => '{assetId}.xlsx']), 'pathTemplate'],
-            'too many attributes' => [self::config(['attributes' => array_map(fn (int $i): string => 'attr'.$i, range(1, ShareExportAction::MAX_ATTRIBUTES + 1))]), 'attributes'],
-            'invalid attribute' => [self::config(['attributes' => [42]]), 'attributes'],
+            'too many attributes' => [self::config(['attributeIds' => array_map(fn (int $i): string => sprintf('00000000-0000-4000-8000-%012d', $i), range(1, ShareExportAction::MAX_ATTRIBUTES + 1))]), 'attributeIds'],
+            'invalid attribute' => [self::config(['attributeIds' => [42]]), 'attributeIds'],
+            'attribute slug' => [self::config(['attributeIds' => ['title']]), 'attributeIds'],
             'invalid locale' => [self::config(['locale' => 'fr fr']), 'locale'],
             'invalid uploadWhenEmpty' => [self::config(['uploadWhenEmpty' => 'yes']), 'uploadWhenEmpty'],
         ];
@@ -526,13 +571,57 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
     #[DataProvider('invalidConfigs')]
     public function testInvalidConfigs(array $config, string $path): void
     {
-        $this->createDefinition('preview');
-
         try {
             $this->validate($config);
             $this->fail('Expected a validation error');
         } catch (ValidationException $e) {
             $this->assertSame($path, $e->getConstraintViolationList()->get(0)->getPropertyPath());
         }
+    }
+
+    private function getAutomationViolations(array $config, ?Workspace $workspace): array
+    {
+        $em = self::getEntityManager();
+        $automation = $em->find(SavedSearchAutomation::class, $this->automation->getId());
+        $automation->setWorkspace(null !== $workspace ? $em->find(Workspace::class, $workspace->getId()) : null);
+        $action = $this->createAction();
+
+        return self::getService(UserContextSwitcher::class)->runAs(self::OWNER, fn (): array => $action->getAutomationViolations($this->validate($config, $action), $automation));
+    }
+
+    public function testAutomationViolations(): void
+    {
+        $other = $this->createOtherWorkspace(self::OWNER, 'other');
+        $preview = $this->createDefinition('preview');
+        $otherPreview = $this->createDefinition('preview', workspace: $other);
+        $description = $this->createAttributeDefinition([
+            'workspace' => $this->workspace,
+            'name' => 'Description',
+            'slug' => 'description',
+        ]);
+        $otherDescription = $this->createAttributeDefinition([
+            'workspace' => $other,
+            'name' => 'Description',
+            'slug' => 'description',
+        ]);
+
+        $this->assertSame([
+            'workspace' => 'Choose the workspace of the automation: this action only works on one workspace.',
+        ], $this->getAutomationViolations(self::renditionConfig([$preview]), null));
+
+        $this->assertSame([], $this->getAutomationViolations(self::renditionConfig([$preview], [
+            'attributeIds' => [$description->getId()],
+        ]), $this->workspace));
+
+        $this->assertSame([
+            'renditionIds' => sprintf('Rendition "%s" not found in the workspace.', $otherPreview->getId()),
+        ], $this->getAutomationViolations(self::renditionConfig([$preview, $otherPreview]), $this->workspace));
+
+        $this->assertSame([
+            'renditionIds' => sprintf('Rendition "%s" not found in the workspace.', self::UNKNOWN_ID),
+            'attributeIds' => sprintf('Attribute "%s" not found in the workspace.', $otherDescription->getId()),
+        ], $this->getAutomationViolations(self::config([
+            'attributeIds' => [$description->getId(), $otherDescription->getId()],
+        ]), $this->workspace));
     }
 }

@@ -13,6 +13,8 @@ import {
 export type SavedSearchAutomationInput = {
     savedSearch?: string;
     name?: string;
+    /** Limits the results of the saved search to this workspace, an empty string to remove it */
+    workspaceId?: string;
     enabled?: boolean;
     /** Cron expression, an empty string for an automation run on demand only */
     schedule?: string;
