@@ -32,6 +32,7 @@
     "acl.collection.edit_permissions": "Manage permissions of owned content",
     "acl.collection.owner": "Owner",
     "acl.collection.view": "View",
+    "acl.delete_confirm": "Delete?",
     "acl.empty": "No permission granted yet",
     "acl.group": "Group",
     "acl.help": "Permission levels",

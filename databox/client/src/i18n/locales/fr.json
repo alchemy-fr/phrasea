@@ -32,6 +32,7 @@
     "acl.collection.edit_permissions": "Gérer les permissions du contenu possédé",
     "acl.collection.owner": "Propriétaire",
     "acl.collection.view": "Voir",
+    "acl.delete_confirm": "Supprimer ?",
     "acl.empty": "Aucune permission accordée pour le moment",
     "acl.group": "Groupe",
     "acl.help": "Niveaux de permission",

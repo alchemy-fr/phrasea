@@ -1,21 +1,30 @@
 'use client';
 
-import {ComponentProps, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {InfoIcon, Trash2Icon, UserIcon, UsersIcon} from 'lucide-react';
+import {InfoIcon, UserIcon, UsersIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
 import {Group, User, UserType} from '@/types/api';
 import {deleteAce, getTypeAces, putAce} from '@/lib/api/misc';
 import {getUserDisplayName} from '@/lib/users';
-import {Checkbox} from '@alchemy/next-ui/ui/controls';
+import {PermissionCheckbox} from './PermissionCheckbox';
+import {ConfirmDeleteButton} from './ConfirmDeleteButton';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Skeleton} from '@alchemy/next-ui/ui/misc';
 import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {GroupSelect, UserSelect} from '@/components/form/selects';
 import {cn} from '@alchemy/next-ui/utils/cn';
+import {GroupSelect, UserSelect} from '@/components/form/selects';
+import {
+    SlantedBand,
+    SlantedLabel,
+    slantedCellClassName,
+    slantedColumnClassName,
+    useColumnHover,
+    useSlantedHeader,
+} from './SlantedHeader';
 import {
     AceWrite,
     getInstancePermissionLabels,
@@ -73,7 +82,13 @@ export function InstancePermissionsDialog({open, onOpenChange}: ModalProps) {
     const aces = useQuery({queryKey, queryFn: getInstanceAces});
     const [addType, setAddType] = useState<UserType>(UserType.Group);
     const [pending, setPending] = useState<InstancePermissionRow[]>([]);
-    const [saving, setSaving] = useState<string | null>(null);
+    // Row being saved, and the column of the checkbox that changed
+    const [saving, setSaving] = useState<{
+        row: string;
+        column?: string;
+    } | null>(null);
+    const headerRef = useSlantedHeader([open, aces.isLoading, t]);
+    const {column, highlight, tableProps} = useColumnHover();
 
     const rows = useMemo(() => {
         const merged = mergeTypeAces(aces.data ?? []);
@@ -82,8 +97,8 @@ export function InstancePermissionsDialog({open, onOpenChange}: ModalProps) {
         return [...merged, ...pending.filter(r => !keys.has(r.key))];
     }, [aces.data, pending]);
 
-    const run = async (rowKey: string, writes: AceWrite[]) => {
-        setSaving(rowKey);
+    const run = async (rowKey: string, writes: AceWrite[], column?: string) => {
+        setSaving({row: rowKey, column});
         try {
             for (const write of writes) {
                 await applyWrite(write);
@@ -208,32 +223,42 @@ export function InstancePermissionsDialog({open, onOpenChange}: ModalProps) {
                     className="overflow-x-auto rounded-md border"
                     data-testid="instance-permissions"
                 >
-                    <table className="w-full text-sm">
+                    <table className="w-full text-sm" {...tableProps}>
                         <thead className="bg-muted/50 text-xs text-muted-foreground">
-                            <tr>
+                            <tr ref={headerRef}>
                                 <th className="w-full px-3 py-2 text-left align-bottom font-medium">
                                     {t('acl.subject', 'User / group')}
                                 </th>
-                                {instancePermissions.map(p => (
+                                {instancePermissions.map((p, i) => (
                                     <th
                                         key={p.key}
-                                        className="w-10 min-w-10 px-2 py-2 text-center align-bottom font-medium"
+                                        className={slantedColumnClassName}
                                     >
+                                        <SlantedBand
+                                            highlighted={column === i + 1}
+                                        />
                                         <Tooltip
                                             content={labels[p.key].description}
                                         >
-                                            <VerticalLabel>
+                                            <SlantedLabel
+                                                className={cn(
+                                                    column === i + 1 &&
+                                                        'text-foreground'
+                                                )}
+                                            >
                                                 {labels[p.key].label}
-                                            </VerticalLabel>
+                                            </SlantedLabel>
                                         </Tooltip>
                                     </th>
                                 ))}
-                                <th className="w-10" />
+                                <th data-slanted-end className="relative w-10">
+                                    <SlantedBand className="w-0" />
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             {rows.map(row => {
-                                const disabled = saving === row.key;
+                                const disabled = saving?.row === row.key;
 
                                 return (
                                     <tr
@@ -268,13 +293,19 @@ export function InstancePermissionsDialog({open, onOpenChange}: ModalProps) {
                                                 </Tooltip>
                                             ) : null}
                                         </td>
-                                        {instancePermissions.map(p => (
+                                        {instancePermissions.map((p, i) => (
                                             <td
                                                 key={p.key}
-                                                className="px-2 py-1.5 text-center"
+                                                className={cn(
+                                                    slantedCellClassName,
+                                                    highlight(i + 1)
+                                                )}
                                             >
-                                                <Checkbox
-                                                    className="mx-auto"
+                                                <PermissionCheckbox
+                                                    saving={
+                                                        disabled &&
+                                                        saving?.column === p.key
+                                                    }
                                                     aria-label={
                                                         labels[p.key].label
                                                     }
@@ -285,32 +316,29 @@ export function InstancePermissionsDialog({open, onOpenChange}: ModalProps) {
                                                     )}
                                                     disabled={disabled}
                                                     onCheckedChange={v =>
-                                                        run(row.key, [
-                                                            getToggleWrite(
-                                                                row,
-                                                                p,
-                                                                v === true
-                                                            ),
-                                                        ])
+                                                        run(
+                                                            row.key,
+                                                            [
+                                                                getToggleWrite(
+                                                                    row,
+                                                                    p,
+                                                                    v === true
+                                                                ),
+                                                            ],
+                                                            p.key
+                                                        )
                                                     }
                                                 />
                                             </td>
                                         ))}
-                                        <td className="px-1 py-1.5">
+                                        <td className="border-l px-1 py-1.5 text-right">
                                             {row.userId ? (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-xs"
-                                                    className="text-destructive"
+                                                <ConfirmDeleteButton
                                                     disabled={disabled}
-                                                    onClick={() => remove(row)}
-                                                    aria-label={t(
-                                                        'common.delete',
-                                                        'Delete'
-                                                    )}
-                                                >
-                                                    <Trash2Icon />
-                                                </Button>
+                                                    onConfirm={() =>
+                                                        remove(row)
+                                                    }
+                                                />
                                             ) : null}
                                         </td>
                                     </tr>
@@ -321,18 +349,5 @@ export function InstancePermissionsDialog({open, onOpenChange}: ModalProps) {
                 </div>
             )}
         </FormDialog>
-    );
-}
-
-/** Column header read bottom-to-top, so that the labels fit */
-function VerticalLabel({className, ...props}: ComponentProps<'span'>) {
-    return (
-        <span
-            className={cn(
-                'inline-block rotate-180 text-left whitespace-nowrap [writing-mode:vertical-rl]',
-                className
-            )}
-            {...props}
-        />
     );
 }
