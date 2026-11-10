@@ -15,6 +15,9 @@ const {secretsApi, integrationsApi} = vi.hoisted(() => ({
         postWorkspaceSecret: vi.fn(),
         putWorkspaceSecret: vi.fn(),
         deleteWorkspaceSecret: vi.fn(),
+        postWorkspaceEnv: vi.fn(),
+        putWorkspaceEnv: vi.fn(),
+        deleteWorkspaceEnv: vi.fn(),
     },
     integrationsApi: {
         getWorkspaceIntegrations: vi.fn(),
@@ -50,9 +53,18 @@ describe('SecretManager', () => {
             ])
         );
         secretsApi.getWorkspaceEnvs.mockResolvedValue(
-            page([{id: 'e1', name: 'BASE_URL'}])
+            page([
+                {
+                    id: 'e1',
+                    name: 'BASE_URL',
+                    value: 'https://expose.test',
+                    createdAt: '',
+                    updatedAt: '',
+                },
+            ])
         );
         secretsApi.deleteWorkspaceSecret.mockResolvedValue(undefined);
+        secretsApi.deleteWorkspaceEnv.mockResolvedValue(undefined);
         const integrations = page([
             {
                 id: 'i1',
@@ -65,7 +77,7 @@ describe('SecretManager', () => {
                 name: null,
                 integrationName: 'Webhook',
                 integration: 'core.webhook',
-                configValues: {url: 'https://$BG_KEY_2/x'},
+                configValues: {url: 'https://$BG_KEY_2/x', base: '${BASE_URL}'},
             },
         ]);
         integrationsApi.getWorkspaceIntegrations.mockResolvedValue(
@@ -85,7 +97,12 @@ describe('SecretManager', () => {
         expect(screen.getByTestId('secret-UNUSED').textContent).toContain(
             'Not used'
         );
-        expect(screen.getByText('BASE_URL')).toBeTruthy();
+        expect(screen.getByTestId('variable-BASE_URL').textContent).toContain(
+            'https://expose.test'
+        );
+        expect(screen.getByTestId('variable-BASE_URL').textContent).toContain(
+            'Used by Webhook'
+        );
         expect(secretsApi.getWorkspaceSecrets).toHaveBeenCalledWith(
             {workspaceId: 'ws'},
             expect.anything()
@@ -149,6 +166,76 @@ describe('SecretManager', () => {
             expect(secretsApi.putWorkspaceSecret).toHaveBeenCalledWith('s1', {
                 value: 'new-key',
             })
+        );
+    });
+
+    it('creates a variable', async () => {
+        secretsApi.postWorkspaceEnv.mockResolvedValue({
+            id: 'e2',
+            name: 'HOST',
+            value: 'example.test',
+        });
+        renderManager('ws');
+
+        fireEvent.click(await screen.findByTestId('variable-create'));
+        fireEvent.change(await screen.findByLabelText('Name'), {
+            target: {value: 'HOST'},
+        });
+        fireEvent.change(screen.getByLabelText('Value'), {
+            target: {value: 'example.test'},
+        });
+        fireEvent.click(screen.getByRole('button', {name: 'Create'}));
+        await waitFor(() =>
+            expect(secretsApi.postWorkspaceEnv).toHaveBeenCalledWith({
+                workspaceId: 'ws',
+                name: 'HOST',
+                value: 'example.test',
+            })
+        );
+    });
+
+    it('edits the value of a variable, shown in clear', async () => {
+        secretsApi.putWorkspaceEnv.mockResolvedValue({
+            id: 'e1',
+            name: 'BASE_URL',
+            value: 'https://other.test',
+        });
+        renderManager('ws');
+
+        fireEvent.click(await screen.findByTestId('variable-edit-BASE_URL'));
+        const value = (await screen.findByLabelText(
+            'Value'
+        )) as HTMLInputElement;
+        expect(value.value).toBe('https://expose.test');
+        expect(
+            (screen.getByLabelText('Name') as HTMLInputElement).readOnly
+        ).toBe(true);
+
+        fireEvent.change(value, {target: {value: 'https://other.test'}});
+        fireEvent.click(screen.getByRole('button', {name: 'Save'}));
+        await waitFor(() =>
+            expect(secretsApi.putWorkspaceEnv).toHaveBeenCalledWith('e1', {
+                value: 'https://other.test',
+            })
+        );
+    });
+
+    it('warns of the integrations using a variable before deleting it', async () => {
+        renderManager('ws');
+
+        await waitFor(() =>
+            expect(
+                screen.getByTestId('variable-BASE_URL').textContent
+            ).toContain('Webhook')
+        );
+        fireEvent.click(screen.getByTestId('variable-delete-BASE_URL'));
+        const dialog = await screen.findByTestId('form-dialog');
+        expect(dialog.textContent).toContain('These integrations refer to it');
+        expect(dialog.textContent).toContain('Webhook');
+
+        fireEvent.click(screen.getByRole('button', {name: 'Delete'}));
+        await waitFor(() =>
+            expect(secretsApi.deleteWorkspaceEnv).toHaveBeenCalledWith('e1')
         );
     });
 });

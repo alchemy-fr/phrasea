@@ -311,15 +311,25 @@ function TextField(props: FieldProps & {schema: ConfigSchema}) {
         parseReference(text) !== undefined ? 'reference' : 'value'
     );
     const [shown, setShown] = useState(false);
+    // The picker opens by itself once the user switches to a reference
+    const [pickerOpen, setPickerOpen] = useState(false);
     const set = (v: string | undefined) => onChange(v === '' ? undefined : v);
     // A secret typed in clear can become a secret of the workspace, once its
     // listing tells the user is allowed to manage them
     const offerSecret = !!schema.secret && mode === 'value';
     const {secrets} = useSecretNames({workspaceId}, offerSecret);
 
+    const reference = parseReference(text);
+
+    // A reference stays as text in Value mode; a value which is not a
+    // reference cannot be one
     const switchMode = (next: TextMode) => {
-        if (next !== mode) {
-            setMode(next);
+        if (next === mode) {
+            return;
+        }
+        setMode(next);
+        if (next === 'reference' && reference === undefined) {
+            setPickerOpen(true);
             set(undefined);
         }
     };
@@ -339,10 +349,12 @@ function TextField(props: FieldProps & {schema: ConfigSchema}) {
         mode === 'reference' ? (
             <SecretReferencePicker
                 id={id}
-                name={parseReference(text) ?? ''}
+                name={reference ?? ''}
                 onChange={n => set(n === '' ? undefined : toReference(n))}
                 workspaceId={workspaceId}
-                required={schema.required}
+                secret={!!schema.secret}
+                suggestedName={suggestSecretName(name)}
+                defaultOpen={pickerOpen}
                 invalid={!!error}
             />
         ) : (
@@ -350,7 +362,7 @@ function TextField(props: FieldProps & {schema: ConfigSchema}) {
                 <Input
                     id={id}
                     type={
-                        schema.secret && !shown
+                        schema.secret && !shown && reference === undefined
                             ? 'password'
                             : schema.widget === 'email'
                               ? 'email'
@@ -384,7 +396,7 @@ function TextField(props: FieldProps & {schema: ConfigSchema}) {
                         type="button"
                         variant="outline"
                         data-testid={`config-save-secret-${path}`}
-                        disabled={text === ''}
+                        disabled={text === '' || reference !== undefined}
                         onClick={() => void saveAsSecret()}
                     >
                         <LockIcon />
@@ -414,7 +426,7 @@ function TextField(props: FieldProps & {schema: ConfigSchema}) {
                     <TabsList
                         aria-label={t(
                             'integration.config.mode_label',
-                            'Value or reference to a secret'
+                            'Value or reference to a secret or variable'
                         )}
                     >
                         <TabsTrigger

@@ -120,7 +120,7 @@ describe('Integrations', () => {
         routeDialog().within(() => {
             // The field now refers to the secret
             cy.getBySel('config-mode-reference-apiKey').should('have.attr', 'aria-selected', 'true');
-            cy.get('#config-apiKey').should('have.value', 'API_KEY');
+            cy.getBySel('secret-ref-chip').should('have.text', 'API_KEY').and('have.attr', 'data-kind', 'secret');
             cy.getBySel('secret-ref-status').should('contain', 'Secret');
             cy.contains('button', 'Save').click();
         });
@@ -141,6 +141,34 @@ describe('Integrations', () => {
             .getBySel('secret-API_KEY', {timeout: 30000})
             .should('contain', 'Used by E2E remove.bg')
             .and('not.contain', 'e2e-remove-bg-key');
+    });
+
+    it('manages the variables of the workspace, shown in clear', () => {
+        cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/secrets`);
+        routeDialog().within(() => {
+            cy.getBySel('variable-create', {timeout: 30000}).click();
+        });
+        cy.getBySel('form-dialog')
+            .last()
+            .within(() => {
+                cy.get('#create-variable-name').type('E2E_HOST');
+                cy.get('#create-variable-value').type('e2e.example.test');
+                cy.contains('button', 'Create').click();
+            });
+        expectToastText('Variable created');
+        routeDialog().getBySel('variable-E2E_HOST').should('contain', 'e2e.example.test');
+
+        routeDialog().within(() => {
+            cy.getBySel('variable-edit-E2E_HOST').click();
+        });
+        cy.getBySel('form-dialog')
+            .last()
+            .within(() => {
+                cy.get('#edit-variable-value').should('have.value', 'e2e.example.test').clear().type('e2e.other.test');
+                cy.contains('button', 'Save').click();
+            });
+        expectToastText('Variable saved');
+        routeDialog().getBySel('variable-E2E_HOST').should('contain', 'e2e.other.test');
     });
 
     it('duplicates an integration, disabled', () => {

@@ -246,7 +246,7 @@ A string value of the configuration can refer to a named value instead of holdin
 3. the environment variable `PWI_<NAME>` of the instance;
 4. an empty string otherwise.
 
-A secret is encrypted with a libsodium sealed box: the API only has the public key (it encrypts, never decrypts, and never returns the value), the workers hold the secret key and decrypt it when they run the integration. A variable is stored in clear and managed in the admin only.
+A secret is encrypted with a libsodium sealed box: the API only has the public key (it encrypts, never decrypts, and never returns the value), the workers hold the secret key and decrypt it when they run the integration. A variable is stored in clear and returned with its value to the same users: it never holds a sensitive value.
 
 | Endpoint | Rights |
 | --- | --- |
@@ -256,17 +256,18 @@ A secret is encrypted with a libsodium sealed box: the API only has the public k
 | `POST /workspace-secrets` (`workspace` IRI or `null`, `name`, `value`) | as above |
 | `PATCH /workspace-secrets/{id}` (`value`) | as above |
 | `DELETE /workspace-secrets/{id}` | as above |
-| `GET /workspace-envs?workspace={id}` / `?global=true` | as above, names only (a variable may still hold sensitive data) |
+| `GET /workspace-envs?workspace={id}` / `?global=true`, `GET /workspace-envs/{id}` | as above, with the values |
+| `POST /workspace-envs` (`workspace` IRI or `null`, `name`, `value`), `PATCH /workspace-envs/{id}` (`value`), `DELETE /workspace-envs/{id}` | as above |
 
-The listings need `workspace` or `global` (400 otherwise), sort by name and accept `limit`/`page`. The value is write only, and the name cannot change once created (the references would silently break): a `PATCH` replaces the value, a different `name` answers 400. A name matches `^[A-Za-z_][A-Za-z0-9_]*$` (100 characters at most), so that both reference forms resolve it, and is unique in its workspace, instance secrets included (validated, as SQL does not compare `NULL` workspaces). Deleting a secret still referenced is allowed: the references then resolve to a variable, `PWI_<NAME>` or nothing.
+The listings need `workspace` or `global` (400 otherwise), sort by name and accept `limit`/`page`. The value of a secret is write only (an empty one is ignored), the one of a variable may be empty. The name cannot change once created (the references would silently break): a `PATCH` replaces the value, a different `name` answers 400. A name (of a secret or a variable) matches `^[A-Za-z_][A-Za-z0-9_]*$` (100 characters at most), so that both reference forms resolve it, and is unique in its workspace, instance ones included (validated, as SQL does not compare `NULL` workspaces). Deleting a secret or a variable still referenced is allowed: the references then resolve to the next source of the list above.
 
 In the configuration form, every plain text field switches between **Value** and **Reference**:
 
-- a value which is a reference as a whole opens as a Reference, any other (mixed ones included) as a Value; switching mode empties the field;
-- in Reference mode, the name is typed (stored as `${NAME}`) or picked among the secrets and variables of the scope, and a new secret can be created; a line under the field tells whether the name is a secret, a variable, or defined nowhere (then resolved from `PWI_<NAME>` or empty). An editor of the integration (ACL) who cannot edit the workspace gets the free typing only;
+- a value which is a reference as a whole opens as a Reference, any other (mixed ones included) as a Value; switching to Value keeps the reference as text (neither masked nor offered to be saved as a secret), switching to Reference keeps a value which is a reference as a whole, empties any other and opens the picker;
+- in Reference mode, the name is shown as a chip (removable), picked among the secrets and variables of the scope, typed (a name missing from the listing), or created: a `secret` field lists the secrets first and creates a secret, any other field lists the variables first (with their values) and creates a variable or a secret. A line under the field tells whether the name is a secret, a variable (with its value, or a warning on a `secret` field), or defined nowhere in the scope. The client never mentions `PWI_<NAME>`, an instance setting. An editor of the integration (ACL) who cannot edit the workspace gets the free typing only;
 - in Value mode, a `secret` field offers **Save as secret**: the typed value becomes a secret (named after the key, `apiKey` → `API_KEY`), and the field its reference.
 
-The secrets are managed in the **Secrets** tab of the workspace (`/workspaces/:id/manage/secrets`: names, the integrations referring to them, value replaced but never shown, deletion), and in the **Instance secrets** tab of the instance integrations screen for the administrators. The variables are only listed there.
+The secrets and variables are managed in the **Secrets & variables** tab of the workspace (`/workspaces/:id/manage/secrets`: names, the integrations referring to them, value of a secret replaced but never shown, value of a variable edited in clear, deletion), and in the **Instance secrets & variables** tab of the instance integrations screen for the administrators. The admin still manages both, every workspace included.
 
 ## Exhaustive integration list
 

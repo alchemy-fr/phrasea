@@ -1238,10 +1238,15 @@ export type WorkspaceSecret = {
     updatedAt: string;
 };
 
-/** A variable (managed in the admin), by its name only */
+/** A plain value, referenced like a secret but stored and returned in clear */
 export type WorkspaceEnv = {
     id: string;
     name: string;
+    value: string;
+    /** IRI of the workspace, missing for an instance variable */
+    workspace?: string | null;
+    createdAt: string;
+    updatedAt: string;
 };
 
 export type MetadataTag = {

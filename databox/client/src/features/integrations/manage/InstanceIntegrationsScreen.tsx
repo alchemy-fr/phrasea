@@ -92,7 +92,7 @@ export function InstanceIntegrationsScreen() {
                                     <KeyRoundIcon />
                                     {t(
                                         'integration.instance.secrets',
-                                        'Instance secrets'
+                                        'Instance secrets & variables'
                                     )}
                                 </TabsTrigger>
                             </TabsList>

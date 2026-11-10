@@ -26,6 +26,9 @@ const {auth, oauthApi, secretsApi} = vi.hoisted(() => ({
         postWorkspaceSecret: vi.fn(),
         putWorkspaceSecret: vi.fn(),
         deleteWorkspaceSecret: vi.fn(),
+        postWorkspaceEnv: vi.fn(),
+        putWorkspaceEnv: vi.fn(),
+        deleteWorkspaceEnv: vi.fn(),
     },
 }));
 vi.mock('@/lib/auth/AuthProvider', () => ({useAuth: () => auth}));
@@ -73,6 +76,7 @@ const schema: ConfigObjectSchema = {
     type: 'object',
     properties: {
         apiKey: {type: 'string', secret: true, label: 'API key'},
+        baseUrl: {type: 'string', label: 'Base URL'},
         maxImageSize: {
             type: 'integer',
             min: 256,
@@ -475,8 +479,17 @@ describe('ConfigForm OAuth client field', () => {
 describe('ConfigForm secret references', () => {
     const apiKeyInput = () =>
         screen.getByLabelText('API key') as HTMLInputElement;
-    const modeTab = (mode: 'value' | 'reference') =>
-        screen.getByTestId(`config-mode-${mode}-apiKey`);
+    const modeTab = (field: string, mode: 'value' | 'reference') =>
+        screen.getByTestId(`config-mode-${mode}-${field}`);
+    const row = (field: string) =>
+        within(screen.getByTestId(`config-field-${field}`));
+    const status = (field: string) =>
+        row(field).getByTestId('secret-ref-status').textContent;
+    const groupHeadings = () =>
+        Array.from(
+            document.querySelectorAll('[cmdk-group-heading]'),
+            h => h.textContent
+        );
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -491,19 +504,32 @@ describe('ConfigForm secret references', () => {
             ])
         );
         secretsApi.getWorkspaceEnvs.mockResolvedValue(
-            page([{id: 'e1', name: 'BASE_URL'}])
+            page([
+                {
+                    id: 'e1',
+                    name: 'BASE_URL',
+                    value: 'https://expose.test',
+                    createdAt: '',
+                    updatedAt: '',
+                },
+            ])
         );
     });
 
-    it('opens a reference in reference mode, with the name only', async () => {
+    it('opens a reference in reference mode, as a chip', async () => {
         renderForm({initial: {apiKey: '${BG_KEY}'}});
 
-        expect(modeTab('reference').getAttribute('aria-selected')).toBe('true');
-        expect(apiKeyInput().value).toBe('BG_KEY');
+        expect(
+            modeTab('apiKey', 'reference').getAttribute('aria-selected')
+        ).toBe('true');
+        expect(row('apiKey').getByTestId('secret-ref-chip').textContent).toBe(
+            'BG_KEY'
+        );
         await waitFor(() =>
-            expect(screen.getByTestId('secret-ref-status').textContent).toBe(
-                'Secret'
-            )
+            expect(status('apiKey')).toBe('Secret: its value is never shown')
+        );
+        expect(row('apiKey').getByTestId('secret-ref-chip').dataset.kind).toBe(
+            'secret'
         );
         expect(secretsApi.getWorkspaceSecrets).toHaveBeenCalledWith(
             {workspaceId: 'ws'},
@@ -514,7 +540,9 @@ describe('ConfigForm secret references', () => {
     it('opens a literal value in value mode, masked for a secret', () => {
         renderForm({initial: {apiKey: 'plain-key'}});
 
-        expect(modeTab('value').getAttribute('aria-selected')).toBe('true');
+        expect(modeTab('apiKey', 'value').getAttribute('aria-selected')).toBe(
+            'true'
+        );
         expect(apiKeyInput().type).toBe('password');
         expect(apiKeyInput().value).toBe('plain-key');
     });
@@ -522,45 +550,154 @@ describe('ConfigForm secret references', () => {
     it('keeps a value mixing text and references in value mode', () => {
         renderForm({initial: {apiKey: 'https://${HOST}/x'}});
 
-        expect(modeTab('value').getAttribute('aria-selected')).toBe('true');
+        expect(modeTab('apiKey', 'value').getAttribute('aria-selected')).toBe(
+            'true'
+        );
         expect(apiKeyInput().value).toBe('https://${HOST}/x');
     });
 
-    it('empties the field when switching mode', () => {
+    it('empties a value and opens the picker when switching to a reference', async () => {
         const {last} = renderForm({initial: {apiKey: 'plain-key'}});
 
-        fireEvent.mouseDown(modeTab('reference'));
+        fireEvent.mouseDown(modeTab('apiKey', 'reference'));
         expect(last()).toEqual({});
-        expect(modeTab('reference').getAttribute('aria-selected')).toBe('true');
-        fireEvent.change(apiKeyInput(), {target: {value: 'MY_KEY'}});
+        expect(
+            modeTab('apiKey', 'reference').getAttribute('aria-selected')
+        ).toBe('true');
+        // A name missing from the listing can be typed
+        fireEvent.change(await screen.findByTestId('secret-ref-search'), {
+            target: {value: 'MY_KEY'},
+        });
+        fireEvent.click(screen.getByTestId('secret-ref-use'));
         expect(last()).toEqual({apiKey: '${MY_KEY}'});
-
-        fireEvent.mouseDown(modeTab('value'));
-        expect(last()).toEqual({});
     });
 
-    it('writes the reference to the secret picked in the list', async () => {
-        const {last} = renderForm({initial: {apiKey: '$OLD_KEY'}});
-        expect(apiKeyInput().value).toBe('OLD_KEY');
+    it('keeps a reference as text when switching to a value, and back', async () => {
+        const {onChange, last} = renderForm({
+            initial: {apiKey: '${MY_VAR}'},
+        });
 
-        fireEvent.click(screen.getByTestId('secret-ref-choose'));
-        await waitFor(() =>
-            expect(screen.getByTestId('secret-ref-secret-BG_KEY')).toBeTruthy()
+        fireEvent.mouseDown(modeTab('apiKey', 'value'));
+        expect(modeTab('apiKey', 'value').getAttribute('aria-selected')).toBe(
+            'true'
         );
-        // Variables are offered too
-        expect(screen.getByTestId('secret-ref-env-BASE_URL')).toBeTruthy();
+        expect(onChange).not.toHaveBeenCalled();
+        // A reference is not masked, nor offered to be saved as a secret
+        expect(apiKeyInput().type).toBe('text');
+        expect(apiKeyInput().value).toBe('${MY_VAR}');
+        expect(
+            (
+                (await screen.findByTestId(
+                    'config-save-secret-apiKey'
+                )) as HTMLButtonElement
+            ).disabled
+        ).toBe(true);
+
+        fireEvent.change(apiKeyInput(), {target: {value: '${OTHER}'}});
+        fireEvent.mouseDown(modeTab('apiKey', 'reference'));
+        expect(last()).toEqual({apiKey: '${OTHER}'});
+        expect(row('apiKey').getByTestId('secret-ref-chip').textContent).toBe(
+            'OTHER'
+        );
+        expect(screen.queryByTestId('secret-ref-search')).toBeNull();
+    });
+
+    it('offers the secrets first to a secret field', async () => {
+        const {last} = renderForm({initial: {apiKey: '$OLD_KEY'}});
+        expect(row('apiKey').getByTestId('secret-ref-chip').textContent).toBe(
+            'OLD_KEY'
+        );
+
+        fireEvent.click(row('apiKey').getByTestId('secret-ref-choose'));
+        await screen.findByTestId('secret-ref-secret-BG_KEY');
+        expect(groupHeadings()).toEqual(['Secrets', 'Variables']);
+        // Only a secret is created for a secret field
+        expect(screen.getByTestId('secret-ref-create')).toBeTruthy();
+        expect(screen.queryByTestId('secret-ref-create-variable')).toBeNull();
 
         fireEvent.click(screen.getByTestId('secret-ref-secret-BG_KEY'));
         expect(last()).toEqual({apiKey: '${BG_KEY}'});
+    });
+
+    it('offers the variables first to a plain field, with their values', async () => {
+        const {last} = renderForm({initial: {baseUrl: '${NONE}'}});
+
+        fireEvent.click(row('baseUrl').getByTestId('secret-ref-choose'));
+        const item = await screen.findByTestId('secret-ref-env-BASE_URL');
+        expect(item.textContent).toContain('https://expose.test');
+        expect(groupHeadings()).toEqual(['Variables', 'Secrets']);
+        expect(
+            screen
+                .getAllByTestId(/^secret-ref-create/)
+                .map(i => i.dataset.testid)
+        ).toEqual(['secret-ref-create-variable', 'secret-ref-create']);
+
+        fireEvent.click(item);
+        expect(last()).toEqual({baseUrl: '${BASE_URL}'});
+        await waitFor(() =>
+            expect(status('baseUrl')).toBe('Variable= https://expose.test')
+        );
+    });
+
+    it('warns of a variable referenced by a secret field', async () => {
+        renderForm({initial: {apiKey: '${BASE_URL}'}});
+
+        await waitFor(() =>
+            expect(status('apiKey')).toBe(
+                'Variable, stored in clear: prefer a secret for this field'
+            )
+        );
+    });
+
+    it('creates a variable from the picker, named after the key', async () => {
+        secretsApi.postWorkspaceEnv.mockImplementation(async d => ({
+            id: 'e2',
+            name: d.name,
+            value: d.value,
+            workspace: '/workspaces/ws',
+            createdAt: '',
+            updatedAt: '',
+        }));
+        const {last} = renderForm({initial: {baseUrl: '${X}'}});
+
+        fireEvent.click(row('baseUrl').getByTestId('secret-ref-choose'));
+        fireEvent.click(
+            await screen.findByTestId('secret-ref-create-variable')
+        );
+        const name = (await screen.findByLabelText('Name', {
+            selector: '#create-variable-name',
+        })) as HTMLInputElement;
+        expect(name.value).toBe('BASE_URL');
+        fireEvent.change(name, {target: {value: 'EXPOSE_URL'}});
+        fireEvent.change(screen.getByLabelText('Value'), {
+            target: {value: 'https://expose.test'},
+        });
+        fireEvent.click(screen.getByRole('button', {name: 'Create'}));
+
+        await waitFor(() => expect(last()).toEqual({baseUrl: '${EXPOSE_URL}'}));
+        expect(secretsApi.postWorkspaceEnv).toHaveBeenCalledWith({
+            workspaceId: 'ws',
+            name: 'EXPOSE_URL',
+            value: 'https://expose.test',
+        });
+    });
+
+    it('removes the reference with the chip', () => {
+        const {last} = renderForm({initial: {apiKey: '${BG_KEY}'}});
+
+        fireEvent.click(row('apiKey').getByTestId('secret-ref-clear'));
+        expect(last()).toEqual({});
+        expect(row('apiKey').queryByTestId('secret-ref-chip')).toBeNull();
     });
 
     it('tells a typed name is defined nowhere', async () => {
         renderForm({initial: {apiKey: '${MISSING}'}});
 
         await waitFor(() =>
-            expect(
-                screen.getByTestId('secret-ref-status').textContent
-            ).toContain('PWI_MISSING')
+            expect(status('apiKey')).toBe('Not defined in this workspace')
+        );
+        expect(row('apiKey').getByTestId('secret-ref-chip').dataset.kind).toBe(
+            'undefined'
         );
     });
 
@@ -588,7 +725,9 @@ describe('ConfigForm secret references', () => {
             name: 'API_KEY',
             value: 'plain-key',
         });
-        expect(modeTab('reference').getAttribute('aria-selected')).toBe('true');
+        expect(
+            modeTab('apiKey', 'reference').getAttribute('aria-selected')
+        ).toBe('true');
     });
 
     it('keeps the free typing, quietly, when the listing is forbidden', async () => {
@@ -598,18 +737,23 @@ describe('ConfigForm secret references', () => {
         const {last} = renderForm({initial: {apiKey: '${BG_KEY}'}});
 
         await waitFor(() =>
-            expect(screen.queryByTestId('secret-ref-choose')).toBeNull()
-        );
-        expect(screen.getByTestId('secret-ref-status').textContent).toBe(
-            'Reference to a workspace secret or variable'
+            expect(status('apiKey')).toBe(
+                'Reference to a workspace secret or variable'
+            )
         );
         expect(screen.queryByText(/Forbidden/)).toBeNull();
 
-        fireEvent.change(apiKeyInput(), {target: {value: 'OTHER_KEY'}});
+        fireEvent.click(row('apiKey').getByTestId('secret-ref-choose'));
+        fireEvent.change(await screen.findByTestId('secret-ref-search'), {
+            target: {value: '${OTHER_KEY}'},
+        });
+        // Nothing to create without the right to list
+        expect(screen.queryByTestId('secret-ref-create')).toBeNull();
+        fireEvent.click(screen.getByTestId('secret-ref-use'));
         expect(last()).toEqual({apiKey: '${OTHER_KEY}'});
 
         // Nor any secret to create from a value
-        fireEvent.mouseDown(modeTab('value'));
+        fireEvent.mouseDown(modeTab('apiKey', 'value'));
         fireEvent.change(apiKeyInput(), {target: {value: 'plain'}});
         expect(apiKeyInput().value).toBe('plain');
         expect(screen.queryByTestId('config-save-secret-apiKey')).toBeNull();

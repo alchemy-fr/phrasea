@@ -1,7 +1,7 @@
 /**
  * References to secrets and variables in the configuration of integrations:
  * `${NAME}` (or the older `$NAME`), resolved by the API from the secrets, then
- * the variables, then the `PWI_NAME` environment variable of the instance.
+ * the variables.
  */
 
 /** What the API accepts as the name of a secret */

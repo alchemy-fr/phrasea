@@ -160,7 +160,7 @@ function useTabs(workspace?: Workspace): DialogTab<WorkspaceTabProps>[] {
         },
         {
             id: 'secrets',
-            title: t('workspace.manage.secrets', 'Secrets'),
+            title: t('workspace.manage.secrets', 'Secrets & variables'),
             icon: <KeyRoundIcon />,
             component: SecretsTab,
             enabled: canEdit,

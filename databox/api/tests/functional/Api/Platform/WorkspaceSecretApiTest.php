@@ -17,7 +17,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * Secrets (/workspace-secrets) and variables (/workspace-envs) referenced by the
  * configuration of the integrations: managed by the editors of their workspace
- * (by the admins for the instance ones), values never returned.
+ * (by the admins for the instance ones), values of the secrets never returned.
  */
 final class WorkspaceSecretApiTest extends AbstractDataboxTestCase
 {
@@ -149,6 +149,7 @@ final class WorkspaceSecretApiTest extends AbstractDataboxTestCase
         }
         $secret = $this->createSecret($workspace, 'BG_KEY', 'my-plain-key');
         $before = $secret->getValue();
+        $env = $this->createEnv($workspace, 'HOST', 'example.test');
 
         $this->assertRequestStatus(403, 'GET', '/workspace-secrets?workspace='.$workspace->getId(), $userId);
         $this->assertRequestStatus(403, 'GET', '/workspace-envs?workspace='.$workspace->getId(), $userId);
@@ -160,6 +161,19 @@ final class WorkspaceSecretApiTest extends AbstractDataboxTestCase
         ]);
         $this->assertRequestStatus(403, 'PATCH', '/workspace-secrets/'.$secret->getId(), $userId, ['value' => 'hijacked']);
         $this->assertRequestStatus(403, 'DELETE', '/workspace-secrets/'.$secret->getId(), $userId);
+        $this->assertRequestStatus(403, 'GET', '/workspace-envs/'.$env->getId(), $userId);
+        $this->assertRequestStatus(403, 'POST', '/workspace-envs', $userId, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'name' => 'NEW_VAR',
+            'value' => 'v',
+        ]);
+        $this->assertRequestStatus(403, 'PATCH', '/workspace-envs/'.$env->getId(), $userId, ['value' => 'hijacked']);
+        $this->assertRequestStatus(403, 'DELETE', '/workspace-envs/'.$env->getId(), $userId);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertSame('example.test', $em->find(WorkspaceEnv::class, $env->getId())?->getValue());
+        $this->assertSame(1, $em->getRepository(WorkspaceEnv::class)->count([]));
 
         $secret = $this->findSecret($secret->getId());
         $this->assertNotNull($secret);
@@ -291,26 +305,100 @@ final class WorkspaceSecretApiTest extends AbstractDataboxTestCase
         $this->assertRequestStatus(400, 'GET', '/workspace-envs', self::ADMIN);
     }
 
-    public function testVariablesAreListedByNameOnly(): void
+    public function testVariablesAreListedWithTheirValues(): void
     {
         $workspace = $this->createSharedWorkspace();
-        $this->createEnv($workspace, 'HOST', 'sensitive-host-value');
+        $this->createEnv($workspace, 'HOST', 'example.test');
         $this->createEnv($workspace, 'BASE_URL', 'https://example.test');
         $this->createEnv(null, 'INSTANCE_VAR', 'instance-value');
 
-        $response = $this->assertRequestStatus(200, 'GET', '/workspace-envs?workspace='.$workspace->getId(), self::OWNER);
-        $this->assertStringNotContainsString('sensitive-host-value', $response->getContent());
-        $members = $response->toArray()['hydra:member'] ?? $response->toArray()['member'];
+        $members = $this->assertRequestStatus(200, 'GET', '/workspace-envs?workspace='.$workspace->getId(), self::OWNER)->toArray();
+        $members = $members['hydra:member'] ?? $members['member'];
         $this->assertSame(['BASE_URL', 'HOST'], array_column($members, 'name'));
-        foreach ($members as $member) {
-            $keys = array_values(array_filter(array_keys($member), static fn (string $k): bool => !str_starts_with($k, '@')));
-            sort($keys);
-            $this->assertSame(['id', 'name'], $keys);
-        }
+        $this->assertSame(['https://example.test', 'example.test'], array_column($members, 'value'));
+        $this->assertSame('/workspaces/'.$workspace->getId(), $members[0]['workspace']);
 
         $this->assertRequestStatus(403, 'GET', '/workspace-envs?global=true', self::OWNER);
         $list = $this->assertRequestStatus(200, 'GET', '/workspace-envs?global=true', self::ADMIN)->toArray();
         $this->assertSame(['INSTANCE_VAR'], array_column($list['hydra:member'] ?? $list['member'], 'name'));
+    }
+
+    public function testAnEditorManagesTheVariablesOfAWorkspace(): void
+    {
+        $workspace = $this->createSharedWorkspace();
+
+        $data = $this->assertRequestStatus(201, 'POST', '/workspace-envs', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'name' => 'BASE_URL',
+            'value' => 'https://example.test',
+        ])->toArray();
+        $this->assertSame('BASE_URL', $data['name']);
+        $this->assertSame('https://example.test', $data['value']);
+        $this->assertSame('/workspaces/'.$workspace->getId(), $data['workspace']);
+
+        $this->assertSame('https://example.test', $this->assertRequestStatus(200, 'GET', '/workspace-envs/'.$data['id'], self::OWNER)->toArray()['value']);
+
+        // An empty value is a value; the name cannot change
+        $this->assertSame('', $this->assertRequestStatus(200, 'PATCH', '/workspace-envs/'.$data['id'], self::OWNER, ['value' => ''])->toArray()['value'] ?? '');
+        $this->assertRequestStatus(200, 'PATCH', '/workspace-envs/'.$data['id'], self::OWNER, ['name' => 'BASE_URL', 'value' => 'https://other.test']);
+        $this->assertRequestStatus(400, 'PATCH', '/workspace-envs/'.$data['id'], self::OWNER, ['name' => 'RENAMED', 'value' => 'x']);
+        $em = self::getEntityManager();
+        $em->clear();
+        $env = $em->find(WorkspaceEnv::class, $data['id']);
+        $this->assertSame('BASE_URL', $env?->getName());
+        $this->assertSame('https://other.test', $env->getValue());
+
+        $response = $this->assertRequestStatus(422, 'POST', '/workspace-envs', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'name' => 'BASE_URL',
+            'value' => 'dup',
+        ]);
+        $this->assertContains('name', array_column($response->toArray(false)['violations'], 'propertyPath'));
+        $response = $this->assertRequestStatus(422, 'POST', '/workspace-envs', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'name' => 'base-url',
+            'value' => 'v',
+        ]);
+        $this->assertContains('name', array_column($response->toArray(false)['violations'], 'propertyPath'));
+        $this->assertRequestStatus(400, 'POST', '/workspace-envs', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'name' => 'NO_VALUE',
+        ]);
+
+        $this->assertRequestStatus(204, 'DELETE', '/workspace-envs/'.$data['id'], self::OWNER);
+        $this->assertSame(0, self::getEntityManager()->getRepository(WorkspaceEnv::class)->count([]));
+    }
+
+    public function testInstanceVariablesAreManagedByTheAdmins(): void
+    {
+        $this->assertRequestStatus(403, 'POST', '/workspace-envs', self::OWNER, ['name' => 'GLOBAL_VAR', 'value' => 'v']);
+
+        $data = $this->assertRequestStatus(201, 'POST', '/workspace-envs', self::ADMIN, ['name' => 'GLOBAL_VAR', 'value' => 'v'])->toArray();
+        $this->assertNull($data['workspace'] ?? null);
+
+        $this->assertRequestStatus(403, 'GET', '/workspace-envs/'.$data['id'], self::OWNER);
+        $this->assertRequestStatus(403, 'PATCH', '/workspace-envs/'.$data['id'], self::OWNER, ['value' => 'hijacked']);
+        $this->assertRequestStatus(403, 'DELETE', '/workspace-envs/'.$data['id'], self::OWNER);
+
+        // No SQL unique constraint on a NULL workspace: the validation catches it
+        $response = $this->assertRequestStatus(422, 'POST', '/workspace-envs', self::ADMIN, ['name' => 'GLOBAL_VAR', 'value' => 'other']);
+        $this->assertContains('name', array_column($response->toArray(false)['violations'], 'propertyPath'));
+        $this->assertSame(1, self::getEntityManager()->getRepository(WorkspaceEnv::class)->count(['workspace' => null]));
+    }
+
+    public function testAnIntegrationResolvesTheReferenceToACreatedVariable(): void
+    {
+        $workspace = $this->createSharedWorkspace();
+
+        $this->assertRequestStatus(201, 'POST', '/workspace-envs', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'name' => 'BG_KEY',
+            'value' => 'from-variable',
+        ]);
+        $integration = $this->createIntegration($workspace, 'remove.bg', ['apiKey' => '${BG_KEY}']);
+
+        $config = self::getService(IntegrationManager::class)->getIntegrationConfiguration($integration);
+        $this->assertSame('from-variable', $config['apiKey']);
     }
 
     public function testAnIntegrationResolvesTheReferenceToACreatedSecret(): void

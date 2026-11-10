@@ -5,17 +5,20 @@ import {useTranslation} from 'react-i18next';
 import {
     BracesIcon,
     CheckIcon,
+    ChevronsUpDownIcon,
     CircleAlertIcon,
-    ListIcon,
+    CornerDownLeftIcon,
     LockIcon,
     PlusIcon,
+    VariableIcon,
+    XIcon,
 } from 'lucide-react';
-import type {WorkspaceSecret} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Input} from '@alchemy/next-ui/ui/input';
+import type {WorkspaceEnv, WorkspaceSecret} from '@/types/api';
 import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {Chip} from '@alchemy/next-ui/ui/misc';
 import {
     Popover,
+    PopoverAnchor,
     PopoverContent,
     PopoverTrigger,
 } from '@alchemy/next-ui/ui/overlays';
@@ -28,9 +31,12 @@ import {
 } from '@alchemy/next-ui/ui/command';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {cn} from '@alchemy/next-ui/utils/cn';
-import {parseReference} from '@/features/secrets/secretRef';
+import {isValidSecretName, parseReference} from '@/features/secrets/secretRef';
 import {useSecretNames} from '@/features/secrets/useSecretNames';
 import {CreateSecretDialog} from './CreateSecretDialog';
+import {CreateVariableDialog} from './VariableDialog';
+
+type Kind = 'secret' | 'variable' | 'undefined';
 
 type Props = {
     id: string;
@@ -39,214 +45,324 @@ type Props = {
     onChange: (name: string) => void;
     /** Omitted for an instance-wide integration: the instance secrets */
     workspaceId?: string;
-    required?: boolean;
+    /** A sensitive field: the secrets come first, and only a secret is created */
+    secret?: boolean;
+    /** Name offered to a new secret or variable when nothing is searched */
+    suggestedName?: string;
+    defaultOpen?: boolean;
     invalid?: boolean;
 };
 
 /**
- * The name of the secret or variable a configuration value refers to: typed
- * (it may come from the environment of the instance, which is not listed),
- * picked among the secrets and variables of the workspace, or created.
+ * The name of the secret or variable a configuration value refers to, shown
+ * as a chip: picked among the secrets and variables of the workspace, created,
+ * or typed (a name defined elsewhere than in the listing).
  */
 export function SecretReferencePicker({
     id,
     name,
     onChange,
     workspaceId,
-    required,
+    secret,
+    suggestedName,
+    defaultOpen,
     invalid,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const {secrets, envs, loading, forbidden} = useSecretNames({workspaceId});
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(!!defaultOpen);
     const [search, setSearch] = useState('');
     // Listing the names needs to edit the workspace: free typing otherwise
     const listable = !forbidden;
+    const typed = parseReference(search) ?? search.trim();
 
-    const create = async (suggested: string) => {
+    const pick = (picked: string) => {
+        onChange(picked);
         setOpen(false);
-        const created: WorkspaceSecret | undefined = await openModal(
-            CreateSecretDialog,
-            {workspaceId, name: suggested}
-        );
+    };
+
+    const create = async (kind: 'secret' | 'variable') => {
+        setOpen(false);
+        const initial = isValidSecretName(typed) ? typed : suggestedName;
+        const created: WorkspaceSecret | WorkspaceEnv | undefined =
+            kind === 'secret'
+                ? await openModal(CreateSecretDialog, {
+                      workspaceId,
+                      name: initial,
+                  })
+                : await openModal(CreateVariableDialog, {
+                      workspaceId,
+                      name: initial,
+                  });
         if (created) {
             onChange(created.name);
         }
     };
 
     const matches = (n: string) =>
-        search === '' || n.toLowerCase().includes(search.toLowerCase());
+        search === '' || n.toLowerCase().includes(typed.toLowerCase());
+
+    const variable = envs?.find(e => e.name === name);
+    const kind: Kind | undefined =
+        !listable || loading || name === ''
+            ? undefined
+            : secrets?.some(s => s.name === name)
+              ? 'secret'
+              : variable
+                ? 'variable'
+                : secrets && envs
+                  ? 'undefined'
+                  : undefined;
+
+    const secretGroup = secrets?.some(s => matches(s.name)) ? (
+        <CommandGroup
+            key="secrets"
+            heading={t('integration.config.secret_ref.secrets', 'Secrets')}
+        >
+            {secrets
+                .filter(s => matches(s.name))
+                .map(s => (
+                    <NameItem
+                        key={s.id}
+                        name={s.name}
+                        icon={<LockIcon />}
+                        selected={s.name === name}
+                        testId={`secret-ref-secret-${s.name}`}
+                        onSelect={() => pick(s.name)}
+                    />
+                ))}
+        </CommandGroup>
+    ) : null;
+    const variableGroup = envs?.some(e => matches(e.name)) ? (
+        <CommandGroup
+            key="variables"
+            heading={t('integration.config.secret_ref.variables', 'Variables')}
+        >
+            {envs
+                .filter(e => matches(e.name))
+                .map(e => (
+                    <NameItem
+                        key={e.id}
+                        name={e.name}
+                        icon={<BracesIcon />}
+                        detail={e.value}
+                        selected={e.name === name}
+                        testId={`secret-ref-env-${e.name}`}
+                        onSelect={() => pick(e.name)}
+                    />
+                ))}
+        </CommandGroup>
+    ) : null;
+    const known =
+        secrets?.some(s => s.name === typed) ||
+        envs?.some(e => e.name === typed);
+    const createSecret = (
+        <CommandItem
+            key="secret"
+            value="__create_secret__"
+            data-testid="secret-ref-create"
+            onSelect={() => void create('secret')}
+        >
+            <PlusIcon />
+            {t('integration.config.secret_ref.create', 'New secret…')}
+        </CommandItem>
+    );
+    const createVariable = (
+        <CommandItem
+            key="variable"
+            value="__create_variable__"
+            data-testid="secret-ref-create-variable"
+            onSelect={() => void create('variable')}
+        >
+            <PlusIcon />
+            {t(
+                'integration.config.secret_ref.create_variable',
+                'New variable…'
+            )}
+        </CommandItem>
+    );
 
     return (
         <div>
-            <div className="flex items-center gap-1">
-                <div className="flex min-w-0 flex-1 items-center gap-1 font-mono">
-                    <span className="text-muted-foreground" aria-hidden>
-                        {'${'}
-                    </span>
-                    <Input
-                        id={id}
-                        value={name}
-                        onChange={e =>
-                            onChange(
-                                parseReference(e.target.value) ??
-                                    e.target.value.trim()
-                            )
-                        }
-                        placeholder="NAME"
-                        required={required}
-                        aria-invalid={invalid}
-                        autoComplete="off"
-                        spellCheck={false}
-                        className="font-mono"
-                    />
-                    <span className="text-muted-foreground" aria-hidden>
-                        {'}'}
-                    </span>
-                </div>
-                {listable ? (
-                    <Popover
-                        open={open}
-                        onOpenChange={o => {
-                            setOpen(o);
-                            setSearch('');
-                        }}
+            <Popover
+                open={open}
+                onOpenChange={o => {
+                    setOpen(o);
+                    setSearch('');
+                }}
+            >
+                <PopoverAnchor asChild>
+                    <div
+                        className={cn(
+                            'flex h-9 w-full min-w-0 items-center rounded-md border border-input shadow-xs transition-colors focus-within:ring-2 focus-within:ring-ring/60',
+                            invalid && 'border-destructive'
+                        )}
                     >
                         <PopoverTrigger asChild>
-                            <Button
+                            <button
                                 type="button"
-                                variant="outline"
+                                id={id}
                                 data-testid="secret-ref-choose"
+                                className="flex h-full min-w-0 flex-1 items-center gap-2 rounded-md px-2 text-left text-sm outline-none"
                             >
-                                <ListIcon />
-                                {t(
-                                    'integration.config.secret_ref.choose',
-                                    'Choose…'
+                                {name !== '' ? (
+                                    <ReferenceChip name={name} kind={kind} />
+                                ) : (
+                                    <span className="truncate pl-1 text-muted-foreground">
+                                        {secret
+                                            ? t(
+                                                  'integration.config.secret_ref.placeholder_secret',
+                                                  'Choose a secret…'
+                                              )
+                                            : t(
+                                                  'integration.config.secret_ref.placeholder',
+                                                  'Choose a variable or a secret…'
+                                              )}
+                                    </span>
                                 )}
-                            </Button>
+                                <ChevronsUpDownIcon className="ml-auto size-4 shrink-0 opacity-50" />
+                            </button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-80 p-0" align="end">
-                            <Command shouldFilter={false}>
-                                <CommandInput
-                                    value={search}
-                                    onValueChange={setSearch}
-                                    placeholder={t(
-                                        'integration.config.secret_ref.search',
-                                        'Search a name…'
+                        {name !== '' ? (
+                            <button
+                                type="button"
+                                className="mr-1 flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+                                aria-label={t(
+                                    'integration.config.secret_ref.clear',
+                                    'Remove the reference'
+                                )}
+                                data-testid="secret-ref-clear"
+                                onClick={() => onChange('')}
+                            >
+                                <XIcon className="size-4" />
+                            </button>
+                        ) : null}
+                    </div>
+                </PopoverAnchor>
+                <PopoverContent
+                    className="w-(--radix-popover-trigger-width) min-w-80 p-0"
+                    align="start"
+                >
+                    <Command shouldFilter={false}>
+                        <CommandInput
+                            value={search}
+                            onValueChange={setSearch}
+                            data-testid="secret-ref-search"
+                            placeholder={
+                                listable
+                                    ? t(
+                                          'integration.config.secret_ref.search',
+                                          'Search or type a name…'
+                                      )
+                                    : t(
+                                          'integration.config.secret_ref.type',
+                                          'Type the name of a secret or variable…'
+                                      )
+                            }
+                        />
+                        <CommandList>
+                            {listable && loading ? (
+                                <div className="flex justify-center py-4">
+                                    <Spinner />
+                                </div>
+                            ) : null}
+                            {listable
+                                ? secret
+                                    ? [secretGroup, variableGroup]
+                                    : [variableGroup, secretGroup]
+                                : null}
+                            {isValidSecretName(typed) && !known ? (
+                                <CommandGroup>
+                                    <CommandItem
+                                        value="__use__"
+                                        data-testid="secret-ref-use"
+                                        onSelect={() => pick(typed)}
+                                    >
+                                        <CornerDownLeftIcon />
+                                        <span className="truncate">
+                                            {t(
+                                                'integration.config.secret_ref.use',
+                                                'Use {{name}}',
+                                                {name: typed}
+                                            )}
+                                        </span>
+                                    </CommandItem>
+                                </CommandGroup>
+                            ) : null}
+                            {listable &&
+                            !loading &&
+                            !secretGroup &&
+                            !variableGroup &&
+                            search === '' ? (
+                                <p className="px-3 py-4 text-center text-sm text-muted-foreground">
+                                    {t(
+                                        'integration.config.secret_ref.empty',
+                                        'No secret nor variable yet'
                                     )}
-                                />
-                                <CommandList>
-                                    {loading ? (
-                                        <div className="flex justify-center py-4">
-                                            <Spinner />
-                                        </div>
-                                    ) : null}
-                                    {secrets?.some(s => matches(s.name)) ? (
-                                        <CommandGroup
-                                            heading={t(
-                                                'integration.config.secret_ref.secrets',
-                                                'Secrets'
-                                            )}
-                                        >
-                                            {secrets
-                                                .filter(s => matches(s.name))
-                                                .map(s => (
-                                                    <NameItem
-                                                        key={s.id}
-                                                        name={s.name}
-                                                        icon={<LockIcon />}
-                                                        selected={
-                                                            s.name === name
-                                                        }
-                                                        testId={`secret-ref-secret-${s.name}`}
-                                                        onSelect={() => {
-                                                            onChange(s.name);
-                                                            setOpen(false);
-                                                        }}
-                                                    />
-                                                ))}
-                                        </CommandGroup>
-                                    ) : null}
-                                    {envs?.some(e => matches(e.name)) ? (
-                                        <CommandGroup
-                                            heading={t(
-                                                'integration.config.secret_ref.variables',
-                                                'Variables'
-                                            )}
-                                        >
-                                            {envs
-                                                .filter(e => matches(e.name))
-                                                .map(e => (
-                                                    <NameItem
-                                                        key={e.id}
-                                                        name={e.name}
-                                                        icon={<BracesIcon />}
-                                                        selected={
-                                                            e.name === name
-                                                        }
-                                                        testId={`secret-ref-env-${e.name}`}
-                                                        onSelect={() => {
-                                                            onChange(e.name);
-                                                            setOpen(false);
-                                                        }}
-                                                    />
-                                                ))}
-                                        </CommandGroup>
-                                    ) : null}
-                                    {!loading ? (
-                                        <CommandGroup>
-                                            <CommandItem
-                                                value="__create__"
-                                                data-testid="secret-ref-create"
-                                                onSelect={() =>
-                                                    void create(
-                                                        (search || name).trim()
-                                                    )
-                                                }
-                                            >
-                                                <PlusIcon />
-                                                {t(
-                                                    'integration.config.secret_ref.create',
-                                                    'New secret…'
-                                                )}
-                                            </CommandItem>
-                                        </CommandGroup>
-                                    ) : null}
-                                </CommandList>
-                            </Command>
-                        </PopoverContent>
-                    </Popover>
-                ) : null}
-            </div>
+                                </p>
+                            ) : null}
+                            {listable && !loading ? (
+                                <CommandGroup>
+                                    {secret
+                                        ? createSecret
+                                        : [createVariable, createSecret]}
+                                </CommandGroup>
+                            ) : null}
+                        </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
             <ReferenceStatus
                 name={name}
                 workspaceId={workspaceId}
-                kind={
-                    !listable || loading
-                        ? undefined
-                        : secrets?.some(s => s.name === name)
-                          ? 'secret'
-                          : envs?.some(e => e.name === name)
-                            ? 'variable'
-                            : secrets && envs
-                              ? 'undefined'
-                              : undefined
-                }
+                kind={kind}
+                value={variable?.value}
+                secretField={secret}
             />
         </div>
+    );
+}
+
+function ReferenceChip({name, kind}: {name: string; kind?: Kind}) {
+    return (
+        <Chip
+            size="md"
+            className={cn(
+                'min-w-0 font-mono',
+                kind === 'undefined' &&
+                    'border-dashed bg-transparent text-muted-foreground'
+            )}
+            icon={
+                kind === 'secret' ? (
+                    <LockIcon className="size-3.5 shrink-0" />
+                ) : kind === 'variable' ? (
+                    <BracesIcon className="size-3.5 shrink-0" />
+                ) : kind === 'undefined' ? (
+                    <CircleAlertIcon className="size-3.5 shrink-0" />
+                ) : (
+                    <VariableIcon className="size-3.5 shrink-0 opacity-60" />
+                )
+            }
+            data-testid="secret-ref-chip"
+            data-kind={kind}
+        >
+            {name}
+        </Chip>
     );
 }
 
 function NameItem({
     name,
     icon,
+    detail,
     selected,
     testId,
     onSelect,
 }: {
     name: string;
     icon: ReactNode;
+    detail?: string;
     selected: boolean;
     testId: string;
     onSelect: () => void;
@@ -260,7 +376,12 @@ function NameItem({
                 )}
             />
             {icon}
-            <span className="truncate font-mono">{name}</span>
+            <span className="shrink-0 font-mono">{name}</span>
+            {detail ? (
+                <span className="ml-auto min-w-0 truncate text-xs text-muted-foreground">
+                    {detail}
+                </span>
+            ) : null}
         </CommandItem>
     );
 }
@@ -270,10 +391,14 @@ function ReferenceStatus({
     name,
     workspaceId,
     kind,
+    value,
+    secretField,
 }: {
     name: string;
     workspaceId?: string;
-    kind?: 'secret' | 'variable' | 'undefined';
+    kind?: Kind;
+    value?: string;
+    secretField?: boolean;
 }) {
     const {t} = useTranslation();
     if (name === '') {
@@ -285,33 +410,55 @@ function ReferenceStatus({
         case 'secret':
             content = (
                 <>
-                    <LockIcon className="size-3.5" />
-                    {t('integration.config.secret_ref.is_secret', 'Secret')}
+                    <LockIcon className="size-3.5 shrink-0" />
+                    {t(
+                        'integration.config.secret_ref.is_secret',
+                        'Secret: its value is never shown'
+                    )}
                 </>
             );
             break;
         case 'variable':
-            content = (
+            content = secretField ? (
                 <>
-                    <BracesIcon className="size-3.5" />
-                    {t('integration.config.secret_ref.is_variable', 'Variable')}
+                    <CircleAlertIcon className="size-3.5 shrink-0 text-warning-foreground" />
+                    {t(
+                        'integration.config.secret_ref.is_variable_for_secret',
+                        'Variable, stored in clear: prefer a secret for this field'
+                    )}
+                </>
+            ) : (
+                <>
+                    <BracesIcon className="size-3.5 shrink-0" />
+                    <span className="shrink-0">
+                        {t(
+                            'integration.config.secret_ref.is_variable',
+                            'Variable'
+                        )}
+                    </span>
+                    {value !== undefined ? (
+                        <span
+                            className="truncate font-mono"
+                            data-testid="secret-ref-value"
+                        >
+                            = {value}
+                        </span>
+                    ) : null}
                 </>
             );
             break;
         case 'undefined':
             content = (
                 <>
-                    <CircleAlertIcon className="size-3.5 text-warning-foreground" />
+                    <CircleAlertIcon className="size-3.5 shrink-0 text-warning-foreground" />
                     {workspaceId
                         ? t(
                               'integration.config.secret_ref.undefined',
-                              'Not defined in this workspace: resolved from the environment of the instance ({{env}}), or empty',
-                              {env: `PWI_${name}`}
+                              'Not defined in this workspace'
                           )
                         : t(
                               'integration.config.secret_ref.undefined_instance',
-                              'Not defined on the instance: resolved from its environment ({{env}}), or empty',
-                              {env: `PWI_${name}`}
+                              'Not defined on the instance'
                           )}
                 </>
             );
@@ -325,7 +472,7 @@ function ReferenceStatus({
 
     return (
         <p
-            className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"
+            className="mt-1 flex min-w-0 items-center gap-1 text-xs text-muted-foreground"
             data-testid="secret-ref-status"
         >
             {content}

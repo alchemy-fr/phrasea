@@ -37,7 +37,7 @@ export async function getWorkspaceSecrets(
     );
 }
 
-/** The variables (names only), managed in the admin */
+/** The variables of a workspace (to its editors) or of the instance, by name */
 export async function getWorkspaceEnvs(
     scope: SecretScope,
     signal?: AbortSignal
@@ -75,4 +75,28 @@ export function putWorkspaceSecret(
 
 export function deleteWorkspaceSecret(id: string): Promise<void> {
     return api.delete(`/${EntityName.WorkspaceSecret}/${id}`);
+}
+
+export function postWorkspaceEnv({
+    workspaceId,
+    name,
+    value,
+}: SecretScope & {name: string; value: string}): Promise<WorkspaceEnv> {
+    return api.post<WorkspaceEnv>(`/${EntityName.WorkspaceEnv}`, {
+        workspace: workspaceId ? iri(EntityName.Workspace, workspaceId) : null,
+        name,
+        value,
+    });
+}
+
+/** Replaces the value; the name of a variable cannot change */
+export function putWorkspaceEnv(
+    id: string,
+    data: {value: string}
+): Promise<WorkspaceEnv> {
+    return api.patch<WorkspaceEnv>(`/${EntityName.WorkspaceEnv}/${id}`, data);
+}
+
+export function deleteWorkspaceEnv(id: string): Promise<void> {
+    return api.delete(`/${EntityName.WorkspaceEnv}/${id}`);
 }
