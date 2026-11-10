@@ -11,14 +11,10 @@
  */
 import * as Sentry from '@sentry/react';
 import {SENTRY_TUNNEL_PATH} from './tunnelPath';
+import type {SentryClientConfig} from './config';
 
 export {SENTRY_TUNNEL_PATH};
-
-export type SentryClientConfig = {
-    dsn: string;
-    environment?: string;
-    release?: string;
-};
+export type {SentryClientConfig};
 
 export type SentryUserInfo = {
     id: string;
@@ -27,10 +23,6 @@ export type SentryUserInfo = {
 };
 
 let initialized = false;
-
-export function isSentryEnabled(): boolean {
-    return initialized;
-}
 
 export function initSentry(
     config: SentryClientConfig,
@@ -49,6 +41,14 @@ export function initSentry(
         // The user is set explicitly (`setSentryUser`): no IP address is
         // inferred from the requests
         dataCollection: {userInfo: false},
+        // Errors only: the release health sessions (one envelope per page
+        // load and per user change) would eat the per IP quota of the tunnel
+        integrations: defaults =>
+            defaults.filter(i => i.name !== 'BrowserSession'),
+        // By default the SDK appends the host to the fetch network errors
+        // ("Failed to fetch (host)"), which `ignoreErrors` would no longer
+        // match, and rewrites the message seen by the application
+        enhanceFetchErrorMessages: false,
         ignoreErrors: [
             /Loading (CSS )?chunk \d+ failed/i,
             /^Network Error$/i,
@@ -85,13 +85,6 @@ export function setSentryUser(user: SentryUserInfo | undefined): void {
     Sentry.setUser(
         user ? {id: user.id, username: user.username, email: user.email} : null
     );
-}
-
-export function captureException(error: unknown): void {
-    if (!initialized) {
-        return;
-    }
-    Sentry.captureException(error);
 }
 
 /** Test helper: forgets the initialization */

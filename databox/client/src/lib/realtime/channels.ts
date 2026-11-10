@@ -5,24 +5,31 @@
  * grants it to whoever may read the related object.
  */
 
+/** Pusher prefix of the channels needing an authorization (see PusherManager::PRIVATE_PREFIX) */
+const PRIVATE_PREFIX = 'private-';
+
 export const workspaceChannel = (workspaceId: string) =>
-    `private-workspace-${workspaceId}`;
+    `${PRIVATE_PREFIX}workspace-${workspaceId}`;
 
-export const assetChannel = (assetId: string) => `private-asset-${assetId}`;
+export const assetChannel = (assetId: string) =>
+    `${PRIVATE_PREFIX}asset-${assetId}`;
 
-export const fileChannel = (fileId: string) => `private-file-${fileId}`;
+export const fileChannel = (fileId: string) =>
+    `${PRIVATE_PREFIX}file-${fileId}`;
 
-export const basketChannel = (basketId: string) => `private-basket-${basketId}`;
+export const basketChannel = (basketId: string) =>
+    `${PRIVATE_PREFIX}basket-${basketId}`;
 
-export const exportChannel = (exportId: string) => `private-export-${exportId}`;
+export const exportChannel = (exportId: string) =>
+    `${PRIVATE_PREFIX}export-${exportId}`;
 
 export const workflowChannel = (workflowId: string) =>
-    `private-workflow-${workflowId}`;
+    `${PRIVATE_PREFIX}workflow-${workflowId}`;
 
 /**
  * @param threadKey `<objectKey>:<objectId>`, normalized on subscription
  */
 export const threadChannel = (threadKey: string) =>
-    `private-thread-${threadKey}`;
+    `${PRIVATE_PREFIX}thread-${threadKey}`;
 
 export const RENDITION_UPDATE_EVENT = 'rendition-update';

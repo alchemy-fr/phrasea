@@ -61,7 +61,7 @@ signed-in user. The SDK posts its envelopes to the same origin route
 `SENTRY_DSN` only, behind an in-memory rate limit of the client process:
 `SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
 `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
-code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel`).
+code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel*`).
 
 ## Layout
 

@@ -13,7 +13,7 @@ final readonly class UserChannelAuthorizer implements ChannelAuthorizerInterface
 {
     public function __construct(
         private PusherManager $pusherManager,
-        private string $channelPrefix = 'private-user-',
+        private string $channelPrefix = PusherManager::PRIVATE_PREFIX.'user-',
     ) {
     }
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Realtime;
 
+use Alchemy\CoreBundle\Pusher\PusherManager;
+
 /**
  * Names of the Pusher/Sockudo channels databox emits on.
  *
@@ -12,13 +14,13 @@ namespace App\Realtime;
  */
 final class RealtimeChannel
 {
-    public const string WORKSPACE = 'private-workspace-';
-    public const string ASSET = 'private-asset-';
-    public const string FILE = 'private-file-';
-    public const string BASKET = 'private-basket-';
-    public const string EXPORT = 'private-export-';
-    public const string WORKFLOW = 'private-workflow-';
-    public const string THREAD = 'private-thread-';
+    public const string WORKSPACE = PusherManager::PRIVATE_PREFIX.'workspace-';
+    public const string ASSET = PusherManager::PRIVATE_PREFIX.'asset-';
+    public const string FILE = PusherManager::PRIVATE_PREFIX.'file-';
+    public const string BASKET = PusherManager::PRIVATE_PREFIX.'basket-';
+    public const string EXPORT = PusherManager::PRIVATE_PREFIX.'export-';
+    public const string WORKFLOW = PusherManager::PRIVATE_PREFIX.'workflow-';
+    public const string THREAD = PusherManager::PRIVATE_PREFIX.'thread-';
 
     public static function workspace(string $workspaceId): string
     {

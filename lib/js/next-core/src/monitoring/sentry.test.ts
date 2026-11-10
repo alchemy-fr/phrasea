@@ -3,9 +3,7 @@ import {render} from '@testing-library/react';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import * as Sentry from '@sentry/react';
 import {
-    captureException,
     initSentry,
-    isSentryEnabled,
     resetSentryForTests,
     SENTRY_TUNNEL_PATH,
     setSentryUser,
@@ -17,7 +15,6 @@ vi.mock('@sentry/react', () => ({
     init: vi.fn(),
     setTag: vi.fn(),
     setUser: vi.fn(),
-    captureException: vi.fn(),
 }));
 
 const config = {
@@ -35,17 +32,13 @@ beforeEach(() => {
 describe('sentry', () => {
     it('does nothing before the initialization', () => {
         setSentryUser({id: 'u1'});
-        captureException(new Error('x'));
 
-        expect(isSentryEnabled()).toBe(false);
         expect(Sentry.setUser).not.toHaveBeenCalled();
-        expect(Sentry.captureException).not.toHaveBeenCalled();
     });
 
     it('sends the errors through the tunnel', () => {
         initSentry(config, app);
 
-        expect(isSentryEnabled()).toBe(true);
         expect(Sentry.init).toHaveBeenCalledTimes(1);
         const options = vi.mocked(Sentry.init).mock.calls[0][0];
         expect(options).toMatchObject({
@@ -54,12 +47,19 @@ describe('sentry', () => {
             release: '1.2.3',
             tunnel: '/api/relay',
             dataCollection: {userInfo: false},
+            enhanceFetchErrorMessages: false,
         });
         expect(SENTRY_TUNNEL_PATH).toBe('/api/relay');
         expect(options?.ignoreErrors?.length).toBeGreaterThan(0);
         expect(options?.denyUrls?.length).toBeGreaterThan(0);
         expect(options).not.toHaveProperty('tracesSampleRate');
-        expect(options).not.toHaveProperty('integrations');
+        expect(typeof options?.integrations).toBe('function');
+        const integrations = options?.integrations as (
+            defaults: {name: string}[]
+        ) => {name: string}[];
+        expect(
+            integrations([{name: 'GlobalHandlers'}, {name: 'BrowserSession'}])
+        ).toEqual([{name: 'GlobalHandlers'}]);
         expect(Sentry.setTag).toHaveBeenCalledWith('app.name', 'databox');
         expect(Sentry.setTag).toHaveBeenCalledWith('app.id', 'databox-1');
     });
@@ -73,9 +73,10 @@ describe('sentry', () => {
 
     it('is not initialized without DSN', () => {
         initSentry({dsn: ''}, app);
+        setSentryUser({id: 'u1'});
 
-        expect(isSentryEnabled()).toBe(false);
         expect(Sentry.init).not.toHaveBeenCalled();
+        expect(Sentry.setUser).not.toHaveBeenCalled();
     });
 
     it('sets and clears the user', () => {
@@ -87,14 +88,6 @@ describe('sentry', () => {
             [{id: 'u1', username: 'jdoe', email: 'j@doe.test'}],
             [null],
         ]);
-    });
-
-    it('captures the exceptions', () => {
-        initSentry(config, app);
-        const error = new Error('x');
-        captureException(error);
-
-        expect(Sentry.captureException).toHaveBeenCalledWith(error);
     });
 });
 

@@ -1,4 +1,5 @@
 import 'server-only';
+import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
 import type {AppConfig} from './types';
 import type {StackConfig} from '@alchemy/next-core/config/stackConfig';
 
@@ -118,13 +119,7 @@ export function getServerConfig(
                       },
                   }
                 : {},
-        sentry: env.SENTRY_DSN
-            ? {
-                  dsn: env.SENTRY_DSN,
-                  environment: env.SENTRY_ENVIRONMENT,
-                  release: env.SENTRY_RELEASE,
-              }
-            : undefined,
+        sentry: sentryClientConfigFromEnv(env),
         upload: {
             maxFileSize:
                 positiveInt(uploader.max_upload_file_size) ??

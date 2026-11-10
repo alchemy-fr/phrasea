@@ -1,4 +1,5 @@
 import 'server-only';
+import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
 import type {AppConfig} from './types';
 
 function bool(value: string | undefined, fallback = false): boolean {
@@ -42,13 +43,7 @@ export function getServerConfig(): AppConfig {
                       },
                   }
                 : {},
-        sentry: env.SENTRY_DSN
-            ? {
-                  dsn: env.SENTRY_DSN,
-                  environment: env.SENTRY_ENVIRONMENT,
-                  release: env.SENTRY_RELEASE,
-              }
-            : undefined,
+        sentry: sentryClientConfigFromEnv(env),
         logo: env.APP_LOGO_SRC ? {src: env.APP_LOGO_SRC} : undefined,
     };
 }

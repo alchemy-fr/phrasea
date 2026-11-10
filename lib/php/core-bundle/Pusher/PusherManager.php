@@ -8,6 +8,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class PusherManager
 {
+    /**
+     * Only channels with this prefix go through the authorization endpoint (POST /pusher/auth).
+     */
+    public const string PRIVATE_PREFIX = 'private-';
+
     public function __construct(
         private Pusher $pusher,
         private MessageBusInterface $bus,

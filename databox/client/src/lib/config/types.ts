@@ -26,7 +26,7 @@ export type TicketingConfig = {
 };
 
 import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
-import type {SentryClientConfig} from '@alchemy/next-core/monitoring/sentry';
+import type {SentryClientConfig} from '@alchemy/next-core/monitoring/config';
 
 export type AppConfig = {
     appId: string;

@@ -1,4 +1,5 @@
 import 'server-only';
+import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
 import type {AppConfig, AppId, AppService, ToolId} from './types';
 import type {StackConfig} from '@alchemy/next-core/config/stackConfig';
 
@@ -108,13 +109,7 @@ export function getServerConfig(
                       },
                   }
                 : {},
-        sentry: env.SENTRY_DSN
-            ? {
-                  dsn: env.SENTRY_DSN,
-                  environment: env.SENTRY_ENVIRONMENT,
-                  release: env.SENTRY_RELEASE,
-              }
-            : undefined,
+        sentry: sentryClientConfigFromEnv(env),
         logo: logoFrom(stackConfig),
     };
 }

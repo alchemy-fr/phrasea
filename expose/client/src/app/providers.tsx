@@ -17,7 +17,8 @@ import {ThemeManager} from '@alchemy/next-theme/ThemeManager';
 import {UnsavedChangesGuard} from '@alchemy/next-ui/modals/UnsavedChangesGuard';
 import {Toaster} from '@alchemy/next-ui/ui/toaster';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
-import {SentryInit, SentryUser} from '@/lib/monitoring/Sentry';
+import {SentryInit} from '@alchemy/next-core/monitoring/SentryInit';
+import {SentryUser} from '@/lib/monitoring/SentryUser';
 import {SessionQueryReset} from '@/lib/auth/SessionQueryReset';
 
 function createQueryClient(): QueryClient {
@@ -48,7 +49,11 @@ export function Providers({config, language, children}: Props) {
 
     return (
         <ConfigProvider config={config}>
-            <SentryInit />
+            <SentryInit
+                sentry={config.sentry}
+                appId={config.appId}
+                appName="expose"
+            />
             <I18nProvider language={language}>
                 <ThemeProvider
                     attribute="class"

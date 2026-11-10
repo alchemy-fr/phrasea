@@ -16,12 +16,14 @@
         "./config/stackConfig": "./src/config/stackConfig.ts",
         "./analytics/matomo": "./src/analytics/matomo.ts",
         "./analytics/MatomoTracker": "./src/analytics/MatomoTracker.tsx",
+        "./monitoring/config": "./src/monitoring/config.ts",
         "./monitoring/sentry": "./src/monitoring/sentry.ts",
         "./monitoring/SentryInit": "./src/monitoring/SentryInit.tsx",
         "./monitoring/SentryUser": "./src/monitoring/SentryUser.tsx",
         "./server/http": "./src/server/http.ts",
         "./server/rateLimit": "./src/server/rateLimit.ts",
-        "./server/sentryTunnel": "./src/server/sentryTunnel.ts"
+        "./server/sentryTunnel": "./src/server/sentryTunnel.ts",
+        "./server/sentryTunnelRoute": "./src/server/sentryTunnelRoute.ts"
     },
     "scripts": {
         "typecheck": "tsc --noEmit",

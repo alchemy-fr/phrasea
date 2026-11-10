@@ -31,8 +31,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[AsController]
 final readonly class RealtimeAuthController
 {
-    private const string PRIVATE_PREFIX = 'private-';
-
     /**
      * @param iterable<ChannelAuthorizerInterface> $authorizers
      */
@@ -53,7 +51,7 @@ final readonly class RealtimeAuthController
             throw new BadRequestHttpException('Missing "socket_id" or "channel_name".');
         }
 
-        if (!str_starts_with($channelName, self::PRIVATE_PREFIX)) {
+        if (!str_starts_with($channelName, PusherManager::PRIVATE_PREFIX)) {
             throw new AccessDeniedHttpException('Only private channels can be authorized.');
         }
 

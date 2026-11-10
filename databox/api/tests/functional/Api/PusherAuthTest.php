@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use App\Entity\Core\AssetExport;
+use App\Entity\Core\File;
 use App\Model\UserData;
 use App\Realtime\RealtimeChannel;
+use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -160,6 +164,82 @@ class PusherAuthTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(200);
 
         $this->authorize(RealtimeChannel::export($export->getId()), KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testOnlyReadersMayFollowAFile(): void
+    {
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $file = new File();
+        $file->setWorkspace($workspace);
+        $file->setStorage(File::STORAGE_URL);
+        $file->setPath('https://cdn.example.com/file.jpg');
+        $file->setPathPublic(true);
+        $file->setType('image/jpeg');
+        $file->setExtension('jpg');
+        $file->setOriginalName('file.jpg');
+        $this->createAsset([
+            'workspace' => $workspace,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+            'no_flush' => true,
+        ])->setSource($file);
+        $em = self::getEntityManager();
+        $em->persist($file);
+        $em->flush();
+
+        $channel = RealtimeChannel::file($file->getId());
+
+        $this->authorize($channel, KeycloakClientTestMock::USER_UID);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize($channel, KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->authorize($channel, null);
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testOnlyReadersMayFollowABasket(): void
+    {
+        $basket = $this->createBasket(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $channel = RealtimeChannel::basket($basket->getId());
+
+        $this->authorize($channel, KeycloakClientTestMock::USER_UID);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize($channel, KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->authorize($channel, null);
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testOnlyEditorsOfTheAssetMayFollowItsWorkflow(): void
+    {
+        // OTHER may read the asset, not edit it
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $this->addUserOnWorkspace(KeycloakClientTestMock::OTHER_USER_UID, $workspace->getId());
+        $asset = $this->createAsset([
+            'workspace' => $workspace,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+            'public' => true,
+        ]);
+
+        /** @var StateRepositoryInterface $stateRepository */
+        $stateRepository = self::getContainer()->get(StateRepositoryInterface::class);
+        $state = new ModelWorkflowState(
+            $stateRepository,
+            'asset-ingest:'.$asset->getWorkspaceId(),
+            AssetIngestWorkflowEvent::createEvent($asset->getId(), $asset->getWorkspaceId()),
+        );
+        $stateRepository->persistWorkflowState($state);
+
+        $channel = RealtimeChannel::WORKFLOW.$state->getId();
+
+        $this->authorize($channel, KeycloakClientTestMock::USER_UID);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize($channel, KeycloakClientTestMock::OTHER_USER_UID);
         $this->assertResponseStatusCodeSame(403);
     }
 

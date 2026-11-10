@@ -14,7 +14,8 @@ import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
 import {ThemeManager} from '@alchemy/next-theme/ThemeManager';
 import {Toaster} from '@alchemy/next-ui/ui/toaster';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
-import {SentryInit, SentryUser} from '@/lib/monitoring/Sentry';
+import {SentryInit} from '@alchemy/next-core/monitoring/SentryInit';
+import {SentryUser} from '@/lib/monitoring/SentryUser';
 
 function createQueryClient(): QueryClient {
     return new QueryClient({
@@ -37,7 +38,11 @@ export function Providers({config, language, children}: Props) {
 
     return (
         <ConfigProvider config={config}>
-            <SentryInit />
+            <SentryInit
+                sentry={config.sentry}
+                appId={config.appId}
+                appName="dashboard"
+            />
             <I18nProvider language={language}>
                 <ThemeProvider
                     attribute="class"
