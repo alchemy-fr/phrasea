@@ -9,13 +9,16 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Repository\Core\CollectionRepository;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final readonly class CollectionPostTransformListener implements EventSubscriberInterface
 {
-    public function __construct(private PermissionManager $permissionManager)
-    {
+    public function __construct(
+        private PermissionManager $permissionManager,
+        private CollectionRepository $collectionRepository,
+    ) {
     }
 
     public function hydrateDocument(PostTransformEvent $event): void
@@ -76,7 +79,7 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
             $bestPrivacy = max($bestPrivacy, WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS);
         }
 
-        $document->set('hasChildren', !$collection->getChildren()->isEmpty());
+        $document->set('hasChildren', $this->collectionRepository->hasChildren($collection->getId()));
         $document->set('privacy', $bestPrivacy);
         $document->set('users', array_values(array_unique($users)));
         $document->set('groups', array_values(array_unique($groups)));

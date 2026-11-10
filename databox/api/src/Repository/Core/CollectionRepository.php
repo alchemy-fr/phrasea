@@ -42,6 +42,20 @@ class CollectionRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * Without loading the children (a collection can have thousands of them).
+     */
+    public function hasChildren(string $collectionId): bool
+    {
+        return [] !== $this->createQueryBuilder('t')
+            ->select('t.id')
+            ->andWhere('t.parent = :id')
+            ->setParameter('id', $collectionId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getScalarResult();
+    }
+
     public function getESQueryBuilder(): QueryBuilder
     {
         return $this

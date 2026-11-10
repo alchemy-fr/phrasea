@@ -86,22 +86,32 @@ class AttributeRepository extends ServiceEntityRepository
      * Load the attributes of many assets in a single query and fill the
      * per-request cache used by getCachedAssetAttributes().
      *
+     * Without the embeddings, the attributes are partial objects whose embedding (a face
+     * signature: hundreds of floats to decode, never indexed) is only loaded if read, with
+     * one query per attribute. Only for the indexing: the attributes stay in the cache and
+     * the identity map until they are cleared.
+     *
      * @param string[] $assetIds
      */
-    public function prefetchAssetAttributes(array $assetIds): void
+    public function prefetchAssetAttributes(array $assetIds, bool $withEmbeddings = true): void
     {
         $assetIds = array_values(array_unique($assetIds));
         if (empty($assetIds)) {
             return;
         }
 
+        $queryBuilder = $this->createAssetAttributesQueryBuilder()
+            ->andWhere('a.asset IN (:assets)')
+            ->setParameter('assets', $assetIds);
+        if (!$withEmbeddings) {
+            // Every other field, so that a field added later is loaded
+            $fields = array_diff($this->getClassMetadata()->getFieldNames(), ['embedding']);
+            $queryBuilder->select(sprintf('PARTIAL a.{%s}, d', implode(', ', $fields)));
+        }
+
         $byAsset = array_fill_keys($assetIds, []);
         /** @var Attribute $attribute */
-        foreach ($this->createAssetAttributesQueryBuilder()
-            ->andWhere('a.asset IN (:assets)')
-            ->setParameter('assets', $assetIds)
-            ->getQuery()
-            ->getResult() as $attribute) {
+        foreach ($queryBuilder->getQuery()->getResult() as $attribute) {
             if ($attribute->isValidValue()) {
                 $byAsset[$attribute->getAsset()->getId()][] = $attribute;
             }

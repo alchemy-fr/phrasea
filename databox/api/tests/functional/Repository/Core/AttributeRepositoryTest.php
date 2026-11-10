@@ -38,4 +38,37 @@ class AttributeRepositoryTest extends AbstractDataboxTestCase
         $this->assertSame([], $values($asset1->getId()));
         $this->assertSame(['C'], $values($asset2->getId()));
     }
+
+    public function testThePrefetchWithoutEmbeddingsLoadsThemOnlyWhenRead(): void
+    {
+        $em = self::getEntityManager();
+        $definition = $this->createAttributeDefinition(['name' => 'Faces', 'multiple' => true]);
+        $asset = $this->createAsset(['attributes' => [
+            ['definition' => $definition, 'value' => 'Alice'],
+        ]]);
+        $vector = array_fill(0, 512, 0.1);
+        $attribute = $em->getRepository(Attribute::class)->findOneBy(['asset' => $asset->getId()]);
+        $this->assertInstanceOf(Attribute::class, $attribute);
+        $attribute->setEmbedding(['m' => 't', 'v' => $vector]);
+        $em->flush();
+        $em->clear();
+
+        /** @var AttributeRepository $repository */
+        $repository = $em->getRepository(Attribute::class);
+        $repository->prefetchAssetAttributes([$asset->getId()], withEmbeddings: false);
+
+        $attributes = array_values($repository->getCachedAssetAttributes($asset->getId()));
+        $this->assertCount(1, $attributes);
+        $attribute = $attributes[0];
+        $this->assertSame('Alice', $attribute->getValue());
+        $this->assertSame($asset->getId(), $attribute->getAsset()->getId());
+        $this->assertSame($definition->getId(), $attribute->getDefinition()->getId());
+
+        $embedding = new \ReflectionProperty(Attribute::class, 'embedding');
+        $this->assertTrue($embedding->isLazy($attribute), 'the embedding is not loaded by the prefetch');
+
+        $this->assertSame(['m' => 't', 'v' => $vector], $attribute->getEmbedding());
+        $this->assertFalse($embedding->isLazy($attribute));
+        $this->assertSame('Alice', $attribute->getValue());
+    }
 }

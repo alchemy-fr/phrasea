@@ -19,6 +19,12 @@ final readonly class ESPopulateHandler
 {
     private const int ERROR_OUTPUT_LENGTH = 1000;
 
+    /**
+     * What is kept of the error output to find the cause: after a fatal error, Symfony
+     * writes the error again in a box, then the whole usage of the command.
+     */
+    private const int ERROR_OUTPUT_BUFFER_LENGTH = 8000;
+
     public function __construct(
         private PopulateLockManager $populateLockManager,
         #[Autowire('%kernel.project_dir%')]
@@ -50,7 +56,7 @@ final readonly class ESPopulateHandler
         $startedAt = new \DateTimeImmutable();
         $process->run(static function (string $type, string $buffer) use (&$errorOutput): void {
             if (Process::ERR === $type) {
-                $errorOutput = substr($errorOutput.$buffer, -self::ERROR_OUTPUT_LENGTH);
+                $errorOutput = substr($errorOutput.$buffer, -self::ERROR_OUTPUT_BUFFER_LENGTH);
             }
         });
 
@@ -58,12 +64,38 @@ final readonly class ESPopulateHandler
             return;
         }
 
-        $error = sprintf('Populate process failed with exit code %s (%s)', $process->getExitCode() ?? 'none', $process->getExitCodeText() ?? 'unknown');
+        $exitCode = $process->getExitCode() ?? 'none';
+        $error = sprintf('Populate process failed with exit code %s (%s)', $exitCode, $process->getExitCodeText() ?? 'unknown');
 
         // A killed process (OOM…) leaves its pass open and its index locked
-        $this->populateLockManager->closeDeadPasses($message->index, $startedAt, $error);
+        $cause = self::extractCause($errorOutput);
+        $this->populateLockManager->closeDeadPasses($message->index, $startedAt, null !== $cause ? sprintf('Exit code %s: %s', $exitCode, $cause) : $error);
 
         // Unrecoverable: a retry would start the whole populate again
-        throw new UnrecoverableMessageHandlingException(sprintf("%s:\n%s", $error, trim($errorOutput)));
+        throw new UnrecoverableMessageHandlingException(sprintf("%s:\n%s", $error, trim(substr($errorOutput, -self::ERROR_OUTPUT_LENGTH))));
+    }
+
+    /**
+     * The reason why the process died, from the end of its error output: the out-of-memory
+     * error first (Symfony repeats it in a box, followed by the usage of the command), then
+     * any other fatal error, then the last line written.
+     */
+    public static function extractCause(string $errorOutput): ?string
+    {
+        if (preg_match('/Allowed memory size of \d+ bytes exhausted[^\n]*/', $errorOutput, $matches)) {
+            return trim($matches[0]);
+        }
+
+        $lines = array_reverse(array_values(array_filter(
+            array_map(trim(...), preg_split('/\R/', $errorOutput) ?: []),
+            static fn (string $line): bool => '' !== $line,
+        )));
+        foreach ($lines as $line) {
+            if (str_contains($line, 'Fatal error:')) {
+                return $line;
+            }
+        }
+
+        return $lines[0] ?? null;
     }
 }

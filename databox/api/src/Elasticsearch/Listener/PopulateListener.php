@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Listener;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
+use App\Elasticsearch\AssetIndexPreloader;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Service\Asset\Attribute\AttributeValueResolver;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
+use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
 use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
+use FOS\ElasticaBundle\Persister\Event\PreInsertObjectsEvent;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,6 +25,7 @@ readonly class PopulateListener implements EventSubscriberInterface
         private AssetPermissionComputer $assetPermissionComputer,
         private TemporaryCacheFactory $temporaryCacheFactory,
         private AttributeValueResolver $attributeValueResolver,
+        private AssetIndexPreloader $assetIndexPreloader,
     ) {
     }
 
@@ -41,6 +45,23 @@ readonly class PopulateListener implements EventSubscriberInterface
         $this->assetPermissionComputer->disableWorkspaceCache();
         $this->assetPermissionComputer->disableAssetCache();
         $this->attributeValueResolver->reset();
+        $this->assetIndexPreloader->reset();
+    }
+
+    /**
+     * The preloaded values of a failed page must not be served to the indexing that comes next.
+     */
+    public function onException(OnExceptionEvent $event): void
+    {
+        $this->assetIndexPreloader->reset();
+    }
+
+    /**
+     * Runs after the listeners that may filter the objects of the page.
+     */
+    public function preloadPage(PreInsertObjectsEvent $event): void
+    {
+        $this->assetIndexPreloader->preload($event->getObjects());
     }
 
     /**
@@ -52,6 +73,7 @@ readonly class PopulateListener implements EventSubscriberInterface
     {
         $this->temporaryCacheFactory->reset();
         $this->attributeValueResolver->reset();
+        $this->assetIndexPreloader->reset();
         gc_collect_cycles();
     }
 
@@ -60,7 +82,9 @@ readonly class PopulateListener implements EventSubscriberInterface
         return [
             PreIndexPopulateEvent::class => 'preIndexPopulate',
             PostIndexPopulateEvent::class => 'postIndexPopulate',
+            PreInsertObjectsEvent::class => ['preloadPage', -1024],
             PostInsertObjectsEvent::class => ['afterPageCleared', -1024],
+            OnExceptionEvent::class => 'onException',
         ];
     }
 }

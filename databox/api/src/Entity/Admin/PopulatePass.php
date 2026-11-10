@@ -34,6 +34,14 @@ class PopulatePass extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, nullable: true)]
     private ?string $error = null;
 
+    /**
+     * Memory of the populate, page by page (see PopulatePageTracker).
+     *
+     * @var array<string, mixed>|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $stats = null;
+
     public function getTimeTaken(): ?int
     {
         if (null === $this->endedAt) {
@@ -129,6 +137,64 @@ class PopulatePass extends AbstractUuidEntity
     public function setError(?string $error): void
     {
         $this->error = $error;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getStats(): ?array
+    {
+        return $this->stats;
+    }
+
+    /**
+     * @param array<string, mixed>|null $stats
+     */
+    public function setStats(?array $stats): void
+    {
+        $this->stats = $stats;
+    }
+
+    /**
+     * E.g. "peak 1.2 GB (page 540) / limit 3 GB – at page 812".
+     */
+    public function getMemoryString(): ?string
+    {
+        if (null === $this->stats) {
+            return null;
+        }
+
+        $parts = [];
+        if (!empty($this->stats['maxPagePeak'])) {
+            $peak = 'peak '.self::formatBytes((int) $this->stats['maxPagePeak']);
+            if (isset($this->stats['maxPagePeakPage'])) {
+                $peak .= sprintf(' (page %d)', $this->stats['maxPagePeakPage']);
+            }
+            $parts[] = $peak;
+        }
+        if (!empty($this->stats['memoryLimit'])) {
+            $parts[] = 'limit '.self::formatBytes((int) $this->stats['memoryLimit']);
+        }
+
+        $string = implode(' / ', $parts);
+        if (isset($this->stats['page'])) {
+            $string .= ('' !== $string ? ' – ' : '').sprintf('at page %d', $this->stats['page']);
+        }
+
+        return '' !== $string ? $string : null;
+    }
+
+    private static function formatBytes(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $i = 0;
+        $value = (float) $bytes;
+        while ($value >= 1024 && $i < count($units) - 1) {
+            $value /= 1024;
+            ++$i;
+        }
+
+        return sprintf('%s %s', rtrim(rtrim(number_format($value, 1, '.', ''), '0'), '.'), $units[$i]);
     }
 
     public function isSuccessful(): ?bool

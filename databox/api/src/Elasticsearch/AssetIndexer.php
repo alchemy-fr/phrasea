@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Asset;
 use App\OperationTask\RunContext;
 use App\Repository\Core\AssetRepository;
+use App\Service\Asset\Attribute\AttributeValueResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -15,6 +16,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class AssetIndexer
 {
+    private const int PAGE_SIZE = 100;
+
     public function __construct(
         #[Autowire(service: 'fos_elastica.object_persister.asset')]
         private ObjectPersisterInterface $assetObjectPersister,
@@ -22,6 +25,8 @@ final readonly class AssetIndexer
         private AssetRepository $assetRepository,
         private EntityManagerInterface $em,
         private TemporaryCacheFactory $temporaryCacheFactory,
+        private AssetIndexPreloader $preloader,
+        private AttributeValueResolver $attributeValueResolver,
     ) {
     }
 
@@ -62,11 +67,9 @@ final readonly class AssetIndexer
         $this->assetPermissionComputer->setAssetCache(new ArrayAdapter(deepClone: false));
 
         try {
-            $maxResults = 500;
-
             $getPage = (fn (int $offset): iterable => $selectQuery
                 ->getQuery()
-                ->setMaxResults($maxResults)
+                ->setMaxResults(self::PAGE_SIZE)
                 ->setFirstResult($offset)
                 ->toIterable());
 
@@ -94,6 +97,7 @@ final readonly class AssetIndexer
                 $cursor += $i;
 
                 if (!empty($assetStack)) {
+                    $this->preloader->preload($assetStack);
                     $this->assetObjectPersister->replaceMany($assetStack);
                 }
                 unset($assetStack);
@@ -104,17 +108,20 @@ final readonly class AssetIndexer
                 $this->assetPermissionComputer->clearAssetCache();
                 $this->em->clear();
                 $this->temporaryCacheFactory->reset();
+                $this->preloader->reset();
+                $this->attributeValueResolver->reset();
                 // The cleared entities form cycles that only the cycle collector frees
                 gc_collect_cycles();
 
                 $runContext->advance($i);
 
-                if ($i < $maxResults) {
+                if ($i < self::PAGE_SIZE) {
                     break;
                 }
             }
         } finally {
-            // The worker keeps this service between messages: a populate run afterwards must not reuse these caches
+            // The worker keeps these services between messages: what runs afterwards (a populate, the real-time indexing) must not reuse these caches nor the preloaded values
+            $this->preloader->reset();
             $this->assetPermissionComputer->disableWorkspaceCache();
             $this->assetPermissionComputer->disableCollectionCache();
             $this->assetPermissionComputer->disableAssetCache();
