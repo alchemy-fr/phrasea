@@ -113,7 +113,8 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
 
     private function handleMultipartUpload(Request $request, Target $target): Asset
     {
-        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
+        $user = $this->getUser();
+        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request), $user->getUserIdentifier());
 
         return $this->assetManager->createAsset(
             $target,
@@ -121,7 +122,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
             $multipartUpload->getType(),
             $multipartUpload->getFilename(),
             $multipartUpload->getSize(),
-            $this->getUser()->getId(),
+            $user->getId(),
             $request->request->all('data')
         );
     }

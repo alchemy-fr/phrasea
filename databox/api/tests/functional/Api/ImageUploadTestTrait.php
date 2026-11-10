@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api;
 
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
@@ -17,13 +18,14 @@ use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 trait ImageUploadTestTrait
 {
     /**
-     * Simulates a finished S3 multipart upload (see WorkspaceTermsTest).
+     * Simulates a finished S3 multipart upload of $ownerId (see WorkspaceTermsTest).
      */
-    private function createUpload(string $content, string $name, string $type, ?int $size = null): MultipartUpload
+    private function createUpload(string $content, string $name, string $type, ?int $size = null, string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
     {
         $em = self::getEntityManager();
 
         $upload = new MultipartUpload();
+        $upload->setOwnerId($ownerId);
         $upload->setFilename($name);
         $upload->setType($type);
         $upload->setSize($size ?? strlen($content));
@@ -48,9 +50,9 @@ trait ImageUploadTestTrait
         ];
     }
 
-    private function createPngUpload(int $width = 1, int $height = 1, string $name = 'image.png'): MultipartUpload
+    private function createPngUpload(int $width = 1, int $height = 1, string $name = 'image.png', string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
     {
-        return $this->createUpload(self::createImage($width, $height, 'png'), $name, 'image/png');
+        return $this->createUpload(self::createImage($width, $height, 'png'), $name, 'image/png', ownerId: $ownerId);
     }
 
     private static function createImage(int $width, int $height, string $format): string

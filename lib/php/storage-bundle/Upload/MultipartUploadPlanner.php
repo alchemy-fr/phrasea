@@ -47,6 +47,11 @@ final readonly class MultipartUploadPlanner
         return $chunkSize;
     }
 
+    public function getMaxObjectSize(): int
+    {
+        return $this->maxObjectSize;
+    }
+
     /**
      * An empty file still needs one (empty) part for S3 to complete the upload.
      */

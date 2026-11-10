@@ -36,7 +36,10 @@ final readonly class MessageAttachmentManager
     ) {
     }
 
-    public function handleNewAttachments(Thread $thread, ?array $attachments): ?array
+    /**
+     * @param string $ownerId user identifier of the author, who must own the uploads
+     */
+    public function handleNewAttachments(Thread $thread, ?array $attachments, string $ownerId): ?array
     {
         if (empty($attachments)) {
             return null;
@@ -62,7 +65,7 @@ final readonly class MessageAttachmentManager
             }
 
             $workspace ??= $this->getThreadWorkspace($thread);
-            $upload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromArray($multipart));
+            $upload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromArray($multipart), $ownerId);
 
             $file = new File();
             $file->setWorkspace($workspace);

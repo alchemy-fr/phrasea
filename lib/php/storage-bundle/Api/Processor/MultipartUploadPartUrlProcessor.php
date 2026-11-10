@@ -6,6 +6,7 @@ namespace Alchemy\StorageBundle\Api\Processor;
 
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadPartUrlOutput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -18,6 +19,7 @@ final readonly class MultipartUploadPartUrlProcessor implements ProcessorInterfa
 {
     public function __construct(
         private UploadManager $uploadManager,
+        private MultipartUploadPlanner $planner,
     ) {
     }
 
@@ -26,13 +28,28 @@ final readonly class MultipartUploadPartUrlProcessor implements ProcessorInterfa
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): MultipartUploadPartUrlOutput
     {
+        if ($data->isComplete()) {
+            throw new BadRequestHttpException('Upload is already complete');
+        }
+
         $part = $context['request']->request->get('part');
-        if (empty($part)) {
+        if (null === $part || '' === $part) {
             throw new BadRequestHttpException('Missing part');
+        }
+        if (!is_int($part) && !(is_string($part) && ctype_digit($part))) {
+            throw new BadRequestHttpException('"part" must be a positive integer');
+        }
+        $part = (int) $part;
+
+        // Uploads created before the chunk size was persisted fall back to the current policy.
+        $chunkSize = $data->getChunkSize() ?? $this->planner->resolveChunkSize($data->getSize());
+        $partCount = $this->planner->getPartCount($data->getSize(), $chunkSize);
+        if ($part < 1 || $part > $partCount) {
+            throw new BadRequestHttpException(sprintf('"part" must be between 1 and %d', $partCount));
         }
 
         return new MultipartUploadPartUrlOutput(
-            $this->uploadManager->getSignedUrl($data->getUploadId(), $data->getPath(), (int) $part),
+            $this->uploadManager->getSignedUrl($data->getUploadId(), $data->getPath(), $part),
         );
     }
 }

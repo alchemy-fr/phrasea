@@ -43,6 +43,7 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
             ->add(TextFilter::new('id'))
             ->add(TextFilter::new('type'))
             ->add(TextFilter::new('filename'))
+            ->add(TextFilter::new('ownerId'))
             ->add(BooleanFilter::new('complete'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
@@ -54,6 +55,7 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
         yield TextField::new('type');
         yield IdField::new('uploadId');
         yield TextField::new('filename');
+        yield TextField::new('ownerId');
         yield TextField::new('sizeAsString');
         yield TextField::new('path');
         yield BooleanField::new('complete')->renderAsSwitch(false);

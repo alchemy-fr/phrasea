@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     shortName: 'Upload',
     operations: [
-        new Get(security: 'is_granted("IS_AUTHENTICATED_FULLY")'),
+        new Get(security: self::OWNER_SECURITY),
         new Post(
             normalizationContext: ['groups' => ['upload:read', 'upload:urls']],
             security: 'is_granted("IS_AUTHENTICATED_FULLY")',
@@ -40,7 +40,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriTemplate: '/uploads/{id}/parts',
             throwOnNotFound: true,
             status: 200,
-            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            security: self::OWNER_SECURITY,
             input: false,
             normalizationContext: ['groups' => ['upload:parts']],
             output: MultipartUploadPartsOutput::class,
@@ -79,7 +79,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriTemplate: '/uploads/{id}/part',
             throwOnNotFound: true,
             status: 200,
-            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            security: self::OWNER_SECURITY,
             input: false,
             normalizationContext: ['groups' => ['upload:part_url']],
             output: MultipartUploadPartUrlOutput::class,
@@ -114,7 +114,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             ),
         ),
         new Delete(
-            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            security: self::OWNER_SECURITY,
             processor: MultipartUploadCancelProcessor::class,
             openapi: new OpenApiOperation(
                 summary: 'Cancel an upload',
@@ -130,6 +130,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity]
 class MultipartUpload
 {
+    /**
+     * Only the user (or OAuth client) who started an upload can read, sign,
+     * cancel or complete it. Uploads created before the owner was recorded
+     * have none and are left to the admins.
+     */
+    final public const string OWNER_SECURITY = 'is_granted("ROLE_ADMIN") or (user !== null and object.isOwnedBy(user.getUserIdentifier()))';
+
     #[Groups(['upload:read'])]
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
@@ -173,6 +180,13 @@ class MultipartUpload
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
+
+    /**
+     * User identifier of the token which created the upload (user or OAuth client).
+     */
+    #[ApiProperty(writable: false)]
+    #[ORM\Column(name: 'owner_id', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $ownerId = null;
 
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: Types::BOOLEAN)]
@@ -243,6 +257,21 @@ class MultipartUpload
     public function setPath(string $path): void
     {
         $this->path = $path;
+    }
+
+    public function getOwnerId(): ?string
+    {
+        return $this->ownerId;
+    }
+
+    public function setOwnerId(?string $ownerId): void
+    {
+        $this->ownerId = $ownerId;
+    }
+
+    public function isOwnedBy(string $userIdentifier): bool
+    {
+        return null !== $this->ownerId && $this->ownerId === $userIdentifier;
     }
 
     public function isComplete(): bool

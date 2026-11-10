@@ -11,6 +11,8 @@ use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class UploadManager
@@ -28,6 +30,7 @@ final readonly class UploadManager
         private LoggerInterface $logger,
         private FileValidator $fileValidator,
         private string $pathPrefix,
+        private MultipartUploadPlanner $planner,
     ) {
     }
 
@@ -149,11 +152,24 @@ final readonly class UploadManager
         }
     }
 
-    public function handleMultipartUpload(MultipartUploadInput $multipart): MultipartUpload
+    /**
+     * Completes the upload on S3 for its owner, then checks that the stored
+     * object has the declared size: the parts are sent straight to S3, so
+     * their real size is only known here.
+     *
+     * @param string $ownerId user identifier of the token completing the upload
+     */
+    public function handleMultipartUpload(MultipartUploadInput $multipart, string $ownerId): MultipartUpload
     {
         $multipartUpload = $this->em->getRepository(MultipartUpload::class)->find($multipart->uploadId);
         if (!$multipartUpload instanceof MultipartUpload) {
             throw new NotFoundHttpException(sprintf('Multipart upload with id "%s" not found', $multipart->uploadId));
+        }
+
+        self::denyUnlessOwner($multipartUpload, $ownerId);
+
+        if ($multipartUpload->isComplete()) {
+            throw new BadRequestHttpException(sprintf('Multipart upload "%s" is already complete', $multipartUpload->getId()));
         }
 
         $this->markComplete(
@@ -162,9 +178,45 @@ final readonly class UploadManager
             $multipart->parts
         );
 
+        $this->assertUploadedSize($multipartUpload);
+
         $multipartUpload->setComplete(true);
         $this->em->persist($multipartUpload);
 
         return $multipartUpload;
+    }
+
+    public static function denyUnlessOwner(MultipartUpload $multipartUpload, string $ownerId): void
+    {
+        if (!$multipartUpload->isOwnedBy($ownerId)) {
+            throw new AccessDeniedHttpException(sprintf('Multipart upload "%s" does not belong to you', $multipartUpload->getId()));
+        }
+    }
+
+    private function assertUploadedSize(MultipartUpload $multipartUpload): void
+    {
+        $key = $this->pathPrefix.$multipartUpload->getPath();
+        $size = (int) $this->client->headObject([
+            'Bucket' => $this->uploadBucket,
+            'Key' => $key,
+        ])->get('ContentLength');
+
+        if ($size === $multipartUpload->getSize() && $size <= $this->planner->getMaxObjectSize()) {
+            return;
+        }
+
+        $this->client->deleteObject([
+            'Bucket' => $this->uploadBucket,
+            'Key' => $key,
+        ]);
+        // A DQL delete skips the listeners: the S3 upload is already completed, there is nothing to abort.
+        $this->em->createQueryBuilder()
+            ->delete(MultipartUpload::class, 'u')
+            ->andWhere('u.id = :id')
+            ->setParameter('id', $multipartUpload->getId())
+            ->getQuery()
+            ->execute();
+
+        throw new BadRequestHttpException(sprintf('Uploaded file size %d does not match the declared size %d', $size, $multipartUpload->getSize()));
     }
 }

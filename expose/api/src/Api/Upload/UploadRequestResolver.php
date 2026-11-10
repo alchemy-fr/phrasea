@@ -8,8 +8,10 @@ use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\UploadManager;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Mime\MimeTypes;
 
@@ -26,13 +28,16 @@ final readonly class UploadRequestResolver
         private FileStorageManager $storageManager,
         private UploadManager $uploadManager,
         private PathGeneratorInterface $pathGenerator,
+        private Security $security,
     ) {
     }
 
     public function resolve(Request $request): ResolvedUpload
     {
         if ($request->request->has('multipart')) {
-            $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
+            $ownerId = $this->security->getUser()?->getUserIdentifier()
+                ?? throw new AccessDeniedHttpException('User must be authenticated');
+            $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request), $ownerId);
 
             return new ResolvedUpload(
                 $multipartUpload->getPath(),
