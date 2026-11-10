@@ -39,6 +39,7 @@
     "acl.inherited": "Inherited permissions",
     "acl.integration.interact": "Interact",
     "acl.integration.use": "Use",
+    "acl.manage_inherited": "Manage permissions",
     "acl.permission.delete": "Delete",
     "acl.permission.edit": "Edit",
     "acl.permission.edit_permissions": "Edit permissions",
