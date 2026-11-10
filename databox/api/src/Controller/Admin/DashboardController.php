@@ -13,10 +13,6 @@ use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
 use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookLogCrudController;
-use App\Entity\Basket\Basket;
-use App\Entity\Core\Asset;
-use App\Entity\Core\Collection;
-use App\Entity\Core\Workspace;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -41,10 +37,10 @@ class DashboardController extends AbstractAdminDashboardController
     public function configureMenuItems(): iterable
     {
         $submenuPerms = [
-            MenuItem::linkToRoute('Asset permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Asset::OBJECT_TYPE]),
-            MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Collection::OBJECT_TYPE]),
-            MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Workspace::OBJECT_TYPE]),
-            MenuItem::linkToRoute('Basket permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Basket::OBJECT_TYPE]),
+            MenuItem::linkTo(AssetCrudController::class, 'Asset permissions')->setAction('globalPermissions'),
+            MenuItem::linkTo(CollectionCrudController::class, 'Collection permissions')->setAction('globalPermissions'),
+            MenuItem::linkTo(WorkspaceCrudController::class, 'Workspace permissions')->setAction('globalPermissions'),
+            MenuItem::linkTo(BasketCrudController::class, 'Basket permissions')->setAction('globalPermissions'),
             MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)'),
         ];
 

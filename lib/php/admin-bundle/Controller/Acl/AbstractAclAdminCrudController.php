@@ -24,12 +24,7 @@ abstract class AbstractAclAdminCrudController extends AbstractAdminCrudControlle
     public function configureActions(Actions $actions): Actions
     {
         $globalPermissionsAction = Action::new('globalPermissions')
-            ->linkToRoute(
-                'alchemy_admin_acl_global_permissions',
-                [
-                    'type' => $this->objectMapping->getObjectKey(static::getEntityFqcn()),
-                ]
-            )
+            ->linkToCrudAction('globalPermissions')
             ->createAsGlobalAction();
 
         $permissionsAction = Action::new('permissions')
@@ -46,15 +41,36 @@ abstract class AbstractAclAdminCrudController extends AbstractAdminCrudControlle
     {
         /** @var object $entity */
         $entity = $adminContext->getEntity()->getInstance();
-        $id = $entity->getId();
 
-        $twigParameters = $this->permissionView->getViewParameters(
-            $this->objectMapping->getObjectKey($entity::class),
-            $id
-        );
-        $twigParameters['back_url'] = $adminUrlGenerator->get('referrer');
+        return $this->render('@AlchemyAcl/easyadmin/permissions.html.twig', [
+            'back_url' => $this->generateCrudUrl($adminUrlGenerator, Action::INDEX),
+            'global_permissions_url' => $this->generateCrudUrl($adminUrlGenerator, 'globalPermissions'),
+        ] + $this->permissionView->getViewParameters($this->getObjectKey(), (string) $entity->getId()));
+    }
 
-        return $this->render('@AlchemyAcl/easyadmin3/entity/acl.html.twig', $twigParameters);
+    /**
+     * Manages the permissions applying to every object of the entity type.
+     */
+    #[AdminRoute('/permissions/all', name: 'global_permissions')]
+    public function globalPermissions(AdminUrlGenerator $adminUrlGenerator): Response
+    {
+        return $this->render('@AlchemyAcl/easyadmin/permissions.html.twig', [
+            'back_url' => $this->generateCrudUrl($adminUrlGenerator, Action::INDEX),
+        ] + $this->permissionView->getViewParameters($this->getObjectKey(), null));
+    }
+
+    private function getObjectKey(): string
+    {
+        return $this->objectMapping->getObjectKey(static::getEntityFqcn());
+    }
+
+    private function generateCrudUrl(AdminUrlGenerator $adminUrlGenerator, string $action): string
+    {
+        return $adminUrlGenerator
+            ->unsetAll()
+            ->setController(static::class)
+            ->setAction($action)
+            ->generateUrl();
     }
 
     #[Required]

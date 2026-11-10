@@ -25,8 +25,8 @@ class DashboardController extends AbstractAdminDashboardController
     public function configureMenuItems(): iterable
     {
         $submenu1 = [
-            MenuItem::linkToRoute('Target params permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'target_params']),
-            MenuItem::linkToRoute('Form schema permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'form_schema']),
+            MenuItem::linkTo(TargetParamsCrudController::class, 'Target params permissions', '')->setAction('globalPermissions'),
+            MenuItem::linkTo(FormSchemaCrudController::class, 'Form schema permissions', '')->setAction('globalPermissions'),
             MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)', ''),
         ];
 
