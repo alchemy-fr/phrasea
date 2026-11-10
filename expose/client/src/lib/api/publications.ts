@@ -110,12 +110,39 @@ export function logAssetView(id: string): void {
     api.post(`/logs/asset-view/${id}`).catch(() => undefined);
 }
 
-/** Asks for a download link sent by email (`…/download-request`) */
+/**
+ * Asks for a download link sent by email (`…/download-request`); the API
+ * refuses it while the download terms of the publication are not accepted.
+ */
 export async function requestDownload(
     url: string,
-    email: string
+    email: string,
+    acceptTerms: boolean
 ): Promise<void> {
-    await api.post(url, {email}, {anonymous: true});
+    await api.post(url, acceptTerms ? {email, acceptTerms: true} : {email}, {
+        anonymous: true,
+    });
+}
+
+/** The file of a publication to download */
+export type DownloadTarget =
+    {assetId: string} | {subDefId: string} | {archive: true};
+
+/**
+ * A short-lived URL downloading the file right away, given by the API once
+ * the download terms are accepted.
+ */
+export async function getDownloadUrl(
+    publicationId: string,
+    target: DownloadTarget
+): Promise<string> {
+    const {url} = await api.post<{url: string}>(
+        `/publications/${encodeURIComponent(publicationId)}/download-url`,
+        {...target, acceptTerms: true},
+        {headers: passwordHeaders()}
+    );
+
+    return url;
 }
 
 export async function getProfiles(

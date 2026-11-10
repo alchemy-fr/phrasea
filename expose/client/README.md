@@ -96,7 +96,10 @@ changes the URL, the grid and the media loaded stay in place.
   publication is not rendered at all (no media is loaded behind the dialog).
   The acceptance lives in a cookie; nothing is checked server side.
 - **Downloads**: download terms first (once), then a link by email or the
-  file itself. Nothing is offered when downloads are disabled.
+  file itself. Nothing is offered when downloads are disabled. The API
+  enforces these settings: with download terms, the file is downloaded through
+  a short-lived URL that `POST /publications/{id}/download-url` gives in
+  exchange of `acceptTerms: true` (also required by the email requests).
 - **Layouts**: the layout of the publication applies whatever the number of
   assets; `mapbox` is displayed as a grid. The grid shows up at once and
   settles as the thumbnails load, the assets being added as the user scrolls.

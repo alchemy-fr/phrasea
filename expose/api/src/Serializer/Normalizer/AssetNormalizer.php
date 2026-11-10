@@ -59,25 +59,25 @@ class AssetNormalizer extends AbstractRouterNormalizer implements ResetInterface
             return;
         }
 
-        $downloadViaEmail = $context['download_via_email'] ?? false;
+        $object->setDownloadUrl($this->generateAssetDownloadUrl($object));
 
-        if (!$downloadViaEmail) {
-            $object->setDownloadUrl($this
-                ->generateDownloadAssetTrackerUrl($object));
-        } else {
-            $object->setDownloadUrl($this->getDownloadViaEmailUrl($object));
+        // The original file is given only to whom may download it right away.
+        $original = $this->getDownloadMode($publication)->exposesFiles() ? $object : null;
+        if (null !== $original) {
+            $object->setUrl($this->generateAssetUrl($original));
         }
-
-        $object->setUrl($this->generateAssetUrl($object));
         $poster = $object->getPosterDefinition();
 
-        $thumbObject = $object->getThumbnailDefinition() ?? $poster ?? $object->getPreviewDefinition() ?? $object;
-        if (str_starts_with($thumbObject->getMimeType(), 'image/')) {
+        $thumbObject = $object->getThumbnailDefinition() ?? $poster ?? $object->getPreviewDefinition() ?? $original;
+        if (null !== $thumbObject && str_starts_with($thumbObject->getMimeType(), 'image/')) {
             $object->setThumbUrl($this->generateAssetUrl($thumbObject));
             $object->setThumbType($thumbObject->getMimeType());
         }
-        $object->setPreviewUrl($this->generateAssetUrl($object->getPreviewDefinition() ?? $object));
-        $object->setPreviewType($object->getPreviewDefinition()?->getMimeType() ?? $object->getMimeType());
+        $previewObject = $object->getPreviewDefinition() ?? $original;
+        if (null !== $previewObject) {
+            $object->setPreviewUrl($this->generateAssetUrl($previewObject));
+            $object->setPreviewType($previewObject->getMimeType());
+        }
         if (null !== $poster) {
             $object->setPosterUrl($this->generateAssetUrl($poster));
         }

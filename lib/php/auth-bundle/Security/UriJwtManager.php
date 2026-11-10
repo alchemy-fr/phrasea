@@ -59,7 +59,15 @@ final readonly class UriJwtManager
 
     public function validateUri(string $uri, string $jwt): void
     {
-        $this->validateJWT(preg_replace('#([&?])jwt=.+$#', '', $uri), $jwt);
+        $this->validateUriToken($uri, $jwt);
+    }
+
+    /**
+     * Same as validateUri(), returning the token to read the extra claims it was signed with.
+     */
+    public function validateUriToken(string $uri, string $jwt): UnencryptedToken
+    {
+        return $this->validateJWT(preg_replace('#([&?])jwt=.+$#', '', $uri), $jwt);
     }
 
     public function validateJWT(string $identifier, string $jwt, array $extraConstraints = []): UnencryptedToken

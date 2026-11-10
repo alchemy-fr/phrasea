@@ -654,7 +654,7 @@ class Asset implements MediaInterface, \Stringable
         return $this->downloadUrl;
     }
 
-    public function setDownloadUrl(string $downloadUrl): void
+    public function setDownloadUrl(?string $downloadUrl): void
     {
         $this->downloadUrl = $downloadUrl;
     }

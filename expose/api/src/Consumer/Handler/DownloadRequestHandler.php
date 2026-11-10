@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Alchemy\AuthBundle\Security\UriJwtManager;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\NotifierBundle\Manager\NotifierManager;
-use App\Entity\DownloadRequest;
+use App\Entity\DownloadRequest as DownloadRequestEntity;
+use App\Security\PublicationDownloadPolicy;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -18,14 +18,14 @@ final readonly class DownloadRequestHandler
     public function __construct(
         private NotifierManager $notifier,
         private UrlGeneratorInterface $urlGenerator,
-        private UriJwtManager $uriJwtManager,
+        private PublicationDownloadPolicy $downloadPolicy,
         private EntityManagerInterface $em,
     ) {
     }
 
     public function __invoke(DownloadRequest $message): void
     {
-        $downloadRequest = DoctrineUtil::findStrict($this->em, DownloadRequest::class, $message->getId());
+        $downloadRequest = DoctrineUtil::findStrict($this->em, DownloadRequestEntity::class, $message->getId());
 
         $parameters = [
             'publicationId' => $downloadRequest->getPublication()->getId(),
@@ -37,7 +37,7 @@ final readonly class DownloadRequestHandler
         }
         $uri = $this->urlGenerator->generate($downloadRequest->getSubDefinition() ? 'download_subdef' : 'download_asset', $parameters, UrlGeneratorInterface::ABSOLUTE_URL);
 
-        $downloadUrl = $this->uriJwtManager->signUri(
+        $downloadUrl = $this->downloadPolicy->signEmailDownloadUri(
             $uri,
             259200 // 3 days
         );

@@ -93,6 +93,16 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         if (isset($options['endDate'])) {
             $config->setExpiresAt($options['endDate']);
         }
+        if (isset($options['downloadEnabled'])) {
+            $config->setDownloadEnabled($options['downloadEnabled']);
+        }
+        if (isset($options['downloadViaEmail'])) {
+            $config->setDownloadViaEmail($options['downloadViaEmail']);
+        }
+        if (isset($options['downloadTerms'])) {
+            $config->getDownloadTerms()->setEnabled($options['downloadTerms']);
+            $config->getDownloadTerms()->setText('Download terms');
+        }
     }
 
     protected function createProfile(array $options = []): string

@@ -9,6 +9,7 @@ use App\Consumer\Handler\PublicationArchiveRequest;
 use App\Entity\DownloadRequest;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;
+use App\Security\PublicationDownloadPolicy;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +26,7 @@ final class PostPublicationArchiveRequestAction extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ReportUserService $reportClient,
+        private readonly PublicationDownloadPolicy $downloadPolicy,
     ) {
     }
 
@@ -42,6 +44,7 @@ final class PostPublicationArchiveRequestAction extends AbstractController
         if ($publication->getAssets()->isEmpty()) {
             throw new NotFoundHttpException('Publication has no asset to archive.');
         }
+        $this->downloadPolicy->denyEmailRequestUnlessGranted($publication, $request);
 
         $downloadRequest = new DownloadRequest();
         $downloadRequest->setPublication($publication);

@@ -24,6 +24,7 @@ final class PostDownloadAssetViaEmailAction extends AbstractAssetAction
     ): Response {
         $publication = $this->getPublication($publicationId);
         $asset = $this->getAssetOfPublication($assetId, $publication);
+        $this->downloadPolicy->denyEmailRequestUnlessGranted($publication, $request);
 
         $downloadRequest = new DownloadRequest();
         $downloadRequest->setPublication($publication);

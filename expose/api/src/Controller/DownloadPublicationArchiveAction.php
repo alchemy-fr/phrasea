@@ -9,6 +9,7 @@ use App\Archive\PublicationArchiver;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;
 use App\Security\AssetUrlGenerator;
+use App\Security\PublicationDownloadPolicy;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +27,7 @@ final class DownloadPublicationArchiveAction extends AbstractController
         private readonly PublicationArchiver $archiver,
         private readonly AssetUrlGenerator $assetUrlGenerator,
         private readonly ReportUserService $reportClient,
+        private readonly PublicationDownloadPolicy $downloadPolicy,
     ) {
     }
 
@@ -41,6 +43,7 @@ final class DownloadPublicationArchiveAction extends AbstractController
         if ($publication->getAssets()->isEmpty()) {
             throw new NotFoundHttpException('Publication has no asset to archive.');
         }
+        $this->downloadPolicy->denyDirectDownloadUnlessGranted($publication, $request);
 
         $this->reportClient->pushHttpRequestLog(
             $request,

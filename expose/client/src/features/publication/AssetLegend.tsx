@@ -50,6 +50,7 @@ export function AssetLegend({
                         data-testid="asset-download"
                         onClick={() =>
                             download(asset.downloadUrl!, {
+                                target: {assetId: asset.id},
                                 label: title || asset.originalName,
                             })
                         }

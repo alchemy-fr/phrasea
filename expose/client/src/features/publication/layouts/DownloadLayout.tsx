@@ -103,7 +103,10 @@ function DownloadItem({
                                 size="sm"
                                 data-testid="download-original"
                                 onClick={() =>
-                                    download(asset.downloadUrl!, {label: title})
+                                    download(asset.downloadUrl!, {
+                                        target: {assetId: asset.id},
+                                        label: title,
+                                    })
                                 }
                             >
                                 <DownloadIcon />{' '}
@@ -121,6 +124,7 @@ function DownloadItem({
                                 data-testid="download-rendition"
                                 onClick={() =>
                                     download(rendition.downloadUrl!, {
+                                        target: {subDefId: rendition.id},
                                         label: `${title} (${rendition.name})`,
                                     })
                                 }

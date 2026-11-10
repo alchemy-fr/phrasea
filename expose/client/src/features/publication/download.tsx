@@ -10,12 +10,18 @@ import {
     type ModalProps,
 } from '@alchemy/next-ui/modals/ModalProvider';
 import {FieldHelp, Input, Label} from '@alchemy/next-ui/ui/input';
-import {requestDownload} from '@/lib/api/publications';
+import {
+    getDownloadUrl,
+    requestDownload,
+    type DownloadTarget,
+} from '@/lib/api/publications';
 import {trackEvent} from '@alchemy/next-core/analytics/matomo';
 import {acceptTerms, isTermsAccepted, termsKey} from './terms';
 import {TermsContent} from './TermsContent';
 
 type DownloadOptions = {
+    /** The file, to get its download URL once the download terms are accepted */
+    target: DownloadTarget;
     /** Opens the download in a new tab (the archive, built on demand) */
     newTab?: boolean;
     /** Name of the content downloaded, for the analytics */
@@ -40,18 +46,23 @@ function openDownloadLink(url: string, newTab: boolean): void {
  * archive): nothing when downloads are disabled; the download terms to
  * accept first, once; then either a link sent by email, or the file itself.
  * The URLs given by the API already point to the right endpoint (direct or
- * by email) and are signed.
+ * by email) and are signed. With download terms, the API only lets the file
+ * be downloaded through a URL given in exchange of their acceptance.
  */
 export function useDownload(publication: Publication) {
     const {openModal} = useModals();
 
     return useCallback(
-        async (url: string, {newTab = false, label}: DownloadOptions = {}) => {
+        async (
+            url: string,
+            {target, newTab = false, label}: DownloadOptions
+        ) => {
             if (!publication.downloadEnabled) {
                 return;
             }
+            const withTerms = !!publication.downloadTerms?.enabled;
             const key = termsKey('download', publication.id);
-            if (publication.downloadTerms?.enabled && !isTermsAccepted(key)) {
+            if (withTerms && !isTermsAccepted(key)) {
                 const accepted = await openModal(DownloadTermsDialog, {
                     publication,
                 });
@@ -66,11 +77,17 @@ export function useDownload(publication: Publication) {
                 label
             );
             if (publication.downloadViaEmail) {
-                openModal(DownloadViaEmailDialog, {url});
+                openModal(DownloadViaEmailDialog, {
+                    url,
+                    acceptTerms: withTerms,
+                });
 
                 return;
             }
-            openDownloadLink(url, newTab);
+            openDownloadLink(
+                withTerms ? await getDownloadUrl(publication.id, target) : url,
+                newTab
+            );
         },
         [publication, openModal]
     );
@@ -107,7 +124,8 @@ function DownloadViaEmailDialog({
     open,
     onOpenChange,
     url,
-}: ModalProps & {url: string}) {
+    acceptTerms,
+}: ModalProps & {url: string; acceptTerms: boolean}) {
     const {t} = useTranslation();
     const [email, setEmail] = useState('');
     const [sent, setSent] = useState(false);
@@ -144,7 +162,7 @@ function DownloadViaEmailDialog({
             submitLabel={t('download_email.submit', 'Request Download')}
             canSubmit={valid}
             onSubmit={async () => {
-                await requestDownload(url, email.trim());
+                await requestDownload(url, email.trim(), acceptTerms);
                 setSent(true);
 
                 return false;

@@ -6,12 +6,10 @@ namespace App\Controller;
 
 use App\Consumer\Handler\DownloadRequest as DownloadRequestMessage;
 use App\Entity\DownloadRequest;
-use App\Entity\SubDefinition;
 use App\Report\ExposeLogActionInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -27,11 +25,7 @@ final class PostDownloadSubDefViaEmailAction extends AbstractAssetAction
         $publication = $this->getPublication($publicationId);
         $subDef = $this->getSubDefOfPublication($subDefId, $publication);
         $asset = $subDef->getAsset();
-
-        $subDef = $this->em->getRepository(SubDefinition::class)->find($subDefId);
-        if (!$subDef instanceof SubDefinition) {
-            throw new NotFoundHttpException(sprintf('Sub def "%s" not found', $subDefId));
-        }
+        $this->downloadPolicy->denyEmailRequestUnlessGranted($publication, $request);
 
         $downloadRequest = new DownloadRequest();
         $downloadRequest->setPublication($publication);

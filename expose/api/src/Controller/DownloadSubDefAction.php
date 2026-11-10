@@ -16,6 +16,7 @@ final class DownloadSubDefAction extends AbstractAssetAction
     {
         $publication = $this->getPublication($publicationId);
         $subDef = $this->getSubDefOfPublication($subDefId, $publication);
+        $this->downloadPolicy->denyDirectDownloadUnlessGranted($publication, $request);
         $asset = $subDef->getAsset();
 
         $this->reportClient->pushHttpRequestLog(

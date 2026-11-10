@@ -16,13 +16,14 @@ class PublicationArchiveTest extends AbstractExposeTestCase
 {
     public function testDownloadBuildsTheArchiveOnce(): void
     {
-        $publication = $this->createPublication(['title' => 'My Publication']);
+        $publication = $this->createPublication(['title' => 'My Publication', 'downloadEnabled' => true]);
         $id = $publication->getId();
         $this->createAsset($publication);
         $this->createAsset($publication);
         $this->clearEmBeforeApiCall();
 
-        $response = $this->request(null, 'GET', '/publications/'.$id.'/archive');
+        $archiveUrl = $this->getArchiveDownloadUrl($id);
+        $response = $this->request(null, 'GET', $archiveUrl);
         $this->assertEquals(302, $response->getStatusCode());
 
         $publication = $this->reloadPublication($id);
@@ -42,7 +43,7 @@ class PublicationArchiveTest extends AbstractExposeTestCase
         self::getStorageManager()->delete($archivePath);
         self::getStorageManager()->store($archivePath, 'cached');
 
-        $response = $this->request(null, 'GET', '/publications/'.$id.'/archive');
+        $response = $this->request(null, 'GET', $archiveUrl);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertSame($archivePath, $this->reloadPublication($id)->getArchivePath());
         $this->assertSame('cached', stream_get_contents(self::getStorageManager()->getStream($archivePath)));
@@ -50,13 +51,14 @@ class PublicationArchiveTest extends AbstractExposeTestCase
 
     public function testAddingAnAssetReplacesTheArchive(): void
     {
-        $publication = $this->createPublication();
+        $publication = $this->createPublication(['downloadEnabled' => true]);
         $id = $publication->getId();
         $this->createAsset($publication);
         $this->createAsset($publication);
         $this->clearEmBeforeApiCall();
 
-        $response = $this->request(null, 'GET', '/publications/'.$id.'/archive');
+        $archiveUrl = $this->getArchiveDownloadUrl($id);
+        $response = $this->request(null, 'GET', $archiveUrl);
         $this->assertEquals(302, $response->getStatusCode());
         $previousPath = $this->reloadPublication($id)->getArchivePath();
 
@@ -64,7 +66,7 @@ class PublicationArchiveTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         $transport = $this->interceptTransport();
-        $response = $this->request(null, 'GET', '/publications/'.$id.'/archive');
+        $response = $this->request(null, 'GET', $archiveUrl);
         $this->assertEquals(302, $response->getStatusCode());
 
         $archivePath = $this->reloadPublication($id)->getArchivePath();
@@ -83,12 +85,12 @@ class PublicationArchiveTest extends AbstractExposeTestCase
 
     public function testDeletingThePublicationDeletesTheArchive(): void
     {
-        $publication = $this->createPublication();
+        $publication = $this->createPublication(['downloadEnabled' => true]);
         $id = $publication->getId();
         $this->createAsset($publication);
         $this->clearEmBeforeApiCall();
 
-        $this->request(null, 'GET', '/publications/'.$id.'/archive');
+        $this->request(null, 'GET', $this->getArchiveDownloadUrl($id));
         $archivePath = $this->reloadPublication($id)->getArchivePath();
         $this->assertAssetFileExists($archivePath);
         $this->clearEmBeforeApiCall();
@@ -100,7 +102,7 @@ class PublicationArchiveTest extends AbstractExposeTestCase
 
     public function testPublicationWithoutAssetHasNoArchive(): void
     {
-        $id = $this->createPublication()->getId();
+        $id = $this->createPublication(['downloadEnabled' => true])->getId();
 
         $response = $this->request(null, 'GET', '/publications/'.$id.'/archive');
         $this->assertEquals(404, $response->getStatusCode());
@@ -113,7 +115,7 @@ class PublicationArchiveTest extends AbstractExposeTestCase
 
     public function testProtectedPublicationArchiveIsDenied(): void
     {
-        $publication = $this->createPublication(['password' => 'xxx']);
+        $publication = $this->createPublication(['password' => 'xxx', 'downloadEnabled' => true]);
         $id = $publication->getId();
         $this->createAsset($publication);
         $this->clearEmBeforeApiCall();
@@ -125,7 +127,7 @@ class PublicationArchiveTest extends AbstractExposeTestCase
 
     public function testArchiveRequestViaEmail(): void
     {
-        $publication = $this->createPublication();
+        $publication = $this->createPublication(['downloadEnabled' => true]);
         $id = $publication->getId();
         $this->createAsset($publication);
         $this->createAsset($publication);
@@ -151,6 +153,16 @@ class PublicationArchiveTest extends AbstractExposeTestCase
         $archivePath = $this->reloadPublication($id)->getArchivePath();
         $this->assertNotNull($archivePath);
         $this->assertCount(2, $this->getArchiveEntries($archivePath));
+    }
+
+    private function getArchiveDownloadUrl(string $id): string
+    {
+        $response = $this->request(null, 'GET', '/publications/'.$id);
+        $this->assertSame(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsString($json['archiveDownloadUrl'] ?? null);
+
+        return $json['archiveDownloadUrl'];
     }
 
     private function reloadPublication(string $id): Publication

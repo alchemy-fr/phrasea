@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Alchemy\AuthBundle\Security\UriJwtManager;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\NotifierBundle\Manager\NotifierManager;
 use App\Archive\PublicationArchiver;
 use App\Entity\DownloadRequest;
+use App\Security\PublicationDownloadPolicy;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -20,7 +20,7 @@ final readonly class PublicationArchiveRequestHandler
     public function __construct(
         private NotifierManager $notifier,
         private PublicationArchiver $archiver,
-        private UriJwtManager $uriJwtManager,
+        private PublicationDownloadPolicy $downloadPolicy,
         private UrlGeneratorInterface $urlGenerator,
         private EntityManagerInterface $em,
     ) {
@@ -42,7 +42,7 @@ final readonly class PublicationArchiveRequestHandler
         $uri = $this->urlGenerator->generate('archive_download', [
             'id' => $publication->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
-        $downloadUrl = $this->uriJwtManager->signUri(
+        $downloadUrl = $this->downloadPolicy->signEmailDownloadUri(
             $uri,
             $daysAvailable * 3600 * 24,
         );
