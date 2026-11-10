@@ -46,8 +46,9 @@ abstract class AbstractAdminTestCase extends WebTestCase
         }
         $this->assertEquals(200, $response->getStatusCode());
 
-        $crawler
-            ->filter('nav#main-menu ul.submenu a')
+        $menuLinks = $crawler->filter('nav#main-menu a.ea-sidebar-item-link');
+        $this->assertGreaterThan(0, $menuLinks->count(), 'No link found in the admin menu');
+        $menuLinks
             ->each(function (Crawler $node): void {
                 if ('#' !== $href = $node->attr('href')) {
                     $this->assertMatchesRegularExpression('#^http://localhost/admin/?.+$#', $href);

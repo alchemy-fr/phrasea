@@ -288,8 +288,9 @@
         "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
         "pre-phpunit": [
-            "rm -f var/cache/test/data*.db",
+            "rm -f var/cache/test/data*.db var/cache/test/configurator.db",
             "bin/console -e test doctrine:schema:create",
+            "bin/console -e test doctrine:schema:create --em=configurator",
             "bin/console -e test fos:elastica:reset"
         ],
         "phpunit": [
