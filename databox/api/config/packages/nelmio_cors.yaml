@@ -1,6 +1,7 @@
 nelmio_cors:
     defaults:
-        allow_origin: ['*']
+        # The dashboard manages the groups through this API
+        allow_origin: ['%env(origin:DATABOX_CLIENT_URL)%', '%env(origin:DASHBOARD_CLIENT_URL)%']
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
         allow_headers: ['Content-Type', 'Authorization', 'X-Notification-Disabled', 'X-Webhook-Disabled', 'X-Data-Locale', 'X-Impersonate-User']
         expose_headers: ['Link', 'Content-Disposition']

@@ -50,9 +50,9 @@ describe('getServerConfig', () => {
         );
 
         expect(config.sentry).toEqual({
-            dsn: 'https://public@o1.ingest.sentry.io/42',
             environment: 'staging',
             release: '1.2.3',
         });
+        expect(JSON.stringify(config)).not.toContain('o1.ingest.sentry.io');
     });
 });

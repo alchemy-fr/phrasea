@@ -1,7 +1,13 @@
 import 'server-only';
 import {createFixedWindowLimiter} from './rateLimit';
+import {
+    parseDsn,
+    SENTRY_TUNNEL_DSN,
+    type ParsedDsn,
+} from '../monitoring/tunnelDsn';
 
 export {SENTRY_TUNNEL_PATH} from '../monitoring/tunnelPath';
+export {parseDsn, SENTRY_TUNNEL_DSN, type ParsedDsn};
 
 export const DEFAULT_PER_IP_LIMIT = 30;
 export const DEFAULT_GLOBAL_LIMIT = 300;
@@ -13,41 +19,6 @@ const UPSTREAM_TIMEOUT_MS = 5_000;
 const FORWARDED_RESPONSE_HEADERS = ['Retry-After', 'X-Sentry-Rate-Limits'];
 /** A `Response` with one of these statuses must not have a body */
 const NULL_BODY_STATUSES = [101, 103, 204, 205, 304];
-
-export type ParsedDsn = {
-    /** With the trailing colon, as `URL.protocol` */
-    protocol: string;
-    /** With the port, if any */
-    host: string;
-    /** Path under which Sentry is served, empty or starting with a slash */
-    pathPrefix: string;
-    projectId: string;
-};
-
-/** `https://<key>@<host>[/<path>]/<projectId>`, undefined when invalid */
-export function parseDsn(dsn: string): ParsedDsn | undefined {
-    let url: URL;
-    try {
-        url = new URL(dsn);
-    } catch {
-        return undefined;
-    }
-    if (!['http:', 'https:'].includes(url.protocol) || !url.username) {
-        return undefined;
-    }
-    const segments = url.pathname.replace(/\/+$/, '').split('/');
-    const projectId = segments.pop() ?? '';
-    if (!/^\d+$/.test(projectId)) {
-        return undefined;
-    }
-
-    return {
-        protocol: url.protocol,
-        host: url.host,
-        pathPrefix: segments.join('/'),
-        projectId,
-    };
-}
 
 export type SentryTunnelOptions = {
     /** The DSN of the server: the only Sentry project envelopes are relayed to */
@@ -82,7 +53,14 @@ export function sentryTunnelOptionsFromEnv(
     };
 }
 
-/** The client IP as set by Traefik, `unknown` without any proxy header */
+/**
+ * The client IP, `unknown` without any proxy header.
+ *
+ * `x-real-ip` is set by Traefik / the ingress from the connection, overwriting
+ * whatever the client sent. Otherwise the last `x-forwarded-for` entry, the
+ * one appended by the nearest proxy: the first ones come from the client and
+ * would let it pick its rate limit bucket.
+ */
 export function getClientIp(request: Request): string {
     const realIp = request.headers.get('x-real-ip')?.trim();
     if (realIp) {
@@ -90,8 +68,9 @@ export function getClientIp(request: Request): string {
     }
     const forwardedFor = request.headers
         .get('x-forwarded-for')
-        ?.split(',')[0]
-        .trim();
+        ?.split(',')
+        .pop()
+        ?.trim();
 
     return forwardedFor || 'unknown';
 }
@@ -141,27 +120,57 @@ async function readBody(
     return body;
 }
 
-/** The DSN of the envelope header (its first line), undefined if invalid */
-function readEnvelopeDsn(body: Uint8Array): ParsedDsn | undefined {
-    const end = body.indexOf(0x0a);
-    const headerLine = new TextDecoder().decode(
-        end === -1 ? body : body.subarray(0, end)
-    );
+type EnvelopeHeader = {
+    /** The parsed JSON of the first line */
+    header: Record<string, unknown> & {dsn: string};
+    /** Offset of what follows the first line (its line feed included) */
+    end: number;
+};
+
+/** The header of the envelope (its first line), undefined without a DSN */
+function readEnvelopeHeader(body: Uint8Array): EnvelopeHeader | undefined {
+    const newLine = body.indexOf(0x0a);
+    const end = newLine === -1 ? body.length : newLine;
     let header: unknown;
     try {
-        header = JSON.parse(headerLine);
+        header = JSON.parse(new TextDecoder().decode(body.subarray(0, end)));
     } catch {
         return undefined;
     }
     if (
         !header ||
         typeof header !== 'object' ||
+        Array.isArray(header) ||
         typeof (header as {dsn?: unknown}).dsn !== 'string'
     ) {
         return undefined;
     }
 
-    return parseDsn((header as {dsn: string}).dsn);
+    return {header: header as EnvelopeHeader['header'], end};
+}
+
+function isSameProject(a: ParsedDsn, b: ParsedDsn): boolean {
+    return a.host === b.host && a.projectId === b.projectId;
+}
+
+/**
+ * The envelope with the given DSN in its header, the items copied byte for
+ * byte (their lengths only cover the items)
+ */
+function withEnvelopeDsn(
+    body: Uint8Array,
+    {header, end}: EnvelopeHeader,
+    dsn: string
+): Uint8Array<ArrayBuffer> {
+    const headerLine = new TextEncoder().encode(
+        JSON.stringify({...header, dsn})
+    );
+    const rest = body.subarray(end);
+    const envelope = new Uint8Array(headerLine.length + rest.length);
+    envelope.set(headerLine);
+    envelope.set(rest, headerLine.length);
+
+    return envelope;
 }
 
 /**
@@ -170,8 +179,13 @@ function readEnvelopeDsn(body: Uint8Array): ParsedDsn | undefined {
  * limit. Both limits are kept in memory: they apply per process, thus per
  * replica.
  *
- * Not an open relay: the envelope must target the project of the server DSN,
- * and nothing but the envelope and the client IP is passed on.
+ * The browser SDK is given `SENTRY_TUNNEL_DSN`, never the DSN of the server:
+ * the DSN of the envelope header is replaced with the latter before relaying.
+ * Envelopes still carrying the real DSN (pages loaded before it was hidden)
+ * are accepted too.
+ *
+ * Not an open relay: the envelope must target the tunnel or the project of the
+ * server DSN, and nothing but the envelope and the client IP is passed on.
  */
 export function createSentryTunnelHandler({
     dsn,
@@ -185,6 +199,7 @@ export function createSentryTunnelHandler({
     if (dsn && !upstream) {
         console.error('[sentry-tunnel] invalid SENTRY_DSN, tunnel disabled');
     }
+    const tunnel = parseDsn(SENTRY_TUNNEL_DSN)!;
     const upstreamUrl =
         upstream &&
         `${upstream.protocol}//${upstream.host}${upstream.pathPrefix}/api/${upstream.projectId}/envelope/`;
@@ -198,7 +213,7 @@ export function createSentryTunnelHandler({
     });
 
     return async request => {
-        if (!upstream || !upstreamUrl) {
+        if (!dsn || !upstream || !upstreamUrl) {
             return error('Not found', 404);
         }
 
@@ -224,11 +239,12 @@ export function createSentryTunnelHandler({
             return error('Envelope too large', 413);
         }
 
-        const target = readEnvelopeDsn(body);
+        const envelopeHeader = readEnvelopeHeader(body);
+        const target = envelopeHeader && parseDsn(envelopeHeader.header.dsn);
         if (
+            !envelopeHeader ||
             !target ||
-            target.host !== upstream.host ||
-            target.projectId !== upstream.projectId
+            !(isSameProject(target, tunnel) || isSameProject(target, upstream))
         ) {
             return error('Invalid envelope', 400);
         }
@@ -246,7 +262,7 @@ export function createSentryTunnelHandler({
             response = await fetchImpl(upstreamUrl, {
                 method: 'POST',
                 headers,
-                body,
+                body: withEnvelopeDsn(body, envelopeHeader, dsn),
                 signal: AbortSignal.timeout(timeoutMs),
             });
             responseBody = await response.arrayBuffer();

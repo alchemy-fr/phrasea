@@ -5,6 +5,7 @@ import * as Sentry from '@sentry/react';
 import {
     initSentry,
     resetSentryForTests,
+    SENTRY_TUNNEL_DSN,
     SENTRY_TUNNEL_PATH,
     setSentryUser,
 } from './sentry';
@@ -18,7 +19,6 @@ vi.mock('@sentry/react', () => ({
 }));
 
 const config = {
-    dsn: 'https://public@o1.ingest.sentry.io/42',
     environment: 'prod',
     release: '1.2.3',
 };
@@ -41,8 +41,11 @@ describe('sentry', () => {
 
         expect(Sentry.init).toHaveBeenCalledTimes(1);
         const options = vi.mocked(Sentry.init).mock.calls[0][0];
+        expect(SENTRY_TUNNEL_DSN).toBe(
+            'https://public@sentry-tunnel.invalid/0'
+        );
         expect(options).toMatchObject({
-            dsn: config.dsn,
+            dsn: SENTRY_TUNNEL_DSN,
             environment: 'prod',
             release: '1.2.3',
             tunnel: '/api/relay',
@@ -69,14 +72,6 @@ describe('sentry', () => {
         initSentry(config, app);
 
         expect(Sentry.init).toHaveBeenCalledTimes(1);
-    });
-
-    it('is not initialized without DSN', () => {
-        initSentry({dsn: ''}, app);
-        setSentryUser({id: 'u1'});
-
-        expect(Sentry.init).not.toHaveBeenCalled();
-        expect(Sentry.setUser).not.toHaveBeenCalled();
     });
 
     it('sets and clears the user', () => {

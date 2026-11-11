@@ -211,6 +211,34 @@ YAML;
         $this->assertResponseStatusCodeSame(403);
     }
 
+    public function testDefinitionsOfADeletedPublicWorkspaceAreNotReadable(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-deleted', self::EDITOR, true);
+        $this->addUserOnWorkspace(self::READER, $ws->getId());
+        $definition = array_values($defaults->renditionDefinitions)[0];
+
+        $this->assertContains($definition->getId(), $this->memberIds($this->jsonRequest('GET', '/rendition-definitions', null)));
+        $this->jsonRequest('GET', '/rendition-definitions/'.$definition->getId(), self::READER);
+        $this->assertResponseIsSuccessful();
+
+        $em = self::getEntityManager();
+        $em->find($ws::class, $ws->getId())->delete();
+        $em->flush();
+
+        foreach ([null, self::READER] as $userId) {
+            $this->assertSame([], $this->memberIds($this->jsonRequest('GET', '/rendition-definitions', $userId)));
+        }
+
+        $this->jsonRequest('GET', '/rendition-definitions/'.$definition->getId(), null);
+        $this->assertResponseStatusCodeSame(401);
+        $this->jsonRequest('GET', '/rendition-definitions/'.$definition->getId(), self::READER);
+        $this->assertResponseStatusCodeSame(403);
+
+        // The workspace editors keep reading them
+        $this->jsonRequest('GET', '/rendition-definitions/'.$definition->getId(), self::EDITOR);
+        $this->assertResponseIsSuccessful();
+    }
+
     public function testCreateRights(): void
     {
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);

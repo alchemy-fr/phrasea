@@ -4,6 +4,7 @@ import {
     createSentryTunnelHandler,
     getClientIp,
     parseDsn,
+    SENTRY_TUNNEL_DSN,
     SENTRY_TUNNEL_PATH,
     sentryTunnelOptionsFromEnv,
     type SentryTunnelOptions,
@@ -99,10 +100,13 @@ describe('getClientIp', () => {
         ).toBe('10.0.0.1');
     });
 
-    it('falls back on the first forwarded IP', () => {
+    it('falls back on the IP appended by the nearest proxy', () => {
         expect(
-            getClientIp(request({'x-forwarded-for': ' 10.0.0.2 , 10.0.0.3'}))
-        ).toBe('10.0.0.2');
+            getClientIp(request({'x-forwarded-for': ' 10.0.0.2 , 10.0.0.3 '}))
+        ).toBe('10.0.0.3');
+        expect(getClientIp(request({'x-forwarded-for': '10.0.0.2'}))).toBe(
+            '10.0.0.2'
+        );
     });
 
     it('is unknown without any proxy header', () => {
@@ -166,6 +170,73 @@ describe('createSentryTunnelHandler', () => {
             'X-Forwarded-For': '10.0.0.1',
         });
         expect(new TextDecoder().decode(init?.body as Uint8Array)).toBe(body);
+    });
+
+    it('relays the envelopes of the tunnel DSN with the DSN of the server', async () => {
+        const items =
+            '{"type":"event","length":15}\n{"message":"x"}\n{"type":"attachment"}\n';
+        const header = {
+            event_id: 'e1',
+            sent_at: '2026-11-11T00:00:00.000Z',
+            dsn: SENTRY_TUNNEL_DSN,
+            sdk: {name: 'sentry.javascript.react', version: '11.11.0'},
+            trace: {trace_id: 't1', public_key: 'public'},
+        };
+        const response = await handler()(
+            post(`${JSON.stringify(header)}\n${items}`)
+        );
+
+        expect(response.status).toBe(200);
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'https://o1.ingest.sentry.io/api/42/envelope/'
+        );
+        const sent = new TextDecoder().decode(
+            fetchMock.mock.calls[0][1]?.body as Uint8Array
+        );
+        const newLine = sent.indexOf('\n');
+        expect(JSON.parse(sent.slice(0, newLine))).toEqual({
+            ...header,
+            dsn: DSN,
+        });
+        expect(Object.keys(JSON.parse(sent.slice(0, newLine)))).toEqual(
+            Object.keys(header)
+        );
+        expect(sent.slice(newLine + 1)).toBe(items);
+    });
+
+    it('keeps the binary items of a rewritten envelope as is', async () => {
+        const header = new TextEncoder().encode(
+            `${envelope(SENTRY_TUNNEL_DSN)}`
+        );
+        const attachment = new Uint8Array([0, 255, 1, 254, 0x0a, 128, 0]);
+        const body = new Uint8Array(header.length + attachment.length);
+        body.set(header);
+        body.set(attachment, header.length);
+
+        const response = await handler()(post(body));
+
+        expect(response.status).toBe(200);
+        const sent = fetchMock.mock.calls[0][1]?.body as Uint8Array;
+        const expectedHeader = new TextEncoder().encode(`${envelope(DSN)}`);
+        expect(Array.from(sent.subarray(0, expectedHeader.length))).toEqual(
+            Array.from(expectedHeader)
+        );
+        expect(Array.from(sent.subarray(expectedHeader.length))).toEqual(
+            Array.from(attachment)
+        );
+    });
+
+    it('relays an envelope made of its header only', async () => {
+        const response = await handler()(
+            post(JSON.stringify({dsn: SENTRY_TUNNEL_DSN}))
+        );
+
+        expect(response.status).toBe(200);
+        expect(
+            new TextDecoder().decode(
+                fetchMock.mock.calls[0][1]?.body as Uint8Array
+            )
+        ).toBe(JSON.stringify({dsn: DSN}));
     });
 
     it('keeps the port and the path prefix of the DSN', async () => {
@@ -233,6 +304,11 @@ describe('createSentryTunnelHandler', () => {
             'the DSN of another project',
             envelope('https://public@o1.ingest.sentry.io/43'),
         ],
+        [
+            'another project of the tunnel host',
+            envelope('https://public@sentry-tunnel.invalid/1'),
+        ],
+        ['a header which is not an object', '["dsn"]\n'],
     ])('rejects %s', async (_, body) => {
         const response = await handler()(post(body));
 

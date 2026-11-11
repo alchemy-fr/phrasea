@@ -3,7 +3,8 @@
  *
  * Only errors are reported (neither tracing nor replay), through the same
  * origin tunnel (`SENTRY_TUNNEL_PATH`) which relays them to the Sentry
- * project of the server DSN behind a rate limit.
+ * project of the server DSN behind a rate limit. The browser never knows that
+ * DSN: the SDK is given `SENTRY_TUNNEL_DSN`, which the tunnel replaces.
  *
  * Every function is a no-op on the server and until `initSentry()` has been
  * called, which only happens when the stack configures Sentry: callers never
@@ -11,9 +12,10 @@
  */
 import * as Sentry from '@sentry/react';
 import {SENTRY_TUNNEL_PATH} from './tunnelPath';
+import {SENTRY_TUNNEL_DSN} from './tunnelDsn';
 import type {SentryClientConfig} from './config';
 
-export {SENTRY_TUNNEL_PATH};
+export {SENTRY_TUNNEL_DSN, SENTRY_TUNNEL_PATH};
 export type {SentryClientConfig};
 
 export type SentryUserInfo = {
@@ -28,13 +30,13 @@ export function initSentry(
     config: SentryClientConfig,
     {appId, appName}: {appId: string; appName: string}
 ): void {
-    if (initialized || typeof window === 'undefined' || !config.dsn) {
+    if (initialized || typeof window === 'undefined') {
         return;
     }
     initialized = true;
 
     Sentry.init({
-        dsn: config.dsn,
+        dsn: SENTRY_TUNNEL_DSN,
         environment: config.environment,
         release: config.release,
         tunnel: SENTRY_TUNNEL_PATH,

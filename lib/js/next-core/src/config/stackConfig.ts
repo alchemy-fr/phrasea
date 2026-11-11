@@ -5,10 +5,10 @@ import {httpGet, isFalse, type HttpGet} from '../server/http';
 
 /**
  * The stack configuration: the configurator entries (logo, organisation
- * theme…) that the API dumps to `config.json` in the static bucket. The other
- * clients fetch it once at container start (lib/bash/configurator/
- * get-config.sh) into /etc/app/stack-config.json; this server reads that file
- * when present and, when the bucket is configured, refreshes it from the
+ * theme…) that the API dumps to `config.json` in the static bucket. The PHP
+ * APIs fetch it once at container start (lib/bash/configurator/
+ * get-config.sh) into /etc/app/stack-config.json; this server reads such a
+ * file when present and, when the bucket is configured, refreshes it from the
  * bucket every `STACK_CONFIG_REFRESH_INTERVAL` seconds so that changes made
  * by an administrator do not need a restart.
  */

@@ -56,10 +56,10 @@ baked at build time.
 Like the other clients, this one reads the **stack configuration**: the
 configurator entries (`Global Config` in the API admin) that the API dumps to
 `config.json` in the static bucket. It carries the `logo` and the
-**organisation theme** (`databox.theme`). The other clients fetch it once at
-container start (`lib/bash/configurator/get-config.sh`) and compile it into
-their HTML; this server does the same at request time, so that the theme is
-served as CSS with the page (no flash, no extra request):
+**organisation theme** (`databox.theme`). The PHP APIs fetch it once at
+container start (`lib/bash/configurator/get-config.sh`); this server reads it
+at request time, so that the theme is served as CSS with the page (no flash,
+no extra request):
 
 - when `CONFIGURATOR_S3_ENDPOINT` / `CONFIGURATOR_S3_BUCKET_NAME` are set,
   `config.json` is fetched from the bucket (same URL and signature rules as
