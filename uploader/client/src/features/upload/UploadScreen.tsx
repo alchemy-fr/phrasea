@@ -16,6 +16,7 @@ import {
     CheckIcon,
     ChevronDownIcon,
     ChevronUpIcon,
+    HistoryIcon,
     PencilIcon,
     PlusIcon,
     RotateCwIcon,
@@ -29,7 +30,6 @@ import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {Page} from '@/components/layout/AppShell';
 import {useAuth} from '@/lib/auth/AuthProvider';
-import {useConfig} from '@/lib/config/ConfigProvider';
 import {
     commit,
     deleteAsset,
@@ -38,11 +38,12 @@ import {
     getTargetForm,
 } from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
+import type {RequestOptions} from '@/lib/api/http';
 import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {formatFileSize} from '@/lib/utils/format';
 import {cn} from '@alchemy/next-ui/utils/cn';
-import type {FormValues} from '@/features/form-builder/types';
+import type {FormDefinition, FormValues} from '@/features/form-builder/types';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';
 import {targetFormQueryKey} from '@/features/admin/queryKeys';
 import type {
@@ -57,6 +58,8 @@ import {FileTile} from './FileTile';
 import {checkBatch} from './limits';
 import {useBatchIssueMessage, useFileDrop} from './useFileDrop';
 import {useUploadErrorMessage, useUploadQueue} from './useUploadQueue';
+import {useUploadAccess} from './UploadAccessContext';
+import {useUploadLimits} from './useUploadLimits';
 
 export type WizardStep = 'select' | 'form' | 'progress' | 'done';
 
@@ -73,27 +76,64 @@ type Sent = {
 const NOTIFY_FIELD = '__notify';
 
 /** The form of the target, translated on display */
-export function useTargetForm(targetId: string) {
+export function useTargetForm(targetId: string, opts?: RequestOptions) {
     return useQuery({
         queryKey: targetFormQueryKey(targetId),
-        queryFn: () => getTargetForm(targetId),
+        queryFn: () => getTargetForm(targetId, opts),
     });
+}
+
+/** Without the fields of the signed-in users (no one to notify behind a link) */
+function withoutNotifyField(form: FormDefinition): FormDefinition {
+    return {
+        ...form,
+        fields: form.fields.filter(
+            f => f.source === 'layout' || f.key !== NOTIFY_FIELD
+        ),
+    };
+}
+
+/** The form of the target, as the upload wizard shows it */
+function useLinkForm(
+    targetForm: ReturnType<typeof useTargetForm>,
+    throughLink: boolean
+) {
+    const {data} = targetForm;
+    const definition = useMemo(
+        () => (data && throughLink ? withoutNotifyField(data) : data),
+        [data, throughLink]
+    );
+
+    return {
+        data: definition,
+        error: targetForm.error,
+        isPending: targetForm.isPending,
+    };
 }
 
 export function UploadScreen({targetId}: {targetId: string}) {
     const {t} = useTranslation();
     const {user} = useAuth();
+    const {requestOptions, link, userKey, onCommit} = useUploadAccess();
+    const limits = useUploadLimits();
     const confirm = useConfirm();
     const target = useQuery({
         queryKey: ['targets', targetId],
-        queryFn: () => getTarget(targetId),
+        queryFn: () => getTarget(targetId, requestOptions),
     });
     const targets = useQuery({
         queryKey: targetsQueryKey,
         queryFn: getAllTargets,
+        // Through an upload link, there is no other target
+        enabled: !link,
     });
-    const form = useTargetForm(targetId);
-    const {queue, snapshot} = useUploadQueue(targetId, user!.username);
+    const targetForm = useTargetForm(targetId, requestOptions);
+    const form = useLinkForm(targetForm, !!link);
+    const {queue, snapshot} = useUploadQueue(
+        targetId,
+        userKey ?? user!.username,
+        requestOptions
+    );
     const errorMessage = useUploadErrorMessage();
 
     const [step, setStep] = useState<WizardStep>('select');
@@ -105,6 +145,9 @@ export function UploadScreen({targetId}: {targetId: string}) {
     });
     const [sent, setSent] = useState<Sent>({files: [], notify: false});
     const [showFiles, setShowFiles] = useState(false);
+    // Remounts the form with other initial values
+    const [formKey, setFormKey] = useState(0);
+    const [formInitialValues, setFormInitialValues] = useState<FormValues>();
     const committing = useRef(false);
     // The assets belong to the commit once it is sent (it attaches them later)
     const committed = useRef(false);
@@ -116,17 +159,22 @@ export function UploadScreen({targetId}: {targetId: string}) {
     useUnsavedChangesPrompt(files.length > 0 && step !== 'done');
 
     /** Deletes the assets of files sent to a batch that will not be committed */
-    const discard = useCallback((items: UploadItem[]) => {
-        if (committing.current || committed.current) {
-            return;
-        }
-        items.forEach(i => {
-            if (i.assetId) {
-                // Left to the expired assets cleanup if this fails
-                deleteAsset(i.assetId).catch(() => undefined);
+    const discard = useCallback(
+        (items: UploadItem[]) => {
+            if (committing.current || committed.current) {
+                return;
             }
-        });
-    }, []);
+            items.forEach(i => {
+                if (i.assetId) {
+                    // Left to the expired assets cleanup if this fails
+                    deleteAsset(i.assetId, requestOptions).catch(
+                        () => undefined
+                    );
+                }
+            });
+        },
+        [requestOptions]
+    );
 
     // Read on unmount: the queue is already emptied by then
     const lastItems = useRef<UploadItem[]>([]);
@@ -140,6 +188,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
         committed.current = false;
         setFiles([]);
         setFormData(undefined);
+        setFormInitialValues(undefined);
         setCommitState({status: 'idle'});
         setShowFiles(false);
         setStep('select');
@@ -207,12 +256,16 @@ export function UploadScreen({targetId}: {targetId: string}) {
         setCommitState({status: 'pending'});
         const items = queue.getSnapshot().items;
         try {
-            await commit({
-                targetId,
-                files: items.map(i => i.assetId!),
-                formData,
-            });
+            await commit(
+                {
+                    targetId,
+                    files: items.map(i => i.assetId!),
+                    formData,
+                },
+                requestOptions
+            );
             committed.current = true;
+            onCommit?.();
             setSent({
                 files: items.map(i => ({name: i.file.name, size: i.file.size})),
                 notify: formData[NOTIFY_FIELD] === true,
@@ -226,7 +279,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
         } finally {
             committing.current = false;
         }
-    }, [formData, queue, targetId]);
+    }, [formData, queue, targetId, requestOptions, onCommit]);
 
     // Committed as soon as both the files and the form are there
     useEffect(() => {
@@ -322,7 +375,19 @@ export function UploadScreen({targetId}: {targetId: string}) {
                     uploadPercent={snapshot.complete ? undefined : percent}
                 />
 
-                {step === 'select' ? (
+                {step === 'select' && limits.exhausted ? (
+                    <Alert
+                        variant="warning"
+                        data-testid="upload-link-exhausted"
+                    >
+                        {t(
+                            'upload_link.exhausted',
+                            'Nothing more can be sent with this link: its limit has been reached.'
+                        )}
+                    </Alert>
+                ) : null}
+
+                {step === 'select' && !limits.exhausted ? (
                     <>
                         {form.error ? (
                             <Alert variant="destructive" className="mb-4">
@@ -336,6 +401,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
                             onNext={startUpload}
                             nextDisabled={form.isPending || !!form.error}
                             withForm={withForm}
+                            urlImport={!link}
                         />
                     </>
                 ) : null}
@@ -384,10 +450,33 @@ export function UploadScreen({targetId}: {targetId: string}) {
                         </div>
                         {showFiles ? batchFiles : null}
                         <div className="mt-2 border-t pt-6">
+                            {link?.lastFormData ? (
+                                <div className="mb-4 flex justify-end">
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        data-testid="reuse-last-commit"
+                                        onClick={() => {
+                                            setFormInitialValues(
+                                                link.lastFormData ?? undefined
+                                            );
+                                            setFormKey(k => k + 1);
+                                        }}
+                                    >
+                                        <HistoryIcon />{' '}
+                                        {t(
+                                            'upload_link.reuse_last_commit',
+                                            'Reuse my previous information'
+                                        )}
+                                    </Button>
+                                </div>
+                            ) : null}
                             <MetadataFormStep
+                                key={formKey}
                                 targetId={targetId}
                                 form={form.data}
-                                initialValues={formData}
+                                initialValues={formData ?? formInitialValues}
                                 onCancel={cancel}
                                 onSubmit={values => {
                                     setFormData(values);
@@ -545,7 +634,9 @@ export function UploadScreen({targetId}: {targetId: string}) {
                                 <UploadCloudIcon />{' '}
                                 {t('upload.send_more', 'Send more files')}
                             </Button>
-                            {targets.data && targets.data.length > 1 ? (
+                            {!link &&
+                            targets.data &&
+                            targets.data.length > 1 ? (
                                 <Button variant="outline" asChild>
                                     <Link
                                         href={routes.home()}
@@ -730,7 +821,7 @@ function useBatchFileDrop(
     snapshot: QueueSnapshot,
     options: Parameters<typeof useFileDrop>[2]
 ) {
-    const {upload} = useConfig();
+    const upload = useUploadLimits();
     const issueMessage = useBatchIssueMessage();
 
     return useFileDrop(
@@ -756,7 +847,7 @@ function AddFilesButton({
     snapshot: QueueSnapshot;
 }) {
     const {t} = useTranslation();
-    const {upload} = useConfig();
+    const upload = useUploadLimits();
     const {getInputProps, open} = useBatchFileDrop(queue, snapshot, {
         noDrag: true,
     });

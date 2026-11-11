@@ -7,6 +7,7 @@ namespace App\Storage;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Asset;
 use App\Entity\Target;
+use App\Entity\UploadLink;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetManager
@@ -25,6 +26,7 @@ class AssetManager
         int $size,
         string $userId,
         ?array $data = null,
+        ?UploadLink $uploadLink = null,
     ): Asset {
         $asset = new Asset();
         $asset->setTarget($target);
@@ -34,6 +36,7 @@ class AssetManager
         $asset->setOriginalName($originalName);
         $asset->setSize($size);
         $asset->setData($data);
+        $asset->setUploadLink($uploadLink);
 
         $this->em->persist($asset);
         $this->em->flush();

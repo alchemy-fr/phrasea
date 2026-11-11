@@ -15,6 +15,7 @@ final readonly class CommitMessage
         private bool $notify = false,
         private ?string $locale = null,
         private array $options = [],
+        private ?string $uploadLinkId = null,
     ) {
     }
 
@@ -51,5 +52,10 @@ final readonly class CommitMessage
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    public function getUploadLinkId(): ?string
+    {
+        return $this->uploadLinkId;
     }
 }

@@ -1,18 +1,20 @@
 'use client';
 
-import {useRouter} from 'next/navigation';
+import {usePathname, useRouter} from 'next/navigation';
 import {SessionExpiredDialog as BaseSessionExpiredDialog} from '@alchemy/next-core/auth/SessionExpiredDialog';
 import {useAuth} from './AuthProvider';
-import {routes} from '@/lib/routes';
+import {isUploadLinkPath, routes} from '@/lib/routes';
 
 export function SessionExpiredDialog() {
     const {sessionExpired, login, redirecting, dismissSessionExpired} =
         useAuth();
     const router = useRouter();
+    // An upload link does not depend on a session
+    const onUploadLink = isUploadLinkPath(usePathname());
 
     return (
         <BaseSessionExpiredDialog
-            open={sessionExpired}
+            open={sessionExpired && !onUploadLink}
             redirecting={redirecting}
             onLogin={() => login()}
             onDismiss={() => {

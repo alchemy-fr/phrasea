@@ -19,7 +19,6 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@alchemy/next-ui/ui/overlays';
-import {useConfig} from '@/lib/config/ConfigProvider';
 import {routes} from '@/lib/routes';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {formatFileSize} from '@/lib/utils/format';
@@ -27,6 +26,7 @@ import {describeAllowedTypes} from '@alchemy/next-ui/utils/mime';
 import {FileTile} from './FileTile';
 import {checkBatch, totalSize} from './limits';
 import {useBatchIssueMessage, useFileDrop} from './useFileDrop';
+import {useUploadLimits} from './useUploadLimits';
 
 type Props = {
     targetId: string;
@@ -37,6 +37,8 @@ type Props = {
     nextDisabled?: boolean;
     /** A form follows; without one, the next step sends the batch */
     withForm: boolean;
+    /** Offers to import a file from a URL instead */
+    urlImport?: boolean;
 };
 
 export function FileSelectionStep({
@@ -46,9 +48,10 @@ export function FileSelectionStep({
     onNext,
     nextDisabled,
     withForm,
+    urlImport = true,
 }: Props) {
     const {t} = useTranslation();
-    const {upload} = useConfig();
+    const upload = useUploadLimits();
     const confirm = useConfirm();
     const single = upload.maxFileCount === 1;
     const issues = checkBatch(files, upload);
@@ -199,24 +202,28 @@ export function FileSelectionStep({
             ))}
 
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <LinkIcon className="size-4 shrink-0" />
-                    <span>
-                        <Trans
-                            i18nKey="upload.or_import_url"
-                            defaults="or <anchor>import a file from a URL</anchor>"
-                            components={{
-                                anchor: (
-                                    <Link
-                                        href={routes.download(targetId)}
-                                        data-testid="download-link"
-                                        className="font-medium text-primary underline-offset-4 hover:underline"
-                                    />
-                                ),
-                            }}
-                        />
+                {urlImport ? (
+                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <LinkIcon className="size-4 shrink-0" />
+                        <span>
+                            <Trans
+                                i18nKey="upload.or_import_url"
+                                defaults="or <anchor>import a file from a URL</anchor>"
+                                components={{
+                                    anchor: (
+                                        <Link
+                                            href={routes.download(targetId)}
+                                            data-testid="download-link"
+                                            className="font-medium text-primary underline-offset-4 hover:underline"
+                                        />
+                                    ),
+                                }}
+                            />
+                        </span>
                     </span>
-                </span>
+                ) : (
+                    <span />
+                )}
                 <Button
                     data-testid="selection-next"
                     disabled={
@@ -253,7 +260,7 @@ export function FileSelectionStep({
  */
 function UploadConstraints({showTypes}: {showTypes: boolean}) {
     const {t} = useTranslation();
-    const {upload} = useConfig();
+    const upload = useUploadLimits();
     const types = describeAllowedTypes(upload.allowedTypes);
     const typesLabel = types
         ? t('upload.accepted_types', 'Accepted types: {{types}}', {types})
@@ -266,15 +273,25 @@ function UploadConstraints({showTypes}: {showTypes: boolean}) {
                   max: formatFileSize(upload.maxFileSize),
               })
             : undefined,
-        upload.maxFileCount && upload.maxFileCount > 1
-            ? t('upload.max_file_count', 'Up to {{max}} files per upload', {
-                  max: upload.maxFileCount,
+        upload.fileCountFromLink && upload.maxFileCount
+            ? t('upload.link_file_count_left', {
+                  defaultValue_one: '{{count}} file left on this link',
+                  defaultValue_other: '{{count}} files left on this link',
+                  count: upload.maxFileCount,
               })
-            : undefined,
+            : upload.maxFileCount && upload.maxFileCount > 1
+              ? t('upload.max_file_count', 'Up to {{max}} files per upload', {
+                    max: upload.maxFileCount,
+                })
+              : undefined,
         upload.maxCommitSize
-            ? t('upload.max_commit_size', 'Up to {{max}} per upload', {
-                  max: formatFileSize(upload.maxCommitSize),
-              })
+            ? upload.commitSizeFromLink
+                ? t('upload.link_size_left', '{{max}} left on this link', {
+                      max: formatFileSize(upload.maxCommitSize),
+                  })
+                : t('upload.max_commit_size', 'Up to {{max}} per upload', {
+                      max: formatFileSize(upload.maxCommitSize),
+                  })
             : undefined,
     ].filter(Boolean);
 

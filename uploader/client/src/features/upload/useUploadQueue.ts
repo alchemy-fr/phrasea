@@ -4,7 +4,9 @@ import {useEffect, useState, useSyncExternalStore} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {TFunction} from 'i18next';
 import {toast} from 'sonner';
-import type {RetryNotice} from '@/lib/api/upload';
+import {uploadFileParts, type RetryNotice} from '@/lib/api/upload';
+import {createAsset} from '@/lib/api/uploader';
+import type {RequestOptions} from '@/lib/api/http';
 import {
     UploadQueue,
     OFFLINE_MESSAGE,
@@ -104,8 +106,13 @@ function createRetryToast(t: TFunction) {
  * The upload queue of the wizard, bound to the target and to the user (the
  * resumable uploads are remembered per user). Its transfers stop when the
  * screen unmounts. Failures are shown by the wizard itself, not as toasts.
+ * `requestOptions` authenticate its calls otherwise (an upload link).
  */
-export function useUploadQueue(targetId: string, userKey: string) {
+export function useUploadQueue(
+    targetId: string,
+    userKey: string,
+    requestOptions?: RequestOptions
+) {
     // The instance, not `t`: the callbacks outlive the render they were
     // created in, and follow the language changes
     const {i18n} = useTranslation();
@@ -120,6 +127,10 @@ export function useUploadQueue(targetId: string, userKey: string) {
                     targetId,
                     resumeStorage,
                     onRetry: (file, notice) => retryToast.set(file, notice),
+                    upload: (file, options) =>
+                        uploadFileParts(file, {...options, requestOptions}),
+                    complete: (target, multipart, signal) =>
+                        createAsset(target, multipart, signal, requestOptions),
                 }),
             }),
         };

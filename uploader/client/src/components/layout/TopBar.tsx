@@ -3,7 +3,13 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
-import {BracesIcon, BugIcon, FileJsonIcon, UploadCloudIcon} from 'lucide-react';
+import {
+    BracesIcon,
+    BugIcon,
+    FileJsonIcon,
+    Link2Icon,
+    UploadCloudIcon,
+} from 'lucide-react';
 import {DropdownMenuItem} from '@alchemy/next-ui/ui/menu';
 import {
     AppLogo,
@@ -102,6 +108,15 @@ export function TopBar() {
                             'nav.target_data_editor',
                             'Target Data Editor'
                         )}
+                    />
+                ) : null}
+                {me?.permissions.upload_link ? (
+                    <NavLink
+                        href={routes.uploadLinks()}
+                        testId="nav-upload-links"
+                        active={pathname.startsWith(routes.uploadLinks())}
+                        icon={<Link2Icon />}
+                        label={t('nav.upload_links', 'Upload links')}
                     />
                 ) : null}
             </nav>

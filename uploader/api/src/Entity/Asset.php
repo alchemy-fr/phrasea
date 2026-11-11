@@ -195,6 +195,13 @@ class Asset extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $userId = null;
 
+    /**
+     * The upload link the file was sent through, if any.
+     */
+    #[ORM\ManyToOne(targetEntity: UploadLink::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?UploadLink $uploadLink = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -333,5 +340,15 @@ class Asset extends AbstractUuidEntity
     public function setData(?array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getUploadLink(): ?UploadLink
+    {
+        return $this->uploadLink;
+    }
+
+    public function setUploadLink(?UploadLink $uploadLink): void
+    {
+        $this->uploadLink = $uploadLink;
     }
 }

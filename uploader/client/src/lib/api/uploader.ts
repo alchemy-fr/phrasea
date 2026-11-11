@@ -1,4 +1,4 @@
-import {api} from './http';
+import {api, type RequestOptions} from './http';
 import {fetchAllPages, toPage} from './hydra';
 import type {
     FormErrors,
@@ -73,17 +73,19 @@ export function getAllTargets(): Promise<Target[]> {
     );
 }
 
-export function getTarget(id: string): Promise<Target> {
-    return api.get<Target>(`/targets/${id}`);
+export function getTarget(id: string, opts?: RequestOptions): Promise<Target> {
+    return api.get<Target>(`/targets/${id}`, opts);
 }
 
 /** The form of the target, null when it has none */
 export async function getTargetForm(
-    targetId: string
+    targetId: string,
+    opts?: RequestOptions
 ): Promise<FormDefinition | null> {
     return nullIfEmpty(
         await api.get<FormDefinition | null | undefined>(
-            `/targets/${targetId}/form`
+            `/targets/${targetId}/form`,
+            opts
         )
     );
 }
@@ -136,12 +138,17 @@ function nullIfEmpty<T extends object>(value: T | null | undefined): T | null {
 
 export async function validateForm(
     targetId: string,
-    data: Record<string, unknown>
+    data: Record<string, unknown>,
+    opts?: RequestOptions
 ): Promise<FormErrors> {
-    const res = await api.post<{errors?: unknown}>('/form/validate', {
-        target: iri('targets', targetId),
-        data,
-    });
+    const res = await api.post<{errors?: unknown}>(
+        '/form/validate',
+        {
+            target: iri('targets', targetId),
+            data,
+        },
+        opts
+    );
 
     return normalizeFormErrors(res?.errors);
 }
@@ -150,26 +157,38 @@ export async function validateForm(
 export function createAsset(
     targetId: string,
     multipart: MultipartUpload,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    opts?: RequestOptions
 ): Promise<UploadedAsset> {
-    return api.post<UploadedAsset>('/assets', {targetId, multipart}, {signal});
+    return api.post<UploadedAsset>(
+        '/assets',
+        {targetId, multipart},
+        {...opts, signal}
+    );
 }
 
 /** Withdraws a file sent to a batch not committed yet */
-export function deleteAsset(id: string): Promise<void> {
-    return api.delete(`/assets/${id}`);
+export function deleteAsset(id: string, opts?: RequestOptions): Promise<void> {
+    return api.delete(`/assets/${id}`, opts);
 }
 
-export async function commit(input: {
-    targetId: string;
-    files: string[];
-    formData: Record<string, unknown>;
-}): Promise<void> {
-    await api.post('/commit', {
-        target: iri('targets', input.targetId),
-        files: input.files,
-        formData: input.formData,
-    });
+export async function commit(
+    input: {
+        targetId: string;
+        files: string[];
+        formData: Record<string, unknown>;
+    },
+    opts?: RequestOptions
+): Promise<void> {
+    await api.post(
+        '/commit',
+        {
+            target: iri('targets', input.targetId),
+            files: input.files,
+            formData: input.formData,
+        },
+        opts
+    );
 }
 
 /**
@@ -208,11 +227,12 @@ function optionsParams(query: FieldOptionsQuery) {
 export function getFormFieldOptions(
     targetId: string,
     key: string,
-    query: FieldOptionsQuery
+    query: FieldOptionsQuery,
+    opts?: RequestOptions
 ): Promise<FieldOptionsPage> {
     return api.get<FieldOptionsPage>(
         `/targets/${targetId}/form-fields/${encodeURIComponent(key)}/options`,
-        {params: optionsParams(query)}
+        {...opts, params: optionsParams(query)}
     );
 }
 

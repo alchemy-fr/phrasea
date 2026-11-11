@@ -34,6 +34,8 @@ export type UploaderUser = {
     permissions: {
         form_schema: boolean;
         target_data: boolean;
+        /** Creating upload links, and managing one's own */
+        upload_link: boolean;
     };
 };
 
@@ -65,3 +67,53 @@ export type UploadedAsset = {
  * property path (`_form` for the whole form) => its messages.
  */
 export type FormErrors = Record<string, string[]>;
+
+export type UploadLinkStatus = 'active' | 'disabled' | 'expired' | 'exhausted';
+
+/**
+ * A secret URL letting someone without an account upload to a target
+ * (`/upload-links`), within limits counted over every commit made with it.
+ * The API leaves out the properties that are null.
+ */
+export type UploadLink = HydraObject & {
+    id: string;
+    name?: string | null;
+    token: string;
+    enabled: boolean;
+    expiresAt?: string | null;
+    maxAssets?: number | null;
+    /** In bytes */
+    maxTotalSize?: number | null;
+    usedAssets: number;
+    usedSize: number;
+    ownerId: string;
+    lastCommitAt?: string | null;
+    createdAt: string;
+    updatedAt?: string;
+    status: UploadLinkStatus;
+    target: {id: string; name: string};
+};
+
+/** What can be written on a link; its target only when it is created */
+export type UploadLinkInput = {
+    target?: string;
+    name?: string | null;
+    enabled?: boolean;
+    expiresAt?: string | null;
+    maxAssets?: number | null;
+    maxTotalSize?: number | null;
+};
+
+/** `GET /upload-links/current`: the link the request is authenticated with */
+export type UploadLinkSession = {
+    id: string;
+    name: string | null;
+    target: {id: string; name: string; description: string | null};
+    expiresAt: string | null;
+    maxAssets: number | null;
+    maxTotalSize: number | null;
+    usedAssets: number;
+    usedSize: number;
+    /** What was entered in the form of the last commit made with the link */
+    lastFormData: Record<string, unknown> | null;
+};

@@ -10,6 +10,7 @@ import type {
     FormValues,
 } from '@/features/form-builder/types';
 import {getFormFieldOptions} from '@/lib/api/uploader';
+import type {RequestOptions} from '@/lib/api/http';
 import type {FormErrors} from '@/types/api';
 
 /** The form of a target, and the errors the API answers for its values */
@@ -30,10 +31,13 @@ export function useUploadForm(
 
 export type UploadFormState = ReturnType<typeof useUploadForm>;
 
-export function useTargetOptionsLoader(targetId: string): FieldOptionsLoader {
+export function useTargetOptionsLoader(
+    targetId: string,
+    opts?: RequestOptions
+): FieldOptionsLoader {
     return useCallback(
-        (field, query) => getFormFieldOptions(targetId, field.key, query),
-        [targetId]
+        (field, query) => getFormFieldOptions(targetId, field.key, query, opts),
+        [targetId, opts]
     );
 }
 

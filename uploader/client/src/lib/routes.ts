@@ -7,4 +7,12 @@ export const routes = {
     form: (targetId: string) => `/admin/forms/${targetId}`,
     targetDataList: () => '/admin/target-data',
     targetData: (targetId: string) => `/admin/target-data/${targetId}`,
+    uploadLinks: () => '/admin/upload-links',
+    /** The page of an upload link: no account needed */
+    uploadLink: (token: string) => `/l/${token}`,
 };
+
+/** Pages opened with an upload link, by people without an account */
+export function isUploadLinkPath(pathname: string): boolean {
+    return pathname.startsWith('/l/');
+}

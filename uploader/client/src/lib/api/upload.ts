@@ -6,7 +6,7 @@ import {
     type MultipartUploadTransport,
     type UploadPart,
 } from '@alchemy/api';
-import {api, isApiError} from './http';
+import {api, isApiError, type RequestOptions} from './http';
 import {getMimeTypeFromFile} from '@alchemy/next-ui/utils/mime';
 
 export type {MultipartUpload, UploadPart};
@@ -136,6 +136,8 @@ export type FileUploadOptions = {
     /** A renewal of the part URLs is being retried (null: it went through) */
     onRetry?: (notice: RetryNotice | null) => void;
     concurrency?: number;
+    /** How the API calls are authenticated (an upload link) */
+    requestOptions?: RequestOptions;
 };
 
 /**
@@ -152,18 +154,22 @@ export function uploadFileParts(
         onPartUploaded,
         onRetry,
         concurrency,
+        requestOptions,
     }: FileUploadOptions = {}
 ): Promise<MultipartUpload> {
     const transport: MultipartUploadTransport = {
         createUpload: (input, s) =>
-            api.post<MultipartUploadInit>('/uploads', input, {signal: s}),
+            api.post<MultipartUploadInit>('/uploads', input, {
+                ...requestOptions,
+                signal: s,
+            }),
         getPartUrls: (uploadId, from, s) =>
             withRetry(
                 () =>
                     api.post<MultipartUploadPlan>(
                         `/uploads/${uploadId}/parts`,
                         {from},
-                        {signal: s}
+                        {...requestOptions, signal: s}
                     ),
                 s,
                 onRetry

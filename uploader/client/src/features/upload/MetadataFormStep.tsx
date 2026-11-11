@@ -13,6 +13,7 @@ import {
     useTargetOptionsLoader,
     useUploadForm,
 } from './UploadForm';
+import {useUploadAccess} from './UploadAccessContext';
 
 type Props = {
     targetId: string;
@@ -36,8 +37,9 @@ export function MetadataFormStep({
     onSubmit,
 }: Props) {
     const {t} = useTranslation();
+    const {requestOptions} = useUploadAccess();
     const form = useUploadForm(definition, initialValues);
-    const loadOptions = useTargetOptionsLoader(targetId);
+    const loadOptions = useTargetOptionsLoader(targetId, requestOptions);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string>();
 
@@ -49,7 +51,7 @@ export function MetadataFormStep({
         setSubmitting(true);
         setError(undefined);
         try {
-            const errors = await validateForm(targetId, values);
+            const errors = await validateForm(targetId, values, requestOptions);
             if (hasFormErrors(errors)) {
                 form.setServerErrors(errors);
 

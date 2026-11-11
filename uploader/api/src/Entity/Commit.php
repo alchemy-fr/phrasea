@@ -142,6 +142,13 @@ class Commit extends AbstractUuidEntity
     private readonly \DateTimeImmutable $createdAt;
 
     /**
+     * The upload link the files were sent through, if any.
+     */
+    #[ORM\ManyToOne(targetEntity: UploadLink::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?UploadLink $uploadLink = null;
+
+    /**
      * Not mapped.
      */
     #[Groups([self::GROUP_WRITE])]
@@ -223,6 +230,7 @@ class Commit extends AbstractUuidEntity
             $this->notify,
             $this->locale,
             $this->options,
+            $this->uploadLink?->getId(),
         );
     }
 
@@ -238,6 +246,10 @@ class Commit extends AbstractUuidEntity
         $instance->setNotify($message->isNotify());
         $instance->setLocale($message->getLocale());
         $instance->setOptions($message->getOptions());
+        if (null !== $uploadLinkId = $message->getUploadLinkId()) {
+            // The link may have been deleted since
+            $instance->setUploadLink($em->find(UploadLink::class, $uploadLinkId));
+        }
 
         return $instance;
     }
@@ -323,5 +335,15 @@ class Commit extends AbstractUuidEntity
     public function setFormLocale(?string $formLocale): void
     {
         $this->formLocale = $formLocale;
+    }
+
+    public function getUploadLink(): ?UploadLink
+    {
+        return $this->uploadLink;
+    }
+
+    public function setUploadLink(?UploadLink $uploadLink): void
+    {
+        $this->uploadLink = $uploadLink;
     }
 }

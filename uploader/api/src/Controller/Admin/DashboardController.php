@@ -27,6 +27,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenu1 = [
             MenuItem::linkToRoute('Target params permissions', '', GlobalPermissionsController::ROUTE_TARGET_DATA),
             MenuItem::linkToRoute('Form schema permissions', '', GlobalPermissionsController::ROUTE_FORM_SCHEMA),
+            MenuItem::linkToRoute('Upload link permissions', '', GlobalPermissionsController::ROUTE_UPLOAD_LINK),
             MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)', ''),
         ];
 

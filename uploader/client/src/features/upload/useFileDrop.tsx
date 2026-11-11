@@ -8,13 +8,13 @@ import {
 } from 'react-dropzone';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
-import {useConfig} from '@/lib/config/ConfigProvider';
 import {formatFileSize} from '@/lib/utils/format';
 import {
     describeAllowedTypes,
     toDropzoneAccept,
 } from '@alchemy/next-ui/utils/mime';
 import {mergeSelection, type BatchIssue} from './limits';
+import {useUploadLimits} from './useUploadLimits';
 
 /** Names listed in a toast before it only counts the others */
 const MAX_LISTED_NAMES = 5;
@@ -34,7 +34,7 @@ export function useFileDrop(
     > = {}
 ) {
     const {t} = useTranslation();
-    const {upload} = useConfig();
+    const upload = useUploadLimits();
     const single = upload.maxFileCount === 1;
     const [typeRejected, setTypeRejected] = useState(false);
 

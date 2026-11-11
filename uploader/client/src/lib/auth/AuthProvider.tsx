@@ -13,6 +13,7 @@ import {usePathname, useSearchParams} from 'next/navigation';
 import {AUTH_CALLBACK_PATH, getAuthClient} from './client';
 import type {AuthUser} from '@alchemy/next-core/auth/oidc';
 import {toastError} from '@alchemy/next-ui/utils/errors';
+import {isUploadLinkPath} from '@/lib/routes';
 
 export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 
@@ -72,9 +73,13 @@ export function AuthProvider({children}: PropsWithChildren) {
         });
 
         // On the callback page, the code of the interactive sign-in is being
-        // exchanged: a silent sign-in would race with it.
+        // exchanged: a silent sign-in would race with it. An upload link is
+        // opened by people without an account: nothing to sign in to.
+        const path = window.location.pathname;
         client
-            .init({silent: window.location.pathname !== AUTH_CALLBACK_PATH})
+            .init({
+                silent: path !== AUTH_CALLBACK_PATH && !isUploadLinkPath(path),
+            })
             .catch(() => undefined)
             .finally(() => {
                 if (!cancelled) {

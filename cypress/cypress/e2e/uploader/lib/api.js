@@ -192,7 +192,28 @@ export const TARGETS = {
     plain: {slug: 'e2e-upload', name: 'E2E Upload', description: 'Files sent without any form'},
     form: {slug: 'e2e-form', name: 'E2E Form', description: 'Files sent with their information'},
     admin: {slug: 'e2e-admin', name: 'E2E Admin'},
+    link: {slug: 'e2e-link', name: 'E2E Link', description: 'Files sent through an upload link'},
 };
+
+/** Creates an upload link of the logged in user on `targetId` */
+export function createUploadLink(targetId, data = {}) {
+    return apiRequest({
+        method: 'POST',
+        path: '/upload-links',
+        body: {target: iri('targets', targetId), name: uniqueValue('e2e-link'), ...data},
+    });
+}
+
+export function updateUploadLink(id, data) {
+    return apiRequest({method: 'PATCH', path: `/upload-links/${id}`, body: data});
+}
+
+/** Deletes the links of a target left by the previous runs */
+export function removeUploadLinks(targetId) {
+    return fetchAll('/upload-links', {target: targetId}).then(links => {
+        links.forEach(link => apiRequest({method: 'DELETE', path: `/upload-links/${link.id}`}));
+    });
+}
 
 /**
  * A builder form: a required text, a bounded number and the notification

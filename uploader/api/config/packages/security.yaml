@@ -32,6 +32,7 @@ security:
             asset: true
             custom_authenticators:
                 - Alchemy\AuthBundle\Security\AccessTokenAuthenticator
+                - App\Security\Authenticator\UploadLinkAuthenticator
 
     access_control:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }

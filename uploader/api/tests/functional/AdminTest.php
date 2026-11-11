@@ -22,6 +22,7 @@ class AdminTest extends AbstractAdminTestCase
         foreach ([
             GlobalPermissionsController::ROUTE_FORM_SCHEMA => 'form_schema',
             GlobalPermissionsController::ROUTE_TARGET_DATA => 'target_params',
+            GlobalPermissionsController::ROUTE_UPLOAD_LINK => 'upload_link',
         ] as $route => $objectType) {
             $this->client->request('GET', $router->generate($route));
             $this->assertResponseIsSuccessful($route);

@@ -106,7 +106,7 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 1000)]
     #[Assert\Length(max: 1000)]
     #[Assert\NotBlank]
-    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE, UploadLink::GROUP_READ])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
@@ -170,7 +170,7 @@ class Target extends AbstractUuidEntity implements \Stringable
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    #[Groups([self::GROUP_INDEX])]
+    #[Groups([self::GROUP_INDEX, UploadLink::GROUP_READ])]
     public function getId(): string
     {
         return parent::getId();

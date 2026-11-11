@@ -6,6 +6,7 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
+use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\UploadManager;
@@ -13,7 +14,11 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Asset;
 use App\Entity\Target;
+use App\Entity\UploadLink;
+use App\Exception\UploadLinkQuotaExceededException;
 use App\Repository\TargetRepository;
+use App\Repository\UploadLinkRepository;
+use App\Security\UploadLinkUser;
 use App\Security\Voter\TargetVoter;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,6 +37,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         private PathGeneratorInterface $pathGenerator,
         private EntityManagerInterface $em,
         private TargetRepository $targetRepository,
+        private UploadLinkRepository $uploadLinkRepository,
         private Security $security,
     ) {
     }
@@ -41,14 +47,27 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         /** @var Request $request */
         $request = $context['request'];
 
-        $target = $this->resolveTarget($request);
+        $user = $this->security->getUser();
+        $link = null;
+        if ($user instanceof UploadLinkUser) {
+            $link = $this->uploadLinkRepository->find($user->getLinkId())
+                ?? throw new AccessDeniedHttpException('Upload link not found');
+            $target = $this->resolveLinkTarget($request, $link);
+            $userId = (string) $link->getOwnerId();
+        } else {
+            $target = $this->resolveTarget($request);
+            if (!$user instanceof JwtUser) {
+                throw new AccessDeniedHttpException('Authentication required');
+            }
+            $userId = $user->getId();
+        }
 
         if (!$this->security->isGranted(TargetVoter::UPLOAD, $target)) {
             throw new AccessDeniedHttpException('Cannot upload to this target');
         }
 
         if ($request->request->all('multipart')) {
-            return $this->handleMultipartUpload($request, $target);
+            return $this->handleMultipartUpload($request, $target, $user->getUserIdentifier(), $userId, $link);
         }
 
         ini_set('max_execution_time', '600');
@@ -65,6 +84,10 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         if (0 === $uploadedFile->getSize()) {
             throw new BadRequestHttpException('Empty file');
         }
+        $size = (int) $uploadedFile->getSize();
+        if (null !== $link) {
+            $this->assertFits($link, $size);
+        }
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
         $path = $this->pathGenerator->generatePath($extension);
@@ -73,14 +96,19 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         $this->storageManager->storeStream($path, $stream);
         fclose($stream);
 
+        if (null !== $link) {
+            $this->reserve($link, $size, $path);
+        }
+
         return $this->assetManager->createAsset(
             $target,
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getClientOriginalName(),
-            $uploadedFile->getSize(),
-            $this->getUser()->getId(),
-            $request->request->all('data')
+            $size,
+            $userId,
+            $request->request->all('data'),
+            $link,
         );
     }
 
@@ -111,10 +139,47 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         throw new BadRequestHttpException('"targetId" or "targetSlug" is required');
     }
 
-    private function handleMultipartUpload(Request $request, Target $target): Asset
+    /**
+     * The target of the link: naming another one is denied.
+     */
+    private function resolveLinkTarget(Request $request, UploadLink $link): Target
     {
-        $user = $this->getUser();
-        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request), $user->getUserIdentifier());
+        $target = $link->getTarget();
+        if (empty($request->request->get('targetSlug')) && empty($request->request->get('targetId'))) {
+            return $target;
+        }
+
+        if ($this->resolveTarget($request)->getId() !== $target->getId()) {
+            throw new AccessDeniedHttpException('Cannot upload to this target');
+        }
+
+        return $target;
+    }
+
+    private function handleMultipartUpload(Request $request, Target $target, string $ownerIdentifier, string $userId, ?UploadLink $link): Asset
+    {
+        $input = MultipartUploadInput::fromRequest($request);
+
+        if (null !== $link) {
+            // Before completing it: the declared size is checked against the real one when completing
+            $declared = $this->em->find(MultipartUpload::class, $input->uploadId);
+            if ($declared instanceof MultipartUpload && $declared->isOwnedBy($ownerIdentifier)) {
+                $this->assertFits($link, $declared->getSize());
+            }
+        }
+
+        $multipartUpload = $this->uploadManager->handleMultipartUpload($input, $ownerIdentifier);
+
+        if (null !== $link) {
+            try {
+                $this->reserve($link, $multipartUpload->getSize(), $multipartUpload->getPath());
+            } catch (UploadLinkQuotaExceededException $e) {
+                $this->em->remove($multipartUpload);
+                $this->em->flush();
+
+                throw $e;
+            }
+        }
 
         return $this->assetManager->createAsset(
             $target,
@@ -122,18 +187,38 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
             $multipartUpload->getType(),
             $multipartUpload->getFilename(),
             $multipartUpload->getSize(),
-            $user->getId(),
-            $request->request->all('data')
+            $userId,
+            $request->request->all('data'),
+            $link,
         );
     }
 
-    private function getUser(): JwtUser
+    /**
+     * Early check, before anything is stored: the reservation is what enforces the limits.
+     */
+    private function assertFits(UploadLink $link, int $size): void
     {
-        $user = $this->security->getUser();
-        if (!$user instanceof JwtUser) {
-            throw new AccessDeniedHttpException('Authentication required');
+        if (!$link->isUsable(new \DateTimeImmutable())
+            || (null !== $link->getMaxAssets() && $link->getUsedAssets() + 1 > $link->getMaxAssets())
+            || (null !== $link->getMaxTotalSize() && $link->getUsedSize() + $size > $link->getMaxTotalSize())) {
+            throw new UploadLinkQuotaExceededException();
+        }
+    }
+
+    /**
+     * Counts the stored file against the limits of the link, or removes it.
+     */
+    private function reserve(UploadLink $link, int $size, string $path): void
+    {
+        if ($this->uploadLinkRepository->reserve($link->getId(), $size, new \DateTimeImmutable())) {
+            // The managed link must not write its former counters back on the next flush
+            $this->em->refresh($link);
+
+            return;
         }
 
-        return $user;
+        $this->storageManager->delete($path);
+
+        throw new UploadLinkQuotaExceededException();
     }
 }
