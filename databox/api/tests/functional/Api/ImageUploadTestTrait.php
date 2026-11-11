@@ -57,8 +57,11 @@ trait ImageUploadTestTrait
 
     private static function createImage(int $width, int $height, string $format): string
     {
+        // A red to blue gradient drawn in memory: the ImageMagick policy of the API
+        // images refuses the pseudo-image coders ("gradient:", "xc:"…)
         $image = new \Imagick();
-        $image->newPseudoImage($width, $height, 'gradient:red-blue');
+        $image->newImage($width, $height, new \ImagickPixel('red'));
+        $image->sparseColorImage(\Imagick::SPARSECOLORMETHOD_BARYCENTRIC, [0, 0, 1, 0, 0, 0, max($height - 1, 1), 0, 0, 1]);
         $image->setImageFormat($format);
         $blob = $image->getImageBlob();
         $image->clear();
