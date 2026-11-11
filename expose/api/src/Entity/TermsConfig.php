@@ -7,7 +7,6 @@ namespace App\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Embeddable]
 class TermsConfig implements MergeableValueObjectInterface
@@ -22,7 +21,6 @@ class TermsConfig implements MergeableValueObjectInterface
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
-    #[Assert\Length(max: 255)]
     private ?string $url = null;
 
     /**

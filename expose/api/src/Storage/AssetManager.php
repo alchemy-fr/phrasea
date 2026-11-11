@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Storage;
 
-use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\SubDefinition;
@@ -17,11 +16,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetManager
 {
-    public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly Security $security,
-        private readonly ValidatorInterface $validator,
-    ) {
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Security $security)
+    {
     }
 
     public function createAsset(
@@ -89,9 +85,6 @@ class AssetManager
             $asset->setClientAnnotations($options['clientAnnotations']);
         }
 
-        // Built from raw request data by custom controllers, which API Platform does not validate.
-        $this->validator->validate($asset);
-
         $this->em->persist($publication);
         $this->em->persist($asset);
         $this->em->flush();
@@ -155,8 +148,6 @@ class AssetManager
         if ($options['use_as_thumbnail'] ?? false) {
             $asset->setThumbnailDefinition($subDefinition);
         }
-
-        $this->validator->validate($subDefinition);
 
         $this->em->persist($subDefinition);
         $this->em->flush();

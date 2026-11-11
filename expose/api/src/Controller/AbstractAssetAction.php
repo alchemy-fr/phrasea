@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
-use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\SubDefinition;
@@ -21,7 +20,6 @@ class AbstractAssetAction extends AbstractController
     protected EntityManagerInterface $em;
     protected ReportUserService $reportClient;
     protected AssetUrlGenerator $assetUrlGenerator;
-    protected ValidatorInterface $validator;
 
     protected function getPublication(string $publicationId, $permission = PublicationVoter::READ_DETAILS): Publication
     {
@@ -78,12 +76,6 @@ class AbstractAssetAction extends AbstractController
     public function setReportClient(ReportUserService $reportClient): void
     {
         $this->reportClient = $reportClient;
-    }
-
-    #[Required]
-    public function setValidator(ValidatorInterface $validator): void
-    {
-        $this->validator = $validator;
     }
 
     #[Required]
