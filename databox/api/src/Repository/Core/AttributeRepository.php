@@ -207,45 +207,6 @@ class AttributeRepository extends ServiceEntityRepository
     }
 
     /**
-     * How many attribute values of the definitions reference each value, and how many of them
-     * were set by a user.
-     *
-     * @param string[] $definitionIds
-     * @param string[] $values
-     *
-     * @return array<string, array{attributes: int, humanAttributes: int}>
-     */
-    public function countUsage(array $definitionIds, array $values): array
-    {
-        if (empty($definitionIds) || empty($values)) {
-            return [];
-        }
-
-        $rows = $this->createQueryBuilder('a')
-            ->select('a.value AS value', 'COUNT(a.id) AS attributes', 'SUM(CASE WHEN a.origin = :human THEN 1 ELSE 0 END) AS humanAttributes')
-            ->innerJoin('a.asset', 'ast')
-            ->andWhere('a.definition IN (:defs)')
-            ->andWhere('a.value IN (:values)')
-            ->andWhere('ast.deletedAt IS NULL')
-            ->setParameter('defs', $definitionIds)
-            ->setParameter('values', $values)
-            ->setParameter('human', Attribute::ORIGIN_HUMAN)
-            ->groupBy('a.value')
-            ->getQuery()
-            ->getArrayResult();
-
-        $usage = [];
-        foreach ($rows as $row) {
-            $usage[(string) $row['value']] = [
-                'attributes' => (int) $row['attributes'],
-                'humanAttributes' => (int) $row['humanAttributes'],
-            ];
-        }
-
-        return $usage;
-    }
-
-    /**
      * The values of the definitions that are not referenced by any attribute value any more.
      *
      * @param string[] $definitionIds

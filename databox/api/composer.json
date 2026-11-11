@@ -171,6 +171,7 @@
         "alchemy/workflow-bundle": "@dev",
         "api-platform/core": "^5.0",
         "arthem/object-reference-bundle": "^1.1.1",
+        "aws/aws-php-sns-message-validator": "^1.10",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/dbal": "^4.0",

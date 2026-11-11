@@ -246,8 +246,9 @@ class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, 
     private ?string $note = null;
 
     /**
-     * Number of attribute values referencing the entity, computed on demand by the collection
-     * provider ("usage" parameter): {attributes: int, humanAttributes: int}.
+     * Number of attribute values referencing the entity on the assets the user can read, counted
+     * on demand in the asset index by the collection provider ("usage" parameter):
+     * {attributes: int, humanAttributes: int}.
      *
      * @var array{attributes: int, humanAttributes: int}|null
      */

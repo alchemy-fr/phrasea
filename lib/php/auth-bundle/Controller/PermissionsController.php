@@ -21,6 +21,13 @@ class PermissionsController extends AbstractController
 {
     private const int MAX_IDS = 50;
 
+    /**
+     * Resolving by ids goes through the service account, which reads the full
+     * IdP records (e-mail, attributes…): only these fields are given back.
+     */
+    private const array USER_FIELDS = ['id', 'username', 'firstName', 'lastName'];
+    private const array GROUP_FIELDS = ['id', 'name', 'path'];
+
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
         private readonly GroupRepositoryInterface $groupRepository,
@@ -37,10 +44,10 @@ class PermissionsController extends AbstractController
         $accessToken = $this->getAccessToken();
 
         if (null !== $ids = $this->getIds($request)) {
-            return new JsonResponse(array_values(array_filter(array_map(
+            return new JsonResponse($this->project(array_map(
                 fn (string $id): ?array => $this->userRepository->getUser($id),
                 $ids,
-            ))));
+            ), self::USER_FIELDS));
         }
 
         return new JsonResponse($this->userRepository->getUsers([
@@ -58,16 +65,30 @@ class PermissionsController extends AbstractController
         $accessToken = $this->getAccessToken();
 
         if (null !== $ids = $this->getIds($request)) {
-            return new JsonResponse(array_values(array_filter(array_map(
+            return new JsonResponse($this->project(array_map(
                 fn (string $id): ?array => $this->groupRepository->getGroup($id),
                 $ids,
-            ))));
+            ), self::GROUP_FIELDS));
         }
 
         return new JsonResponse($this->groupRepository->getGroups([
             'access_token' => $accessToken,
             'query' => $this->getPageQuery($request),
         ]));
+    }
+
+    /**
+     * @param array<array<string, mixed>|null> $records
+     * @param list<string>                     $fields
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function project(array $records, array $fields): array
+    {
+        return array_values(array_map(
+            fn (array $record): array => array_intersect_key($record, array_flip($fields)),
+            array_filter($records),
+        ));
     }
 
     /**

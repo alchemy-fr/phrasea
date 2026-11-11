@@ -32,7 +32,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        // The policy stays in its workspace
+        new Patch(
+            security: 'is_granted("EDIT", object)',
+            securityPostDenormalize: 'is_granted("EDIT", object) and null !== object.getWorkspace() and object.getWorkspaceId() == previous_object.getWorkspaceId()',
+        ),
         new GetCollection(
             parameters: [
                 'workspaceId' => new QueryParameter(

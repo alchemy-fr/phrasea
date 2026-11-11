@@ -14,3 +14,5 @@ services:
         autowire: true
         arguments:
             $client: '@App\Tests\Functional\Integration\Expose\ExposeHttpClientMock'
+    App\Tests\Functional\Integration\Aws\Transcribe\SnsCertificateClientMock: ~
+    App\Integration\Aws\Sns\SnsCertificateClient: '@App\Tests\Functional\Integration\Aws\Transcribe\SnsCertificateClientMock'

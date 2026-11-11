@@ -9,13 +9,14 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
-use App\Tests\Functional\AbstractDataboxTestCase;
+use App\Tests\Functional\AbstractSearchTestCase;
 
 /**
- * GET /attribute-entities?usage=1&status=…: the entities with the number of values referencing them,
- * and the pending values open to the attribute editors of the workspace.
+ * GET /attribute-entities?usage=1&status=…: the entities with the number of values referencing them
+ * on the assets the user can read (counted in the asset index), and the pending values open to the
+ * attribute editors of the workspace.
  */
-class AttributeEntityUsageTest extends AbstractDataboxTestCase
+class AttributeEntityUsageTest extends AbstractSearchTestCase
 {
     use AttributeApiTestTrait;
 
@@ -30,22 +31,37 @@ class AttributeEntityUsageTest extends AbstractDataboxTestCase
         $alice = $this->createEntity($list, 'Alice');
         $unknown = $this->createEntity($list, 'Unknown person · a1b2', ['status' => AttributeEntity::STATUS_PENDING]);
         $asset = $this->createAsset(['workspace' => $workspace, 'public' => true]);
-        foreach ([[$alice, Attribute::ORIGIN_HUMAN], [$alice, Attribute::ORIGIN_MACHINE], [$unknown, Attribute::ORIGIN_MACHINE]] as [$entity, $origin]) {
+        // Not readable by USER, a mere member of the workspace
+        $privateAsset = $this->createAsset(['workspace' => $workspace]);
+        $deletedAsset = $this->createAsset(['workspace' => $workspace, 'public' => true]);
+        foreach ([
+            [$asset, $alice, Attribute::ORIGIN_HUMAN],
+            [$asset, $alice, Attribute::ORIGIN_MACHINE],
+            [$asset, $unknown, Attribute::ORIGIN_MACHINE],
+            [$privateAsset, $alice, Attribute::ORIGIN_HUMAN],
+            [$deletedAsset, $alice, Attribute::ORIGIN_HUMAN],
+        ] as [$target, $entity, $origin]) {
             $attribute = new Attribute();
-            $attribute->setAsset($asset);
+            $attribute->setAsset($target);
             $attribute->setDefinition($definition);
             $attribute->setValue($entity->getId());
             $attribute->setOrigin($origin);
             $em->persist($attribute);
         }
+        $deletedAsset->setDeletedAt(new \DateTimeImmutable());
         $em->flush();
+        self::populateSearchIndices();
 
         $list_ = fn (string $userId, array $query): array => $this->api('GET', '/attribute-entities', $userId, options: ['query' => array_merge(['list' => $list->getId()], $query)])->toArray()['member'];
 
         $members = $list_(KeycloakClientTestMock::ADMIN_UID, ['usage' => 1]);
         $usage = array_column($members, 'usage', 'id');
-        $this->assertSame(['attributes' => 2, 'humanAttributes' => 1], $usage[$alice->getId()]);
+        $this->assertSame(['attributes' => 3, 'humanAttributes' => 2], $usage[$alice->getId()]);
         $this->assertSame(['attributes' => 1, 'humanAttributes' => 0], $usage[$unknown->getId()]);
+
+        // The values of the assets the user cannot read are not counted
+        $usage = array_column($list_(KeycloakClientTestMock::USER_UID, ['usage' => 1]), 'usage', 'id');
+        $this->assertSame([$alice->getId() => ['attributes' => 2, 'humanAttributes' => 1]], $usage);
 
         $this->assertSame([$unknown->getId()], array_column($list_(KeycloakClientTestMock::ADMIN_UID, ['status' => AttributeEntity::STATUS_PENDING]), 'id'));
         $this->assertSame([$alice->getId()], array_column($list_(KeycloakClientTestMock::ADMIN_UID, ['status' => AttributeEntity::STATUS_APPROVED]), 'id'));

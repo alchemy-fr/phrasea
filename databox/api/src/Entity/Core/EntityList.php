@@ -41,7 +41,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(
+            security: 'is_granted("EDIT", object)',
+            securityPostDenormalize: self::PATCH_SECURITY,
+        ),
         // Restricted to the readable workspaces by EntityListExtension
         new GetCollection(
             order: ['name' => 'ASC', 'id' => 'ASC'],
@@ -116,6 +119,13 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
     private const string WITH_IMAGES = 'wi';
     private const string WITH_TRANSLATIONS = 'wt';
     private const string WITH_SYNONYMS = 'ws';
+
+    /**
+     * The list stays in its workspace, and only an admin changes its owner.
+     */
+    private const string PATCH_SECURITY = 'is_granted("EDIT", object)'
+        .' and null !== object.getWorkspace() and object.getWorkspaceId() == previous_object.getWorkspaceId()'
+        .' and (object.getOwnerId() == previous_object.getOwnerId() or is_granted("'.JwtUser::ROLE_ADMIN.'"))';
 
     final public const string GROUP_READ = 'entity-list:r';
     final public const string GROUP_LIST = 'entity-list:i';

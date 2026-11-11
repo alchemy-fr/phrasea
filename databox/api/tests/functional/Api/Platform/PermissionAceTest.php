@@ -531,6 +531,10 @@ final class PermissionAceTest extends AbstractDataboxTestCase
         foreach ($users as $user) {
             $this->assertArrayHasKey('id', $user);
             $this->assertArrayHasKey('username', $user);
+            // The IdP record read by the service account is not given back as is
+            $this->assertArrayNotHasKey('email', $user);
+            $this->assertArrayNotHasKey('attributes', $user);
+            $this->assertSame([], array_diff(array_keys($user), ['id', 'username', 'firstName', 'lastName']));
         }
 
         $response = $client->request('GET', '/permissions/groups', [
@@ -538,7 +542,11 @@ final class PermissionAceTest extends AbstractDataboxTestCase
             'query' => ['ids' => [KeycloakClientTestMock::GROUP_UID, '00000000-0000-0000-0000-000000000000']],
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertSame([KeycloakClientTestMock::GROUP_UID], array_column($response->toArray(), 'id'));
+        $this->assertSame([[
+            'id' => KeycloakClientTestMock::GROUP_UID,
+            'name' => 'group',
+            'path' => '/group',
+        ]], $response->toArray());
 
         $client->request('GET', '/permissions/users', [
             'query' => ['ids' => [self::OWNER]],

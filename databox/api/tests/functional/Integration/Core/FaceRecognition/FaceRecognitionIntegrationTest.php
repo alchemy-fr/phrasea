@@ -32,6 +32,7 @@ use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Attribute\AttributeApiTestTrait;
 use App\Tests\Functional\Api\ImageUploadTestTrait;
 use App\Tests\Functional\Face\FaceRecognitionClientMock;
+use App\Tests\Functional\Search\SearchTestTrait;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -44,6 +45,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
 {
     use AttributeApiTestTrait;
     use ImageUploadTestTrait;
+    use SearchTestTrait;
 
     private const string FIXTURE_IMAGE = __DIR__.'/../../../../fixtures/files/alchemy.png';
 
@@ -418,7 +420,9 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $unknown = $this->person($first);
         $this->assertSame(AttributeEntity::STATUS_PENDING, $unknown->getStatus());
 
-        // Pending persons are listed to the attribute editors of the workspace, so that they can name them
+        // Pending persons are listed to the attribute editors of the workspace, so that they can name them,
+        // with their usage counted in the asset index
+        self::bootSearch(static::$kernel);
         $response = $this->api('GET', '/attribute-entities', KeycloakClientTestMock::ADMIN_UID, options: ['query' => ['list' => $this->list->getId(), 'status' => AttributeEntity::STATUS_PENDING, 'usage' => 1]]);
         $this->assertResponseStatusCodeSame(200);
         $member = $response->toArray()['member'];
