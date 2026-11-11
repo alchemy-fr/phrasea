@@ -72,7 +72,7 @@ COPY --chown=app:app ./databox/api .
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache \
-    && bin/console alchemy:core:documentation:dump /srv/app/doc
+    && php -d memory_limit=512M bin/console alchemy:core:documentation:dump /srv/app/doc
 
 COPY ./databox/api/docker/entrypoint.d/*.sh /docker/entrypoint.d/
 
