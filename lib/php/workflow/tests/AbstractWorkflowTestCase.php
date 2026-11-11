@@ -20,6 +20,7 @@ use Alchemy\Workflow\Runner\RuntimeRunner;
 use Alchemy\Workflow\State\Repository\MemoryStateRepository;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\Tests\State\TestStateStateRepository;
+use Alchemy\Workflow\Tests\Trigger\QueuedJobTrigger;
 use Alchemy\Workflow\Trigger\RuntimeJobTrigger;
 use Alchemy\Workflow\Validator\EventValidator;
 use Alchemy\Workflow\WorkflowOrchestrator;
@@ -31,7 +32,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 abstract class AbstractWorkflowTestCase extends TestCase
 {
     /**
-     * @return array{WorkflowOrchestrator, TestStateStateRepository, TestLogger}
+     * @param bool $asynchronous Jobs are only queued in the returned QueuedJobTrigger, as a message bus would do
+     *
+     * @return array{WorkflowOrchestrator, TestStateStateRepository, TestLogger, RuntimeRunner, JobStateManager, RuntimeJobTrigger|QueuedJobTrigger}
      */
     protected function createOrchestrator(
         array $workflowFiles,
@@ -39,6 +42,8 @@ abstract class AbstractWorkflowTestCase extends TestCase
         ?OutputInterface $output = null,
         ?EnvContainer $envs = null,
         array $actions = [],
+        ?EventDispatcher $eventDispatcher = null,
+        bool $asynchronous = false,
     ): array {
         $actionRegistry = new ArrayActionRegistry($actions);
 
@@ -70,15 +75,15 @@ abstract class AbstractWorkflowTestCase extends TestCase
             $stateRepository,
         );
         $runner = new RuntimeRunner($planExecutor);
-        $jobTrigger = new RuntimeJobTrigger($runner);
+        $jobTrigger = $asynchronous ? new QueuedJobTrigger() : new RuntimeJobTrigger($runner);
 
         return [new WorkflowOrchestrator(
             $workflowRepository,
             $stateRepository,
             $jobTrigger,
             new EventValidator(),
-            new EventDispatcher(),
-        ), $stateRepository, $logger];
+            $eventDispatcher ?? new EventDispatcher(),
+        ), $stateRepository, $logger, $runner, $jobStateManager, $jobTrigger];
     }
 
     protected function createPlanner(array $workflowFiles): WorkflowPlanner

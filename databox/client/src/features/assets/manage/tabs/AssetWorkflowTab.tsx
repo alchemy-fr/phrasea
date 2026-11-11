@@ -2,13 +2,10 @@
 
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
-import {useInfiniteQuery} from '@tanstack/react-query';
 import {ExternalLinkIcon, PlayIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AssetTabProps} from '../types';
-import {getAssetWorkflows} from '@/lib/api/misc';
-import {assetWorkflowsQueryKey} from '@/features/workflows/WorkflowRunsPanel';
-import {triggerAssetWorkflow} from '@/lib/api/assets';
+import {useAssetWorkflowRuns} from '@/features/workflows/useAssetWorkflowRuns';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Skeleton} from '@alchemy/next-ui/ui/misc';
 import {formatDateTime} from '@/lib/utils/format';
@@ -22,13 +19,12 @@ import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';
 export function AssetWorkflowTab({asset}: AssetTabProps) {
     const {t, i18n} = useTranslation();
     const router = useRouter();
-    const workflows = useInfiniteQuery({
-        queryKey: [...assetWorkflowsQueryKey(asset.id), 'pages'],
-        queryFn: ({pageParam}) => getAssetWorkflows(asset.id, pageParam),
-        initialPageParam: undefined as string | undefined,
-        getNextPageParam: last => last.next,
-    });
-    const runs = workflows.data?.pages.flatMap(p => p.items);
+    const {
+        query: workflows,
+        runs,
+        trigger,
+        triggering,
+    } = useAssetWorkflowRuns(asset.id);
 
     return (
         <div className="space-y-4">
@@ -36,9 +32,10 @@ export function AssetWorkflowTab({asset}: AssetTabProps) {
                 <Button
                     variant="outline"
                     size="sm"
+                    loading={triggering}
                     onClick={async () => {
                         try {
-                            await triggerAssetWorkflow(asset.id);
+                            await trigger();
                             track(
                                 EventCategory.Workflow,
                                 WorkflowEvent.Trigger
@@ -46,9 +43,11 @@ export function AssetWorkflowTab({asset}: AssetTabProps) {
                             toast.success(
                                 t('workflow.triggered', 'Workflow triggered')
                             );
-                            setTimeout(() => workflows.refetch(), 1500);
                         } catch (e: any) {
-                            toast.error(e?.message);
+                            toast.error(
+                                e?.message ??
+                                    t('common.error', 'An error occurred')
+                            );
                         }
                     }}
                 >

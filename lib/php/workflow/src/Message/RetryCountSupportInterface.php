@@ -1,6 +1,6 @@
 <?php
 
-namespace Alchemy\MessengerBundle\Message\RetryCountSupportInterface;
+namespace Alchemy\MessengerBundle\Message;
 
 interface RetryCountSupportInterface
 {

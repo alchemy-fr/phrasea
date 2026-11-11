@@ -15,6 +15,7 @@ import {searchAssets, SearchAssetsOptions} from '@/lib/api/assets';
 import {isAbortError} from '@/lib/api/http';
 import {useSearch} from './SearchProvider';
 import {conditionQuery, resolveSortBy} from './searchState';
+import {appendPage} from './resultPages';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useRenditionUpdate} from '@/lib/realtime/renditionUpdates';
 import {trackSiteSearch} from '@alchemy/next-core/analytics/matomo';
@@ -153,7 +154,7 @@ export function ResultProvider({
                 }
                 setState(prev => ({
                     pages: nextUrl
-                        ? [...prev.pages, result.items]
+                        ? appendPage(prev.pages, result.items)
                         : [result.items],
                     checksum,
                     next: result.next,

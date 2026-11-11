@@ -24,7 +24,8 @@ import {cn} from '@alchemy/next-ui/utils/cn';
 import {WorkflowHeader} from './WorkflowHeader';
 import {WorkflowGraph} from './WorkflowGraph';
 import {JobDetailPanel} from './JobDetailPanel';
-import {assetWorkflowsQueryKey, WorkflowRunsPanel} from './WorkflowRunsPanel';
+import {WorkflowRunsPanel} from './WorkflowRunsPanel';
+import {assetWorkflowsQueryKey} from './useAssetWorkflowRuns';
 import {findJob} from './workflowGraph';
 import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';
 
@@ -121,14 +122,18 @@ function WorkflowScreen({
     const close = useCloseRouteDialog();
     const origin = useRouteDialogOrigin();
 
-    useChannelEvent(workflowChannel(workflowId), 'job_update', () => {
+    const refresh = () => {
         void queryClient.invalidateQueries({queryKey});
         if (assetId) {
             void queryClient.invalidateQueries({
                 queryKey: assetWorkflowsQueryKey(assetId),
             });
         }
-    });
+    };
+    const channel = workflowChannel(workflowId);
+    useChannelEvent(channel, 'job_update', refresh);
+    // Sent once the status of the run is saved, unlike the last job_update
+    useChannelEvent(channel, 'workflow_update', refresh);
 
     const workflow = query.data;
     const workflowAssetId = workflow?.asset?.id;

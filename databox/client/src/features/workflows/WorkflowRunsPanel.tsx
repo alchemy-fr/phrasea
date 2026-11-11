@@ -1,12 +1,8 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useInfiniteQuery} from '@tanstack/react-query';
 import {PlayIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import {getWorkflows} from '@/lib/api/misc';
-import {triggerAssetWorkflow} from '@/lib/api/assets';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Skeleton} from '@alchemy/next-ui/ui/misc';
 import {formatDateTime} from '@/lib/utils/format';
@@ -14,14 +10,7 @@ import {cn} from '@alchemy/next-ui/utils/cn';
 import {formatJobDuration} from './jobStatus';
 import {WorkflowStatusDot, workflowTitle} from './workflowLabel';
 import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';
-
-/** A new run is looked for this long after it was requested */
-const newRunTimeout = 20000;
-
-/** Prefix shared with the workflow tab of the asset panel */
-export function assetWorkflowsQueryKey(assetId: string) {
-    return ['asset-workflows', assetId];
-}
+import {useAssetWorkflowRuns} from './useAssetWorkflowRuns';
 
 /**
  * Every workflow run on the asset, the last one first, and the action to run
@@ -37,48 +26,15 @@ export function WorkflowRunsPanel({
     onSelect: (workflowId: string) => void;
 }) {
     const {t, i18n} = useTranslation();
-    // The runs listed when a new one was requested, until it shows up
-    const [awaited, setAwaited] = useState<Set<string>>();
-    const query = useInfiniteQuery({
-        queryKey: [...assetWorkflowsQueryKey(assetId), 'pages'],
-        queryFn: ({pageParam}) =>
-            getWorkflows({asset: assetId, url: pageParam}),
-        initialPageParam: undefined as string | undefined,
-        getNextPageParam: last => last.next,
-        refetchInterval: awaited ? 1000 : false,
+    const {query, runs, trigger, triggering} = useAssetWorkflowRuns(assetId, {
+        onNewRun: onSelect,
     });
-    const runs = useMemo(
-        () => query.data?.pages.flatMap(p => p.items),
-        [query.data]
-    );
-
-    useEffect(() => {
-        if (!awaited) {
-            return;
-        }
-        const run = runs?.find(r => !awaited.has(r.id));
-        if (run) {
-            setAwaited(undefined);
-            onSelect(run.id);
-        }
-    }, [runs, awaited, onSelect]);
-
-    useEffect(() => {
-        if (!awaited) {
-            return;
-        }
-        const timer = setTimeout(() => setAwaited(undefined), newRunTimeout);
-
-        return () => clearTimeout(timer);
-    }, [awaited]);
 
     const run = async () => {
         try {
-            const known = new Set(runs?.map(r => r.id) ?? []);
-            await triggerAssetWorkflow(assetId);
+            await trigger();
             track(EventCategory.Workflow, WorkflowEvent.Trigger);
             toast.success(t('workflow.triggered', 'Workflow triggered'));
-            setAwaited(known);
         } catch (e: any) {
             toast.error(e?.message ?? t('common.error', 'An error occurred'));
         }
@@ -94,7 +50,7 @@ export function WorkflowRunsPanel({
                 <Button
                     size="sm"
                     className="w-full"
-                    loading={!!awaited}
+                    loading={triggering}
                     onClick={run}
                 >
                     <PlayIcon /> {t('workflow.run_new', 'Run a new workflow')}

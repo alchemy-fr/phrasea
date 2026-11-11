@@ -5,3 +5,4 @@ services:
 
     Alchemy\WorkflowBundle\Listener\PusherListener: ~
     Alchemy\WorkflowBundle\Message\JobUpdatePusherHandler: ~
+    Alchemy\WorkflowBundle\Message\WorkflowUpdatePusherHandler: ~
