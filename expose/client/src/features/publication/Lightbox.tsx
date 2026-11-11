@@ -62,7 +62,7 @@ export function Lightbox({
             className="fixed inset-0 z-40 flex flex-col bg-background/95 backdrop-blur-sm"
         >
             <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-                <div className="group/stage relative min-h-0 flex-1">
+                <div className="group/stage relative min-h-0 min-w-0 flex-1">
                     <AssetPlayer
                         asset={current}
                         className="size-full"

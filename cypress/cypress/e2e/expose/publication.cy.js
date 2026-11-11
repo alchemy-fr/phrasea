@@ -88,6 +88,31 @@ describe('Visit publication', () => {
         assertAsset('A two page PDF document', 'This is a two page PDF document');
         cy.getBySel('pdf-page-count', {timeout: 30000}).should('have.text', '/ 2');
 
+        // Zooming scrolls the pages inside the viewer, which keeps its size
+        cy.getBySel('pdf-viewer').then($viewer => {
+            const initialWidth = $viewer[0].getBoundingClientRect().width;
+
+            for (let i = 0; i < 5; i++) {
+                cy.getBySel('pdf-zoom-in').click();
+            }
+
+            cy.window().then(win => {
+                cy.getBySel('pdf-viewer').should($v => {
+                    const box = $v[0].getBoundingClientRect();
+                    expect(box.width, 'viewer width').to.be.closeTo(initialWidth, 1);
+                    expect(box.right, 'viewer right').to.be.lte(win.innerWidth);
+
+                    const scroll = $v.find('[data-testid=pdf-scroll]')[0];
+                    expect(scroll.scrollWidth, 'scroll width').to.be.greaterThan(scroll.clientWidth);
+                });
+                cy.getBySel('asset-legend')
+                    .should('be.visible')
+                    .and($legend => {
+                        expect($legend[0].getBoundingClientRect().right, 'legend right').to.be.lte(win.innerWidth);
+                    });
+            });
+        });
+
         cy.getBySel('lightbox-close').click();
         cy.getBySel('lightbox').should('not.exist');
     });

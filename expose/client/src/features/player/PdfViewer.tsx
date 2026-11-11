@@ -302,7 +302,7 @@ function PdfDocumentViewer({
             <div
                 ref={scrollRef}
                 data-testid="pdf-scroll"
-                className="isolate size-full overflow-auto [scrollbar-gutter:stable]"
+                className="absolute inset-0 isolate overflow-auto [scrollbar-gutter:stable]"
                 onScroll={readScroll}
                 onClick={() => {
                     onInteraction?.();
@@ -468,6 +468,7 @@ function PdfDocumentViewer({
                     </Tooltip>
                     <Tooltip content={t('player.zoom_in', 'Zoom in')}>
                         <Button
+                            data-testid="pdf-zoom-in"
                             variant="ghost"
                             size="icon-xs"
                             onClick={() => step(1)}
