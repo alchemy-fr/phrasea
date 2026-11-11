@@ -19,6 +19,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\TermsVersion;
 use App\Service\Asset\FileUrlResolver;
+use App\Service\Share\ShareAttachmentResolver;
 use App\Service\Share\ShareRenditionUrlGenerator;
 use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
@@ -35,6 +36,7 @@ final class ShareReadProvider implements ProviderInterface
         private readonly LogoManager $logoManager,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRenditionUrlGenerator $renditionUrlGenerator,
+        private readonly ShareAttachmentResolver $attachmentResolver,
     ) {
     }
 
@@ -55,8 +57,8 @@ final class ShareReadProvider implements ProviderInterface
 
         foreach ($item->getDeliverableAssets() as $asset) {
             $this->provideAssetAlternateUrls($item, $asset);
-            $this->provideAssetAttachments($item, $asset);
         }
+        $this->provideAttachments($item);
 
         $workspace = $item->getWorkspace();
         if (null !== $workspace) {
@@ -109,19 +111,16 @@ final class ShareReadProvider implements ProviderInterface
             && $share->isRenditionDefinitionShared($definition);
     }
 
-    private function provideAssetAttachments(Share $item, Asset $asset): void
+    private function provideAttachments(Share $item): void
     {
-        foreach ($asset->getAttachments() as $attachment) {
-            $attachedAsset = $attachment->getAttachment();
-            $file = $attachedAsset?->getSource();
-            if (null === $file) {
-                continue;
-            }
+        foreach ($this->attachmentResolver->getSharedAttachments($item) as $shared) {
+            $attachment = $shared->attachment;
+            $file = $shared->rendition->getFile();
 
             $item->attachments[] = new ShareAttachmentOutput(
                 $attachment->getId(),
                 $attachment->getName() ?? $file->getFileName(),
-                $asset->getId(),
+                $attachment->getAsset()->getId(),
                 $this->urlGenerator->generate('share_public_attachment', [
                     'id' => $item->getId(),
                     'attachment' => $attachment->getId(),

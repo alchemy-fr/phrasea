@@ -6,6 +6,7 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAccess;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Query\Expr;
@@ -76,7 +77,10 @@ class CollectionRepository extends ServiceEntityRepository
         $supportsLTree = $this->getEntityManager()->getConnection()->getDatabasePlatform() instanceof PostgreSQLPlatform;
         $expr = $this->getEntityManager()->getExpressionBuilder();
 
-        $createUserCondition = fn (string $alias) => null !== $userId ? $alias.'.userId IN (:users) OR '.$alias.'.privacy > 0' : $alias.'.privacy > 0';
+        // Same thresholds as the READ of CollectionVoter: an anonymous user only reads the public collections
+        $createUserCondition = fn (string $alias) => null !== $userId
+            ? $alias.'.userId IN (:users) OR '.$alias.'.privacy > 0'
+            : $alias.'.privacy >= '.WorkspaceItemPrivacyInterface::PUBLIC;
 
         $sub = $this->getEntityManager()->createQueryBuilder()
             ->select('1')

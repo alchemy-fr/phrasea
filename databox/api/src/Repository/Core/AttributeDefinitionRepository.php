@@ -109,9 +109,19 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return AttributeDefinition[]
+     * @return iterable<array<string, mixed>>
      */
     public function getSearchableAttributesWithPermission(?string $userId, array $groupIds): iterable
+    {
+        return $this->getAttributesWithPermission($userId, $groupIds, searchableOnly: true);
+    }
+
+    /**
+     * Every definition, with whether the user may read its values ("allowed").
+     *
+     * @return iterable<array<string, mixed>>
+     */
+    public function getAttributesWithPermission(?string $userId, array $groupIds, bool $searchableOnly = false): iterable
     {
         $queryBuilder = $this
             ->createQueryBuilderAcl(
@@ -128,8 +138,11 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->addSelect('acl_c.public AS cPublic')
             ->addSelect('acl_w.id AS workspaceId')
             ->addSelect('acl_w.enabledLocales AS enabledLocales')
-            ->andWhere('t.searchable = true')
         ;
+
+        if ($searchableOnly) {
+            $queryBuilder->andWhere('t.searchable = true');
+        }
 
         if (null !== $userId) {
             $queryBuilder->addSelect('acl_w.ownerId AS w_ownerId');

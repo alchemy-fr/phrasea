@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Api\Social;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
@@ -29,6 +30,8 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
     private const string OTHER = KeycloakClientTestMock::OTHER_USER_UID;
     private const string PREVIEW_URL = 'https://cdn.phrasea.test/preview.jpg';
     private const string ORIGINAL_URL = 'https://cdn.phrasea.test/original.tif';
+    private const string ATTACHMENT_ORIGINAL_URL = 'https://cdn.phrasea.test/contract.pdf';
+    private const string ATTACHMENT_PREVIEW_URL = 'https://cdn.phrasea.test/contract-preview.jpg';
 
     private Workspace $workspace;
     private Asset $asset;
@@ -265,7 +268,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
     {
         $client = static::createClient();
         $this->setUpWorkspace();
-        $attachment = $this->createAttachmentWithFile($this->asset, 'Contract', 'https://cdn.phrasea.test/contract.pdf');
+        $attachment = $this->createSharedAttachment($this->asset, 'Contract');
         $share = $this->createShare(self::USER, [$this->asset]);
         // The in-memory asset does not know its new attachment
         self::getEntityManager()->clear();
@@ -276,18 +279,70 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $this->assertSame($attachment->getId(), $item['id']);
         $this->assertSame('Contract', $item['name']);
         $this->assertSame($this->asset->getId(), $item['assetId']);
-        $this->assertSame('application/pdf', $item['type']);
+        // The shared rendition, not the original
+        $this->assertSame('image/jpeg', $item['type']);
         $this->assertStringContainsString(sprintf('/s/%s/a/%s', $share->getId(), $attachment->getId()), $item['url']);
 
         $client->request('GET', sprintf('/s/%s/a/%s?token=%s', $share->getId(), $attachment->getId(), $share->getToken()));
-        $this->assertResponseRedirects('https://cdn.phrasea.test/contract.pdf');
+        $this->assertResponseRedirects(self::ATTACHMENT_PREVIEW_URL);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function undeliverableAttachmentProvider(): iterable
+    {
+        yield 'trashed' => ['trashed'];
+        yield 'quarantined' => ['quarantined'];
+        yield 'not readable by the owner of the share' => ['unreadable'];
+        yield 'without a rendition of a public policy' => ['no_public_rendition'];
+    }
+
+    /**
+     * Evaluated at each access, from the attached asset: a share link never delivers its original.
+     */
+    #[DataProvider('undeliverableAttachmentProvider')]
+    public function testUndeliverableAttachmentIsNeitherListedNorServed(string $case): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $em = self::getEntityManager();
+        switch ($case) {
+            case 'unreadable':
+                // A secret asset of a workspace the owner of the share has no access to
+                $foreign = $this->createNamedWorkspace(self::OTHER, 'foreign-ws');
+                $attachment = $this->createSharedAttachment($this->asset, 'Contract', $foreign, self::OTHER);
+                break;
+            case 'no_public_rendition':
+                $attachment = $this->createAttachmentWithFile($this->asset, 'Contract', self::ATTACHMENT_ORIGINAL_URL);
+                $restricted = $this->createRenditionDefinition($this->workspace, 'attachment-hd', false);
+                $this->createRendition($attachment->getAttachment(), $restricted, $this->createUrlFile($this->workspace, self::ORIGINAL_URL, 'image/tiff'));
+                break;
+            default:
+                $attachment = $this->createSharedAttachment($this->asset, 'Contract');
+                $attached = self::managed($attachment->getAttachment());
+                if ('trashed' === $case) {
+                    $attached->setDeletedAt(new \DateTimeImmutable());
+                } else {
+                    $attached->setStatus(AssetStatusEnum::Quarantined);
+                }
+                $em->flush();
+        }
+        $share = $this->createShare(self::USER, [$this->asset]);
+        $em->clear();
+
+        $data = $client->request('GET', self::publicUri($share, $share->getToken()))->toArray();
+        $this->assertSame([], $data['attachments']);
+
+        $client->request('GET', sprintf('/s/%s/a/%s?token=%s', $share->getId(), $attachment->getId(), $share->getToken()));
+        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testAttachmentRequiresAValidToken(): void
     {
         $client = static::createClient();
         $this->setUpWorkspace();
-        $attachment = $this->createAttachmentWithFile($this->asset, 'Contract', 'https://cdn.phrasea.test/contract.pdf');
+        $attachment = $this->createSharedAttachment($this->asset, 'Contract');
         $share = $this->createShare(self::USER, [$this->asset]);
 
         $client->request('GET', sprintf('/s/%s/a/%s', $share->getId(), $attachment->getId()));
@@ -305,7 +360,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
             'workspace' => $this->workspace,
             'ownerId' => self::USER,
         ]);
-        $foreignAttachment = $this->createAttachmentWithFile($outside, 'Secret', 'https://cdn.phrasea.test/secret.pdf');
+        $foreignAttachment = $this->createSharedAttachment($outside, 'Secret');
         $share = $this->createShare(self::USER, [$this->asset]);
 
         $client->request('GET', sprintf('/s/%s/a/%s?token=%s', $share->getId(), $foreignAttachment->getId(), $share->getToken()));
@@ -331,16 +386,30 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         return $definition;
     }
 
-    private function createAttachmentWithFile(Asset $asset, string $name, string $url): AssetAttachment
+    private function createAttachmentWithFile(Asset $asset, string $name, string $url, ?Workspace $workspace = null, string $ownerId = self::USER): AssetAttachment
     {
+        $workspace ??= $this->workspace;
         $attached = $this->createAsset([
-            'workspace' => $this->workspace,
-            'ownerId' => self::USER,
+            'workspace' => self::managed($workspace),
+            'ownerId' => $ownerId,
             'no_flush' => true,
         ]);
-        $attached->setSource(self::managed($this->createUrlFile($this->workspace, $url, 'application/pdf')));
+        $attached->setSource(self::managed($this->createUrlFile($workspace, $url, 'application/pdf')));
         self::getEntityManager()->flush();
 
         return $this->createAssetAttachment($asset, $attached, $name);
+    }
+
+    /**
+     * An attachment whose asset has a rendition of a public policy besides its original.
+     */
+    private function createSharedAttachment(Asset $asset, string $name, ?Workspace $workspace = null, string $ownerId = self::USER): AssetAttachment
+    {
+        $workspace ??= $this->workspace;
+        $attachment = $this->createAttachmentWithFile($asset, $name, self::ATTACHMENT_ORIGINAL_URL, $workspace, $ownerId);
+        $definition = $this->createRenditionDefinition($workspace, 'attachment-preview', true);
+        $this->createRendition($attachment->getAttachment(), $definition, $this->createUrlFile($workspace, self::ATTACHMENT_PREVIEW_URL));
+
+        return $attachment;
     }
 }

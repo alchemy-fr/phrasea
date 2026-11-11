@@ -84,6 +84,25 @@ class AttributeSearch
         return $index[$key] ?? null;
     }
 
+    /**
+     * Whether the user may read the values of at least one definition producing this key.
+     */
+    public function isReadableAttributeKey(?string $userId, array $groupIds, string $key): bool
+    {
+        $keys = $this->cache->get('rk_'.$userId, function () use ($userId, $groupIds): array {
+            $keys = [];
+            foreach ($this->em->getRepository(AttributeDefinition::class)->getAttributesWithPermission($userId, $groupIds) as $row) {
+                if ($row['allowed']) {
+                    $keys[$this->fieldNameResolver->getFieldName($row['slug'], $row['type'], $row['multiple'])] = true;
+                }
+            }
+
+            return $keys;
+        });
+
+        return isset($keys[$key]);
+    }
+
     public function createClustersFromDefinitions(iterable $definitions): array
     {
         $groups = [];

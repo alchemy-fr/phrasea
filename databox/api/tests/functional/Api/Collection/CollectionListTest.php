@@ -562,6 +562,42 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->assertSame(['Kept'], $this->listOrderedNames(self::USER, []));
     }
 
+    public function testTrashedPublicRootIsNotListedForAnonymous(): void
+    {
+        $workspace = $this->createTestWorkspace(['public' => true]);
+        $kept = $this->createCollection(['workspace' => $workspace, 'name' => 'Kept', 'public' => true]);
+        $trashed = $this->createCollection(['workspace' => $workspace, 'name' => 'Trashed', 'public' => true]);
+        foreach ([$kept, $trashed] as $collection) {
+            $this->createCollectionAccess($collection, null, Privacy::PUBLIC);
+        }
+        $this->assertSame(['Kept', 'Trashed'], $this->listOrderedNames(self::ANONYMOUS, []));
+
+        $this->findCollection($trashed->getId())->setDeletedAt(new \DateTimeImmutable());
+        self::getEntityManager()->flush();
+
+        $this->assertSame(['Kept'], $this->listOrderedNames(self::ANONYMOUS, []));
+    }
+
+    /**
+     * Same thresholds as the READ of CollectionVoter: below "public", a collection
+     * is only listed to authenticated users.
+     */
+    public function testAnonymousOnlyListsPublicRoots(): void
+    {
+        $workspace = $this->createTestWorkspace(['public' => true, 'members' => [self::USER]]);
+        foreach ([Privacy::PRIVATE_IN_WORKSPACE, Privacy::PUBLIC_IN_WORKSPACE, Privacy::PRIVATE, Privacy::PUBLIC_FOR_USERS, Privacy::PUBLIC] as $privacy) {
+            $collection = $this->createCollection(['workspace' => $workspace, 'name' => Privacy::KEYS[$privacy], 'no_flush' => true]);
+            $collection->setPrivacy($privacy);
+            $this->createCollectionAccess($collection, null, $privacy);
+        }
+
+        $this->assertSame(['public'], $this->listNames(self::ANONYMOUS, []));
+        $this->assertSame(
+            ['private', 'private_in_workspace', 'public', 'public_for_users', 'public_in_workspace'],
+            $this->listNames(self::USER, []),
+        );
+    }
+
     public function testChildrenAreInNaturalOrder(): void
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER, self::OTHER]]);
