@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Admin;
 
-use Alchemy\AdminBundle\Tests\AbstractAdminTestCase;
 use Alchemy\NotifierBundle\Entity\Subscriber;
 use Alchemy\NotifierBundle\Repository\NotificationDigestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
-class NotificationDigestAdminTest extends AbstractAdminTestCase
+class NotificationDigestAdminTest extends AbstractDataboxAdminTestCase
 {
     public function testPendingDigestsPageRenders(): void
     {

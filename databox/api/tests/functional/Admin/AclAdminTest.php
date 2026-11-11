@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Admin;
 
-use Alchemy\AdminBundle\Tests\AbstractAdminTestCase;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceCreator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
-class AclAdminTest extends AbstractAdminTestCase
+class AclAdminTest extends AbstractDataboxAdminTestCase
 {
     public function setUp(): void
     {
