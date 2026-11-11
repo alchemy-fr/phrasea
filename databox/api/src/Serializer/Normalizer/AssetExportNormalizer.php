@@ -34,7 +34,9 @@ class AssetExportNormalizer implements NormalizerInterface, NormalizerAwareInter
 
         $data->owner = $this->transformUser($data->getOwnerId());
         if (null !== $data->getPath()) {
-            $data->downloadUrl = $this->urlSigner->getSignedUrl($data->getPath());
+            $data->downloadUrl = $this->urlSigner->getSignedUrl($data->getPath(), [
+                'download' => true,
+            ]);
         }
 
         return $this->normalizer->normalize($data, $format, $context);

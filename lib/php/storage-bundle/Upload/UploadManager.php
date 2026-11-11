@@ -113,6 +113,8 @@ final readonly class UploadManager
 
     public function createPutObjectSignedURL(string $path, string $contentType): string
     {
+        $this->fileValidator->validateFile($path, $contentType);
+
         $command = $this->client->getCommand('PutObject', [
             'Bucket' => $this->uploadBucket,
             'Key' => $this->pathPrefix.$path,

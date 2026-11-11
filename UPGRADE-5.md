@@ -12,7 +12,9 @@ Follow these steps in order. Each one is detailed in the sections below.
    `elastichq` from any custom `COMPOSE_PROFILES`, and decide whether to keep the
    new `similarity` and `face-recognition` profiles. Sockudo replaces Soketi:
    rename the `SOKETI_*` variables and the `soketi` profile (see
-   [Sockudo replaces Soketi](#sockudo-replaces-soketi)).
+   [Sockudo replaces Soketi](#sockudo-replaces-soketi)). Rewrite
+   `*_ALLOWED_FILE_TYPES` as type/extension couples, without `*/*` (see
+   [Allowed file types and file serving](#allowed-file-types-and-file-serving)).
 4. Start Elasticsearch 9:
 
     ```bash
@@ -634,6 +636,37 @@ Routes, methods and bodies of `POST /assets`, `/assets/{id}/ack`, `/commit`,
 `/commits/{id}/ack`, `/form/validate` and `GET /targets/{id}/form-schema` are
 unchanged. Only `PUT` → `PATCH`, the `hydra:` prefix and filter typing change:
 `acknowledged` is a strict boolean, `target` accepts an id or an IRI.
+
+## Allowed file types and file serving
+
+See `doc/tech/Storage/03_file_types.md`.
+
+- `DATABOX_ALLOWED_FILE_TYPES` and `UPLOADER_ALLOWED_FILE_TYPES`
+  (`alchemy_storage.upload.allowed_types`) keep their `type(.ext1,.ext2),…`
+  format, but each entry is now a couple: an upload is accepted when one type
+  matches its MIME type **and** lists its extension (before, the type and the
+  extension were checked separately, each against all the entries). An entry
+  without extensions accepts the extensions registered for the uploaded type.
+- A wildcard main type (`*/*`, `*/jpeg`) is refused: uploads fail with a
+  configuration error until it is removed. The default value replaces
+  `*/*(.indd)` with `application/x-indesign(.indd)`, adds the missing comma
+  before `audio/*` and allows `.mp3`, `.mp2` and `.m4a` for `audio/*`. Report
+  these changes in your `.env.local` or deployment values if you override them.
+- The expose `file` and `upload` modes (asset and sub-definition creation) and
+  every presigned `PUT` URL are checked too.
+- Signed URLs force the response `Content-Type` from the type known in the
+  database. Only `image/*` (except SVG), `video/*`, `audio/*` and
+  `application/pdf` are displayed inline; anything else (SVG, HTML, XML,
+  text…) is downloaded as `application/octet-stream`.
+- CloudFront: the cache policy must include `response-content-type` and
+  `response-content-disposition` in the cache key, and the origin must be
+  signed (OAC/OAI); see `doc/tech/Storage/02_cloudfront.md`, which also
+  recommends a response headers policy (`nosniff`, sandboxing CSP).
+- Serving the storage from a registrable domain distinct from the
+  applications is recommended.
+- storage-bundle: `UrlSigner::getSignedUrl()` accepts `type` and `inline`
+  options; without them, the URL serves an `application/octet-stream`
+  attachment.
 
 ## Multipart uploads are planned by the API
 

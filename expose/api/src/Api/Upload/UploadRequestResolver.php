@@ -7,6 +7,7 @@ namespace App\Api\Upload;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
+use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -20,7 +21,9 @@ use Symfony\Component\Mime\MimeTypes;
  *
  * Three shapes are accepted: a completed multipart upload ("multipart"), a file
  * sent with the request ("file") or a file descriptor ("upload") for which a
- * signed PUT URL is generated.
+ * signed PUT URL is generated. The (type, extension) couple of the last two is
+ * checked against the allowed file types (the multipart upload checked it when
+ * it was created).
  */
 final readonly class UploadRequestResolver
 {
@@ -29,6 +32,7 @@ final readonly class UploadRequestResolver
         private UploadManager $uploadManager,
         private PathGeneratorInterface $pathGenerator,
         private Security $security,
+        private FileValidator $fileValidator,
     ) {
     }
 
@@ -58,6 +62,8 @@ final readonly class UploadRequestResolver
             if (0 === $uploadedFile->getSize()) {
                 throw new BadRequestHttpException('Empty file');
             }
+
+            $this->fileValidator->validateFile($uploadedFile->getClientOriginalName(), $uploadedFile->getMimeType());
 
             $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
             $path = $this->pathGenerator->generatePath($extension);
