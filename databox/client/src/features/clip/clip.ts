@@ -95,17 +95,21 @@ export function formatClipRanges(ranges: ClipTimeRange[]): string {
     return ranges.length > 1 ? `${first} +${ranges.length - 1}` : first;
 }
 
-/** `mm:ss.t`, the format of the time fields */
+/**
+ * `mm:ss.cc`, the format of the time fields: to the hundredth, the
+ * precision of the stored times
+ */
 export function formatClipTime(seconds: number): string {
-    const tenths = Math.round(Math.max(0, seconds) * 10);
-    const minutes = Math.floor(tenths / 600);
-    const rest = (tenths % 600) / 10;
+    const hundredths = Math.round(Math.max(0, seconds) * 100);
+    const minutes = Math.floor(hundredths / 6000);
+    const rest = (hundredths % 6000) / 100;
 
-    return `${String(minutes).padStart(2, '0')}:${rest.toFixed(1).padStart(4, '0')}`;
+    return `${String(minutes).padStart(2, '0')}:${rest.toFixed(2).padStart(5, '0')}`;
 }
 
 /**
- * Parses `ss`, `ss.t`, `mm:ss.t` or `hh:mm:ss.t`; undefined when invalid.
+ * Parses `ss`, `ss.cc`, `mm:ss.cc` or `hh:mm:ss.cc` (any decimals);
+ * undefined when invalid.
  */
 export function parseClipTime(value: string): number | undefined {
     const parts = value.trim().split(':');

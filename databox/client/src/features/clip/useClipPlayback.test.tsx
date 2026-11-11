@@ -35,7 +35,7 @@ type Range = {s: number; e: number};
 
 function setup(
     range: Range | Range[] | undefined,
-    options?: {loop?: boolean},
+    options?: {loop?: boolean; freeWhilePaused?: boolean},
     media = new FakeMedia()
 ) {
     const ref = {current: media} as unknown as RefObject<HTMLMediaElement>;
@@ -103,6 +103,27 @@ describe('useClipPlayback', () => {
         // Played again: from the start of the range
         media.play();
         expect(media.currentTime).toBe(12);
+    });
+
+    it('lets a paused media be sought out of the ranges', () => {
+        const media = new FakeMedia();
+        media.readyState = 4;
+        setup({s: 12, e: 30}, {freeWhilePaused: true}, media);
+        expect(media.currentTime).toBe(0);
+
+        media.seek(5);
+        expect(media.currentTime).toBe(5);
+        media.playTo(40);
+        expect(media.currentTime).toBe(40);
+        expect(media.pause).not.toHaveBeenCalled();
+
+        // Played: into the range, and bounded by it
+        media.play();
+        expect(media.currentTime).toBe(12);
+        media.seek(5);
+        expect(media.currentTime).toBe(12);
+        media.playTo(30.1);
+        expect(media.pause).toHaveBeenCalledTimes(1);
     });
 
     it('loops within the range', () => {

@@ -8,38 +8,121 @@ const DEFAULT_ASPECT = 16 / 9;
 
 /**
  * Number of thumbnails filling a strip of `width` × `height` px, each as wide
- * as `height` × the aspect ratio of the video: the last one may be cut.
+ * as `height` × the aspect ratio of the video: the last one may be cut. Never
+ * more than `maxFrames`, the frames of the part shown.
  */
 export function getFilmstripCount(
     width: number,
     height: number,
-    aspect?: number
+    aspect?: number,
+    maxFrames?: number
 ): number {
     const ratio = aspect && aspect > 0 ? aspect : DEFAULT_ASPECT;
     const frameWidth = height * ratio;
     if (!(width > 0) || !(frameWidth > 0)) {
         return 1;
     }
+    const max =
+        maxFrames !== undefined && maxFrames >= 1
+            ? Math.min(MAX_FILMSTRIP_FRAMES, Math.floor(maxFrames))
+            : MAX_FILMSTRIP_FRAMES;
 
-    return Math.min(
-        MAX_FILMSTRIP_FRAMES,
-        Math.max(1, Math.ceil(width / frameWidth))
-    );
+    return Math.min(max, Math.max(1, Math.ceil(width / frameWidth)));
 }
 
 /**
- * Instant of each thumbnail: the middle of its slice of the duration, kept
- * before the end (seeking to the very end may never answer).
+ * Instant of each thumbnail of the window [`start`, `end`] of the media: the
+ * middle of its slice of the window, kept before the end of the media
+ * (seeking to the very end may never answer).
  */
-export function getFilmstripTimes(duration: number, count: number): number[] {
-    if (!(duration > 0) || count < 1) {
+export function getFilmstripTimes(
+    start: number,
+    end: number,
+    count: number,
+    duration: number
+): number[] {
+    if (!(duration > 0) || !(end > start) || count < 1) {
         return [];
     }
     const last = Math.max(0, duration - 0.05);
+    const slice = (end - start) / count;
 
     return Array.from({length: count}, (_, i) =>
-        Math.min(last, ((i + 0.5) * duration) / count)
+        Math.max(0, Math.min(last, start + (i + 0.5) * slice))
     );
+}
+
+export type FilmstripSlot = {
+    /** Start of the slice of the media the thumbnail stands for, in seconds */
+    start: number;
+    /** Instant shown by the thumbnail */
+    time: number;
+};
+
+/**
+ * Thumbnails covering a view of the media, `count` per width of the view.
+ * Their slices are aligned on multiples of their length, not on the start
+ * of the view: scrolling keeps the same instants, only the ones coming into
+ * view are new.
+ */
+export function getFilmstripSlots(
+    view: {start: number; span: number},
+    count: number,
+    duration: number
+): FilmstripSlot[] {
+    if (!(duration > 0) || !(view.span > 0) || count < 1) {
+        return [];
+    }
+    const slice = view.span / count;
+    const first = Math.max(0, Math.floor(view.start / slice + 1e-9));
+    const end = Math.min(duration, view.start + view.span);
+    const n = Math.max(1, Math.ceil(end / slice - 1e-9) - first);
+    const times = getFilmstripTimes(
+        first * slice,
+        (first + n) * slice,
+        n,
+        duration
+    );
+
+    return times.map((time, i) => ({start: (first + i) * slice, time}));
+}
+
+/**
+ * The last frames drawn, by key (their frame number): the oldest one goes
+ * first once `capacity` is reached.
+ */
+export class FrameCache<T> {
+    private readonly entries = new Map<number, T>();
+
+    constructor(private readonly capacity = 300) {}
+
+    get size(): number {
+        return this.entries.size;
+    }
+
+    get(key: number): T | undefined {
+        const value = this.entries.get(key);
+        if (value !== undefined) {
+            // Most recently used last
+            this.entries.delete(key);
+            this.entries.set(key, value);
+        }
+
+        return value;
+    }
+
+    has(key: number): boolean {
+        return this.entries.has(key);
+    }
+
+    set(key: number, value: T): void {
+        this.entries.delete(key);
+        this.entries.set(key, value);
+        while (this.entries.size > this.capacity) {
+            const oldest = this.entries.keys().next().value as number;
+            this.entries.delete(oldest);
+        }
+    }
 }
 
 /** What `extractVideoFrames` needs of a video element */

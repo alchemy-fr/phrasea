@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useRef} from 'react';
+import {type RefObject, useEffect, useMemo, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PauseIcon, PlayIcon} from 'lucide-react';
 import {useWavesurfer} from '@wavesurfer/react';
@@ -43,6 +43,9 @@ function formatTime(seconds: number): string {
     return formatted.startsWith('00:') ? formatted.slice(3) : formatted;
 }
 
+/** Moves the sound to a time, in seconds, without playing it */
+export type AudioSeek = (time: number) => void;
+
 /**
  * Sound player rendering the waveform with wavesurfer.js. With `controls`, the
  * waveform is seekable, shows a timeline, can be zoomed (ctrl + wheel) and is
@@ -58,10 +61,15 @@ function formatTime(seconds: number): string {
  * the ranges are highlighted on the waveform and the playback is bounded to
  * them: it starts at the start of the first one, jumps from one to the next,
  * and stops (loops, when driven by `playing`) at the end of the last one.
- * With `boundPlayback` false, they are only highlighted.
+ * With `boundPlayback` false, they are only highlighted; with `'playing'`,
+ * the sound can be sought out of them while paused (an editor placing them),
+ * and moves into them when played.
  *
  * With `syncPlayback`, it is the player of the asset view: it plays from the
  * cue of a transcript clicked in the side panel.
+ *
+ * With `seekRef`, the parent moves the sound (the timeline of an editor),
+ * once it is loaded.
  *
  * The player fills the width of its box.
  */
@@ -75,6 +83,7 @@ export function AudioPlayer({
     timeRanges,
     boundPlayback = true,
     syncPlayback = false,
+    seekRef,
     onTimeUpdate,
     onDuration,
     onPeaks,
@@ -88,9 +97,11 @@ export function AudioPlayer({
     className?: string;
     /** Sorted, not overlapping */
     timeRanges?: ClipTimeRange[];
-    boundPlayback?: boolean;
+    boundPlayback?: boolean | 'playing';
     /** Plays from the time of a transcript of the asset view */
     syncPlayback?: boolean;
+    /** Set while the sound is loaded */
+    seekRef?: RefObject<AudioSeek | null>;
     onTimeUpdate?: (time: number) => void;
     /** Called once the sound is loaded */
     onDuration?: (duration: number) => void;
@@ -182,6 +193,17 @@ export function AudioPlayer({
     );
     useRegisterMediaPlayback(playbackControl);
 
+    useEffect(() => {
+        if (!seekRef || !wavesurfer || !isReady) {
+            return;
+        }
+        seekRef.current = time => wavesurfer.setTime(time);
+
+        return () => {
+            seekRef.current = null;
+        };
+    }, [seekRef, wavesurfer, isReady]);
+
     // Autoplay follows visibility: play when shown, pause when scrolled away.
     useEffect(() => {
         const el = containerRef.current;
@@ -271,16 +293,24 @@ export function AudioPlayer({
             return;
         }
 
+        // Sought out of the ranges while paused: left there
+        const free = () =>
+            boundPlayback === 'playing' && !wavesurfer.isPlaying();
         const moveIn = (time: number) => {
             const target = clipPlaybackTarget(time, ranges);
             if (target) {
                 wavesurfer.setTime(target.time);
             }
         };
-        moveIn(wavesurfer.getCurrentTime());
+        if (!free()) {
+            moveIn(wavesurfer.getCurrentTime());
+        }
 
         const unsubscribe = [
             wavesurfer.on('timeupdate', time => {
+                if (free()) {
+                    return;
+                }
                 const target = clipPlaybackTarget(time, ranges);
                 if (!target) {
                     return;
@@ -292,7 +322,11 @@ export function AudioPlayer({
                 }
             }),
             wavesurfer.on('play', () => moveIn(wavesurfer.getCurrentTime())),
-            wavesurfer.on('interaction', moveIn),
+            wavesurfer.on('interaction', time => {
+                if (!free()) {
+                    moveIn(time);
+                }
+            }),
         ];
 
         return () => unsubscribe.forEach(u => u());

@@ -107,12 +107,15 @@ describe('clip times', () => {
     });
 
     it('formats and parses the time fields', () => {
-        expect(formatClipTime(72.54)).toBe('01:12.5');
-        expect(formatClipTime(0)).toBe('00:00.0');
-        expect(formatClipTime(5)).toBe('00:05.0');
-        expect(formatClipTime(59.96)).toBe('01:00.0');
+        expect(formatClipTime(72.54)).toBe('01:12.54');
+        expect(formatClipTime(0)).toBe('00:00.00');
+        expect(formatClipTime(5)).toBe('00:05.00');
+        expect(formatClipTime(59.96)).toBe('00:59.96');
+        expect(formatClipTime(59.996)).toBe('01:00.00');
+        expect(formatClipTime(3725.1)).toBe('62:05.10');
 
         expect(parseClipTime('01:12.5')).toBe(72.5);
+        expect(parseClipTime('01:12.54')).toBeCloseTo(72.54);
         expect(parseClipTime('12')).toBe(12);
         expect(parseClipTime(' 1:00:01 ')).toBe(3601);
         expect(parseClipTime('3.25')).toBe(3.25);

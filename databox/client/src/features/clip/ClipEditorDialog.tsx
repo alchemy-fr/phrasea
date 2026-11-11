@@ -7,14 +7,17 @@ import type {ApiFile, Asset} from '@/types/api';
 import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
 import {Button} from '@alchemy/next-ui/ui/button';
-import {LabeledControl, Slider, Switch} from '@alchemy/next-ui/ui/controls';
+import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {toastError} from '@alchemy/next-ui/utils/errors';
-import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
+import {
+    type AudioSeek,
+    AudioPlayer,
+} from '@/features/assets/player/AudioPlayer';
 import {
     type CropRatioName,
     cropRatioNames,
@@ -32,8 +35,9 @@ import {
 } from './clip';
 import {CropRectEditor, fitCropToRatio} from './CropRectEditor';
 import {useClipPlayback} from './useClipPlayback';
-import {VideoFilmstrip} from './VideoFilmstrip';
-import {AudioWaveform} from './AudioWaveform';
+import {ClipTimeline} from './ClipTimeline';
+import {useFrameRate} from './useFrameRate';
+import {AUDIO_FRAME_DURATION, frameIndex, snapToFrame} from './timeline';
 
 type RatioChoice = 'free' | 'original' | CropRatioName;
 
@@ -91,6 +95,8 @@ export function ClipEditorDialog({
     const capabilities = getClipCapabilities(asset.source?.type);
     const media = getMediaFile(asset);
     const mediaKind = getFileKind(media?.type);
+    const isVideo = mediaKind === FileKind.Video;
+    const isAudio = mediaKind === FileKind.Audio;
 
     const [ranges, setRanges] = useState<ClipTimeRange[]>(
         capabilities.timeRange ? (initial?.timeRanges ?? []) : []
@@ -108,6 +114,14 @@ export function ClipEditorDialog({
     const [playing, setPlaying] = useState(false);
     const [removing, setRemoving] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
+    const audioSeekRef = useRef<AudioSeek | null>(null);
+    // Measured on the media played, not on the source
+    const frameRate = useFrameRate(
+        capabilities.timeRange && isVideo ? media?.url : undefined
+    );
+    const frameDuration = isVideo
+        ? 1 / frameRate.frameRate
+        : AUDIO_FRAME_DURATION;
 
     const {dirty} = useDirtyState({ranges, crop: cropEnabled ? crop : null});
 
@@ -131,7 +145,8 @@ export function ClipEditorDialog({
         ? []
         : normalizeTimeRanges(ranges, duration);
 
-    useClipPlayback(videoRef, playedRanges);
+    // Paused, the media can be sought anywhere to place the ranges
+    useClipPlayback(videoRef, playedRanges, {freeWhilePaused: true});
 
     const clip = normalizeClip(
         {
@@ -145,24 +160,29 @@ export function ClipEditorDialog({
         if (videoRef.current) {
             videoRef.current.currentTime = time;
         }
+        audioSeekRef.current?.(time);
         setCurrentTime(time);
     };
 
+    const changeRange = (index: number, value: ClipTimeRange) => {
+        setRanges(rs => rs.map((r, i) => (i === index ? value : r)));
+    };
+
     const updateRange = (value: ClipTimeRange) => {
-        setRanges(rs => rs.map((r, i) => (i === selectedIndex ? value : r)));
+        changeRange(selectedIndex, value);
     };
 
-    const setRangeFromSlider = ([s, e]: number[]) => {
-        if (range && e !== range.e) {
-            // Show the last frame of the range, still within it
-            seek(Math.max(s, e - 0.1));
-        } else if (s !== range?.s) {
-            seek(s);
+    /** The range drawn on the timeline, or one starting at the playhead */
+    const addRange = (drawn?: ClipTimeRange) => {
+        if (ranges.length >= MAX_TIME_RANGES) {
+            return;
         }
-        updateRange({s, e});
-    };
+        if (drawn) {
+            setRanges(rs => [...rs, drawn]);
+            setSelected(ranges.length);
 
-    const addRange = () => {
+            return;
+        }
         let s = currentTime;
         let e = s + DEFAULT_RANGE_DURATION;
         if (duration !== undefined && duration > 0) {
@@ -295,7 +315,7 @@ export function ClipEditorDialog({
         <FormDialog
             open={open}
             onOpenChange={onOpenChange}
-            size="lg"
+            size="xl"
             title={title}
             description={description}
             submitLabel={t('common.save', 'Save')}
@@ -330,6 +350,8 @@ export function ClipEditorDialog({
                 <AudioPlayer
                     src={media.url}
                     timeRanges={playedRanges}
+                    boundPlayback="playing"
+                    seekRef={audioSeekRef}
                     onTimeUpdate={setCurrentTime}
                     onDuration={setDuration}
                     onPeaks={setPeaks}
@@ -368,6 +390,17 @@ export function ClipEditorDialog({
                                     ? ` / ${formatClipTime(duration)}`
                                     : null}
                             </span>
+                            <span
+                                className="font-mono text-xs tabular-nums text-muted-foreground"
+                                data-testid="clip-current-frame"
+                            >
+                                {t('clip.frame_number', 'Frame {{number}}', {
+                                    number: frameIndex(
+                                        currentTime,
+                                        frameDuration
+                                    ),
+                                })}
+                            </span>
                         </div>
                     ) : null}
                 </div>
@@ -383,28 +416,28 @@ export function ClipEditorDialog({
                             onCheckedChange={toggleRanges}
                         />
                     </LabeledControl>
+                    {duration && (isVideo || isAudio) ? (
+                        <ClipTimeline
+                            kind={isVideo ? 'video' : 'audio'}
+                            ranges={ranges}
+                            selected={selectedIndex}
+                            invalid={invalidIndexes}
+                            currentTime={currentTime}
+                            duration={duration}
+                            frameDuration={frameDuration}
+                            canCreate={ranges.length < MAX_TIME_RANGES}
+                            videoSrc={isVideo ? media?.url : undefined}
+                            aspect={mediaAspect}
+                            peaks={isAudio ? peaks : undefined}
+                            frameRate={isVideo ? frameRate : undefined}
+                            onChange={changeRange}
+                            onSelect={selectRange}
+                            onSeek={seek}
+                            onCreate={addRange}
+                        />
+                    ) : null}
                     {ranges.length > 0 ? (
                         <>
-                            {duration ? (
-                                <RangeTimeline
-                                    ranges={ranges}
-                                    duration={duration}
-                                    selected={selectedIndex}
-                                    currentTime={currentTime}
-                                    onSelect={selectRange}
-                                    videoSrc={
-                                        mediaKind === FileKind.Video
-                                            ? media?.url
-                                            : undefined
-                                    }
-                                    aspect={mediaAspect}
-                                    peaks={
-                                        mediaKind === FileKind.Audio
-                                            ? peaks
-                                            : undefined
-                                    }
-                                />
-                            ) : null}
                             <div
                                 className="flex flex-wrap items-center gap-1.5"
                                 data-testid="clip-range-list"
@@ -435,7 +468,7 @@ export function ClipEditorDialog({
                                     type="button"
                                     size="sm"
                                     variant="outline"
-                                    onClick={addRange}
+                                    onClick={() => addRange()}
                                     disabled={ranges.length >= MAX_TIME_RANGES}
                                     data-testid="clip-add-range"
                                 >
@@ -445,23 +478,11 @@ export function ClipEditorDialog({
                             </div>
                             {range ? (
                                 <>
-                                    {duration ? (
-                                        <Slider
-                                            min={0}
-                                            max={duration}
-                                            step={0.1}
-                                            minStepsBetweenThumbs={1}
-                                            value={[
-                                                Math.min(range.s, duration),
-                                                Math.min(range.e, duration),
-                                            ]}
-                                            onValueChange={setRangeFromSlider}
-                                        />
-                                    ) : null}
                                     <div className="grid grid-cols-2 gap-3">
                                         <TimeField
                                             label={t('clip.start', 'Start')}
                                             value={range.s}
+                                            frameDuration={frameDuration}
                                             onChange={s => {
                                                 seek(s);
                                                 updateRange({...range, s});
@@ -480,6 +501,7 @@ export function ClipEditorDialog({
                                         <TimeField
                                             label={t('clip.end', 'End')}
                                             value={range.e}
+                                            frameDuration={frameDuration}
                                             onChange={e =>
                                                 updateRange({...range, e})
                                             }
@@ -584,107 +606,20 @@ export function ClipEditorDialog({
 }
 
 /**
- * The duration of the media, with every range on it: a click on one selects
- * it. The content of the media is drawn behind, as in an editing software:
- * the thumbnails of a video, the waveform of a sound.
- */
-function RangeTimeline({
-    ranges,
-    duration,
-    selected,
-    currentTime,
-    onSelect,
-    videoSrc,
-    aspect,
-    peaks,
-}: {
-    ranges: ClipTimeRange[];
-    duration: number;
-    selected: number;
-    currentTime: number;
-    onSelect: (index: number) => void;
-    videoSrc?: string;
-    /** Width / height of the video */
-    aspect?: number;
-    /** Waveform of the sound, in [-1, 1] */
-    peaks?: number[];
-}) {
-    const percent = (time: number) =>
-        Math.min(100, Math.max(0, (time / duration) * 100));
-    const background = videoSrc ? (
-        <VideoFilmstrip
-            src={videoSrc}
-            duration={duration}
-            aspect={aspect}
-            className="absolute inset-0 rounded"
-        />
-    ) : peaks ? (
-        <div className="absolute inset-0 overflow-hidden rounded bg-muted">
-            <AudioWaveform peaks={peaks} />
-        </div>
-    ) : null;
-    const withBackground = !!background;
-
-    return (
-        <div
-            className={cn(
-                'relative w-full rounded bg-muted',
-                withBackground ? 'h-12' : 'h-6'
-            )}
-            data-testid="clip-range-timeline"
-        >
-            {background}
-            {ranges.map((r, i) => {
-                const left = percent(r.s);
-                const width = Math.max(0.5, percent(r.e) - left);
-
-                return (
-                    <button
-                        // The ranges are edited in place: their index is their identity
-                        key={i}
-                        type="button"
-                        aria-label={formatClipRange(r)}
-                        title={formatClipRange(r)}
-                        className={cn(
-                            'absolute inset-y-0 cursor-pointer rounded outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                            withBackground
-                                ? 'border-2 border-primary/70 bg-primary/25 hover:bg-primary/40'
-                                : 'bg-primary/40 hover:bg-primary/60',
-                            i === selected &&
-                                (withBackground
-                                    ? 'border-primary bg-primary/40 ring-2 ring-primary'
-                                    : 'bg-primary ring-2 ring-primary')
-                        )}
-                        style={{left: `${left}%`, width: `${width}%`}}
-                        onClick={() => onSelect(i)}
-                    />
-                );
-            })}
-            <div
-                className={cn(
-                    'pointer-events-none absolute inset-y-0 w-px bg-foreground',
-                    // Kept visible on the thumbnails
-                    withBackground && 'shadow-[0_0_0_1px_var(--background)]'
-                )}
-                style={{left: `${percent(currentTime)}%`}}
-            />
-        </div>
-    );
-}
-
-/**
- * `mm:ss.t` field, committed on blur or Enter; a button takes the current
- * playback position.
+ * `mm:ss.cc` field, committed on blur or Enter, ↑/↓ moving it by a frame; a
+ * button takes the current playback position.
  */
 function TimeField({
     label,
     value,
+    frameDuration,
     onChange,
     onSetCurrent,
     setCurrentLabel,
 }: {
     label: string;
     value: number;
+    frameDuration: number;
     onChange: (seconds: number) => void;
     onSetCurrent: () => void;
     setCurrentLabel: string;
@@ -713,6 +648,26 @@ function TimeField({
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             commit();
+                        } else if (
+                            e.key === 'ArrowUp' ||
+                            e.key === 'ArrowDown'
+                        ) {
+                            e.preventDefault();
+                            const current =
+                                text !== undefined
+                                    ? (parseClipTime(text) ?? value)
+                                    : value;
+                            const delta =
+                                e.key === 'ArrowUp'
+                                    ? frameDuration
+                                    : -frameDuration;
+                            setText(undefined);
+                            onChange(
+                                Math.max(
+                                    0,
+                                    snapToFrame(current + delta, frameDuration)
+                                )
+                            );
                         }
                     }}
                     aria-label={label}

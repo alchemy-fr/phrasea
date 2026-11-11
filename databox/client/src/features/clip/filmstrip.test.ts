@@ -1,8 +1,10 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {
     extractVideoFrames,
+    FrameCache,
     FRAME_TIMEOUT,
     getFilmstripCount,
+    getFilmstripSlots,
     getFilmstripTimes,
     MAX_FILMSTRIP_FRAMES,
 } from './filmstrip';
@@ -62,15 +64,30 @@ describe('getFilmstripCount', () => {
         );
         expect(getFilmstripCount(500, 0, 16 / 9)).toBe(1);
     });
+
+    it('shows each frame once at most', () => {
+        expect(getFilmstripCount(1000, 48, 16 / 9, 3)).toBe(3);
+        expect(getFilmstripCount(1000, 48, 16 / 9, 3.7)).toBe(3);
+        expect(getFilmstripCount(1000, 48, 16 / 9, 100)).toBe(12);
+        expect(getFilmstripCount(1000, 48, 16 / 9, 0)).toBe(12);
+    });
 });
 
 describe('getFilmstripTimes', () => {
     it('takes the middle of each slice', () => {
-        expect(getFilmstripTimes(10, 4)).toEqual([1.25, 3.75, 6.25, 8.75]);
+        expect(getFilmstripTimes(0, 10, 4, 10)).toEqual([
+            1.25, 3.75, 6.25, 8.75,
+        ]);
+    });
+
+    it('takes the slices of the window', () => {
+        expect(getFilmstripTimes(10, 20, 2, 60)).toEqual([12.5, 17.5]);
+        // Kept before the end of the media
+        expect(getFilmstripTimes(58, 62, 2, 60)).toEqual([59, 59.95]);
     });
 
     it('stays increasing and before the end', () => {
-        const times = getFilmstripTimes(0.1, 3);
+        const times = getFilmstripTimes(0, 0.1, 3, 0.1);
         expect(times).toHaveLength(3);
         times.forEach((t, i) => {
             expect(t).toBeLessThan(0.1);
@@ -79,7 +96,7 @@ describe('getFilmstripTimes', () => {
             }
         });
 
-        const many = getFilmstripTimes(125.4, 60);
+        const many = getFilmstripTimes(0, 125.4, 60, 125.4);
         many.forEach((t, i) => {
             expect(t).toBeLessThan(125.4);
             if (i > 0) {
@@ -89,9 +106,55 @@ describe('getFilmstripTimes', () => {
     });
 
     it('has nothing to take without a duration', () => {
-        expect(getFilmstripTimes(0, 5)).toEqual([]);
-        expect(getFilmstripTimes(Number.NaN, 5)).toEqual([]);
-        expect(getFilmstripTimes(10, 0)).toEqual([]);
+        expect(getFilmstripTimes(0, 0, 5, 0)).toEqual([]);
+        expect(getFilmstripTimes(0, 10, 5, Number.NaN)).toEqual([]);
+        expect(getFilmstripTimes(0, 10, 0, 10)).toEqual([]);
+        expect(getFilmstripTimes(5, 5, 2, 10)).toEqual([]);
+    });
+});
+
+describe('getFilmstripSlots', () => {
+    it('covers the whole media', () => {
+        expect(getFilmstripSlots({start: 0, span: 10}, 4, 10)).toEqual([
+            {start: 0, time: 1.25},
+            {start: 2.5, time: 3.75},
+            {start: 5, time: 6.25},
+            {start: 7.5, time: 8.75},
+        ]);
+    });
+
+    it('keeps the same instants while scrolling', () => {
+        const slots = getFilmstripSlots({start: 1, span: 10}, 4, 20);
+        expect(slots.map(s => s.start)).toEqual([0, 2.5, 5, 7.5, 10]);
+        expect(slots.map(s => s.time)).toEqual([1.25, 3.75, 6.25, 8.75, 11.25]);
+        expect(getFilmstripSlots({start: 1.5, span: 10}, 4, 20)).toEqual(slots);
+        expect(
+            getFilmstripSlots({start: 10, span: 10}, 4, 20).map(s => s.time)
+        ).toEqual([11.25, 13.75, 16.25, 18.75]);
+    });
+
+    it('has nothing to show without a duration', () => {
+        expect(getFilmstripSlots({start: 0, span: 10}, 4, 0)).toEqual([]);
+        expect(getFilmstripSlots({start: 0, span: 0}, 4, 10)).toEqual([]);
+        expect(getFilmstripSlots({start: 0, span: 10}, 0, 10)).toEqual([]);
+    });
+});
+
+describe('FrameCache', () => {
+    it('forgets the least recently used frame', () => {
+        const cache = new FrameCache<string>(2);
+        cache.set(1, 'a');
+        cache.set(2, 'b');
+        expect(cache.get(1)).toBe('a');
+        cache.set(3, 'c');
+        expect(cache.has(2)).toBe(false);
+        expect(cache.get(1)).toBe('a');
+        expect(cache.get(3)).toBe('c');
+        expect(cache.size).toBe(2);
+
+        cache.set(3, 'd');
+        expect(cache.get(3)).toBe('d');
+        expect(cache.size).toBe(2);
     });
 });
 
