@@ -73,8 +73,8 @@ src/
     targets/      Target list
     upload/       Upload wizard, and its engine (engine/: queue, resume, transport)
     download/     Upload by URL
-    liform/       LiForm schema compiler and renderer
-    admin/        Form schema and target data editors
+    form-builder/ Forms of the targets: definition, editor (editor/) and renderer (render/)
+    admin/        Editors of the form and of the data of each target
   lib/            Config, auth (OIDC/PKCE), API client, navigation guard
   i18n/           Languages and translations of the uploader (en, fr, de, es)
   types/          API contracts

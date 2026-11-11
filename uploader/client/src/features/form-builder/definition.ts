@@ -14,9 +14,6 @@ import {
     type Localized,
 } from './types';
 
-export const FORMAT_BUILDER = 'builder';
-export const FORMAT_LIFORM = 'liform';
-
 export function emptyDefinition(workspaceId?: string | null): FormDefinition {
     return {version: 1, workspaceId: workspaceId ?? null, fields: []};
 }

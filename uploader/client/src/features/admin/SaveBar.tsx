@@ -39,9 +39,9 @@ export function SaveBar({
                 type="submit"
                 loading={saving}
                 disabled={disabled || !dirty}
-                data-testid="form-schema-save"
+                data-testid="admin-save"
             >
-                <SaveIcon /> {t('admin.save', 'Save Form')}
+                <SaveIcon /> {t('admin.save', 'Save')}
             </Button>
             {children}
             {dirty && !saving ? (

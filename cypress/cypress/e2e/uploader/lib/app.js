@@ -36,7 +36,7 @@ export function login(username = adminUsername, password = adminPassword) {
 
 export const uploadUrl = targetId => `${uploaderUrl}/upload/${targetId}`;
 
-/** The upload screen of a target, once its form schema is known */
+/** The upload screen of a target, once its form is known */
 export function visitUpload(targetId) {
     cy.visit(uploadUrl(targetId));
     cy.getBySel('stepper', {timeout: 30000}).should('be.visible');
@@ -70,6 +70,21 @@ export function expectToastText(text) {
     return cy.get('[data-sonner-toast]', {timeout: 30000}).should($toasts => {
         expect($toasts.text(), 'toast').to.match(re);
     });
+}
+
+/**
+ * Replaces the text of the code editor inside `testId`, through the Ace API:
+ * typed text would get the brackets and quotes Ace closes on its own.
+ */
+export function setCodeEditorValue(testId, text) {
+    cy.getBySel(testId)
+        .find('.ace_editor', {timeout: 30000})
+        .should($el => {
+            expect($el[0].env?.editor, 'Ace editor').to.exist;
+        })
+        .then($el => {
+            $el[0].env.editor.setValue(text, 1);
+        });
 }
 
 /** Confirms the open confirmation dialog with the given button */

@@ -14,7 +14,6 @@ final readonly class CommitMessage
         private array $form,
         private bool $notify = false,
         private ?string $locale = null,
-        private ?string $schemaId = null,
         private array $options = [],
     ) {
     }
@@ -52,10 +51,5 @@ final readonly class CommitMessage
     public function getOptions(): array
     {
         return $this->options;
-    }
-
-    public function getSchemaId(): ?string
-    {
-        return $this->schemaId;
     }
 }

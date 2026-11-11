@@ -65,7 +65,13 @@ export function getAdminToken() {
         });
 }
 
-export function apiRequest({method = 'GET', path, body, qs, failOnStatusCode = true}) {
+/**
+ * A request to the Uploader API: JSON-LD by default, plain JSON with `json`
+ * (the endpoints answering a bare value).
+ */
+export function apiRequest({method = 'GET', path, body, qs, failOnStatusCode = true, json = false}) {
+    const contentType = json ? 'application/json' : method === 'PATCH' ? 'application/merge-patch+json' : 'application/ld+json';
+
     return getAdminToken().then(token =>
         cy
             .request({
@@ -75,8 +81,8 @@ export function apiRequest({method = 'GET', path, body, qs, failOnStatusCode = t
                 qs,
                 failOnStatusCode,
                 headers: {
-                    Accept: 'application/ld+json',
-                    'Content-Type': method === 'PATCH' ? 'application/merge-patch+json' : 'application/ld+json',
+                    Accept: json ? 'application/json' : 'application/ld+json',
+                    'Content-Type': contentType,
                 },
                 auth: {bearer: token},
             })
@@ -129,57 +135,36 @@ export function ensureTarget({slug, ...data}) {
     });
 }
 
-export function getFormSchemas(targetId) {
-    return fetchAll('/form-schemas').then(schemas => schemas.filter(s => s.target?.id === targetId));
+/** The form of a target (a form of the builder), null without one */
+export function getForm(targetId) {
+    return apiRequest({path: `/targets/${targetId}/form`, json: true});
 }
 
-export function removeFormSchemas(targetId) {
-    return getFormSchemas(targetId).then(schemas =>
-        schemas.reduce(
-            (chain, s) => chain.then(() => apiRequest({method: 'DELETE', path: iri('form-schemas', s.id)})),
-            cy.wrap(null, {log: false})
-        )
-    );
-}
-
-/** Replaces the form schemas of a target with a form of the builder */
+/** Replaces the form of a target with a form of the builder holding `fields` */
 export function setBuilderForm(targetId, fields) {
-    return removeFormSchemas(targetId).then(() =>
-        apiRequest({
-            method: 'POST',
-            path: '/form-schemas',
-            body: {
-                target: iri('targets', targetId),
-                locale: null,
-                localeMode: 0,
-                format: 'builder',
-                data: {version: 1, fields},
-            },
-        })
-    );
+    return apiRequest({
+        method: 'PUT',
+        path: `/targets/${targetId}/form`,
+        body: {form: {version: 1, workspaceId: null, fields}},
+        json: true,
+    });
 }
 
-export function getTargetParams(targetId) {
-    return fetchAll('/target-params', {target: targetId});
+export function removeForm(targetId) {
+    return apiRequest({method: 'PUT', path: `/targets/${targetId}/form`, body: {form: null}, json: true});
 }
 
-export function removeTargetParams(targetId) {
-    return getTargetParams(targetId).then(list =>
-        list.reduce(
-            (chain, p) => chain.then(() => apiRequest({method: 'DELETE', path: iri('target-params', p.id)})),
-            cy.wrap(null, {log: false})
-        )
-    );
+/** The data of a target, merged into the form data of its commits; null without any */
+export function getTargetData(targetId) {
+    return apiRequest({path: `/targets/${targetId}/data`, json: true});
 }
 
-export function setTargetParams(targetId, data) {
-    return removeTargetParams(targetId).then(() =>
-        apiRequest({
-            method: 'POST',
-            path: '/target-params',
-            body: {target: iri('targets', targetId), data},
-        })
-    );
+export function setTargetData(targetId, data) {
+    return apiRequest({method: 'PUT', path: `/targets/${targetId}/data`, body: {data}, json: true});
+}
+
+export function removeTargetData(targetId) {
+    return setTargetData(targetId, null);
 }
 
 /**

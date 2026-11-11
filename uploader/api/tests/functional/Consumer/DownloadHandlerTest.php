@@ -19,7 +19,7 @@ class DownloadHandlerTest extends ApiTestCase
         $handler = self::getContainer()->get(DownloadHandler::class);
 
         $this->expectException(TransportException::class);
-        $handler(new Download($url, 'a_user_id', 'c705d014-5e18-4711-bad6-5e9e27e10099', 'en', null));
+        $handler(new Download($url, 'a_user_id', 'c705d014-5e18-4711-bad6-5e9e27e10099', 'en'));
     }
 
     public static function privateUrlProvider(): array

@@ -18,7 +18,6 @@ final class DownloadUrlInput
 
     public ?array $data = null;
     public ?array $formData = null;
-    public ?string $schemaId = null;
 
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void

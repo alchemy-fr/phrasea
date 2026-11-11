@@ -11,8 +11,8 @@ status: WIP
 ## Glossary
 
 - **Target**: Destination for files  
-- **Form-editor**: Set of widgets available via the liform library, allowing the creation of an indexing form accessible to the user.  
-- **Target Parameter Editor**: Additional indexing data, not accessible to the user.  
+- **Form editor**: Builds, for each target, the indexing form filled in by the user (form builder).  
+- **Target data editor**: Additional indexing data of a target, not accessible to the user.  
 - **Asset**: Uploaded file.  
 - **Commit**: Grouping of assets and information entered in the target form (in JSON format)  
 - **Multipart upload**: Files are split into chunks and reassembled on the server once the upload is complete.
@@ -118,24 +118,26 @@ In Push mode, the operation of the Uploader with Phraseanet is identical in mech
 
 ## Target Form Configuration
 
-### Form-editor
+### Form editor
 
-In the Uploader client interface or from Uploader admin/form-editor  
+In the Uploader client interface: “Form Editor” menu  
 Documentation and example [form](../../tech/Uploader/form_config.md)  
    
-Click on a Target.
+Click on a Target: the list shows which targets have a form.
 
-The form editor builds the form by dragging the attributes of a Databox workspace (entity lists included), Databox values (name, tags, story), custom fields and sections, and shows its rendering. Forms described in JSON (LiForm) are still supported and can be converted to the builder.
+Each target has one form, for every language: its labels, help texts and placeholders are translated in the form itself. The form editor builds the form by dragging the attributes of a Databox workspace (entity lists included), Databox values (name, tags, story), custom fields and sections, and shows its rendering. "Delete the form" removes it: the target then accepts no indexing data from the user.
+
+Forms described in JSON (LiForm) before version 5 were converted to the form builder on upgrade; see the [technical documentation](../../tech/Uploader/form_config.md#migration-from-liform) for what the conversion keeps.
 
 Example:
 
 ![][image4] todo
 
-### Target Parameter Editor
+### Target data editor
 
-The “Target Parameter Editor” allows you to pass additional parameters included in a section of the JSON to describe the asset.
+In the Uploader client interface: “Target Data Editor” menu. The “Target data editor” allows you to pass, as a JSON object, additional data added to every upload of the target to describe the assets. Emptying it removes the data of the target.
 
-Parameters defined in the “Target Parameter Editor” take precedence over information entered in the form-editor. Therefore, it is unnecessary to declare attribute values in the form if they are already referenced in the Target parameters.
+Data defined in the “Target data editor” takes precedence over information entered in the form. Therefore, it is unnecessary to declare attribute values in the form if they are already referenced in the target data.
 
 ![][image5] todo
 
@@ -152,7 +154,7 @@ It is possible to notify the sender via Uploader. Like other modules, the “Upl
   - An interface reduced to the essentials for users  
   - Can work in “Pull” mode: the consuming application queries the Uploader from a secure area at its chosen frequency (the “Pull” mode is not yet available for Phrasea)
 
-**Why Form-editor and Target-editor?**
+**Why a form editor and a target data editor?**
 
-- The Form-editor allows you to build a form usable by the user  
-- The Target Parameter Editor allows you to add values to the batch of assets without going through the form; these values are not accessible to the user uploading the assets
+- The form editor allows you to build a form usable by the user  
+- The target data editor allows you to add values to the batch of assets without going through the form; these values are not accessible to the user uploading the assets

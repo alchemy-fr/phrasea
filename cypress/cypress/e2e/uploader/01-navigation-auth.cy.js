@@ -2,7 +2,7 @@
  * Uploader — authentication, target list, navigation.
  */
 import {uploaderUrl} from '../lib/urls';
-import {ensureTarget, removeFormSchemas, TARGETS} from './lib/api';
+import {ensureTarget, removeForm, TARGETS} from './lib/api';
 import {login, loginThroughKeycloak} from './lib/app';
 
 function switchLanguage(code) {
@@ -22,7 +22,7 @@ describe('Uploader navigation & authentication', () => {
         login();
         ensureTarget(TARGETS.plain).then(t => {
             targets.plain = t;
-            removeFormSchemas(t.id);
+            removeForm(t.id);
         });
         ensureTarget(TARGETS.form).then(t => {
             targets.form = t;
@@ -69,15 +69,15 @@ describe('Uploader navigation & authentication', () => {
         login();
         cy.visit(uploaderUrl);
 
-        cy.getBySel('nav-form-schemas').click();
-        cy.url().should('include', '/admin/form-schemas');
-        cy.getBySel('page-title').should('contain', 'Form Schemas');
-        cy.getBySel('nav-form-schemas').should('have.attr', 'aria-current', 'page');
+        cy.getBySel('nav-forms').click();
+        cy.url().should('include', '/admin/forms');
+        cy.getBySel('page-title').should('contain', 'Forms');
+        cy.getBySel('nav-forms').should('have.attr', 'aria-current', 'page');
 
-        cy.getBySel('nav-target-params').click();
-        cy.url().should('include', '/admin/target-param');
+        cy.getBySel('nav-target-data').click();
+        cy.url().should('include', '/admin/target-data');
         cy.getBySel('page-title').should('contain', 'Target Data');
-        cy.getBySel('nav-target-params').should('have.attr', 'aria-current', 'page');
+        cy.getBySel('nav-target-data').should('have.attr', 'aria-current', 'page');
     });
 
     it('switches the language from the settings menu', () => {

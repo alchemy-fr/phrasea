@@ -103,9 +103,6 @@ class Commit extends AbstractUuidEntity
     #[Groups(['asset:read', self::GROUP_READ])]
     private ?string $formLocale = null;
 
-    #[Groups([self::GROUP_WRITE])]
-    public ?string $schemaId = null;
-
     #[Groups(['asset:read', self::GROUP_READ, self::GROUP_WRITE])]
     #[ORM\Column(type: Types::JSON)]
     private array $options = [];
@@ -225,7 +222,6 @@ class Commit extends AbstractUuidEntity
             $this->formData,
             $this->notify,
             $this->locale,
-            $this->schemaId,
             $this->options,
         );
     }
@@ -241,7 +237,6 @@ class Commit extends AbstractUuidEntity
         $instance->setUserId($message->getUserId());
         $instance->setNotify($message->isNotify());
         $instance->setLocale($message->getLocale());
-        $instance->schemaId = $message->getSchemaId();
         $instance->setOptions($message->getOptions());
 
         return $instance;

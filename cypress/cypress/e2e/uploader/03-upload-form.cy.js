@@ -3,21 +3,18 @@
  * filled in while the files are sent, validated, then committed with the
  * target data.
  */
-import {ensureTarget, FORM_FIELDS, iri, setBuilderForm, setTargetParams, TARGETS, uniqueValue, waitForCommit} from './lib/api';
+import {ensureTarget, FORM_FIELDS, iri, setBuilderForm, setTargetData, TARGETS, uniqueValue, waitForCommit} from './lib/api';
 import {builderField, confirmDialog, login, pngFile, selectFiles, stepIs, visitUpload} from './lib/app';
 
 describe('Uploader upload with a form', () => {
     let target;
-    let schema;
 
     before(() => {
         login();
         ensureTarget(TARGETS.form).then(t => {
             target = t;
-            setBuilderForm(t.id, FORM_FIELDS).then(s => {
-                schema = s;
-            });
-            setTargetParams(t.id, {e2e_origin: 'cypress'});
+            setBuilderForm(t.id, FORM_FIELDS);
+            setTargetData(t.id, {e2e_origin: 'cypress'});
         });
     });
 
@@ -73,7 +70,6 @@ describe('Uploader upload with a form', () => {
         cy.wait('@commit', {timeout: 60000}).then(({request, response}) => {
             expect(response.statusCode).to.eq(200);
             expect(request.body.target).to.eq(iri('targets', target.id));
-            expect(request.body.schemaId).to.eq(schema.id);
             expect(request.body.files).to.have.length(1);
             expect(request.body.formData.album).to.eq(album);
             expect(String(request.body.formData.copies)).to.eq('3');

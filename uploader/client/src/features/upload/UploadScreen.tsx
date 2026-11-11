@@ -35,7 +35,7 @@ import {
     deleteAsset,
     getAllTargets,
     getTarget,
-    getTargetFormSchema,
+    getTargetForm,
 } from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
 import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
@@ -44,6 +44,7 @@ import {formatFileSize} from '@/lib/utils/format';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import type {FormValues} from '@/features/form-builder/types';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';
+import {targetFormQueryKey} from '@/features/admin/queryKeys';
 import type {
     QueueSnapshot,
     UploadItem,
@@ -71,13 +72,11 @@ type Sent = {
 /** Value of the built-in field asking for a notification */
 const NOTIFY_FIELD = '__notify';
 
-export function useTargetFormSchema(targetId: string) {
-    const {i18n} = useTranslation();
-
-    // The API picks the schema matching the language of the request
+/** The form of the target, translated on display */
+export function useTargetForm(targetId: string) {
     return useQuery({
-        queryKey: ['targets', targetId, 'form-schema', i18n.language],
-        queryFn: () => getTargetFormSchema(targetId),
+        queryKey: targetFormQueryKey(targetId),
+        queryFn: () => getTargetForm(targetId),
     });
 }
 
@@ -93,13 +92,13 @@ export function UploadScreen({targetId}: {targetId: string}) {
         queryKey: targetsQueryKey,
         queryFn: getAllTargets,
     });
-    const schema = useTargetFormSchema(targetId);
+    const form = useTargetForm(targetId);
     const {queue, snapshot} = useUploadQueue(targetId, user!.username);
     const errorMessage = useUploadErrorMessage();
 
     const [step, setStep] = useState<WizardStep>('select');
     const [files, setFiles] = useState<File[]>([]);
-    // Set once the form is validated (empty without schema)
+    // Set once the form is validated (empty without form)
     const [formData, setFormData] = useState<FormValues>();
     const [commitState, setCommitState] = useState<CommitState>({
         status: 'idle',
@@ -192,7 +191,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
 
     const startUpload = () => {
         queue.add(files);
-        if (schema.data) {
+        if (form.data) {
             setStep('form');
         } else {
             setFormData({});
@@ -200,7 +199,6 @@ export function UploadScreen({targetId}: {targetId: string}) {
         }
     };
 
-    const schemaId = schema.data?.id;
     const runCommit = useCallback(async () => {
         if (committing.current || !formData) {
             return;
@@ -213,7 +211,6 @@ export function UploadScreen({targetId}: {targetId: string}) {
                 targetId,
                 files: items.map(i => i.assetId!),
                 formData,
-                schemaId,
             });
             committed.current = true;
             setSent({
@@ -229,7 +226,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
         } finally {
             committing.current = false;
         }
-    }, [formData, queue, schemaId, targetId]);
+    }, [formData, queue, targetId]);
 
     // Committed as soon as both the files and the form are there
     useEffect(() => {
@@ -273,7 +270,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
         : snapshot.total > 0
           ? Math.min(99, Math.round((snapshot.loaded / snapshot.total) * 100))
           : 0;
-    const withForm = !!schema.data;
+    const withForm = !!form.data;
 
     const batchFiles = (
         <ul className="flex flex-wrap gap-3" data-testid="batch-files">
@@ -327,9 +324,9 @@ export function UploadScreen({targetId}: {targetId: string}) {
 
                 {step === 'select' ? (
                     <>
-                        {schema.error ? (
+                        {form.error ? (
                             <Alert variant="destructive" className="mb-4">
-                                {getErrorMessage(schema.error)}
+                                {getErrorMessage(form.error)}
                             </Alert>
                         ) : null}
                         <FileSelectionStep
@@ -337,13 +334,13 @@ export function UploadScreen({targetId}: {targetId: string}) {
                             files={files}
                             onChange={setFiles}
                             onNext={startUpload}
-                            nextDisabled={schema.isPending || !!schema.error}
+                            nextDisabled={form.isPending || !!form.error}
                             withForm={withForm}
                         />
                     </>
                 ) : null}
 
-                {step === 'form' && schema.data ? (
+                {step === 'form' && form.data ? (
                     <BatchDropzone
                         queue={queue}
                         snapshot={snapshot}
@@ -389,7 +386,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
                         <div className="mt-2 border-t pt-6">
                             <MetadataFormStep
                                 targetId={targetId}
-                                schema={schema.data}
+                                form={form.data}
                                 initialValues={formData}
                                 onCancel={cancel}
                                 onSubmit={values => {
@@ -458,7 +455,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
                                             <RotateCwIcon />{' '}
                                             {t('upload.commit_retry', 'Retry')}
                                         </Button>
-                                        {schema.data ? (
+                                        {form.data ? (
                                             <Button
                                                 size="sm"
                                                 variant="outline"

@@ -2,7 +2,7 @@
  * Uploader — import of a file from its URL, fetched by the server.
  */
 import {uploaderUrl} from '../lib/urls';
-import {ensureTarget, iri, removeFormSchemas, TARGETS} from './lib/api';
+import {ensureTarget, iri, removeForm, TARGETS} from './lib/api';
 import {login} from './lib/app';
 
 /**
@@ -18,7 +18,7 @@ describe('Uploader import from a URL', () => {
         login();
         ensureTarget(TARGETS.plain).then(t => {
             target = t;
-            removeFormSchemas(t.id);
+            removeForm(t.id);
         });
     });
 

@@ -14,13 +14,13 @@ import {downloadUrl, getTarget, hasFormErrors} from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
-import {useTargetFormSchema} from '@/features/upload/UploadScreen';
+import {useTargetForm} from '@/features/upload/UploadScreen';
 import {
     UploadFormBody,
     useTargetOptionsLoader,
     useUploadForm,
 } from '@/features/upload/UploadForm';
-import type {FormSchema} from '@/types/api';
+import type {FormDefinition} from '@/features/form-builder/types';
 
 export function isHttpUrl(value: string): boolean {
     try {
@@ -42,19 +42,19 @@ export function DownloadScreen({targetId}: {targetId: string}) {
         queryKey: ['targets', targetId],
         queryFn: () => getTarget(targetId),
     });
-    const schema = useTargetFormSchema(targetId);
+    const form = useTargetForm(targetId);
     const [done, setDone] = useState(false);
     // A new form for every download
     const [round, setRound] = useState(0);
 
-    if (target.isPending || schema.isPending) {
+    if (target.isPending || form.isPending) {
         return <FullPageLoader />;
     }
-    if (target.error || schema.error) {
+    if (target.error || form.error) {
         return (
             <Page>
                 <Alert variant="destructive">
-                    {getErrorMessage(target.error ?? schema.error)}
+                    {getErrorMessage(target.error ?? form.error)}
                 </Alert>
             </Page>
         );
@@ -107,7 +107,7 @@ export function DownloadScreen({targetId}: {targetId: string}) {
                 <DownloadForm
                     key={round}
                     targetId={targetId}
-                    schema={schema.data}
+                    definition={form.data}
                     onDone={() => setDone(true)}
                 />
             )}
@@ -117,18 +117,17 @@ export function DownloadScreen({targetId}: {targetId: string}) {
 
 function DownloadForm({
     targetId,
-    schema,
+    definition,
     onDone,
 }: {
     targetId: string;
-    schema: FormSchema | null | undefined;
+    definition: FormDefinition | null;
     onDone: () => void;
 }) {
     const {t} = useTranslation();
     const urlId = useId();
-    const form = useUploadForm(schema);
+    const form = useUploadForm(definition);
     const loadOptions = useTargetOptionsLoader(targetId);
-    const schemaId = schema?.id;
     const [url, setUrl] = useState('');
     const [urlError, setUrlError] = useState<string>();
     const [submitting, setSubmitting] = useState(false);
@@ -138,7 +137,7 @@ function DownloadForm({
     const submit = async () => {
         const values = form.validate();
         const urlInvalid = !url.trim()
-            ? t('liform.error.required', 'This value is required.')
+            ? t('form.error.required', 'This value is required.')
             : !isHttpUrl(url.trim())
               ? t('download.invalid_url', 'This is not a valid URL.')
               : undefined;
@@ -153,7 +152,6 @@ function DownloadForm({
                 targetId,
                 url: url.trim(),
                 formData: values,
-                schemaId,
             });
             if (hasFormErrors(errors)) {
                 form.setServerErrors(errors);

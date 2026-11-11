@@ -1,17 +1,14 @@
-import {api, isApiError} from './http';
+import {api} from './http';
 import {fetchAllPages, toPage} from './hydra';
 import type {
     FormErrors,
-    FormSchema,
     HydraCollection,
-    LocaleMode,
     Page,
     Target,
-    TargetParams,
+    TargetData,
     UploadedAsset,
     UploaderUser,
 } from '@/types/api';
-import type {LiFormSchema} from '@/features/liform/types';
 import type {
     DataboxField,
     DataboxWorkspace,
@@ -21,7 +18,7 @@ import type {
 } from '@/features/form-builder/types';
 import type {MultipartUpload} from './upload';
 
-export function iri(resource: 'targets' | 'form-schemas', id: string): string {
+export function iri(resource: 'targets', id: string): string {
     return `/${resource}/${id}`;
 }
 
@@ -80,30 +77,59 @@ export function getTarget(id: string): Promise<Target> {
     return api.get<Target>(`/targets/${id}`);
 }
 
-/**
- * The form schema of the target for the current UI language. Null when the
- * target has none (the API answers an empty body, or 404 on older versions).
- */
-export async function getTargetFormSchema(
+/** The form of the target, null when it has none */
+export async function getTargetForm(
     targetId: string
-): Promise<FormSchema | null> {
-    try {
-        const schema = await api.get<FormSchema | null | ''>(
-            `/targets/${targetId}/form-schema`
-        );
+): Promise<FormDefinition | null> {
+    return nullIfEmpty(
+        await api.get<FormDefinition | null | undefined>(
+            `/targets/${targetId}/form`
+        )
+    );
+}
 
-        if (!schema || typeof schema !== 'object' || !schema.data) {
-            return null;
-        }
+/** Replaces the form of the target; null removes it */
+export async function saveTargetForm(
+    targetId: string,
+    form: FormDefinition | null
+): Promise<FormDefinition | null> {
+    return nullIfEmpty(
+        await api.put<FormDefinition | null | undefined>(
+            `/targets/${targetId}/form`,
+            {form}
+        )
+    );
+}
 
-        // Schemas saved before the builder existed have no format
-        return {...schema, format: schema.format ?? 'liform'} as FormSchema;
-    } catch (e) {
-        if (isApiError(e, 404)) {
-            return null;
-        }
-        throw e;
-    }
+/**
+ * The fixed data merged, on commit, into the form data of every batch sent
+ * to the target; null when it has none.
+ */
+export async function getTargetData(
+    targetId: string
+): Promise<TargetData | null> {
+    return nullIfEmpty(
+        await api.get<TargetData | null | undefined>(
+            `/targets/${targetId}/data`
+        )
+    );
+}
+
+/** Replaces the data of the target; null (or an empty object) removes them */
+export async function saveTargetData(
+    targetId: string,
+    data: TargetData | null
+): Promise<TargetData | null> {
+    return nullIfEmpty(
+        await api.put<TargetData | null | undefined>(
+            `/targets/${targetId}/data`,
+            {data}
+        )
+    );
+}
+
+function nullIfEmpty<T extends object>(value: T | null | undefined): T | null {
+    return value && typeof value === 'object' ? value : null;
 }
 
 // -- Upload flow ---------------------------------------------------------
@@ -138,13 +164,11 @@ export async function commit(input: {
     targetId: string;
     files: string[];
     formData: Record<string, unknown>;
-    schemaId?: string;
 }): Promise<void> {
     await api.post('/commit', {
         target: iri('targets', input.targetId),
         files: input.files,
         formData: input.formData,
-        schemaId: input.schemaId,
     });
 }
 
@@ -156,13 +180,11 @@ export async function downloadUrl(input: {
     targetId: string;
     url: string;
     formData: Record<string, unknown>;
-    schemaId?: string;
 }): Promise<FormErrors> {
     const res = await api.post<unknown>('/downloads', {
         target: iri('targets', input.targetId),
         url: input.url,
         formData: input.formData,
-        schemaId: input.schemaId,
     });
 
     return normalizeFormErrors(
@@ -170,44 +192,6 @@ export async function downloadUrl(input: {
             ? (res as {errors?: unknown}).errors
             : undefined
     );
-}
-
-// -- Admin: form schemas -------------------------------------------------
-
-export type FormSchemaInput = {
-    target: string;
-    locale: string | null;
-    localeMode: LocaleMode;
-} & (
-    | {format: 'liform'; data: LiFormSchema}
-    | {format: 'builder'; data: FormDefinition}
-);
-
-export async function getFormSchemas(): Promise<FormSchema[]> {
-    const first = api
-        .get<HydraCollection<FormSchema>>('/form-schemas')
-        .then(r => toPage(r));
-
-    return fetchAllPages(first, next =>
-        api.get<HydraCollection<FormSchema>>(next).then(r => toPage(r))
-    );
-}
-
-export function getFormSchema(id: string): Promise<FormSchema> {
-    return api.get<FormSchema>(`/form-schemas/${id}`);
-}
-
-export function saveFormSchema(
-    id: string | undefined,
-    input: FormSchemaInput
-): Promise<FormSchema> {
-    return id
-        ? api.patch<FormSchema>(`/form-schemas/${id}`, input)
-        : api.post<FormSchema>('/form-schemas', input);
-}
-
-export function deleteFormSchema(id: string): Promise<void> {
-    return api.delete(`/form-schemas/${id}`);
 }
 
 // -- Databox, read through the uploader API ------------------------------
@@ -280,38 +264,4 @@ export async function getTargetDestination(
     }>(`/databox/targets/${targetId}/destination`);
 
     return res.collection;
-}
-
-// -- Admin: target params ------------------------------------------------
-
-export type TargetParamsInput = {
-    target: string;
-    data: Record<string, unknown>;
-};
-
-export async function getTargetParamsList(): Promise<TargetParams[]> {
-    const first = api
-        .get<HydraCollection<TargetParams>>('/target-params')
-        .then(r => toPage(r));
-
-    return fetchAllPages(first, next =>
-        api.get<HydraCollection<TargetParams>>(next).then(r => toPage(r))
-    );
-}
-
-export function getTargetParams(id: string): Promise<TargetParams> {
-    return api.get<TargetParams>(`/target-params/${id}`);
-}
-
-export function saveTargetParams(
-    id: string | undefined,
-    input: TargetParamsInput
-): Promise<TargetParams> {
-    return id
-        ? api.patch<TargetParams>(`/target-params/${id}`, input)
-        : api.post<TargetParams>('/target-params', input);
-}
-
-export function deleteTargetParams(id: string): Promise<void> {
-    return api.delete(`/target-params/${id}`);
 }

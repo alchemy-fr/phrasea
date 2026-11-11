@@ -1,21 +1,27 @@
 /**
- * Uploader — admin editors: form schemas and target data.
+ * Uploader — admin editors: the form and the data of each target.
  */
 import {uploaderUrl} from '../lib/urls';
 import {
     ensureTarget,
     FORM_FIELDS,
-    getFormSchemas,
-    getTargetParams,
-    removeTargetParams,
+    getForm,
+    getTargetData,
+    removeForm,
+    removeTargetData,
     setBuilderForm,
-    setTargetParams,
+    setTargetData,
     TARGETS,
 } from './lib/api';
-import {confirmDialog, expectToastText, login} from './lib/app';
+import {confirmDialog, expectToastText, login, setCodeEditorValue} from './lib/app';
 
-function row(kind, targetName) {
-    return cy.contains(`[data-testid=${kind}-row]`, targetName, {timeout: 30000});
+function row(targetName) {
+    return cy.contains('[data-testid=admin-target-row]', targetName, {timeout: 30000});
+}
+
+/** The badge of the target in the list: `on` when it has a form (or data) */
+function badgeIs(targetName, state) {
+    row(targetName).findBySel('admin-target-badge').should('have.attr', 'data-state', state);
 }
 
 describe('Uploader admin', () => {
@@ -33,20 +39,15 @@ describe('Uploader admin', () => {
         login();
     });
 
-    describe('Form schemas', () => {
-        beforeEach(() => {
+    describe('Forms', () => {
+        it('lists the targets and opens the form of one in the builder', () => {
             setBuilderForm(target.id, FORM_FIELDS);
-        });
+            cy.visit(`${uploaderUrl}/admin/forms`);
+            badgeIs(TARGETS.admin.name, 'on');
+            row(TARGETS.admin.name).findBySel('admin-target-edit').click();
 
-        it('lists the form schemas and opens one in the builder', () => {
-            cy.visit(`${uploaderUrl}/admin/form-schemas`);
-            row('form-schema', TARGETS.admin.name).within(() => {
-                cy.contains('All locales').should('exist');
-                cy.getBySel('form-schema-format').should('contain', 'Form builder');
-                cy.contains('a', 'Edit').click();
-            });
-
-            cy.getBySel('page-title').should('contain', `Form Schema of ${TARGETS.admin.name}`);
+            cy.url().should('include', `/admin/forms/${target.id}`);
+            cy.getBySel('page-title').should('contain', `Form of ${TARGETS.admin.name}`);
             cy.getBySel('form-builder-editor').should('be.visible');
             cy.getBySel('builder-palette').should('be.visible');
             cy.getBySel('builder-canvas').within(() => {
@@ -54,66 +55,87 @@ describe('Uploader admin', () => {
                 cy.contains('Album').should('exist');
                 cy.contains('Copies').should('exist');
             });
-            cy.getBySel('form-schema-save').should('be.disabled');
+            cy.getBySel('admin-save').should('be.disabled');
 
             cy.getBySel('form-builder-preview-tab').click();
-            cy.getBySel('form-schema-preview').within(() => {
+            cy.getBySel('form-preview').within(() => {
                 cy.contains('label', 'Album').should('be.visible');
                 cy.contains('Notify me when done').should('be.visible');
             });
         });
 
-        it('deletes a form schema', () => {
-            cy.visit(`${uploaderUrl}/admin/form-schemas`);
-            row('form-schema', TARGETS.admin.name).findBySel('form-schema-delete').click();
-            confirmDialog('Delete');
+        it('creates the form of a target without one', () => {
+            removeForm(target.id);
+            cy.visit(`${uploaderUrl}/admin/forms`);
+            badgeIs(TARGETS.admin.name, 'off');
+            row(TARGETS.admin.name).findBySel('admin-target-edit').click();
 
-            cy.contains('[data-testid=form-schema-row]', TARGETS.admin.name).should('not.exist');
-            getFormSchemas(target.id).should('have.length', 0);
+            cy.getBySel('form-builder-editor').should('be.visible');
+            cy.getBySel('form-delete').should('not.exist');
+            cy.getBySel('builder-canvas-field').should('not.exist');
+            cy.getBySel('builder-palette').find('button[aria-label="Add Long text"]').click();
+            cy.getBySel('builder-canvas-field').should('have.length', 1);
+            cy.getBySel('admin-save').should('be.enabled').click();
+
+            expectToastText('Form saved');
+            cy.getBySel('form-delete').should('be.visible');
+            getForm(target.id).then(form => {
+                expect(form.fields).to.have.length(1);
+                expect(form.fields[0]).to.include({source: 'custom', key: 'textarea', type: 'textarea'});
+            });
+
+            cy.getBySel('admin-back').click();
+            badgeIs(TARGETS.admin.name, 'on');
         });
 
-        it('opens the creation of a form schema in both formats', () => {
-            cy.visit(`${uploaderUrl}/admin/form-schemas`);
-            cy.getBySel('form-schema-create').click();
+        it('deletes the form of a target', () => {
+            setBuilderForm(target.id, FORM_FIELDS);
+            cy.visit(`${uploaderUrl}/admin/forms/${target.id}`);
+            cy.getBySel('builder-canvas', {timeout: 30000}).should('contain', 'Album');
+            cy.getBySel('form-delete').click();
+            confirmDialog('Delete');
 
-            cy.getBySel('page-title').should('contain', 'New Form Schema');
-            cy.getBySel('form-builder-editor').should('be.visible');
-            cy.getBySel('form-schema-format-liform').click();
-            cy.getBySel('form-schema-editor').should('be.visible');
-            cy.getBySel('form-schema-format-builder').click();
-            cy.getBySel('form-builder-editor').should('be.visible');
+            expectToastText('Form deleted');
+            cy.getBySel('form-delete').should('not.exist');
+            cy.getBySel('builder-canvas').should('not.contain', 'Album');
+            getForm(target.id).should('be.null');
+
+            cy.getBySel('admin-back').click();
+            badgeIs(TARGETS.admin.name, 'off');
         });
     });
 
     describe('Target data', () => {
-        it('creates the data of a target', () => {
-            removeTargetParams(target.id);
-            cy.visit(`${uploaderUrl}/admin/target-param`);
-            cy.getBySel('target-params-create').click();
-            cy.getBySel('target-params-editor').should('be.visible');
+        it('sets the data of a target', () => {
+            removeTargetData(target.id);
+            cy.visit(`${uploaderUrl}/admin/target-data`);
+            badgeIs(TARGETS.admin.name, 'off');
+            row(TARGETS.admin.name).findBySel('admin-target-edit').click();
 
-            cy.getBySel('target-params-editor').find('[role=combobox]').click();
-            cy.get('[cmdk-input]').type(TARGETS.admin.name);
-            cy.contains('[cmdk-item]', TARGETS.admin.name).click();
-            cy.getBySel('target-params-save').click();
+            cy.url().should('include', `/admin/target-data/${target.id}`);
+            cy.getBySel('page-title').should('contain', `Target Data of ${TARGETS.admin.name}`);
+            setCodeEditorValue('target-data-editor', '{"my_var": "my_value"}');
+            cy.getBySel('admin-save').click();
 
             expectToastText('Target data saved');
-            cy.url().should('match', /\/admin\/target-param\/[^/]+\/edit$/);
-            cy.getBySel('page-title').should('contain', `Target Data of ${TARGETS.admin.name}`);
-            getTargetParams(target.id).then(list => {
-                expect(list).to.have.length(1);
-                expect(list[0].data).to.deep.eq({my_var: 'my_value'});
-            });
+            getTargetData(target.id).should('deep.eq', {my_var: 'my_value'});
+
+            cy.getBySel('admin-back').click();
+            badgeIs(TARGETS.admin.name, 'on');
         });
 
-        it('deletes the data of a target', () => {
-            setTargetParams(target.id, {e2e: true});
-            cy.visit(`${uploaderUrl}/admin/target-param`);
-            row('target-params', TARGETS.admin.name).findBySel('target-params-delete').click();
-            confirmDialog('Delete');
+        it('removes the data of a target once emptied', () => {
+            setTargetData(target.id, {e2e: true});
+            cy.visit(`${uploaderUrl}/admin/target-data/${target.id}`);
+            cy.getBySel('target-data-editor', {timeout: 30000}).should('contain', '"e2e"');
+            setCodeEditorValue('target-data-editor', '');
+            cy.getBySel('admin-save').click();
 
-            cy.contains('[data-testid=target-params-row]', TARGETS.admin.name).should('not.exist');
-            getTargetParams(target.id).should('have.length', 0);
+            expectToastText('Target data saved');
+            getTargetData(target.id).should('be.null');
+
+            cy.getBySel('admin-back').click();
+            badgeIs(TARGETS.admin.name, 'off');
         });
     });
 });

@@ -9,8 +9,6 @@ use ApiPlatform\State\ProviderInterface;
 use App\Databox\DataboxCatalog;
 use App\Entity\Target;
 use App\Form\Builder\FieldType;
-use App\Form\Builder\FormDefinition;
-use App\Form\FormSchemaManager;
 use App\Security\Voter\TargetVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -30,7 +28,6 @@ final readonly class FormFieldOptionsProvider implements ProviderInterface
     public function __construct(
         private EntityManagerInterface $em,
         private Security $security,
-        private FormSchemaManager $schemaManager,
         private DataboxCatalog $catalog,
     ) {
     }
@@ -49,13 +46,9 @@ final readonly class FormFieldOptionsProvider implements ProviderInterface
             throw new AccessDeniedHttpException('Cannot read this target');
         }
 
-        $formSchema = $this->schemaManager->loadSchema($target->getId(), $request->getLocale());
-        if (!$formSchema?->isBuilder()) {
-            throw new NotFoundHttpException('The target form has no such field');
-        }
-        $definition = FormDefinition::fromArray($formSchema->getData());
-        $field = $definition->getField((string) $uriVariables['key']);
-        if (null === $field || $field->hidden) {
+        $definition = $target->getFormDefinition();
+        $field = $definition?->getField((string) $uriVariables['key']);
+        if (null === $definition || null === $field || $field->hidden) {
             throw new NotFoundHttpException('The target form has no such field');
         }
 

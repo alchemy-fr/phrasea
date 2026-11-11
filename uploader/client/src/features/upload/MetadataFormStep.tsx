@@ -7,8 +7,7 @@ import {Button} from '@alchemy/next-ui/ui/button';
 import {Alert} from '@alchemy/next-ui/ui/misc';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {hasFormErrors, validateForm} from '@/lib/api/uploader';
-import type {FormValues} from '@/features/form-builder/types';
-import type {FormSchema} from '@/types/api';
+import type {FormDefinition, FormValues} from '@/features/form-builder/types';
 import {
     UploadFormBody,
     useTargetOptionsLoader,
@@ -17,7 +16,7 @@ import {
 
 type Props = {
     targetId: string;
-    schema: FormSchema;
+    form: FormDefinition;
     /** Values entered earlier (back from a refused commit) */
     initialValues?: FormValues;
     onCancel: () => void;
@@ -31,13 +30,13 @@ type Props = {
  */
 export function MetadataFormStep({
     targetId,
-    schema,
+    form: definition,
     initialValues,
     onCancel,
     onSubmit,
 }: Props) {
     const {t} = useTranslation();
-    const form = useUploadForm(schema, initialValues);
+    const form = useUploadForm(definition, initialValues);
     const loadOptions = useTargetOptionsLoader(targetId);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string>();

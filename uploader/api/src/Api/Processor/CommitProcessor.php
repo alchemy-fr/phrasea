@@ -63,8 +63,8 @@ final readonly class CommitProcessor implements ProcessorInterface
             throw new AccessDeniedHttpException('Cannot upload to this target');
         }
 
-        $data->setFormData($this->formValidator->prepareData($data->getFormData(), $data->getTarget(), $request));
-        $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget(), $request);
+        $data->setFormData($this->formValidator->prepareData($data->getFormData(), $data->getTarget()));
+        $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget());
         if (!empty($errors)) {
             throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors, JSON_THROW_ON_ERROR)));
         }

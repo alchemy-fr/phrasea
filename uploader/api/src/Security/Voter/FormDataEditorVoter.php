@@ -6,8 +6,8 @@ namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
-use App\Entity\FormSchema;
-use App\Entity\TargetParams;
+use App\Security\Acl\FormSchemaAclObject;
+use App\Security\Acl\TargetDataAclObject;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -40,9 +40,9 @@ class FormDataEditorVoter extends Voter
 
         return match ($attribute) {
             self::EDIT_FORM_SCHEMA => $this->security->isGranted(JwtUser::ROLE_ADMIN)
-                || $this->security->isGranted(PermissionInterface::EDIT, new FormSchema()),
+                || $this->security->isGranted(PermissionInterface::EDIT, new FormSchemaAclObject()),
             self::EDIT_TARGET_DATA => $this->security->isGranted(JwtUser::ROLE_ADMIN)
-                || $this->security->isGranted(PermissionInterface::EDIT, new TargetParams()),
+                || $this->security->isGranted(PermissionInterface::EDIT, new TargetDataAclObject()),
             default => false,
         };
     }

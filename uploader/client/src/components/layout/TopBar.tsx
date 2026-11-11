@@ -85,18 +85,18 @@ export function TopBar() {
             >
                 {me?.permissions.form_schema ? (
                     <NavLink
-                        href={routes.formSchemas()}
-                        testId="nav-form-schemas"
-                        active={pathname.startsWith(routes.formSchemas())}
+                        href={routes.forms()}
+                        testId="nav-forms"
+                        active={pathname.startsWith(routes.forms())}
                         icon={<FileJsonIcon />}
                         label={t('nav.form_editor', 'Form Editor')}
                     />
                 ) : null}
                 {me?.permissions.target_data ? (
                     <NavLink
-                        href={routes.targetParams()}
-                        testId="nav-target-params"
-                        active={pathname.startsWith(routes.targetParams())}
+                        href={routes.targetDataList()}
+                        testId="nav-target-data"
+                        active={pathname.startsWith(routes.targetDataList())}
                         icon={<BracesIcon />}
                         label={t(
                             'nav.target_data_editor',

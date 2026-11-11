@@ -13,13 +13,24 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use App\Api\DTO\Input\TargetDataInput;
+use App\Api\DTO\Input\TargetFormInput;
+use App\Api\Processor\TargetDataProcessor;
+use App\Api\Processor\TargetFormProcessor;
+use App\Api\Provider\TargetDataContentProvider;
+use App\Api\Provider\TargetFormProvider;
 use App\DataProvider\TargetDataProvider;
+use App\Form\Builder\FormDefinition;
+use App\Form\Builder\InvalidFormDefinitionException;
+use App\Security\Voter\FormDataEditorVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'target',
@@ -28,6 +39,35 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
         new Patch(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
         new Post(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new Get(
+            uriTemplate: '/targets/{id}/form',
+            name: 'get_target_form',
+            provider: TargetFormProvider::class,
+        ),
+        new Put(
+            uriTemplate: '/targets/{id}/form',
+            security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")',
+            throwOnNotFound: true,
+            denormalizationContext: ['groups' => [TargetFormInput::GROUP]],
+            input: TargetFormInput::class,
+            name: 'put_target_form',
+            processor: TargetFormProcessor::class,
+        ),
+        new Get(
+            uriTemplate: '/targets/{id}/data',
+            security: 'is_granted("'.FormDataEditorVoter::EDIT_TARGET_DATA.'")',
+            name: 'get_target_data',
+            provider: TargetDataContentProvider::class,
+        ),
+        new Put(
+            uriTemplate: '/targets/{id}/data',
+            security: 'is_granted("'.FormDataEditorVoter::EDIT_TARGET_DATA.'")',
+            throwOnNotFound: true,
+            denormalizationContext: ['groups' => [TargetDataInput::GROUP]],
+            input: TargetDataInput::class,
+            name: 'put_target_data',
+            processor: TargetDataProcessor::class,
+        ),
         new GetCollection(
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             provider: TargetDataProvider::class,
@@ -66,7 +106,7 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 1000)]
     #[Assert\Length(max: 1000)]
     #[Assert\NotBlank]
-    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE, FormSchema::GROUP_INDEX, TargetParams::GROUP_INDEX])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
@@ -112,13 +152,17 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[Groups([self::GROUP_INDEX])]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\OneToOne(mappedBy: 'target', targetEntity: TargetParams::class)]
-    private ?TargetParams $targetParams = null;
+    /**
+     * The form of the uploads: a definition of the form builder (see FormDefinition).
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $form = null;
 
     /**
-     * Used for sub resource mapping.
+     * Merged into the form data of every commit, over the values the user entered.
      */
-    private ?FormSchema $formSchema = null;
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $data = null;
 
     public function __construct()
     {
@@ -245,5 +289,64 @@ class Target extends AbstractUuidEntity implements \Stringable
     public function setHidden(bool $hidden): void
     {
         $this->hidden = $hidden;
+    }
+
+    public function getForm(): ?array
+    {
+        return $this->form;
+    }
+
+    public function setForm(?array $form): void
+    {
+        $this->form = $form;
+    }
+
+    /**
+     * @throws InvalidFormDefinitionException
+     */
+    public function getFormDefinition(): ?FormDefinition
+    {
+        return null !== $this->form ? FormDefinition::fromArray($this->form) : null;
+    }
+
+    #[Groups([self::GROUP_INDEX])]
+    public function getHasForm(): bool
+    {
+        return null !== $this->form;
+    }
+
+    #[Assert\Callback]
+    public function validateForm(ExecutionContextInterface $context): void
+    {
+        if (null === $this->form) {
+            return;
+        }
+
+        try {
+            FormDefinition::fromArray($this->form);
+        } catch (InvalidFormDefinitionException $e) {
+            $context->buildViolation($e->getMessage())
+                ->atPath('form'.($e->path ? '.'.$e->path : ''))
+                ->addViolation();
+        }
+    }
+
+    public function getData(): ?array
+    {
+        return $this->data;
+    }
+
+    /**
+     * An empty object is no data.
+     */
+    public function setData(?array $data): void
+    {
+        $this->data = [] === $data ? null : $data;
+    }
+
+    #[Groups([self::GROUP_INDEX])]
+    public function getHasData(): bool
+    {
+        return null !== $this->data;
     }
 }

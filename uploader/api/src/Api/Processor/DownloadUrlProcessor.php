@@ -47,8 +47,8 @@ final class DownloadUrlProcessor implements ProcessorInterface
         $request = $this->requestStack->getCurrentRequest();
         $formData = $data->formData;
         if (null !== $formData) {
-            $formData = $this->formValidator->prepareData($formData, $target, $request);
-            $errors = $this->formValidator->validateForm($formData, $target, $request);
+            $formData = $this->formValidator->prepareData($formData, $target);
+            $errors = $this->formValidator->validateForm($formData, $target);
             if (!empty($errors)) {
                 return new JsonResponse(['errors' => $errors]);
             }
@@ -59,7 +59,6 @@ final class DownloadUrlProcessor implements ProcessorInterface
             $this->getStrictUserOrOAuthClient()->getUserIdentifier(),
             $target->getId(),
             $request->getLocale() ?? $request->getDefaultLocale(),
-            $data->schemaId,
             $data->data,
             $formData,
         ));

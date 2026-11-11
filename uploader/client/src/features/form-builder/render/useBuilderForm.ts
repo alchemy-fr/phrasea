@@ -43,8 +43,8 @@ export function useBuilderForm(
 
     const messages = useMemo(
         () => ({
-            required: t('liform.error.required', 'This value is required.'),
-            number: t('liform.error.number', 'This value should be a number.'),
+            required: t('form.error.required', 'This value is required.'),
+            number: t('form.error.number', 'This value should be a number.'),
             minLength: (n: number) =>
                 t('form.error.min_length', 'At least {{n}} characters.', {n}),
             maxLength: (n: number) =>

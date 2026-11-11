@@ -6,3 +6,6 @@ parameters:
         - public/
         - src/
         - tests/
+    # The migrations are not autoloaded: some tests require one
+    scanDirectories:
+        - migrations/

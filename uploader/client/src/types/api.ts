@@ -3,9 +3,6 @@
  * These types mirror the JSON payloads returned by `uploader/api`.
  */
 
-import type {LiFormSchema} from '@/features/liform/types';
-import type {FormDefinition} from '@/features/form-builder/types';
-
 export interface HydraObject {
     '@id': string;
     '@type': string;
@@ -46,49 +43,17 @@ export type Target = HydraObject & {
     name: string;
     description?: string | null;
     createdAt?: string;
+    /** It has a form, read with `GET /targets/{id}/form` */
+    hasForm: boolean;
+    /** It has data, read with `GET /targets/{id}/data` */
+    hasData: boolean;
 };
 
-/** Matches `FormSchema::LOCALE_MODE_*` of the API */
-export enum LocaleMode {
-    NoLocale = 0,
-    UserAgent = 1,
-    Forced = 2,
-}
-
-/** Matches `FormSchema::FORMAT_*` of the API */
-export type FormSchemaFormat = 'liform' | 'builder';
-
-type FormSchemaBase = HydraObject & {
-    id: string;
-    target: Target;
-    locale?: string | null;
-    localeMode: LocaleMode;
-};
-
-export type LiFormFormSchema = FormSchemaBase & {
-    format: 'liform';
-    data: LiFormSchema;
-};
-
-export type BuilderFormSchema = FormSchemaBase & {
-    format: 'builder';
-    data: FormDefinition;
-};
-
-export type FormSchema = LiFormFormSchema | BuilderFormSchema;
-
-export function isBuilderSchema(
-    schema: FormSchema | null | undefined
-): schema is BuilderFormSchema {
-    return schema?.format === 'builder';
-}
-
-export type TargetParams = HydraObject & {
-    id: string;
-    target: Target;
-    data: Record<string, unknown>;
-    createdAt?: string;
-};
+/**
+ * The fixed data of a target, merged on commit into the form data of every
+ * batch (they take precedence over what users enter).
+ */
+export type TargetData = Record<string, unknown>;
 
 /** Asset created by `POST /assets` once a file is fully uploaded */
 export type UploadedAsset = {

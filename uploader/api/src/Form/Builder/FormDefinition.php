@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Form\Builder;
 
 /**
- * A form designed with the Uploader form builder: what `FormSchema::$data` holds in the "builder" format.
+ * A form designed with the Uploader form builder: what `Target::$form` holds.
  */
 final readonly class FormDefinition
 {

@@ -1,10 +1,10 @@
 'use client';
 
 import {useId, useMemo, useState} from 'react';
-import {useRouter} from 'next/navigation';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
+import {Trash2Icon} from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {
     Alert,
@@ -25,14 +25,10 @@ import {
     DialogTitle,
 } from '@alchemy/next-ui/ui/dialog';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
-import {
-    useDirtyState,
-    useUnsavedChangesPrompt,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
-import {iri, saveFormSchema} from '@/lib/api/uploader';
-import {routes} from '@/lib/routes';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {saveTargetForm} from '@/lib/api/uploader';
 import {languages} from '@/i18n/config';
-import {LocaleMode, isBuilderSchema, type FormSchema} from '@/types/api';
+import {targetsQueryKey} from '@/features/targets/TargetListScreen';
 import {
     definitionProblems,
     emptyDefinition,
@@ -46,11 +42,7 @@ import type {
     FormDefinition,
     FormValues,
 } from '@/features/form-builder/types';
-import {formSchemasQueryKey} from './queryKeys';
-import {
-    FormSchemaMetaFields,
-    type FormSchemaMeta,
-} from './FormSchemaMetaFields';
+import {targetFormQueryKey} from './queryKeys';
 import {
     useDataboxFields,
     useDataboxOptionsLoader,
@@ -64,41 +56,34 @@ import {violationsByField} from './violations';
 const NO_WORKSPACE = '__none__';
 
 /**
- * Edits a form of the builder. `initialDefinition` starts it from a LiForm
- * schema converted by the client: saving it changes the format of `schema`.
+ * Edits the form of a target, null when it has none yet. `onDeleted` is
+ * called once the form is deleted.
  */
 export function FormBuilderEditor({
-    schema,
-    initialDefinition,
+    targetId,
+    targetName,
+    form,
+    onDeleted,
 }: {
-    schema?: FormSchema;
-    initialDefinition?: FormDefinition;
+    targetId: string;
+    targetName: string;
+    form: FormDefinition | null;
+    onDeleted: () => void;
 }) {
     const {t} = useTranslation();
-    const router = useRouter();
     const confirm = useConfirm();
     const queryClient = useQueryClient();
     const workspaceSelectId = useId();
-    const [meta, setMeta] = useState<FormSchemaMeta>({
-        target: schema?.target.id,
-        locale: schema?.locale ?? '',
-        localeMode: schema?.localeMode ?? LocaleMode.NoLocale,
-    });
     const [definition, setDefinition] = useState<FormDefinition>(
-        () =>
-            initialDefinition ??
-            (isBuilderSchema(schema) ? schema.data : emptyDefinition())
+        () => form ?? emptyDefinition()
     );
+    const [saved, setSaved] = useState(form !== null);
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const {dirty, markSaved} = useDirtyState({meta, definition});
-    // A converted schema is not saved yet, even untouched
-    const [unsavedConversion, setUnsavedConversion] =
-        useState(!!initialDefinition);
-    useUnsavedChangesPrompt(unsavedConversion);
+    const {dirty, markSaved} = useDirtyState(definition);
 
     const workspaces = useDataboxWorkspaces();
     const targetWorkspace = useTargetWorkspace(
-        definition.workspaceId ? undefined : meta.target
+        definition.workspaceId ? undefined : targetId
     );
     // A new form starts in the workspace the target uploads to
     if (
@@ -165,55 +150,42 @@ export function FormBuilderEditor({
     const blocking = Object.keys(definitionProblems(definition)).length > 0;
 
     const save = useMutation({
-        mutationFn: () =>
-            saveFormSchema(schema?.id, {
-                target: iri('targets', meta.target!),
-                locale: meta.locale.trim() || null,
-                localeMode: meta.localeMode,
-                format: 'builder',
-                data: definition,
-            }),
-        onSuccess: saved => {
+        mutationFn: () => saveTargetForm(targetId, definition),
+        onSuccess: result => {
             markSaved();
-            setUnsavedConversion(false);
-            void queryClient.invalidateQueries({queryKey: formSchemasQueryKey});
-            void queryClient.invalidateQueries({queryKey: ['targets']});
-            toast.success(t('admin.form_schema.saved', 'Form schema saved'));
-            if (!schema) {
-                router.replace(routes.formSchemaEdit(saved.id));
-            }
+            setSaved(true);
+            queryClient.setQueryData(targetFormQueryKey(targetId), result);
+            void queryClient.invalidateQueries({queryKey: targetsQueryKey});
+            toast.success(t('admin.form.saved', 'Form saved'));
         },
         onError: e => setErrors(violationsByField(e)),
     });
 
-    const submit = async () => {
-        const found: Record<string, string> = {};
-        if (!meta.target) {
-            found.target = t('admin.error.required', 'This value is required.');
+    const submit = () => {
+        setErrors({});
+        if (!blocking) {
+            save.mutate();
         }
-        setErrors(found);
-        if (Object.keys(found).length > 0 || blocking) {
-            return;
-        }
-        if (
-            schema &&
-            !isBuilderSchema(schema) &&
-            !(await confirm({
-                title: t(
-                    'builder.convert.confirm_title',
-                    'Replace the LiForm schema'
-                ),
-                description: t(
-                    'builder.convert.confirm',
-                    'The JSON schema is replaced by this form. Users will get it on their next upload.'
-                ),
-                confirmLabel: t('admin.save', 'Save Form'),
-            }))
-        ) {
-            return;
-        }
-        save.mutate();
     };
+
+    const deleteForm = () =>
+        void confirm({
+            title: t('admin.form.delete_title', 'Delete the form'),
+            description: t(
+                'admin.form.delete_confirm',
+                'The files sent to {{target}} will no longer come with any information.',
+                {target: targetName}
+            ),
+            confirmLabel: t('admin.delete', 'Delete'),
+            destructive: true,
+            onConfirm: async () => {
+                await saveTargetForm(targetId, null);
+                queryClient.setQueryData(targetFormQueryKey(targetId), null);
+                void queryClient.invalidateQueries({queryKey: targetsQueryKey});
+                toast.success(t('admin.form.deleted', 'Form deleted'));
+                onDeleted();
+            },
+        });
 
     const databoxStatus = !workspaceId ? (
         <p className="text-xs text-muted-foreground">
@@ -236,23 +208,15 @@ export function FormBuilderEditor({
             noValidate
             onSubmit={e => {
                 e.preventDefault();
-                void submit();
+                submit();
             }}
         >
-            <div className="grid gap-x-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                <div>
-                    <FormSchemaMetaFields
-                        value={meta}
-                        onChange={setMeta}
-                        errors={errors}
-                        disabled={save.isPending}
-                    />
-                </div>
+            <div className="max-w-md">
                 <FormRow
                     label={t('builder.workspace', 'Databox workspace')}
                     htmlFor={workspaceSelectId}
                     error={
-                        errors['data.workspaceId'] ??
+                        errors['form.workspaceId'] ??
                         (workspaces.error
                             ? getErrorMessage(workspaces.error)
                             : undefined)
@@ -299,7 +263,7 @@ export function FormBuilderEditor({
                         value="preview"
                         data-testid="form-builder-preview-tab"
                     >
-                        {t('admin.form_schema.preview', 'Preview')}
+                        {t('admin.form.preview', 'Preview')}
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="build" className="pt-3">
@@ -324,13 +288,13 @@ export function FormBuilderEditor({
                 </TabsContent>
             </Tabs>
 
-            {errors[''] || errors.data ? (
+            {errors[''] || errors.form ? (
                 <Alert variant="destructive" className="mb-4">
-                    {errors[''] ?? errors.data}
+                    {errors[''] ?? errors.form}
                 </Alert>
             ) : null}
             {Object.entries(errors)
-                .filter(([path]) => path.startsWith('data.fields'))
+                .filter(([path]) => path.startsWith('form.fields'))
                 .map(([path, message]) => (
                     <Alert key={path} variant="destructive" className="mb-4">
                         {path}: {message}
@@ -342,11 +306,24 @@ export function FormBuilderEditor({
                 </Alert>
             ) : null}
             <SaveBar
-                dirty={dirty || unsavedConversion}
+                dirty={dirty}
                 saving={save.isPending}
                 disabled={blocking}
                 className="-mx-4 px-4"
-            />
+            >
+                {saved ? (
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        data-testid="form-delete"
+                        disabled={save.isPending}
+                        onClick={deleteForm}
+                    >
+                        <Trash2Icon />{' '}
+                        {t('admin.form.delete', 'Delete the form')}
+                    </Button>
+                ) : null}
+            </SaveBar>
         </form>
     );
 }
@@ -364,7 +341,7 @@ function BuilderPreview({
     const [submitted, setSubmitted] = useState<FormValues>();
 
     return (
-        <div data-testid="form-schema-preview">
+        <div data-testid="form-preview">
             <FormRenderer
                 definition={definition}
                 values={form.values}
@@ -382,7 +359,7 @@ function BuilderPreview({
                     }
                 }}
             >
-                {t('admin.form_schema.test', 'Test the form')}
+                {t('admin.form.test', 'Test the form')}
             </Button>
             <Dialog
                 open={!!submitted}
@@ -391,12 +368,12 @@ function BuilderPreview({
                 <DialogContent size="lg">
                     <DialogHeader>
                         <DialogTitle>
-                            {t('admin.form_schema.test_data', 'Submitted data')}
+                            {t('admin.form.test_data', 'Submitted data')}
                         </DialogTitle>
                     </DialogHeader>
                     <DialogBody>
                         <pre
-                            data-testid="form-schema-test-data"
+                            data-testid="form-test-data"
                             className="max-h-[60vh] overflow-auto rounded-md bg-muted p-3 text-xs"
                         >
                             {toJson(submitted)}

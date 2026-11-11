@@ -7,7 +7,6 @@ namespace App\Tests\Functional;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
-use App\Entity\FormSchema;
 use App\Entity\Target;
 use App\Tests\Functional\Databox\FakeDataboxClient;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -65,60 +64,20 @@ class BuilderFormTest extends AbstractUploaderTestCase
         ]);
     }
 
-    private function createSchema(?array $definition = null, ?Target $target = null): FormSchema
+    private function createForm(?array $definition = null, ?Target $target = null): Target
     {
         $em = self::getEntityManager();
-        if (null !== $target) {
-            $em->persist($target);
-        }
-        $schema = new FormSchema();
-        $schema->setTarget($target ?? $this->getOrCreateDefaultTarget());
-        $schema->setFormat(FormSchema::FORMAT_BUILDER);
-        $schema->setData($definition ?? self::definition());
-        $em->persist($schema);
+        $target ??= $this->getOrCreateDefaultTarget();
+        $target->setForm($definition ?? self::definition());
+        $em->persist($target);
         $em->flush();
 
-        return $schema;
-    }
-
-    public function testPostBuilderSchema(): void
-    {
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form-schemas', [
-            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
-            'format' => FormSchema::FORMAT_BUILDER,
-            'data' => self::definition(),
-        ]);
-        $this->assertEquals(201, $response->getStatusCode(), $response->getContent(false));
-        $this->assertSame(FormSchema::FORMAT_BUILDER, $response->toArray()['format']);
-    }
-
-    public function testPostInvalidBuilderSchema(): void
-    {
-        $definition = self::definition();
-        $definition['fields'][2]['attribute']['entityListId'] = null;
-
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form-schemas', [
-            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
-            'format' => FormSchema::FORMAT_BUILDER,
-            'data' => $definition,
-        ]);
-        $this->assertEquals(422, $response->getStatusCode());
-        $this->assertSame('data.fields.2.attribute.entityListId', $response->toArray(false)['violations'][0]['propertyPath']);
-    }
-
-    public function testLiFormIsTheDefaultFormat(): void
-    {
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form-schemas', [
-            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
-            'data' => ['type' => 'object'],
-        ]);
-        $this->assertEquals(201, $response->getStatusCode());
-        $this->assertSame(FormSchema::FORMAT_LIFORM, $response->toArray()['format']);
+        return $target;
     }
 
     public function testValidate(): void
     {
-        $this->createSchema();
+        $this->createForm();
 
         $errors = $this->validate([
             'title' => 'A title',
@@ -140,7 +99,7 @@ class BuilderFormTest extends AbstractUploaderTestCase
 
     public function testValidateWhenDataboxDeniesAccess(): void
     {
-        $this->createSchema();
+        $this->createForm();
         $this->databox = new FakeDataboxClient(['/attribute-entities' => 403]);
 
         $errors = $this->validate(['title' => 'A title', 'keywords' => [self::ENTITY_ID]]);
@@ -154,7 +113,7 @@ class BuilderFormTest extends AbstractUploaderTestCase
         $target->setSlug('pull-mode');
         // No target URL: the commit is not pushed to a consumer
         $target->setTargetUrl(null);
-        $this->createSchema(target: $target);
+        $this->createForm(target: $target);
         $asset = $this->createAsset($target);
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/commit', [
@@ -186,7 +145,7 @@ class BuilderFormTest extends AbstractUploaderTestCase
 
     public function testFieldOptions(): void
     {
-        $this->createSchema();
+        $this->createForm();
         $targetId = $this->getOrCreateDefaultTarget()->getId();
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/targets/'.$targetId.'/form-fields/keywords/options?query=val');

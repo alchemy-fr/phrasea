@@ -2,7 +2,7 @@
  * Uploader — sending files to a target without any form: selection, limits,
  * upload, commit.
  */
-import {ensureTarget, iri, removeFormSchemas, removeTargetParams, TARGETS, waitForCommit} from './lib/api';
+import {ensureTarget, iri, removeForm, removeTargetData, TARGETS, waitForCommit} from './lib/api';
 import {confirmDialog, expectToastText, fileTile, login, pngFile, selectFiles, stepIs, visitUpload} from './lib/app';
 
 describe('Uploader upload without form', () => {
@@ -12,8 +12,8 @@ describe('Uploader upload without form', () => {
         login();
         ensureTarget(TARGETS.plain).then(t => {
             target = t;
-            removeFormSchemas(t.id);
-            removeTargetParams(t.id);
+            removeForm(t.id);
+            removeTargetData(t.id);
         });
     });
 

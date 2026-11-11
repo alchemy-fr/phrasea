@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\GroupChoiceField;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Target;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -68,6 +69,18 @@ class TargetCrudController extends AbstractAdminCrudController
         yield BooleanField::new('enabled');
         yield BooleanField::new('hidden')
             ->setHelp('Hide this target from the list of available targets');
+        yield BooleanField::new('hasForm', 'Form')
+            ->renderAsSwitch(false)
+            ->onlyOnIndex();
+        yield BooleanField::new('hasData', 'Data')
+            ->renderAsSwitch(false)
+            ->onlyOnIndex();
+        yield JsonField::new('form')
+            ->setHelp('The upload form, designed with the form builder of the Uploader client. "null" for no form.')
+            ->hideOnIndex();
+        yield JsonField::new('data')
+            ->setHelp('Merged into the form data of every upload, over the values entered by the user. "null" for no data.')
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
     }

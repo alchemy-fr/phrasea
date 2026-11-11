@@ -9,7 +9,6 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Form\FormValidator;
 use App\Model\FormData;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 
 final readonly class ValidateFormProcessor implements ProcessorInterface
 {
@@ -22,10 +21,7 @@ final readonly class ValidateFormProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): JsonResponse
     {
-        /** @var Request $request */
-        $request = $context['request'];
-
-        $errors = $this->formValidator->validateForm($data->getData(), $data->getTarget(), $request);
+        $errors = $this->formValidator->validateForm($data->getData(), $data->getTarget());
 
         return new JsonResponse(['errors' => $errors]);
     }

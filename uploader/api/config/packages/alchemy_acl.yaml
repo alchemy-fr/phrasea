@@ -1,4 +1,4 @@
 alchemy_acl:
   objects:
-    target_params: App\Entity\TargetParams
-    form_schema: App\Entity\FormSchema
+    target_params: App\Security\Acl\TargetDataAclObject
+    form_schema: App\Security\Acl\FormSchemaAclObject
