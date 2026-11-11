@@ -8,6 +8,40 @@ import MyMarkdown from '../../_databox/_rendition_transformers.md'
 
 The Rendition Factory is a service responsible for generating various renditions (alternative formats or versions) of media assets stored in Databox. It utilizes a set of transformers to process and convert the original media files into different renditions based on predefined configurations.
 
+## Formats read by ImageMagick
+
+Image renditions (`imagine`, `pdf_to_image`, the colorspace analyzer...) read
+the source through ImageMagick, which picks its coder from the first bytes of
+the file, whatever its extension or declared type. Uploaded files are not
+trusted, so the databox API and worker images restrict ImageMagick to an allow
+list (`databox/api/docker/entrypoint.d/01-imagick.sh`, applied when the
+container starts):
+
+- **Read and written:** JPEG, PNG, GIF, WEBP, TIFF, HEIC/HEIF/AVIF, PSD, BMP,
+  ICO, and PDF (read through the Ghostscript library). An Illustrator file
+  saved with PDF compatibility (the default) is read as a PDF.
+- **Refused, whatever the extension:** every other coder, in particular
+  PostScript and EPS, XPS, SVG, MVG, MSL, text and label pseudo-formats, and
+  URLs (`http:`, `https:`, `ftp:`, `url:`). The `@file` syntax (a file holding
+  a list of files) is refused as well, and no external delegate program is
+  run.
+
+Consequences:
+
+- An SVG file is stored and downloadable, and the `imagine` module still
+  passes it through unchanged, but ImageMagick no longer rasterizes it: no
+  bitmap rendition is built from an SVG.
+- An EPS or PostScript file, and an Illustrator file without PDF
+  compatibility, no longer gets a thumbnail.
+- Other formats ImageMagick could read before (JPEG 2000, JPEG XL, OpenEXR,
+  TGA, XCF...) no longer get a rendition either. To read one of them again,
+  add its module to the allow list of `01-imagick.sh` and rebuild the image,
+  after weighing the risk: a crafted file can read local files or reach the
+  network through some coders.
+
+With the `imagine` module, a refused source fails as an unsupported source
+file: the rendition is given up instead of being retried.
+
 ## Story contact sheet (`generate:`)
 
 A story has no source file of its own until a cover is set. A `generate:` build

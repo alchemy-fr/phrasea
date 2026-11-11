@@ -39,5 +39,18 @@ if [ -f "${POLICY_FILE}" ]; then
   if [ -n "${IMAGEMAGICK_POLICY_TEMPORARY_PATH}" ]; then
     echo "  <policy domain=\"resource\" name=\"temporary-path\" value=\"${IMAGEMAGICK_POLICY_TEMPORARY_PATH}\" />" >> "${POLICY_FILE}"
   fi
+
+  # Deny by default: uploaded files are untrusted and ImageMagick picks the
+  # coder from their magic bytes, whatever their extension or declared type.
+  # The last matching policy wins, so the allow list comes after "none *".
+  # PNM reads back the pages Ghostscript renders in CMYK (PAM) from a PDF.
+  # Ghostscript is linked as a library (gslib): PDF needs no delegate.
+  cat >> "${POLICY_FILE}" <<'EOF'
+  <policy domain="delegate" rights="none" pattern="*" />
+  <policy domain="module" rights="none" pattern="*" />
+  <policy domain="module" rights="read|write" pattern="{JPEG,PNG,GIF,WEBP,TIFF,HEIC,PSD,BMP,ICON,PDF,PNM}" />
+  <policy domain="coder" rights="none" pattern="{PS,PS2,PS3,EPS,EPSI,EPSF,EPI,EPT,EPT2,EPT3,XPS,PCL,SVG,SVGZ,MSVG,RSVG,MVG,MSL,TEXT,TXT,LABEL,CAPTION,PANGO,EPHEMERAL,URL,HTTP,HTTPS,FTP,FILE,SHOW,WIN,PLT}" />
+  <policy domain="path" rights="none" pattern="@*" />
+EOF
   echo "</policymap>" >> "${POLICY_FILE}"
 fi

@@ -45,7 +45,9 @@ Follow these steps in order. Each one is detailed in the sections below.
 
 9. Audit what this release may break: Twig templates in attribute definitions
    and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
-   replaced by `PATCH`), shared rendition links, and the Databox theme.
+   replaced by `PATCH`), shared rendition links, the Databox theme, and the
+   image formats ImageMagick still reads (SVG and EPS get no thumbnail any
+   more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)).
 
 ## Stack and deployment
 
@@ -271,6 +273,25 @@ published ones.
 - Rebuild `php-fpm-base` first: it now provides `composer-strip-path-packages`.
 - `*/api/docker/caching/` and `bin/optimize-composer-docker-cache` are removed.
 - The databox API image gains the `ftp` and `gd` extensions.
+
+### ImageMagick restricted to an allow list of formats
+
+The databox API and worker images now start with a deny-by-default
+ImageMagick policy (`databox/api/docker/entrypoint.d/01-imagick.sh`): a crafted
+upload could otherwise read local files (container environment included) or
+reach the network through ImageMagick coders and Ghostscript. Only JPEG, PNG,
+GIF, WEBP, TIFF, HEIC/HEIF/AVIF, PSD, BMP, ICO and PDF are read; external
+delegates and the `@file` syntax are refused. The `IMAGEMAGICK_POLICY_*`
+resource variables are unchanged.
+
+- SVG files are still stored and downloadable, but get no bitmap rendition.
+- EPS and PostScript files, and Illustrator files saved without PDF
+  compatibility, no longer get a thumbnail. Other formats outside the list
+  (JPEG 2000, JPEG XL, TGA...) get no rendition either.
+- Existing renditions are kept; rebuilding the renditions of such assets fails.
+
+See [Formats read by ImageMagick](doc/tech/Databox/Renditions.mdx#formats-read-by-imagemagick)
+to re-enable a format.
 
 ### Indexer
 
