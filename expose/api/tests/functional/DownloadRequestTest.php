@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Entity\DownloadRequest;
 
 class DownloadRequestTest extends AbstractExposeTestCase
@@ -68,6 +69,11 @@ class DownloadRequestTest extends AbstractExposeTestCase
         $publication = $this->createPublication(['downloadEnabled' => true]);
         $this->createAsset($publication);
         $this->clearEmBeforeApiCall();
+
+        // Only the requests are tested: the archive builds and the emails stay queued
+        /** @var TestTransport $transport */
+        $transport = self::getContainer()->get('messenger.transport.p1');
+        $transport->intercept();
 
         return $publication->getId();
     }
