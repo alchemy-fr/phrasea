@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Consumer\Handler\PublicationArchiveRequest;
 use App\Entity\DownloadRequest;
 use App\Entity\Publication;
@@ -25,6 +26,7 @@ final class PostPublicationArchiveRequestAction extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ReportUserService $reportClient,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -47,6 +49,8 @@ final class PostPublicationArchiveRequestAction extends AbstractController
         $downloadRequest->setPublication($publication);
         $downloadRequest->setEmail($request->request->get('email'));
         $downloadRequest->setLocale($request->getLocale());
+
+        $this->validator->validate($downloadRequest);
 
         $this->em->persist($downloadRequest);
         $this->em->flush();
