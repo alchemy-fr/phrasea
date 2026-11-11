@@ -54,7 +54,7 @@ final class LocaleContext
     {
         $userLocales = $this->getUserLocales();
 
-        return array_unique(array_filter(array_merge($userLocales, $workspace->getLocaleFallbacks(), [AttributeInterface::NO_LOCALE])));
+        return array_values(array_unique(array_filter(array_merge($userLocales, $workspace->getLocaleFallbacks(), [AttributeInterface::NO_LOCALE]))));
     }
 
     public function getBestWorkspaceLocale(Workspace $workspace): ?string

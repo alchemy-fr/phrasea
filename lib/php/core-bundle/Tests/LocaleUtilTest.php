@@ -42,6 +42,7 @@ class LocaleUtilTest extends TestCase
             ['en_US', $availableLocales, ['en_DD', 'en']],
             ['en_US', $availableLocales, ['en_DD', 'fr']],
             [null, $availableLocales, ['']],
+            ['en_US', ['en_GB', 'en_US'], [0 => 'xx', 2 => 'en', 3 => 'en_US']],
         ];
     }
 }

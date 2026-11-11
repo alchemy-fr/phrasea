@@ -23,6 +23,8 @@ final readonly class LocaleUtil
     public static function getBestLocale(array $availableLocales, array $locales): ?string
     {
         $availableLocales = array_map(self::normalizeLocale(...), $availableLocales);
+        // keys are used as positions (a following locale is searched in $locales[$i + 1..])
+        $locales = array_values($locales);
 
         foreach ($locales as $i => $l) {
             $l = self::normalizeLocale($l);

@@ -55,6 +55,7 @@ use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Util\NaturalSortKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -246,6 +247,7 @@ class Collection extends AbstractUuidEntity implements AuditableInterface, Follo
     final public const string EVENT_ASSET_REMOVE = 'asset:remove';
 
     final public const string TR_FIELD_NAME = 'name';
+    final public const string SORT_SEP = "\u{1F}";
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\NotBlank]
@@ -343,7 +345,32 @@ class Collection extends AbstractUuidEntity implements AuditableInterface, Follo
 
     public function getSortName(): string
     {
-        return strtolower($this->name ?? '');
+        return NaturalSortKey::fromString($this->name);
+    }
+
+    /**
+     * Sort key of every translation of the name: "<position>SORT_SEP<normalized locale>SORT_SEP<key>".
+     *
+     * The doc values of a multi-valued keyword come back sorted and deduplicated: the position prefix restores the
+     * order of the translations, on which the choice of the displayed one depends (LocaleUtil::getBestLocale(),
+     * ported in CollectionSearch::SORT_SCRIPT).
+     *
+     * @return list<string>
+     */
+    public function getSortNames(): array
+    {
+        $sortNames = [];
+        $i = 0;
+        foreach ($this->getFieldTranslationsByLocale(self::TR_FIELD_NAME) as $locale => $value) {
+            $position = $i++;
+            if (!\is_scalar($value) || '' === (string) $value) {
+                continue;
+            }
+
+            $sortNames[] = sprintf('%04d', $position).self::SORT_SEP.$locale.self::SORT_SEP.NaturalSortKey::fromString((string) $value);
+        }
+
+        return $sortNames;
     }
 
     /**

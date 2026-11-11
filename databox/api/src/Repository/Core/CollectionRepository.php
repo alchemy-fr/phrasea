@@ -67,6 +67,8 @@ class CollectionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Unordered: see CollectionSorter.
+     *
      * @param string[] $allowedWorkspaces
      */
     public function getRootCollections(array $allowedWorkspaces, ?string $userId, array $groups): array
@@ -102,8 +104,7 @@ class CollectionRepository extends ServiceEntityRepository
                     ->andWhere($expr->not($expr->exists($sub->getDQL())))
                     ->getDQL()
             ))
-            ->addOrderBy('t.name', 'DESC')
-            ->addOrderBy('t.createdAt', 'ASC');
+            ->andWhere('t.deletedAt IS NULL');
 
         if (null !== $userId) {
             $queryBuilder->setParameter('users', array_merge([$userId], $groups));
