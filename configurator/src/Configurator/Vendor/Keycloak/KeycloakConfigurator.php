@@ -77,6 +77,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             ],
         ];
         $this->keycloakManager->createRoleHierarchy($roleHierarchy);
+        $this->configureGroupAdminRole();
 
         $this->configureClients();
 
@@ -137,7 +138,17 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     public function synchronize(): void
     {
         $this->configureRealm();
+        $this->configureGroupAdminRole();
         $this->configureClients();
+    }
+
+    private function configureGroupAdminRole(): void
+    {
+        $this->keycloakManager->addClientRolesToRealmRole(
+            KeycloakInterface::ROLE_GROUP_ADMIN,
+            KeycloakInterface::REALM_MANAGEMENT_CLIENT_ID,
+            KeycloakInterface::GROUP_ADMIN_CLIENT_ROLES,
+        );
     }
 
     private function configureClients(): void

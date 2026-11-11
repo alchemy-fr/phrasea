@@ -16,6 +16,9 @@
         "./modals/*": "./src/modals/*.tsx",
         "./form/*": "./src/form/*.tsx",
         "./layout/*": "./src/layout/*.tsx",
+        "./groups/types": "./src/groups/types.ts",
+        "./groups/createGroupsApi": "./src/groups/createGroupsApi.ts",
+        "./groups/*": "./src/groups/*.tsx",
         "./styles/*": "./styles/*"
     },
     "scripts": {

@@ -38,6 +38,9 @@ services:
   Alchemy\AuthBundle\Controller\ImpersonationController:
       public: true
 
+  Alchemy\AuthBundle\Controller\GroupsController:
+      public: true
+
   Alchemy\AuthBundle\Security\Voter\ScopeVoter: ~
   Alchemy\AuthBundle\Security\Voter\AdminVoter: ~
   Alchemy\AuthBundle\Security\UriJwtManager: ~

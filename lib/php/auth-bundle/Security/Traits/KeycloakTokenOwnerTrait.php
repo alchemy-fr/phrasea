@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Traits;
+namespace Alchemy\AuthBundle\Security\Traits;
 
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**

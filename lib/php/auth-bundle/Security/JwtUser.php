@@ -27,6 +27,11 @@ class JwtUser implements JwtInterface, JwtUserInterface
      * the user's token can create OAuth clients in the realm.
      */
     final public const string ROLE_KEYCLOAK_MANAGE_CLIENTS = 'ROLE_KEYCLOAK_MANAGE_CLIENTS';
+    /**
+     * Granted by the Keycloak "manage-users" role of the "realm-management" client:
+     * the user's token can create, rename and delete the groups of the realm and change their members.
+     */
+    final public const string ROLE_KEYCLOAK_MANAGE_GROUPS = 'ROLE_KEYCLOAK_MANAGE_GROUPS';
 
     private ?string $refreshToken = null;
 

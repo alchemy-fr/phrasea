@@ -51,6 +51,8 @@ import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
 import {getAuthClient} from '@/lib/auth/client';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {cn} from '@alchemy/next-ui/utils/cn';
+import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
+import {groupsApi} from '@/lib/api/groups';
 
 /**
  * The application header: the logo, where the user is and the way back, then
@@ -80,6 +82,7 @@ export function TopBar({
         redirecting,
         logout,
         hasRole,
+        canManageGroups,
     } = useAuth();
     const config = useConfig();
     const router = useGuardedRouter();
@@ -305,7 +308,11 @@ export function TopBar({
                         {canImpersonate ? <DropdownMenuSeparator /> : null}
                     </>
                 }
-            />
+            >
+                {canManageGroups ? (
+                    <ManageGroupsMenuItem api={groupsApi} />
+                ) : null}
+            </UserMenu>
         </header>
     );
 }

@@ -49,6 +49,10 @@ import type {AttributeDefinitionFilters} from '@/features/attributes/useAttribut
 import {WorkspaceName} from '@/features/collections/WorkspaceName';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {getWorkspaces} from '@/lib/api/collections';
+import {useAuth} from '@/lib/auth/AuthProvider';
+import {groupsApi} from '@/lib/api/groups';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {CreateGroupDialog} from '@alchemy/next-ui/groups/CreateGroupDialog';
 
 function comboPage<T>(
     page: Page<T>,
@@ -283,6 +287,31 @@ export function GroupSelect({
             resolveByIds(ids, chunk => getGroups({ids: chunk}), groupOption),
         []
     );
+    // The users managing the Keycloak groups create the missing one in place
+    const {canManageGroups} = useAuth();
+    const {openModal} = useModals();
+    const create = useCallback(
+        async (query: string) => {
+            const created = await openModal(CreateGroupDialog, {
+                api: groupsApi,
+                initialName: query,
+            });
+
+            return created
+                ? groupOption({id: created.id, name: created.name})
+                : undefined;
+        },
+        [openModal]
+    );
+    const creation = canManageGroups
+        ? {
+              onCreate: create,
+              createLabel: (query: string) =>
+                  t('groups.create_named', 'Create group "{{name}}"', {
+                      name: query,
+                  }),
+          }
+        : {};
 
     if (multiple) {
         return (
@@ -298,6 +327,7 @@ export function GroupSelect({
                     onChange(v, opts.map(o => o.item!).filter(Boolean))
                 }
                 placeholder={t('form.groups.placeholder', 'Select groups…')}
+                {...creation}
             />
         );
     }
@@ -314,6 +344,7 @@ export function GroupSelect({
                 onChange(v, opt?.item ? [opt.item] : undefined)
             }
             placeholder={t('form.groups.placeholder_single', 'Select a group…')}
+            {...creation}
         />
     );
 }

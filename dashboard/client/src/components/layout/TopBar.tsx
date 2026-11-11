@@ -1,5 +1,6 @@
 'use client';
 
+import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {LayoutGridIcon} from 'lucide-react';
 import {
@@ -14,6 +15,8 @@ import {useConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {languages} from '@/i18n';
 import {routes} from '@/lib/routes';
+import {createDataboxGroupsApi} from '@/lib/api/groups';
+import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
 
 /**
  * The application header: the logo, then the settings and user menus. Not
@@ -23,6 +26,13 @@ export function TopBar() {
     const {t} = useTranslation();
     const {user, isAuthenticated, login, redirecting, logout} = useAuth();
     const config = useConfig();
+    // The groups are managed through the Databox API: not without Databox
+    const databoxApiUrl = config.apps.databox?.apiUrl;
+    const groupsApi = useMemo(
+        () =>
+            databoxApiUrl ? createDataboxGroupsApi(databoxApiUrl) : undefined,
+        [databoxApiUrl]
+    );
 
     return (
         <header
@@ -53,7 +63,11 @@ export function TopBar() {
                 }
                 onLogin={() => login()}
                 onLogout={logout}
-            />
+            >
+                {groupsApi && user?.canManageGroups ? (
+                    <ManageGroupsMenuItem api={groupsApi} />
+                ) : null}
+            </UserMenu>
         </header>
     );
 }

@@ -29,6 +29,12 @@ export type AuthUser = {
      * OAuth clients can be created in the realm
      */
     canManageOAuthClients?: boolean;
+    /**
+     * Granted by the Keycloak `manage-users` role of `realm-management` (the
+     * `group-admin` realm role composes it): the groups of the realm can be
+     * created, renamed and deleted, and their members changed
+     */
+    canManageGroups?: boolean;
 };
 
 export type Tokens = {
@@ -263,6 +269,7 @@ export class OidcClient {
                 canManageOAuthClients ||
                 realmManagement.includes('view-clients'),
             canManageOAuthClients,
+            canManageGroups: realmManagement.includes('manage-users'),
         };
     }
 

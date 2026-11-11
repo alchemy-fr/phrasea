@@ -21,6 +21,7 @@ final readonly class JwtExtractor
      */
     final public const string KEYCLOAK_ROLE_VIEW_CLIENTS = 'view-clients';
     final public const string KEYCLOAK_ROLE_MANAGE_CLIENTS = 'manage-clients';
+    final public const string KEYCLOAK_ROLE_MANAGE_USERS = 'manage-users';
 
     private Parser $parser;
 
@@ -94,6 +95,9 @@ final readonly class JwtExtractor
         }
         if ($canManageClients) {
             $roles[] = JwtUser::ROLE_KEYCLOAK_MANAGE_CLIENTS;
+        }
+        if (in_array(self::KEYCLOAK_ROLE_MANAGE_USERS, $clientRoles, true)) {
+            $roles[] = JwtUser::ROLE_KEYCLOAK_MANAGE_GROUPS;
         }
 
         return new JwtUser(

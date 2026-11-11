@@ -37,6 +37,7 @@ type User = {
     canImpersonate?: boolean;
     canViewOAuthClients?: boolean;
     canManageOAuthClients?: boolean;
+    canManageGroups?: boolean;
 };
 
 const client = vi.hoisted(() => ({
@@ -182,7 +183,7 @@ describe('AuthProvider impersonation', () => {
     });
 });
 
-describe('AuthProvider OAuth clients', () => {
+describe('AuthProvider Keycloak management', () => {
     const admin: User = {
         id: 'admin-id',
         username: 'admin',
@@ -191,6 +192,7 @@ describe('AuthProvider OAuth clients', () => {
         canImpersonate: true,
         canViewOAuthClients: true,
         canManageOAuthClients: true,
+        canManageGroups: true,
     };
     const alice: User = {
         id: 'alice-id',
@@ -208,6 +210,7 @@ describe('AuthProvider OAuth clients', () => {
         await waitFor(() => expect(result.current.user).toEqual(admin));
         expect(result.current.canViewOAuthClients).toBe(true);
         expect(result.current.canManageOAuthClients).toBe(true);
+        expect(result.current.canManageGroups).toBe(true);
     });
 
     it('is off while impersonating', async () => {
@@ -220,6 +223,7 @@ describe('AuthProvider OAuth clients', () => {
         await waitFor(() => expect(result.current.impersonating).toBe(true));
         expect(result.current.canViewOAuthClients).toBe(false);
         expect(result.current.canManageOAuthClients).toBe(false);
+        expect(result.current.canManageGroups).toBe(false);
         window.localStorage.clear();
     });
 });

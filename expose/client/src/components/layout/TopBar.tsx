@@ -16,6 +16,8 @@ import {useConfig} from '@/lib/config/ConfigProvider';
 import {languages} from '@/i18n';
 import {routes} from '@/lib/routes';
 import {cn} from '@alchemy/next-ui/utils/cn';
+import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
+import {groupsApi} from '@/lib/api/groups';
 
 export function AppLogo({linked = true}: {linked?: boolean}) {
     const config = useConfig();
@@ -78,7 +80,11 @@ export function TopBar({
                 }
                 onLogin={() => login()}
                 onLogout={logout}
-            />
+            >
+                {user?.canManageGroups ? (
+                    <ManageGroupsMenuItem api={groupsApi} />
+                ) : null}
+            </UserMenu>
         </header>
     );
 }

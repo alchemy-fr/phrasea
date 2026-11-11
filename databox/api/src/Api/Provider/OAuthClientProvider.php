@@ -6,9 +6,9 @@ namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Traits\KeycloakTokenOwnerTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\Api\Traits\KeycloakTokenOwnerTrait;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Integration\Auth\OAuthRedirectUriMatcher;
 use App\Model\OAuthClient;

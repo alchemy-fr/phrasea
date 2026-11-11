@@ -13,6 +13,7 @@ import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
 import {ThemeManager} from '@alchemy/next-theme/ThemeManager';
 import {Toaster} from '@alchemy/next-ui/ui/toaster';
+import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
 import {SentryInit} from '@alchemy/next-core/monitoring/SentryInit';
 import {SentryUser} from '@/lib/monitoring/SentryUser';
@@ -57,7 +58,7 @@ export function Providers({config, language, children}: Props) {
                                 <MatomoTracker />
                                 <SentryUser />
                                 <Tooltip.Provider delayDuration={300}>
-                                    {children}
+                                    <ModalProvider>{children}</ModalProvider>
                                     <SessionExpiredDialog />
                                 </Tooltip.Provider>
                             </AuthProvider>

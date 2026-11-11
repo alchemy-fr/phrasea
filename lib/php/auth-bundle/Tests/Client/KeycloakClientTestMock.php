@@ -46,6 +46,31 @@ class KeycloakClientTestMock implements HttpClientInterface
     ];
 
     final public const string GROUP_UID = '77777777-fc1a-492b-9e76-c2e8e6979786';
+    /**
+     * Name of GROUP_UID: a top level group of this name already exists.
+     */
+    final public const string GROUP_NAME = 'group';
+
+    /**
+     * Groups created during the test, by ID, as sent to the IdP (renames included).
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    public static array $createdGroups = [];
+
+    /**
+     * Write requests sent to the groups and memberships of the admin API during the test:
+     * method, path, token of the Authorization header and JSON body.
+     *
+     * @var list<array{method: string, path: string, token: ?string, json: mixed}>
+     */
+    public static array $groupWrites = [];
+
+    public static function resetGroups(): void
+    {
+        self::$createdGroups = [];
+        self::$groupWrites = [];
+    }
 
     /**
      * Client ID refused by the IdP on creation, as already taken.
@@ -213,6 +238,10 @@ class KeycloakClientTestMock implements HttpClientInterface
             return $this->handleClients($args);
         }
 
+        if ('GET' !== $method && 1 === preg_match('#/admin/realms/phrasea/(?:groups(?:/[^/]+)?|users/[^/]+/groups/[^/]+)$#', $url)) {
+            return $this->handleGroupWrite($args);
+        }
+
         if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)/role-mappings/realm/composite$#', $url, $match)) {
             return $this->createResponse($args, 200, array_map(fn (string $role): array => [
                 'name' => $role,
@@ -234,7 +263,7 @@ class KeycloakClientTestMock implements HttpClientInterface
         }
 
         if (1 === preg_match('#/admin/realms/phrasea/groups/([^/]+)$#', $url, $match)) {
-            if (!isset(self::GROUP_MEMBERS[$match[1]])) {
+            if (null === $name = self::getGroupName($match[1])) {
                 return $this->createResponse($args, 404, [
                     'error' => 'Could not find group by id',
                 ]);
@@ -242,8 +271,8 @@ class KeycloakClientTestMock implements HttpClientInterface
 
             return $this->createResponse($args, 200, [
                 'id' => $match[1],
-                'name' => 'group',
-                'path' => '/group',
+                'name' => $name,
+                'path' => '/'.$name,
             ]);
         }
 
@@ -318,11 +347,101 @@ class KeycloakClientTestMock implements HttpClientInterface
         ));
     }
 
-    private function createResponse(array $args, int $code, array $data): ResponseInterface
+    /**
+     * Name of a group known by the IdP, null for an unknown group.
+     */
+    private static function getGroupName(string $groupId): ?string
     {
-        $callback = function ($method, $url, $options) use ($code, $data): MockResponse {
+        if (isset(self::$createdGroups[$groupId])) {
+            return (string) self::$createdGroups[$groupId]['name'];
+        }
+
+        return isset(self::GROUP_MEMBERS[$groupId]) ? self::GROUP_NAME : null;
+    }
+
+    private static function isGroupNameTaken(string $name, ?string $exceptId = null): bool
+    {
+        foreach ([...array_keys(self::GROUP_MEMBERS), ...array_keys(self::$createdGroups)] as $groupId) {
+            if ($groupId !== $exceptId && self::getGroupName((string) $groupId) === $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Group creation, rename and deletion, membership changes: what Keycloak answers to an
+     * allowed token (204, 201 with the Location of the created group, 404, 409 on a taken name).
+     */
+    private function handleGroupWrite(array $args): ResponseInterface
+    {
+        [$method, $url, $options] = $args;
+        $path = (string) parse_url($url, PHP_URL_PATH);
+        $json = $options['json'] ?? null;
+        $authorization = $options['headers']['Authorization'] ?? null;
+        self::$groupWrites[] = [
+            'method' => $method,
+            'path' => $path,
+            'token' => is_string($authorization) ? preg_replace('#^Bearer #', '', $authorization) : null,
+            'json' => $json,
+        ];
+        $notFound = fn (): ResponseInterface => $this->createResponse($args, 404, [
+            'error' => 'Could not find group by id',
+        ]);
+        $conflict = fn (string $name): ResponseInterface => $this->createResponse($args, 409, [
+            'errorMessage' => sprintf('Top level group named \'%s\' already exists.', $name),
+        ]);
+
+        if (1 === preg_match('#/users/[^/]+/groups/([^/]+)$#', $path, $match)) {
+            return null !== self::getGroupName($match[1]) ? $this->createResponse($args, 204, []) : $notFound();
+        }
+
+        if (str_ends_with($path, '/groups')) {
+            $name = (string) ($json['name'] ?? '');
+            if (self::isGroupNameTaken($name)) {
+                return $conflict($name);
+            }
+            $hash = md5($name);
+            $groupId = sprintf('%s-%s-%s-%s-%s', substr($hash, 0, 8), substr($hash, 8, 4), substr($hash, 12, 4), substr($hash, 16, 4), substr($hash, 20, 12));
+            self::$createdGroups[$groupId] = $json;
+
+            return $this->createResponse($args, 201, [], [
+                'Location' => $url.'/'.$groupId,
+            ]);
+        }
+
+        preg_match('#/groups/([^/]+)$#', $path, $match);
+        $groupId = $match[1];
+        if (null === $currentName = self::getGroupName($groupId)) {
+            return $notFound();
+        }
+
+        if ('DELETE' === $method) {
+            unset(self::$createdGroups[$groupId]);
+
+            return $this->createResponse($args, 204, []);
+        }
+
+        $name = $json['name'] ?? $currentName;
+        if (self::isGroupNameTaken($name, $groupId)) {
+            return $conflict($name);
+        }
+        self::$createdGroups[$groupId] = [
+            ...self::$createdGroups[$groupId] ?? [],
+            ...$json,
+            'name' => $name,
+        ];
+
+        return $this->createResponse($args, 204, []);
+    }
+
+    private function createResponse(array $args, int $code, array $data, array $headers = []): ResponseInterface
+    {
+        $callback = function ($method, $url, $options) use ($code, $data, $headers): MockResponse {
             return new JsonMockResponse($data, [
                 'http_code' => $code,
+                'response_headers' => $headers,
             ]);
         };
 

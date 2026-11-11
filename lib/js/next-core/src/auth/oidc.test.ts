@@ -402,11 +402,23 @@ describe('OidcClient.getUser', () => {
         });
     });
 
+    it('lets the users managing the users manage the groups', async () => {
+        expect(await userWith(['view-users', 'manage-users'])).toMatchObject({
+            canManageGroups: true,
+            canManageOAuthClients: false,
+        });
+        // Seeing the users and groups is not enough
+        expect(await userWith(['view-users', 'query-groups'])).toMatchObject({
+            canManageGroups: false,
+        });
+    });
+
     it('grants nothing without realm management roles', async () => {
         expect(await userWith(undefined)).toMatchObject({
             canImpersonate: false,
             canViewOAuthClients: false,
             canManageOAuthClients: false,
+            canManageGroups: false,
         });
     });
 });

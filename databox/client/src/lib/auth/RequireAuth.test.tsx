@@ -18,6 +18,7 @@ function mockAuth(auth: Partial<AuthContextValue>) {
         canImpersonate: false,
         canViewOAuthClients: false,
         canManageOAuthClients: false,
+        canManageGroups: false,
         impersonate: vi.fn(),
         stopImpersonating: vi.fn(),
         isAuthenticated: false,

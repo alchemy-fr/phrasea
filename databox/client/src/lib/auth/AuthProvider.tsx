@@ -46,6 +46,12 @@ export type AuthContextValue = {
     canViewOAuthClients: boolean;
     /** Same, to create OAuth clients */
     canManageOAuthClients: boolean;
+    /**
+     * The Keycloak account of the signed-in user can manage the groups of
+     * the realm (`manage-users`). Off while impersonating, for the same
+     * reason.
+     */
+    canManageGroups: boolean;
     /** Switches to another user's account (reloads the app) */
     impersonate: (user: ImpersonatedUser) => void;
     /** Goes back to the signed-in user's account (reloads the app) */
@@ -212,6 +218,7 @@ export function AuthProvider({children}: PropsWithChildren) {
         !impersonating && !!realUser?.canViewOAuthClients;
     const canManageOAuthClients =
         !impersonating && !!realUser?.canManageOAuthClients;
+    const canManageGroups = !impersonating && !!realUser?.canManageGroups;
 
     const impersonate = useCallback(
         (target: ImpersonatedUser) => {
@@ -243,6 +250,7 @@ export function AuthProvider({children}: PropsWithChildren) {
             canImpersonate,
             canViewOAuthClients,
             canManageOAuthClients,
+            canManageGroups,
             impersonate,
             stopImpersonating: stopImpersonation,
             isAuthenticated: status === 'authenticated',
@@ -262,6 +270,7 @@ export function AuthProvider({children}: PropsWithChildren) {
             canImpersonate,
             canViewOAuthClients,
             canManageOAuthClients,
+            canManageGroups,
             impersonate,
             login,
             redirecting,

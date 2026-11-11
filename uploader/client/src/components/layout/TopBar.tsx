@@ -22,6 +22,8 @@ import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {ThemeMenu} from '@alchemy/next-theme/ThemeMenu';
 import {useUploaderUser} from '@/features/user/useUploaderUser';
 import {UserDebugDialog} from '@/features/user/UserDebugDialog';
+import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
+import {groupsApi} from '@/lib/api/groups';
 
 function NavLink({
     href,
@@ -122,6 +124,9 @@ export function TopBar() {
                 onLogin={() => login()}
                 onLogout={logout}
             >
+                {user?.canManageGroups ? (
+                    <ManageGroupsMenuItem api={groupsApi} />
+                ) : null}
                 {config.devMode ? (
                     <DropdownMenuItem
                         data-testid="user-debug"
