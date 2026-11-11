@@ -1,0 +1,16 @@
+# The HTTP path (/mcp), the host check and the session store are set by AlchemyMcpBundle.
+mcp:
+    servers:
+        uploader:
+            name: 'Phrasea Uploader'
+            description: 'Browse the Phrasea Uploader targets and their upload form, validate form data and follow the commits.'
+            instructions: |
+                Phrasea Uploader receives files and forwards them to a target (a Databox workspace, a Phraseanet
+                instance…). A target may have an upload form: the fields the uploader fills, whose values ("form
+                data", an object keyed by field key) are sent along with the files. Read the form of a target before
+                validating form data against it. A commit is a batch of files sent to a target with its form data;
+                it is acknowledged once the target has consumed it. Files are uploaded and committed from the
+                Uploader web client, not through this server. Every call runs with the permissions of the
+                authenticated user: listing commits requires the "commit:list" scope or the admin role.
+            registry:
+                tools: ['App\Mcp\Tool\']

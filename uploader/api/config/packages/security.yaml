@@ -27,6 +27,17 @@ security:
             custom_authenticators:
                 - Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator
 
+        oauth_metadata:
+            pattern: ^/\.well-known/oauth-protected-resource(/mcp)?$
+            security: false
+
+        mcp:
+            pattern: ^/mcp
+            stateless: true
+            entry_point: Alchemy\McpBundle\Security\McpAuthenticationEntryPoint
+            custom_authenticators:
+                - Alchemy\AuthBundle\Security\AccessTokenAuthenticator
+
         api:
             stateless: true
             asset: true
@@ -39,6 +50,7 @@ security:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/_healthcheck, roles: PUBLIC_ACCESS }
         - { path: ^/notifications/email-logo$, roles: PUBLIC_ACCESS }
+        - { path: ^/\.well-known/oauth-protected-resource, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

@@ -1,0 +1,4 @@
+alchemy_mcp:
+    server: uploader
+    resource_name: 'Phrasea Uploader'
+    api_name: Uploader

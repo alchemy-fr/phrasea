@@ -5,6 +5,7 @@ The Phrasea APIs embed a [Model Context Protocol](https://modelcontextprotocol.i
 (Streamable HTTP transport); the tools of each one are listed in its own page:
 
 - [Expose](../Expose/mcp.md)
+- [Uploader](../Uploader/mcp.md)
 
 The servers are built on [`symfony/mcp-bundle`](https://symfony.com/doc/current/ai/bundles/mcp-bundle.html); what
 they share lives in `lib/php/mcp-bundle` (`AlchemyMcpBundle`).
