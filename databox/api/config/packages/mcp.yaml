@@ -1,0 +1,35 @@
+# The HTTP path (/mcp), the host check and the session store are set by AlchemyMcpBundle.
+mcp:
+    servers:
+        databox:
+            name: 'Phrasea Databox'
+            description: 'Search, describe and organize the assets of Phrasea Databox, and set up its workspaces (attributes, tags, entity lists, renditions, integrations).'
+            instructions: |
+                Phrasea Databox is a digital asset management system. Every call runs with the permissions of the
+                authenticated user: what the user cannot see or change is not returned or is refused.
+
+                Model:
+                - A workspace holds everything else: collections, assets, attribute definitions, tags, entity
+                  lists, rendition definitions and policies, integrations.
+                - Collections form a tree inside a workspace. An asset belongs to one workspace and to any number
+                  of its collections. A story is an asset that groups other assets.
+                - The metadata of an asset are attributes: a value (per locale when the definition is translatable)
+                  of an attribute definition. Definitions have a type (text, number, date, keyword, entity…), may be
+                  multiple-valued and belong to an attribute policy, which controls who can read or edit them.
+                  Entity attributes take their values from an entity list.
+                - Renditions are the files derived from the source file of an asset (thumbnail, preview…). Each one
+                  is described by a rendition definition, whose "definition" is a YAML build configuration (read
+                  get_rendition_build_reference before writing one), grouped under rendition policies.
+
+                Search (search_assets) combines a full-text "query" with AQL "conditions", e.g.
+                `title STARTS WITH "Report" AND (@tag HAS ALL OF ("a", "b") OR description IS EMPTY)`: a condition is
+                `field OPERATOR [value]`, a field is an attribute slug or a built-in one (@tag, @collection,
+                @createdAt…), operators are uppercase (IS, IS NOT, <, >, BETWEEN, IS ANY OF, HAS ALL OF, IS EMPTY,
+                CONTAINS, STARTS WITH, MATCHES…), conditions combine with AND, OR, NOT and parentheses.
+
+                Prefer reading before writing: get the IDs of workspaces, definitions, collections and tags from
+                the list tools rather than guessing them.
+            # tools/list in a single page: some clients do not follow the pagination cursor
+            pagination_limit: 100
+            registry:
+                tools: ['App\Mcp\Tool\']

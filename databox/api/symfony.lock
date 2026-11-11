@@ -20,6 +20,9 @@
     "alchemy/es-bundle": {
         "version": "dev-PS-585-new-perms"
     },
+    "alchemy/mcp-bundle": {
+        "version": "dev-main"
+    },
     "alchemy/messenger-bundle": {
         "version": "dev-PS-585-new-perms"
     },
@@ -655,6 +658,19 @@
         },
         "files": [
             "config/packages/mailer.yaml"
+        ]
+    },
+    "symfony/mcp-bundle": {
+        "version": "0.15",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "0.13",
+            "ref": "6fbd19b68290f2d5decdb926636484950d185e4b"
+        },
+        "files": [
+            "config/packages/mcp.yaml",
+            "config/routes/mcp.yaml"
         ]
     },
     "symfony/messenger": {

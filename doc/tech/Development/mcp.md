@@ -4,6 +4,7 @@ The Phrasea APIs embed a [Model Context Protocol](https://modelcontextprotocol.i
 (Claude, IDE agents…) can act on behalf of a user. Each API exposes its own server on `https://<API host>/mcp`
 (Streamable HTTP transport); the tools of each one are listed in its own page:
 
+- [Databox](../Databox/mcp.md)
 - [Expose](../Expose/mcp.md)
 - [Uploader](../Uploader/mcp.md)
 

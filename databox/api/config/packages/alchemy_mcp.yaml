@@ -1,0 +1,4 @@
+alchemy_mcp:
+    server: databox
+    resource_name: 'Phrasea Databox'
+    api_name: Databox

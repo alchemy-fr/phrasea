@@ -368,8 +368,6 @@ YAML;
 
     public function testPatchKeepsTheParent(): void
     {
-        $this->markTestIncomplete('BUG: RenditionDefinitionInputTransformer always calls setParent($data->parent) (src/Api/InputTransformer/RenditionDefinitionInputTransformer.php:59), so any PUT/PATCH that omits "parent" detaches the definition from its parent.');
-
         [, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $preview = $defaults->renditionDefinitions['preview'];
         $mainIri = '/rendition-definitions/'.$defaults->renditionDefinitions['main']->getId();
@@ -384,8 +382,6 @@ YAML;
 
     public function testPatchKeepsTheBuildDefinition(): void
     {
-        $this->markTestIncomplete('BUG: RenditionDefinitionInput::$definition defaults to \'\' (src/Api/Model/Input/RenditionDefinitionInput.php:111), so any PUT/PATCH that omits "definition" wipes the build definition.');
-
         [, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $preview = $defaults->renditionDefinitions['preview'];
         $definition = $preview->getDefinition();

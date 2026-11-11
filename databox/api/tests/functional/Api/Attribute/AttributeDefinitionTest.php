@@ -618,8 +618,6 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
 
     public function testAllowInvalidCanBeDisabled(): void
     {
-        $this->markTestIncomplete('BUG: "allowInvalid" can be enabled but never disabled through the API: AttributeDefinitionInputTransformer only applies a truthy value (src/Api/InputTransformer/AttributeDefinitionInputTransformer.php:74)');
-
         $this->setUpScene();
         $definition = $this->createAttributeDefinition(['name' => 'Title', 'allow_invalid' => true]);
 
