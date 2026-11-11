@@ -9,6 +9,7 @@ use App\Model\MapOptions;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Configuration of a publication or a profile.
@@ -41,10 +42,12 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Length(max: 20)]
     private ?string $layout = null;
 
     #[ORM\Column(type: Types::STRING, length: 30, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Length(max: 30)]
     private ?string $theme = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
@@ -65,10 +68,12 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Valid]
     private TermsConfig $terms;
 
     #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Valid]
     private TermsConfig $downloadTerms;
 
     /**
@@ -76,6 +81,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      */
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Length(max: 20)]
     private ?string $securityMethod = null;
 
     /**

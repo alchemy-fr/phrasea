@@ -30,6 +30,8 @@ final class PostDownloadAssetViaEmailAction extends AbstractAssetAction
         $downloadRequest = $downloadRequestFactory->create($publication, $request);
         $downloadRequest->setAsset($asset);
 
+        $this->validator->validate($downloadRequest);
+
         $this->em->persist($downloadRequest);
         $this->em->flush();
 

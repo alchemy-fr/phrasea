@@ -338,6 +338,7 @@ class Asset implements MediaInterface, \Stringable
 
     #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     private ?string $assetId = null;
 
     #[Groups([Publication::GROUP_READ, self::GROUP_READ, self::GROUP_WRITE])]
@@ -354,6 +355,7 @@ class Asset implements MediaInterface, \Stringable
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
+    #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -381,6 +383,7 @@ class Asset implements MediaInterface, \Stringable
      */
     #[Groups([Publication::GROUP_READ, self::GROUP_READ, self::GROUP_WRITE])]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     protected ?string $slug = null;
 
     #[ORM\Column(type: Types::SMALLINT, options: ['default' => 0])]

@@ -32,6 +32,8 @@ final class PostDownloadSubDefViaEmailAction extends AbstractAssetAction
         $downloadRequest->setAsset($asset);
         $downloadRequest->setSubDefinition($subDef);
 
+        $this->validator->validate($downloadRequest);
+
         $this->em->persist($downloadRequest);
         $this->em->flush();
 

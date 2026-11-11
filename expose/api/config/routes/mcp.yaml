@@ -1,0 +1,2 @@
+alchemy_mcp:
+    resource: '@AlchemyMcpBundle/config/routing.yaml'

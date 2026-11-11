@@ -1,0 +1,15 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\McpBundle\Api\ApiClient:
+        arguments:
+            $apiName: '%alchemy_mcp.api_name%'
+
+    Alchemy\McpBundle\Security\McpAuthenticationEntryPoint: ~
+
+    Alchemy\McpBundle\Controller\OAuthProtectedResourceAction:
+        arguments:
+            $serverName: '%alchemy_mcp.server%'
+            $resourceName: '%alchemy_mcp.resource_name%'

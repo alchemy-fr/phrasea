@@ -32,6 +32,7 @@ lib/php/configurator-bundle
 lib/php/core-bundle
 lib/php/es-bundle
 lib/php/messenger-bundle
+lib/php/mcp-bundle
 lib/php/metadata-manipulator-bundle
 lib/php/notifier-bundle
 lib/php/rendition-factory

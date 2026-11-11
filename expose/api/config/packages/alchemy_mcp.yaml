@@ -1,0 +1,4 @@
+alchemy_mcp:
+    server: expose
+    resource_name: 'Phrasea Expose'
+    api_name: Expose

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Consumer\Handler\PublicationArchiveRequest;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;
@@ -28,6 +29,7 @@ final class PostPublicationArchiveRequestAction extends AbstractController
         private readonly ReportUserService $reportClient,
         private readonly PublicationDownloadPolicy $downloadPolicy,
         private readonly DownloadRequestFactory $downloadRequestFactory,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -48,6 +50,8 @@ final class PostPublicationArchiveRequestAction extends AbstractController
         $this->downloadPolicy->denyEmailRequestUnlessGranted($publication, $request);
 
         $downloadRequest = $this->downloadRequestFactory->create($publication, $request);
+
+        $this->validator->validate($downloadRequest);
 
         $this->em->persist($downloadRequest);
         $this->em->flush();

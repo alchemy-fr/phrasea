@@ -40,6 +40,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/mcp-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/messenger-bundle",
             "options": {
                 "symlink": true
@@ -86,6 +93,7 @@
         "alchemy/admin-bundle": "@dev",
         "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
+        "alchemy/mcp-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
         "alchemy/notifier-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
@@ -113,6 +121,7 @@
         "symfony/expression-language": "^8.1",
         "symfony/flex": "^2.10",
         "symfony/framework-bundle": "^8.1",
+        "symfony/mcp-bundle": "^0.15",
         "symfony/property-access": "^8.1",
         "symfony/property-info": "^8.1",
         "symfony/psr-http-message-bridge": "^8.1",
