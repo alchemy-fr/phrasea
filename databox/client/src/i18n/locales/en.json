@@ -332,6 +332,7 @@
     "attribute.read_only": "read only",
     "attribute.unpin": "Unpin from profile",
     "attribute.untranslated": "Untranslated",
+    "attribute.webvtt.play_from": "Play from {{time}}",
     "attribute_def.allow_invalid": "Allow invalid values",
     "attribute_def.annotations_enabled": "Annotations enabled",
     "attribute_def.create": "New attribute",

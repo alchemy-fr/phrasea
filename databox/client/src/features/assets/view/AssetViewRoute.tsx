@@ -23,6 +23,7 @@ import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {EmptyState, Separator} from '@alchemy/next-ui/ui/misc';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {getSubtitleTracks} from '@/features/assets/player/subtitles';
+import {MediaPlaybackProvider} from '@/features/assets/player/MediaPlaybackProvider';
 import {clipForFile, effectiveClip} from '@/features/clip/clip';
 import {
     AssetPanel,
@@ -402,55 +403,39 @@ export function AssetViewRoute({
 
     return (
         <AnnotationsProvider resetKey={assetId} fallback={assetAnnotations}>
-            <div
-                data-testid="asset-view"
-                className={cn(
-                    belowTopBar,
-                    'z-50 flex flex-col bg-background text-foreground'
-                )}
-            >
-                <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
-                    <h1
-                        data-testid="asset-view-title"
-                        className="min-w-0 flex-1 truncate text-base font-semibold"
-                        title={asset?.name}
-                    >
-                        {asset?.name ?? ''}
-                    </h1>
-                    {renditions.length > 0 ? (
-                        <SimpleSelect
-                            size="sm"
-                            className="w-48"
-                            value={rendition?.id}
-                            onValueChange={selectRendition}
-                            options={renditions
-                                .filter(r => r.file)
-                                .map(r => ({
-                                    value: r.id,
-                                    label: r.displayName ?? r.name,
-                                }))}
-                        />
-                    ) : null}
-                    {hasDisplayedClip ? (
-                        <Tooltip
-                            content={
-                                whole
-                                    ? t(
-                                          'asset.roi.show_roi',
-                                          'Show the region of interest'
-                                      )
-                                    : t(
-                                          'asset.roi.show_whole',
-                                          'Show the whole asset'
-                                      )
-                            }
+            <MediaPlaybackProvider>
+                <div
+                    data-testid="asset-view"
+                    className={cn(
+                        belowTopBar,
+                        'z-50 flex flex-col bg-background text-foreground'
+                    )}
+                >
+                    <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
+                        <h1
+                            data-testid="asset-view-title"
+                            className="min-w-0 flex-1 truncate text-base font-semibold"
+                            title={asset?.name}
                         >
-                            <Button
-                                variant={whole ? 'secondary' : 'ghost'}
-                                size="icon-sm"
-                                data-testid="asset-roi-toggle"
-                                aria-pressed={whole}
-                                aria-label={
+                            {asset?.name ?? ''}
+                        </h1>
+                        {renditions.length > 0 ? (
+                            <SimpleSelect
+                                size="sm"
+                                className="w-48"
+                                value={rendition?.id}
+                                onValueChange={selectRendition}
+                                options={renditions
+                                    .filter(r => r.file)
+                                    .map(r => ({
+                                        value: r.id,
+                                        label: r.displayName ?? r.name,
+                                    }))}
+                            />
+                        ) : null}
+                        {hasDisplayedClip ? (
+                            <Tooltip
+                                content={
                                     whole
                                         ? t(
                                               'asset.roi.show_roi',
@@ -461,236 +446,264 @@ export function AssetViewRoute({
                                               'Show the whole asset'
                                           )
                                 }
-                                onClick={() => setWhole(w => !w)}
                             >
-                                {whole ? <ScanIcon /> : <MaximizeIcon />}
-                            </Button>
-                        </Tooltip>
-                    ) : null}
-                    {asset ? (
-                        <AssetViewActions
-                            asset={asset}
-                            rendition={rendition}
-                            onTogglePanel={() => setPanelOpen(p => !p)}
-                            onEdit={toggleEditing}
-                            editing={editing}
-                            panelOpen={panelOpen}
-                        />
-                    ) : null}
-                    <Separator orientation="vertical" className="mx-0.5 h-5" />
-                    <Tooltip content={t('common.close', 'Close')}>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={close}
-                            aria-label={t('common.close', 'Close')}
-                        >
-                            <XIcon />
-                        </Button>
-                    </Tooltip>
-                </header>
-
-                <div className="flex min-h-0 flex-1">
-                    <div className="relative flex min-w-0 flex-1 flex-col">
-                        {hasPrev || hasNext ? (
-                            <>
                                 <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    className={cn(
-                                        'absolute top-1/2 left-3 z-10 -translate-y-1/2 rounded-full shadow',
-                                        exitHint === 'prev' &&
-                                            'ring-2 ring-primary'
-                                    )}
-                                    disabled={!hasPrev}
-                                    onClick={() => step('prev')}
-                                    aria-label={t(
-                                        'asset.view.previous',
-                                        'Previous'
-                                    )}
-                                >
-                                    <ChevronLeftIcon />
-                                </Button>
-                                <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    className={cn(
-                                        'absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full shadow',
-                                        exitHint === 'next' &&
-                                            'ring-2 ring-primary'
-                                    )}
-                                    disabled={!hasNext}
-                                    onClick={() => step('next')}
-                                    aria-label={t('asset.view.next', 'Next')}
-                                >
-                                    <ChevronRightIcon />
-                                </Button>
-                            </>
-                        ) : null}
-                        <div className="relative flex min-h-0 flex-1 items-center justify-center bg-media-bg">
-                            {query.isLoading ? <FullPageLoader /> : null}
-                            {exitHint ? (
-                                <div
-                                    data-testid="story-exit-hint"
-                                    role="status"
-                                    className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full bg-foreground/85 px-4 py-2 text-sm text-background shadow"
-                                >
-                                    {exitHint === 'next'
-                                        ? t(
-                                              'asset.view.story_exit_next',
-                                              'End of the story: press again to go to the next asset'
-                                          )
-                                        : t(
-                                              'asset.view.story_exit_prev',
-                                              'Start of the story: press again to go to the previous asset'
-                                          )}
-                                </div>
-                            ) : null}
-                            {query.isError ? (
-                                <EmptyState
-                                    title={
-                                        isApiError(query.error, 404) ||
-                                        isApiError(query.error, 403)
+                                    variant={whole ? 'secondary' : 'ghost'}
+                                    size="icon-sm"
+                                    data-testid="asset-roi-toggle"
+                                    aria-pressed={whole}
+                                    aria-label={
+                                        whole
                                             ? t(
-                                                  'asset.view.not_found',
-                                                  'Asset not found or not accessible'
+                                                  'asset.roi.show_roi',
+                                                  'Show the region of interest'
                                               )
                                             : t(
-                                                  'common.error',
-                                                  'An error occurred'
+                                                  'asset.roi.show_whole',
+                                                  'Show the whole asset'
                                               )
                                     }
-                                    description={(query.error as Error).message}
-                                    action={
-                                        <Button onClick={close}>
-                                            {t('common.close', 'Close')}
-                                        </Button>
-                                    }
-                                />
-                            ) : null}
-                            {asset && displayedFile ? (
-                                <div className="relative size-full">
-                                    <FilePlayer
-                                        file={displayedFile}
-                                        title={storyStandIn?.name ?? asset.name}
-                                        tracking={getContentTracking(
-                                            storyStandIn ?? asset
-                                        )}
-                                        fit="zoom"
-                                        className="size-full"
-                                        autoPlay
-                                        subtitles={subtitles}
-                                        clip={displayedClip}
-                                        whole={whole}
-                                    />
-                                </div>
-                            ) : asset &&
-                              !query.isLoading &&
-                              !story.isLoading ? (
-                                asset.storyCollection ? (
-                                    <EmptyState
-                                        title={t(
-                                            'asset.view.story_empty',
-                                            'This story has no item to display yet'
-                                        )}
-                                    />
-                                ) : !asset.source ? (
-                                    <EmptyState
-                                        title={t(
-                                            'asset.view.no_source',
-                                            'No source file'
-                                        )}
-                                        description={t(
-                                            'asset.view.no_source_help',
-                                            'This asset was created without any file: add one to get its renditions.'
-                                        )}
-                                        action={
-                                            asset.capabilities.edit ? (
-                                                <Button
-                                                    onClick={() =>
-                                                        openModal(
-                                                            ReplaceSourceDialog,
-                                                            {
-                                                                asset,
-                                                                onComplete:
-                                                                    refresh,
-                                                            }
-                                                        )
-                                                    }
-                                                >
-                                                    <FilePlusIcon />
-                                                    {t(
-                                                        'asset.view.add_source',
-                                                        'Add a source file'
-                                                    )}
-                                                </Button>
-                                            ) : undefined
-                                        }
-                                    />
-                                ) : (
-                                    <EmptyState
-                                        title={t(
-                                            'asset.view.no_rendition',
-                                            'No rendition available yet'
-                                        )}
-                                    />
-                                )
-                            ) : null}
-                        </div>
-                        {asset?.status === AssetStatus.Quarantined ? (
-                            <div className="border-t p-3">
-                                <QuarantineBanner asset={asset} />
-                            </div>
+                                    onClick={() => setWhole(w => !w)}
+                                >
+                                    {whole ? <ScanIcon /> : <MaximizeIcon />}
+                                </Button>
+                            </Tooltip>
                         ) : null}
-                        {storyAsset ? (
-                            <StoryCarousel
-                                story={storyAsset}
-                                currentAssetId={assetId}
-                                onSelect={id => go(id)}
-                            />
-                        ) : null}
-                    </div>
-                    {panelOpen ? (
-                        <div
-                            data-resize-handle
-                            role="separator"
-                            aria-orientation="vertical"
-                            aria-label={t(
-                                'asset.view.resize_panel',
-                                'Resize the panel'
-                            )}
-                            tabIndex={0}
-                            onPointerDown={panel.onPointerDown}
-                            onKeyDown={panel.onKeyDown}
-                            className={cn(
-                                'w-1 shrink-0 cursor-col-resize bg-border transition-colors hover:bg-primary/60 focus-visible:bg-primary focus-visible:outline-none',
-                                panel.resizing && 'bg-primary'
-                            )}
-                        />
-                    ) : null}
-                    <aside
-                        data-testid="asset-panel"
-                        style={{width: panel.width}}
-                        className={cn(
-                            'shrink-0 overflow-hidden border-l bg-background',
-                            !panelOpen && 'hidden'
-                        )}
-                    >
                         {asset ? (
-                            <AssetPanel
+                            <AssetViewActions
                                 asset={asset}
                                 rendition={rendition}
-                                onSelectRendition={selectRendition}
-                                tab={panelTab}
-                                onTabChange={selectPanelTab}
+                                onTogglePanel={() => setPanelOpen(p => !p)}
+                                onEdit={toggleEditing}
                                 editing={editing}
-                                onExitEdit={toggleEditing}
-                                refresh={refresh}
+                                panelOpen={panelOpen}
                             />
                         ) : null}
-                    </aside>
+                        <Separator
+                            orientation="vertical"
+                            className="mx-0.5 h-5"
+                        />
+                        <Tooltip content={t('common.close', 'Close')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={close}
+                                aria-label={t('common.close', 'Close')}
+                            >
+                                <XIcon />
+                            </Button>
+                        </Tooltip>
+                    </header>
+
+                    <div className="flex min-h-0 flex-1">
+                        <div className="relative flex min-w-0 flex-1 flex-col">
+                            {hasPrev || hasNext ? (
+                                <>
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        className={cn(
+                                            'absolute top-1/2 left-3 z-10 -translate-y-1/2 rounded-full shadow',
+                                            exitHint === 'prev' &&
+                                                'ring-2 ring-primary'
+                                        )}
+                                        disabled={!hasPrev}
+                                        onClick={() => step('prev')}
+                                        aria-label={t(
+                                            'asset.view.previous',
+                                            'Previous'
+                                        )}
+                                    >
+                                        <ChevronLeftIcon />
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        className={cn(
+                                            'absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full shadow',
+                                            exitHint === 'next' &&
+                                                'ring-2 ring-primary'
+                                        )}
+                                        disabled={!hasNext}
+                                        onClick={() => step('next')}
+                                        aria-label={t(
+                                            'asset.view.next',
+                                            'Next'
+                                        )}
+                                    >
+                                        <ChevronRightIcon />
+                                    </Button>
+                                </>
+                            ) : null}
+                            <div className="relative flex min-h-0 flex-1 items-center justify-center bg-media-bg">
+                                {query.isLoading ? <FullPageLoader /> : null}
+                                {exitHint ? (
+                                    <div
+                                        data-testid="story-exit-hint"
+                                        role="status"
+                                        className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full bg-foreground/85 px-4 py-2 text-sm text-background shadow"
+                                    >
+                                        {exitHint === 'next'
+                                            ? t(
+                                                  'asset.view.story_exit_next',
+                                                  'End of the story: press again to go to the next asset'
+                                              )
+                                            : t(
+                                                  'asset.view.story_exit_prev',
+                                                  'Start of the story: press again to go to the previous asset'
+                                              )}
+                                    </div>
+                                ) : null}
+                                {query.isError ? (
+                                    <EmptyState
+                                        title={
+                                            isApiError(query.error, 404) ||
+                                            isApiError(query.error, 403)
+                                                ? t(
+                                                      'asset.view.not_found',
+                                                      'Asset not found or not accessible'
+                                                  )
+                                                : t(
+                                                      'common.error',
+                                                      'An error occurred'
+                                                  )
+                                        }
+                                        description={
+                                            (query.error as Error).message
+                                        }
+                                        action={
+                                            <Button onClick={close}>
+                                                {t('common.close', 'Close')}
+                                            </Button>
+                                        }
+                                    />
+                                ) : null}
+                                {asset && displayedFile ? (
+                                    <div className="relative size-full">
+                                        <FilePlayer
+                                            file={displayedFile}
+                                            title={
+                                                storyStandIn?.name ?? asset.name
+                                            }
+                                            tracking={getContentTracking(
+                                                storyStandIn ?? asset
+                                            )}
+                                            fit="zoom"
+                                            className="size-full"
+                                            autoPlay
+                                            subtitles={subtitles}
+                                            clip={displayedClip}
+                                            whole={whole}
+                                        />
+                                    </div>
+                                ) : asset &&
+                                  !query.isLoading &&
+                                  !story.isLoading ? (
+                                    asset.storyCollection ? (
+                                        <EmptyState
+                                            title={t(
+                                                'asset.view.story_empty',
+                                                'This story has no item to display yet'
+                                            )}
+                                        />
+                                    ) : !asset.source ? (
+                                        <EmptyState
+                                            title={t(
+                                                'asset.view.no_source',
+                                                'No source file'
+                                            )}
+                                            description={t(
+                                                'asset.view.no_source_help',
+                                                'This asset was created without any file: add one to get its renditions.'
+                                            )}
+                                            action={
+                                                asset.capabilities.edit ? (
+                                                    <Button
+                                                        onClick={() =>
+                                                            openModal(
+                                                                ReplaceSourceDialog,
+                                                                {
+                                                                    asset,
+                                                                    onComplete:
+                                                                        refresh,
+                                                                }
+                                                            )
+                                                        }
+                                                    >
+                                                        <FilePlusIcon />
+                                                        {t(
+                                                            'asset.view.add_source',
+                                                            'Add a source file'
+                                                        )}
+                                                    </Button>
+                                                ) : undefined
+                                            }
+                                        />
+                                    ) : (
+                                        <EmptyState
+                                            title={t(
+                                                'asset.view.no_rendition',
+                                                'No rendition available yet'
+                                            )}
+                                        />
+                                    )
+                                ) : null}
+                            </div>
+                            {asset?.status === AssetStatus.Quarantined ? (
+                                <div className="border-t p-3">
+                                    <QuarantineBanner asset={asset} />
+                                </div>
+                            ) : null}
+                            {storyAsset ? (
+                                <StoryCarousel
+                                    story={storyAsset}
+                                    currentAssetId={assetId}
+                                    onSelect={id => go(id)}
+                                />
+                            ) : null}
+                        </div>
+                        {panelOpen ? (
+                            <div
+                                data-resize-handle
+                                role="separator"
+                                aria-orientation="vertical"
+                                aria-label={t(
+                                    'asset.view.resize_panel',
+                                    'Resize the panel'
+                                )}
+                                tabIndex={0}
+                                onPointerDown={panel.onPointerDown}
+                                onKeyDown={panel.onKeyDown}
+                                className={cn(
+                                    'w-1 shrink-0 cursor-col-resize bg-border transition-colors hover:bg-primary/60 focus-visible:bg-primary focus-visible:outline-none',
+                                    panel.resizing && 'bg-primary'
+                                )}
+                            />
+                        ) : null}
+                        <aside
+                            data-testid="asset-panel"
+                            style={{width: panel.width}}
+                            className={cn(
+                                'shrink-0 overflow-hidden border-l bg-background',
+                                !panelOpen && 'hidden'
+                            )}
+                        >
+                            {asset ? (
+                                <AssetPanel
+                                    asset={asset}
+                                    rendition={rendition}
+                                    onSelectRendition={selectRendition}
+                                    tab={panelTab}
+                                    onTabChange={selectPanelTab}
+                                    editing={editing}
+                                    onExitEdit={toggleEditing}
+                                    refresh={refresh}
+                                />
+                            ) : null}
+                        </aside>
+                    </div>
                 </div>
-            </div>
+            </MediaPlaybackProvider>
         </AnnotationsProvider>
     );
 }

@@ -208,6 +208,7 @@ export function FilePlayer({
                     className={className}
                     timeRanges={roi?.timeRanges}
                     boundPlayback={!whole}
+                    syncPlayback={fit === 'zoom' && controls}
                 />
             );
         case FileKind.Document:

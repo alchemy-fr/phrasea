@@ -57,6 +57,10 @@ import {
     type AssetAnnotation,
 } from '@/features/annotations/types';
 import type {SubtitleTrack} from './subtitles';
+import {
+    type MediaPlaybackControl,
+    useRegisterMediaPlayback,
+} from './MediaPlaybackProvider';
 import {containBox, type Box} from './videoBox';
 
 export type VideoJsPlayerProps = {
@@ -74,11 +78,12 @@ export type VideoJsPlayerProps = {
      * time slider and its crop outlined, without bounding nor cropping
      */
     roiOverlay?: MediaClip;
-    /** Offered in the subtitles menu, none shown by default */
+    /** Offered in the subtitles menu, the `default` one shown when loaded */
     subtitles?: SubtitleTrack[];
     /**
-     * Shows the annotations of the asset view over the frame they are drawn
-     * on, and their marks on the time slider
+     * The player of the asset view: shows its annotations over the frame
+     * they are drawn on and their marks on the time slider, and plays from
+     * the cue of a transcript clicked in the side panel
      */
     annotate?: boolean;
 };
@@ -181,6 +186,92 @@ function useSubtitleUrls(
     return tracks;
 }
 
+/**
+ * Shows the default subtitle track once per list of tracks, when neither the
+ * `default` attribute nor the browser did: the tracks are added after the
+ * video, from object URLs. A track turned off stays off.
+ */
+function useDefaultSubtitles(tracks: (SubtitleTrack & {url: string})[]): void {
+    const textTracks = usePlayer(s => s.textTrackList);
+    const selectSubtitlesTrack = usePlayer(s => s.selectSubtitlesTrack);
+    const shownFor = useRef<string | undefined>(undefined);
+    const preferred = tracks.find(t => t.default);
+    const key = tracks.map(t => t.url).join(' ');
+
+    useEffect(() => {
+        if (
+            !preferred ||
+            !textTracks ||
+            !selectSubtitlesTrack ||
+            shownFor.current === key
+        ) {
+            return;
+        }
+        const subtitles = textTracks.filter(
+            t => t.kind === 'subtitles' || t.kind === 'captions'
+        );
+        const match = subtitles.find(
+            t =>
+                t.label === preferred.label &&
+                (t.language || undefined) === preferred.locale
+        );
+        if (!match) {
+            return;
+        }
+        shownFor.current = key;
+        if (!subtitles.some(t => t.mode === 'showing')) {
+            selectSubtitlesTrack(match.id);
+        }
+    }, [preferred, textTracks, selectSubtitlesTrack, key]);
+}
+
+/** The time of the video for the side panel: it plays from a cue */
+function usePlaybackControl(
+    ref: RefObject<HTMLVideoElement | null>,
+    enabled: boolean
+): void {
+    const control = useMemo<MediaPlaybackControl | undefined>(
+        () =>
+            enabled
+                ? {
+                      playFrom: time => {
+                          const el = ref.current;
+                          if (!el) {
+                              return;
+                          }
+                          const duration = Number.isFinite(el.duration)
+                              ? el.duration
+                              : undefined;
+                          el.currentTime = Math.max(
+                              0,
+                              duration !== undefined
+                                  ? Math.min(time, duration)
+                                  : time
+                          );
+                          // Rejected when the browser blocks the playback
+                          el.play()?.catch(() => undefined);
+                      },
+                      currentTime: () => ref.current?.currentTime ?? 0,
+                      subscribe: listener => {
+                          const el = ref.current;
+                          if (!el) {
+                              return () => {};
+                          }
+                          el.addEventListener('timeupdate', listener);
+                          el.addEventListener('seeked', listener);
+
+                          return () => {
+                              el.removeEventListener('timeupdate', listener);
+                              el.removeEventListener('seeked', listener);
+                          };
+                      },
+                  }
+                : undefined,
+        [ref, enabled]
+    );
+    useRegisterMediaPlayback(control);
+}
+
 /** The box of the frame displayed, in the coordinates of the container */
 function useVideoBox(
     videoRef: RefObject<HTMLVideoElement | null>,
@@ -262,6 +353,8 @@ function VideoJsPlayerBody({
     const [aspect, setAspect] = useState<number>();
     const instant = useMediaInstant(ref);
     const tracks = useSubtitleUrls(subtitles);
+    useDefaultSubtitles(tracks);
+    usePlaybackControl(ref, annotate);
     useClipPlayback(ref, timeRanges);
     const overlayCrop = crop ? undefined : roiOverlay?.crop;
 
@@ -395,6 +488,7 @@ function VideoJsPlayerBody({
                     src={track.url}
                     srcLang={track.locale}
                     label={track.label}
+                    default={track.default}
                 />
             ))}
         </Video>

@@ -332,6 +332,7 @@
     "attribute.read_only": "lecture seule",
     "attribute.unpin": "Désépingler du profil",
     "attribute.untranslated": "Non traduit",
+    "attribute.webvtt.play_from": "Lire à partir de {{time}}",
     "attribute_def.allow_invalid": "Autoriser les valeurs invalides",
     "attribute_def.annotations_enabled": "Annotations activées",
     "attribute_def.create": "Nouvel attribut",

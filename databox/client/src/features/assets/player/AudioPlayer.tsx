@@ -13,6 +13,10 @@ import {Spinner} from '@alchemy/next-ui/ui/loader';
 import {formatDuration} from '@/lib/utils/format';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {clipPlaybackTarget} from '@/features/clip/clip';
+import {
+    type MediaPlaybackControl,
+    useRegisterMediaPlayback,
+} from './MediaPlaybackProvider';
 
 /**
  * Resolve a CSS color expression (may use `var(--token)` / `color-mix`) to a
@@ -56,6 +60,9 @@ function formatTime(seconds: number): string {
  * and stops (loops, when driven by `playing`) at the end of the last one.
  * With `boundPlayback` false, they are only highlighted.
  *
+ * With `syncPlayback`, it is the player of the asset view: it plays from the
+ * cue of a transcript clicked in the side panel.
+ *
  * The player fills the width of its box.
  */
 export function AudioPlayer({
@@ -67,6 +74,7 @@ export function AudioPlayer({
     className,
     timeRanges,
     boundPlayback = true,
+    syncPlayback = false,
     onTimeUpdate,
     onDuration,
     onPeaks,
@@ -81,6 +89,8 @@ export function AudioPlayer({
     /** Sorted, not overlapping */
     timeRanges?: ClipTimeRange[];
     boundPlayback?: boolean;
+    /** Plays from the time of a transcript of the asset view */
+    syncPlayback?: boolean;
     onTimeUpdate?: (time: number) => void;
     /** Called once the sound is loaded */
     onDuration?: (duration: number) => void;
@@ -147,6 +157,30 @@ export function AudioPlayer({
         normalize: true,
         plugins,
     });
+
+    const playbackControl = useMemo<MediaPlaybackControl | undefined>(
+        () =>
+            syncPlayback && wavesurfer && isReady
+                ? {
+                      playFrom: time => {
+                          wavesurfer.setTime(time);
+                          // Rejected when the browser blocks the playback
+                          wavesurfer.play().catch(() => undefined);
+                      },
+                      currentTime: () => wavesurfer.getCurrentTime(),
+                      subscribe: listener => {
+                          const unsubscribe = [
+                              wavesurfer.on('timeupdate', listener),
+                              wavesurfer.on('seeking', listener),
+                          ];
+
+                          return () => unsubscribe.forEach(u => u());
+                      },
+                  }
+                : undefined,
+        [syncPlayback, wavesurfer, isReady]
+    );
+    useRegisterMediaPlayback(playbackControl);
 
     // Autoplay follows visibility: play when shown, pause when scrolled away.
     useEffect(() => {
