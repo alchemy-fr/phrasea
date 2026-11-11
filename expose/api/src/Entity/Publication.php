@@ -388,15 +388,20 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_ADMIN_READ])]
     public function getSecurityOptions(): array
     {
-        if (!empty($this->config->getSecurityOptions())) {
-            return $this->config->getSecurityOptions();
+        return $this->getSecurityConfig()?->getSecurityOptions() ?? [];
+    }
+
+    /**
+     * The configuration holding the security options of this publication: its
+     * own, else the one of its profile.
+     */
+    public function getSecurityConfig(): ?PublicationConfig
+    {
+        if ($this->config->hasSecurityOptions()) {
+            return $this->config;
         }
 
-        if ($this->profile) {
-            return $this->profile->getConfig()->getSecurityOptions();
-        }
-
-        return [];
+        return $this->profile?->getConfig();
     }
 
     public function getDescription(): ?string

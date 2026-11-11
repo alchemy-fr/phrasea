@@ -55,11 +55,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             ], UrlGeneratorInterface::ABSOLUTE_URL));
         }
 
-        $config = $object->getConfig();
-        $securityContainer = $object->getSecurityContainer();
-        $object->setSecurityContainerId($securityContainer->getId());
-        $config->setSecurityMethod($securityContainer->getSecurityMethod());
-        $config->setSecurityOptions($securityContainer->getSecurityOptions());
+        $object->setSecurityContainerId($object->getSecurityContainer()->getId());
 
         $object->setCapabilities([
             'edit' => $this->security->isGranted(AbstractVoter::EDIT, $object),

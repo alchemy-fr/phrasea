@@ -593,6 +593,19 @@ Anonymous users:
   `Cache-Control: public, max-age=600` (capped by the expiration) with
   `Vary: Authorization, X-Passwords`. Check the behaviour of any cache or proxy
   in front of Expose.
+- Publication and profile passwords are stored hashed (irreversible migration).
+  `config.securityOptions.password` is write-only: it is never read back, a
+  write without it keeps the current password, and `config.hasPassword` tells
+  whether one is set. Leaving the `password` security method drops the password.
+- Rate limits, kept in Redis (`REDIS_URL`): 10 wrong passwords per client IP and
+  security container in 15 minutes (then `authorizationError: too_many_attempts`,
+  even with the right password), 10 download requests by email per client IP and
+  5 per recipient per hour, 60 view logs per client IP per minute (`429`). The
+  client IP relies on `TRUSTED_PROXIES`.
+- `POST …/download-request` answers `400` without a valid `email`;
+  `POST /logs/publication-view/{id}` and `/logs/asset-view/{id}` answer `403`
+  unless the publication, or the asset, can be read (`X-Passwords` included).
+- CORS no longer allows credentials, and `/admin` sends no CORS header.
 
 ## Uploader API
 

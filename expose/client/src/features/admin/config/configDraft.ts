@@ -20,12 +20,18 @@ export type ConfigDraft = {
     expiresAt: string | null;
     layout: Layout | null;
     securityMethod: SecurityMethod | '' | null;
+    /** A new password, empty to keep the current one */
     password: string;
+    /** Whether a password is already set (it is never read back) */
+    hasPassword: boolean;
     terms: TermsConfig | null;
     downloadTerms: TermsConfig | null;
 };
 
-export type InheritableField = keyof Omit<ConfigDraft, 'password'>;
+export type InheritableField = keyof Omit<
+    ConfigDraft,
+    'password' | 'hasPassword'
+>;
 
 export const PUBLIC_METHOD = '';
 
@@ -39,10 +45,6 @@ function isSet(terms: TermsConfig | null | undefined): terms is TermsConfig {
 }
 
 export function toDraft(config: PublicationConfig | undefined): ConfigDraft {
-    const options = config?.securityOptions;
-    const password =
-        options && !Array.isArray(options) ? (options.password ?? '') : '';
-
     return {
         enabled: config?.enabled ?? null,
         publiclyListed: config?.publiclyListed ?? null,
@@ -55,7 +57,8 @@ export function toDraft(config: PublicationConfig | undefined): ConfigDraft {
         layout: config?.layout ?? null,
         securityMethod:
             (config?.securityMethod as ConfigDraft['securityMethod']) ?? null,
-        password,
+        password: '',
+        hasPassword: !!config?.hasPassword,
         terms: isSet(config?.terms)
             ? {
                   enabled: config!.terms!.enabled ?? false,
@@ -89,8 +92,9 @@ export function fromDraft(draft: ConfigDraft): PublicationConfig {
         expiresAt: draft.expiresAt,
         layout: draft.layout,
         securityMethod: method as SecurityMethod | null,
+        // Without a new password, the API keeps the current one
         securityOptions:
-            method === SecurityMethod.Password
+            method === SecurityMethod.Password && draft.password
                 ? {password: draft.password}
                 : [],
         terms: draft.terms
@@ -151,7 +155,11 @@ export function validateDraft(
     draft: ConfigDraft
 ): Partial<Record<keyof ConfigDraft, string>> {
     const errors: Partial<Record<keyof ConfigDraft, string>> = {};
-    if (draft.securityMethod === SecurityMethod.Password && !draft.password) {
+    if (
+        draft.securityMethod === SecurityMethod.Password &&
+        !draft.password &&
+        !draft.hasPassword
+    ) {
         errors.password = 'required';
     }
     if (

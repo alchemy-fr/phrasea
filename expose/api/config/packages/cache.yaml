@@ -1,0 +1,13 @@
+framework:
+    cache:
+        pools:
+            rate_limiter.cache:
+                adapter: cache.adapter.redis
+                provider: '%env(REDIS_URL)%'
+
+when@test:
+    services:
+        # In memory, kept between the requests of a test (the array cache pools are emptied
+        # at each request) and dropped with its kernel.
+        rate_limiter.cache:
+            class: Symfony\Component\Cache\Adapter\ArrayAdapter

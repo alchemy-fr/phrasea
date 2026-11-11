@@ -116,6 +116,7 @@
         "symfony/property-access": "^8.1",
         "symfony/property-info": "^8.1",
         "symfony/psr-http-message-bridge": "^8.1",
+        "symfony/rate-limiter": "^8.1",
         "symfony/runtime": "^8.1",
         "symfony/security-bundle": "^8.1",
         "symfony/serializer": "^8.1",

@@ -232,6 +232,7 @@ export function ConfigForm({value, onChange, profile, showErrors}: Props) {
                         <SecurityField
                             method={v ?? (profile ? PUBLIC_METHOD : null)}
                             password={value.password}
+                            hasPassword={value.hasPassword}
                             passwordError={
                                 errors.password
                                     ? t(
@@ -557,12 +558,14 @@ function LayoutField({
 function SecurityField({
     method,
     password,
+    hasPassword,
     passwordError,
     onMethodChange,
     onPasswordChange,
 }: {
     method: ConfigDraft['securityMethod'];
     password: string;
+    hasPassword: boolean;
     passwordError?: string;
     onMethodChange: (method: SecurityMethod | '') => void;
     onPasswordChange: (password: string) => void;
@@ -632,6 +635,14 @@ function SecurityField({
                             type={visible ? 'text' : 'password'}
                             autoComplete="new-password"
                             value={password}
+                            placeholder={
+                                hasPassword
+                                    ? t(
+                                          'config.password_unchanged',
+                                          'Unchanged'
+                                      )
+                                    : undefined
+                            }
                             aria-invalid={!!passwordError}
                             onChange={e => onPasswordChange(e.target.value)}
                         />
@@ -654,6 +665,14 @@ function SecurityField({
                             {visible ? <EyeOffIcon /> : <EyeIcon />}
                         </Button>
                     </div>
+                    {hasPassword ? (
+                        <FieldHelp>
+                            {t(
+                                'config.password_keep_help',
+                                'The password is not shown: leave empty to keep it, or type a new one.'
+                            )}
+                        </FieldHelp>
+                    ) : null}
                     <FieldError>{passwordError}</FieldError>
                 </div>
             ) : null}

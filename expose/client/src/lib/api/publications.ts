@@ -103,11 +103,16 @@ export async function getAsset(id: string): Promise<Asset> {
 }
 
 export function logPublicationView(id: string): void {
-    api.post(`/logs/publication-view/${id}`).catch(() => undefined);
+    api.post(`/logs/publication-view/${id}`, undefined, {
+        headers: passwordHeaders(),
+    }).catch(() => undefined);
 }
 
+/** The API logs only the views of the assets the reader may see */
 export function logAssetView(id: string): void {
-    api.post(`/logs/asset-view/${id}`).catch(() => undefined);
+    api.post(`/logs/asset-view/${id}`, undefined, {
+        headers: passwordHeaders(),
+    }).catch(() => undefined);
 }
 
 /**

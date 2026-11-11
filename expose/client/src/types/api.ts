@@ -36,6 +36,7 @@ export enum AuthorizationError {
     NotAllowed = 'not_allowed',
     MissingPassword = 'missing_password',
     InvalidPassword = 'invalid_password',
+    TooManyAttempts = 'too_many_attempts',
 }
 
 export enum Layout {
@@ -63,7 +64,10 @@ export type PublicationConfig = {
     expiresAt?: string | null;
     layout?: Layout | null;
     securityMethod?: SecurityMethod | null;
+    /** Written only: the password is stored hashed and never read back */
     securityOptions?: {password?: string | null} | [] | null;
+    /** Read only: whether a password is set */
+    hasPassword?: boolean;
     terms?: TermsConfig | null;
     downloadTerms?: TermsConfig | null;
     layoutOptions?: LayoutOptions | null;

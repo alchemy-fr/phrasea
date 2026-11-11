@@ -6,9 +6,9 @@ namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
 use App\Consumer\Handler\PublicationArchiveRequest;
-use App\Entity\DownloadRequest;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;
+use App\Security\DownloadRequestFactory;
 use App\Security\PublicationDownloadPolicy;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +27,7 @@ final class PostPublicationArchiveRequestAction extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly ReportUserService $reportClient,
         private readonly PublicationDownloadPolicy $downloadPolicy,
+        private readonly DownloadRequestFactory $downloadRequestFactory,
     ) {
     }
 
@@ -46,10 +47,7 @@ final class PostPublicationArchiveRequestAction extends AbstractController
         }
         $this->downloadPolicy->denyEmailRequestUnlessGranted($publication, $request);
 
-        $downloadRequest = new DownloadRequest();
-        $downloadRequest->setPublication($publication);
-        $downloadRequest->setEmail($request->request->get('email'));
-        $downloadRequest->setLocale($request->getLocale());
+        $downloadRequest = $this->downloadRequestFactory->create($publication, $request);
 
         $this->em->persist($downloadRequest);
         $this->em->flush();

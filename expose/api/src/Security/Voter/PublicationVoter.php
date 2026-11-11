@@ -14,6 +14,8 @@ use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
 use App\Security\PasswordTokenExtractor;
 use App\Security\ScopeInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
@@ -25,8 +27,17 @@ class PublicationVoter extends AbstractVoter
     final public const string LIST_PUBLICATIONS = 'publication:index';
     final public const string READ_DETAILS = 'READ_DETAILS';
 
+    /**
+     * Request attribute holding the outcome of each password checked by the request, by
+     * security container: the voter is called several times per request, a wrong password
+     * must count once.
+     */
+    private const string PASSWORD_CHECKS_ATTRIBUTE = '_publication_password_checks';
+
     public function __construct(
         private readonly PasswordTokenExtractor $passwordTokenExtractor,
+        #[Autowire(service: 'limiter.publication_password')]
+        private readonly RateLimiterFactoryInterface $passwordLimiter,
     ) {
     }
 
@@ -92,9 +103,9 @@ class PublicationVoter extends AbstractVoter
                     return false;
                 }
 
-                $password = $securityContainer->getSecurityOptions()['password'] ?? null;
-                if (!is_string($password) || !hash_equals($password, $publicationPassword)) {
-                    $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
+                $error = $this->checkPassword($securityContainer, $publicationPassword);
+                if (null !== $error) {
+                    $publication->setAuthorizationError($error);
 
                     return false;
                 }
@@ -118,5 +129,33 @@ class PublicationVoter extends AbstractVoter
             default:
                 return false;
         }
+    }
+
+    /**
+     * @return string|null the authorization error, null when the password is valid
+     */
+    private function checkPassword(Publication $securityContainer, string $password): ?string
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        $checks = $request?->attributes->get(self::PASSWORD_CHECKS_ATTRIBUTE) ?? [];
+        $containerId = $securityContainer->getId();
+        if (array_key_exists($containerId, $checks)) {
+            return $checks[$containerId];
+        }
+
+        $limiter = $this->passwordLimiter->create(($request?->getClientIp() ?? '').'|'.$containerId);
+        if (0 === $limiter->consume(0)->getRemainingTokens()) {
+            $error = PasswordSecurityMethodInterface::ERROR_TOO_MANY_ATTEMPTS;
+        } elseif (true === $securityContainer->getSecurityConfig()?->isPasswordValid($password)) {
+            $error = null;
+        } else {
+            $limiter->consume();
+            $error = PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD;
+        }
+
+        $checks[$containerId] = $error;
+        $request?->attributes->set(self::PASSWORD_CHECKS_ATTRIBUTE, $checks);
+
+        return $error;
     }
 }

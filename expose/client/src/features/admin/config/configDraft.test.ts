@@ -15,17 +15,30 @@ describe('configDraft', () => {
         expect(config.terms).toEqual({enabled: null, text: null, url: null});
     });
 
-    it('keeps the password of the password method only', () => {
-        const draft = toDraft({
-            securityMethod: SecurityMethod.Password,
-            securityOptions: {password: 'secret'},
-        });
-        expect(draft.password).toBe('secret');
+    it('sends a new password of the password method only', () => {
+        const draft = {
+            ...toDraft({securityMethod: SecurityMethod.Password}),
+            password: 'secret',
+        };
         expect(fromDraft(draft).securityOptions).toEqual({password: 'secret'});
         expect(
             fromDraft({...draft, securityMethod: SecurityMethod.Authentication})
                 .securityOptions
         ).toEqual([]);
+    });
+
+    it('keeps the current password when none is typed', () => {
+        const draft = toDraft({
+            securityMethod: SecurityMethod.Password,
+            hasPassword: true,
+        });
+        expect(draft.password).toBe('');
+        expect(draft.hasPassword).toBe(true);
+        expect(fromDraft(draft).securityOptions).toEqual([]);
+        expect(validateDraft(draft)).toEqual({});
+        expect(validateDraft({...draft, hasPassword: false})).toHaveProperty(
+            'password'
+        );
     });
 
     it('keeps a public method set on purpose', () => {

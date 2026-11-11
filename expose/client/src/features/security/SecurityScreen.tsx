@@ -85,6 +85,11 @@ function passwordErrorMessage(
             return undefined;
         case AuthorizationError.InvalidPassword:
             return t('security.password.invalid', 'Invalid password');
+        case AuthorizationError.TooManyAttempts:
+            return t(
+                'security.password.too_many_attempts',
+                'Too many wrong passwords. Please try again in a few minutes.'
+            );
         default:
             return error;
     }
