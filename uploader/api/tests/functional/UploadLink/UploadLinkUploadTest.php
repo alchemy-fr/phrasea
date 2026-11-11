@@ -11,7 +11,6 @@ use App\Entity\Commit;
 use App\Exception\UploadLinkQuotaExceededException;
 use App\Repository\UploadLinkRepository;
 use App\Tests\Functional\TargetFormTest;
-use Symfony\Component\HttpClient\HttpClient;
 
 class UploadLinkUploadTest extends AbstractUploadLinkTestCase
 {
@@ -233,7 +232,7 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
 
         $this->assertSame('upload-link:'.$link->getId(), self::getEntityManager()->find(MultipartUpload::class, $upload['id'])->getOwnerId());
 
-        $headers = HttpClient::create()->request('PUT', $upload['urls'][1], ['body' => $content])->getHeaders();
+        $headers = self::getStorageClient()->request('PUT', $upload['urls'][1], ['body' => $content])->getHeaders();
         $response = $this->linkRequest($link->getToken(), 'POST', '/assets', [
             'multipart' => [
                 'uploadId' => $upload['id'],
@@ -253,7 +252,7 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
             'size' => 1,
         ]);
         $upload = $response->toArray();
-        $headers = HttpClient::create()->request('PUT', $upload['urls'][1], ['body' => 'x'])->getHeaders();
+        $headers = self::getStorageClient()->request('PUT', $upload['urls'][1], ['body' => 'x'])->getHeaders();
         $response = $this->linkRequest($link->getToken(), 'POST', '/assets', [
             'multipart' => [
                 'uploadId' => $upload['id'],

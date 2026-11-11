@@ -8,7 +8,6 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
@@ -48,7 +47,7 @@ class MultipartUploadTest extends AbstractUploaderTestCase
      */
     private static function sendSinglePart(array $upload, string $content): array
     {
-        $headers = HttpClient::create()->request('PUT', $upload['urls'][1], [
+        $headers = self::getStorageClient()->request('PUT', $upload['urls'][1], [
             'body' => $content,
         ])->getHeaders();
 

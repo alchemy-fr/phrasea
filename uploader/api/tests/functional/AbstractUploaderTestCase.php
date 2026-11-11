@@ -11,6 +11,7 @@ use App\Databox\DataboxClient;
 use App\Databox\DataboxClientInterface;
 use App\Entity\Target;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 abstract class AbstractUploaderTestCase extends ApiTestCase
@@ -34,6 +35,15 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
     {
         parent::tearDown();
         static::disableFixtures();
+    }
+
+    /**
+     * Sends requests straight to the storage, as the clients do, with the
+     * certificate checks of the application (VERIFY_SSL).
+     */
+    protected static function getStorageClient(): HttpClientInterface
+    {
+        return static::getContainer()->get('http_client');
     }
 
     protected function getOrCreateDefaultTarget(): Target
