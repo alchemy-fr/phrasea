@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Upgrade the stack to the images of the current DOCKER_TAG (see
+# doc/tech/Deployment/lifecycle.md). Running it on an up-to-date stack changes nothing.
 
 set -e
 
@@ -6,21 +9,22 @@ set -e
 
 load-env
 
-set -ex
+APPS=(uploader-api-php expose-api-php databox-api-php)
 
-docker compose up -d
+fail() {
+    echo "Migration failed." >&2
+    exit 1
+}
 
-# Wait for services to be ready
-docker compose run --rm dockerize
+docker compose up -d $(infra_services)
 
-APPS="
-expose-api-php
-databox-api-php
-uploader-api-php
-"
+# One-off containers of the new images, while the old version may still run.
+run_phase pre-upgrade configurator || fail
+run_phase pre-upgrade "${APPS[@]}" || fail
 
-for app in ${APPS}; do
-    exec_container $app "bin/migrate.sh"
-done
+docker compose up -d $(compose_up_services)
 
-docker compose run --rm configurator bin/migrate.sh
+run_phase post-upgrade configurator || fail
+run_phase post-upgrade "${APPS[@]}" || fail
+
+echo "Done."

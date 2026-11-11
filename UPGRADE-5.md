@@ -295,19 +295,44 @@ particular, replace the databox `CronJob`s with `databox-scheduler` and
 Soketi for Sockudo (image, `SOCKUDO_*` variables, hosts, `/usage` on port 6001,
 see [Sockudo replaces Soketi](#sockudo-replaces-soketi)).
 
+### Lifecycle scripts (`bin/lifecycle.sh`)
+
+Every image (`configurator`, `databox-api-php`, `expose-api-php`,
+`uploader-api-php`) now exposes `bin/lifecycle.sh <phase>`, with the phases
+`pre-install`, `post-install`, `pre-upgrade` and `post-upgrade` (see
+[Install and upgrade lifecycle](doc/tech/Deployment/lifecycle.md)). Each phase
+detects whether its database is installed and converges, so it can be run again
+safely; the destructive install steps only run on a database without any
+recorded migration.
+
+- The Helm chart must call `bin/lifecycle.sh` instead of `bin/setup.sh` and
+  `bin/migrate.sh`, which remain in the images as deprecated wrappers. The
+  configurator presets move from the `bin/setup.sh` arguments to
+  `CONFIGURATOR_PRESETS`.
+- The configurator now runs in `pre-upgrade`, **before** the APIs (it used to run
+  in `post-upgrade`, after them): it creates the resources the new version of
+  the APIs depends on. On an upgrade it runs the full `configure` (RabbitMQ
+  vhosts, buckets, databases, Keycloak roles, scopes and clients), but no longer
+  creates the default admin user.
+- The configurator `synchronize` command is removed.
+- `CONFIGURATOR_CONFIGURE_<NAME>` now defaults to `false` everywhere, the
+  Keycloak migrations included (they defaulted to `true`).
+
 ## Database migrations
 
 Run the migrations with `bin/migrate.sh` only (it runs
+`bin/lifecycle.sh pre-upgrade`, that is
 `doctrine:migrations:sync-metadata-storage` then `doctrine:migrations:migrate -n`
-for each app):
+for each app, after the configurator):
 
 ```bash
 bin/migrate.sh
 ```
 
-Note that `bin/migrate.sh` starts the whole stack (`docker compose up -d`)
-before migrating: searches will return incomplete results until the indexes
-are rebuilt.
+Note that `bin/migrate.sh` starts the infrastructure, migrates with one-off
+containers of the new images, then starts the whole stack
+(`docker compose up -d`): searches will return incomplete results until the
+indexes are rebuilt.
 
 The three Day-0 baselines (databox, expose, uploader) detect the existing schema
 and register themselves without running any SQL. Expect the warning

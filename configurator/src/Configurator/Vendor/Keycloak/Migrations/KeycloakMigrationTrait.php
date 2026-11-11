@@ -2,8 +2,8 @@
 
 namespace App\Configurator\Vendor\Keycloak\Migrations;
 
+use App\Configurator\ConfiguratorFlags;
 use App\Configurator\Vendor\Keycloak\KeycloakManager;
-use App\Util\EnvHelper;
 use Doctrine\DBAL\Schema\Schema;
 
 trait KeycloakMigrationTrait
@@ -22,7 +22,7 @@ trait KeycloakMigrationTrait
     public function preUp(Schema $schema): void
     {
         $this->skipIf(
-            !EnvHelper::getBooleanEnv('CONFIGURATOR_CONFIGURE_KEYCLOAK', true),
+            !ConfiguratorFlags::isEnabled('keycloak'),
             'Keycloak configuration is disabled by CONFIGURATOR_CONFIGURE_KEYCLOAK',
         );
     }

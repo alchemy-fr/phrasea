@@ -2,6 +2,7 @@
 
 namespace Alchemy\CoreBundle\DependencyInjection;
 
+use Alchemy\CoreBundle\Command\LifecycleStateCommand;
 use Alchemy\CoreBundle\Exception\IgnoreSentryExceptionInterface;
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
@@ -68,6 +69,9 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         }
         if (isset($bundles['MonologBundle'])) {
             $loader->load('monolog.yaml');
+        }
+        if (isset($bundles['DoctrineMigrationsBundle'])) {
+            $container->autowire(LifecycleStateCommand::class)->setAutoconfigured(true);
         }
 
         if (!empty($config['app_url'])) {

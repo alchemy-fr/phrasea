@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Configurator;
 
-use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
@@ -24,7 +23,7 @@ final readonly class Configurator
         $this->configurators = $configurators;
     }
 
-    public function configure(OutputInterface $output, array $presets, array $filters = []): void
+    public function configure(OutputInterface $output, ConfigureContext $context, array $filters = []): void
     {
         foreach ($this->configurators as $configurator) {
             $name = $configurator::getName();
@@ -32,7 +31,7 @@ final readonly class Configurator
                 continue;
             }
 
-            if (!EnvHelper::getBooleanEnv('CONFIGURATOR_CONFIGURE_'.strtoupper($name))) {
+            if (!ConfiguratorFlags::isEnabled($name)) {
                 $output->writeln(sprintf('Skipping %s configuration (disabled by environment variable)...', $name));
 
                 continue;
@@ -43,7 +42,7 @@ final readonly class Configurator
             $retry = 0;
             while (true) {
                 try {
-                    $this->process($configurator, $output, $presets);
+                    $this->process($configurator, $output, $context);
                     break;
                 } catch (ExceptionInterface $e) {
                     if ($retry >= 3) {
@@ -57,10 +56,10 @@ final readonly class Configurator
         }
     }
 
-    private function process(ConfiguratorInterface $configurator, OutputInterface $output, array $presets): void
+    private function process(ConfiguratorInterface $configurator, OutputInterface $output, ConfigureContext $context): void
     {
         try {
-            $configurator->configure($output, $presets);
+            $configurator->configure($output, $context);
         } catch (HttpExceptionInterface $e) {
             echo $e->getResponse()->getContent(false);
             throw $e;

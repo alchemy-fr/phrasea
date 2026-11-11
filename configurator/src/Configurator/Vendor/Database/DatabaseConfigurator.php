@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\Database;
 
 use App\Configurator\ConfiguratorInterface;
+use App\Configurator\ConfigureContext;
 use App\Util\EnvHelper;
 use App\Util\HttpClientUtil;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,7 +24,7 @@ final readonly class DatabaseConfigurator implements ConfiguratorInterface
         return 'database';
     }
 
-    public function configure(OutputInterface $output, array $presets): void
+    public function configure(OutputInterface $output, ConfigureContext $context): void
     {
         HttpClientUtil::waitForHostPort($output, EnvHelper::getEnvOrThrow('POSTGRES_HOST'), (int) EnvHelper::getEnvOrThrow('POSTGRES_PORT'));
 
@@ -32,7 +33,7 @@ final readonly class DatabaseConfigurator implements ConfiguratorInterface
             'keycloak',
         ];
 
-        if (in_array('dev', $presets, true)) {
+        if ($context->hasPreset('dev')) {
             $databases[] = 'keycloak2';
         }
 

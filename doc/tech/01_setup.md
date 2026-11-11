@@ -48,17 +48,25 @@ They often start with `__CHANGE_ME_`.
 
 ### Install dependencies and configure projects
 
-* Run the following script to set up databases and initial configurations:
+* Run the following script to install the stack: it provisions the services
+  (databases, RabbitMQ vhosts, buckets, Keycloak), creates the schemas, then
+  starts everything:
 
 ```bash
 bin/setup.sh
 ```
 
-If the stack is already deployed, you should run the migration after a fresh build:
+If the stack is already deployed, upgrade it after a fresh build or a new
+`DOCKER_TAG` (it provisions what the new version adds and runs the migrations
+before replacing the containers; running it on an up-to-date stack changes
+nothing):
 
 ```bash
 bin/migrate.sh
 ```
+
+Both scripts run the `bin/lifecycle.sh` phases of each image, see
+[Install and upgrade lifecycle](./Deployment/lifecycle.md).
 
 ### Configure Let's Encrypt
 
