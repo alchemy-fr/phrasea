@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\ImportEntitiesInput;
 use App\Entity\Core\EntityList;
-use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\EntityListVoter;
 use App\Service\Asset\Attribute\AttributeEntity\Importer\AttributeEntityImporterInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -36,7 +36,7 @@ class ImportEntitiesProcessor implements ProcessorInterface
     {
         $listId = (string) $uriVariables['id'];
         $list = DoctrineUtil::findStrict($this->em, EntityList::class, $listId);
-        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
+        $this->denyAccessUnlessGranted(EntityListVoter::EDIT_VALUES, $list);
 
         if (empty($data->data)) {
             return $list;

@@ -58,3 +58,30 @@ The metadata checks on an object (`hasMetadata()`) also read the ACEs of its typ
 capability values must differ from the other metadata of `DataboxExtraPermissionInterface`
 (`PERM_EDIT_PERMISSIONS`, `PERM_QUARANTINE`…). A capability set on the ACE of one object
 is not a capability.
+
+# Entity list permissions
+
+By default, an entity list follows its workspace: its readers read it (and propose values
+when the list accepts new ones), its editors manage it. An editor of the workspace may also
+give some users or groups rights on **one** list, from the **Permissions** section of the
+list form (workspace management → Entities), through ACEs of object type `entity_list`:
+
+| Permission         | Mask       | Effect                                                                                   |
+|--------------------|------------|------------------------------------------------------------------------------------------|
+| Manage the list    | `OPERATOR` | Edit the list properties (`PATCH /entity-lists/{id}`) and everything "Manage values" allows. |
+| Manage values      | `EDIT`     | Create, edit, delete, approve/reject and merge the values; images, import, export, clear.  |
+
+- These rights **add to the workspace membership**: they count only for a user who reads the
+  workspace of the list. The lists and values listed to a user do not change.
+- Creating or deleting a list, and editing its ACEs, stay with the workspace editors.
+- The creator of a list gets no right from it (`ownerId`): only the workspace rights and
+  the ACEs count.
+- In the client, these users manage the list on its own page, `/entity-lists/{id}/manage`,
+  reached from the exploration of the list or the "Manage list" button of the attribute
+  editor; the "Properties" button is shown to its operators.
+
+The source of truth is `App\Security\Voter\EntityListVoter` (`EDIT` = list properties,
+`EDIT_VALUES` = values). `GET /entity-lists` and `GET /entity-lists/{id}` answer the
+`capabilities` of the user on each list (`edit`, `editValues`, `delete`, `editPermissions`);
+a list nested in another resource (an attribute definition) comes without them. The list
+ACEs follow the workspace templates and duplications.

@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Consumer\Handler\Entity\AttributeEntityPendingNotify;
 use App\Entity\Core\AttributeEntity;
-use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\EntityListVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -30,7 +30,7 @@ class AddAttributeEntityProcessor implements ProcessorInterface
     {
         $data->setCreatorId($this->getStrictUserOrOAuthClient()?->getUserIdentifier());
 
-        if (!$data->getList()->isApproveNewValues() && !$this->isGranted(AbstractVoter::EDIT, $data->getList())) {
+        if (!$data->getList()->isApproveNewValues() && !$this->isGranted(EntityListVoter::EDIT_VALUES, $data->getList())) {
             $data->setStatus(AttributeEntity::STATUS_PENDING);
         }
 

@@ -103,7 +103,7 @@ function ExploreBrowser({listId}: {listId: string}) {
         queryFn: () => getWorkspace(workspaceId!),
         enabled: !!workspaceId,
     });
-    const canEdit = !!workspace.data?.capabilities?.edit;
+    const canEdit = !!list.data?.capabilities?.editValues;
 
     usePageTrail(
         list.data?.name ?? t('entity_list.explore.title', 'Explore values'),
@@ -196,18 +196,17 @@ function ExploreBrowser({listId}: {listId: string}) {
         );
     }
 
-    const manageLink =
-        canEdit && workspaceId ? (
-            <Button asChild variant="ghost" size="sm">
-                <Link
-                    href={routes.entityListValues(workspaceId, listId)}
-                    data-testid="entity-explore-manage"
-                >
-                    <ListIcon />{' '}
-                    {t('entity_list.explore.manage_values', 'Manage values')}
-                </Link>
-            </Button>
-        ) : null;
+    const manageLink = canEdit ? (
+        <Button asChild variant="ghost" size="sm">
+            <Link
+                href={routes.entityListManage(listId)}
+                data-testid="entity-explore-manage"
+            >
+                <ListIcon />{' '}
+                {t('entity_list.explore.manage_values', 'Manage values')}
+            </Link>
+        </Button>
+    ) : null;
 
     return (
         <div className="flex h-full min-h-0 flex-col">

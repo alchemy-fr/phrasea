@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
@@ -28,6 +29,7 @@ use App\Audit\AuditableInterface;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Listener\OwnerPersistableInterface;
+use App\Security\Voter\EntityListVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -70,21 +72,21 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/import',
-            security: 'is_granted("EDIT", object)',
+            security: 'is_granted("'.EntityListVoter::EDIT_VALUES.'", object)',
             input: ImportEntitiesInput::class,
             name: 'import_entities',
             processor: ImportEntitiesProcessor::class
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/export',
-            security: 'is_granted("EDIT", object)',
+            security: 'is_granted("'.EntityListVoter::EDIT_VALUES.'", object)',
             input: ExportEntitiesInput::class,
             name: 'export_entities',
             processor: ExportEntitiesProcessor::class
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/clear',
-            security: 'is_granted("EDIT", object)',
+            security: 'is_granted("'.EntityListVoter::EDIT_VALUES.'", object)',
             input: false,
             name: 'clear_entities',
             processor: ClearEntitiesProcessor::class
@@ -103,13 +105,14 @@ use Symfony\Component\Validator\Constraints as Assert;
     fields: ['workspace', 'name'],
     message: 'This entity type already exists in the workspace.'
 )]
-class EntityList extends AbstractUuidEntity implements AuditableInterface, LoggableChangeSetInterface, OwnerPersistableInterface, \Stringable
+class EntityList extends AbstractUuidEntity implements AuditableInterface, LoggableChangeSetInterface, OwnerPersistableInterface, AclObjectInterface, \Stringable
 {
     use CreatedAtTrait;
     use OwnerIdTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
     final public const int OBJECT_INDEX = 15;
+    final public const string OBJECT_TYPE = 'entity_list';
     public const int TYPE_LENGTH = 100;
 
     private const string ALLOW_NEW_VALUES = 'nv';
@@ -159,6 +162,14 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
         $this->entities = new ArrayCollection();
         $this->definitions = new ArrayCollection();
         parent::__construct();
+    }
+
+    /**
+     * EntityListVoter grants nothing from this ownership: only the workspace rights and the list ACEs count.
+     */
+    public function getAclOwnerId(): string
+    {
+        return $this->ownerId ?? '';
     }
 
     public function getName(): ?string

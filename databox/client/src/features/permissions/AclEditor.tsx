@@ -42,6 +42,8 @@ type Props = {
     objectId: string;
     definitions: PermissionDefinition[];
     readOnly?: boolean;
+    /** Mask of a newly added user or group */
+    defaultMask?: number;
 };
 
 /**
@@ -54,6 +56,7 @@ export function AclEditor({
     objectId,
     definitions,
     readOnly,
+    defaultMask = aclMasks.VIEW,
 }: Props) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
@@ -121,7 +124,7 @@ export function AclEditor({
         ) {
             return;
         }
-        void save({userType: addType, userId}, aclMasks.VIEW, []);
+        void save({userType: addType, userId}, defaultMask, []);
     };
 
     const allMask = definitions.reduce(

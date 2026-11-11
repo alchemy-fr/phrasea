@@ -154,6 +154,20 @@ const definition = {
     workspace: '/workspaces/ws',
 };
 
+function list(capabilities: {editValues: boolean}) {
+    return {
+        id: 'list-1',
+        name: 'Persons',
+        workspace: '/workspaces/ws',
+        capabilities: {
+            edit: false,
+            delete: false,
+            editPermissions: false,
+            ...capabilities,
+        },
+    };
+}
+
 function renderScreen() {
     const i18n = createI18n('en');
     const queryClient = new QueryClient({
@@ -201,11 +215,7 @@ function submitButton(dialog: HTMLElement) {
 describe('EntityListExploreScreen', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        api.getEntityList.mockResolvedValue({
-            id: 'list-1',
-            name: 'Persons',
-            workspace: '/workspaces/ws',
-        });
+        api.getEntityList.mockResolvedValue(list({editValues: true}));
         api.getWorkspace.mockResolvedValue({
             id: 'ws',
             name: 'ws',
@@ -274,7 +284,9 @@ describe('EntityListExploreScreen', () => {
         ).toBe('+2');
         const search = within(cards[0]).getByTestId('entity-value-open-search');
         expect(search.getAttribute('href')).toMatch(/^\/assets\?/);
-        expect(screen.getByTestId('entity-explore-manage')).toBeTruthy();
+        expect(
+            screen.getByTestId('entity-explore-manage').getAttribute('href')
+        ).toBe('/entity-lists/list-1/manage');
     });
 
     it('sends the filter to the API', async () => {
@@ -471,7 +483,17 @@ describe('EntityListExploreScreen', () => {
         expect(api.deleteAttributeEntity).not.toHaveBeenCalled();
     });
 
-    it('hides the edition from the users who cannot edit the workspace', async () => {
+    it('hides the edition from the users who cannot manage the values', async () => {
+        api.getEntityList.mockResolvedValue(list({editValues: false}));
+        renderScreen();
+        const [card] = await screen.findAllByTestId('entity-value-card');
+        await screen.findByText('Workspace');
+
+        expect(within(card).queryByTestId('entity-value-actions')).toBeNull();
+        expect(screen.queryByTestId('entity-explore-manage')).toBeNull();
+    });
+
+    it('lets the value managers of the list edit, without editing the workspace', async () => {
         api.getWorkspace.mockResolvedValue({
             id: 'ws',
             name: 'ws',
@@ -480,10 +502,10 @@ describe('EntityListExploreScreen', () => {
         });
         renderScreen();
         const [card] = await screen.findAllByTestId('entity-value-card');
-        await waitFor(() => expect(api.getWorkspace).toHaveBeenCalled());
-        await screen.findByText('Workspace');
 
-        expect(within(card).queryByTestId('entity-value-actions')).toBeNull();
-        expect(screen.queryByTestId('entity-explore-manage')).toBeNull();
+        expect(within(card).getByTestId('entity-value-actions')).toBeTruthy();
+        expect(
+            screen.getByTestId('entity-explore-manage').getAttribute('href')
+        ).toBe('/entity-lists/list-1/manage');
     });
 });

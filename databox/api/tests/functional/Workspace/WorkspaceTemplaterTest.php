@@ -151,6 +151,12 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
             $em->find(AttributePolicy::class, $newAd->getPolicy()->getId()),
             PermissionInterface::VIEW,
         ));
+        $this->assertTrue(self::getPermissionManager()->isGranted(
+            $this->createUserFromId(KeycloakClientTestMock::OTHER_USER_UID),
+            $newList,
+            PermissionInterface::EDIT,
+            false,
+        ));
     }
 
     public function testReimportIsIdempotent(): void
@@ -498,6 +504,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         $em->flush();
         $this->grantUserOnObject(KeycloakClientTestMock::OTHER_USER_UID, $attributePolicy, PermissionInterface::VIEW);
         $this->grantUserOnObject(KeycloakClientTestMock::OTHER_USER_UID, $workspace, PermissionInterface::VIEW);
+        $this->grantUserOnObject(KeycloakClientTestMock::OTHER_USER_UID, $list, PermissionInterface::EDIT);
 
         return [
             'workspace' => $workspace,

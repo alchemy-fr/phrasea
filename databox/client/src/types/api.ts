@@ -477,6 +477,8 @@ export interface EntityList extends HydraObject, Entity {
     workspace?: Workspace | string;
     createdAt: string;
     updatedAt: string;
+    /** Served with the list itself, not when nested in another resource */
+    capabilities?: Capabilities<{editValues: boolean}>;
 }
 
 export interface FieldType extends HydraObject {

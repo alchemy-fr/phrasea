@@ -20,6 +20,8 @@ export const routes = {
         `/workspaces/${workspaceId}/manage/entities/${listId}/manage`,
     /** Full-page exploration of the values of an entity list, with their assets */
     entityListExplore: (listId: string) => `/entity-lists/${listId}/explore`,
+    /** Full-page management of the values (and properties) of an entity list */
+    entityListManage: (listId: string) => `/entity-lists/${listId}/manage`,
     basketView: (id: string) => `/baskets/${id}/view`,
     basketManage: (id: string, tab = 'info') => `/baskets/${id}/manage/${tab}`,
     savedSearchManage: (id: string, tab = 'info') =>

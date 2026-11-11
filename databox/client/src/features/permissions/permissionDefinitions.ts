@@ -172,6 +172,31 @@ export function integrationPermissions(t: TFunction): PermissionDefinition[] {
 }
 
 /**
+ * Rights on a list, on top of the workspace membership: OPERATOR implies
+ * the values management (EDIT).
+ */
+export function entityListPermissions(t: TFunction): PermissionDefinition[] {
+    return [
+        mask(
+            AclPermission.OPERATOR,
+            t('acl.entity_list.operator', 'Manage the list'),
+            t(
+                'acl.entity_list.operator_desc',
+                'Edit the list properties and its values'
+            )
+        ),
+        mask(
+            AclPermission.EDIT,
+            t('acl.entity_list.edit', 'Manage values'),
+            t(
+                'acl.entity_list.edit_desc',
+                'Add, edit, approve, merge, import, export and delete values'
+            )
+        ),
+    ];
+}
+
+/**
  * A public policy is visible to everyone: only editing is granted. A
  * private one grants viewing as well.
  */

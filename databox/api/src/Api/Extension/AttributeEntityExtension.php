@@ -13,8 +13,8 @@ use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
-use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
+use App\Security\Voter\EntityListVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
@@ -45,7 +45,7 @@ class AttributeEntityExtension implements QueryCollectionExtensionInterface
             $editsEveryList = true;
             foreach ($listIds as $listId) {
                 $list = DoctrineUtil::findStrict($this->em, EntityList::class, basename((string) $listId), throw404: true);
-                $editsEveryList = $editsEveryList && $this->isGranted(AbstractVoter::EDIT, $list);
+                $editsEveryList = $editsEveryList && $this->isGranted(EntityListVoter::EDIT_VALUES, $list);
             }
             if ($editsEveryList) {
                 return;
