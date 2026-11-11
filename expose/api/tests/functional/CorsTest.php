@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use Alchemy\CoreBundle\Env\OriginEnvVarProcessor;
 use Symfony\Component\HttpFoundation\Response;
 
 class CorsTest extends AbstractExposeTestCase
 {
-    private const string CLIENT_ORIGIN = 'https://expose.test';
     private const string OTHER_ORIGIN = 'https://attacker.example';
 
     public function testApiIsOpenToTheClientWithoutCredentials(): void
     {
-        $response = $this->preflight('/publications', 'POST', self::CLIENT_ORIGIN);
-        $this->assertSame(self::CLIENT_ORIGIN, $response->headers->get('Access-Control-Allow-Origin'));
+        $response = $this->preflight('/publications', 'POST', self::clientOrigin());
+        $this->assertSame(self::clientOrigin(), $response->headers->get('Access-Control-Allow-Origin'));
         $this->assertStringContainsStringIgnoringCase('x-passwords', (string) $response->headers->get('Access-Control-Allow-Headers'));
         $this->assertStringContainsStringIgnoringCase('x-share-tokens', (string) $response->headers->get('Access-Control-Allow-Headers'));
         $this->assertFalse($response->headers->has('Access-Control-Allow-Credentials'));
 
-        $response = $this->request(null, 'GET', '/publications', null, [], ['HTTP_ORIGIN' => self::CLIENT_ORIGIN]);
+        $response = $this->request(null, 'GET', '/publications', null, [], ['HTTP_ORIGIN' => self::clientOrigin()]);
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(self::CLIENT_ORIGIN, $response->headers->get('Access-Control-Allow-Origin'));
+        $this->assertSame(self::clientOrigin(), $response->headers->get('Access-Control-Allow-Origin'));
         $this->assertFalse($response->headers->has('Access-Control-Allow-Credentials'));
     }
 
@@ -38,7 +38,7 @@ class CorsTest extends AbstractExposeTestCase
     public function testAdminSendsNoCorsHeader(): void
     {
         foreach (['/admin', '/admin/login', '/admin/publication'] as $uri) {
-            $this->assertSame([], $this->getCorsHeaders($this->preflight($uri, 'GET', self::CLIENT_ORIGIN)), $uri);
+            $this->assertSame([], $this->getCorsHeaders($this->preflight($uri, 'GET', self::clientOrigin())), $uri);
         }
     }
 
@@ -69,5 +69,22 @@ class CorsTest extends AbstractExposeTestCase
             fn (string $name): bool => str_starts_with($name, 'access-control-'),
             ARRAY_FILTER_USE_KEY,
         );
+    }
+
+    private static function clientOrigin(): string
+    {
+        return self::configuredOrigin('EXPOSE_CLIENT_URL');
+    }
+
+    /**
+     * The origin allowed by the API: the one of the client URL it is configured with, which the
+     * environment of the container overrides (docker compose sets it to the URL of the stack).
+     */
+    private static function configuredOrigin(string $envName): string
+    {
+        $origin = OriginEnvVarProcessor::toOrigin((string) ($_SERVER[$envName] ?? $_ENV[$envName] ?? getenv($envName)));
+        self::assertNotSame('', $origin, sprintf('%s is a valid URL', $envName));
+
+        return $origin;
     }
 }

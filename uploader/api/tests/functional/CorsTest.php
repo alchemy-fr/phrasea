@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\CoreBundle\Env\OriginEnvVarProcessor;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class CorsTest extends AbstractUploaderTestCase
 {
-    private const string CLIENT_ORIGIN = 'https://uploader.test';
     private const string OTHER_ORIGIN = 'https://attacker.example';
 
     public function testApiIsOpenToTheClient(): void
     {
-        $response = $this->preflight('/targets', 'POST', self::CLIENT_ORIGIN);
-        $this->assertSame([self::CLIENT_ORIGIN], $response->getHeaders(false)['access-control-allow-origin'] ?? null);
+        $response = $this->preflight('/targets', 'POST', self::clientOrigin());
+        $this->assertSame([self::clientOrigin()], $response->getHeaders(false)['access-control-allow-origin'] ?? null);
 
-        $response = $this->get('/targets', self::CLIENT_ORIGIN);
+        $response = $this->get('/targets', self::clientOrigin());
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame([self::CLIENT_ORIGIN], $response->getHeaders(false)['access-control-allow-origin'] ?? null);
+        $this->assertSame([self::clientOrigin()], $response->getHeaders(false)['access-control-allow-origin'] ?? null);
     }
 
     public function testApiIsClosedToOtherOrigins(): void
@@ -51,5 +51,22 @@ class CorsTest extends AbstractUploaderTestCase
                 'Origin' => $origin,
             ],
         ]);
+    }
+
+    private static function clientOrigin(): string
+    {
+        return self::configuredOrigin('UPLOADER_CLIENT_URL');
+    }
+
+    /**
+     * The origin allowed by the API: the one of the client URL it is configured with, which the
+     * environment of the container overrides (docker compose sets it to the URL of the stack).
+     */
+    private static function configuredOrigin(string $envName): string
+    {
+        $origin = OriginEnvVarProcessor::toOrigin((string) ($_SERVER[$envName] ?? $_ENV[$envName] ?? getenv($envName)));
+        self::assertNotSame('', $origin, sprintf('%s is a valid URL', $envName));
+
+        return $origin;
     }
 }
