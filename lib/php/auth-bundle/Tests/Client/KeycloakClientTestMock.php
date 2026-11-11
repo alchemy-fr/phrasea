@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Tests\Client;
 
+use Alchemy\AuthBundle\Security\JwtValidator;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -131,6 +132,9 @@ class KeycloakClientTestMock implements HttpClientInterface
             'bearerOnly' => false,
             'standardFlowEnabled' => true,
             'redirectUris' => ['http://localhost/integrations/11111111-1111-1111-1111-111111111111/code'],
+            'attributes' => [
+                'phrasea.created_by' => 'databox',
+            ],
         ],
     ];
 
@@ -153,62 +157,76 @@ class KeycloakClientTestMock implements HttpClientInterface
     ];
 
     /**
+     * The client of the user tokens ("azp" claim), allowed on the APIs in the test environment
+     * (see TestAllowedClientIdsProvider).
+     */
+    final public const string CLIENT_ID = 'test-app';
+
+    /**
+     * The client of the client credentials tokens.
+     */
+    final public const string MACHINE_CLIENT_ID = 'machine_client';
+
+    /**
      * @param string[]      $extraRoles     realm roles granted on top of the user's ones (e.g. an application role)
      * @param string[]|null $groups         the user's groups, instead of its ones in USERS
      * @param array|null    $resourceAccess the client roles ("resource_access" claim), instead of its ones in USERS
      */
     public static function getJwtFor(string $userId, array $extraRoles = [], ?array $groups = null, ?array $resourceAccess = null): string
     {
-        $configuration = Configuration::forAsymmetricSigner(
-            new Sha256(),
-            InMemory::file(__DIR__.'/key.pem'),
-            InMemory::file(__DIR__.'/key.pub'),
-        );
-
-        $now = new \DateTimeImmutable();
-        $token = $configuration
-            ->builder()
-            ->issuedBy(getenv('KEYCLOAK_URL').'/realms/phrasea')
-            // Configures the time that the token was issue (iat claim)
-            ->issuedAt($now)
-            // Configures the time that the token can be used (nbf claim)
-            ->canOnlyBeUsedAfter($now->modify('+1 minute'))
-            ->expiresAt($now->modify('+1 hour'))
-            ->relatedTo($userId)
-            ->withClaim('azp', 'test')
-            ->withClaim('preferred_username', self::USERS[$userId]['username'])
-            ->withClaim('roles', array_values(array_unique([...(self::USERS[$userId]['roles'] ?? []), ...$extraRoles])))
-            ->withClaim('groups', $groups ?? self::USERS[$userId]['groups'] ?? [])
-            ->withClaim('resource_access', $resourceAccess ?? self::USERS[$userId]['resource_access'] ?? [])
-            ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
-
-        return $token->toString();
+        return self::createJwt([
+            'preferred_username' => self::USERS[$userId]['username'],
+            'roles' => array_values(array_unique([...(self::USERS[$userId]['roles'] ?? []), ...$extraRoles])),
+            'groups' => $groups ?? self::USERS[$userId]['groups'] ?? [],
+            'resource_access' => $resourceAccess ?? self::USERS[$userId]['resource_access'] ?? [],
+        ], $userId);
     }
 
     public static function getClientCredentialJwt(string $scope = ''): string
     {
+        return self::createJwt([
+            'azp' => self::MACHINE_CLIENT_ID,
+            'client_id' => self::MACHINE_CLIENT_ID,
+            'roles' => [],
+            'scope' => $scope,
+        ]);
+    }
+
+    /**
+     * An access token of the realm, as Keycloak issues them (issuer, dates, "typ" and "azp" claims),
+     * signed with the test key.
+     *
+     * @param array<string, mixed> $claims the other claims, or ones replacing the defaults ("azp", "typ"…)
+     */
+    public static function createJwt(array $claims, ?string $subject = null): string
+    {
+        $key = InMemory::file(__DIR__.'/key.pem');
         $configuration = Configuration::forAsymmetricSigner(
             new Sha256(),
-            InMemory::file(__DIR__.'/key.pem'),
+            $key,
             InMemory::file(__DIR__.'/key.pub'),
         );
 
         $now = new \DateTimeImmutable();
-        $token = $configuration
+        $builder = $configuration
             ->builder()
             ->issuedBy(getenv('KEYCLOAK_URL').'/realms/phrasea')
-            // Configures the time that the token was issue (iat claim)
             ->issuedAt($now)
-            // Configures the time that the token can be used (nbf claim)
-            ->canOnlyBeUsedAfter($now->modify('+1 minute'))
-            ->withClaim('client_id', 'machine_client')
-            ->expiresAt($now->modify('+1 hour'))
-            ->withClaim('azp', 'test')
-            ->withClaim('roles', [])
-            ->withClaim('scope', $scope)
-            ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
+            ->canOnlyBeUsedAfter($now)
+            ->expiresAt($now->modify('+1 hour'));
+        if (null !== $subject) {
+            $builder = $builder->relatedTo($subject);
+        }
 
-        return $token->toString();
+        foreach ([
+            'typ' => JwtValidator::ACCESS_TOKEN_TYPE,
+            'azp' => self::CLIENT_ID,
+            ...$claims,
+        ] as $name => $value) {
+            $builder = $builder->withClaim($name, $value);
+        }
+
+        return $builder->getToken(new Sha256(), $key)->toString();
     }
 
     /**

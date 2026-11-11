@@ -31,14 +31,17 @@ ACL, Doctrine extensions, validation, persistence and normalization are exactly 
 ## Authentication
 
 Every request needs a Keycloak access token of the Phrasea realm (`Authorization: Bearer <token>`), the same as
-the web clients. Tools run with the permissions of that user.
+the web clients. Tools run with the permissions of that user. The token must come from a Keycloak client allowed
+on the API (`*_API_ALLOWED_CLIENT_IDS`, plus Databox for the Uploader server, which reads Databox with the same
+token): see [Access tokens and allowed clients](../Authentication/clients.md).
 
 Without a token, the endpoint answers `401` with a
 `WWW-Authenticate: Bearer resource_metadata="…/.well-known/oauth-protected-resource"` header
 (`Alchemy\McpBundle\Security\McpAuthenticationEntryPoint`). That [RFC 9728](https://www.rfc-editor.org/rfc/rfc9728)
 document, also served on `/.well-known/oauth-protected-resource/mcp` (the variant MCP clients try first), names
 the Keycloak realm as authorization server, so that MCP clients supporting OAuth discovery can obtain a token by
-themselves (this requires a Keycloak client they can use, e.g. through dynamic client registration).
+themselves (this requires a Keycloak client they can use and that the API allows: a client registered
+dynamically gets a random client ID, which cannot be allowed in advance).
 
 ## Adding the MCP server to an API
 

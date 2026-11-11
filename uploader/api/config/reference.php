@@ -1697,6 +1697,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     client_id?: scalar|Param|null, // Default: "%env(ADMIN_CLIENT_ID)%"
  *     client_secret?: scalar|Param|null, // Default: "%env(ADMIN_CLIENT_SECRET)%"
+ *     allowed_client_ids?: mixed, // OAuth clients whose access tokens the API accepts besides "client_id", matched against the "azp" claim (else "client_id"): a list, or a comma separated env var through the "csv" processor // Default: "%env(csv:ALLOWED_CLIENT_IDS)%"
+ *     token_leeway?: int|Param, // Clock skew tolerated on the "exp", "nbf" and "iat" claims of the tokens, in seconds // Default: 30
  *     required_roles?: list<scalar|Param|null>,
  *     role_mapping?: array<string, scalar|Param|null>,
  * }

@@ -305,6 +305,11 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'databox' => [
                 'manage-users',
             ],
+            // Expose accepts the tokens of the clients Databox creates for its integrations,
+            // which it reads from Keycloak (DataboxIntegrationClientIds).
+            'expose' => [
+                'view-clients',
+            ],
         ];
     }
 

@@ -8,9 +8,6 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceCreator;
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
 
 trait WorkspaceTestHelperTrait
 {
@@ -37,27 +34,13 @@ trait WorkspaceTestHelperTrait
      */
     private static function groupedUserHeaders(array $groups = [self::GROUP_ID]): array
     {
-        $dir = dirname((string) new \ReflectionClass(KeycloakClientTestMock::class)->getFileName());
-        $privateKey = InMemory::file($dir.'/key.pem');
-        $configuration = Configuration::forAsymmetricSigner(new Sha256(), $privateKey, InMemory::file($dir.'/key.pub'));
-
-        $now = new \DateTimeImmutable();
-        $token = $configuration
-            ->builder()
-            ->issuedBy(getenv('KEYCLOAK_URL').'/realms/phrasea')
-            ->issuedAt($now)
-            ->canOnlyBeUsedAfter($now->modify('+1 minute'))
-            ->expiresAt($now->modify('+1 hour'))
-            ->relatedTo(self::GROUPED_USER_UID)
-            ->withClaim('azp', 'test')
-            ->withClaim('preferred_username', 'grouped_user')
-            ->withClaim('roles', ['databox'])
-            ->withClaim('groups', $groups)
-            ->withClaim('resource_access', [])
-            ->getToken(new Sha256(), $privateKey);
-
         return [
-            'Authorization' => 'Bearer '.$token->toString(),
+            'Authorization' => 'Bearer '.KeycloakClientTestMock::createJwt([
+                'preferred_username' => 'grouped_user',
+                'roles' => ['databox'],
+                'groups' => $groups,
+                'resource_access' => [],
+            ], self::GROUPED_USER_UID),
         ];
     }
 

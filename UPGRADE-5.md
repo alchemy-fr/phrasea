@@ -15,6 +15,8 @@ Follow these steps in order. Each one is detailed in the sections below.
    [Sockudo replaces Soketi](#sockudo-replaces-soketi)). Rewrite
    `*_ALLOWED_FILE_TYPES` as type/extension couples, without `*/*` (see
    [Allowed file types and file serving](#allowed-file-types-and-file-serving)).
+   Declare in `*_API_ALLOWED_CLIENT_IDS` the custom Keycloak clients calling the
+   APIs (see [Access tokens: allowed clients](#access-tokens-allowed-clients)).
 4. Start Elasticsearch 9:
 
     ```bash
@@ -307,6 +309,32 @@ Users holding the Keycloak `realm-management` → `impersonation` role can now
 act on behalf of another user by sending the `X-Impersonate-User` header. This
 role is part of `realm-admin`, granted to the default admin. There is no switch
 to disable it: review who holds these roles.
+
+### Access tokens: allowed clients
+
+The APIs used to accept any token signed by the realm. They now only accept
+the access tokens (`typ: Bearer`, so no more ID tokens) of the OAuth clients
+allowed on each of them, matched against the `azp` claim (else `client_id`),
+and check `nbf` and `iat` besides `exp` (30 seconds of clock skew tolerated).
+See [Access tokens and allowed clients](doc/tech/Authentication/clients.md).
+
+- New variables, passed to the APIs as `ALLOWED_CLIENT_IDS` (comma separated):
+  `DATABOX_API_ALLOWED_CLIENT_IDS` (default: Databox, Dashboard and Uploader
+  clients, Databox indexer), `EXPOSE_API_ALLOWED_CLIENT_IDS` (Expose client,
+  `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`) and `UPLOADER_API_ALLOWED_CLIENT_IDS`
+  (Uploader client). The admin client of each API (`*_ADMIN_CLIENT_ID`) is
+  always allowed. The defaults are built from the existing `*_CLIENT_ID`
+  variables: a stack with the standard clients has nothing to change.
+- Deployments with custom clients (scripts, MCP clients, integrations whose
+  Keycloak client was created by hand, the `postman` client of the `dev`
+  preset…) must declare them, or their calls answer `401 Invalid token.` (the
+  API logs the refused client ID).
+- The clients created from Databox for its integrations stay accepted by
+  Expose: its admin client's service account now gets the `view-clients` role
+  of `realm-management`, granted by the configurator at the next
+  `bin/migrate.sh` (Keycloak synchronization).
+- Helm: pass `ALLOWED_CLIENT_IDS` to the three APIs (and the workers) when the
+  client IDs differ from the defaults (`databox-app`, `expose-app`…).
 
 ### Helm
 

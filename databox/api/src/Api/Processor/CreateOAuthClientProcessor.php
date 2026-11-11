@@ -29,7 +29,8 @@ final class CreateOAuthClientProcessor implements ProcessorInterface
     use KeycloakTokenOwnerTrait;
 
     /**
-     * Informative attribute of the created clients.
+     * Attribute of the created clients: Expose accepts the access tokens of the clients carrying
+     * it (see its DataboxIntegrationClientIds), which the Expose integration obtains for its users.
      */
     final public const string CREATED_BY_ATTRIBUTE = 'phrasea.created_by';
 
