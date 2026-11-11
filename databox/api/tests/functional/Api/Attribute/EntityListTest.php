@@ -226,7 +226,7 @@ final class EntityListTest extends AbstractDataboxTestCase
         $this->assertJsonContains(['withEmojis' => true, 'withImages' => true]);
     }
 
-    public function testUpdateKeepsTheWorkspaceAndTheOwner(): void
+    public function testWorkspaceAndOwnerAreNotWritable(): void
     {
         $this->setUpScene();
         $otherWorkspace = $this->createOtherWorkspace(['ownerId' => self::USER]);
@@ -237,9 +237,11 @@ final class EntityListTest extends AbstractDataboxTestCase
 
         // USER edits both workspaces, but a list does not move
         $this->api('PATCH', $iri, self::USER, ['workspace' => '/workspaces/'.$otherWorkspace->getId()]);
-        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseStatusCodeSame(400);
         $this->api('PATCH', $iri, self::USER, ['ownerId' => self::OTHER]);
-        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseStatusCodeSame(400);
+        $this->api('PATCH', $iri, self::ADMIN, ['ownerId' => self::OTHER]);
+        $this->assertResponseStatusCodeSame(400);
 
         $em = self::getEntityManager();
         $em->clear();
@@ -247,13 +249,8 @@ final class EntityListTest extends AbstractDataboxTestCase
         $this->assertSame($this->workspace->getId(), $stored->getWorkspaceId());
         $this->assertSame(self::USER, $stored->getOwnerId());
 
-        $this->api('PATCH', $iri, self::USER, ['name' => 'Palette', 'workspace' => '/workspaces/'.$this->workspace->getId()]);
-        $this->assertResponseStatusCodeSame(200);
-
-        $this->api('PATCH', $iri, self::ADMIN, ['ownerId' => self::OTHER]);
-        $this->assertResponseStatusCodeSame(200);
-        $em->clear();
-        $this->assertSame(self::OTHER, $em->find(EntityList::class, $list->getId())->getOwnerId());
+        $this->api('POST', '/entity-lists', self::USER, $this->listPayload(['name' => 'Sizes', 'ownerId' => self::OTHER]));
+        $this->assertResponseStatusCodeSame(400);
     }
 
     public function testWritesRequireTheWorkspaceEditPermission(): void

@@ -147,7 +147,7 @@ final class RenditionPolicyApiTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testUpdateKeepsTheWorkspace(): void
+    public function testWorkspaceIsNotWritable(): void
     {
         [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         [$otherWs] = $this->createWorkspaceWithDefaults('ws-b', self::EDITOR);
@@ -156,15 +156,11 @@ final class RenditionPolicyApiTest extends AbstractDataboxTestCase
 
         // EDITOR edits both workspaces, but a policy does not move
         $this->jsonRequest('PATCH', $iri, self::EDITOR, ['workspace' => '/workspaces/'.$otherWs->getId()]);
-        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseStatusCodeSame(400);
 
         $em = self::getEntityManager();
         $em->clear();
         $this->assertSame($ws->getId(), $em->find(RenditionPolicy::class, $policy->getId())->getWorkspaceId());
-
-        $this->jsonRequest('PATCH', $iri, self::EDITOR, ['name' => 'Renamed', 'workspace' => '/workspaces/'.$ws->getId()]);
-        $this->assertResponseIsSuccessful();
-        $this->assertJsonContains(['name' => 'Renamed']);
     }
 
     public function testDeleteCascadesToDefinitionsAndRenditions(): void

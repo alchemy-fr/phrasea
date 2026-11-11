@@ -144,7 +144,9 @@ final class EntityListAclTest extends AbstractSearchTestCase
         $this->addUserOnWorkspace(self::OTHER, $otherWorkspace->getId());
 
         $this->api('PATCH', $this->iri(), self::OTHER, ['workspace' => '/workspaces/'.$otherWorkspace->getId()]);
-        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseStatusCodeSame(400);
+        self::getEntityManager()->clear();
+        $this->assertSame($this->workspace->getId(), $this->reloadList()->getWorkspaceId());
     }
 
     public function testAValueEditorManagesTheValuesOnly(): void

@@ -36,6 +36,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -45,7 +46,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(security: 'is_granted("DELETE", object)'),
         new Patch(
             security: 'is_granted("EDIT", object)',
-            securityPostDenormalize: self::PATCH_SECURITY,
+            denormalizationContext: [
+                'groups' => [self::GROUP_WRITE],
+                AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false,
+            ],
         ),
         // Restricted to the readable workspaces by EntityListExtension
         new GetCollection(
@@ -68,6 +72,10 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         ),
         new Post(
+            denormalizationContext: [
+                'groups' => [self::GROUP_WRITE, self::GROUP_CREATE],
+                AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false,
+            ],
             securityPostDenormalize: 'is_granted("CREATE", object)'
         ),
         new Post(
@@ -123,19 +131,18 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
     private const string WITH_TRANSLATIONS = 'wt';
     private const string WITH_SYNONYMS = 'ws';
 
-    /**
-     * The list stays in its workspace, and only an admin changes its owner.
-     */
-    private const string PATCH_SECURITY = 'is_granted("EDIT", object)'
-        .' and null !== object.getWorkspace() and object.getWorkspaceId() == previous_object.getWorkspaceId()'
-        .' and (object.getOwnerId() == previous_object.getOwnerId() or is_granted("'.JwtUser::ROLE_ADMIN.'"))';
-
     final public const string GROUP_READ = 'entity-list:r';
     final public const string GROUP_LIST = 'entity-list:i';
+    /**
+     * The workspace is only set at creation, and the owner is never written through the API.
+     */
+    final public const string GROUP_WRITE = 'entity-list:w';
+    final public const string GROUP_CREATE = 'entity-list:c';
     private const array COMMON_GROUPS = [
         self::GROUP_READ,
         self::GROUP_LIST,
         AttributeDefinition::GROUP_LIST,
+        self::GROUP_WRITE,
     ];
 
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
@@ -143,7 +150,7 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
     protected ?string $ownerId = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ, self::GROUP_WRITE])]
     #[Assert\NotBlank]
     #[Assert\Length(max: self::TYPE_LENGTH)]
     private ?string $name = null;
@@ -187,7 +194,7 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
         return $this->name ?? $this->getId() ?? '';
     }
 
-    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    #[Groups([self::GROUP_READ, self::GROUP_LIST, self::GROUP_CREATE])]
     public function getWorkspace(): ?Workspace
     {
         return $this->workspace;
