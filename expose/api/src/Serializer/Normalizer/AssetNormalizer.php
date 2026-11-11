@@ -82,17 +82,18 @@ class AssetNormalizer extends AbstractRouterNormalizer implements ResetInterface
             $object->setPosterUrl($this->generateAssetUrl($poster));
         }
 
-        $isPublic = $object->getPublication()->isPublic();
+        // The player loads the subtitles without the credentials of the reader: the URL carries them.
+        $signWebVTT = !$publication->isPublic() || !$publication->isVisible();
 
         if (!empty($webVTTs = $object->getWebVTT())) {
             $links = [];
             foreach ($webVTTs as $webVTT) {
-                $vttUrl = $this->urlGenerator->generate('asset_webvtt', [
+                $vttUrl = $this->urlGenerator->generate(Asset::GET_WEBVTT_ROUTE_NAME, [
                     'id' => $object->getId(),
                     'vttId' => $webVTT['id'],
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
 
-                if (!$isPublic) {
+                if ($signWebVTT) {
                     $vttUrl = $this->uriJwtManager->signUri($vttUrl);
                 }
 

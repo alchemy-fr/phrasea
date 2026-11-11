@@ -129,6 +129,34 @@ export async function requestDownload(
     });
 }
 
+/**
+ * The archive behind a (signed) archive download URL: its URL once built,
+ * `preparing` while the API has it built.
+ */
+export type ArchiveStatus =
+    {status: 'preparing'} | {status: 'ready'; url: string};
+
+export async function getArchiveStatus(url: string): Promise<ArchiveStatus> {
+    return api.get<ArchiveStatus>(url, {
+        anonymous: true,
+        // Rather than the redirection to the archive, which would download it here
+        headers: {Accept: 'application/json'},
+    });
+}
+
+/** Asks for the link to the archive of the publication by email */
+export async function requestArchiveByEmail(
+    publicationId: string,
+    email: string,
+    acceptTerms: boolean
+): Promise<void> {
+    await api.post(
+        `/publications/${encodeURIComponent(publicationId)}/archive/download-request`,
+        acceptTerms ? {email, acceptTerms: true} : {email},
+        {headers: passwordHeaders()}
+    );
+}
+
 /** The file of a publication to download */
 export type DownloadTarget =
     {assetId: string} | {subDefId: string} | {archive: true};

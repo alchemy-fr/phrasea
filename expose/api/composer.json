@@ -121,6 +121,7 @@
         "symfony/expression-language": "^8.1",
         "symfony/flex": "^2.10",
         "symfony/framework-bundle": "^8.1",
+        "symfony/lock": "^8.1",
         "symfony/mcp-bundle": "^0.15",
         "symfony/property-access": "^8.1",
         "symfony/property-info": "^8.1",

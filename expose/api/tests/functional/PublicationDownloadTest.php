@@ -68,7 +68,7 @@ class PublicationDownloadTest extends AbstractExposeTestCase
         $this->assertNotEmpty($this->getJson('/publications/'.$publicationId, $adminToken)['archiveDownloadUrl'] ?? null);
 
         foreach ($this->getDirectDownloadUris($publicationId, $assetId, $subDefId) as $uri) {
-            $this->assertSame(302, $this->request($adminToken, 'GET', $uri)->getStatusCode(), $uri);
+            $this->assertDownloadGranted($this->request($adminToken, 'GET', $uri), $uri);
         }
 
         // The sent messages are reset with the services at each request.
@@ -87,7 +87,7 @@ class PublicationDownloadTest extends AbstractExposeTestCase
         [$publicationId, $assetId] = $this->createDownloadablePublication(['downloadEnabled' => true]);
 
         $publication = $this->getJson('/publications/'.$publicationId);
-        $this->assertSame(302, $this->request(null, 'GET', $publication['archiveDownloadUrl'])->getStatusCode());
+        $this->assertDownloadGranted($this->request(null, 'GET', $publication['archiveDownloadUrl']), $publication['archiveDownloadUrl']);
 
         $asset = $this->getJson('/assets/'.$assetId);
         $this->assertNotEmpty($asset['url'] ?? null);
@@ -126,7 +126,7 @@ class PublicationDownloadTest extends AbstractExposeTestCase
 
         foreach ($this->getDirectDownloadUris($publicationId, $assetId, $subDefId) as $uri) {
             $this->assertSame(403, $this->request(null, 'GET', $this->getPolicy()->signDirectDownloadUri($uri))->getStatusCode(), $uri);
-            $this->assertSame(302, $this->request(null, 'GET', $this->getPolicy()->signEmailDownloadUri($uri, 60))->getStatusCode(), $uri);
+            $this->assertDownloadGranted($this->request(null, 'GET', $this->getPolicy()->signEmailDownloadUri($uri, 60)), $uri);
         }
 
         $response = $this->request(null, 'POST', '/publications/'.$publicationId.'/download-url', [
@@ -172,7 +172,7 @@ class PublicationDownloadTest extends AbstractExposeTestCase
         $handler($requests[0]);
         $emails = $this->getSentMessages($transport, SendEmailNotification::class);
         $this->assertCount(1, $emails);
-        $this->assertSame(302, $this->request(null, 'GET', $emails[0]->params['downloadUrl'])->getStatusCode());
+        $this->assertSame(302, $this->request(null, 'GET', $emails[0]->params['downloadUrl'], [], [], ['HTTP_ACCEPT' => 'text/html'])->getStatusCode());
     }
 
     public function testDownloadTermsAreAcceptedFirst(): void
@@ -201,7 +201,7 @@ class PublicationDownloadTest extends AbstractExposeTestCase
             $response = $this->request(null, 'POST', '/publications/'.$publicationId.'/download-url', $target + ['acceptTerms' => true]);
             $this->assertSame(200, $response->getStatusCode(), json_encode($target, JSON_THROW_ON_ERROR));
             $url = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)['url'];
-            $this->assertSame(302, $this->request(null, 'GET', $url)->getStatusCode(), $url);
+            $this->assertDownloadGranted($this->request(null, 'GET', $url), $url);
         }
 
         $transport = $this->interceptTransport();
@@ -292,6 +292,17 @@ class PublicationDownloadTest extends AbstractExposeTestCase
             self::BASE_URI.'/publications/'.$publicationId.'/subdef/'.$subDefId.'/download-request',
             self::BASE_URI.'/publications/'.$publicationId.'/archive/download-request',
         ];
+    }
+
+    /**
+     * A file is redirected to, the archive may answer that it is being prepared.
+     */
+    private function assertDownloadGranted(Response $response, string $uri): void
+    {
+        $expected = str_contains($uri, '/archive')
+            ? [Response::HTTP_FOUND, Response::HTTP_ACCEPTED, Response::HTTP_OK]
+            : [Response::HTTP_FOUND];
+        $this->assertContains($response->getStatusCode(), $expected, $uri);
     }
 
     private function getJson(string $uri, ?string $accessToken = null): array

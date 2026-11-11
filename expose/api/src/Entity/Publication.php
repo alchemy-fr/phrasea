@@ -379,9 +379,12 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->config->getTheme() ?? $this->profile?->getConfig()->getTheme();
     }
 
+    /**
+     * Whether anyone may read the publication, given the security method it inherits.
+     */
     public function isPublic(): bool
     {
-        return null === $this->getSecurityMethod();
+        return self::SECURITY_METHOD_NONE === $this->getSecurityContainer()->getSecurityMethod();
     }
 
     #[Groups(['_', self::GROUP_INDEX, Asset::GROUP_READ])]
@@ -661,13 +664,32 @@ class Publication implements AclObjectInterface, \Stringable
         $this->cover = $cover;
     }
 
+    /**
+     * Enabled and within its dates, as are all its ancestors: a publication hidden
+     * hides its whole branch.
+     */
     public function isVisible(?\DateTimeImmutable $now = null): bool
     {
         $now ??= new \DateTimeImmutable();
 
         return $this->isEnabled()
             && (null === $this->getBeginsAt() || $this->getBeginsAt() < $now)
-            && (null === $this->getExpiresAt() || $this->getExpiresAt() > $now);
+            && (null === $this->getExpiresAt() || $this->getExpiresAt() > $now)
+            && (null === $this->parent || $this->parent->isVisible($now));
+    }
+
+    /**
+     * The earliest expiration of the publication and of its ancestors.
+     */
+    public function getVisibleUntil(): ?\DateTimeImmutable
+    {
+        $visibleUntil = $this->getExpiresAt();
+        $parentVisibleUntil = $this->parent?->getVisibleUntil();
+        if (null === $visibleUntil || (null !== $parentVisibleUntil && $parentVisibleUntil < $visibleUntil)) {
+            return $parentVisibleUntil;
+        }
+
+        return $visibleUntil;
     }
 
     public function getBeginsAt(): ?\DateTimeImmutable

@@ -163,7 +163,6 @@ export function PublicationHeader({publication}: {publication: Publication}) {
                             onClick={() =>
                                 download(publication.archiveDownloadUrl!, {
                                     target: {archive: true},
-                                    newTab: true,
                                     label: `${title} (archive)`,
                                 })
                             }

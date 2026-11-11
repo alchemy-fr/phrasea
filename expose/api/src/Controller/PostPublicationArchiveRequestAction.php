@@ -56,7 +56,7 @@ final class PostPublicationArchiveRequestAction extends AbstractController
         $this->em->persist($downloadRequest);
         $this->em->flush();
 
-        $bus->dispatch(new PublicationArchiveRequest($downloadRequest->getId()));
+        $bus->dispatch(new PublicationArchiveRequest($publication->getId(), $downloadRequest->getId()));
 
         $this->reportClient->pushHttpRequestLog(
             $request,

@@ -323,6 +323,7 @@ class Asset implements MediaInterface, \Stringable
     use ClientAnnotationsTrait;
 
     final public const string GET_ASSET_ROUTE_NAME = 'get_asset';
+    final public const string GET_WEBVTT_ROUTE_NAME = 'asset_webvtt';
     final public const string GROUP_READ = 'asset:r';
     final public const string GROUP_WRITE = 'asset:w';
     final public const string GROUP_ADMIN_READ = 'admin:'.self::GROUP_READ;

@@ -9,10 +9,13 @@ use Alchemy\CoreBundle\Util\StringUtil;
 use Alchemy\CoreBundle\Util\ZipUtil;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Consumer\Handler\DeleteAsset;
+use App\Consumer\Handler\PublicationArchiveRequest;
 use App\Entity\Publication;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -20,10 +23,23 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * Builds the ZIP archive of a publication's assets and keeps it in the asset storage,
  * until the content it was built from changes.
+ *
+ * Only the workers build the archive (PublicationArchiveRequest): a build copies every asset
+ * of the publication.
  */
 final readonly class PublicationArchiver
 {
     private const int MAX_NAME_LENGTH = 150;
+
+    /**
+     * How long a build request keeps the next readers of the same content from asking again.
+     */
+    private const float BUILD_REQUEST_TTL = 300.0;
+
+    /**
+     * Lifetime of the build lock, extended after each file added to the archive.
+     */
+    private const float BUILD_TTL = 300.0;
 
     private HttpClientInterface $client;
 
@@ -32,47 +48,131 @@ final readonly class PublicationArchiver
         private FileStorageManager $storageManager,
         private MessageBusInterface $bus,
         private LoggerInterface $logger,
+        private LockFactory $lockFactory,
         HttpClientInterface $client,
     ) {
         $this->client = new NoPrivateNetworkHttpClient($client);
     }
 
     /**
-     * Returns the storage path of the publication archive, building it first if needed.
+     * The storage path of the archive, when it was built from the current content of the publication.
      */
-    public function getArchivePath(Publication $publication): string
+    public function getUpToDateArchivePath(Publication $publication): ?string
+    {
+        $currentPath = $publication->getArchivePath();
+        if (null !== $currentPath
+            && $this->getArchiveHash($publication) === $publication->getArchiveHash()
+            && $this->storageManager->has($currentPath)) {
+            return $currentPath;
+        }
+
+        return null;
+    }
+
+    /**
+     * Asks the workers to build the archive of the current content, once for all the readers
+     * asking for it meanwhile.
+     */
+    public function requestBuild(Publication $publication): void
+    {
+        $lock = $this->lockFactory->createLock(
+            sprintf('publication-archive-request-%s-%s', $publication->getId(), $this->getArchiveHash($publication)),
+            self::BUILD_REQUEST_TTL,
+            // Left to expire: the build outlives the request.
+            false,
+        );
+
+        if ($lock->acquire()) {
+            $this->bus->dispatch(new PublicationArchiveRequest($publication->getId()));
+        }
+    }
+
+    /**
+     * Builds the archive of the current content unless it is up to date, one build per
+     * publication at a time.
+     */
+    public function buildArchive(Publication $publication): void
     {
         if ($publication->getAssets()->isEmpty()) {
             throw new \LogicException(sprintf('Publication "%s" has no asset to archive.', $publication->getId()));
         }
 
-        $hash = $this->getArchiveHash($publication);
-        $currentPath = $publication->getArchivePath();
-        if ($hash === $publication->getArchiveHash()
-            && null !== $currentPath
-            && $this->storageManager->has($currentPath)) {
-            return $currentPath;
+        $lock = $this->lockFactory->createLock('publication-archive-build-'.$publication->getId(), self::BUILD_TTL);
+        $lock->acquire(true);
+
+        try {
+            // Another build may have been recorded while waiting for the lock.
+            $this->em->refresh($publication);
+            if (null !== $this->getUpToDateArchivePath($publication)) {
+                return;
+            }
+
+            $previousHash = $publication->getArchiveHash();
+            $hash = $this->getArchiveHash($publication);
+            // The path only depends on the content: concurrent builds of the same content write the same file.
+            $archivePath = sprintf('archives/%s/%s/%s.zip', $publication->getId(), $hash, $this->getArchiveName($publication));
+            $this->buildArchiveFile($publication, $archivePath, $lock);
+
+            $this->recordArchive($publication, $archivePath, $hash, $previousHash);
+        } finally {
+            $lock->release();
         }
-
-        // The path only depends on the content: concurrent builds of the same content write the same file.
-        $archivePath = sprintf('archives/%s/%s/%s.zip', $publication->getId(), $hash, $this->getArchiveName($publication));
-        $this->buildArchive($publication, $archivePath);
-
-        $publication = $this->em->find(Publication::class, $publication->getId())
-            ?? throw new \RuntimeException(sprintf('Publication "%s" no longer exists.', $publication->getId()));
-        $previousPath = $publication->getArchivePath();
-        $publication->setArchivePath($archivePath);
-        $publication->setArchiveHash($hash);
-        $this->em->flush();
-
-        if (null !== $previousPath && $previousPath !== $archivePath) {
-            $this->bus->dispatch(new DeleteAsset($previousPath));
-        }
-
-        return $archivePath;
     }
 
-    private function buildArchive(Publication $publication, string $archivePath): void
+    /**
+     * Records the archive built from the content hashed $hash, unless another archive was
+     * recorded since $previousHash was read: a build outlived by a more recent one does not
+     * replace it.
+     *
+     * @return bool whether the archive was recorded
+     */
+    public function recordArchive(Publication $publication, string $archivePath, string $hash, ?string $previousHash): bool
+    {
+        $hashCondition = null === $previousHash ? 'p.archiveHash IS NULL' : 'p.archiveHash = :previousHash';
+
+        $query = $this->em->createQueryBuilder()
+            ->select('p.archivePath')
+            ->from(Publication::class, 'p')
+            ->andWhere('p.id = :id')
+            ->andWhere($hashCondition)
+            ->setParameter('id', $publication->getId());
+        if (null !== $previousHash) {
+            $query->setParameter('previousHash', $previousHash);
+        }
+        $previous = $query->getQuery()->getOneOrNullResult();
+
+        $recorded = false;
+        if (null !== $previous) {
+            $query = $this->em->createQueryBuilder()
+                ->update(Publication::class, 'p')
+                ->set('p.archivePath', ':archivePath')
+                ->set('p.archiveHash', ':hash')
+                ->andWhere('p.id = :id')
+                ->andWhere($hashCondition)
+                ->setParameter('id', $publication->getId())
+                ->setParameter('archivePath', $archivePath)
+                ->setParameter('hash', $hash);
+            if (null !== $previousHash) {
+                $query->setParameter('previousHash', $previousHash);
+            }
+            $recorded = 1 === $query->getQuery()->execute();
+        }
+
+        $this->em->refresh($publication);
+
+        if ($recorded) {
+            $previousPath = $previous['archivePath'];
+            if (null !== $previousPath && $previousPath !== $archivePath) {
+                $this->bus->dispatch(new DeleteAsset($previousPath));
+            }
+        } elseif ($publication->getArchivePath() !== $archivePath) {
+            $this->bus->dispatch(new DeleteAsset($archivePath));
+        }
+
+        return $recorded;
+    }
+
+    private function buildArchiveFile(Publication $publication, string $archivePath, LockInterface $lock): void
     {
         $workDir = sys_get_temp_dir().'/'.uniqid('publication-archive', true);
         $zipFile = $workDir.'.zip';
@@ -83,6 +183,7 @@ final readonly class PublicationArchiver
             foreach ($publication->getAssets() as $asset) {
                 $destination = $workDir.'/'.$this->getUniqueName(basename($asset->getOriginalName()), $usedNames);
                 $this->copyStream($this->storageManager->getStream($asset->getPath()), $destination);
+                $lock->refresh();
             }
 
             if ($publication->isIncludeDownloadTermsInArchive()
@@ -92,6 +193,7 @@ final readonly class PublicationArchiver
             }
 
             ZipUtil::zipDirectory($workDir, $zipFile);
+            $lock->refresh();
 
             $fd = fopen($zipFile, 'r');
             if (false === $fd) {

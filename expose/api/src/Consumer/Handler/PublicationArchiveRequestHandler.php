@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\NotifierBundle\Manager\NotifierManager;
 use App\Archive\PublicationArchiver;
 use App\Entity\DownloadRequest;
+use App\Entity\Publication;
 use App\Security\PublicationDownloadPolicy;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -28,15 +29,23 @@ final readonly class PublicationArchiveRequestHandler
 
     public function __invoke(PublicationArchiveRequest $message): void
     {
-        $downloadRequest = DoctrineUtil::findStrict($this->em, DownloadRequest::class, $message->getId());
-        $publication = $downloadRequest->getPublication();
+        $publication = $this->em->find(Publication::class, $message->getPublicationId());
+        if (!$publication instanceof Publication) {
+            throw new UnrecoverableMessageHandlingException(sprintf('Publication "%s" not found.', $message->getPublicationId()));
+        }
 
         if ($publication->getAssets()->isEmpty()) {
             throw new UnrecoverableMessageHandlingException(sprintf('Publication "%s" has no asset to archive.', $publication->getId()));
         }
 
         // The archive is built before the email is sent, so that the link works right away.
-        $this->archiver->getArchivePath($publication);
+        $this->archiver->buildArchive($publication);
+
+        if (null === $downloadRequestId = $message->getDownloadRequestId()) {
+            return;
+        }
+
+        $downloadRequest = DoctrineUtil::findStrict($this->em, DownloadRequest::class, $downloadRequestId);
 
         $daysAvailable = 3;
         $uri = $this->urlGenerator->generate('archive_download', [

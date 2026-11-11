@@ -60,6 +60,51 @@ class EntityHttpCacheListenerTest extends AbstractExposeTestCase
         $this->assertContains(Publication::GET_PUBLICATION_ROUTE_NAME.':'.$child->getId(), $purger->purged);
     }
 
+    public function testWebVTTArePurgedWithTheirPublication(): void
+    {
+        $parent = $this->createPublication();
+        $child = $this->createPublication(['parent' => $parent]);
+        $assetId = $this->createAsset($child);
+        $em = self::getEntityManager();
+        $asset = $em->find(Asset::class, $assetId);
+        $asset->setWebVTT([['label' => 'English', 'locale' => 'en', 'content' => 'WEBVTT']]);
+        $em->flush();
+        $vttId = $asset->getWebVTT()[0]['id'];
+        $em->refresh($child);
+
+        $purger = $this->createPurgerSpy();
+        $listener = new EntityHttpCacheListener($purger);
+        $listener->postUpdate(new PostUpdateEventArgs($parent, $em));
+
+        $this->assertContains(Publication::GET_PUBLICATION_ROUTE_NAME.':'.$child->getId(), $purger->purged);
+        $this->assertContains(Asset::GET_ASSET_ROUTE_NAME.':'.$assetId, $purger->purged);
+        $this->assertContains(Asset::GET_WEBVTT_ROUTE_NAME.':'.$assetId.':'.$vttId, $purger->purged);
+    }
+
+    public function testRemovedWebVTTArePurged(): void
+    {
+        $publication = $this->createPublication();
+        $assetId = $this->createAsset($publication);
+        $em = self::getEntityManager();
+        $asset = $em->find(Asset::class, $assetId);
+        $asset->setWebVTT([['label' => 'English', 'locale' => 'en', 'content' => 'WEBVTT']]);
+        $em->flush();
+        $removedId = $asset->getWebVTT()[0]['id'];
+
+        $purger = $this->createPurgerSpy();
+        $listener = new EntityHttpCacheListener($purger);
+        $em->getEventManager()->addEventListener(Events::postUpdate, $listener);
+        try {
+            $asset->setWebVTT([['label' => 'French', 'locale' => 'fr', 'content' => 'WEBVTT']]);
+            $em->flush();
+        } finally {
+            $em->getEventManager()->removeEventListener(Events::postUpdate, $listener);
+        }
+
+        $this->assertContains(Asset::GET_WEBVTT_ROUTE_NAME.':'.$assetId.':'.$removedId, $purger->purged);
+        $this->assertContains(Asset::GET_WEBVTT_ROUTE_NAME.':'.$assetId.':'.$asset->getWebVTT()[0]['id'], $purger->purged);
+    }
+
     private function createPurgerSpy(): ProxyCachePurger
     {
         return new class extends ProxyCachePurger {
@@ -71,7 +116,7 @@ class EntityHttpCacheListenerTest extends AbstractExposeTestCase
 
             public function purgeRoute(string $routeName, array $parameter = []): void
             {
-                $this->purged[] = $routeName.':'.$parameter['id'];
+                $this->purged[] = implode(':', [$routeName, ...array_values($parameter)]);
             }
         };
     }
