@@ -34,6 +34,7 @@ import {
     type ConfigDraft,
 } from './config/configDraft';
 import {CoverDialog} from './CoverDialog';
+import {PublicationShareButton} from '@/features/publications/share/PublicationSharesDialog';
 import {ProfileSelect, PublicationSelect} from './selects';
 import {violationsByField} from './violations';
 
@@ -158,189 +159,204 @@ function PublicationEditForm({publication}: {publication: Publication}) {
     };
 
     return (
-        <form
-            onSubmit={submit}
-            noValidate
-            data-testid="publication-edit-form"
-            className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6 sm:px-6"
-        >
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6 sm:px-6">
             <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon-sm" asChild>
                     <Link href={back} aria-label={t('common.back', 'Back')}>
                         <ArrowLeftIcon />
                     </Link>
                 </Button>
-                <h1 className="min-w-0 truncate text-xl font-bold">
+                <h1 className="min-w-0 flex-1 truncate text-xl font-bold">
                     {t('publication.edit.title', 'Edit {{title}}', {
                         title: translate(publication, 'title'),
                     })}
                 </h1>
+                {publication.capabilities?.operator ? (
+                    <PublicationShareButton publication={publication} />
+                ) : null}
             </div>
-
-            <div className="flex flex-col gap-4">
-                <div>
-                    <Label htmlFor="publication-title" className="mb-1.5">
-                        {t('publication.field.title', 'Title')} *
-                    </Label>
-                    <Input
-                        id="publication-title"
-                        data-testid="publication-title-input"
-                        required
-                        value={values.title}
-                        aria-invalid={titleError || !!serverErrors.title}
-                        onChange={e => set('title', e.target.value)}
-                    />
-                    <FieldError>
-                        {titleError
-                            ? t('form.required', 'This field is required.')
-                            : serverErrors.title}
-                    </FieldError>
-                </div>
-                <div>
-                    <Label htmlFor="publication-slug" className="mb-1.5">
-                        {t('publication.field.slug', 'Slug')}
-                    </Label>
-                    <Input
-                        id="publication-slug"
-                        data-testid="publication-slug-input"
-                        value={values.slug}
-                        aria-invalid={!!serverErrors.slug}
-                        onChange={e => set('slug', e.target.value)}
-                    />
-                    <FieldHelp>
-                        {t(
-                            'publication.field.slug_help',
-                            'Used in the URL of the publication instead of its id.'
-                        )}
-                    </FieldHelp>
-                    <FieldError>{serverErrors.slug}</FieldError>
-                </div>
-                <div>
-                    <Label htmlFor="publication-parent" className="mb-1.5">
-                        {t('publication.field.parent', 'Parent publication')}
-                    </Label>
-                    <div className="flex gap-2">
-                        <PublicationSelect
-                            id="publication-parent"
-                            value={values.parent}
-                            onChange={v => set('parent', v)}
-                            excluded={publication.id}
-                            initial={publication.parent}
+            {/* The share links (above) are saved right away, not with the form */}
+            <form
+                onSubmit={submit}
+                noValidate
+                data-testid="publication-edit-form"
+                className="flex flex-col gap-6"
+            >
+                <div className="flex flex-col gap-4">
+                    <div>
+                        <Label htmlFor="publication-title" className="mb-1.5">
+                            {t('publication.field.title', 'Title')} *
+                        </Label>
+                        <Input
+                            id="publication-title"
+                            data-testid="publication-title-input"
+                            required
+                            value={values.title}
+                            aria-invalid={titleError || !!serverErrors.title}
+                            onChange={e => set('title', e.target.value)}
                         />
-                        {values.parent ? (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                aria-label={t('common.clear', 'Clear')}
-                                onClick={() => set('parent', undefined)}
-                            >
-                                <XIcon />
-                            </Button>
-                        ) : null}
+                        <FieldError>
+                            {titleError
+                                ? t('form.required', 'This field is required.')
+                                : serverErrors.title}
+                        </FieldError>
                     </div>
-                    <FieldError>{serverErrors.parent}</FieldError>
-                </div>
-                <div>
-                    <Label htmlFor="publication-profile" className="mb-1.5">
-                        {t('publication.field.profile', 'Profile')}
-                    </Label>
-                    <div className="flex flex-wrap gap-2">
-                        <ProfileSelect
-                            id="publication-profile"
-                            value={values.profile}
-                            onChange={v => set('profile', v)}
-                            initialLabel={publication.profile?.name}
+                    <div>
+                        <Label htmlFor="publication-slug" className="mb-1.5">
+                            {t('publication.field.slug', 'Slug')}
+                        </Label>
+                        <Input
+                            id="publication-slug"
+                            data-testid="publication-slug-input"
+                            value={values.slug}
+                            aria-invalid={!!serverErrors.slug}
+                            onChange={e => set('slug', e.target.value)}
                         />
-                        {values.profile ? (
-                            <>
+                        <FieldHelp>
+                            {t(
+                                'publication.field.slug_help',
+                                'Used in the URL of the publication instead of its id.'
+                            )}
+                        </FieldHelp>
+                        <FieldError>{serverErrors.slug}</FieldError>
+                    </div>
+                    <div>
+                        <Label htmlFor="publication-parent" className="mb-1.5">
+                            {t(
+                                'publication.field.parent',
+                                'Parent publication'
+                            )}
+                        </Label>
+                        <div className="flex gap-2">
+                            <PublicationSelect
+                                id="publication-parent"
+                                value={values.parent}
+                                onChange={v => set('parent', v)}
+                                excluded={publication.id}
+                                initial={publication.parent}
+                            />
+                            {values.parent ? (
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     aria-label={t('common.clear', 'Clear')}
-                                    onClick={() => set('profile', undefined)}
+                                    onClick={() => set('parent', undefined)}
                                 >
                                     <XIcon />
                                 </Button>
-                                <Button variant="outline" asChild>
-                                    <Link
-                                        href={routes.profileEdit(
-                                            values.profile
-                                        )}
-                                        data-testid="edit-profile"
-                                    >
-                                        <PencilIcon />{' '}
-                                        {t(
-                                            'publication.edit_profile',
-                                            'Edit profile'
-                                        )}
-                                    </Link>
-                                </Button>
-                            </>
-                        ) : null}
+                            ) : null}
+                        </div>
+                        <FieldError>{serverErrors.parent}</FieldError>
                     </div>
-                    <FieldHelp>
-                        {t(
-                            'publication.field.profile_help',
-                            'The settings of the publication left unset are the ones of its profile.'
-                        )}
-                    </FieldHelp>
-                </div>
-                <div>
-                    <Label className="mb-1.5">
-                        {t('publication.field.cover', 'Cover')}
-                    </Label>
-                    <div className="flex items-center gap-3">
-                        {cover ? (
-                            <Thumbnail
-                                asset={cover}
-                                className="size-20 shrink-0 rounded-md"
+                    <div>
+                        <Label htmlFor="publication-profile" className="mb-1.5">
+                            {t('publication.field.profile', 'Profile')}
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                            <ProfileSelect
+                                id="publication-profile"
+                                value={values.profile}
+                                onChange={v => set('profile', v)}
+                                initialLabel={publication.profile?.name}
                             />
-                        ) : (
-                            <span className="flex size-20 shrink-0 items-center justify-center rounded-md border border-dashed text-muted-foreground">
-                                <ImageIcon className="size-6" />
-                            </span>
-                        )}
-                        <Button
-                            variant="outline"
-                            data-testid="set-cover"
-                            onClick={async () => {
-                                const result = await openModal(CoverDialog, {
-                                    assets,
-                                    selected: values.cover,
-                                });
-                                if (result) {
-                                    set('cover', result.cover);
-                                }
-                            }}
-                        >
-                            {t('publication.set_cover', 'Set cover image')}
-                        </Button>
+                            {values.profile ? (
+                                <>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label={t('common.clear', 'Clear')}
+                                        onClick={() =>
+                                            set('profile', undefined)
+                                        }
+                                    >
+                                        <XIcon />
+                                    </Button>
+                                    <Button variant="outline" asChild>
+                                        <Link
+                                            href={routes.profileEdit(
+                                                values.profile
+                                            )}
+                                            data-testid="edit-profile"
+                                        >
+                                            <PencilIcon />{' '}
+                                            {t(
+                                                'publication.edit_profile',
+                                                'Edit profile'
+                                            )}
+                                        </Link>
+                                    </Button>
+                                </>
+                            ) : null}
+                        </div>
+                        <FieldHelp>
+                            {t(
+                                'publication.field.profile_help',
+                                'The settings of the publication left unset are the ones of its profile.'
+                            )}
+                        </FieldHelp>
+                    </div>
+                    <div>
+                        <Label className="mb-1.5">
+                            {t('publication.field.cover', 'Cover')}
+                        </Label>
+                        <div className="flex items-center gap-3">
+                            {cover ? (
+                                <Thumbnail
+                                    asset={cover}
+                                    className="size-20 shrink-0 rounded-md"
+                                />
+                            ) : (
+                                <span className="flex size-20 shrink-0 items-center justify-center rounded-md border border-dashed text-muted-foreground">
+                                    <ImageIcon className="size-6" />
+                                </span>
+                            )}
+                            <Button
+                                variant="outline"
+                                data-testid="set-cover"
+                                onClick={async () => {
+                                    const result = await openModal(
+                                        CoverDialog,
+                                        {
+                                            assets,
+                                            selected: values.cover,
+                                        }
+                                    );
+                                    if (result) {
+                                        set('cover', result.cover);
+                                    }
+                                }}
+                            >
+                                {t('publication.set_cover', 'Set cover image')}
+                            </Button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <ConfigForm
-                value={values.config}
-                onChange={config => set('config', config)}
-                profile={
-                    values.profile ? (profileDraft ?? toDraft({})) : undefined
-                }
-                showErrors={submitted}
-            />
+                <ConfigForm
+                    value={values.config}
+                    onChange={config => set('config', config)}
+                    profile={
+                        values.profile
+                            ? (profileDraft ?? toDraft({}))
+                            : undefined
+                    }
+                    showErrors={submitted}
+                />
 
-            <div className="sticky bottom-0 -mx-4 flex justify-end gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
-                <Button variant="outline" asChild>
-                    <Link href={back}>{t('common.cancel', 'Cancel')}</Link>
-                </Button>
-                <Button
-                    type="submit"
-                    data-testid="publication-save"
-                    loading={saving}
-                    disabled={!dirty && !submitted}
-                >
-                    {t('publication.save', 'Save publication')}
-                </Button>
-            </div>
-        </form>
+                <div className="sticky bottom-0 -mx-4 flex justify-end gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+                    <Button variant="outline" asChild>
+                        <Link href={back}>{t('common.cancel', 'Cancel')}</Link>
+                    </Button>
+                    <Button
+                        type="submit"
+                        data-testid="publication-save"
+                        loading={saving}
+                        disabled={!dirty && !submitted}
+                    >
+                        {t('publication.save', 'Save publication')}
+                    </Button>
+                </div>
+            </form>
+        </div>
     );
 }

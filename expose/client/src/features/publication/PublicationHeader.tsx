@@ -19,6 +19,7 @@ import {useTranslateField} from '@/lib/utils/translate';
 import {formatDateTime} from '@/lib/utils/format';
 import {routes} from '@/lib/routes';
 import {useDownload} from './download';
+import {PublicationShareButton} from '@/features/publications/share/PublicationSharesDialog';
 
 /**
  * The ancestors known of a publication, from the root: the API gives its
@@ -122,6 +123,9 @@ export function PublicationHeader({publication}: {publication: Publication}) {
                         </Link>
                     </Button>
                 ) : null}
+                {publication.capabilities?.operator ? (
+                    <PublicationShareButton publication={publication} />
+                ) : null}
             </div>
             {date ? (
                 <time
@@ -131,7 +135,8 @@ export function PublicationHeader({publication}: {publication: Publication}) {
                     {date}
                 </time>
             ) : null}
-            {publication.enabled === false ? (
+            {/* For the editors only: a share link opens a disabled publication too */}
+            {publication.enabled === false && publication.capabilities?.edit ? (
                 <Alert
                     variant="warning"
                     icon={<EyeOffIcon />}

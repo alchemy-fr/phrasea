@@ -15,6 +15,7 @@ class CorsTest extends AbstractExposeTestCase
         $response = $this->preflight('/publications', 'POST');
         $this->assertSame(self::ORIGIN, $response->headers->get('Access-Control-Allow-Origin'));
         $this->assertStringContainsStringIgnoringCase('x-passwords', (string) $response->headers->get('Access-Control-Allow-Headers'));
+        $this->assertStringContainsStringIgnoringCase('x-share-tokens', (string) $response->headers->get('Access-Control-Allow-Headers'));
         $this->assertFalse($response->headers->has('Access-Control-Allow-Credentials'));
 
         $response = $this->request(null, 'GET', '/publications', null, [], ['HTTP_ORIGIN' => self::ORIGIN]);
@@ -43,7 +44,7 @@ class CorsTest extends AbstractExposeTestCase
         return $this->request(null, 'OPTIONS', $uri, null, [], [
             'HTTP_ORIGIN' => self::ORIGIN,
             'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => $method,
-            'HTTP_ACCESS_CONTROL_REQUEST_HEADERS' => 'authorization, x-passwords',
+            'HTTP_ACCESS_CONTROL_REQUEST_HEADERS' => 'authorization, x-passwords, x-share-tokens',
         ]);
     }
 

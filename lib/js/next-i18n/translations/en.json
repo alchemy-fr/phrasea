@@ -13,6 +13,8 @@
     "common.clear": "Clear",
     "common.close": "Close",
     "common.confirm": "Confirm",
+    "common.copied": "Copied!",
+    "common.copy": "Copy",
     "common.create_value": "Create \"{{value}}\"",
     "common.delete": "Delete",
     "common.edit": "Edit",

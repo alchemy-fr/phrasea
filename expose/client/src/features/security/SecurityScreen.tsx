@@ -45,7 +45,7 @@ export function SecurityScreen({publication, reload}: Props) {
     }
 }
 
-function SecurityCard({
+export function SecurityCard({
     icon,
     title,
     children,

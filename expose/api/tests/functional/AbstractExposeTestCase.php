@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use Alchemy\ApiTest\ApiTestCase;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
+use App\Entity\PublicationShare;
 use App\Entity\SubDefinition;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 
@@ -278,6 +280,28 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         $em->flush();
 
         return $subDefinition->getId();
+    }
+
+    /**
+     * @param array{name?: string, expiresAt?: \DateTimeImmutable, revoked?: bool, createdBy?: string} $options
+     */
+    protected function createShare(string $publicationId, array $options = []): PublicationShare
+    {
+        $em = self::getEntityManager();
+
+        $share = new PublicationShare();
+        $share->setPublication($this->findPublication($publicationId));
+        $share->setName($options['name'] ?? null);
+        $share->setExpiresAt($options['expiresAt'] ?? null);
+        $share->setCreatedBy($options['createdBy'] ?? null);
+        if ($options['revoked'] ?? false) {
+            $share->revoke(KeycloakClientTestMock::ADMIN_UID);
+        }
+
+        $em->persist($share);
+        $em->flush();
+
+        return $share;
     }
 
     protected function clearEmBeforeApiCall(): void

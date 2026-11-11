@@ -14,6 +14,7 @@ use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
 use App\Security\PasswordTokenExtractor;
 use App\Security\ScopeInterface;
+use App\Security\ShareTokenAuthorizer;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -38,6 +39,7 @@ class PublicationVoter extends AbstractVoter
         private readonly PasswordTokenExtractor $passwordTokenExtractor,
         #[Autowire(service: 'limiter.publication_password')]
         private readonly RateLimiterFactoryInterface $passwordLimiter,
+        private readonly ShareTokenAuthorizer $shareTokenAuthorizer,
     ) {
     }
 
@@ -71,9 +73,12 @@ class PublicationVoter extends AbstractVoter
             self::READ => $isPublicationVisible
                 || $isAdmin
                 || $isOwner
-                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
+                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
+                || $this->shareTokenAuthorizer->grantsAccessTo($subject),
+            // A share link skips the security method: no authorization error, no password attempt counted
             self::READ_DETAILS => $isAdmin
                 || $this->isValidJWTForRequest()
+                || $this->shareTokenAuthorizer->grantsAccessTo($subject)
                 || ($isPublicationVisible && $this->securityMethodPasses($subject, $token))
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::DELETE => $isAdmin

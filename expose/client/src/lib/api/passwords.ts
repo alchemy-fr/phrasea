@@ -1,24 +1,12 @@
+import {readCookie, writeCookie} from './cookies';
+
 /**
  * Passwords typed for the publications protected by one, by security
  * container (the publication of the branch defining the method): one
  * password opens a whole tree. Kept in a cookie, base64(JSON), sent to the
- * API in the `X-Passwords` header. `SameSite=None` keeps it usable when the
- * page is embedded in an iframe of another site.
+ * API in the `X-Passwords` header.
  */
 const cookieName = 'passwds';
-
-function readCookie(name: string): string | undefined {
-    if (typeof document === 'undefined') {
-        return undefined;
-    }
-    const prefix = `${name}=`;
-    const entry = document.cookie
-        .split(';')
-        .map(c => c.trim())
-        .find(c => c.startsWith(prefix));
-
-    return entry ? decodeURIComponent(entry.slice(prefix.length)) : undefined;
-}
 
 export function decodePasswords(
     value: string | undefined
@@ -52,12 +40,5 @@ export function storePassword(
 ): void {
     const passwords = decodePasswords(readCookie(cookieName));
     passwords[securityContainerId] = password;
-    const secure = window.location.protocol === 'https:';
-    document.cookie = [
-        `${cookieName}=${encodeURIComponent(encodePasswords(passwords))}`,
-        'path=/',
-        'max-age=31536000',
-        // A cookie with SameSite=None must be Secure
-        secure ? 'SameSite=None; Secure' : 'SameSite=Lax',
-    ].join('; ');
+    writeCookie(cookieName, encodePasswords(passwords));
 }

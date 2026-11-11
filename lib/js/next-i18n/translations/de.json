@@ -13,6 +13,8 @@
     "common.clear": "Leeren",
     "common.close": "Schließen",
     "common.confirm": "Bestätigen",
+    "common.copied": "Kopiert!",
+    "common.copy": "Kopieren",
     "common.create_value": "„{{value}}“ erstellen",
     "common.delete": "Löschen",
     "common.edit": "Bearbeiten",

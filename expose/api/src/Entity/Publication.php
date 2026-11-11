@@ -166,13 +166,13 @@ class Publication implements AclObjectInterface, \Stringable
     final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     #[ApiProperty(identifier: true)]
-    #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, Asset::GROUP_READ])]
+    #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, Asset::GROUP_READ, PublicationShare::GROUP_PUBLIC])]
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private string $id;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ, self::GROUP_WRITE])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, self::GROUP_WRITE, PublicationShare::GROUP_PUBLIC])]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
@@ -247,6 +247,12 @@ class Publication implements AclObjectInterface, \Stringable
     #[ORM\OrderBy(['title' => 'ASC'])]
     private Collection $children;
 
+    /**
+     * @var PublicationShare[]|Collection
+     */
+    #[ORM\OneToMany(targetEntity: PublicationShare::class, mappedBy: 'publication', cascade: ['remove'])]
+    private Collection $shares;
+
     #[ORM\Embedded(class: PublicationConfig::class)]
     #[Groups([self::GROUP_INDEX, self::GROUP_ADMIN_READ, self::GROUP_WRITE])]
     private PublicationConfig $config;
@@ -254,7 +260,7 @@ class Publication implements AclObjectInterface, \Stringable
     /**
      * URL slug.
      */
-    #[Groups(['_', self::GROUP_INDEX, self::GROUP_WRITE])]
+    #[Groups(['_', self::GROUP_INDEX, self::GROUP_WRITE, PublicationShare::GROUP_PUBLIC])]
     #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
     #[Assert\Length(max: 100)]
     protected ?string $slug = null;
@@ -282,6 +288,7 @@ class Publication implements AclObjectInterface, \Stringable
         $this->createdAt = new \DateTimeImmutable();
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
+        $this->shares = new ArrayCollection();
         $this->config = new PublicationConfig();
         $this->id = Uuid::uuid4()->toString();
     }

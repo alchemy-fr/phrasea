@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
+use App\Security\ShareTokenAuthorizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -18,6 +19,7 @@ final readonly class AssetBySlugProvider implements ProviderInterface
     public function __construct(
         private EntityManagerInterface $em,
         private Security $security,
+        private ShareTokenAuthorizer $shareTokenAuthorizer,
     ) {
     }
 
@@ -29,7 +31,11 @@ final readonly class AssetBySlugProvider implements ProviderInterface
 
         if (
             !$publication instanceof Publication
-            || (!$publication->getConfig()->getEnabled() && !$this->security->isGranted(JwtUser::ROLE_ADMIN))
+            || (
+                !$publication->getConfig()->getEnabled()
+                && !$this->security->isGranted(JwtUser::ROLE_ADMIN)
+                && !$this->shareTokenAuthorizer->grantsAccessTo($publication)
+            )
         ) {
             throw new NotFoundHttpException();
         }

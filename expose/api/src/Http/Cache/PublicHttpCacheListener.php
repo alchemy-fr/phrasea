@@ -6,6 +6,7 @@ namespace App\Http\Cache;
 
 use App\Entity\Asset;
 use App\Entity\Publication;
+use App\Security\ShareTokenAuthorizer;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -51,6 +52,7 @@ final readonly class PublicHttpCacheListener
             || $request->headers->has('Authorization')
             // Nested publications are normalized with the passwords sent by the client.
             || $request->headers->has('X-Passwords')
+            || $request->headers->has(ShareTokenAuthorizer::HEADER_NAME)
         ) {
             return;
         }
@@ -62,7 +64,7 @@ final readonly class PublicHttpCacheListener
             'max_age' => $maxAge,
             's_maxage' => $maxAge,
         ]);
-        $response->setVary(['Authorization', 'X-Passwords'], false);
+        $response->setVary(['Authorization', 'X-Passwords', ShareTokenAuthorizer::HEADER_NAME], false);
     }
 
     /**

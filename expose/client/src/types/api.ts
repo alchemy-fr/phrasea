@@ -180,3 +180,31 @@ export type Publication = {
     /** The raw configuration, read by the editors only */
     'config'?: PublicationConfig;
 };
+
+export enum ShareStatus {
+    Active = 'active',
+    Expired = 'expired',
+    Revoked = 'revoked',
+}
+
+/** A share link of a publication, read by its operators */
+export type PublicationShare = {
+    '@id'?: string;
+    'id': string;
+    'name'?: string | null;
+    'token': string;
+    /** The permalink, `/s/{token}` on this client */
+    'url': string;
+    'status': ShareStatus;
+    'expiresAt'?: string | null;
+    'createdAt': string;
+    'createdBy'?: string | null;
+    'revokedAt'?: string | null;
+    'revokedBy'?: string | null;
+};
+
+/** What an active share link opens */
+export type PublicShareResolution = {
+    publication: Pick<PublicationRef, 'id' | 'slug' | 'title'>;
+    expiresAt?: string | null;
+};
