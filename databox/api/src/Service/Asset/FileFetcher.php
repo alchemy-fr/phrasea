@@ -8,14 +8,50 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Border\UriDownloader;
 use App\Entity\Core\File;
 use App\Service\Asset\Exception\PrivateFileException;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Contracts\Service\ResetInterface;
 
-readonly class FileFetcher
+/**
+ * The temporary copies created here (when no destination path is given) belong to this service:
+ * they are shared between the callers of a same unit of work through File::$localTmpPath, and
+ * deleted once it ends (message handled or failed, request or command terminated, reset).
+ */
+#[AsEventListener(KernelEvents::TERMINATE, 'reset', priority: -255)]
+#[AsEventListener(ConsoleEvents::TERMINATE, 'reset', priority: -255)]
+#[AsEventListener(WorkerMessageHandledEvent::class, method: 'reset', priority: -255)]
+#[AsEventListener(WorkerMessageFailedEvent::class, method: 'reset', priority: -255)]
+class FileFetcher implements ResetInterface
 {
+    /**
+     * @var array<string, true>
+     */
+    private array $temporaryPaths = [];
+
     public function __construct(
-        private FileUrlResolver $fileUrlResolver,
-        private UriDownloader $fileDownloader,
-        private FileStorageManager $fileStorageManager,
+        private readonly FileUrlResolver $fileUrlResolver,
+        private readonly UriDownloader $fileDownloader,
+        private readonly FileStorageManager $fileStorageManager,
     ) {
+    }
+
+    public function __destruct()
+    {
+        $this->reset();
+    }
+
+    public function reset(): void
+    {
+        foreach (array_keys($this->temporaryPaths) as $path) {
+            if (is_file($path)) {
+                @unlink($path);
+            }
+        }
+
+        $this->temporaryPaths = [];
     }
 
     /**
@@ -37,8 +73,13 @@ readonly class FileFetcher
             return $file->localTmpPath;
         }
 
+        $isTemporary = null === $path;
+
         if (File::STORAGE_S3_MAIN === $file->getStorage()) {
             $path ??= sys_get_temp_dir().'/'.uniqid('fetch-file');
+            if ($isTemporary) {
+                $this->temporaryPaths[$path] = true;
+            }
             $stream = $this->fileStorageManager->getStream($file->getPath());
             file_put_contents($path, $stream);
             fclose($stream);
@@ -46,7 +87,12 @@ readonly class FileFetcher
             return $file->localTmpPath = $path;
         }
 
-        return $file->localTmpPath = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), path: $path);
+        $path = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), path: $path);
+        if ($isTemporary) {
+            $this->temporaryPaths[$path] = true;
+        }
+
+        return $file->localTmpPath = $path;
     }
 
     /**
@@ -93,6 +139,9 @@ readonly class FileFetcher
             throw new \LogicException(sprintf('File "%s" is not a remote URL', $file->getId()));
         }
 
-        return $file->localTmpPath = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), $headers);
+        $path = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), $headers);
+        $this->temporaryPaths[$path] = true;
+
+        return $file->localTmpPath = $path;
     }
 }

@@ -65,7 +65,7 @@ trait ExposeTestTrait
      */
     private static function createFileFetcher(): FileFetcher
     {
-        return new readonly class extends FileFetcher {
+        return new class extends FileFetcher {
             public function __construct()
             {
             }
