@@ -55,6 +55,7 @@ describe('CreateOAuthClientDialog', () => {
             name: d.name,
             redirectUris: ['https://api-databox.test/integrations/*'],
             redirectUriAllowed: true,
+            acceptedByExpose: true,
         }));
     });
 

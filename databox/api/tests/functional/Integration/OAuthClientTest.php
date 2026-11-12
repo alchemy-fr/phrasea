@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Integration;
 
+use Alchemy\AuthBundle\Client\KeycloakClient;
+use Alchemy\AuthBundle\Security\DataboxIntegrationClient;
 use Alchemy\AuthBundle\Security\Impersonator;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use App\Api\Processor\CreateOAuthClientProcessor;
+use App\Api\Provider\OAuthClientProvider;
+use App\Integration\Auth\OAuthRedirectUriMatcher;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -113,6 +116,52 @@ final class OAuthClientTest extends AbstractDataboxTestCase
         $this->assertSame(['http://localhost/*'], $expose['redirectUris']);
     }
 
+    public function testTellsTheClientsExposeAccepts(): void
+    {
+        $response = $this->list(self::adminJwt());
+
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        $accepted = [];
+        foreach ($response->toArray() as $client) {
+            $accepted[$client['clientId']] = $client['acceptedByExpose'];
+        }
+        // Created by Databox; neither the client of Databox itself nor one allowing any URI of the API
+        $this->assertSame([
+            'expose-integration' => false,
+            'an-integration' => true,
+            'databox-app' => false,
+        ], $accepted);
+    }
+
+    public function testExposeAcceptsTheClientsOfItsAllowedList(): void
+    {
+        $provider = new OAuthClientProvider(
+            self::getService(KeycloakClient::class),
+            self::getService(OAuthRedirectUriMatcher::class),
+            [' expose-integration '],
+        );
+
+        $this->assertTrue($provider->createClient(KeycloakClientTestMock::CLIENTS[0], 'http://localhost/integrations/x/code')->acceptedByExpose);
+        $this->assertFalse($provider->createClient(KeycloakClientTestMock::CLIENTS[1], 'http://localhost/integrations/x/code')->acceptedByExpose);
+    }
+
+    public function testListsTheClientsExposeAcceptsFirst(): void
+    {
+        $created = $this->create(self::adminJwt(), ['clientId' => 'z-integration']);
+        $this->assertSame(201, $created->getStatusCode(), $created->getContent(false));
+
+        $response = $this->list(self::adminJwt(), ['integrationId' => self::INTEGRATION_ID]);
+
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        // Among the clients allowing the redirect URI of the integration, the ones Expose accepts come first
+        $this->assertSame([
+            'an-integration' => true,
+            'z-integration' => true,
+            'expose-integration' => true,
+            'databox-app' => false,
+        ], self::allowedByClientId($response));
+    }
+
     public function testListsAsJsonLd(): void
     {
         $response = $this->list(self::adminJwt(), headers: ['Accept' => 'application/ld+json']);
@@ -166,6 +215,7 @@ final class OAuthClientTest extends AbstractDataboxTestCase
         $this->assertSame('databox-expose-test', $data['clientId']);
         $this->assertSame('Expose test', $data['name']);
         $this->assertTrue($data['redirectUriAllowed']);
+        $this->assertTrue($data['acceptedByExpose']);
 
         $sent = KeycloakClientTestMock::$createdClients['databox-expose-test'];
         $this->assertSame('Expose test', $sent['name']);
@@ -179,7 +229,7 @@ final class OAuthClientTest extends AbstractDataboxTestCase
         $this->assertFalse($sent['serviceAccountsEnabled']);
         $this->assertSame('http://localhost', $sent['rootUrl']);
         $this->assertSame(['http://localhost/integrations/*'], $sent['redirectUris']);
-        $this->assertSame([CreateOAuthClientProcessor::CREATED_BY_ATTRIBUTE => 'databox'], $sent['attributes']);
+        $this->assertSame([DataboxIntegrationClient::CREATED_BY_ATTRIBUTE => DataboxIntegrationClient::CREATED_BY], $sent['attributes']);
 
         // Listed along the others, as allowing any integration
         $this->assertTrue(self::allowedByClientId($this->list(self::adminJwt(), ['integrationId' => self::INTEGRATION_ID]))['databox-expose-test']);

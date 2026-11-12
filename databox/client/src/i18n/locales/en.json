@@ -1173,6 +1173,8 @@
     "integration.config.oauth_client.description": "Description",
     "integration.config.oauth_client.name": "Name",
     "integration.config.oauth_client.none": "No public client with the standard flow",
+    "integration.config.oauth_client.not_accepted_by_expose": "Refused by Expose",
+    "integration.config.oauth_client.not_accepted_by_expose_help": "Expose only accepts the clients created from Databox, those whose redirect URIs all lead to the Databox integrations, or those listed in its allowed clients",
     "integration.config.oauth_client.redirect_uri_not_allowed": "Redirect URI not allowed",
     "integration.config.oauth_client.redirect_uri_not_allowed_help": "Add the redirect URI of the integration to the client in Keycloak before using it",
     "integration.config.oauth_client.search": "Search a client ID…",

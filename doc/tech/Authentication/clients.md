@@ -38,12 +38,19 @@ Each API accepts the tokens of:
   The defaults are built from the client variables of the `.env`: overriding `DATABOX_CLIENT_ID` (or the
   others) carries over. Without the variable, an API falls back to the default client IDs of its own
   `.env` (`databox-app`, `expose-app`…);
-- **Expose only: the clients Databox creates for its integrations** (from the configuration of an
-  integration in the Databox client, `POST /oauth-clients`: Keycloak attribute
-  `phrasea.created_by=databox`). Expose looks each unknown
+- **Expose only: the clients of the Databox integrations**, enabled and either
+  - created by Databox (from the configuration of an integration in the Databox client,
+    `POST /oauth-clients`: Keycloak attribute `phrasea.created_by=databox`),
+  - or public, with the standard flow only (neither implicit flow nor direct access grants), and whose
+    redirect URIs **all** start with `<DATABOX_API_URL>/integrations/` (a relative URI is resolved against
+    the root URL of the client): Keycloak only gives their tokens to Databox, whoever created them. The
+    Expose API reads `DATABOX_API_URL` for it; empty, the rule is disabled.
+
+  Both rules live in `Alchemy\AuthBundle\Security\DataboxIntegrationClient`. Expose looks each unknown
   client up in Keycloak with its service account, which the configurator grants the `view-clients` role of
-  `realm-management`, and caches the answer for a minute. If Keycloak cannot be reached, these clients are
-  refused for 30 seconds (an error is logged) while the listed ones keep working.
+  `realm-management` (`bin/migrate.sh`), and caches the answer for a minute. Without that role, or if
+  Keycloak cannot be reached, these clients are refused for 30 seconds (an error is logged) while the listed
+  ones keep working.
 
 ### Who calls what
 
@@ -55,7 +62,7 @@ Each API accepts the tokens of:
 | Dashboard                                      | `DASHBOARD_CLIENT_ID`                                  | Databox (groups management)                                                            |
 | Admins (EasyAdmin), Swagger UI                 | `*_ADMIN_CLIENT_ID`                                    | their own API                                                                          |
 | Databox indexer                                | `INDEXER_DATABOX_CLIENT_ID` (client credentials)       | Databox                                                                                |
-| Expose integration of Databox                  | `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`, or a client created by Databox | Expose                                                                 |
+| Expose integration of Databox                  | `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`, or a client of the Databox integrations (see above) | Expose                                                     |
 | MCP clients (`/mcp` of each API)               | none by default, see below                             | the API of the server; the Uploader one also reaches Databox with the same token       |
 
 These do not go through the access tokens, and are not affected: upload links of the Uploader
@@ -81,8 +88,12 @@ DATABOX_API_ALLOWED_CLIENT_IDS="${DATABOX_CLIENT_ID},${DASHBOARD_CLIENT_ID},${UP
   the redirect URIs of the MCP clients), and allow it on the APIs whose server they use, plus Databox for the
   Uploader server. Clients registered dynamically get a random client ID: they cannot be listed, prefer a
   dedicated client.
-- **Integrations** of Databox calling Expose: a client created from Databox is accepted by itself; a
-  client created by hand in Keycloak must be added to `EXPOSE_API_ALLOWED_CLIENT_IDS`.
+- **Integrations** of Databox calling Expose: a client created from Databox, or one whose redirect URIs all
+  lead to the integrations of the Databox API, is accepted by itself; another client created by hand in
+  Keycloak must be added to `EXPOSE_API_ALLOWED_CLIENT_IDS`. The client picker of the Expose integration flags
+  the clients Expose refuses ("Refused by Expose"; the Databox API reads `EXPOSE_API_ALLOWED_CLIENT_IDS` as
+  `EXPOSE_ALLOWED_CLIENT_IDS` for it), and Databox answers the refusal of Expose with a message naming the
+  client instead of `401 Invalid token.`.
 - **Development**: the `postman` client created by the `dev` preset of the configurator is not allowed by
   default; add it to the variables of the APIs you call with it.
 

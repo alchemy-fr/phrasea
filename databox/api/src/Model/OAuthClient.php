@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriTemplate: '/oauth-clients',
             openapi: new OpenApiOperation(
                 summary: 'Keycloak OAuth clients usable by an integration',
-                description: 'The enabled public clients with the standard flow, the built-in clients of Keycloak excepted. The ones allowing the redirect URI of the integrations come first.',
+                description: 'The enabled public clients with the standard flow, the built-in clients of Keycloak excepted. The ones allowing the redirect URI of the integrations come first, then the ones whose access tokens Expose accepts ("acceptedByExpose").',
             ),
             paginationEnabled: false,
             security: 'is_granted("'.JwtUser::ROLE_KEYCLOAK_VIEW_CLIENTS.'")',
@@ -92,6 +92,14 @@ final class OAuthClient
      */
     #[Groups(self::GROUP_READ)]
     public bool $redirectUriAllowed = false;
+
+    /**
+     * Whether Expose accepts the access tokens of the client: created by Databox, with redirect URIs
+     * all leading to the integrations of this API, or listed in the allowed clients of Expose.
+     * Only the client picker of the Expose integration tells it.
+     */
+    #[Groups(self::GROUP_READ)]
+    public bool $acceptedByExpose = false;
 
     public function getId(): ?string
     {

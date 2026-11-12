@@ -389,12 +389,14 @@ describe('ConfigForm OAuth client field', () => {
                 name: 'Expose integration',
                 redirectUris: ['https://api-databox.test/*'],
                 redirectUriAllowed: true,
+                acceptedByExpose: true,
             },
             {
                 id: 'kc-2',
                 clientId: 'databox-app',
                 redirectUris: ['https://databox.test/*'],
                 redirectUriAllowed: false,
+                acceptedByExpose: false,
             },
         ]);
     });
@@ -448,6 +450,17 @@ describe('ConfigForm OAuth client field', () => {
                 screen.getByTestId('oauth-client-expose-integration')
             ).queryByText('Redirect URI not allowed')
         ).toBeNull();
+        // And the ones whose access tokens Expose refuses
+        expect(
+            within(screen.getByTestId('oauth-client-databox-app')).getByText(
+                'Refused by Expose'
+            )
+        ).toBeTruthy();
+        expect(
+            within(
+                screen.getByTestId('oauth-client-expose-integration')
+            ).queryByText('Refused by Expose')
+        ).toBeNull();
 
         fireEvent.click(screen.getByTestId('oauth-client-expose-integration'));
         expect(last()).toEqual({clientId: 'expose-integration'});
@@ -460,6 +473,7 @@ describe('ConfigForm OAuth client field', () => {
             clientId: d.clientId,
             redirectUris: [],
             redirectUriAllowed: true,
+            acceptedByExpose: true,
         }));
         const last = renderOAuthForm();
 

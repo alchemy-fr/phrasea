@@ -7,15 +7,20 @@ namespace App\Security;
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\ServiceAccountClient;
 use Alchemy\AuthBundle\Security\AllowedClientIdsProviderInterface;
+use Alchemy\AuthBundle\Security\DataboxIntegrationClient;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
- * The OAuth clients Databox creates for its integrations (Keycloak attribute "phrasea.created_by"
- * set to "databox" by its CreateOAuthClientProcessor): the Expose integration of Databox calls this
- * API with the tokens its users obtain from them.
+ * The OAuth clients of the Databox integrations (see DataboxIntegrationClient): the Expose integration
+ * of Databox calls this API with the tokens its users obtain from them. Two kinds of clients qualify:
+ * - the ones Databox creates (Keycloak attribute "phrasea.created_by" set to "databox" by its
+ *   CreateOAuthClientProcessor);
+ * - the public ones whose redirect URIs all lead to the integrations of the Databox API
+ *   (DATABOX_API_URL, rule disabled when empty), whose tokens can only reach Databox.
  *
  * Each client is looked up in Keycloak with the service account (it needs the "view-clients" role
  * of "realm-management"), and the answer cached for a short time. A client cannot appear in a
@@ -23,9 +28,6 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 final readonly class DataboxIntegrationClientIds implements AllowedClientIdsProviderInterface
 {
-    final public const string CREATED_BY_ATTRIBUTE = 'phrasea.created_by';
-    final public const string CREATED_BY = 'databox';
-
     private const int CACHE_TTL = 60;
 
     /**
@@ -39,6 +41,8 @@ final readonly class DataboxIntegrationClientIds implements AllowedClientIdsProv
         #[Target]
         private CacheInterface $keycloakRealmCache,
         private LoggerInterface $logger,
+        #[Autowire(env: 'DATABOX_API_URL')]
+        private string $databoxApiUrl,
     ) {
     }
 
@@ -56,7 +60,7 @@ final readonly class DataboxIntegrationClientIds implements AllowedClientIdsProv
                     ],
                 ]));
             } catch (\Exception $e) {
-                $this->logger->error('Cannot check whether the OAuth client "{client_id}" was created by Databox: {error}', [
+                $this->logger->error('Cannot check whether the OAuth client "{client_id}" is a client of the Databox integrations: {error}', [
                     'client_id' => $clientId,
                     'error' => $e->getMessage(),
                     'exception' => $e,
@@ -68,8 +72,7 @@ final readonly class DataboxIntegrationClientIds implements AllowedClientIdsProv
 
             foreach ($clients as $client) {
                 if ($clientId === ($client['clientId'] ?? null)
-                    && true === ($client['enabled'] ?? false)
-                    && self::CREATED_BY === ($client['attributes'][self::CREATED_BY_ATTRIBUTE] ?? null)) {
+                    && DataboxIntegrationClient::isAccepted($client, $this->databoxApiUrl)) {
                     return true;
                 }
             }

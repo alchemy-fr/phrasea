@@ -6,6 +6,7 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Exception\ClientAlreadyExistsException;
+use Alchemy\AuthBundle\Security\DataboxIntegrationClient;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\KeycloakTokenOwnerTrait;
 use ApiPlatform\Metadata\Operation;
@@ -28,16 +29,11 @@ final class CreateOAuthClientProcessor implements ProcessorInterface
 {
     use KeycloakTokenOwnerTrait;
 
-    /**
-     * Attribute of the created clients: Expose accepts the access tokens of the clients carrying
-     * it (see its DataboxIntegrationClientIds), which the Expose integration obtains for its users.
-     */
-    final public const string CREATED_BY_ATTRIBUTE = 'phrasea.created_by';
-
     public function __construct(
         private readonly KeycloakClient $keycloakClient,
         private readonly OAuthRedirectUriMatcher $redirectUriMatcher,
         private readonly ValidatorInterface $validator,
+        private readonly OAuthClientProvider $clientProvider,
     ) {
     }
 
@@ -68,8 +64,9 @@ final class CreateOAuthClientProcessor implements ProcessorInterface
                 'serviceAccountsEnabled' => false,
                 'rootUrl' => $this->redirectUriMatcher->getClientRootUrl(),
                 'redirectUris' => [$this->redirectUriMatcher->getClientRedirectUri()],
+                // Expose accepts the access tokens of the clients carrying it, which the Expose integration obtains for its users
                 'attributes' => [
-                    self::CREATED_BY_ATTRIBUTE => 'databox',
+                    DataboxIntegrationClient::CREATED_BY_ATTRIBUTE => DataboxIntegrationClient::CREATED_BY,
                 ],
             ], $user->getJwt());
         } catch (ClientAlreadyExistsException $e) {
@@ -78,6 +75,6 @@ final class CreateOAuthClientProcessor implements ProcessorInterface
             throw new ValidationException(new ConstraintViolationList([new ConstraintViolation($message, $message, [], $data, 'clientId', $clientId)]), previous: $e);
         }
 
-        return OAuthClientProvider::createClient($created, $this->redirectUriMatcher->getRedirectUri());
+        return $this->clientProvider->createClient($created, $this->redirectUriMatcher->getRedirectUri());
     }
 }

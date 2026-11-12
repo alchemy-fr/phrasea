@@ -16,6 +16,7 @@ final class ExposeIntegrationControllerTest extends AbstractDataboxTestCase
 
     private const string OWNER = KeycloakClientTestMock::USER_UID;
     private const string MEMBER = KeycloakClientTestMock::OTHER_USER_UID;
+    private const string ACCESS_TOKEN_REFUSED = 'Expose refused the access token of the OAuth client "expose-app"';
 
     private FakeExposeApi $api;
     private WorkspaceIntegration $integration;
@@ -42,6 +43,25 @@ final class ExposeIntegrationControllerTest extends AbstractDataboxTestCase
             ],
             'json' => $json,
         ]);
+    }
+
+    private function proxyPublications(string $userId): ResponseInterface
+    {
+        return static::createClient()->request('GET', '/integrations/expose/'.$this->integration->getId().'/proxy/publications', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId),
+            ],
+        ]);
+    }
+
+    /**
+     * The message the client shows.
+     */
+    private static function getErrorMessage(ResponseInterface $response): string
+    {
+        $data = $response->toArray(false);
+
+        return (string) ($data['detail'] ?? $data['description'] ?? $data['message'] ?? '');
     }
 
     public function testCreatesAPublicationFromTheAllowedProperties(): void
@@ -88,6 +108,47 @@ final class ExposeIntegrationControllerTest extends AbstractDataboxTestCase
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertStringContainsString('Failure', $response->getContent(false));
+    }
+
+    public function testExplainsTheRefusalOfTheAccessToken(): void
+    {
+        $this->createExposeToken($this->integration, self::OWNER);
+        $this->api->failures['POST /publications'] = 401;
+
+        $response = $this->createPublication(self::OWNER, ['title' => 'Press kit']);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $message = self::getErrorMessage($response);
+        $this->assertStringContainsString(self::ACCESS_TOKEN_REFUSED, $message);
+        $this->assertStringContainsString('redirect URIs under http://localhost/integrations/ only', $message);
+    }
+
+    public function testTheProxiesExplainTheRefusalOfTheAccessToken(): void
+    {
+        $this->createExposeToken($this->integration, self::OWNER);
+        $this->api->failures['GET /publications'] = 401;
+
+        $response = $this->proxyPublications(self::OWNER);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertStringContainsString(self::ACCESS_TOKEN_REFUSED, self::getErrorMessage($response));
+    }
+
+    public function testTheProxiesReportTheRefusalOfExpose(): void
+    {
+        $this->createExposeToken($this->integration, self::OWNER);
+        $this->api->failures['GET /publications'] = 403;
+
+        $response = $this->proxyPublications(self::OWNER);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('Failure', self::getErrorMessage($response));
+    }
+
+    public function testTheProxiesRequireAnAuthorizedIntegration(): void
+    {
+        $this->assertSame(403, $this->proxyPublications(self::OWNER)->getStatusCode());
+        $this->assertSame([], $this->api->requests);
     }
 
     public function testRequiresTheRightToInteract(): void

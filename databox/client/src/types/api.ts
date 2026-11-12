@@ -1229,6 +1229,8 @@ export type OAuthClient = {
     redirectUris: string[];
     /** The redirect URIs of the client allow the one of the integration */
     redirectUriAllowed: boolean;
+    /** Expose accepts the access tokens of the client */
+    acceptedByExpose: boolean;
 };
 
 /**

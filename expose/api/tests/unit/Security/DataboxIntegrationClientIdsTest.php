@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Security;
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Client\ServiceAccountClient;
+use Alchemy\AuthBundle\Security\DataboxIntegrationClient;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Security\DataboxIntegrationClientIds;
 use PHPUnit\Framework\TestCase;
@@ -44,6 +45,23 @@ class DataboxIntegrationClientIdsTest extends TestCase
         $this->assertSame([], $this->logs);
     }
 
+    public function testAllowsTheClientsWhoseRedirectUrisAllLeadToTheDataboxIntegrations(): void
+    {
+        $client = [
+            'clientId' => 'my-integration',
+            'enabled' => true,
+            'publicClient' => true,
+            'standardFlowEnabled' => true,
+            'rootUrl' => 'http://localhost',
+            'redirectUris' => ['/integrations/*'],
+        ];
+        $httpClient = $this->createHttpClient(fn (): JsonMockResponse => new JsonMockResponse([$client]));
+
+        $this->assertTrue($this->createProvider($httpClient)->isClientAllowed('my-integration'));
+        // Not without the URL of the Databox API
+        $this->assertFalse($this->createProvider($httpClient, '')->isClientAllowed('my-integration'));
+    }
+
     public function testCachesTheAnswer(): void
     {
         $calls = 0;
@@ -53,7 +71,7 @@ class DataboxIntegrationClientIdsTest extends TestCase
             return new JsonMockResponse([[
                 'clientId' => 'an-integration',
                 'enabled' => true,
-                'attributes' => [DataboxIntegrationClientIds::CREATED_BY_ATTRIBUTE => DataboxIntegrationClientIds::CREATED_BY],
+                'attributes' => [DataboxIntegrationClient::CREATED_BY_ATTRIBUTE => DataboxIntegrationClient::CREATED_BY],
             ]]);
         }));
 
@@ -67,7 +85,7 @@ class DataboxIntegrationClientIdsTest extends TestCase
         $provider = $this->createProvider($this->createHttpClient(fn (): JsonMockResponse => new JsonMockResponse([[
             'clientId' => 'an-integration',
             'enabled' => false,
-            'attributes' => [DataboxIntegrationClientIds::CREATED_BY_ATTRIBUTE => DataboxIntegrationClientIds::CREATED_BY],
+            'attributes' => [DataboxIntegrationClient::CREATED_BY_ATTRIBUTE => DataboxIntegrationClient::CREATED_BY],
         ]])));
 
         $this->assertFalse($provider->isClientAllowed('an-integration'));
@@ -106,7 +124,7 @@ class DataboxIntegrationClientIdsTest extends TestCase
         });
     }
 
-    private function createProvider(HttpClientInterface $httpClient): DataboxIntegrationClientIds
+    private function createProvider(HttpClientInterface $httpClient, string $databoxApiUrl = 'http://localhost'): DataboxIntegrationClientIds
     {
         $cache = new ArrayAdapter();
         $keycloakClient = new KeycloakClient(
@@ -135,6 +153,7 @@ class DataboxIntegrationClientIdsTest extends TestCase
             $keycloakClient,
             $cache,
             $logger,
+            $databoxApiUrl,
         );
     }
 }

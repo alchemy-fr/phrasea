@@ -332,9 +332,19 @@ See [Access tokens and allowed clients](doc/tech/Authentication/clients.md).
 - The clients created from Databox for its integrations stay accepted by
   Expose: its admin client's service account now gets the `view-clients` role
   of `realm-management`, granted by the configurator at the next
-  `bin/migrate.sh` (Keycloak synchronization).
+  `bin/migrate.sh` (Keycloak synchronization). Until it has run, Expose refuses
+  them (`401`, shown in Databox as "Expose refused the access token of the
+  OAuth client…").
+- Expose also accepts the public clients (standard flow only) whose redirect
+  URIs all lead to `<DATABOX_API_URL>/integrations/`: the Expose API now reads
+  `DATABOX_API_URL` (empty: rule disabled). The Databox API reads
+  `EXPOSE_ALLOWED_CLIENT_IDS` (the `EXPOSE_API_ALLOWED_CLIENT_IDS` of the
+  stack) to flag the clients Expose refuses in the client picker of the Expose
+  integration.
 - Helm: pass `ALLOWED_CLIENT_IDS` to the three APIs (and the workers) when the
-  client IDs differ from the defaults (`databox-app`, `expose-app`…).
+  client IDs differ from the defaults (`databox-app`, `expose-app`…),
+  `DATABOX_API_URL` to the Expose API and `EXPOSE_ALLOWED_CLIENT_IDS` to the
+  Databox API.
 
 ### Helm
 

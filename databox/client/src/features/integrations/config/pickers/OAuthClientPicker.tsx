@@ -199,6 +199,10 @@ function OAuthClientList({
     );
 }
 
+/**
+ * A client of the list. The picker only serves the Expose integration: the
+ * clients whose access tokens Expose refuses are told apart.
+ */
 function OAuthClientItem({client}: {client: OAuthClient}) {
     const {t} = useTranslation();
 
@@ -226,6 +230,21 @@ function OAuthClientItem({client}: {client: OAuthClient}) {
                     {t(
                         'integration.config.oauth_client.redirect_uri_not_allowed',
                         'Redirect URI not allowed'
+                    )}
+                </Badge>
+            ) : null}
+            {!client.acceptedByExpose ? (
+                <Badge
+                    variant="warning"
+                    title={t(
+                        'integration.config.oauth_client.not_accepted_by_expose_help',
+                        'Expose only accepts the clients created from Databox, those whose redirect URIs all lead to the Databox integrations, or those listed in its allowed clients'
+                    )}
+                >
+                    <TriangleAlertIcon />
+                    {t(
+                        'integration.config.oauth_client.not_accepted_by_expose',
+                        'Refused by Expose'
                     )}
                 </Badge>
             ) : null}
