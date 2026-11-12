@@ -81,8 +81,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Only the services built here are pushed: the others (Keycloak,
+      # report-api…) would be pulled anonymously from public.ecr.aws for nothing.
       - name: Pull images built by the pipeline
-        run: docker compose pull
+        run: docker compose pull $(docker compose config --format json | jq -r '.services | to_entries[] | select(.value.build) | .key')
 
       - name: Compute image tag from ref
         env:
