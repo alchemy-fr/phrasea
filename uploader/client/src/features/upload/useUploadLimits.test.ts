@@ -27,8 +27,10 @@ describe('computeUploadLimits', () => {
     it('keeps the limits of the uploader without a link', () => {
         expect(computeUploadLimits(upload)).toEqual({
             ...upload,
+            maxFileSize: 500,
             fileCountFromLink: false,
             commitSizeFromLink: false,
+            fileSizeFromBatch: true,
             exhausted: false,
         });
     });
@@ -56,7 +58,8 @@ describe('computeUploadLimits', () => {
         expect(limits.fileCountFromLink).toBe(true);
         expect(limits.maxCommitSize).toBe(200);
         expect(limits.commitSizeFromLink).toBe(true);
-        expect(limits.maxFileSize).toBe(1000);
+        expect(limits.maxFileSize).toBe(200);
+        expect(limits.fileSizeFromBatch).toBe(true);
     });
 
     it('keeps the uploader limits when they are the lowest', () => {
@@ -79,6 +82,43 @@ describe('computeUploadLimits', () => {
 
         expect(limits.maxFileCount).toBe(3);
         expect(limits.maxCommitSize).toBeUndefined();
+    });
+
+    it('keeps the file size when it is the lowest', () => {
+        const limits = computeUploadLimits(
+            {...upload, maxFileSize: 100},
+            link({maxTotalSize: 800, usedSize: 600})
+        );
+
+        expect(limits.maxFileSize).toBe(100);
+        expect(limits.fileSizeFromBatch).toBe(false);
+    });
+
+    it('keeps the file size when it equals the size of an upload', () => {
+        const limits = computeUploadLimits({...upload, maxFileSize: 500});
+
+        expect(limits.maxFileSize).toBe(500);
+        expect(limits.fileSizeFromBatch).toBe(false);
+    });
+
+    it('caps the file size to what is left on the link', () => {
+        const limits = computeUploadLimits(
+            {allowedTypes: {}},
+            link({maxTotalSize: 800, usedSize: 600})
+        );
+
+        expect(limits.maxFileSize).toBe(200);
+        expect(limits.fileSizeFromBatch).toBe(true);
+    });
+
+    it('has no file size without any size limit', () => {
+        const limits = computeUploadLimits(
+            {allowedTypes: {}},
+            link({maxAssets: 4})
+        );
+
+        expect(limits.maxFileSize).toBeUndefined();
+        expect(limits.fileSizeFromBatch).toBe(false);
     });
 
     it.each([

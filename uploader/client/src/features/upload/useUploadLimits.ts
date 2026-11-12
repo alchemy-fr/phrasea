@@ -11,6 +11,8 @@ export type UploadLimits = UploadConfig & {
     fileCountFromLink: boolean;
     /** `maxCommitSize` is what is left on the upload link */
     commitSizeFromLink: boolean;
+    /** `maxFileSize` is the size allowed for the whole batch */
+    fileSizeFromBatch: boolean;
     /** Nothing more can be sent through the upload link */
     exhausted: boolean;
 };
@@ -37,7 +39,8 @@ function lowest(
 
 /**
  * The limits of a batch: the ones of the uploader, lowered by what is left
- * on the upload link (its limits count every commit made with it).
+ * on the upload link (its limits count every commit made with it). No file
+ * can be larger than the whole batch.
  */
 export function computeUploadLimits(
     upload: UploadConfig,
@@ -53,13 +56,19 @@ export function computeUploadLimits(
             : null;
     const fileCount = lowest(upload.maxFileCount, filesLeft);
     const commitSize = lowest(upload.maxCommitSize, sizeLeft);
+    const fileSizeFromBatch =
+        commitSize.value !== undefined &&
+        (upload.maxFileSize === undefined ||
+            commitSize.value < upload.maxFileSize);
 
     return {
         ...upload,
+        maxFileSize: fileSizeFromBatch ? commitSize.value : upload.maxFileSize,
         maxFileCount: fileCount.value,
         maxCommitSize: commitSize.value,
         fileCountFromLink: fileCount.fromLink,
         commitSizeFromLink: commitSize.fromLink,
+        fileSizeFromBatch,
         exhausted: filesLeft === 0 || sizeLeft === 0,
     };
 }

@@ -268,7 +268,7 @@ function UploadConstraints({showTypes}: {showTypes: boolean}) {
     const typesHidden = !!typesLabel && !showTypes;
     const constraints = [
         showTypes ? typesLabel : undefined,
-        upload.maxFileSize
+        upload.maxFileSize && !upload.fileSizeFromBatch
             ? t('upload.max_file_size', 'Up to {{max}} per file', {
                   max: formatFileSize(upload.maxFileSize),
               })
