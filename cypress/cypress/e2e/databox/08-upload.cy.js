@@ -69,16 +69,20 @@ describe('Upload', () => {
 
         openLeftPanelTab('Navigation');
         openUploadFromTree(ctx.workspace.id);
+        // A real PNG padded to the size: the content check reads the type from the head of the file
+        cy.fixture('e2e-image.png', null).as('png');
         cy.dialog().within(() => {
-            cy.get('input[type=file]').selectFile(
-                {
-                    contents: Cypress.Buffer.alloc(size, 'x'),
-                    fileName: 'e2e-multipart.bin',
-                    mimeType: 'application/octet-stream',
-                },
-                {force: true}
+            cy.get('@png').then(png =>
+                cy.get('input[type=file]').selectFile(
+                    {
+                        contents: Cypress.Buffer.concat([png, Cypress.Buffer.alloc(size - png.length)]),
+                        fileName: 'e2e-multipart.png',
+                        mimeType: 'image/png',
+                    },
+                    {force: true}
+                )
             );
-            cy.contains('e2e-multipart.bin').should('be.visible');
+            cy.contains('e2e-multipart.png').should('be.visible');
             expandTreePickerWorkspace(ctx.workspace.name);
         });
         cy.dialog().within(() => {

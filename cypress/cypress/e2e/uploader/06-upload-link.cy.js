@@ -153,9 +153,8 @@ describe('Uploader upload links', () => {
 
         cy.getBySel('upload-link-create').click();
         cy.getBySel('upload-link-expires-input').invoke('val').should('not.be.empty');
-        cy.get('#upload-link-target').click();
-        cy.contains('[data-slot=select-item]', TARGETS.link.name).click();
-        cy.getBySel('upload-link-name-input').type(name);
+        cy.get('#upload-link-target').selectOption(TARGETS.link.name);
+        cy.getBySel('upload-link-name-input').type(name).should('have.value', name);
         cy.getBySel('upload-link-max-assets-input').type('10');
         cy.getBySel('form-dialog').contains('button', 'Create the link').click();
 
