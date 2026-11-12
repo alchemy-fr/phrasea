@@ -29,10 +29,10 @@ class UploaderClientMock extends UploaderClient
     public function getAsset(string $baseUrl, string $id, string $token): array
     {
         return [
-            'originalName' => 'test_file.txt',
-            'mimeType' => 'text/plain',
+            'originalName' => 'test_file.png',
+            'mimeType' => 'image/png',
             'size' => 42,
-            'url' => 'http://localhost/path/to/test_file.txt',
+            'url' => 'http://localhost/path/to/test_file.png',
             'data' => [
             ],
             'formData' => [

@@ -84,7 +84,7 @@ class UploaderIntegrationTest extends ApiTestCase
         /** @var AssetNameResolver $nameResolver */
         $nameResolver = $this->getService(AssetNameResolver::class);
 
-        $this->assertEquals('test_file.txt', $nameResolver->resolveNameAsString($asset));
+        $this->assertEquals('test_file.png', $nameResolver->resolveNameAsString($asset));
 
         /** @var UploaderClientMock $uploadClient */
         $uploadClient = $this->getService(UploaderClient::class);
