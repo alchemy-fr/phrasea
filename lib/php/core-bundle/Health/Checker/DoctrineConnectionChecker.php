@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\CoreBundle\Health\Checker;
 
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
+use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ConnectionRegistry;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -24,7 +25,11 @@ final readonly class DoctrineConnectionChecker implements HealthCheckerInterface
 
     public function check(): bool
     {
-        return $this->connectionRegistry->getConnection($this->connectionName)->ping();
+        /** @var Connection $connection */
+        $connection = $this->connectionRegistry->getConnection($this->connectionName);
+        $connection->executeQuery($connection->getDatabasePlatform()->getDummySelectSQL());
+
+        return true;
     }
 
     public function getAdditionalInfo(): ?array
