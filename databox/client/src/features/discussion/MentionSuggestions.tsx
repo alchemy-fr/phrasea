@@ -13,6 +13,11 @@ import {cn} from '@alchemy/next-ui/utils/cn';
 
 export type MentionQuery = {from: number; to: number; query: string};
 
+type MentionAnchor = {left: number; top?: number; bottom?: number};
+
+/** Width of the suggestion list, in px (never wider than the screen). */
+const POPUP_WIDTH = 320;
+
 /** The `@query` being typed right before the caret, if any. */
 export function findMentionQuery(state: EditorState): MentionQuery | null {
     const {selection} = state;
@@ -49,11 +54,7 @@ export function findMentionQuery(state: EditorState): MentionQuery | null {
 export function useMentionSuggestions(editor: Editor | null) {
     const [mention, setMention] = useState<MentionQuery | null>(null);
     const [active, setActive] = useState(0);
-    const [anchor, setAnchor] = useState<{
-        left: number;
-        top?: number;
-        bottom?: number;
-    }>();
+    const [anchor, setAnchor] = useState<MentionAnchor>();
     // Escape closes the list until another mention is started
     const dismissed = useRef<number | null>(null);
 
@@ -106,7 +107,10 @@ export function useMentionSuggestions(editor: Editor | null) {
         const c = editor.view.coordsAtPos(mention.from);
         const below = window.innerHeight - c.bottom;
         setAnchor({
-            left: Math.max(4, Math.min(c.left, window.innerWidth - 264)),
+            left: Math.max(
+                4,
+                Math.min(c.left, window.innerWidth - POPUP_WIDTH - 24)
+            ),
             ...(c.top > below
                 ? {bottom: window.innerHeight - c.top + 4}
                 : {top: c.bottom + 4}),
@@ -184,45 +188,86 @@ export function useMentionSuggestions(editor: Editor | null) {
     const popup =
         open && anchor
             ? createPortal(
-                  <ul
-                      data-testid="mention-suggestions"
-                      role="listbox"
-                      className="fixed z-[70] max-h-60 w-60 overflow-y-auto rounded-md border bg-popover p-1 text-sm text-popover-foreground shadow-md"
-                      style={{
-                          left: anchor.left,
-                          top: anchor.top,
-                          bottom: anchor.bottom,
-                      }}
-                  >
-                      {suggestions.map((u, i) => (
-                          <li
-                              key={u.id}
-                              role="option"
-                              aria-selected={i === active}
-                              className={cn(
-                                  'cursor-pointer truncate rounded-sm px-2 py-1',
-                                  i === active && 'bg-accent'
-                              )}
-                              onMouseDown={e => {
-                                  // Keeps the editor focus
-                                  e.preventDefault();
-                                  pick(u);
-                              }}
-                              onMouseEnter={() => setActive(i)}
-                          >
-                              {mentionText(u, u.username)}
-                              {getUserDisplayName(u) !== u.username ? (
-                                  <span className="text-muted-foreground">
-                                      {' '}
-                                      @{u.username}
-                                  </span>
-                              ) : null}
-                          </li>
-                      ))}
-                  </ul>,
+                  <MentionSuggestionList
+                      suggestions={suggestions}
+                      active={active}
+                      anchor={anchor}
+                      onPick={pick}
+                      onHover={setActive}
+                  />,
                   document.body
               )
             : null;
 
     return {onKeyDown, popup};
+}
+
+type MentionSuggestionListProps = {
+    suggestions: User[];
+    active: number;
+    anchor: MentionAnchor;
+    onPick: (user: User) => void;
+    onHover: (index: number) => void;
+};
+
+/**
+ * The suggestions: the name, then the `@username` underneath (often an
+ * e-mail address), each line cut only when it does not fit, with its full
+ * text in `title`.
+ */
+export function MentionSuggestionList({
+    suggestions,
+    active,
+    anchor,
+    onPick,
+    onHover,
+}: MentionSuggestionListProps) {
+    return (
+        <ul
+            data-testid="mention-suggestions"
+            role="listbox"
+            className="fixed z-[70] max-h-60 overflow-y-auto rounded-md border bg-popover p-1 text-sm text-popover-foreground shadow-md"
+            style={{
+                left: anchor.left,
+                top: anchor.top,
+                bottom: anchor.bottom,
+                width: POPUP_WIDTH,
+                maxWidth: 'calc(100vw - 8px)',
+            }}
+        >
+            {suggestions.map((u, i) => {
+                const label = mentionText(u, u.username);
+
+                return (
+                    <li
+                        key={u.id}
+                        role="option"
+                        aria-selected={i === active}
+                        className={cn(
+                            'flex cursor-pointer flex-col rounded-sm px-2 py-1',
+                            i === active && 'bg-accent'
+                        )}
+                        onMouseDown={e => {
+                            // Keeps the editor focus
+                            e.preventDefault();
+                            onPick(u);
+                        }}
+                        onMouseEnter={() => onHover(i)}
+                    >
+                        <span className="truncate" title={label}>
+                            {label}
+                        </span>
+                        {getUserDisplayName(u) !== u.username ? (
+                            <span
+                                className="truncate text-xs text-muted-foreground"
+                                title={'@' + u.username}
+                            >
+                                @{u.username}
+                            </span>
+                        ) : null}
+                    </li>
+                );
+            })}
+        </ul>
+    );
 }
