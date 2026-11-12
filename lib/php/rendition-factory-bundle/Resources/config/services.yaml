@@ -14,6 +14,8 @@ services:
     Alchemy\RenditionFactory\RenditionCreator: ~
     Alchemy\RenditionFactory\Config\YamlLoader: ~
     Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineFilterFactory: ~
+    Alchemy\RenditionFactory\Transformer\Document\Libreoffice\PdfConverter: ~
+    Alchemy\RenditionFactory\Transformer\Document\Libreoffice\DocumentFormatDetector: ~
 
     # Modules
     Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineTransformerModule:

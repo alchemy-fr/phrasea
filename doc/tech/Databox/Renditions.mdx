@@ -50,6 +50,53 @@ every input: a source which references other resources (HLS playlist, URL...)
 can only make them open local files, never the network
 (`RestrictedProcessBuilderFactory`, installed by `FFMpegHelper`).
 
+## Documents converted by LibreOffice (`document_to_pdf`)
+
+The `document_to_pdf` module converts office documents to PDF with LibreOffice.
+A rendition definition can be edited by any workspace editor and aim this module
+at any file, so the format is told from the **content** of the file, never from
+its name or its declared type:
+
+- **Converted:** Word (`doc`, `docx`), Excel (`xls`, `xlsx`), PowerPoint (`ppt`,
+  `pptx`), OpenDocument (`odt`, `ods`, `odp`), RTF and plain text. OOXML and
+  OpenDocument files are told apart by the `[Content_Types].xml` or `mimetype`
+  entry of their archive; the legacy `doc`/`xls`/`ppt` by the content of their
+  OLE container. LibreOffice is given the matching import filter and never
+  guesses the format: a plain text file is read as text, even if it looks like
+  HTML.
+- **Passed through:** a PDF (`%PDF-` header), whatever its declared type.
+- **Refused, as an unsupported source** (the rendition is given up instead of
+  being retried): everything else — HTML, flat XML OpenDocument (`fodt`,
+  `fods`…), SVG, images, macro-enabled or template Office files (`docm`,
+  `xlsm`, `dotx`…), unknown binaries.
+
+```yaml
+document:
+    transformations:
+        - module: document_to_pdf
+          # 300 seconds by default, 1800 at most
+          options: {timeout: 600}
+```
+
+Each conversion is isolated within the worker process:
+
+- a new LibreOffice profile, copied from
+  `lib/php/rendition-factory/src/Transformer/Document/Libreoffice/profile/`
+  and deleted afterwards: macros disabled, links to other documents never
+  updated, every HTTP, HTTPS and FTP access sent to a proxy on a closed port of
+  the loopback (linked images or documents are never fetched);
+- an empty environment (no credential of the worker reaches LibreOffice), a
+  working directory of its own, the source copied under the name of its
+  detected format;
+- a timeout (`timeout` option), after which the whole process group is killed,
+  `soffice.bin` included.
+
+Not done: there is no kernel sandbox. LibreOffice runs with the user, the
+filesystem and the network namespace of the worker; a vulnerability in one of
+its import filters would give access to them. Moving the conversion to a
+dedicated container without network nor secrets is left as an infrastructure
+option.
+
 ## Story contact sheet (`generate:`)
 
 A story has no source file of its own until a cover is set. A `generate:` build
