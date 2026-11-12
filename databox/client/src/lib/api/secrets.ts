@@ -4,6 +4,7 @@ import {
     EntityName,
     HydraCollection,
     Page,
+    SystemEnv,
     WorkspaceEnv,
     WorkspaceSecret,
 } from '@/types/api';
@@ -19,6 +20,8 @@ export type SecretScope = {workspaceId?: string};
 export const secretsQueryKey = 'workspace-secrets';
 /** Query key prefix of every listing of variables */
 export const envsQueryKey = 'workspace-envs';
+/** Query key prefix of every listing of system variables */
+export const systemEnvsQueryKey = 'system-envs';
 
 function scopeParams({workspaceId}: SecretScope): Record<string, unknown> {
     return workspaceId ? {workspace: workspaceId} : {global: true};
@@ -48,6 +51,25 @@ export async function getWorkspaceEnvs(
             {params: {...scopeParams(scope), limit: 100}, signal}
         )
     );
+}
+
+/**
+ * The names of the system variables of the instance a reference of the scope
+ * can point to (same rights as the listings of secrets and variables): names
+ * only, without the instance prefix, never their values.
+ */
+export async function getSystemEnvs(
+    scope: SecretScope,
+    signal?: AbortSignal
+): Promise<string[]> {
+    const page = toPage(
+        await api.get<HydraCollection<SystemEnv>>(`/${EntityName.SystemEnv}`, {
+            params: scopeParams(scope),
+            signal,
+        })
+    );
+
+    return page.items.map(e => e.name);
 }
 
 export function postWorkspaceSecret({

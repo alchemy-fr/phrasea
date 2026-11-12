@@ -25,6 +25,11 @@ final class WorkspaceSecretApiTest extends AbstractDataboxTestCase
 
     private const string ADMIN = KeycloakClientTestMock::ADMIN_UID;
 
+    private const array SYSTEM_VARIABLES = [
+        'PWI_FT_SYS_FOO' => 'system-value',
+        'PWI_FT_SYS_EMPTY' => '',
+    ];
+
     private function request(string $method, string $uri, ?string $userId, ?array $json = null): ResponseInterface
     {
         $options = ['headers' => $this->headers($userId)];
@@ -399,6 +404,81 @@ final class WorkspaceSecretApiTest extends AbstractDataboxTestCase
 
         $config = self::getService(IntegrationManager::class)->getIntegrationConfiguration($integration);
         $this->assertSame('from-variable', $config['apiKey']);
+    }
+
+    /**
+     * @param array<string, mixed> $list
+     *
+     * @return array<array<string, mixed>>
+     */
+    private static function members(array $list): array
+    {
+        return $list['hydra:member'] ?? $list['member'];
+    }
+
+    private function withSystemVariables(callable $test): void
+    {
+        foreach (self::SYSTEM_VARIABLES as $name => $value) {
+            putenv($name.'='.$value);
+        }
+        try {
+            $test();
+        } finally {
+            foreach (array_keys(self::SYSTEM_VARIABLES) as $name) {
+                putenv($name);
+            }
+        }
+    }
+
+    public function testTheSystemVariablesAreListedByNameToTheWorkspaceEditors(): void
+    {
+        $workspace = $this->createSharedWorkspace();
+
+        $this->withSystemVariables(function () use ($workspace): void {
+            $response = $this->assertRequestStatus(200, 'GET', '/system-envs?workspace='.$workspace->getId(), self::OWNER);
+            $members = self::members($response->toArray());
+            $names = array_column($members, 'name');
+
+            $this->assertContains('FT_SYS_FOO', $names);
+            $this->assertNotContains('FT_SYS_EMPTY', $names);
+            $this->assertNotContains('PWI_FT_SYS_FOO', $names);
+            foreach ($members as $member) {
+                $this->assertArrayNotHasKey('value', $member);
+            }
+            $this->assertStringNotContainsString('system-value', $response->getContent());
+        });
+    }
+
+    #[DataProvider('getForbiddenUsers')]
+    public function testTheSystemVariablesAreForbiddenToNonEditors(bool $reader): void
+    {
+        if ($reader) {
+            $workspace = $this->createSharedWorkspace();
+            $userId = self::MEMBER;
+        } else {
+            $workspace = $this->createOtherWorkspace();
+            $userId = self::OWNER;
+        }
+
+        $this->assertRequestStatus(403, 'GET', '/system-envs?workspace='.$workspace->getId(), $userId);
+    }
+
+    public function testTheSystemVariablesOfTheInstanceIntegrationsAreListedToTheAdmins(): void
+    {
+        $this->withSystemVariables(function (): void {
+            $this->assertRequestStatus(400, 'GET', '/system-envs', self::ADMIN);
+            $this->assertRequestStatus(403, 'GET', '/system-envs?global=true', self::OWNER);
+
+            $list = $this->assertRequestStatus(200, 'GET', '/system-envs?global=true', self::ADMIN)->toArray();
+            $this->assertContains('FT_SYS_FOO', array_column(self::members($list), 'name'));
+        });
+    }
+
+    public function testAnonymousUsersCannotListTheSystemVariables(): void
+    {
+        $workspace = $this->createSharedWorkspace();
+
+        $this->assertRequestStatus(401, 'GET', '/system-envs?workspace='.$workspace->getId(), null);
     }
 
     public function testAnIntegrationResolvesTheReferenceToACreatedSecret(): void

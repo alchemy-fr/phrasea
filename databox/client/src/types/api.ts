@@ -163,6 +163,7 @@ export enum EntityName {
     AuditLog = 'audit-logs',
     WorkspaceSecret = 'workspace-secrets',
     WorkspaceEnv = 'workspace-envs',
+    SystemEnv = 'system-envs',
 }
 
 export enum AttributeBatchActionEnum {
@@ -1252,6 +1253,15 @@ export type WorkspaceEnv = {
     workspace?: string | null;
     createdAt: string;
     updatedAt: string;
+};
+
+/**
+ * A `PWI_<NAME>` environment variable of the instance, that a reference
+ * resolves to when no secret nor variable of its scope has this name. Named
+ * without the prefix; its value is never returned.
+ */
+export type SystemEnv = {
+    name: string;
 };
 
 export type MetadataTag = {

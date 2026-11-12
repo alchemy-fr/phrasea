@@ -4,10 +4,12 @@ import {useQuery} from '@tanstack/react-query';
 import {isApiError} from '@/lib/api/http';
 import {
     envsQueryKey,
+    getSystemEnvs,
     getWorkspaceEnvs,
     getWorkspaceSecrets,
     SecretScope,
     secretsQueryKey,
+    systemEnvsQueryKey,
 } from '@/lib/api/secrets';
 
 const retry = (failureCount: number, error: unknown) =>
@@ -46,5 +48,25 @@ export function useSecretNames(scope: SecretScope, enabled = true) {
         forbidden:
             isApiError(secrets.error, 403) || isApiError(envs.error, 403),
         error: secrets.error ?? envs.error,
+    };
+}
+
+/**
+ * The names of the system variables of the instance a reference of the scope
+ * can point to, resolved after its secrets and variables. `names` stays
+ * undefined on an error (a 403 included): nothing to list nor to report.
+ */
+export function useSystemEnvNames(scope: SecretScope, enabled = true) {
+    const query = useQuery({
+        queryKey: [systemEnvsQueryKey, secretScopeKey(scope)],
+        queryFn: ({signal}) => getSystemEnvs(scope, signal),
+        enabled,
+        retry,
+        staleTime: 30_000,
+    });
+
+    return {
+        names: query.data,
+        loading: query.isLoading,
     };
 }

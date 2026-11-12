@@ -10,6 +10,7 @@ import {
     CornerDownLeftIcon,
     LockIcon,
     PlusIcon,
+    ServerIcon,
     VariableIcon,
     XIcon,
 } from 'lucide-react';
@@ -32,11 +33,14 @@ import {
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {isValidSecretName, parseReference} from '@/features/secrets/secretRef';
-import {useSecretNames} from '@/features/secrets/useSecretNames';
+import {
+    useSecretNames,
+    useSystemEnvNames,
+} from '@/features/secrets/useSecretNames';
 import {CreateSecretDialog} from './CreateSecretDialog';
 import {CreateVariableDialog} from './VariableDialog';
 
-type Kind = 'secret' | 'variable' | 'undefined';
+type Kind = 'secret' | 'variable' | 'system' | 'undefined';
 
 type Props = {
     id: string;
@@ -55,8 +59,9 @@ type Props = {
 
 /**
  * The name of the secret or variable a configuration value refers to, shown
- * as a chip: picked among the secrets and variables of the workspace, created,
- * or typed (a name defined elsewhere than in the listing).
+ * as a chip: picked among the secrets and variables of the workspace and the
+ * system variables of the instance (names only), created, or typed (a name
+ * defined elsewhere than in the listing).
  */
 export function SecretReferencePicker({
     id,
@@ -71,6 +76,7 @@ export function SecretReferencePicker({
     const {t} = useTranslation();
     const {openModal} = useModals();
     const {secrets, envs, loading, forbidden} = useSecretNames({workspaceId});
+    const system = useSystemEnvNames({workspaceId});
     const [open, setOpen] = useState(!!defaultOpen);
     const [search, setSearch] = useState('');
     // Listing the names needs to edit the workspace: free typing otherwise
@@ -103,6 +109,7 @@ export function SecretReferencePicker({
     const matches = (n: string) =>
         search === '' || n.toLowerCase().includes(typed.toLowerCase());
 
+    // Same order as the resolution: secret, variable, then system variable
     const variable = envs?.find(e => e.name === name);
     const kind: Kind | undefined =
         !listable || loading || name === ''
@@ -111,9 +118,11 @@ export function SecretReferencePicker({
               ? 'secret'
               : variable
                 ? 'variable'
-                : secrets && envs
-                  ? 'undefined'
-                  : undefined;
+                : system.names?.includes(name)
+                  ? 'system'
+                  : secrets && envs && !system.loading
+                    ? 'undefined'
+                    : undefined;
 
     const secretGroup = secrets?.some(s => matches(s.name)) ? (
         <CommandGroup
@@ -154,9 +163,27 @@ export function SecretReferencePicker({
                 ))}
         </CommandGroup>
     ) : null;
+    const systemGroup = system.names?.some(matches) ? (
+        <CommandGroup
+            key="system"
+            heading={t('integration.config.secret_ref.system', 'System')}
+        >
+            {system.names.filter(matches).map(n => (
+                <NameItem
+                    key={n}
+                    name={n}
+                    icon={<ServerIcon />}
+                    selected={n === name}
+                    testId={`secret-ref-system-${n}`}
+                    onSelect={() => pick(n)}
+                />
+            ))}
+        </CommandGroup>
+    ) : null;
     const known =
         secrets?.some(s => s.name === typed) ||
-        envs?.some(e => e.name === typed);
+        envs?.some(e => e.name === typed) ||
+        system.names?.includes(typed);
     const createSecret = (
         <CommandItem
             key="secret"
@@ -262,15 +289,15 @@ export function SecretReferencePicker({
                             }
                         />
                         <CommandList>
-                            {listable && loading ? (
+                            {listable && (loading || system.loading) ? (
                                 <div className="flex justify-center py-4">
                                     <Spinner />
                                 </div>
                             ) : null}
                             {listable
                                 ? secret
-                                    ? [secretGroup, variableGroup]
-                                    : [variableGroup, secretGroup]
+                                    ? [secretGroup, variableGroup, systemGroup]
+                                    : [variableGroup, secretGroup, systemGroup]
                                 : null}
                             {isValidSecretName(typed) && !known ? (
                                 <CommandGroup>
@@ -294,6 +321,7 @@ export function SecretReferencePicker({
                             !loading &&
                             !secretGroup &&
                             !variableGroup &&
+                            !systemGroup &&
                             search === '' ? (
                                 <p className="px-3 py-4 text-center text-sm text-muted-foreground">
                                     {t(
@@ -338,6 +366,8 @@ function ReferenceChip({name, kind}: {name: string; kind?: Kind}) {
                     <LockIcon className="size-3.5 shrink-0" />
                 ) : kind === 'variable' ? (
                     <BracesIcon className="size-3.5 shrink-0" />
+                ) : kind === 'system' ? (
+                    <ServerIcon className="size-3.5 shrink-0" />
                 ) : kind === 'undefined' ? (
                     <CircleAlertIcon className="size-3.5 shrink-0" />
                 ) : (
@@ -444,6 +474,17 @@ function ReferenceStatus({
                             = {value}
                         </span>
                     ) : null}
+                </>
+            );
+            break;
+        case 'system':
+            content = (
+                <>
+                    <ServerIcon className="size-3.5 shrink-0" />
+                    {t(
+                        'integration.config.secret_ref.is_system',
+                        'System variable of the instance'
+                    )}
                 </>
             );
             break;

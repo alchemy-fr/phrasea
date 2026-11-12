@@ -5,13 +5,9 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\QueryPaginationTrait;
-use App\Entity\Core\Workspace;
-use App\Security\Voter\AbstractVoter;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Api\Traits\SecretScopeTrait;
 
 /**
  * The secrets or variables of a workspace ("workspace", to its editors) or of
@@ -21,6 +17,7 @@ abstract class AbstractWorkspaceEnvCollectionProvider extends AbstractCollection
 {
     use SecurityAwareTrait;
     use QueryPaginationTrait;
+    use SecretScopeTrait;
 
     /**
      * @return class-string
@@ -34,21 +31,12 @@ abstract class AbstractWorkspaceEnvCollectionProvider extends AbstractCollection
             ->addOrderBy('t.name', 'ASC')
             ->addOrderBy('t.id', 'ASC');
 
-        if (null !== $workspaceId = self::getParameterId($operation, 'workspace')) {
-            $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
-            $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $workspace, 'Cannot edit Workspace');
-
+        if (null !== $workspace = $this->getSecretScopeWorkspace($operation)) {
             $queryBuilder
                 ->andWhere('t.workspace = :ws')
                 ->setParameter('ws', $workspace->getId());
-        } elseif (self::getParameterValue($operation, 'global', false)) {
-            if (!$this->isAdmin()) {
-                throw new AccessDeniedHttpException('The instance ones are managed by the administrators');
-            }
-
-            $queryBuilder->andWhere('t.workspace IS NULL');
         } else {
-            throw new BadRequestHttpException('You must provide "workspace" or "global"');
+            $queryBuilder->andWhere('t.workspace IS NULL');
         }
 
         return self::paginateQuery($operation, $queryBuilder);

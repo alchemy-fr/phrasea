@@ -21,8 +21,10 @@ const {auth, oauthApi, secretsApi} = vi.hoisted(() => ({
     secretsApi: {
         secretsQueryKey: 'workspace-secrets',
         envsQueryKey: 'workspace-envs',
+        systemEnvsQueryKey: 'system-envs',
         getWorkspaceSecrets: vi.fn(),
         getWorkspaceEnvs: vi.fn(),
+        getSystemEnvs: vi.fn(),
         postWorkspaceSecret: vi.fn(),
         putWorkspaceSecret: vi.fn(),
         deleteWorkspaceSecret: vi.fn(),
@@ -42,6 +44,7 @@ function page<T>(items: T[]) {
 beforeEach(() => {
     secretsApi.getWorkspaceSecrets.mockResolvedValue(page([]));
     secretsApi.getWorkspaceEnvs.mockResolvedValue(page([]));
+    secretsApi.getSystemEnvs.mockResolvedValue([]);
 });
 
 // Used by the Radix popover and cmdk, missing from jsdom
@@ -730,10 +733,60 @@ describe('ConfigForm secret references', () => {
         ).toBe('true');
     });
 
+    it('offers the system variables of the instance last, by name only', async () => {
+        secretsApi.getSystemEnvs.mockResolvedValue(['EXPOSE_API_URL']);
+        const {last} = renderForm({initial: {baseUrl: '${NONE}'}});
+
+        fireEvent.click(row('baseUrl').getByTestId('secret-ref-choose'));
+        const item = await screen.findByTestId(
+            'secret-ref-system-EXPOSE_API_URL'
+        );
+        expect(item.textContent).toBe('EXPOSE_API_URL');
+        expect(groupHeadings()).toEqual(['Variables', 'Secrets', 'System']);
+        expect(secretsApi.getSystemEnvs).toHaveBeenCalledWith(
+            {workspaceId: 'ws'},
+            expect.anything()
+        );
+
+        fireEvent.click(item);
+        expect(last()).toEqual({baseUrl: '${EXPOSE_API_URL}'});
+        await waitFor(() =>
+            expect(status('baseUrl')).toBe('System variable of the instance')
+        );
+        expect(row('baseUrl').getByTestId('secret-ref-chip').dataset.kind).toBe(
+            'system'
+        );
+    });
+
+    it('does not warn of a system variable referenced by a secret field', async () => {
+        secretsApi.getSystemEnvs.mockResolvedValue(['PHRASEANET_API_TOKEN']);
+        renderForm({initial: {apiKey: '${PHRASEANET_API_TOKEN}'}});
+
+        await waitFor(() =>
+            expect(status('apiKey')).toBe('System variable of the instance')
+        );
+        fireEvent.click(row('apiKey').getByTestId('secret-ref-choose'));
+        await screen.findByTestId('secret-ref-system-PHRASEANET_API_TOKEN');
+        expect(groupHeadings()).toEqual(['Secrets', 'Variables', 'System']);
+    });
+
+    it('resolves a variable of the workspace before a system variable', async () => {
+        secretsApi.getSystemEnvs.mockResolvedValue(['BASE_URL']);
+        renderForm({initial: {baseUrl: '${BASE_URL}'}});
+
+        await waitFor(() =>
+            expect(status('baseUrl')).toBe('Variable= https://expose.test')
+        );
+        expect(row('baseUrl').getByTestId('secret-ref-chip').dataset.kind).toBe(
+            'variable'
+        );
+    });
+
     it('keeps the free typing, quietly, when the listing is forbidden', async () => {
         const forbidden = new ApiError('Forbidden', 403, {});
         secretsApi.getWorkspaceSecrets.mockRejectedValue(forbidden);
         secretsApi.getWorkspaceEnvs.mockRejectedValue(forbidden);
+        secretsApi.getSystemEnvs.mockRejectedValue(forbidden);
         const {last} = renderForm({initial: {apiKey: '${BG_KEY}'}});
 
         await waitFor(() =>
