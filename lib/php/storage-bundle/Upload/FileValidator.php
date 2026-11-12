@@ -96,6 +96,35 @@ final class FileValidator
         }
     }
 
+    /**
+     * Checks the content of a received file: forbidden formats, consistency with
+     * the declared type, then the allowed types for the type of the content.
+     *
+     * @return string the type detected from the content
+     *
+     * @throws BadRequestHttpException
+     */
+    public function validateFileContent(string $path, string $filename, ?string $declaredType): string
+    {
+        return $this->validateHead(ContentTypeDetector::readHead($path), $filename, $declaredType);
+    }
+
+    /**
+     * @param string $head the first bytes of the file (ContentTypeDetector::HEAD_SIZE)
+     *
+     * @return string the type detected from the content
+     *
+     * @throws BadRequestHttpException
+     */
+    public function validateHead(string $head, string $filename, ?string $declaredType): string
+    {
+        $detector = new ContentTypeDetector();
+        $detectedType = $detector->checkBuffer($head, $declaredType);
+        $this->validateFile($filename, $detector->resolveType($declaredType, $detectedType));
+
+        return $detectedType;
+    }
+
     private function isAllowed(string $type, string $extension): bool
     {
         foreach ($this->getAllowedTypes() as $mask => $extensions) {

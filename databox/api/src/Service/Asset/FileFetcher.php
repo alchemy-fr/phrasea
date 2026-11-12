@@ -49,6 +49,40 @@ readonly class FileFetcher
         return $file->localTmpPath = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), path: $path);
     }
 
+    /**
+     * The first bytes of the file content, without fetching all of it.
+     */
+    public function getHead(File $file, int $length): string
+    {
+        if (!$this->isFetchable($file)) {
+            throw new PrivateFileException($file);
+        }
+
+        if (null !== $file->localTmpPath && file_exists($file->localTmpPath)) {
+            return (string) file_get_contents($file->localTmpPath, false, null, 0, $length);
+        }
+
+        if (File::STORAGE_S3_MAIN === $file->getStorage()) {
+            $stream = $this->fileStorageManager->getStream($file->getPath());
+            try {
+                $head = '';
+                while (strlen($head) < $length && !feof($stream)) {
+                    $chunk = fread($stream, $length - strlen($head));
+                    if (false === $chunk || '' === $chunk) {
+                        break;
+                    }
+                    $head .= $chunk;
+                }
+
+                return $head;
+            } finally {
+                fclose($stream);
+            }
+        }
+
+        return $this->fileDownloader->downloadHead($this->fileUrlResolver->resolveUrl($file), $length);
+    }
+
     public function downloadFile(File $file, array &$headers = []): string
     {
         if (!$file->isPathPublic()) {

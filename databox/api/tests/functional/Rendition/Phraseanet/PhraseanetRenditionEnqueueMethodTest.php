@@ -106,6 +106,12 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         self::assertEquals('import_source', $importEnvelope->getMessage()->getJobId());
         $this->consumeEvent($importEnvelope, $queueName);
 
+        // Then the check of the source content
+        $sent = $inMemoryTransport->getSent();
+        $checkEnvelope = end($sent);
+        self::assertEquals('check_content', $checkEnvelope->getMessage()->getJobId());
+        $this->consumeEvent($checkEnvelope, $queueName);
+
         $sent = $inMemoryTransport->getSent();
         $envelope = end($sent);
         $eventMessage = $envelope->getMessage();

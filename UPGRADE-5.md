@@ -13,7 +13,8 @@ Follow these steps in order. Each one is detailed in the sections below.
    new `similarity` and `face-recognition` profiles. Sockudo replaces Soketi:
    rename the `SOKETI_*` variables and the `soketi` profile (see
    [Sockudo replaces Soketi](#sockudo-replaces-soketi)). Rewrite
-   `*_ALLOWED_FILE_TYPES` as type/extension couples, without `*/*` (see
+   `*_ALLOWED_FILE_TYPES` as type/extension couples, without `*/*`, and pass
+   `ALLOWED_FILE_TYPES` to the Expose API (see
    [Allowed file types and file serving](#allowed-file-types-and-file-serving)).
    Declare in `*_API_ALLOWED_CLIENT_IDS` the custom Keycloak clients calling the
    APIs (see [Access tokens: allowed clients](#access-tokens-allowed-clients)).
@@ -692,6 +693,20 @@ See `doc/tech/Storage/03_file_types.md`.
   these changes in your `.env.local` or deployment values if you override them.
 - The expose `file` and `upload` modes (asset and sub-definition creation) and
   every presigned `PUT` URL are checked too.
+- The list now applies to the Databox and Expose APIs, and to every way a file
+  enters them (files sent in the request, URLs and imports, uploader, Phraseanet).
+  `docker-compose.yml` passes `DATABOX_ALLOWED_FILE_TYPES` to `databox-api-php`
+  (and its workers), and the new `EXPOSE_ALLOWED_FILE_TYPES` to
+  `expose-api-php`: the Databox types plus the output formats of the renditions.
+  Helm: set `ALLOWED_FILE_TYPES` on the Expose API too (the chart only sets it
+  on the Databox API).
+- The content of the files is checked against their declared type (libmagic, on
+  the first 64 KiB): HLS playlists and ffconcat scripts are refused, and so is
+  a file whose content is not of the family of its declared type (an HTML page
+  declared `image/jpeg`). Legitimate files declared with a wrong type are
+  refused too. A refused Databox asset source is quarantined and never
+  processed; bypassing the quarantine accepts it. Files stored before the
+  upgrade are not checked again until their asset is ingested again.
 - Signed URLs force the response `Content-Type` from the type known in the
   database. Only `image/*` (except SVG), `video/*`, `audio/*` and
   `application/pdf` are displayed inline; anything else (SVG, HTML, XML,

@@ -72,6 +72,19 @@ class AssetUploadTest extends AbstractExposeTestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
+    public function testUploadPlaylistGenerates400(): void
+    {
+        $publication = $this->createPublication();
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [
+            'publication_id' => $publication->getId(),
+        ], [
+            'file' => new UploadedFile(__DIR__.'/../fixtures/playlist.m3u8', 'video.mp4', 'video/mp4'),
+        ]);
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertStringContainsString('HLS playlist', $response->getContent());
+    }
+
     public function testUploadWithoutPublicationIdGenerates400(): void
     {
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [], [

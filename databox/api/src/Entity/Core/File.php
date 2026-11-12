@@ -85,6 +85,20 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $type = null;
 
+    /**
+     * The MIME type detected from the content by the asset ingest. Null until checked.
+     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    private ?string $detectedType = null;
+
+    /**
+     * Refused by the content check (content inconsistent with the declared type,
+     * type not allowed or forbidden format): later analyses cannot accept the
+     * file, only an admin bypass does.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $contentRejected = false;
+
     #[ORM\Column(type: Types::BIGINT, nullable: true)]
     private string|int|null $size = null;
 
@@ -181,6 +195,40 @@ class File extends AbstractUuidEntity implements \Stringable
     public function setType(?string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getDetectedType(): ?string
+    {
+        return $this->detectedType;
+    }
+
+    public function setDetectedType(?string $detectedType): void
+    {
+        $this->detectedType = $detectedType;
+    }
+
+    public function isContentRejected(): bool
+    {
+        return $this->contentRejected;
+    }
+
+    /**
+     * Refuses the file, whatever its analysis says until an admin bypasses it.
+     */
+    public function rejectContent(string $message): void
+    {
+        $this->contentRejected = true;
+        $this->setAnalysisResult(self::ANALYSIS_FAILED, message: $message);
+    }
+
+    /**
+     * Lifts a refusal of the content check, the file has to be analyzed again.
+     */
+    public function clearContentRejection(): void
+    {
+        if ($this->contentRejected) {
+            $this->resetAnalysis();
+        }
     }
 
     public function getFamily(): FileFamilyEnum
@@ -449,11 +497,11 @@ class File extends AbstractUuidEntity implements \Stringable
     }
 
     /**
-     * A file is accepted unless its analysis rejected it (a pending file is displayable).
+     * A file is accepted unless its content or its analysis was rejected (a pending file is displayable).
      */
     public function isAccepted(): bool
     {
-        return false !== $this->accepted;
+        return !$this->contentRejected && false !== $this->accepted;
     }
 
     /**
@@ -491,11 +539,13 @@ class File extends AbstractUuidEntity implements \Stringable
 
     public function bypassAnalysis(): void
     {
+        $this->contentRejected = false;
         $this->setAnalysisStatus(self::ANALYSIS_BYPASSED);
     }
 
     public function resetAnalysis(): void
     {
+        $this->contentRejected = false;
         $this->analysis = null;
         $this->analyzedAt = null;
         $this->accepted = null;

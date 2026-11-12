@@ -7,6 +7,7 @@ namespace App\Consumer\Handler;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
+use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Entity\Commit;
 use App\Entity\Target;
@@ -39,6 +40,7 @@ readonly class DownloadHandler
         private EntityManagerInterface $em,
         private CommitValidator $commitValidator,
         private MultipartUploadPlanner $planner,
+        private FileValidator $fileValidator,
         private LoggerInterface $logger,
         #[Autowire('%app.upload.max_file_size%')]
         private ?int $maxFileSize = null,
@@ -61,8 +63,9 @@ readonly class DownloadHandler
         } else {
             $originalName = basename($originalName);
         }
-        if (isset($headers['Content-Disposition'][0])) {
-            $contentDisposition = $headers['Content-Disposition'][0];
+        // Header names are lower-cased by the HTTP client
+        if (isset($headers['content-disposition'][0])) {
+            $contentDisposition = $headers['content-disposition'][0];
             if (preg_match('#\s+filename="(.+?)"#', $contentDisposition, $regs)) {
                 $originalName = $regs[1];
             }
@@ -83,6 +86,12 @@ readonly class DownloadHandler
 
         try {
             $size = $this->downloadTo($response, $file, $url);
+
+            try {
+                $this->fileValidator->validateFileContent(stream_get_meta_data($file)['uri'], $originalName, $contentType);
+            } catch (HttpExceptionInterface $e) {
+                $this->abort(sprintf('Download of "%s" refused: %s', $url, $e->getMessage()), $e);
+            }
 
             $path = $this->pathGenerator->generatePath($extension);
             rewind($file);

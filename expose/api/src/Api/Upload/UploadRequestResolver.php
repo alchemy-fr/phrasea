@@ -23,7 +23,7 @@ use Symfony\Component\Mime\MimeTypes;
  * sent with the request ("file") or a file descriptor ("upload") for which a
  * signed PUT URL is generated. The (type, extension) couple of the last two is
  * checked against the allowed file types (the multipart upload checked it when
- * it was created).
+ * it was created), and the content of the file sent with the request too.
  */
 final readonly class UploadRequestResolver
 {
@@ -63,7 +63,11 @@ final readonly class UploadRequestResolver
                 throw new BadRequestHttpException('Empty file');
             }
 
-            $this->fileValidator->validateFile($uploadedFile->getClientOriginalName(), $uploadedFile->getMimeType());
+            $this->fileValidator->validateFileContent(
+                $uploadedFile->getRealPath(),
+                $uploadedFile->getClientOriginalName(),
+                $uploadedFile->getMimeType(),
+            );
 
             $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
             $path = $this->pathGenerator->generatePath($extension);

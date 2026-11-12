@@ -131,4 +131,27 @@ class AssetUploadTest extends AbstractUploaderTestCase
         ]);
         $this->assertEquals(400, $response->getStatusCode());
     }
+
+    public function testUploadPlaylistGenerates400(): void
+    {
+        $client = self::createClient();
+
+        $target = $this->getOrCreateDefaultTarget();
+        $response = $client->request('POST', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                'Content-Type' => 'multipart/form-data',
+            ],
+            'extra' => [
+                'files' => [
+                    'file' => new UploadedFile(__DIR__.'/../fixtures/playlist.m3u8', 'video.mp4', 'video/mp4'),
+                ],
+                'parameters' => [
+                    'targetSlug' => $target->getSlug(),
+                ],
+            ],
+        ]);
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertStringContainsString('HLS playlist', $response->toArray(false)['detail']);
+    }
 }

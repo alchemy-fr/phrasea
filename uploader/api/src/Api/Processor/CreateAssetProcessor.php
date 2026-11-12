@@ -9,6 +9,7 @@ use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
+use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -39,6 +40,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         private TargetRepository $targetRepository,
         private UploadLinkRepository $uploadLinkRepository,
         private Security $security,
+        private FileValidator $fileValidator,
     ) {
     }
 
@@ -88,6 +90,12 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         if (null !== $link) {
             $this->assertFits($link, $size);
         }
+
+        $this->fileValidator->validateFileContent(
+            $uploadedFile->getRealPath(),
+            $uploadedFile->getClientOriginalName(),
+            $uploadedFile->getMimeType(),
+        );
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
         $path = $this->pathGenerator->generatePath($extension);

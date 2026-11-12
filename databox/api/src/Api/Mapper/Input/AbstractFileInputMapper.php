@@ -6,6 +6,7 @@ namespace App\Api\Mapper\Input;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
+use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\FileSourceInput;
@@ -28,6 +29,7 @@ abstract class AbstractFileInputMapper extends AbstractInputMapper
     private UploadManager $uploadManager;
     private FileUploadManager $fileUploadManager;
     private RequestStack $requestStack;
+    private FileValidator $fileValidator;
 
     protected function handleFromFile(?string $fileId, Workspace $workspace): ?File
     {
@@ -98,12 +100,16 @@ abstract class AbstractFileInputMapper extends AbstractInputMapper
             return null;
         }
 
+        $name = $source->originalName ?: $source->url;
+        $extension = FileUtil::getExtensionFromPath($name);
+        $type = $source->type ?? FileUtil::getTypeFromExtension($extension);
+        $this->fileValidator->validateFile($name, $type);
+
         $file = new File();
         $file->setPath($source->url);
         $file->setOriginalName($source->originalName);
-        $extension = FileUtil::getExtensionFromPath($source->originalName ?: $source->url);
         $file->setExtension($extension);
-        $file->setType($source->type ?? FileUtil::getTypeFromExtension($extension));
+        $file->setType($type);
         $file->setPathPublic(!$source->isPrivate);
         $file->setStorage(File::STORAGE_URL);
         $file->setImportPending($source->importFile);
@@ -142,6 +148,12 @@ abstract class AbstractFileInputMapper extends AbstractInputMapper
     public function setPostFlushStackListener(PostFlushStack $postFlushStackListener): void
     {
         $this->postFlushStackListener = $postFlushStackListener;
+    }
+
+    #[Required]
+    public function setFileValidator(FileValidator $fileValidator): void
+    {
+        $this->fileValidator = $fileValidator;
     }
 
     #[Required]

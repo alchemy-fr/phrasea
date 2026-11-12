@@ -72,3 +72,5 @@ services:
 
     Alchemy\StorageBundle\Upload\FileValidator:
         $allowedTypes: '%alchemy_storage.upload.allowed_types%'
+
+    Alchemy\StorageBundle\Upload\ContentTypeDetector: ~

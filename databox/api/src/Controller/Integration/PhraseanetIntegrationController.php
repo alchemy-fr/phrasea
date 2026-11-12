@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Integration;
 
+use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdef;
@@ -43,6 +44,7 @@ class PhraseanetIntegrationController extends AbstractController
         PhraseanetTokenManager $tokenManager,
         EntityManagerInterface $em,
         WorkflowOrchestrator $workflowOrchestrator,
+        FileValidator $fileValidator,
     ): Response {
         $token = $request->request->get('token');
         if (!$token) {
@@ -72,6 +74,11 @@ class PhraseanetIntegrationController extends AbstractController
         if (0 === $uploadedFile->getSize()) {
             throw new BadRequestHttpException('Empty file');
         }
+        $fileValidator->validateFileContent(
+            $uploadedFile->getRealPath(),
+            $uploadedFile->getClientOriginalName(),
+            $uploadedFile->getMimeType(),
+        );
 
         $asset = $em->getRepository(Asset::class)
             ->find($assetId);

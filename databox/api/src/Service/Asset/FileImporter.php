@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Service\Asset;
 
+use Alchemy\StorageBundle\Upload\FileValidator;
 use App\Border\Exception\UnsupportedUriException;
 use App\Entity\Core\File;
+use App\Service\Asset\Exception\FileImportRefusedException;
 use App\Service\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Header;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Fetch the content of a file referenced by URL and store it on the main storage.
@@ -22,12 +25,15 @@ readonly class FileImporter
         private FileFetcher $fileFetcher,
         private EntityManagerInterface $em,
         private LoggerInterface $logger,
+        private FileValidator $fileValidator,
     ) {
     }
 
     /**
      * Errors that retrying never fixes are logged and leave the file untouched
      * (still referenced by URL); transient ones are thrown.
+     *
+     * @throws FileImportRefusedException when the content is refused: the file is rejected
      */
     public function importFile(File $file): void
     {
@@ -66,14 +72,32 @@ readonly class FileImporter
 
         try {
             $mimeType = null;
-            if (isset($headers['Content-Type'])) {
-                $type = Header::parse($headers['Content-Type']);
-                if (null === $file->getType() && !empty($type)) {
+            // Header names are lower-cased by the HTTP client
+            if (isset($headers['content-type'][0])) {
+                $type = Header::parse($headers['content-type'][0]);
+                if (null === $file->getType() && !empty($type[0][0])) {
                     $mimeType = $type[0][0];
-                    $file->setType($mimeType);
                 }
             }
 
+            try {
+                $detectedType = $this->fileValidator->validateFileContent(
+                    $src,
+                    $file->getOriginalName() ?? $file->getPath(),
+                    $mimeType ?? $file->getType(),
+                );
+            } catch (BadRequestHttpException $e) {
+                $file->rejectContent($e->getMessage());
+                $this->em->persist($file);
+                $this->em->flush();
+
+                throw new FileImportRefusedException($file, $e);
+            }
+
+            if (null !== $mimeType) {
+                $file->setType($mimeType);
+            }
+            $file->setDetectedType($detectedType);
             $file->setSize(filesize($src));
 
             $finalPath = $this->fileManager->storeFile(

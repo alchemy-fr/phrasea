@@ -16,3 +16,10 @@ jobs:
         continue-on-skip: true
         steps:
             -   uses: App\Service\Workflow\Action\ImportSourceFileAction
+
+    check_content:
+        name: Check source file content
+        # Every integration job needs it: a refused file is never processed
+        needs: [import_source]
+        steps:
+            -   uses: App\Service\Workflow\Action\CheckFileContentAction

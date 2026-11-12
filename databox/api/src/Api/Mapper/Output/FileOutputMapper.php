@@ -64,7 +64,10 @@ class FileOutputMapper implements OutputMapperInterface
         // Kept for backward compatibility with `accepted`/`analysisPending`:
         // `null` still means "pending". Acceptance stays owned by File::isAccepted(),
         // the same method the analyzer workflow uses, so the two cannot drift.
-        if ($output->analysisEnforced) {
+        if ($data->isContentRejected()) {
+            // Refused whether the workspace enforces the analysis or not
+            $output->accepted = false;
+        } elseif ($output->analysisEnforced) {
             if ($data->isAnalyzed()) {
                 $output->accepted = $data->isAccepted();
             }
@@ -91,7 +94,8 @@ class FileOutputMapper implements OutputMapperInterface
             $output->usages = $this->resolveUsages($data);
         }
 
-        if ($data->isPathPublic()) {
+        // The content of a refused file is never served
+        if ($data->isPathPublic() && !$data->isContentRejected()) {
             $output->setUrl($this->fileUrlResolver->resolveUrl($data));
         }
 

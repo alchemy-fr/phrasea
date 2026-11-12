@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Border;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Upload\FileValidator;
 use App\Border\Model\FileContent;
 use App\Border\Model\InputFile;
 use App\Entity\Core\File;
@@ -14,8 +15,13 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class BorderManager
 {
-    public function __construct(private EntityManagerInterface $em, private UriDownloader $fileDownloader, private FileStorageManager $storageManager, private FilePathGenerator $pathGenerator)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private UriDownloader $fileDownloader,
+        private FileStorageManager $storageManager,
+        private FilePathGenerator $pathGenerator,
+        private FileValidator $fileValidator,
+    ) {
     }
 
     public function acceptFile(InputFile $inputFile, Workspace $workspace): File
@@ -25,7 +31,13 @@ final readonly class BorderManager
         $localFilePath = $this->importFile($inputFile);
 
         $content = new FileContent($inputFile, $localFilePath);
-        $this->validateContent($content);
+        try {
+            $detectedType = $this->validateContent($content);
+        } catch (\Throwable $e) {
+            unlink($localFilePath);
+
+            throw $e;
+        }
 
         $finalPath = $this->pathGenerator->generatePath($workspace->getId(), $inputFile->getExtension());
 
@@ -45,6 +57,7 @@ final readonly class BorderManager
         $file->setExtension($inputFile->getExtension());
         $file->setSize($inputFile->getSize());
         $file->setType($inputFile->getType());
+        $file->setDetectedType($detectedType);
         $file->setWorkspace($workspace);
 
         $this->em->persist($file);
@@ -55,10 +68,17 @@ final readonly class BorderManager
 
     public function validateFile(InputFile $file): void
     {
+        $this->fileValidator->validateFile($file->getName(), $file->getType());
     }
 
-    public function validateContent(FileContent $fileContent): void
+    /**
+     * @return string the type detected from the content
+     */
+    public function validateContent(FileContent $fileContent): string
     {
+        $inputFile = $fileContent->getFile();
+
+        return $this->fileValidator->validateFileContent($fileContent->getPath(), $inputFile->getName(), $inputFile->getType());
     }
 
     private function importFile(InputFile $file): string

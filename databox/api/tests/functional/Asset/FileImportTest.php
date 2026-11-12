@@ -39,6 +39,7 @@ final class FileImportTest extends AbstractDataboxTestCase
 
     private const string EDITOR = KeycloakClientTestMock::USER_UID;
     private const string IMPORT_JOB_ID = 'import_source';
+    private const string CHECK_CONTENT_JOB_ID = 'check_content';
 
     private InMemoryTransport $queue;
 
@@ -117,7 +118,8 @@ final class FileImportTest extends AbstractDataboxTestCase
                 $this->assertNotEmpty($job->getNeeds()->getArrayCopy(), $jobId);
             }
         }
-        $this->assertSame([self::IMPORT_JOB_ID], $jobs->offsetGet($this->getAnalyzerJobId($integration))->getNeeds()->getArrayCopy());
+        $this->assertSame([self::IMPORT_JOB_ID], $jobs->offsetGet(self::CHECK_CONTENT_JOB_ID)->getNeeds()->getArrayCopy());
+        $this->assertSame([self::IMPORT_JOB_ID, self::CHECK_CONTENT_JOB_ID], $jobs->offsetGet($this->getAnalyzerJobId($integration))->getNeeds()->getArrayCopy());
     }
 
     public function testIntegrationsRunWhenThereIsNothingToImport(): void

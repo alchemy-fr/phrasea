@@ -1,10 +1,10 @@
 # Allowed file types and file serving
 
-Files are uploaded by browsers straight to the storage, then served from it through signed URLs. Two rules keep a file from becoming a script running on the storage origin (stored XSS): the upload checks the couple formed by the declared MIME type and the file extension, and every signed URL forces the response headers from the type known by the application.
+Files are uploaded by browsers straight to the storage, then served from it through signed URLs. Three rules keep a file from becoming a script running on the storage origin (stored XSS), or from being handed to a media tool as something else: the upload checks the couple formed by the declared MIME type and the file extension, the content of the file is checked against the declared type, and every signed URL forces the response headers from the type known by the application.
 
 ## Allowed file types (upload)
 
-`DATABOX_ALLOWED_FILE_TYPES` and `UPLOADER_ALLOWED_FILE_TYPES` (`ALLOWED_FILE_TYPES` inside the containers, `alchemy_storage.upload.allowed_types` in the Symfony configuration) list MIME types, each with the extensions allowed **for this type**:
+`DATABOX_ALLOWED_FILE_TYPES`, `UPLOADER_ALLOWED_FILE_TYPES` and `EXPOSE_ALLOWED_FILE_TYPES` (`ALLOWED_FILE_TYPES` inside the API, worker and client containers, `alchemy_storage.upload.allowed_types` in the Symfony configuration) list MIME types, each with the extensions allowed **for this type**:
 
 ```dotenv
 DATABOX_ALLOWED_FILE_TYPES='image/*(.jpg,.jpeg,.png),application/pdf(.pdf),audio/*(.mp3,.wav),application/x-indesign(.indd),text/csv'
@@ -17,11 +17,34 @@ DATABOX_ALLOWED_FILE_TYPES='image/*(.jpg,.jpeg,.png),application/pdf(.pdf),audio
 - A file without extension, or whose type is neither declared nor guessable from its extension, is refused.
 - An empty value accepts every file.
 
-The check applies to multipart uploads (`POST /uploads`), to the presigned `PUT` URLs (expose `upload` mode) and to the files sent in the request (expose `file` mode, with the type detected from the content). The clients read the same variable to filter the file picker.
+The check applies to every way a file enters an application:
+
+- multipart uploads (`POST /uploads`) and presigned `PUT` URLs (expose `upload` mode), on the declared type;
+- files sent in the request (`file` field of databox assets and renditions, uploader `POST /assets`, expose `file` mode, Phraseanet renditions), on the type of the content (see below);
+- databox files given by URL (`sourceFile`, CSV import, webhooks…), on the declared type or the type of the extension when the file is created, then on the type of the content when it is imported;
+- files coming from the uploader into databox, and files the uploader downloads from a URL.
+
+The clients read the same variable to filter the file picker. `EXPOSE_ALLOWED_FILE_TYPES` covers what Databox publishes: its own allowed types plus the output formats of the renditions (`webm`, `ogg`, `apng`, `tiff`…).
 
 Browsers do not always know the type of a file: the databox and uploader clients fall back to the type of the extension (`.indd` → `application/x-indesign`). A client sending `application/octet-stream` needs an `application/octet-stream(.ext)` entry: such files are always served as attachments (see below).
 
-The bytes of the file are not inspected: the type is the one declared by the client. The protection against malicious content is the forced response headers below.
+## Content check
+
+The type declared by the client is kept as the type of the file, but the first bytes of the content (64 KiB) are inspected with libmagic (`Alchemy\StorageBundle\Upload\ContentTypeDetector`):
+
+- **Forbidden formats**, whatever the declared type: HLS playlists (`#EXTM3U`) and ffconcat scripts (`ffconcat version`), even after a BOM or blank lines. ffmpeg would read the files or URLs they list.
+- **Families**: the detected type must belong to the family of the declared one: image (including SVG, Photoshop, PostScript), audio/video (one family: libmagic cannot tell an audio-only MP4 or OGG from a video), document (PDF, RTF, text, CSV, Office, OpenDocument), or other. A JPEG declared `video/mp4`, or an HTML page declared `image/jpeg`, is refused. A file declared without type or as `application/octet-stream` claims nothing and is not compared.
+- **Containers**: libmagic sometimes only knows the container of a format. These detected types are accepted for a more precise declared type: `application/zip` for OOXML and OpenDocument, `application/x-ole-storage`, `application/CDFV2` and `application/vnd.ms-office` for legacy Office documents, `text/xml` for SVG, `application/pdf` for Illustrator, `text/plain` for CSV, and `application/octet-stream` (nothing recognized) for raw HEVC/H.264 streams and for any declared type outside the image, audio/video and document families (InDesign…). What libmagic returns for each allowed format is recorded in `ContentTypeDetectorTest`.
+- **Allowed types**: the detected type (the declared one when only its container or nothing was recognized) must be allowed for the file name. An SVG named `.jpg` is refused when `image/svg+xml` is not allowed for `.jpg`.
+
+Where it runs:
+
+- Files received by an API (direct uploads, uploader, expose, Phraseanet, imports by URL): a refused file is not stored, the request answers `400`, the job or the message fails with the reason.
+- Databox asset source files, whatever their origin (multipart upload, URL, uploader, new version): the `check_content` job of the asset ingest workflow, run after the import of the source and before every integration. It stores the detected type on the file (`file.detected_type`). A refused file is marked as such (`file.content_rejected`): its analysis fails with a message giving both types (`Declared type "image/jpeg", content is "text/html"`), the asset is quarantined, its URL is not served, and the job fails, so that no rendition or analysis runs. Later analyses do not lift the refusal. Bypassing the quarantine (`POST /assets/{id}/quarantine-bypass`, granted by the `bypassQuarantine` capability) does, and the next ingest keeps that decision.
+
+Files already stored before this check are not inspected again; running the asset ingest workflow again checks their content.
+
+Legitimate files declared with a wrong type by a client are refused too.
 
 ## Response headers of signed URLs (read)
 

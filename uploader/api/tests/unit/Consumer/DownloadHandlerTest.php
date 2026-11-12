@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Consumer;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
+use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Consumer\Handler\Download;
 use App\Consumer\Handler\DownloadHandler;
@@ -26,12 +27,16 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class DownloadHandlerTest extends TestCase
 {
+    private const string JPEG = "\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01";
+    private const string GIF = "GIF89a\x01\x00\x01\x00";
+
     #[DataProvider('downloadProvider')]
     public function testDownload(
         string $url,
         MockResponse $response,
         string $expectedMimeType,
         ?string $expectedExtension,
+        int $expectedSize = 6,
     ): void {
         /** @var MessageBusInterface|MockObject $busMock */
         $busMock = $this->createMock(MessageBusInterface::class);
@@ -57,7 +62,7 @@ class DownloadHandlerTest extends TestCase
                 $this->stringEndsWith('.'.$expectedExtension),
                 $expectedMimeType,
                 'baz'.($expectedExtension ? '.'.$expectedExtension : ''),
-                6
+                $expectedSize
             )
             ->willReturn(new Asset())
         ;
@@ -96,6 +101,7 @@ class DownloadHandlerTest extends TestCase
         ?int $maxCommitSize = null,
         ?int $maxFileCount = null,
         int $maxObjectSize = 52_776_558_133_248,
+        string $allowedFileTypes = '',
     ): DownloadHandler {
         return new DownloadHandler(
             $storage,
@@ -106,6 +112,7 @@ class DownloadHandlerTest extends TestCase
             $em,
             new CommitValidator($maxCommitSize, $maxFileCount),
             new MultipartUploadPlanner(5_242_880, 5_368_709_120, 10_000, $maxObjectSize),
+            new FileValidator($allowedFileTypes),
             new NullLogger(),
             $maxFileSize,
         );
@@ -145,7 +152,7 @@ class DownloadHandlerTest extends TestCase
         $assetManager = $this->createMock(AssetManager::class);
         $assetManager->expects($this->once())
             ->method('createAsset')
-            ->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), 12)
+            ->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), strlen(self::JPEG) + 12)
             ->willReturn(new Asset());
 
         $bus = $this->createMock(MessageBusInterface::class);
@@ -153,7 +160,7 @@ class DownloadHandlerTest extends TestCase
 
         $handler = self::createHandler(
             $storage,
-            new MockHttpClient([new MockResponse(['foo', 'bar', 'bazbaz'], ['response_headers' => ['content-type' => 'image/jpeg']])]),
+            new MockHttpClient([new MockResponse([self::JPEG, 'foo', 'bar', 'bazbaz'], ['response_headers' => ['content-type' => 'image/jpeg']])]),
             $assetManager,
             $bus,
             $this->createStub(PathGeneratorInterface::class),
@@ -162,7 +169,65 @@ class DownloadHandlerTest extends TestCase
 
         $handler(self::createMessage());
 
-        $this->assertSame('foobarbazbaz', $stored);
+        $this->assertSame(self::JPEG.'foobarbazbaz', $stored);
+    }
+
+    public static function refusedContentProvider(): iterable
+    {
+        yield 'html served as an image' => ['<!DOCTYPE html><html><body><script>alert(1)</script></body></html>', ['content-type' => 'image/jpeg'], ''];
+        yield 'hls playlist' => ["#EXTM3U\n#EXTINF:10,\nfile:///etc/passwd\n", ['content-type' => 'video/mp4'], ''];
+        yield 'type not allowed' => [self::GIF, ['content-type' => 'image/gif'], 'image/jpeg(.jpg)'];
+        yield 'type not allowed, without declared type' => [self::GIF, [], 'image/jpeg(.jpg)'];
+    }
+
+    #[DataProvider('refusedContentProvider')]
+    public function testARefusedContentIsNotStored(string $content, array $headers, string $allowedFileTypes): void
+    {
+        $storage = $this->createMock(FileStorageManager::class);
+        $storage->expects($this->never())->method('storeStream');
+        $assetManager = $this->createMock(AssetManager::class);
+        $assetManager->expects($this->never())->method('createAsset');
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())->method('dispatch');
+
+        $handler = self::createHandler(
+            $storage,
+            new MockHttpClient([new MockResponse($content, ['response_headers' => $headers])]),
+            $assetManager,
+            $bus,
+            $this->createStub(PathGeneratorInterface::class),
+            $this->createEm(),
+            allowedFileTypes: $allowedFileTypes,
+        );
+
+        $this->expectException(UnrecoverableMessageHandlingException::class);
+        $this->expectExceptionMessage('Download of "http://foo.bar/baz.jpg" refused');
+        $handler(self::createMessage());
+    }
+
+    public function testTheFileNameIsReadFromTheContentDisposition(): void
+    {
+        $assetManager = $this->createMock(AssetManager::class);
+        $assetManager->expects($this->once())
+            ->method('createAsset')
+            ->with($this->anything(), $this->anything(), 'image/jpeg', 'photo.jpg')
+            ->willReturn(new Asset());
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->method('dispatch')->willReturnCallback(fn (object $m) => new Envelope($m));
+
+        $handler = self::createHandler(
+            $this->createStub(FileStorageManager::class),
+            new MockHttpClient([new MockResponse(self::JPEG, ['response_headers' => [
+                'content-type' => 'image/jpeg',
+                'content-disposition' => 'attachment; filename="photo.jpg"',
+            ]])]),
+            $assetManager,
+            $bus,
+            $this->createStub(PathGeneratorInterface::class),
+            $this->createEm(),
+        );
+
+        $handler(self::createMessage('http://foo.bar/download?id=1'));
     }
 
     public static function oversizedResponseProvider(): iterable
@@ -237,21 +302,24 @@ class DownloadHandlerTest extends TestCase
         return [
             [
                 'http://foo.bar/baz.jpg',
-                new MockResponse('foobar', ['response_headers' => ['content-type' => 'image/jpeg']]),
+                new MockResponse(self::JPEG, ['response_headers' => ['content-type' => 'image/jpeg']]),
                 'image/jpeg',
                 'jpg',
+                strlen(self::JPEG),
             ],
             [
                 'http://foo.bar/baz.jpg',
-                new MockResponse('foobar', ['response_headers' => ['content-type' => 'image/gif']]),
+                new MockResponse(self::GIF, ['response_headers' => ['content-type' => 'image/gif']]),
                 'image/gif',
                 'jpg',
+                strlen(self::GIF),
             ],
             [
                 'http://foo.bar/baz',
-                new MockResponse('foobar', ['response_headers' => ['content-type' => 'image/gif']]),
+                new MockResponse(self::GIF, ['response_headers' => ['content-type' => 'image/gif']]),
                 'image/gif',
                 'gif',
+                strlen(self::GIF),
             ],
             [
                 'http://foo.bar/baz.txt?foo=bar',
