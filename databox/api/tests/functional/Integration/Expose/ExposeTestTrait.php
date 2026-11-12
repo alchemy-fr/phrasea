@@ -120,7 +120,7 @@ trait ExposeTestTrait
         return $token;
     }
 
-    protected function createSourceFile(Workspace $workspace, string $originalName, string $type = 'image/jpeg'): File
+    protected function createSourceFile(Workspace $workspace, ?string $originalName, string $type = 'image/jpeg', ?string $extension = null): File
     {
         $em = self::getEntityManager();
         $file = new File();
@@ -129,6 +129,7 @@ trait ExposeTestTrait
         $file->setPath('files/'.uniqid());
         $file->setType($type);
         $file->setOriginalName($originalName);
+        $file->setExtension($extension);
         $file->setSize(42);
         $em->persist($file);
         $em->flush();
@@ -139,14 +140,14 @@ trait ExposeTestTrait
     /**
      * An asset with a source file and its preview and thumbnail renditions.
      */
-    protected function createPublishableAsset(Workspace $workspace, string $ownerId, string $originalName): Asset
+    protected function createPublishableAsset(Workspace $workspace, string $ownerId, ?string $originalName, string $type = 'image/jpeg', ?string $extension = null): Asset
     {
         $em = self::getEntityManager();
         $asset = $this->createAsset([
             'workspace' => $em->find(Workspace::class, $workspace->getId()),
             'ownerId' => $ownerId,
         ]);
-        $asset->setSource($this->createSourceFile($workspace, $originalName));
+        $asset->setSource($this->createSourceFile($workspace, $originalName, $type, $extension));
         $em->flush();
 
         foreach ($this->getPublicDefinitions($workspace) as $definition) {

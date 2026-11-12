@@ -12,6 +12,7 @@ use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationToken;
 use App\Http\LocaleContext;
 use App\Integration\IntegrationConfig;
@@ -301,7 +302,7 @@ final readonly class ExposeClient
             $multipart = $this->multipartUploader->upload(
                 $this->create($config, $integrationToken),
                 $file->path,
-                $file->renameFile($source->getOriginalName() ?? 'file'),
+                $file->renameFile(self::uploadFilename($source)),
                 $file->mimeType,
             );
 
@@ -322,6 +323,25 @@ final readonly class ExposeClient
         }
 
         return $pubAsset['id'];
+    }
+
+    /**
+     * The name of an uploaded file: Expose only accepts a file whose extension matches its type,
+     * so the extension of the file is added to a name which has none (or to "file" when it has no name).
+     */
+    private static function uploadFilename(File $file): string
+    {
+        $name = $file->getOriginalName();
+        if (null === $name || '' === $name) {
+            $name = 'file';
+        }
+
+        $extension = $file->getExtension();
+        if (null !== $extension && '' !== $extension && '' === pathinfo($name, PATHINFO_EXTENSION)) {
+            $name = rtrim($name, '.').'.'.$extension;
+        }
+
+        return $name;
     }
 
     public function putAsset(
@@ -366,7 +386,7 @@ final readonly class ExposeClient
                         'upload' => [
                             'type' => $clipped->mimeType,
                             'size' => $size,
-                            'name' => $clipped->renameFile($file->getOriginalName()),
+                            'name' => $clipped->renameFile(self::uploadFilename($file)),
                         ],
                         ...$extraData,
                     ],

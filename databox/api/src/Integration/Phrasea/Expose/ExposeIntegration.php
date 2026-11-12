@@ -106,12 +106,12 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                     $userId,
                     $basket,
                     self::DATA_PUBLICATION_ID,
-                    json_encode([
+                    self::encodePublicationData([
                         'id' => $created['id'],
                         'ignoreRoi' => $ignoreRoi,
                         // As created: a later renaming in Expose is not reflected
                         'title' => $created['title'],
-                    ], JSON_THROW_ON_ERROR),
+                    ]),
                     multiple: true,
                 );
 
@@ -170,14 +170,17 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
     public function transformData(IntegrationData $data, IntegrationConfig $config): void
     {
-        ['id' => $publicationId, 'ignoreRoi' => $ignoreRoi, 'title' => $title] = self::readPublicationData($data);
+        $publication = self::readPublicationData($data);
+        $publicationId = $publication['id'];
 
         $data->setValue([
             'id' => $publicationId,
-            'title' => $title,
+            'title' => $publication['title'],
             'url' => $config['clientUrl'].'/'.$publicationId,
             'editUrl' => $config['clientUrl'].'/publications/'.$publicationId.'/edit',
-            'ignoreRoi' => $ignoreRoi,
+            'ignoreRoi' => $publication['ignoreRoi'],
+            'skipped' => $publication['skipped'],
+            'skippedTotal' => $publication['skippedTotal'],
         ]);
         $data->setName(self::DATA_PUBLICATION);
     }
@@ -186,8 +189,10 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
      * The publication of a basket synchronization: stored as JSON, or as the bare publication ID
      * by the synchronizations created before the option to publish the whole files.
      * The title is only known for the synchronizations created since it is stored.
+     * The assets refused by Expose during the last synchronization are listed in "skipped"
+     * (the first ones only, "skippedTotal" counts them all).
      *
-     * @return array{id: string, ignoreRoi: bool, title: string|null}
+     * @return array{id: string, ignoreRoi: bool, title: string|null, skipped: list<array<string, mixed>>, skippedTotal: int}
      */
     public static function readPublicationData(IntegrationData $data): array
     {
@@ -195,10 +200,16 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         if (is_string($value) && str_starts_with($value, '{')) {
             $decoded = json_decode($value, true);
             if (is_array($decoded) && is_string($decoded['id'] ?? null)) {
+                $skipped = is_array($decoded['skipped'] ?? null)
+                    ? array_values(array_filter($decoded['skipped'], is_array(...)))
+                    : [];
+
                 return [
                     'id' => $decoded['id'],
                     'ignoreRoi' => true === ($decoded['ignoreRoi'] ?? false),
                     'title' => is_string($decoded['title'] ?? null) ? $decoded['title'] : null,
+                    'skipped' => $skipped,
+                    'skippedTotal' => max(count($skipped), is_int($decoded['skippedTotal'] ?? null) ? $decoded['skippedTotal'] : 0),
                 ];
             }
         }
@@ -207,7 +218,33 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
             'id' => (string) $value,
             'ignoreRoi' => false,
             'title' => null,
+            'skipped' => [],
+            'skippedTotal' => 0,
         ];
+    }
+
+    /**
+     * @param array{id: string, ignoreRoi: bool, title: string|null, skipped?: list<array<string, mixed>>, skippedTotal?: int} $publication
+     */
+    public static function writePublicationData(IntegrationData $data, array $publication): void
+    {
+        $data->setValue(self::encodePublicationData($publication));
+    }
+
+    /**
+     * @param array{id: string, ignoreRoi: bool, title: string|null, skipped?: list<array<string, mixed>>, skippedTotal?: int} $publication
+     */
+    private static function encodePublicationData(array $publication): string
+    {
+        $skipped = $publication['skipped'] ?? [];
+
+        return json_encode([
+            'id' => $publication['id'],
+            'ignoreRoi' => $publication['ignoreRoi'],
+            'title' => $publication['title'],
+            'skipped' => $skipped,
+            'skippedTotal' => $publication['skippedTotal'] ?? count($skipped),
+        ], JSON_THROW_ON_ERROR);
     }
 
     public function supportData(string $integrationName, string $dataName, IntegrationConfig $config): bool

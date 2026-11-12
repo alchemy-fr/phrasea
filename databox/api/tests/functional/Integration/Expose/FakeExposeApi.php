@@ -46,9 +46,32 @@ final class FakeExposeApi
      */
     public array $failures = [];
 
+    /**
+     * The files announced to "POST /uploads", in order.
+     *
+     * @var list<array{filename: ?string, type: ?string}>
+     */
+    public array $uploads = [];
+
+    /**
+     * @var (callable(string, ?string): ?string)|null
+     */
+    private $uploadRefuser;
+
     public function createClient(): MockHttpClient
     {
         return new MockHttpClient($this, self::BASE_URL);
+    }
+
+    /**
+     * Refuses the uploads for which $refuser returns a reason, as the file validation of Expose does
+     * (a 400 answer whose "detail" is the reason).
+     *
+     * @param callable(string $filename, ?string $type): ?string $refuser
+     */
+    public function refuseUploads(callable $refuser): void
+    {
+        $this->uploadRefuser = $refuser;
     }
 
     public function addPublication(string $title, bool $editable = true): string
@@ -148,7 +171,7 @@ final class FakeExposeApi
         return match (true) {
             'POST' === $method && '/publications' === $path => $this->createPublication($body),
             'GET' === $method && 2 === count($segments) && 'publications' === $segments[0] => $this->getPublication($segments[1]),
-            'POST' === $method && '/uploads' === $path => $this->createUpload(),
+            'POST' === $method && '/uploads' === $path => $this->createUpload($body),
             'POST' === $method && '/assets' === $path => $this->createAsset($body),
             'PATCH' === $method && 'assets' === $segments[0] => $this->updateAsset($segments[1], $body),
             'DELETE' === $method && 'assets' === $segments[0] => $this->deleteAsset($segments[1]),
@@ -209,8 +232,16 @@ final class FakeExposeApi
         ]);
     }
 
-    private function createUpload(): MockResponse
+    private function createUpload(array $body): MockResponse
     {
+        $filename = isset($body['filename']) ? (string) $body['filename'] : null;
+        $type = isset($body['type']) ? (string) $body['type'] : null;
+        $this->uploads[] = ['filename' => $filename, 'type' => $type];
+
+        if (null !== $this->uploadRefuser && null !== $reason = ($this->uploadRefuser)((string) $filename, $type)) {
+            return self::json(['detail' => $reason], 400);
+        }
+
         $id = Uuid::uuid4()->toString();
 
         return self::json([
