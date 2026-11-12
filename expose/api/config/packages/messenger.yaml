@@ -18,7 +18,7 @@ when@dev:
     framework:
         messenger:
             transports:
-                p1: 'sync://'
+                p1: '%alchemy_messenger.dev_transport_dsn%/p1'
 
 when@test:
     framework:

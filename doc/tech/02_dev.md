@@ -68,6 +68,21 @@ dc run --rm dev bin/dev/install.sh
 dc run --rm dev pnpm install
 ```
 
+### Messages handled by the workers
+
+In dev, the Symfony Messenger messages are handled synchronously, in the request or command that dispatches them
+(`DEV_MESSENGER_TRANSPORT_DSN=sync://`). To go through RabbitMQ and the workers, as in production, set in `.env.local`:
+
+```dotenv
+DEV_MESSENGER_TRANSPORT_DSN=
+DATABOX_WORKER_REPLICAS=1
+EXPOSE_WORKER_REPLICAS=1
+UPLOADER_WORKER_REPLICAS=1
+```
+
+then recreate the PHP containers (`dc up -d`). The workers run the mounted code: restart them (`dc restart databox-worker`)
+after a PHP change, a long-running consumer keeps the classes it has already loaded.
+
 ### Composer caching in Docker
 
 The PHP API images (databox, expose, uploader) install their dependencies in a dedicated layer before the code is copied,

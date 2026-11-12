@@ -85,6 +85,9 @@ class AlchemyMessengerExtension extends Extension implements PrependExtensionInt
             'write_timeout' => 3,
             'heartbeat' => 0,
         ]);
+        // Dev only: "sync://" handles each message in the process that dispatches it, an empty value sends it to RabbitMQ for the workers.
+        $container->setParameter('env(DEV_MESSENGER_TRANSPORT_DSN)', 'sync://');
+        $container->setParameter('alchemy_messenger.dev_transport_dsn', '%env(default:alchemy_messenger.amqp_transport_dsn:DEV_MESSENGER_TRANSPORT_DSN)%');
 
         $container->prependExtensionConfig('framework', [
             'messenger' => [
