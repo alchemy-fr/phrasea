@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@alchemy/next-theme/styles/themes.css';
+@import '@alchemy/next-ui/styles/base.css';
+
+/*
+ * HTML written by the editors (descriptions, terms): readable defaults for
+ * the elements it may hold. `.attributes` / `.attribute-*` come with the
+ * descriptions built from the attributes of the Databox assets.
+ */
+@layer components {
+    .rich-text {
+        overflow-wrap: anywhere;
+        & > * + * {
+            margin-top: 0.75em;
+        }
+        & a {
+            @apply text-primary underline underline-offset-2;
+        }
+        & ul {
+            @apply list-disc pl-5;
+        }
+        & ol {
+            @apply list-decimal pl-5;
+        }
+        & h1,
+        & h2,
+        & h3,
+        & h4 {
+            @apply font-semibold text-foreground;
+        }
+        & h1 {
+            font-size: 1.4em;
+        }
+        & h2 {
+            font-size: 1.25em;
+        }
+        & h3 {
+            font-size: 1.1em;
+        }
+        & img {
+            @apply h-auto max-w-full rounded-md;
+        }
+        & blockquote {
+            @apply border-l-2 pl-3 italic;
+        }
+        & table {
+            @apply w-full border-collapse text-left;
+        }
+        & th,
+        & td {
+            @apply border px-2 py-1;
+        }
+        /*
+         * One name | value row per `.attribute-group`, whose box is dropped so
+         * that the name and the value are the cells of the grid.
+         * Below `sm`, the name stands above its value.
+         */
+        & .attributes {
+            @apply grid grid-cols-1 gap-x-4 gap-y-1;
+            @variant sm {
+                grid-template-columns: fit-content(40%) 1fr;
+            }
+        }
+        & .attribute-group {
+            display: contents;
+        }
+        & .attribute-group + .attribute-group > .attribute-name {
+            @apply max-sm:mt-2;
+        }
+        & .attribute-name,
+        & .attribute-title {
+            @apply font-medium text-foreground;
+        }
+        & .attribute-value-type-textarea {
+            white-space: pre-line;
+        }
+        & .attribute-value-type-code,
+        & .attribute-value-type-json {
+            @apply font-mono text-xs;
+            white-space: pre-wrap;
+        }
+    }
+}

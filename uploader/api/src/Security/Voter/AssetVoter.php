@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Asset;
 use App\Security\Authentication\AssetToken;
+use App\Security\UploadLinkUser;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -15,6 +16,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class AssetVoter extends Voter
 {
     final public const string ACK = 'ACK';
+    final public const string DELETE = 'DELETE';
     final public const string DOWNLOAD = 'DOWNLOAD';
     final public const string READ_METADATA = 'READ_META';
 
@@ -33,6 +35,20 @@ class AssetVoter extends Voter
      */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
+        if (self::DELETE === $attribute) {
+            $user = $token->getUser();
+            if ($subject->isCommitted()) {
+                return false;
+            }
+            if ($user instanceof UploadLinkUser) {
+                return $subject->getUploadLink()?->getId() === $user->getLinkId();
+            }
+
+            return $user instanceof JwtUser
+                && null === $subject->getUploadLink()
+                && $user->getId() === $subject->getUserId();
+        }
+
         if (null === $subject->getToken()) {
             return false;
         }

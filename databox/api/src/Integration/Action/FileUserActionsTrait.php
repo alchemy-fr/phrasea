@@ -54,7 +54,10 @@ trait FileUserActionsTrait
             throw new BadRequestHttpException(sprintf('File "%s" and Asset "%s" are not from the same workspace', $parentFile->getId(), $asset->getId()));
         }
 
-        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
+        $multipartUpload = $this->uploadManager->handleMultipartUpload(
+            MultipartUploadInput::fromRequest($request),
+            $this->getStrictUserOrOAuthClient()->getUserIdentifier(),
+        );
 
         return $this->fileManager->createFileFromMultipartUpload($multipartUpload, $asset->getWorkspace());
     }

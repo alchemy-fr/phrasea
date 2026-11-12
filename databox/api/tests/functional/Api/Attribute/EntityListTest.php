@@ -226,6 +226,33 @@ final class EntityListTest extends AbstractDataboxTestCase
         $this->assertJsonContains(['withEmojis' => true, 'withImages' => true]);
     }
 
+    public function testWorkspaceAndOwnerAreNotWritable(): void
+    {
+        $this->setUpScene();
+        $otherWorkspace = $this->createOtherWorkspace(['ownerId' => self::USER]);
+        $list = $this->createEntityList(['name' => 'Colors']);
+        $list->setOwnerId(self::USER);
+        self::getEntityManager()->flush();
+        $iri = '/entity-lists/'.$list->getId();
+
+        // USER edits both workspaces, but a list does not move
+        $this->api('PATCH', $iri, self::USER, ['workspace' => '/workspaces/'.$otherWorkspace->getId()]);
+        $this->assertResponseStatusCodeSame(400);
+        $this->api('PATCH', $iri, self::USER, ['ownerId' => self::OTHER]);
+        $this->assertResponseStatusCodeSame(400);
+        $this->api('PATCH', $iri, self::ADMIN, ['ownerId' => self::OTHER]);
+        $this->assertResponseStatusCodeSame(400);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $stored = $em->find(EntityList::class, $list->getId());
+        $this->assertSame($this->workspace->getId(), $stored->getWorkspaceId());
+        $this->assertSame(self::USER, $stored->getOwnerId());
+
+        $this->api('POST', '/entity-lists', self::USER, $this->listPayload(['name' => 'Sizes', 'ownerId' => self::OTHER]));
+        $this->assertResponseStatusCodeSame(400);
+    }
+
     public function testWritesRequireTheWorkspaceEditPermission(): void
     {
         $this->setUpScene();

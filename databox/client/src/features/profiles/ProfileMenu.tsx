@@ -20,15 +20,14 @@ import {
     DropdownMenuSub,
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
-} from '@/components/ui/menu';
-import {useModals} from '@/components/modals/ModalProvider';
-import {useGuardedRouter} from '@/components/modals/UnsavedChangesGuard';
+} from '@alchemy/next-ui/ui/menu';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {useGuardedRouter} from '@alchemy/next-ui/modals/UnsavedChangesGuard';
 import {usePreferencesStore} from '@/features/preferences/store';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {routes} from '@/lib/routes';
 import {ProfileOwnership} from './ProfileOwnership';
 import {useProfileStore} from './profileStore';
-import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabilities';
 import {CreateProfileDialog, SelectProfileDialog} from './SelectProfileDialog';
 
 /** Radio value of the default profile (no profile selected) */
@@ -41,7 +40,6 @@ const DEFAULT_PROFILE = '__default';
  */
 export function ProfileMenu() {
     const {t} = useTranslation();
-    const capabilities = useInstanceCapabilities();
     const router = useGuardedRouter();
     const {openModal} = useModals();
     const {user} = useAuth();
@@ -188,14 +186,12 @@ export function ProfileMenu() {
                         </span>
                     </DropdownMenuItem>
                 ) : null}
-                {capabilities.createProfile ? (
-                    <DropdownMenuItem
-                        data-testid="profile-create"
-                        onSelect={() => openModal(CreateProfileDialog, {})}
-                    >
-                        <PlusIcon /> {t('profile.menu.create', 'New profile…')}
-                    </DropdownMenuItem>
-                ) : null}
+                <DropdownMenuItem
+                    data-testid="profile-create"
+                    onSelect={() => openModal(CreateProfileDialog, {})}
+                >
+                    <PlusIcon /> {t('profile.menu.create', 'New profile…')}
+                </DropdownMenuItem>
                 <DropdownMenuItem
                     data-testid="profile-manage"
                     onSelect={() => openModal(SelectProfileDialog, {})}

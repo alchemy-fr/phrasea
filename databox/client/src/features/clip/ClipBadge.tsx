@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {CropIcon, ScanIcon, ScissorsIcon} from 'lucide-react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {MediaClip} from './types';
 import {formatClipRanges, hasClip} from './clip';
 

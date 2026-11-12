@@ -323,6 +323,7 @@ class Asset implements MediaInterface, \Stringable
     use ClientAnnotationsTrait;
 
     final public const string GET_ASSET_ROUTE_NAME = 'get_asset';
+    final public const string GET_WEBVTT_ROUTE_NAME = 'asset_webvtt';
     final public const string GROUP_READ = 'asset:r';
     final public const string GROUP_WRITE = 'asset:w';
     final public const string GROUP_ADMIN_READ = 'admin:'.self::GROUP_READ;
@@ -338,6 +339,7 @@ class Asset implements MediaInterface, \Stringable
 
     #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     private ?string $assetId = null;
 
     #[Groups([Publication::GROUP_READ, self::GROUP_READ, self::GROUP_WRITE])]
@@ -354,6 +356,7 @@ class Asset implements MediaInterface, \Stringable
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
+    #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -381,6 +384,7 @@ class Asset implements MediaInterface, \Stringable
      */
     #[Groups([Publication::GROUP_READ, self::GROUP_READ, self::GROUP_WRITE])]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     protected ?string $slug = null;
 
     #[ORM\Column(type: Types::SMALLINT, options: ['default' => 0])]
@@ -654,7 +658,7 @@ class Asset implements MediaInterface, \Stringable
         return $this->downloadUrl;
     }
 
-    public function setDownloadUrl(string $downloadUrl): void
+    public function setDownloadUrl(?string $downloadUrl): void
     {
         $this->downloadUrl = $downloadUrl;
     }

@@ -42,6 +42,8 @@ Then add it to your browser!
 sudo bin/dev/append-etc-hosts.sh
 ```
 
+The script syncs the `# <${PHRASEA_DOMAIN}>` block of `/etc/hosts` with `infra/dev/hosts.txt`: re-run it after that file changes. Without root, it only lists the domains to add or remove.
+
 ### Configure env vars
 
 ```bash

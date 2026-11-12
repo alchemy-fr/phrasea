@@ -3,7 +3,7 @@
 import {type ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {UploadIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     checkUploadFile,
     describeUploadLimits,

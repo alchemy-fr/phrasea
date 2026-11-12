@@ -7,7 +7,9 @@ namespace App\Api\Mapper\Input;
 use App\Api\Model\Input\ProfileInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Profile\Profile;
+use App\Security\Voter\ProfileVoter;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AsTaggedItem(index: ProfileInput::class)]
 class ProfileInputMapper extends AbstractFileInputMapper implements InputMapperInterface
@@ -22,6 +24,8 @@ class ProfileInputMapper extends AbstractFileInputMapper implements InputMapperI
         /** @var Profile $object */
         $object = $target ?? new Profile();
 
+        // Keeping a profile public needs no capability (e.g. renaming it)
+        $published = true === $data->public && !$object->isPublic();
         if (null !== $data->public) {
             $object->setPublic($data->public);
         }
@@ -38,6 +42,12 @@ class ProfileInputMapper extends AbstractFileInputMapper implements InputMapperI
             $object->setDescription($data->description);
         }
 
-        return $this->processOwnerId($object);
+        $this->processOwnerId($object);
+
+        if ($published && !$this->isGranted(ProfileVoter::SHARE, $object)) {
+            throw new AccessDeniedHttpException('You are not allowed to share this profile.');
+        }
+
+        return $object;
     }
 }

@@ -25,6 +25,7 @@ use App\Api\Processor\TriggerAutomationProcessor;
 use App\Api\Provider\SavedSearchAutomationCollectionProvider;
 use App\Audit\AuditableInterface;
 use App\Audit\AuditIgnore;
+use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\AutomationRunStatusEnum;
 use App\Model\AutomationScopeEnum;
@@ -106,10 +107,20 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     // Scheduled runs failing in a row before the automation is disabled
     final public const int MAX_CONSECUTIVE_FAILURES = 5;
 
+    final public const int DEFAULT_MAX_ASSETS_PER_RUN = 1000;
+
     #[Assert\NotNull]
     #[ORM\ManyToOne(targetEntity: SavedSearch::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?SavedSearch $savedSearch = null;
+
+    /**
+     * Limits the results of the saved search to this workspace, whatever its conditions.
+     * The automation goes with its workspace: without it, it would act on every workspace.
+     */
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Workspace $workspace = null;
 
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
@@ -141,6 +152,13 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $actions = [];
 
+    /**
+     * Assets handed to the actions per run: a run stops once reached, the "new" scope handles the rest at the next runs.
+     */
+    #[Assert\Positive]
+    #[ORM\Column(type: Types::INTEGER, nullable: false, options: ['default' => self::DEFAULT_MAX_ASSETS_PER_RUN])]
+    private int $maxAssetsPerRun = self::DEFAULT_MAX_ASSETS_PER_RUN;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[AuditIgnore]
     private ?\DateTimeImmutable $nextRunAt = null;
@@ -171,6 +189,21 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     public function setSavedSearch(?SavedSearch $savedSearch): void
     {
         $this->savedSearch = $savedSearch;
+    }
+
+    public function getWorkspace(): ?Workspace
+    {
+        return $this->workspace;
+    }
+
+    public function setWorkspace(?Workspace $workspace): void
+    {
+        $this->workspace = $workspace;
+    }
+
+    public function getWorkspaceId(): ?string
+    {
+        return $this->workspace?->getId();
     }
 
     /**
@@ -245,6 +278,16 @@ class SavedSearchAutomation extends AbstractUuidEntity implements AuditableInter
     public function setActions(array $actions): void
     {
         $this->actions = $actions;
+    }
+
+    public function getMaxAssetsPerRun(): int
+    {
+        return $this->maxAssetsPerRun;
+    }
+
+    public function setMaxAssetsPerRun(int $maxAssetsPerRun): void
+    {
+        $this->maxAssetsPerRun = $maxAssetsPerRun;
     }
 
     public function getNextRunAt(): ?\DateTimeImmutable

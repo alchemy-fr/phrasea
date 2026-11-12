@@ -1,15 +1,23 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import {createContext, useContext, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {EyeIcon, EyeOffIcon, PlusIcon, Trash2Icon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {FieldError, FormRow, Input} from '@/components/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
-import {SimpleSelect} from '@/components/ui/select';
+import {
+    EyeIcon,
+    EyeOffIcon,
+    LockIcon,
+    PlusIcon,
+    Trash2Icon,
+} from 'lucide-react';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FieldError, FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
 import {TagsInput} from '@/components/form/TagsInput';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     ConfigErrors,
     ConfigListSchema,
@@ -25,6 +33,16 @@ import {
 import {AttributePicker} from './pickers/AttributePicker';
 import {RenditionPicker} from './pickers/RenditionPicker';
 import {CollectionPicker} from './pickers/CollectionPicker';
+import {OAuthClientPicker} from './pickers/OAuthClientPicker';
+import {SecretReferencePicker} from './pickers/SecretReferencePicker';
+import {CreateSecretDialog} from './pickers/CreateSecretDialog';
+import type {WorkspaceSecret} from '@/types/api';
+import {
+    parseReference,
+    suggestSecretName,
+    toReference,
+} from '@/features/secrets/secretRef';
+import {useSecretNames} from '@/features/secrets/useSecretNames';
 
 type FormProps = {
     schema: ConfigObjectSchema;
@@ -33,7 +51,17 @@ type FormProps = {
     errors?: ConfigErrors;
     /** Omitted for the instance-wide integrations: no resource to pick from */
     workspaceId?: string;
+    /** Omitted for an integration not saved yet */
+    integrationId?: string;
+    /** Title of the integration, to name what is created for it */
+    integrationTitle?: string;
 };
+
+/** The integration being configured, for the fields bound to it */
+const IntegrationContext = createContext<{
+    integrationId?: string;
+    integrationTitle?: string;
+}>({});
 
 const noErrors: ConfigErrors = {};
 const noValue = '__none__';
@@ -47,6 +75,8 @@ export function ConfigForm({
     onChange,
     errors = noErrors,
     workspaceId,
+    integrationId,
+    integrationTitle,
 }: FormProps) {
     const properties = schema.properties ?? {};
     // Bound to no field of the form: shown on top
@@ -65,14 +95,18 @@ export function ConfigForm({
                     <span className="whitespace-pre-line">{global}</span>
                 </FieldError>
             ) : null}
-            <ObjectFields
-                schema={schema}
-                path=""
-                value={value}
-                onChange={onChange}
-                errors={errors}
-                workspaceId={workspaceId}
-            />
+            <IntegrationContext.Provider
+                value={{integrationId, integrationTitle}}
+            >
+                <ObjectFields
+                    schema={schema}
+                    path=""
+                    value={value}
+                    onChange={onChange}
+                    errors={errors}
+                    workspaceId={workspaceId}
+                />
+            </IntegrationContext.Provider>
         </div>
     );
 }
@@ -175,13 +209,10 @@ function useFieldChrome({schema, name, path, errors}: FieldProps) {
 }
 
 function StringField(props: FieldProps & {schema: ConfigSchema}) {
-    const {t} = useTranslation();
     const {schema, value, onChange, workspaceId} = props;
     const {id, testId, label, error, help, placeholder} = useFieldChrome(props);
-    const [shown, setShown] = useState(false);
+    const {integrationId, integrationTitle} = useContext(IntegrationContext);
     const text = typeof value === 'string' ? value : (value ?? '');
-    // "${VAR}": a workspace secret or variable, resolved by the API
-    const envRef = typeof text === 'string' && text.startsWith('$');
     const set = (v: string | undefined) => onChange(v === '' ? undefined : v);
 
     let control;
@@ -217,29 +248,134 @@ function StringField(props: FieldProps & {schema: ConfigSchema}) {
                 />
             );
             break;
-        default: {
-            const input = (
+        case 'oauth_client':
+            control = (
+                <OAuthClientPicker
+                    value={text === '' ? undefined : String(text)}
+                    onChange={set}
+                    integrationId={integrationId}
+                    integrationTitle={integrationTitle}
+                >
+                    <Input
+                        id={id}
+                        type="text"
+                        value={String(text)}
+                        onChange={e => set(e.target.value)}
+                        placeholder={placeholder}
+                        required={schema.required}
+                        aria-invalid={!!error}
+                        autoComplete="off"
+                        className={cn(
+                            parseReference(text) !== undefined && 'font-mono'
+                        )}
+                    />
+                </OAuthClientPicker>
+            );
+            break;
+        default:
+            return <TextField {...props} />;
+    }
+
+    return (
+        <FormRow
+            label={label}
+            htmlFor={id}
+            error={error}
+            help={help}
+            data-testid={testId}
+        >
+            {control}
+        </FormRow>
+    );
+}
+
+type TextMode = 'value' | 'reference';
+
+/**
+ * A plain text value, or a reference to a secret or variable (`${NAME}`)
+ * resolved by the API. A value mixing text and references
+ * (`https://${HOST}/x`) is edited as a value.
+ */
+function TextField(props: FieldProps & {schema: ConfigSchema}) {
+    const {t} = useTranslation();
+    const {openModal} = useModals();
+    const {schema, name, path, value, onChange, workspaceId} = props;
+    const {id, testId, label, error, help, placeholder} = useFieldChrome(props);
+    const text =
+        typeof value === 'string'
+            ? value
+            : value === undefined || value === null
+              ? ''
+              : String(value);
+    const [mode, setMode] = useState<TextMode>(() =>
+        parseReference(text) !== undefined ? 'reference' : 'value'
+    );
+    const [shown, setShown] = useState(false);
+    // The picker opens by itself once the user switches to a reference
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const set = (v: string | undefined) => onChange(v === '' ? undefined : v);
+    // A secret typed in clear can become a secret of the workspace, once its
+    // listing tells the user is allowed to manage them
+    const offerSecret = !!schema.secret && mode === 'value';
+    const {secrets} = useSecretNames({workspaceId}, offerSecret);
+
+    const reference = parseReference(text);
+
+    // A reference stays as text in Value mode; a value which is not a
+    // reference cannot be one
+    const switchMode = (next: TextMode) => {
+        if (next === mode) {
+            return;
+        }
+        setMode(next);
+        if (next === 'reference' && reference === undefined) {
+            setPickerOpen(true);
+            set(undefined);
+        }
+    };
+
+    const saveAsSecret = async () => {
+        const created: WorkspaceSecret | undefined = await openModal(
+            CreateSecretDialog,
+            {workspaceId, name: suggestSecretName(name), value: text}
+        );
+        if (created) {
+            setMode('reference');
+            onChange(toReference(created.name));
+        }
+    };
+
+    const control =
+        mode === 'reference' ? (
+            <SecretReferencePicker
+                id={id}
+                name={reference ?? ''}
+                onChange={n => set(n === '' ? undefined : toReference(n))}
+                workspaceId={workspaceId}
+                secret={!!schema.secret}
+                suggestedName={suggestSecretName(name)}
+                defaultOpen={pickerOpen}
+                invalid={!!error}
+            />
+        ) : (
+            <div className="flex items-center gap-1">
                 <Input
                     id={id}
                     type={
-                        schema.secret && !shown
+                        schema.secret && !shown && reference === undefined
                             ? 'password'
                             : schema.widget === 'email'
                               ? 'email'
                               : 'text'
                     }
-                    value={String(text)}
+                    value={text}
                     onChange={e => set(e.target.value)}
                     placeholder={placeholder}
                     required={schema.required}
                     aria-invalid={!!error}
                     autoComplete="off"
-                    className={cn(envRef && 'font-mono')}
                 />
-            );
-            control = schema.secret ? (
-                <div className="flex items-center gap-1">
-                    {input}
+                {schema.secret ? (
                     <Button
                         type="button"
                         variant="ghost"
@@ -254,29 +390,67 @@ function StringField(props: FieldProps & {schema: ConfigSchema}) {
                     >
                         {shown ? <EyeOffIcon /> : <EyeIcon />}
                     </Button>
-                </div>
-            ) : (
-                input
-            );
-        }
-    }
+                ) : null}
+                {offerSecret && secrets ? (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        data-testid={`config-save-secret-${path}`}
+                        disabled={text === '' || reference !== undefined}
+                        onClick={() => void saveAsSecret()}
+                    >
+                        <LockIcon />
+                        {t(
+                            'integration.config.save_as_secret',
+                            'Save as secret'
+                        )}
+                    </Button>
+                ) : null}
+            </div>
+        );
 
     return (
         <FormRow
             label={label}
             htmlFor={id}
             error={error}
-            help={
-                envRef
-                    ? t(
-                          'integration.config.env_ref',
-                          'Reference to a workspace secret or variable'
-                      )
-                    : help
-            }
+            help={help}
             data-testid={testId}
         >
-            {control}
+            <div className="flex items-start gap-2">
+                <div className="min-w-0 flex-1">{control}</div>
+                <Tabs
+                    value={mode}
+                    onValueChange={v => switchMode(v as TextMode)}
+                >
+                    <TabsList
+                        aria-label={t(
+                            'integration.config.mode_label',
+                            'Value or reference to a secret or variable'
+                        )}
+                    >
+                        <TabsTrigger
+                            value="value"
+                            data-testid={`config-mode-value-${path}`}
+                        >
+                            {t('integration.config.mode_value', 'Value')}
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="reference"
+                            data-testid={`config-mode-reference-${path}`}
+                            title={t(
+                                'integration.config.mode_reference_help',
+                                'Reference to a secret or variable, resolved when the integration runs'
+                            )}
+                        >
+                            {t(
+                                'integration.config.mode_reference',
+                                'Reference'
+                            )}
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </div>
         </FormRow>
     );
 }

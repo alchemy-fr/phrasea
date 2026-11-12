@@ -9,9 +9,9 @@ import {
     XIcon,
 } from 'lucide-react';
 import type {AssetAnnotation, MessageAttachment} from '@/types/api';
-import {Tooltip} from '@/components/ui/overlays';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {formatFileSize} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {getAnnotationLabel} from '@/features/annotations/annotationNames';
 import {
     getAnnotationAttachments,

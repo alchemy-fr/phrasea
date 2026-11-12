@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -26,6 +27,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     shortName: 'asset',
     operations: [
         new Get(security: 'is_granted("READ_META", object)'),
+        new Delete(security: 'is_granted("'.AssetVoter::DELETE.'", object)'),
         new Post(
             uriTemplate: '/assets/{id}/ack',
             security: 'is_granted("'.AssetVoter::ACK.'", object)',
@@ -193,6 +195,13 @@ class Asset extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $userId = null;
 
+    /**
+     * The upload link the file was sent through, if any.
+     */
+    #[ORM\ManyToOne(targetEntity: UploadLink::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?UploadLink $uploadLink = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -331,5 +340,15 @@ class Asset extends AbstractUuidEntity
     public function setData(?array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getUploadLink(): ?UploadLink
+    {
+        return $this->uploadLink;
+    }
+
+    public function setUploadLink(?UploadLink $uploadLink): void
+    {
+        $this->uploadLink = $uploadLink;
     }
 }

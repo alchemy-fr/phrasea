@@ -13,17 +13,19 @@ import {
     useRouteDialogOrigin,
 } from '@/components/modals/RouteDialog';
 import {pathOf} from '@/components/modals/routeOrigins';
-import {DialogTitle} from '@/components/ui/dialog';
+import {DialogTitle} from '@alchemy/next-ui/ui/dialog';
 import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {workflowChannel} from '@/lib/realtime/channels';
 import {pushPath, splitRoutePath} from '@/lib/navigation/routePath';
 import {routes, UNKNOWN_RENDITION} from '@/lib/routes';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {WorkflowHeader} from './WorkflowHeader';
 import {WorkflowGraph} from './WorkflowGraph';
 import {JobDetailPanel} from './JobDetailPanel';
-import {assetWorkflowsQueryKey, WorkflowRunsPanel} from './WorkflowRunsPanel';
+import {WorkflowRunsPanel} from './WorkflowRunsPanel';
+import {assetWorkflowsQueryKey} from './useAssetWorkflowRuns';
 import {findJob} from './workflowGraph';
 import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';
 
@@ -53,8 +55,8 @@ function assetViewUrl(origin: string, assetId: string): string {
 
 /**
  * Workflow run: the runs of its asset on the left, the node graph of its jobs
- * — refreshed in realtime on `workflow-{id}` — and the details of the job
- * selected on the right, from which it can be rerun. The job selected is in
+ * — refreshed in realtime on `private-workflow-{id}` — and the details of the
+ * job selected on the right, from which it can be rerun. The job selected is in
  * the URL (`/jobs/:jobId`): a refresh or a shared link lands on it.
  *
  * Closing leads to the asset, unless the run was opened from the list of all
@@ -120,14 +122,18 @@ function WorkflowScreen({
     const close = useCloseRouteDialog();
     const origin = useRouteDialogOrigin();
 
-    useChannelEvent(`workflow-${workflowId}`, 'job_update', () => {
+    const refresh = () => {
         void queryClient.invalidateQueries({queryKey});
         if (assetId) {
             void queryClient.invalidateQueries({
                 queryKey: assetWorkflowsQueryKey(assetId),
             });
         }
-    });
+    };
+    const channel = workflowChannel(workflowId);
+    useChannelEvent(channel, 'job_update', refresh);
+    // Sent once the status of the run is saved, unlike the last job_update
+    useChannelEvent(channel, 'workflow_update', refresh);
 
     const workflow = query.data;
     const workflowAssetId = workflow?.asset?.id;

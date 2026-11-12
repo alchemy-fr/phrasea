@@ -10,6 +10,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
+use App\Realtime\RealtimeChannel;
 use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
 use App\Service\Asset\StoryContactSheetScheduler;
 use Doctrine\ORM\EntityManagerInterface;
@@ -88,14 +89,7 @@ final class RenditionManager
         $rendition->setProjection($projection);
         $this->em->persist($rendition);
 
-        $this->postFlushStack->addBusMessage($this->pusherManager->createBusMessage(
-            'assets',
-            'rendition-update',
-            [
-                'assetId' => $asset->getId(),
-                'definition' => $definition->getId(),
-            ]
-        ));
+        $this->pushRenditionUpdate($rendition);
 
         // The contact sheets of the stories containing the asset are made of these renditions
         if ($definition->isUseAsThumbnail() || $definition->isUseAsPreview()) {
@@ -130,15 +124,27 @@ final class RenditionManager
         $this->pushRenditionUpdate($rendition);
     }
 
+    /**
+     * The workspace channel only tells which asset changed: its readers may not be allowed to read that asset.
+     */
     public function pushRenditionUpdate(AssetRendition $rendition): void
     {
+        $asset = $rendition->getAsset();
+
         $this->postFlushStack->addBusMessage($this->pusherManager->createBusMessage(
-            'assets',
+            RealtimeChannel::asset($asset->getId()),
             'rendition-update',
             [
-                'assetId' => $rendition->getAsset()->getId(),
+                'assetId' => $asset->getId(),
                 'definition' => $rendition->getDefinition()?->getId(),
                 'name' => $rendition->getName(),
+            ]
+        ));
+        $this->postFlushStack->addBusMessage($this->pusherManager->createBusMessage(
+            RealtimeChannel::workspace($asset->getWorkspaceId()),
+            'rendition-update',
+            [
+                'assetId' => $asset->getId(),
             ]
         ));
     }

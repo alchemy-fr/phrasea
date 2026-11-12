@@ -4,8 +4,8 @@ import {PropsWithChildren, useEffect} from 'react';
 import {useDropzone} from 'react-dropzone';
 import {useTranslation} from 'react-i18next';
 import {UploadCloudIcon} from 'lucide-react';
-import {cn} from '@/lib/utils/cn';
-import {toDropzoneAccept} from '@/lib/utils/mime';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {toDropzoneAccept} from '@alchemy/next-ui/utils/mime';
 import {useConfig} from '@/lib/config/ConfigProvider';
 
 type Props = PropsWithChildren<{

@@ -1,0 +1,23 @@
+{
+    "app.title": "Dashboard",
+    "error.404.back": "Back to the dashboard",
+    "git_log.back": "Back to the dashboard",
+    "git_log.empty": "The history of changes is not available for this build.",
+    "git_log.title": "Latest changes",
+    "service.action.admin": "Admin",
+    "service.action.api_doc": "API documentation",
+    "service.action.master_admin": "Master admin",
+    "service.dashboard.description": "Phrasea entry point",
+    "service.databox.description": "Your DAM",
+    "service.expose.description": "Share publications",
+    "service.iam.description": "Keycloak IAM",
+    "service.iam.title": "Identity Manager",
+    "service.uploader.description": "Standalone asset deposit",
+    "services.title": "Services",
+    "stack.dev_mode": "Developer mode is enabled",
+    "stack.version.title": "Latest changes",
+    "status.degraded": "Degraded",
+    "status.down": "Unavailable",
+    "status.up": "Operational",
+    "tools.title": "Technical tools"
+}

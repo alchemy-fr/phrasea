@@ -47,6 +47,7 @@ class RenditionDefinitionVoter extends AbstractVoter
                             PermissionInterface::CHILD_VIEW,
                         ], $policy, $token)
                     )
+                    && false === $subject->getWorkspace()?->isDeleted()
                     && $this->security->isGranted(self::READ, $subject->getWorkspace())
                 ),
             default => false,

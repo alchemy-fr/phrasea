@@ -126,6 +126,7 @@ export function CollectionManageShell({collectionId}: {collectionId: string}) {
                 collection?.displayName ??
                 collection?.name
             }
+            size="xl"
             tabs={tabs}
             baseProps={baseProps}
             buildTabHref={tab => routes.collectionManage(collectionId, tab)}

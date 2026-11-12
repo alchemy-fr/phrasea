@@ -668,6 +668,13 @@ class AssetSearch extends AbstractSearch
                 if (!$esFieldInfo->enabled) {
                     continue;
                 }
+                // Sorting on values the user cannot read would reveal their order
+                if (!$esFieldInfo->builtIn && !$this->attributeSearch->isReadableAttributeKey($options['userId'] ?? null, $options['groupIds'] ?? [], $field)) {
+                    if ($lenient) {
+                        continue;
+                    }
+                    throw new BadRequestHttpException(sprintf('Cannot sort on attribute "%s": it does not exist or you are not allowed to read it', $field));
+                }
                 if (!$esFieldInfo->builtIn && false === $this->attributeSearch->isSortableAttributeKey($field)) {
                     if ($lenient) {
                         continue;

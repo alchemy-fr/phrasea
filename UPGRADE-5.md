@@ -12,7 +12,11 @@ Follow these steps in order. Each one is detailed in the sections below.
    `elastichq` from any custom `COMPOSE_PROFILES`, and decide whether to keep the
    new `similarity` and `face-recognition` profiles. Sockudo replaces Soketi:
    rename the `SOKETI_*` variables and the `soketi` profile (see
-   [Sockudo replaces Soketi](#sockudo-replaces-soketi)).
+   [Sockudo replaces Soketi](#sockudo-replaces-soketi)). Rewrite
+   `*_ALLOWED_FILE_TYPES` as type/extension couples, without `*/*` (see
+   [Allowed file types and file serving](#allowed-file-types-and-file-serving)).
+   Declare in `*_API_ALLOWED_CLIENT_IDS` the custom Keycloak clients calling the
+   APIs (see [Access tokens: allowed clients](#access-tokens-allowed-clients)).
 4. Start Elasticsearch 9:
 
     ```bash
@@ -45,7 +49,9 @@ Follow these steps in order. Each one is detailed in the sections below.
 
 9. Audit what this release may break: Twig templates in attribute definitions
    and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
-   replaced by `PATCH`), shared rendition links, and the Databox theme.
+   replaced by `PATCH`), shared rendition links, the Databox theme, and the
+   image formats ImageMagick still reads (SVG and EPS get no thumbnail any
+   more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)).
 
 ## Stack and deployment
 
@@ -118,7 +124,11 @@ The Databox client is no longer static files served by nginx.
   HSTS, `X-Robots-Tag`, `X-Content-Type-Options`) and `robots.txt` are no longer
   emitted: set them on your reverse proxy. `phrasea-manifest.json` is no longer
   served.
-- Sentry is not wired: `CLIENT_SENTRY_DSN` has no effect on Databox.
+- Sentry (`CLIENT_SENTRY_DSN`) only reports the browser errors: no tracing, no
+  replay, no source maps uploaded. The SDK sends them to the same origin route
+  `/api/relay`, which relays them to the project of the DSN behind a rate limit
+  per client process (`SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, 30 per minute and per
+  IP; `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL`, 300 per minute).
 - Theme: the global `theme` entry (MUI theme options) no longer applies to
   Databox, which reads `databox.theme` (JSON, edited from the admin "Customize
   theme" screen or `PUT /client-theme`). The global `logo` is still honoured.
@@ -129,6 +139,35 @@ The Databox client is no longer static files served by nginx.
   redirect URIs configured by hand without a `/*` wildcard need updating.
 - Server-side rendering settings are removed (`SSR_PORT`, `SSR_API_BASE_URL`),
   and the client no longer reads the `S3_MULTIPART_*` variables.
+
+### Expose, Uploader and Dashboard clients are Next.js servers
+
+The three clients follow the Databox client (see above): same images
+(`expose-client`, `uploader-client`, `dashboard`), now `node` servers.
+
+- They listen on port **3000** (formerly 80), with no `HEALTHCHECK`. The
+  Traefik routers `expose-client-dev` and `uploader-client-dev` are renamed
+  `expose-client` and `uploader-client`.
+- No more `config.js` / `window.config` injection: the configuration is read on
+  each request from `process.env` and from the configurator's `config.json`
+  (`CONFIGURATOR_S3_*`), which the containers must reach at runtime.
+- The headers formerly set by nginx (HSTS, `X-Robots-Tag`,
+  `X-Content-Type-Options`) are no longer emitted: set them on your reverse
+  proxy. Expose and the Dashboard still send their
+  `Content-Security-Policy: frame-ancestors` (Expose:
+  `EXPOSE_ALLOWED_FRAME_ANCESTORS`).
+- The OAuth callback moves from `/auth/check` to `/auth/callback`. Only Keycloak
+  redirect URIs configured by hand without a `/*` wildcard need updating.
+- Sentry (`CLIENT_SENTRY_DSN`) reports the browser errors through `/api/relay`,
+  as in Databox.
+- Theme: the global `theme` entry (MUI theme options) no longer applies; they
+  offer the organisation theme `databox.theme`. The global `logo` (and
+  `uploader.client.logo`) is still honoured.
+- Dashboard: `/menu.html` is gone. The services menu of the API admins now
+  frames the dashboard root, and the dashboard lets the API origins frame it.
+  `/git-log.html` redirects to `/git-log`. The dashboard no longer reads
+  `REPORT_API_URL`, `SAML_URL` nor `SAML2_URL`.
+- The `nginx-client-base` image is no longer built nor used.
 
 ### Scheduler containers replace the cron jobs
 
@@ -239,6 +278,25 @@ published ones.
 - `*/api/docker/caching/` and `bin/optimize-composer-docker-cache` are removed.
 - The databox API image gains the `ftp` and `gd` extensions.
 
+### ImageMagick restricted to an allow list of formats
+
+The databox API and worker images now start with a deny-by-default
+ImageMagick policy (`databox/api/docker/entrypoint.d/01-imagick.sh`): a crafted
+upload could otherwise read local files (container environment included) or
+reach the network through ImageMagick coders and Ghostscript. Only JPEG, PNG,
+GIF, WEBP, TIFF, HEIC/HEIF/AVIF, PSD, BMP, ICO and PDF are read; external
+delegates and the `@file` syntax are refused. The `IMAGEMAGICK_POLICY_*`
+resource variables are unchanged.
+
+- SVG files are still stored and downloadable, but get no bitmap rendition.
+- EPS and PostScript files, and Illustrator files saved without PDF
+  compatibility, no longer get a thumbnail. Other formats outside the list
+  (JPEG 2000, JPEG XL, TGA...) get no rendition either.
+- Existing renditions are kept; rebuilding the renditions of such assets fails.
+
+See [Formats read by ImageMagick](doc/tech/Databox/Renditions.mdx#formats-read-by-imagemagick)
+to re-enable a format.
+
 ### Indexer
 
 The example `config/config.json` now sets `createNewWorkspace` to `false`: the
@@ -251,6 +309,42 @@ Users holding the Keycloak `realm-management` → `impersonation` role can now
 act on behalf of another user by sending the `X-Impersonate-User` header. This
 role is part of `realm-admin`, granted to the default admin. There is no switch
 to disable it: review who holds these roles.
+
+### Access tokens: allowed clients
+
+The APIs used to accept any token signed by the realm. They now only accept
+the access tokens (`typ: Bearer`, so no more ID tokens) of the OAuth clients
+allowed on each of them, matched against the `azp` claim (else `client_id`),
+and check `nbf` and `iat` besides `exp` (30 seconds of clock skew tolerated).
+See [Access tokens and allowed clients](doc/tech/Authentication/clients.md).
+
+- New variables, passed to the APIs as `ALLOWED_CLIENT_IDS` (comma separated):
+  `DATABOX_API_ALLOWED_CLIENT_IDS` (default: Databox, Dashboard and Uploader
+  clients, Databox indexer), `EXPOSE_API_ALLOWED_CLIENT_IDS` (Expose client,
+  `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`) and `UPLOADER_API_ALLOWED_CLIENT_IDS`
+  (Uploader client). The admin client of each API (`*_ADMIN_CLIENT_ID`) is
+  always allowed. The defaults are built from the existing `*_CLIENT_ID`
+  variables: a stack with the standard clients has nothing to change.
+- Deployments with custom clients (scripts, MCP clients, integrations whose
+  Keycloak client was created by hand, the `postman` client of the `dev`
+  preset…) must declare them, or their calls answer `401 Invalid token.` (the
+  API logs the refused client ID).
+- The clients created from Databox for its integrations stay accepted by
+  Expose: its admin client's service account now gets the `view-clients` role
+  of `realm-management`, granted by the configurator at the next
+  `bin/migrate.sh` (Keycloak synchronization). Until it has run, Expose refuses
+  them (`401`, shown in Databox as "Expose refused the access token of the
+  OAuth client…").
+- Expose also accepts the public clients (standard flow only) whose redirect
+  URIs all lead to `<DATABOX_API_URL>/integrations/`: the Expose API now reads
+  `DATABOX_API_URL` (empty: rule disabled). The Databox API reads
+  `EXPOSE_ALLOWED_CLIENT_IDS` (the `EXPOSE_API_ALLOWED_CLIENT_IDS` of the
+  stack) to flag the clients Expose refuses in the client picker of the Expose
+  integration.
+- Helm: pass `ALLOWED_CLIENT_IDS` to the three APIs (and the workers) when the
+  client IDs differ from the defaults (`databox-app`, `expose-app`…),
+  `DATABOX_API_URL` to the Expose API and `EXPOSE_ALLOWED_CLIENT_IDS` to the
+  Databox API.
 
 ### Helm
 
@@ -560,6 +654,19 @@ Anonymous users:
   `Cache-Control: public, max-age=600` (capped by the expiration) with
   `Vary: Authorization, X-Passwords`. Check the behaviour of any cache or proxy
   in front of Expose.
+- Publication and profile passwords are stored hashed (irreversible migration).
+  `config.securityOptions.password` is write-only: it is never read back, a
+  write without it keeps the current password, and `config.hasPassword` tells
+  whether one is set. Leaving the `password` security method drops the password.
+- Rate limits, kept in Redis (`REDIS_URL`): 10 wrong passwords per client IP and
+  security container in 15 minutes (then `authorizationError: too_many_attempts`,
+  even with the right password), 10 download requests by email per client IP and
+  5 per recipient per hour, 60 view logs per client IP per minute (`429`). The
+  client IP relies on `TRUSTED_PROXIES`.
+- `POST …/download-request` answers `400` without a valid `email`;
+  `POST /logs/publication-view/{id}` and `/logs/asset-view/{id}` answer `403`
+  unless the publication, or the asset, can be read (`X-Passwords` included).
+- CORS no longer allows credentials, and `/admin` sends no CORS header.
 
 ## Uploader API
 
@@ -567,6 +674,37 @@ Routes, methods and bodies of `POST /assets`, `/assets/{id}/ack`, `/commit`,
 `/commits/{id}/ack`, `/form/validate` and `GET /targets/{id}/form-schema` are
 unchanged. Only `PUT` → `PATCH`, the `hydra:` prefix and filter typing change:
 `acknowledged` is a strict boolean, `target` accepts an id or an IRI.
+
+## Allowed file types and file serving
+
+See `doc/tech/Storage/03_file_types.md`.
+
+- `DATABOX_ALLOWED_FILE_TYPES` and `UPLOADER_ALLOWED_FILE_TYPES`
+  (`alchemy_storage.upload.allowed_types`) keep their `type(.ext1,.ext2),…`
+  format, but each entry is now a couple: an upload is accepted when one type
+  matches its MIME type **and** lists its extension (before, the type and the
+  extension were checked separately, each against all the entries). An entry
+  without extensions accepts the extensions registered for the uploaded type.
+- A wildcard main type (`*/*`, `*/jpeg`) is refused: uploads fail with a
+  configuration error until it is removed. The default value replaces
+  `*/*(.indd)` with `application/x-indesign(.indd)`, adds the missing comma
+  before `audio/*` and allows `.mp3`, `.mp2` and `.m4a` for `audio/*`. Report
+  these changes in your `.env.local` or deployment values if you override them.
+- The expose `file` and `upload` modes (asset and sub-definition creation) and
+  every presigned `PUT` URL are checked too.
+- Signed URLs force the response `Content-Type` from the type known in the
+  database. Only `image/*` (except SVG), `video/*`, `audio/*` and
+  `application/pdf` are displayed inline; anything else (SVG, HTML, XML,
+  text…) is downloaded as `application/octet-stream`.
+- CloudFront: the cache policy must include `response-content-type` and
+  `response-content-disposition` in the cache key, and the origin must be
+  signed (OAC/OAI); see `doc/tech/Storage/02_cloudfront.md`, which also
+  recommends a response headers policy (`nosniff`, sandboxing CSP).
+- Serving the storage from a registrable domain distinct from the
+  applications is recommended.
+- storage-bundle: `UrlSigner::getSignedUrl()` accepts `type` and `inline`
+  options; without them, the URL serves an `application/octet-stream`
+  attachment.
 
 ## Multipart uploads are planned by the API
 

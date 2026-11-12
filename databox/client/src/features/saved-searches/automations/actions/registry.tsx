@@ -4,10 +4,12 @@ import {attributeAction} from './AttributeActionForm';
 import {tagsAction} from './TagsActionForm';
 import {emailReportAction} from './EmailReportForm';
 import {remoteExportAction} from './RemoteExportForm';
+import {shareExportAction} from './ShareExportForm';
 import {webhookAction} from './WebhookForm';
 import {triggerWorkflowAction} from './TriggerWorkflowForm';
 import {trashAction} from './TrashActionForm';
 import {setPrivacyAction} from './SetPrivacyForm';
+import {exposePublishAction} from './ExposePublishForm';
 import type {ActionDefinition} from './types';
 
 /**
@@ -21,10 +23,12 @@ export const actionRegistry = {
     tags: tagsAction,
     email_report: emailReportAction,
     remote_export: remoteExportAction,
+    share_export: shareExportAction,
     webhook: webhookAction,
     trigger_workflow: triggerWorkflowAction,
     trash: trashAction,
     set_privacy: setPrivacyAction,
+    expose_publish: exposePublishAction,
 } satisfies Record<string, ActionDefinition>;
 
 export type ActionType = keyof typeof actionRegistry;

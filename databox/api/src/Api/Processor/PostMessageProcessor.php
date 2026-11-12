@@ -59,7 +59,7 @@ class PostMessageProcessor implements ProcessorInterface
         $message->setThread($thread);
         $message->setAuthorId($user->getId());
         $message->setContent($data->content ?? '');
-        $message->setAttachments($this->attachmentManager->handleNewAttachments($thread, $data->attachments));
+        $message->setAttachments($this->attachmentManager->handleNewAttachments($thread, $data->attachments, $user->getUserIdentifier()));
         $this->em->persist($message);
         $this->em->flush();
 

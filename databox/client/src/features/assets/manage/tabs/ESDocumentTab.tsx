@@ -6,8 +6,8 @@ import {RefreshCwIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import {EntityName} from '@/types/api';
 import {getESDocument, syncESDocument} from '@/lib/api/assets';
-import {Button} from '@/components/ui/button';
-import {Badge, Skeleton} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Badge, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {CopyButton} from '@/components/ui/copy-button';
 
 /**

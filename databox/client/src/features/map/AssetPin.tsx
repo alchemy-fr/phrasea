@@ -2,8 +2,8 @@
 
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
-import {FileKindIcon} from '@/components/chips';
-import {cn} from '@/lib/utils/cn';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {useHoverPreview} from './useHoverPreview';
 
 /**
@@ -54,7 +54,7 @@ export function AssetPin({
                     />
                 ) : (
                     <span className="flex size-full items-center justify-center">
-                        <FileKindIcon
+                        <FileFamilyIcon
                             mimeType={asset.source?.type}
                             className="size-6"
                         />

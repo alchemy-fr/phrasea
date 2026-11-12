@@ -7,6 +7,7 @@ use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Alchemy\CoreBundle\Message\Debug\SentryDebugHandler;
 use Alchemy\CoreBundle\Message\PusherHandler;
+use Alchemy\CoreBundle\Pusher\ChannelAuthorizerInterface;
 use Alchemy\CoreBundle\Pusher\PusherFactory;
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use ApiPlatform\Metadata\Exception\AccessDeniedException;
@@ -93,6 +94,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $def->setArgument('$disabled', $config['pusher']['disabled']);
 
             $container->setParameter('alchemy_core.pusher.channel_prefix', $config['pusher']['channel_prefix']);
+            $container->registerForAutoconfiguration(ChannelAuthorizerInterface::class)
+                ->addTag(ChannelAuthorizerInterface::TAG);
 
             $this->loadPusher($container, $config['pusher']);
         }

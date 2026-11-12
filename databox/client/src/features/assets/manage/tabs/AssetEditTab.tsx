@@ -7,8 +7,8 @@ import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import {AssetTypeFilter, EntityName, Privacy} from '@/types/api';
 import type {AssetTabProps} from '../types';
-import {Button} from '@/components/ui/button';
-import {FormRow} from '@/components/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow} from '@alchemy/next-ui/ui/input';
 import {TagSelect} from '@/components/form/selects';
 import {PrivacyField} from '@/components/form/PrivacyField';
 import {AttributesEditor} from '@/features/attributes/editor/AttributesEditor';
@@ -17,8 +17,8 @@ import {attributeBatchUpdate, patchAsset} from '@/lib/api/assets';
 import {useHierarchyConflictConfirm} from '@/features/attributes/hierarchy/useHierarchyConflictConfirm';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {iri} from '@/lib/utils/iri';
-import {InlineLoader} from '@/components/ui/loader';
-import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function AssetEditTab({asset, refresh}: AssetTabProps) {

@@ -1,0 +1,23 @@
+{
+    "app.title": "Tableau de bord",
+    "error.404.back": "Retour au tableau de bord",
+    "git_log.back": "Retour au tableau de bord",
+    "git_log.empty": "L'historique des modifications n'est pas disponible pour cette version.",
+    "git_log.title": "Dernières modifications",
+    "service.action.admin": "Administration",
+    "service.action.api_doc": "Documentation de l'API",
+    "service.action.master_admin": "Administration master",
+    "service.dashboard.description": "Point d'entrée de Phrasea",
+    "service.databox.description": "Votre DAM",
+    "service.expose.description": "Partage de publications",
+    "service.iam.description": "Keycloak IAM",
+    "service.iam.title": "Gestion des identités",
+    "service.uploader.description": "Dépôt d'assets autonome",
+    "services.title": "Services",
+    "stack.dev_mode": "Le mode développeur est activé",
+    "stack.version.title": "Dernières modifications",
+    "status.degraded": "Dégradé",
+    "status.down": "Indisponible",
+    "status.up": "Opérationnel",
+    "tools.title": "Outils techniques"
+}

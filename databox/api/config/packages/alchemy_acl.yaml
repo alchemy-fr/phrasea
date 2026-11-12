@@ -4,6 +4,7 @@ alchemy_acl:
     !php/const App\Entity\Core\Asset::OBJECT_TYPE: App\Entity\Core\Asset
     !php/const App\Entity\Core\AttributePolicy::OBJECT_TYPE: App\Entity\Core\AttributePolicy
     !php/const App\Entity\Core\Collection::OBJECT_TYPE: App\Entity\Core\Collection
+    !php/const App\Entity\Core\EntityList::OBJECT_TYPE: App\Entity\Core\EntityList
     !php/const App\Entity\Core\RenditionPolicy::OBJECT_TYPE: App\Entity\Core\RenditionPolicy
     !php/const App\Entity\Core\Workspace::OBJECT_TYPE: App\Entity\Core\Workspace
     !php/const App\Entity\Integration\WorkspaceIntegration::OBJECT_TYPE: App\Entity\Integration\WorkspaceIntegration

@@ -12,6 +12,7 @@ use App\Model\AuditLogActionEnum;
 use App\Service\Log\AuditLogManager;
 use App\Service\Workflow\AssetWorkflowTrigger;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 final class TriggerAssetWorkflowProcessor implements ProcessorInterface
 {
@@ -29,6 +30,10 @@ final class TriggerAssetWorkflowProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Asset
     {
+        if ($this->assetWorkflowTrigger->isIngestRunning($data)) {
+            throw new ConflictHttpException('A workflow is already running on this asset, cancel it to run a new one');
+        }
+
         $this->assetWorkflowTrigger->trigger($data, $this->getStrictUserOrOAuthClient()->getUserIdentifier());
 
         $this->auditLogManager->log(AuditLogActionEnum::WorkflowTriggered, $data);

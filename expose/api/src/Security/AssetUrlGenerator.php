@@ -16,22 +16,27 @@ readonly class AssetUrlGenerator
 
     public function generateAssetUrl(MediaInterface $media, bool $download = false): string
     {
-        return $this->generateUrl($media->getPath(), $download);
+        return $this->generateUrl($media->getPath(), $media->getMimeType(), $download);
     }
 
     public function generateSubDefinitionUrl(SubDefinition $subDefinition, bool $download = false): string
     {
-        return $this->generateUrl($subDefinition->getPath(), $download);
+        return $this->generateUrl($subDefinition->getPath(), $subDefinition->getMimeType(), $download);
     }
 
+    /**
+     * Without a known type, the file is always served as an opaque attachment.
+     */
     public function generatePathUrl(string $path, bool $download = false): string
     {
-        return $this->generateUrl($path, $download);
+        return $this->generateUrl($path, null, $download);
     }
 
-    private function generateUrl(string $path, bool $download): string
+    private function generateUrl(string $path, ?string $type, bool $download): string
     {
         return $this->urlSigner->getSignedUrl($path, [
+            'type' => $type,
+            'inline' => !$download,
             'download' => $download,
         ]);
     }

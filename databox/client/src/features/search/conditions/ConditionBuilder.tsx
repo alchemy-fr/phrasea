@@ -44,16 +44,16 @@ import {
 } from '@/features/attributes/definitionsStore';
 import type {DefinitionsIndex} from '@/features/attributes/definitionsStore';
 import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
-import {Spinner} from '@/components/ui/loader';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {SimpleSelect} from '@/components/ui/select';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from '@/components/ui/overlays';
+} from '@alchemy/next-ui/ui/overlays';
 import {
     Command,
     CommandEmpty,
@@ -61,8 +61,8 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from '@/components/ui/command';
-import {cn} from '@/lib/utils/cn';
+} from '@alchemy/next-ui/ui/command';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     AttributeEntitySelect,
     TagSelect,
@@ -75,7 +75,7 @@ import {
     fileFamilyLabels,
     privacyLabels,
 } from '@/features/attributes/types/registry';
-import {fileFamilies} from '@/lib/utils/mime';
+import {fileFamilies} from '@alchemy/next-ui/utils/mime';
 import {ResolveStatus, useEntitiesStore, useEntity} from '../entitiesStore';
 import {idFromIri, iri} from '@/lib/utils/iri';
 

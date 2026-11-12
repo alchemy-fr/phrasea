@@ -16,6 +16,7 @@ final class DownloadAssetAction extends AbstractAssetAction
     {
         $publication = $this->getPublication($publicationId);
         $asset = $this->getAssetOfPublication($assetId, $publication);
+        $this->downloadPolicy->denyDirectDownloadUnlessGranted($publication, $request);
 
         $this->reportClient->pushHttpRequestLog(
             $request,

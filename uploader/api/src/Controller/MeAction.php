@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Security\Voter\FormDataEditorVoter;
+use App\Security\Voter\UploadLinkVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,6 +29,7 @@ class MeAction extends AbstractController
             'permissions' => [
                 'form_schema' => $this->isGranted(FormDataEditorVoter::EDIT_FORM_SCHEMA),
                 'target_data' => $this->isGranted(FormDataEditorVoter::EDIT_TARGET_DATA),
+                'upload_link' => $this->isGranted(UploadLinkVoter::CREATE),
             ],
         ]);
     }

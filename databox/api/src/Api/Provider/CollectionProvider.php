@@ -14,6 +14,7 @@ use App\Repository\Core\CollectionRepository;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\CollectionVoter;
+use App\Service\Collection\CollectionSorter;
 
 class CollectionProvider extends AbstractCollectionProvider
 {
@@ -24,6 +25,7 @@ class CollectionProvider extends AbstractCollectionProvider
         private readonly CollectionSearch $search,
         private readonly CollectionRepository $collectionRepository,
         private readonly WorkspaceRepository $workspaceRepository,
+        private readonly CollectionSorter $collectionSorter,
     ) {
     }
 
@@ -50,7 +52,9 @@ class CollectionProvider extends AbstractCollectionProvider
                 $allowedWorkspaces = array_values(array_intersect($allowedWorkspaces, $workspaceIds));
             }
 
-            return $this->collectionRepository->getRootCollections($allowedWorkspaces, $context['userId'], $context['groupIds']);
+            return $this->collectionSorter->sort(
+                $this->collectionRepository->getRootCollections($allowedWorkspaces, $context['userId'], $context['groupIds'])
+            );
         }
 
         try {

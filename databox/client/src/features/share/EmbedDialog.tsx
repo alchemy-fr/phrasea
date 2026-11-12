@@ -4,12 +4,12 @@ import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {RotateCcwIcon} from 'lucide-react';
 import type {Asset, Share} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Button} from '@/components/ui/button';
-import {Textarea} from '@/components/ui/input';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Textarea} from '@alchemy/next-ui/ui/input';
 import {CopyButton} from '@/components/ui/copy-button';
-import {FileKind, getFileKind} from '@/lib/utils/mime';
+import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {getShareUrl} from './ShareDialog';
 
 export function EmbedDialog({

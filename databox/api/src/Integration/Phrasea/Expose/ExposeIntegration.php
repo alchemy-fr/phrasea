@@ -12,6 +12,7 @@ use App\Integration\Action\UserActionsTrait;
 use App\Integration\Auth\IntegrationTokenRenewerInterface;
 use App\Integration\Auth\IntegrationTokenTrait;
 use App\Integration\BasketUpdateHandlerIntegrationInterface;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
@@ -58,15 +59,16 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 ->defaultValue('${EXPOSE_API_URL}')
                 ->cannotBeEmpty()
                 ->info('The Expose API base URL')
-            ->end()
-            ->scalarNode('clientId')
+            ->end();
+        ConfigWidget::apply($builder->scalarNode('clientId'), ConfigWidget::OAuthClient)
                 ->isRequired()
                 ->cannotBeEmpty()
+                ->info('Keycloak OAuth client (public, standard flow) used to authorize users on Expose')
             ->end()
             ->scalarNode('clientUrl')
-            ->defaultValue('${EXPOSE_CLIENT_URL}')
-            ->cannotBeEmpty()
-            ->info('The Expose Client base URL')
+                ->defaultValue('${EXPOSE_CLIENT_URL}')
+                ->cannotBeEmpty()
+                ->info('The Expose Client base URL')
             ->end()
         ;
     }
@@ -252,6 +254,6 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
     #[\Override]
     public function getSupportedContexts(): array
     {
-        return [IntegrationContext::Basket];
+        return [IntegrationContext::Basket, IntegrationContext::Automation];
     }
 }

@@ -5,15 +5,15 @@ import {useTranslation} from 'react-i18next';
 import type {Editor} from '@tiptap/core';
 import {useEditorState} from '@tiptap/react';
 import {LinkIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Input} from '@alchemy/next-ui/ui/input';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
     Tooltip,
-} from '@/components/ui/overlays';
-import {cn} from '@/lib/utils/cn';
+} from '@alchemy/next-ui/ui/overlays';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 /** Adds, changes or removes the link of the selection (http(s) only). */
 export function LinkButton({editor}: {editor: Editor | null}) {

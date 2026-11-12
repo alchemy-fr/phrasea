@@ -1,23 +1,24 @@
 'use client';
 
 import {getUserDisplayName} from '@/lib/users';
-import {ComponentProps, useState} from 'react';
+import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {HelpCircleIcon, Trash2Icon, UserIcon, UsersIcon} from 'lucide-react';
+import {HelpCircleIcon, UserIcon, UsersIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {Ace} from '@/types/api';
 import {UserType} from '@/types/api';
 import {deleteAce, getAces, putAce} from '@/lib/api/misc';
-import {Checkbox} from '@/components/ui/controls';
-import {Button} from '@/components/ui/button';
-import {Skeleton} from '@/components/ui/misc';
+import {PermissionCheckbox} from './PermissionCheckbox';
+import {ConfirmDeleteButton} from './ConfirmDeleteButton';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Skeleton} from '@alchemy/next-ui/ui/misc';
 import {
     Tooltip,
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from '@/components/ui/overlays';
+} from '@alchemy/next-ui/ui/overlays';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
 import {
     AclExtraPermission,
@@ -25,13 +26,24 @@ import {
     PermissionDefinition,
     PermissionObject,
 } from './permissionTypes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {
+    SlantedBand,
+    SlantedLabel,
+    slantedCellClassName,
+    slantedColumnClassName,
+    slantedTableClassName,
+    useColumnHover,
+    useSlantedHeader,
+} from './SlantedHeader';
 
 type Props = {
     objectType: PermissionObject;
     objectId: string;
     definitions: PermissionDefinition[];
     readOnly?: boolean;
+    /** Mask of a newly added user or group */
+    defaultMask?: number;
 };
 
 /**
@@ -44,6 +56,7 @@ export function AclEditor({
     objectId,
     definitions,
     readOnly,
+    defaultMask = aclMasks.VIEW,
 }: Props) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
@@ -53,17 +66,27 @@ export function AclEditor({
         queryFn: () => getAces(objectType, objectId),
     });
     const [addType, setAddType] = useState<UserType>(UserType.Group);
-    const [saving, setSaving] = useState<string | null>(null);
+    // Row being saved, and the column of the checkbox that changed
+    const [saving, setSaving] = useState<{
+        row: string;
+        column?: string;
+    } | null>(null);
+    const headerRef = useSlantedHeader([
+        aces.isLoading,
+        definitions.map(d => d.label).join(),
+        t,
+    ]);
+    const {column, highlight, tableProps} = useColumnHover();
 
     const refresh = () => queryClient.invalidateQueries({queryKey});
 
     const save = async (
         ace: Pick<Ace, 'userType' | 'userId'>,
         mask: number,
-        metadata: number[]
+        metadata: number[],
+        column?: string
     ) => {
-        const key = `${ace.userType}:${ace.userId}`;
-        setSaving(key);
+        setSaving({row: `${ace.userType}:${ace.userId}`, column});
         try {
             await putAce({
                 userType: ace.userType,
@@ -101,7 +124,7 @@ export function AclEditor({
         ) {
             return;
         }
-        void save({userType: addType, userId}, aclMasks.VIEW, []);
+        void save({userType: addType, userId}, defaultMask, []);
     };
 
     const allMask = definitions.reduce(
@@ -190,33 +213,48 @@ export function AclEditor({
                 <Skeleton className="h-32" />
             ) : (
                 <div className="overflow-x-auto rounded-md border">
-                    <table className="w-full text-sm">
+                    <table className={slantedTableClassName} {...tableProps}>
                         <thead className="bg-muted/50 text-xs text-muted-foreground">
-                            <tr>
-                                <th className="px-3 py-2 text-left align-bottom font-medium">
+                            <tr ref={headerRef}>
+                                <th className="w-full px-3 py-2 text-left align-bottom font-medium">
                                     {t('acl.subject', 'User / group')}
                                 </th>
-                                <th className="px-2 py-2 text-center align-bottom font-medium">
-                                    <VerticalLabel>
+                                <th className={slantedColumnClassName}>
+                                    <SlantedBand highlighted={column === 1} />
+                                    <SlantedLabel
+                                        className={cn(
+                                            column === 1 && 'text-foreground'
+                                        )}
+                                    >
                                         {t('acl.all', 'All')}
-                                    </VerticalLabel>
+                                    </SlantedLabel>
                                 </th>
-                                {definitions.map(d => (
+                                {definitions.map((d, i) => (
                                     <th
                                         key={`${d.type}-${d.key}`}
-                                        className="px-2 py-2 text-center align-bottom font-medium"
+                                        className={slantedColumnClassName}
                                     >
+                                        <SlantedBand
+                                            highlighted={column === i + 2}
+                                        />
                                         <Tooltip
                                             content={d.description}
                                             disabled={!d.description}
                                         >
-                                            <VerticalLabel>
+                                            <SlantedLabel
+                                                className={cn(
+                                                    column === i + 2 &&
+                                                        'text-foreground'
+                                                )}
+                                            >
                                                 {d.label}
-                                            </VerticalLabel>
+                                            </SlantedLabel>
                                         </Tooltip>
                                     </th>
                                 ))}
-                                <th className="w-10" />
+                                <th data-slanted-end className="relative w-10">
+                                    <SlantedBand className="w-0" />
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -236,8 +274,12 @@ export function AclEditor({
                             {(aces.data ?? []).map(ace => {
                                 const key = `${ace.userType}:${ace.userId}`;
                                 const wildcard = !ace.userId;
+                                const rowSaving =
+                                    saving?.row === key
+                                        ? saving.column
+                                        : undefined;
                                 const disabled =
-                                    readOnly || wildcard || saving === key;
+                                    readOnly || wildcard || saving?.row === key;
                                 const metadata = ace.metadata ?? [];
                                 const allChecked =
                                     (ace.mask & allMask) === allMask;
@@ -279,9 +321,14 @@ export function AclEditor({
                                                       ace.userId)}
                                             </span>
                                         </td>
-                                        <td className="px-2 py-1.5 text-center">
-                                            <Checkbox
-                                                className="mx-auto"
+                                        <td
+                                            className={cn(
+                                                slantedCellClassName,
+                                                highlight(1)
+                                            )}
+                                        >
+                                            <PermissionCheckbox
+                                                saving={rowSaving === 'all'}
                                                 checked={
                                                     allChecked
                                                         ? true
@@ -297,12 +344,13 @@ export function AclEditor({
                                                             ? 0
                                                             : ace.mask |
                                                                   allMask,
-                                                        metadata
+                                                        metadata,
+                                                        'all'
                                                     )
                                                 }
                                             />
                                         </td>
-                                        {definitions.map(d => {
+                                        {definitions.map((d, i) => {
                                             const checked =
                                                 d.type === 'mask'
                                                     ? (ace.mask &
@@ -311,14 +359,21 @@ export function AclEditor({
                                                     : metadata.includes(
                                                           d.key as AclExtraPermission
                                                       );
+                                            const columnKey = `${d.type}-${d.key}`;
 
                                             return (
                                                 <td
-                                                    key={`${d.type}-${d.key}`}
-                                                    className="px-2 py-1.5 text-center"
+                                                    key={columnKey}
+                                                    className={cn(
+                                                        slantedCellClassName,
+                                                        highlight(i + 2)
+                                                    )}
                                                 >
-                                                    <Checkbox
-                                                        className="mx-auto"
+                                                    <PermissionCheckbox
+                                                        saving={
+                                                            rowSaving ===
+                                                            columnKey
+                                                        }
                                                         checked={checked}
                                                         disabled={disabled}
                                                         onCheckedChange={v => {
@@ -339,7 +394,8 @@ export function AclEditor({
                                                                                   d
                                                                                       .key
                                                                               ],
-                                                                    metadata
+                                                                    metadata,
+                                                                    columnKey
                                                                 );
                                                             } else {
                                                                 void save(
@@ -354,7 +410,8 @@ export function AclEditor({
                                                                               m =>
                                                                                   m !==
                                                                                   d.key
-                                                                          )
+                                                                          ),
+                                                                    columnKey
                                                                 );
                                                             }
                                                         }}
@@ -362,20 +419,13 @@ export function AclEditor({
                                                 </td>
                                             );
                                         })}
-                                        <td className="px-1 py-1.5">
+                                        <td className="border-l px-1 py-1.5 text-right">
                                             {!wildcard && !readOnly ? (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-xs"
-                                                    className="text-destructive"
-                                                    onClick={() => remove(ace)}
-                                                    aria-label={t(
-                                                        'common.delete',
-                                                        'Delete'
-                                                    )}
-                                                >
-                                                    <Trash2Icon />
-                                                </Button>
+                                                <ConfirmDeleteButton
+                                                    onConfirm={() =>
+                                                        remove(ace)
+                                                    }
+                                                />
                                             ) : null}
                                         </td>
                                     </tr>
@@ -386,19 +436,5 @@ export function AclEditor({
                 </div>
             )}
         </div>
-    );
-}
-
-/** Column header read bottom-to-top, so that many permissions fit */
-function VerticalLabel({className, ...props}: ComponentProps<'span'>) {
-    return (
-        <span
-            className={cn(
-                // Inline: as wide as its line, centered above the checkboxes
-                'inline-block rotate-180 text-left whitespace-nowrap [writing-mode:vertical-rl]',
-                className
-            )}
-            {...props}
-        />
     );
 }

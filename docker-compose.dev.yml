@@ -16,41 +16,35 @@ services:
       - ./turbo.json:/srv/workspace/phrasea/turbo.json:ro
       - ./node_modules:/srv/workspace/phrasea/node_modules:ro
 
+  expose-client:
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}expose-client-dev:${DOCKER_TAG}
+    build:
+      target: client-dev
+    volumes:
+      - ./expose/client:/srv/workspace/phrasea/expose/client:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
+
   dashboard-client:
     extends:
       service: a_client
-    image: localhost:5000/dashboard-client-dev:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}dashboard-client-dev:${DOCKER_TAG}
     build:
-      target: client-build
+      target: client-dev
     volumes:
       - ./dashboard/client:/srv/workspace/phrasea/dashboard/client:rw
-      - ./lib/bash/configurator:/var/app/configurator:ro
-    environment:
-      - WDS_SOCKET_PORT=443
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
 
   uploader-client:
     extends:
       service: a_client
-    image: localhost:5000/uploader-client-dev:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}uploader-client-dev:${DOCKER_TAG}
     build:
-      target: client-build
+      target: client-dev
     volumes:
       - ./uploader/client:/srv/workspace/phrasea/uploader/client:rw
       - ./lib/js:/srv/workspace/phrasea/lib/js:ro
-    environment:
-      - WDS_SOCKET_PORT=443
-
-  expose-client:
-    extends:
-      service: a_client
-    image: localhost:5000/expose-client-dev:${DOCKER_TAG}
-    build:
-      target: client-build
-    volumes:
-      - ./expose/client:/srv/workspace/phrasea/expose/client:rw
-      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
-    environment:
-      - WDS_SOCKET_PORT=443
 
   databox-client:
     extends:

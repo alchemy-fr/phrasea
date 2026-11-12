@@ -8,6 +8,7 @@ import {
     PlusIcon,
     SaveIcon,
     Trash2Icon,
+    XIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
 import {
@@ -22,26 +23,27 @@ import {
     SavedSearchAutomationInput,
 } from '@/lib/api/automations';
 import {isApiError} from '@/lib/api/http';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {FieldError, FormRow, Input} from '@/components/ui/input';
-import {SimpleSelect} from '@/components/ui/select';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {FieldError, FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {
     Checkbox,
     LabeledControl,
     RadioGroup,
     RadioGroupItem,
     Switch,
-} from '@/components/ui/controls';
-import {Button} from '@/components/ui/button';
+} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {toastError} from '@/lib/utils/errors';
+} from '@alchemy/next-ui/ui/menu';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 import {formatDateTime} from '@/lib/utils/format';
+import {WorkspaceSelect} from '@/components/form/selects';
 import {
     actionTypes,
     getActionDefinition,
@@ -100,6 +102,9 @@ export function AutomationFormDialog({
     const keySeq = useRef(0);
     const [name, setName] = useState(automation?.name ?? '');
     const [enabled, setEnabled] = useState(automation?.enabled ?? true);
+    const [workspaceId, setWorkspaceId] = useState<string | undefined>(
+        automation?.workspaceId ?? undefined
+    );
     const [preset, setPreset] = useState<SchedulePreset>(() =>
         cronToPreset(automation?.schedule)
     );
@@ -108,6 +113,9 @@ export function AutomationFormDialog({
     );
     const [scope, setScope] = useState<AutomationScope>(
         automation?.scope ?? AutomationScope.New
+    );
+    const [maxAssetsPerRun, setMaxAssetsPerRun] = useState(
+        String(automation?.maxAssetsPerRun ?? 1000)
     );
     const [ignoreExisting, setIgnoreExisting] = useState(false);
     const [actions, setActions] = useState<ActionItem[]>(() =>
@@ -125,11 +133,17 @@ export function AutomationFormDialog({
 
     const schedule = presetToCron(preset);
     const scheduleUnchanged = (automation?.schedule ?? null) === schedule;
+    const maxAssets = Number(maxAssetsPerRun);
     const canSubmit =
         !!name.trim() &&
+        Number.isInteger(maxAssets) &&
+        maxAssets > 0 &&
         actions.length > 0 &&
         actions.every(
-            a => getActionDefinition(a.type)?.isComplete(a.config) ?? true
+            a =>
+                getActionDefinition(a.type)?.isComplete(a.config, {
+                    workspaceId,
+                }) ?? true
         ) &&
         (preset.kind !== 'custom' || !!preset.expression.trim());
 
@@ -144,6 +158,24 @@ export function AutomationFormDialog({
         ]);
     const updateAction = (key: number, config: AutomationActionConfig) =>
         setActions(list => list.map(a => (a.key === key ? {...a, config} : a)));
+    const changeWorkspace = (id: string | undefined) => {
+        if (id === workspaceId) {
+            return;
+        }
+        setWorkspaceId(id);
+        // Some options of the actions belong to the workspace
+        setActions(list =>
+            list.map(a => {
+                const onWorkspaceChange = getActionDefinition(
+                    a.type
+                )?.onWorkspaceChange;
+
+                return onWorkspaceChange
+                    ? {...a, config: onWorkspaceChange(a.config)}
+                    : a;
+            })
+        );
+    };
     const removeAction = (key: number) =>
         setActions(list => list.filter(a => a.key !== key));
     const moveAction = (index: number, delta: number) =>
@@ -158,10 +190,12 @@ export function AutomationFormDialog({
     const submit = async () => {
         const data: SavedSearchAutomationInput = {
             name: name.trim(),
+            workspaceId: workspaceId ?? '',
             enabled,
             schedule: schedule ?? '',
             timezone,
             scope,
+            maxAssetsPerRun: maxAssets,
             actions: actions.map(({type, config}) => ({type, config})),
         };
 
@@ -373,6 +407,36 @@ export function AutomationFormDialog({
             ) : null}
 
             <FormRow
+                label={t('automation.workspace.label', 'Workspace')}
+                error={errors.fields.workspaceId}
+                help={t(
+                    'automation.workspace.help',
+                    'Limits the results of the saved search to this workspace.'
+                )}
+            >
+                <div className="flex items-center gap-2">
+                    <WorkspaceSelect
+                        value={workspaceId}
+                        onChange={changeWorkspace}
+                        placeholder={t(
+                            'automation.workspace.placeholder',
+                            'All workspaces'
+                        )}
+                    />
+                    {workspaceId ? (
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => changeWorkspace(undefined)}
+                            title={t('common.clear', 'Clear')}
+                        >
+                            <XIcon />
+                        </Button>
+                    ) : null}
+                </div>
+            </FormRow>
+
+            <FormRow
                 label={t('automation.scope.label', 'Assets')}
                 error={errors.fields.scope}
             >
@@ -419,6 +483,26 @@ export function AutomationFormDialog({
                     />
                 </LabeledControl>
             ) : null}
+            <FormRow
+                label={t(
+                    'automation.max_assets_per_run',
+                    'Max. assets per run'
+                )}
+                error={errors.fields.maxAssetsPerRun}
+                help={t(
+                    'automation.max_assets_per_run_help',
+                    'A run stops once this number of assets has been handed to the actions. With "New results only", the remaining assets are processed by the next runs.'
+                )}
+            >
+                <Input
+                    type="number"
+                    min={1}
+                    step={1}
+                    className="w-32"
+                    value={maxAssetsPerRun}
+                    onChange={e => setMaxAssetsPerRun(e.target.value)}
+                />
+            </FormRow>
 
             <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -510,6 +594,8 @@ export function AutomationFormDialog({
                                         updateAction(action.key, config)
                                     }
                                     errors={errors.actions[i]}
+                                    scope={scope}
+                                    workspaceId={workspaceId}
                                 />
                             ) : (
                                 <p className="text-xs text-muted-foreground">

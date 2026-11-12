@@ -25,7 +25,9 @@ class CollectionInputMapper extends AbstractInputMapper implements InputMapperIn
     {
         $isNew = null === $target;
         $object = $target ?? new Collection();
-        $object->setName($data->name);
+        if (self::hasKey('name', $data->name, $context)) {
+            $object->setName($data->name);
+        }
 
         $workspace = null;
         if ($data->workspace) {

@@ -25,9 +25,9 @@ export const instancePermissions: InstancePermission[] = [
         metadata: AclExtraPermission.CREATE_WORKSPACE,
     },
     {
-        key: 'createProfile',
+        key: 'shareProfile',
         objectType: PermissionObject.Profile,
-        metadata: AclExtraPermission.CREATE_PROFILE,
+        metadata: AclExtraPermission.SHARE_PROFILE,
     },
     {
         key: 'shareBasket',
@@ -59,11 +59,14 @@ export function getInstancePermissionLabels(
                 'Create new workspaces, and become their owner.'
             ),
         },
-        createProfile: {
-            label: t('instance_permissions.create_profile', 'Create a profile'),
+        shareProfile: {
+            label: t(
+                'instance_permissions.share_profile',
+                'Share own profiles'
+            ),
             description: t(
-                'instance_permissions.create_profile_help',
-                'Create display profiles.'
+                'instance_permissions.share_profile_help',
+                'Make the display profiles they own public, and grant other users and groups access to them.'
             ),
         },
         shareBasket: {

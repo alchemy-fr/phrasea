@@ -38,7 +38,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         static::createClient()->request('POST', self::iri($workspace).'/logo', [
             'headers' => self::authHeaders($userId),
             'json' => [
-                'multipart' => $multipart ?? self::multipartPayload($this->createPngUpload()),
+                'multipart' => $multipart ?? self::multipartPayload($this->createPngUpload(ownerId: $userId ?? self::USER)),
             ],
         ]);
     }
@@ -49,6 +49,17 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         $em->clear();
 
         return $em->find(Workspace::class, $workspace->getId())->getLogo();
+    }
+
+    public function testTheUploadOfAnotherUserIsRefused(): void
+    {
+        $ws = $this->createWs('ws', ['ownerId' => self::USER]);
+        $upload = $this->createPngUpload(ownerId: KeycloakClientTestMock::OTHER_USER_UID);
+
+        $this->uploadLogo($ws, self::USER, self::multipartPayload($upload));
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertNull($this->findLogo($ws));
     }
 
     public function testARasterLogoIsReplacedByAnOptimizedWebp(): void

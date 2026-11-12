@@ -25,6 +25,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -32,7 +33,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(
+            security: 'is_granted("EDIT", object)',
+            denormalizationContext: [
+                'groups' => [self::GROUP_WRITE],
+                AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false,
+            ],
+        ),
         new GetCollection(
             parameters: [
                 'workspaceId' => new QueryParameter(
@@ -42,7 +49,13 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
             ],
         ),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            denormalizationContext: [
+                'groups' => [self::GROUP_WRITE, self::GROUP_CREATE],
+                AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false,
+            ],
+            securityPostDenormalize: 'is_granted("CREATE", object)',
+        ),
     ],
     normalizationContext: [
         'groups' => [RenditionPolicy::GROUP_LIST],
@@ -65,31 +78,36 @@ class RenditionPolicy extends AbstractUuidEntity implements AuditableInterface, 
     final public const string OBJECT_TYPE = 'rendition_policy';
     final public const string GROUP_READ = 'rendpol:r';
     final public const string GROUP_LIST = 'rendpol:i';
+    /**
+     * The workspace is only set at creation.
+     */
+    final public const string GROUP_WRITE = 'rendpol:w';
+    final public const string GROUP_CREATE = 'rendpol:c';
 
     /**
      * Override trait for annotation.
      */
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionPolicies')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['_'])]
+    #[Groups([self::GROUP_CREATE])]
     #[Assert\NotNull]
     protected ?Workspace $workspace = null;
 
-    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ, RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ, RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionPolicy::GROUP_WRITE])]
     #[ORM\Column(type: Types::STRING, length: 80)]
     #[Assert\NotNull]
     private ?string $name = null;
 
-    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ, RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ, RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionPolicy::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
-    #[Groups([RenditionPolicy::GROUP_LIST])]
+    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Assert\NotNull]
     private ?bool $editable = null;
 
-    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ])]
+    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ, RenditionPolicy::GROUP_WRITE])]
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $labels = null;
 

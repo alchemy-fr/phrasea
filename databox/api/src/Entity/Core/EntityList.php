@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
@@ -32,12 +33,14 @@ use App\Audit\AuditableInterface;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Listener\OwnerPersistableInterface;
+use App\Security\Voter\EntityListVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -45,7 +48,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(
+            security: 'is_granted("EDIT", object)',
+            denormalizationContext: [
+                'groups' => [self::GROUP_WRITE],
+                AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false,
+            ],
+        ),
         // Restricted to the readable workspaces by EntityListExtension
         new GetCollection(
             order: ['name' => 'ASC', 'id' => 'ASC'],
@@ -67,11 +76,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         ),
         new Post(
+            denormalizationContext: [
+                'groups' => [self::GROUP_WRITE, self::GROUP_CREATE],
+                AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false,
+            ],
             securityPostDenormalize: 'is_granted("CREATE", object)'
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/import',
-            security: 'is_granted("EDIT", object)',
+            security: 'is_granted("'.EntityListVoter::EDIT_VALUES.'", object)',
             input: ImportEntitiesInput::class,
             name: 'import_entities',
             processor: ImportEntitiesProcessor::class
@@ -87,7 +100,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/export',
-            security: 'is_granted("EDIT", object)',
+            security: 'is_granted("'.EntityListVoter::EDIT_VALUES.'", object)',
             input: ExportEntitiesInput::class,
             name: 'export_entities',
             processor: ExportEntitiesProcessor::class
@@ -108,7 +121,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/entity-lists/{id}/clear',
-            security: 'is_granted("EDIT", object)',
+            security: 'is_granted("'.EntityListVoter::EDIT_VALUES.'", object)',
             input: false,
             name: 'clear_entities',
             processor: ClearEntitiesProcessor::class
@@ -127,13 +140,14 @@ use Symfony\Component\Validator\Constraints as Assert;
     fields: ['workspace', 'name'],
     message: 'This entity type already exists in the workspace.'
 )]
-class EntityList extends AbstractUuidEntity implements AuditableInterface, LoggableChangeSetInterface, OwnerPersistableInterface, \Stringable
+class EntityList extends AbstractUuidEntity implements AuditableInterface, LoggableChangeSetInterface, OwnerPersistableInterface, AclObjectInterface, \Stringable
 {
     use CreatedAtTrait;
     use OwnerIdTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
     final public const int OBJECT_INDEX = 15;
+    final public const string OBJECT_TYPE = 'entity_list';
     public const int TYPE_LENGTH = 100;
 
     private const string ALLOW_NEW_VALUES = 'nv';
@@ -147,10 +161,16 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
 
     final public const string GROUP_READ = 'entity-list:r';
     final public const string GROUP_LIST = 'entity-list:i';
+    /**
+     * The workspace is only set at creation, and the owner is never written through the API.
+     */
+    final public const string GROUP_WRITE = 'entity-list:w';
+    final public const string GROUP_CREATE = 'entity-list:c';
     private const array COMMON_GROUPS = [
         self::GROUP_READ,
         self::GROUP_LIST,
         AttributeDefinition::GROUP_LIST,
+        self::GROUP_WRITE,
     ];
 
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
@@ -158,7 +178,7 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
     protected ?string $ownerId = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ, self::GROUP_WRITE])]
     #[Assert\NotBlank]
     #[Assert\Length(max: self::TYPE_LENGTH)]
     private ?string $name = null;
@@ -179,6 +199,14 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
         parent::__construct();
     }
 
+    /**
+     * EntityListVoter grants nothing from this ownership: only the workspace rights and the list ACEs count.
+     */
+    public function getAclOwnerId(): string
+    {
+        return $this->ownerId ?? '';
+    }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -194,7 +222,7 @@ class EntityList extends AbstractUuidEntity implements AuditableInterface, Logga
         return $this->name ?? $this->getId() ?? '';
     }
 
-    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    #[Groups([self::GROUP_READ, self::GROUP_LIST, self::GROUP_CREATE])]
     public function getWorkspace(): ?Workspace
     {
         return $this->workspace;

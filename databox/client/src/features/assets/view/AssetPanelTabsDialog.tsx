@@ -18,10 +18,10 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Button} from '@/components/ui/button';
-import {useConfirm} from '@/components/ui/confirm';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {usePreferencesStore} from '@/features/preferences/store';
 import {
     overlayRow,
@@ -29,10 +29,10 @@ import {
     SortableRow,
     sortableMeasuring,
     useSortableRow,
-} from '@/components/ui/sortable';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+} from '@alchemy/next-ui/ui/sortable';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {mergeOrder} from '@/lib/utils/order';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export type ReorderableTab = {id: string; title: string; icon: ReactNode};
 

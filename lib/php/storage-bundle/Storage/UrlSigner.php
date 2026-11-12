@@ -26,18 +26,34 @@ final readonly class UrlSigner
         return $this->ttl;
     }
 
+    /**
+     * @param array{
+     *     type?: string|null,
+     *     inline?: bool,
+     *     download?: bool,
+     *     ttl?: int,
+     * } $options "type" is the MIME type known by the application (never trust
+     *           the one stored on the object); "inline" asks for an inline display,
+     *           granted only to the types allowed by InlineContentTypePolicy;
+     *           "download" forces an attachment
+     */
     public function getSignedUrl(string $path, array $options = []): string
     {
         if ($this->cloudFrontUrlGenerator->isEnabled()) {
             return $this->cloudFrontUrlGenerator->getSignedUrl($path, $options);
         }
 
-        $cmdOptions = [];
-        if ($options['download'] ?? false) {
-            $cmdOptions['ResponseContentDisposition'] = sprintf(
-                'attachment; filename=%s',
-                basename($path)
-            );
+        $headers = InlineContentTypePolicy::getResponseHeaders(
+            $options['type'] ?? null,
+            basename($path),
+            ($options['inline'] ?? false) && !($options['download'] ?? false),
+        );
+
+        $cmdOptions = [
+            'ResponseContentType' => $headers['contentType'],
+        ];
+        if (null !== $headers['contentDisposition']) {
+            $cmdOptions['ResponseContentDisposition'] = $headers['contentDisposition'];
         }
 
         $cmd = $this->client->getCommand('GetObject', array_merge([

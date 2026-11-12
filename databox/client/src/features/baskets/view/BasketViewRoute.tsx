@@ -20,10 +20,10 @@ import {
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
 import {getBasket, getBasketAssets} from '@/lib/api/misc';
-import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
-import {FullPageLoader} from '@/components/ui/loader';
-import {EmptyState, Separator} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {EmptyState, Separator} from '@alchemy/next-ui/ui/misc';
 import {AssetList} from '@/features/assets/list/AssetList';
 import {SelectionProvider} from '@/features/assets/list/SelectionProvider';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
@@ -38,10 +38,11 @@ import {SelectionActions} from '@/features/assets/list/toolbar/SelectionActions'
 import {DisplayOptionsMenu} from '@/features/assets/list/toolbar/DisplayOptionsMenu';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {basketChannel} from '@/lib/realtime/channels';
 import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
-import {cn} from '@/lib/utils/cn';
-import {useModals} from '@/components/modals/ModalProvider';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {effectiveClip, isClipApplicable} from '@/features/clip/clip';
 import {ClipBadge} from '@/features/clip/ClipBadge';
 import {BasketClipDialog} from '../clip/BasketClipDialog';
@@ -83,7 +84,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
         initialPageParam: undefined as string | undefined,
         getNextPageParam: last => last.next,
     });
-    useChannelEvent(`basket-${basketId}`, 'basket:update', () =>
+    useChannelEvent(basketChannel(basketId), 'basket:update', () =>
         invalidateBasket(queryClient, basketId)
     );
 

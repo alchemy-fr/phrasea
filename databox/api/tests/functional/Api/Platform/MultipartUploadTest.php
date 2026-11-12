@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api\Platform;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Test\Client;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use Aws\CommandInterface;
@@ -13,6 +15,8 @@ use Aws\Result;
 use Aws\S3\S3Client;
 use GuzzleHttp\Promise\Create;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * S3 multipart uploads (/uploads).
@@ -33,6 +37,11 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
      */
     private array $s3Commands = [];
 
+    /**
+     * ContentLength answered to HeadObject, i.e. the size of the completed object.
+     */
+    private int $s3ObjectSize = 0;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,9 +57,11 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
                 'args' => $command->toArray(),
             ];
 
-            return Create::promiseFor(new Result(
-                'CreateMultipartUpload' === $command->getName() ? ['UploadId' => self::S3_UPLOAD_ID] : []
-            ));
+            return Create::promiseFor(new Result(match ($command->getName()) {
+                'CreateMultipartUpload' => ['UploadId' => self::S3_UPLOAD_ID],
+                'HeadObject' => ['ContentLength' => $this->s3ObjectSize],
+                default => [],
+            }));
         });
     }
 
@@ -66,10 +77,10 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         return array_column($this->s3Commands, 'name');
     }
 
-    private function createUpload(int $size = 1000, string $filename = 'photo.jpg', string $type = 'image/jpeg'): array
+    private function createUpload(int $size = 1000, string $filename = 'photo.jpg', string $type = 'image/jpeg', string $userId = KeycloakClientTestMock::USER_UID): array
     {
         $response = $this->client->request('POST', '/uploads', [
-            'headers' => $this->headers(),
+            'headers' => $this->headers($userId),
             'json' => [
                 'filename' => $filename,
                 'type' => $type,
@@ -84,10 +95,11 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
     /**
      * Inserts an upload row directly, e.g. one already completed.
      */
-    private function persistUpload(bool $complete = false, ?int $chunkSize = 5_242_880, int $size = 12_000_000): MultipartUpload
+    private function persistUpload(bool $complete = false, ?int $chunkSize = 5_242_880, int $size = 12_000_000, ?string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
     {
         $em = self::getEntityManager();
         $upload = new MultipartUpload();
+        $upload->setOwnerId($ownerId);
         $upload->setFilename('video.mp4');
         $upload->setType('video/mp4');
         $upload->setSize($size);
@@ -423,5 +435,198 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
 
         // S3 cleans up incomplete uploads on its own: the error is swallowed
         $this->assertResponseStatusCodeSame(204);
+    }
+
+    public function testTheUploadBelongsToItsCreator(): void
+    {
+        $data = $this->createUpload();
+
+        $this->assertSame(KeycloakClientTestMock::USER_UID, $this->findUpload($data['id'])->getOwnerId());
+        $this->assertArrayNotHasKey('ownerId', $data);
+    }
+
+    public static function getOwnerOperations(): iterable
+    {
+        yield 'get' => ['GET', '', null];
+        yield 'parts' => ['POST', '/parts', []];
+        yield 'part (deprecated)' => ['POST', '/part', ['part' => 1]];
+        yield 'cancel' => ['DELETE', '', null];
+    }
+
+    #[DataProvider('getOwnerOperations')]
+    public function testAnotherUserCannotUseTheUpload(string $method, string $route, ?array $payload): void
+    {
+        $upload = $this->persistUpload();
+
+        $this->client->request($method, '/uploads/'.$upload->getId().$route, [
+            'headers' => $this->headers(KeycloakClientTestMock::OTHER_USER_UID),
+        ] + (null !== $payload ? ['json' => $payload] : []));
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertNotNull($this->findUpload($upload->getId()));
+        $this->assertSame([], $this->s3Commands);
+    }
+
+    #[DataProvider('getOwnerOperations')]
+    public function testAnUploadWithoutOwnerIsLeftToTheAdmins(string $method, string $route, ?array $payload): void
+    {
+        $upload = $this->persistUpload(ownerId: null);
+
+        $this->client->request($method, '/uploads/'.$upload->getId().$route, [
+            'headers' => $this->headers(),
+        ] + (null !== $payload ? ['json' => $payload] : []));
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->client->request($method, '/uploads/'.$upload->getId().$route, [
+            'headers' => $this->headers(KeycloakClientTestMock::ADMIN_UID),
+        ] + (null !== $payload ? ['json' => $payload] : []));
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testAnonymousCannotReadAnUpload(): void
+    {
+        $upload = $this->persistUpload();
+
+        $this->client->request('GET', '/uploads/'.$upload->getId());
+
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public static function getInvalidPartNumbers(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'negative' => [-1];
+        yield 'past the last part' => [4];
+        yield 'not a number' => ['abc'];
+    }
+
+    #[DataProvider('getInvalidPartNumbers')]
+    public function testDeprecatedSinglePartUrlIsBoundedToThePartCount(mixed $part): void
+    {
+        // 3 parts of 5 MiB
+        $upload = $this->persistUpload(chunkSize: 5_242_880, size: 12_000_000);
+
+        $this->client->request('POST', '/uploads/'.$upload->getId().'/part', [
+            'headers' => $this->headers(),
+            'json' => ['part' => $part],
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+    }
+
+    public function testDeprecatedSinglePartUrlAcceptsTheLastPart(): void
+    {
+        $upload = $this->persistUpload(chunkSize: 5_242_880, size: 12_000_000);
+
+        $response = $this->client->request('POST', '/uploads/'.$upload->getId().'/part', [
+            'headers' => $this->headers(),
+            'json' => ['part' => 3],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString('partNumber=3&', $response->toArray()['url']);
+    }
+
+    public function testNoDeprecatedSinglePartUrlForACompletedUpload(): void
+    {
+        $upload = $this->persistUpload(complete: true);
+
+        $response = $this->client->request('POST', '/uploads/'.$upload->getId().'/part', [
+            'headers' => $this->headers(),
+            'json' => ['part' => 1],
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('already complete', $response->toArray(false)['description']);
+    }
+
+    private static function completionInput(MultipartUpload $upload): MultipartUploadInput
+    {
+        return MultipartUploadInput::fromArray([
+            'uploadId' => $upload->getId(),
+            'parts' => [
+                ['ETag' => 'etag-1', 'PartNumber' => 1],
+            ],
+        ]);
+    }
+
+    private function complete(MultipartUpload $upload, string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
+    {
+        $uploadManager = self::getService(UploadManager::class);
+        $completed = $uploadManager->handleMultipartUpload(self::completionInput($upload), $ownerId);
+        self::getEntityManager()->flush();
+
+        return $completed;
+    }
+
+    public function testCompletingAnUpload(): void
+    {
+        $upload = $this->persistUpload(size: 1000);
+        $this->s3ObjectSize = 1000;
+
+        $this->complete($upload);
+
+        $this->assertSame(['CompleteMultipartUpload', 'HeadObject'], $this->getS3CommandNames());
+        $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[1]['args']['Key']);
+        $this->assertTrue($this->findUpload($upload->getId())->isComplete());
+    }
+
+    public static function getForeignOwners(): iterable
+    {
+        yield 'another user' => [KeycloakClientTestMock::USER_UID, KeycloakClientTestMock::OTHER_USER_UID];
+        yield 'no owner' => [null, KeycloakClientTestMock::USER_UID];
+    }
+
+    #[DataProvider('getForeignOwners')]
+    public function testOnlyTheOwnerCompletesAnUpload(?string $ownerId, string $userId): void
+    {
+        $upload = $this->persistUpload(size: 1000, ownerId: $ownerId);
+        $this->s3ObjectSize = 1000;
+
+        try {
+            $this->complete($upload, $userId);
+            $this->fail('The upload must not be completed');
+        } catch (AccessDeniedHttpException) {
+        }
+
+        $this->assertSame([], $this->s3Commands);
+        $this->assertFalse($this->findUpload($upload->getId())->isComplete());
+    }
+
+    public function testAnUploadIsCompletedOnce(): void
+    {
+        $upload = $this->persistUpload(complete: true, size: 1000);
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('already complete');
+        try {
+            $this->complete($upload);
+        } finally {
+            $this->assertSame([], $this->s3Commands);
+        }
+    }
+
+    public static function getWrongSizes(): iterable
+    {
+        yield 'bigger than declared' => [1, 5_242_880];
+        yield 'smaller than declared' => [1000, 10];
+    }
+
+    #[DataProvider('getWrongSizes')]
+    public function testAnObjectOfAnotherSizeThanDeclaredIsDeleted(int $declaredSize, int $realSize): void
+    {
+        $upload = $this->persistUpload(size: $declaredSize);
+        $this->s3ObjectSize = $realSize;
+
+        try {
+            $this->complete($upload);
+            $this->fail('The upload must be refused');
+        } catch (BadRequestHttpException $e) {
+            $this->assertStringContainsString('does not match the declared size', $e->getMessage());
+        }
+
+        $this->assertSame(['CompleteMultipartUpload', 'HeadObject', 'DeleteObject'], $this->getS3CommandNames());
+        $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[2]['args']['Key']);
+        $this->assertNull($this->findUpload($upload->getId()));
     }
 }

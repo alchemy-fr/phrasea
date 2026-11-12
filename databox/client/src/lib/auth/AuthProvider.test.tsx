@@ -35,6 +35,9 @@ type User = {
     roles: string[];
     groups: string[];
     canImpersonate?: boolean;
+    canViewOAuthClients?: boolean;
+    canManageOAuthClients?: boolean;
+    canManageGroups?: boolean;
 };
 
 const client = vi.hoisted(() => ({
@@ -177,5 +180,50 @@ describe('AuthProvider impersonation', () => {
         await waitFor(() => expect(result.current.user).toEqual(alice));
         expect(result.current.canImpersonate).toBe(false);
         expect(result.current.impersonating).toBe(false);
+    });
+});
+
+describe('AuthProvider Keycloak management', () => {
+    const admin: User = {
+        id: 'admin-id',
+        username: 'admin',
+        roles: ['admin', 'databox'],
+        groups: [],
+        canImpersonate: true,
+        canViewOAuthClients: true,
+        canManageOAuthClients: true,
+        canManageGroups: true,
+    };
+    const alice: User = {
+        id: 'alice-id',
+        username: 'alice',
+        roles: ['databox'],
+        groups: [],
+    };
+
+    it('follows the Keycloak roles of the signed-in user', async () => {
+        client.getUser.mockReturnValue(admin);
+        window.localStorage.clear();
+
+        const {result} = renderHook(() => useAuth(), {wrapper});
+
+        await waitFor(() => expect(result.current.user).toEqual(admin));
+        expect(result.current.canViewOAuthClients).toBe(true);
+        expect(result.current.canManageOAuthClients).toBe(true);
+        expect(result.current.canManageGroups).toBe(true);
+    });
+
+    it('is off while impersonating', async () => {
+        client.getUser.mockReturnValue(admin);
+        window.localStorage.setItem('dbx.impersonation', JSON.stringify(alice));
+        getImpersonationIdentity.mockResolvedValue(alice);
+
+        const {result} = renderHook(() => useAuth(), {wrapper});
+
+        await waitFor(() => expect(result.current.impersonating).toBe(true));
+        expect(result.current.canViewOAuthClients).toBe(false);
+        expect(result.current.canManageOAuthClients).toBe(false);
+        expect(result.current.canManageGroups).toBe(false);
+        window.localStorage.clear();
     });
 });

@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Consumer\Handler\DownloadRequest as DownloadRequestMessage;
-use App\Entity\DownloadRequest;
-use App\Entity\SubDefinition;
 use App\Report\ExposeLogActionInterface;
+use App\Security\DownloadRequestFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -23,22 +21,18 @@ final class PostDownloadSubDefViaEmailAction extends AbstractAssetAction
         string $subDefId,
         Request $request,
         MessageBusInterface $bus,
+        DownloadRequestFactory $downloadRequestFactory,
     ): Response {
         $publication = $this->getPublication($publicationId);
         $subDef = $this->getSubDefOfPublication($subDefId, $publication);
         $asset = $subDef->getAsset();
+        $this->downloadPolicy->denyEmailRequestUnlessGranted($publication, $request);
 
-        $subDef = $this->em->getRepository(SubDefinition::class)->find($subDefId);
-        if (!$subDef instanceof SubDefinition) {
-            throw new NotFoundHttpException(sprintf('Sub def "%s" not found', $subDefId));
-        }
-
-        $downloadRequest = new DownloadRequest();
-        $downloadRequest->setPublication($publication);
+        $downloadRequest = $downloadRequestFactory->create($publication, $request);
         $downloadRequest->setAsset($asset);
         $downloadRequest->setSubDefinition($subDef);
-        $downloadRequest->setEmail($request->request->get('email'));
-        $downloadRequest->setLocale($request->getLocale());
+
+        $this->validator->validate($downloadRequest);
 
         $this->em->persist($downloadRequest);
         $this->em->flush();

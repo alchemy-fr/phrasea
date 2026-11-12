@@ -45,4 +45,31 @@ final readonly class EnvResolver
 
         return getenv(self::ENV_PREFIX.$key) ?: '';
     }
+
+    /**
+     * The names that `${NAME}` resolves to a `PWI_<NAME>` environment variable of
+     * the instance (the last source, after the secrets and the variables): valid
+     * names whose value is not empty, without the prefix, sorted.
+     *
+     * @return list<string>
+     */
+    public static function getSystemEnvNames(): array
+    {
+        $names = [];
+        foreach (getenv() as $key => $value) {
+            // A numeric variable name becomes an int key
+            $key = (string) $key;
+            if (!str_starts_with($key, self::ENV_PREFIX) || '' === $value) {
+                continue;
+            }
+
+            $name = substr($key, \strlen(self::ENV_PREFIX));
+            if (1 === preg_match(WorkspaceSecret::NAME_PATTERN, $name)) {
+                $names[] = $name;
+            }
+        }
+        sort($names, \SORT_STRING);
+
+        return $names;
+    }
 }

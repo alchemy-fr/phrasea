@@ -17,7 +17,7 @@ interface DataboxExtraPermissionInterface
      * these values must differ from the ones above.
      */
     final public const int PERM_CREATE_WORKSPACE = 5;
-    final public const int PERM_CREATE_PROFILE = 6;
+    final public const int PERM_SHARE_PROFILE = 6;
     final public const int PERM_SHARE_BASKET = 7;
     final public const int PERM_PUBLISH_SAVED_SEARCH = 8;
 }

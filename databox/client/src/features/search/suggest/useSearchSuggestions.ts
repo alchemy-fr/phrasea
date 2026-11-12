@@ -10,7 +10,7 @@ import {
 } from '@/features/attributes/definitionsStore';
 import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
 import {getWorkspaces} from '@/lib/api/collections';
-import {debounce} from '@/lib/utils/misc';
+import {debounce} from '@alchemy/next-ui/utils/misc';
 import {
     candidateToValueSuggestion,
     clientValueSuggestions,

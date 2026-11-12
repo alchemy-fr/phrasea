@@ -15,6 +15,12 @@ class SavedSearchAutomationInput
 
     public ?string $name = null;
 
+    /**
+     * Limits the results of the saved search to this workspace (ID or IRI), an empty string to remove it.
+     * Required by the "share_export" action.
+     */
+    public ?string $workspaceId = null;
+
     public ?bool $enabled = null;
 
     /**
@@ -35,6 +41,11 @@ class SavedSearchAutomationInput
         'enum' => ['new', 'all'],
     ])]
     public ?string $scope = null;
+
+    /**
+     * Maximum number of assets handed to the actions per run, 1000 by default.
+     */
+    public ?int $maxAssetsPerRun = null;
 
     /**
      * Ordered list of {type, config}. A secret left empty keeps its current value.

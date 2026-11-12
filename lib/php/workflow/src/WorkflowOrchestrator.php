@@ -30,6 +30,14 @@ final class WorkflowOrchestrator
      */
     private array $workflowsToTrigger = [];
 
+    /**
+     * Workflows whose status changed, notified once the state is committed:
+     * a listener reading the state back must not see the previous one.
+     *
+     * @var array<string, WorkflowState>
+     */
+    private array $updatedWorkflows = [];
+
     public function __construct(
         private readonly WorkflowRepositoryInterface $workflowRepository,
         private readonly StateRepositoryInterface $stateRepository,
@@ -80,6 +88,7 @@ final class WorkflowOrchestrator
         );
 
         $this->stateRepository->persistWorkflowState($workflowState);
+        $this->notifyWorkflowUpdate($workflowState);
 
         $this->doContinueWorkflow($workflowState);
 
@@ -122,11 +131,14 @@ final class WorkflowOrchestrator
             }
 
             $this->stateRepository->persistWorkflowState($workflowState);
+            $this->notifyWorkflowUpdate($workflowState);
 
             if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
                 $this->stateRepository->releaseWorkflowLock($workflowId);
             }
         });
+
+        $this->flush();
     }
 
     public function continueWorkflow(string $workflowId): void
@@ -153,13 +165,19 @@ final class WorkflowOrchestrator
 
     private function wrapInTransaction(callable $callback): void
     {
-        if ($this->stateRepository instanceof TransactionalStateRepositoryInterface) {
-            $this->stateRepository->transactional($callback);
+        try {
+            if ($this->stateRepository instanceof TransactionalStateRepositoryInterface) {
+                $this->stateRepository->transactional($callback);
 
-            return;
+                return;
+            }
+
+            $callback();
+        } catch (\Throwable $e) {
+            $this->updatedWorkflows = [];
+
+            throw $e;
         }
-
-        $callback();
     }
 
     private function doContinueWorkflow(WorkflowState $workflowState): void
@@ -188,8 +206,7 @@ final class WorkflowOrchestrator
             $workflowState->setEndedAt(new MicroDateTime());
             $workflowState->setStatus($workflowEndStatus);
             $this->stateRepository->persistWorkflowState($workflowState);
-
-            $this->eventDispatcher->dispatch(new WorkflowUpdateEvent($workflowState));
+            $this->notifyWorkflowUpdate($workflowState);
         }
     }
 
@@ -260,6 +277,7 @@ final class WorkflowOrchestrator
         if (!empty($jobsToTrigger)) {
             $workflowState->setStatus(WorkflowState::STATUS_STARTED);
             $this->stateRepository->persistWorkflowState($workflowState);
+            $this->notifyWorkflowUpdate($workflowState);
 
             $jobInputs['rerun'] = true;
             foreach ($jobsToTrigger as $jobId) {
@@ -374,8 +392,19 @@ final class WorkflowOrchestrator
         }
     }
 
+    private function notifyWorkflowUpdate(WorkflowState $workflowState): void
+    {
+        $this->updatedWorkflows[$workflowState->getId()] = $workflowState;
+    }
+
     private function flush(): void
     {
+        $updatedWorkflows = $this->updatedWorkflows;
+        $this->updatedWorkflows = [];
+        foreach ($updatedWorkflows as $workflowState) {
+            $this->eventDispatcher->dispatch(new WorkflowUpdateEvent($workflowState));
+        }
+
         $jobsToTrigger = $this->workflowsToTrigger;
         $this->workflowsToTrigger = [];
         foreach ($jobsToTrigger as $jobTrigger) {

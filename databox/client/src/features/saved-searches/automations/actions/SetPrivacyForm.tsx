@@ -3,8 +3,8 @@
 import {useTranslation} from 'react-i18next';
 import {LockIcon} from 'lucide-react';
 import {Privacy} from '@/types/api';
-import {SimpleSelect} from '@/components/ui/select';
-import {FormRow} from '@/components/ui/input';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {FormRow} from '@alchemy/next-ui/ui/input';
 import {privacyLabels} from '@/features/attributes/types/registry';
 import type {ActionDefinition, ActionFormProps} from './types';
 

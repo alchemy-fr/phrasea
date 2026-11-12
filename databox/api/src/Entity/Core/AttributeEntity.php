@@ -39,6 +39,7 @@ use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
+use App\Security\Voter\EntityListVoter;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -237,7 +238,7 @@ class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, 
 
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
-    private const string LIST_CHANGE_SECURITY = 'object.getListId() == previous_object.getListId() or (is_granted("EDIT", previous_object.getList()) and is_granted("EDIT", object.getList()))';
+    private const string LIST_CHANGE_SECURITY = 'object.getListId() == previous_object.getListId() or (is_granted("'.EntityListVoter::EDIT_VALUES.'", previous_object.getList()) and is_granted("'.EntityListVoter::EDIT_VALUES.'", object.getList()))';
 
     final public const int STATUS_APPROVED = 0;
     final public const int STATUS_PENDING = 1;
@@ -297,8 +298,9 @@ class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, 
     private ?string $note = null;
 
     /**
-     * Number of attribute values referencing the entity, computed on demand by the collection
-     * provider ("usage" parameter): {attributes: int, humanAttributes: int}.
+     * Number of attribute values referencing the entity on the assets the user can read, counted
+     * on demand in the asset index by the collection provider ("usage" parameter):
+     * {attributes: int, humanAttributes: int}.
      *
      * @var array{attributes: int, humanAttributes: int}|null
      */
@@ -359,7 +361,7 @@ class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, 
     #[Groups([
         self::GROUP_LIST,
     ])]
-    #[ApiProperty(securityPostDenormalize: 'is_granted("EDIT", object.getList())')]
+    #[ApiProperty(securityPostDenormalize: 'is_granted("'.EntityListVoter::EDIT_VALUES.'", object.getList())')]
     private int $status = self::STATUS_APPROVED;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]

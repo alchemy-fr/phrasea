@@ -6,10 +6,14 @@ namespace App\Api\Mapper\Input;
 
 use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\Model\Input\Automation\SavedSearchAutomationInput;
+use App\Automation\Action\AutomationAwareActionInterface;
+use App\Automation\Action\ScopeAwareActionInterface;
+use App\Automation\Action\ShareExportAction;
 use App\Automation\ActionConfigSecretsHandler;
 use App\Automation\AutomationActionRegistry;
 use App\Automation\Schedule\CronHelper;
 use App\Entity\Automation\SavedSearchAutomation;
+use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\AutomationScopeEnum;
 use App\Security\Voter\AbstractVoter;
@@ -57,6 +61,10 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
         if (null !== $data->name) {
             $object->setName(trim($data->name));
         }
+        $workspaceWritten = self::hasKey('workspaceId', $data->workspaceId, $context);
+        if ($workspaceWritten) {
+            $object->setWorkspace($this->mapWorkspace($data->workspaceId));
+        }
         if (null !== $data->enabled) {
             $object->setEnabled($data->enabled);
         }
@@ -64,6 +72,9 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
             $scope = AutomationScopeEnum::tryFrom($data->scope)
                 ?? self::throwViolation('scope', sprintf('The scope must be one of: %s.', implode(', ', AutomationScopeEnum::values())));
             $object->setScope($scope);
+        }
+        if (null !== $data->maxAssetsPerRun) {
+            $object->setMaxAssetsPerRun($data->maxAssetsPerRun);
         }
         if (null !== $data->timezone) {
             if (!CronHelper::isValidTimezone($data->timezone)) {
@@ -82,6 +93,9 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
         }
         if (null !== $data->actions) {
             $object->setActions($this->mapActions($data->actions, $object->getActions()));
+        }
+        if (null === $target || null !== $data->scope || null !== $data->actions || $workspaceWritten) {
+            $this->checkActionConstraints($object, null !== $data->actions, $workspaceWritten);
         }
 
         if (null === $target || null !== $data->schedule || null !== $data->timezone || null !== $data->enabled) {
@@ -105,6 +119,14 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
      */
     private function mapActions(array $actions, array $previousActions): array
     {
+        // The automation keeps a single share
+        $shareExports = 0;
+        foreach (array_values($actions) as $i => $action) {
+            if (is_array($action) && ShareExportAction::TYPE === ($action['type'] ?? null) && ++$shareExports > 1) {
+                self::throwViolation(sprintf('actions[%d].type', $i), 'An automation can only have one share export action.');
+            }
+        }
+
         $mapped = [];
         foreach (array_values($actions) as $i => $action) {
             $type = is_array($action) ? ($action['type'] ?? null) : null;
@@ -145,6 +167,63 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
         }
 
         return $mapped;
+    }
+
+    private function mapWorkspace(?string $workspaceId): ?Workspace
+    {
+        $workspaceId = trim((string) $workspaceId);
+        if ('' === $workspaceId) {
+            return null;
+        }
+
+        $pos = strrpos($workspaceId, '/');
+        $id = false === $pos ? $workspaceId : substr($workspaceId, $pos + 1);
+        $workspace = Uuid::isValid($id) ? $this->em->find(Workspace::class, $id) : null;
+        if (null === $workspace || !$this->isGranted(AbstractVoter::READ, $workspace)) {
+            self::throwViolation('workspaceId', 'Workspace not found.');
+        }
+
+        return $workspace;
+    }
+
+    /**
+     * Some options of the actions depend on other fields of the automation (scope, workspace).
+     *
+     * @param bool $actionsWritten   whether to report the violations on the actions, or on the field of the automation
+     * @param bool $workspaceWritten whether a missing workspace is reported on the workspace
+     */
+    private function checkActionConstraints(SavedSearchAutomation $automation, bool $actionsWritten, bool $workspaceWritten): void
+    {
+        $violations = new ConstraintViolationList();
+        foreach ($automation->getActions() as $i => $definition) {
+            $type = (string) ($definition['type'] ?? '');
+            if (!$this->actionRegistry->has($type)) {
+                continue;
+            }
+            $action = $this->actionRegistry->get($type);
+            if (!$action instanceof ScopeAwareActionInterface && !$action instanceof AutomationAwareActionInterface) {
+                continue;
+            }
+
+            $config = $this->secretsHandler->decrypt($type, $definition['config'] ?? []);
+            if ($action instanceof ScopeAwareActionInterface) {
+                foreach ($action->getScopeViolations($config, $automation->getScope()) as $key => $message) {
+                    $path = $actionsWritten ? sprintf('actions[%d].config.%s', $i, $key) : 'scope';
+                    $violations->add(new ConstraintViolation($message, $message, [], null, $path, null));
+                }
+            }
+            if ($action instanceof AutomationAwareActionInterface) {
+                foreach ($action->getAutomationViolations($config, $automation) as $key => $message) {
+                    $onActions = $actionsWritten && !($workspaceWritten && AutomationAwareActionInterface::WORKSPACE_KEY === $key);
+                    $path = $onActions ? sprintf('actions[%d].config.%s', $i, $key) : 'workspaceId';
+                    $violations->add(new ConstraintViolation($message, $message, [], null, $path, null));
+                }
+            }
+        }
+
+        if (count($violations) > 0) {
+            throw new ValidationException($violations);
+        }
     }
 
     private static function throwViolation(string $path, string $message): never

@@ -14,6 +14,7 @@ use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Bundle\SecurityBundle\Security;
 
 #[AsDoctrineListener(Events::postRemove)]
 #[AsDoctrineListener(Events::prePersist)]
@@ -23,6 +24,7 @@ final readonly class MultipartUploadListener
         private UploadManager $uploadManager,
         private PathGeneratorInterface $pathGenerator,
         private MultipartUploadPlanner $planner,
+        private Security $security,
     ) {
     }
 
@@ -44,6 +46,10 @@ final readonly class MultipartUploadListener
     {
         $entity = $args->getObject();
         if ($entity instanceof MultipartUpload && !$entity->hasPath()) {
+            if (null === $entity->getOwnerId()) {
+                $entity->setOwnerId($this->security->getUser()?->getUserIdentifier());
+            }
+
             $extension = FileUtil::getExtensionFromPath($entity->getFilename());
             $path = $this->pathGenerator->generatePath($extension);
 

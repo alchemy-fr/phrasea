@@ -214,6 +214,11 @@ trait DataboxTestTrait
         self::getPermissionManager()->grantUserOnObject($userId, $object, $permission);
     }
 
+    protected function grantGroupOnObject(string $groupId, AclObjectInterface $object, int $permission): void
+    {
+        self::getPermissionManager()->grantGroupOnObject($groupId, $object, $permission);
+    }
+
     protected function getDataFromResponse(ResponseInterface $response, ?int $expectedCode)
     {
         if ($response->getStatusCode() !== $expectedCode) {

@@ -8,4 +8,5 @@ enum IntegrationContext: string
 {
     case AssetView = 'asset-view';
     case Basket = 'basket';
+    case Automation = 'automation';
 }

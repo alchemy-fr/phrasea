@@ -11,8 +11,8 @@ status: WIP
 ## Vocabulaire
 
 - **Target** : Destination pour les fichiers  
-- **Form-editor** : Ensemble de widgets disponibles via la bibliothèque liform, permettant la création d’un formulaire d’indexation accessible à l'utilisateur.  
-- **Target Parameter Editor** : Données d’indexation supplémentaires, non accessibles à l’utilisateur.  
+- **Éditeur de formulaire** : Construit, pour chaque target, le formulaire d’indexation rempli par l’utilisateur (constructeur de formulaire).  
+- **Éditeur de données de la target** : Données d’indexation supplémentaires d’une target, non accessibles à l’utilisateur.  
 - **Asset** : Fichier téléversé.   
 - **Commit** : Ensemble regroupant les assets et les informations saisies dans le formulaire de la target (au format JSON)    
 - **Multipart upload** : Les fichiers envoyés sont découpés en parties (chunks) et rassemblés côté serveur une fois l’upload terminé.
@@ -118,24 +118,26 @@ En mode Push, le fonctionnement de l’Uploader avec Phraseanet est identique da
 
 ## Paramétrage d’un formulaire de Target
 
-### Form-editor
+### Éditeur de formulaire
 
-Dans l’interface client Uploader ou depuis Uploader admin/form-editor  
+Dans l’interface client Uploader : menu « Éditeur de formulaires »  
 Documentation et exemple de [formulaire](../../tech/Uploader/form_config.md)  
    
-Cliquer sur une Target.
+Cliquer sur une Target : la liste indique les targets qui ont un formulaire.
 
-L’éditeur de formulaire permet de décrire le formulaire en JSON et d’en voir le rendu instantané.
+Chaque target a un seul formulaire, pour toutes les langues : ses libellés, aides et placeholders sont traduits dans le formulaire lui-même. L’éditeur de formulaire permet de construire le formulaire en glissant les attributs d’un workspace Databox (dont les listes d’entités), des valeurs Databox (nom, tags, story), des champs personnalisés et des sections, puis d’en voir le rendu. « Supprimer le formulaire » le retire : la target n’accepte alors plus de données d’indexation de l’utilisateur.
+
+Les formulaires décrits en JSON (LiForm) avant la version 5 ont été convertis vers le constructeur lors de la mise à jour ; voir la [documentation technique](../../tech/Uploader/form_config.md#migration-from-liform) pour ce que garde la conversion.
 
 Exemple :
 
 ![][image4] todo
 
-### Target Parameter Editor
+### Éditeur de données de la target
 
-Le “Target Parameter Editor” permet de passer des paramètres supplémentaires inclus dans une section du JSON pour décrire l’asset.
+Dans l’interface client Uploader : menu « Paramètres de cible ». L’éditeur de données de la target permet de passer, sous forme d’objet JSON, des données supplémentaires ajoutées à chaque envoi vers la target pour décrire les assets. Le vider retire les données de la target.
 
-Les paramètres définis dans le “Target Parameter Editor” prévalent sur les informations saisies dans le form-editor. Il est donc inutile de déclarer des valeurs d’attribut dans le formulaire si celles-ci sont déjà référencées dans les paramètres de la Target.
+Les données définies dans l’éditeur de données de la target prévalent sur les informations saisies dans le formulaire. Il est donc inutile de déclarer des valeurs d’attribut dans le formulaire si celles-ci sont déjà référencées dans les données de la target.
 
 ![][image5] todo
 
@@ -152,7 +154,7 @@ Il est possible de notifier l’émetteur via Uploader. Comme les autres modules
   - Une interface réduite à l’essentiel pour les utilisateurs  
   - Peut fonctionner en mode “Pull” : l’application consommatrice interroge l’Uploader depuis une zone sécurisée à la fréquence de son choix (le mode “Pull” n’est pas encore disponible pour Phrasea)
 
-**Pourquoi Form-editor et Target-editor ?**
+**Pourquoi un éditeur de formulaire et un éditeur de données de la target ?**
 
-- Le Form-editor permet de construire un formulaire utilisable par l’utilisateur  
-- Le Target Parameter Editor permet d’ajouter des valeurs au lot d’assets sans passer par le formulaire ; ces valeurs ne sont pas accessibles à l’utilisateur déposant les assets
+- L’éditeur de formulaire permet de construire un formulaire utilisable par l’utilisateur  
+- L’éditeur de données de la target permet d’ajouter des valeurs au lot d’assets sans passer par le formulaire ; ces valeurs ne sont pas accessibles à l’utilisateur déposant les assets

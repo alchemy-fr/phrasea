@@ -33,6 +33,12 @@ class SavedSearchAutomationOutput extends AbstractUuidOutput
     #[Groups([SavedSearchAutomation::GROUP_LIST, SavedSearchAutomation::GROUP_READ])]
     public ?string $savedSearchId = null;
 
+    /**
+     * The workspace the results of the saved search are limited to.
+     */
+    #[Groups([SavedSearchAutomation::GROUP_LIST, SavedSearchAutomation::GROUP_READ])]
+    public ?string $workspaceId = null;
+
     #[Groups([SavedSearchAutomation::GROUP_LIST, SavedSearchAutomation::GROUP_READ])]
     public ?string $name = null;
 
@@ -54,6 +60,12 @@ class SavedSearchAutomationOutput extends AbstractUuidOutput
     ])]
     #[Groups([SavedSearchAutomation::GROUP_LIST, SavedSearchAutomation::GROUP_READ])]
     public ?string $scope = null;
+
+    /**
+     * Maximum number of assets handed to the actions per run.
+     */
+    #[Groups([SavedSearchAutomation::GROUP_LIST, SavedSearchAutomation::GROUP_READ])]
+    public int $maxAssetsPerRun = SavedSearchAutomation::DEFAULT_MAX_ASSETS_PER_RUN;
 
     /**
      * Ordered list of {type, config}: the secrets are never output (null + "<field>Set").

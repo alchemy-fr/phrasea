@@ -1,0 +1,13 @@
+# The HTTP path (/mcp), the host check and the session store are set by AlchemyMcpBundle.
+mcp:
+    servers:
+        expose:
+            name: 'Phrasea Expose'
+            description: 'Manage Phrasea Expose publications, publication profiles and published assets.'
+            instructions: |
+                Phrasea Expose publishes asset galleries on the web. A publication has a title, an optional URL
+                slug, settings ("config") and assets; publications can be nested. A publication profile holds
+                settings shared by the publications using it: a publication setting left unset (null) falls back
+                to the one of its profile. Every call runs with the permissions of the authenticated user.
+            registry:
+                tools: ['App\Mcp\Tool\']

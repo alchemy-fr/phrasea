@@ -52,7 +52,9 @@ class RenditionDefinitionInputMapper extends AbstractInputMapper implements Inpu
             $object->setKey($data->key);
         }
 
-        $object->setParent($data->parent);
+        if (self::hasKey('parent', $data->parent, $context)) {
+            $object->setParent($data->parent);
+        }
         if (null !== $data->target) {
             $object->setTarget(AssetTypeEnum::tryFrom($data->target) ?? AssetTypeEnum::Asset);
         }

@@ -12,6 +12,10 @@ import {clipPlaybackTarget} from './clip';
  * one. Played or sought out of the ranges, it goes to the start of the next
  * one (of the first one, after the last).
  *
+ * With `freeWhilePaused`, a seek out of the ranges while paused stays there
+ * (an editor placing the ranges): the playback moves into them when it
+ * starts.
+ *
  * `timeupdate` only fires a few times per second: the end of the ranges is
  * also watched on every frame while playing, so that nothing past them is
  * shown.
@@ -19,7 +23,10 @@ import {clipPlaybackTarget} from './clip';
 export function useClipPlayback(
     ref: RefObject<HTMLMediaElement | null>,
     ranges: ClipTimeRange[] | undefined,
-    {loop = false}: {loop?: boolean} = {}
+    {
+        loop = false,
+        freeWhilePaused = false,
+    }: {loop?: boolean; freeWhilePaused?: boolean} = {}
 ): void {
     // The ranges by value: a new array of the same ranges changes nothing
     const key = ranges?.length ? JSON.stringify(ranges) : undefined;
@@ -33,12 +40,18 @@ export function useClipPlayback(
         let frame: number | undefined;
 
         const moveIn = () => {
+            if (freeWhilePaused && media.paused) {
+                return;
+            }
             const target = clipPlaybackTarget(media.currentTime, r);
             if (target) {
                 media.currentTime = target.time;
             }
         };
         const checkEnd = () => {
+            if (freeWhilePaused && media.paused) {
+                return;
+            }
             const target = clipPlaybackTarget(media.currentTime, r);
             if (!target) {
                 return;
@@ -85,5 +98,5 @@ export function useClipPlayback(
             media.removeEventListener('timeupdate', checkEnd);
             media.removeEventListener('pause', stopWatching);
         };
-    }, [ref, key, loop]);
+    }, [ref, key, loop, freeWhilePaused]);
 }

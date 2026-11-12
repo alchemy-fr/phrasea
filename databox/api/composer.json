@@ -87,6 +87,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/mcp-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/messenger-bundle",
             "options": {
                 "symlink": true
@@ -152,12 +159,13 @@
         "ext-json": "*",
         "ext-sodium": "*",
         "ext-zip": "*",
-        "alchemy/acl-bundle": "^1.5.2",
+        "alchemy/acl-bundle": "^2.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
         "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/es-bundle": "@dev",
+        "alchemy/mcp-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/notifier-bundle": "@dev",
@@ -171,6 +179,7 @@
         "alchemy/workflow-bundle": "@dev",
         "api-platform/core": "^5.0",
         "arthem/object-reference-bundle": "^1.1.1",
+        "aws/aws-php-sns-message-validator": "^1.10",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/dbal": "^4.0",
@@ -193,6 +202,7 @@
         "martin-georgiev/postgresql-for-doctrine": "*",
         "matomo/matomo-php-tracker": "^3.4",
         "nelmio/cors-bundle": "^2.1",
+        "openspout/openspout": "^4",
         "phpdocumentor/reflection-docblock": "^5.2",
         "phpstan/phpdoc-parser": "^1.0",
         "predis/predis": "^1.1",
@@ -208,6 +218,7 @@
         "symfony/flex": "^2.11",
         "symfony/framework-bundle": "^8.1",
         "symfony/lock": "^8.1",
+        "symfony/mcp-bundle": "^0.15",
         "symfony/mime": "^8.1",
         "symfony/process": "^8.1",
         "symfony/property-access": "^8.1",
@@ -287,8 +298,9 @@
         "phpstan": "php -d memory_limit=-1 vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
         "pre-phpunit": [
-            "rm -f var/cache/test/data*.db",
+            "rm -f var/cache/test/data*.db var/cache/test/configurator.db",
             "bin/console -e test doctrine:schema:create",
+            "bin/console -e test doctrine:schema:create --em=configurator",
             "bin/console -e test fos:elastica:reset"
         ],
         "phpunit": [

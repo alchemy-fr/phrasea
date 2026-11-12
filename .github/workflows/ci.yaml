@@ -45,12 +45,7 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
-  COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,mailpit,elasticsearch,dashboard,sockudo
-  # The Keycloak and report-api images are not built here and are never pulled
-  # by the CI: the stack runs without them, so the tests that log in through
-  # Keycloak (Cypress, indexer end-to-end) are not run.
-  CONFIGURATOR_CONFIGURE_KEYCLOAK: 'false'
-  REPORT_API_URL: ''
+  COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,sockudo
   FIXTURES_GENERATE_IMAGES: "true"
   # The S3 minimum part size, so that the e2e uploads span several parts
   S3_MULTIPART_MIN_CHUNK_SIZE: '5242880'
@@ -85,14 +80,6 @@ jobs:
       context: ./infra/docker/nginx-fpm-base
     secrets: inherit
 
-  build_nginx-client-base:
-    name: 'Build nginx-client-base'
-    uses: ./.github/workflows/build_base.yaml
-    with:
-      image: nginx-client-base
-      context: ./infra/docker/nginx-client-base
-    secrets: inherit
-
   build_nodejs-base:
     name: 'Build nodejs-base'
     uses: ./.github/workflows/build_base.yaml
@@ -119,7 +106,6 @@ jobs:
     secrets: inherit
     needs:
       - build_nodejs-base
-      - build_nginx-client-base
 
   build_databox_api:
     name: 'Build Databox API'
@@ -177,7 +163,6 @@ jobs:
     secrets: inherit
     needs:
       - build_nodejs-base
-      - build_nginx-client-base
 
   build_uploader_api:
     name: 'Build Uploader API'
@@ -201,7 +186,6 @@ jobs:
     secrets: inherit
     needs:
       - build_nodejs-base
-      - build_nginx-client-base
 
   setup:
     name: 'Setup stack'
@@ -240,10 +224,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # The Keycloak and report-api images are not built here: they come from
+      # public.ecr.aws, whose anonymous pulls hit its rate and data limits on
+      # the shared GitHub runners. Logged in, the pulls are counted against the
+      # AWS account.
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
       - name: Pull images
         run: |
-            . bin/functions.sh
-            docker compose pull $(compose_up_services)
+            docker compose pull
             docker compose pull configurator
 
       - name: Setup
@@ -259,7 +259,7 @@ jobs:
         run: bin/test.sh standard
 
       - name: Run Cypress tests
-        if: "env.CONFIGURATOR_CONFIGURE_KEYCLOAK != 'false' && !contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip cypress]')"
+        if: "!contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip cypress]')"
         run: bin/dev/test-cypress.sh
 
       - name: Replay Doctrine migrations
@@ -267,7 +267,7 @@ jobs:
         run: bin/dev/test-migrations.sh
 
       - name: Indexer end-to-end
-        if: env.TIER == 'release' && env.CONFIGURATOR_CONFIGURE_KEYCLOAK != 'false'
+        if: env.TIER == 'release'
         run: |
           docker compose --profile indexer pull databox-indexer
           bin/dev/test-indexer-e2e.sh --timeout 300
@@ -318,27 +318,9 @@ jobs:
           echo "Ref \"$REF_NAME\" -> image tag \"$TAG\""
           echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
 
-      - name: Configure AWS Credentials
-        env:
-          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
-        if: env.AWS_ECR_ACCESS_KEY_ID != null
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
-          aws-region: us-east-1
-
-      - name: Login to Amazon ECR Public
-        id: login-ecr-public
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
-
       - name: Push images to AWS ECR
         env:
-          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           REGISTRY_ALIAS: b2s9z7l1
-        if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
           docker compose --profile indexer pull databox-indexer

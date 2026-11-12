@@ -1,10 +1,14 @@
 'use client';
 
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {ChevronDownIcon} from 'lucide-react';
+import Link from 'next/link';
+import {useQuery} from '@tanstack/react-query';
+import {ArrowRightIcon, ChevronDownIcon} from 'lucide-react';
 import type {Collection, Workspace} from '@/types/api';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {getCollection, getWorkspace} from '@/lib/api/collections';
+import {routes} from '@/lib/routes';
 import {AclEditor} from './AclEditor';
 import {
     collectionPermissions,
@@ -50,11 +54,7 @@ export function ParentAcl({
                 <div className="mt-3 space-y-6">
                     {chain.map(col => (
                         <div key={col.id} className="space-y-2">
-                            <CollectionChip
-                                collection={col}
-                                absolute
-                                size="sm"
-                            />
+                            <CollectionAclTitle collection={col} />
                             <AclEditor
                                 objectType={PermissionObject.Collection}
                                 objectId={col.id}
@@ -64,7 +64,7 @@ export function ParentAcl({
                         </div>
                     ))}
                     <div className="space-y-2">
-                        <WorkspaceChip workspace={workspace} size="sm" />
+                        <WorkspaceAclTitle workspace={workspace} />
                         <AclEditor
                             objectType={PermissionObject.Workspace}
                             objectId={workspace.id}
@@ -73,6 +73,71 @@ export function ParentAcl({
                         />
                     </div>
                 </div>
+            ) : null}
+        </div>
+    );
+}
+
+/*
+ * The collections and the workspace nested in an asset have no capabilities:
+ * they are loaded with the query of their manage dialog, which shares its cache.
+ */
+
+function CollectionAclTitle({collection}: {collection: Collection}) {
+    const {data} = useQuery({
+        queryKey: ['collection', collection.id],
+        queryFn: () => getCollection(collection.id),
+        retry: false,
+    });
+
+    return (
+        <AclTitle
+            href={
+                data?.capabilities.editPermissions
+                    ? routes.collectionManage(collection.id, 'permissions')
+                    : undefined
+            }
+        >
+            <CollectionChip collection={collection} absolute size="sm" />
+        </AclTitle>
+    );
+}
+
+function WorkspaceAclTitle({workspace}: {workspace: Workspace}) {
+    const {data} = useQuery({
+        queryKey: ['workspace', workspace.id],
+        queryFn: () => getWorkspace(workspace.id),
+        retry: false,
+    });
+
+    return (
+        <AclTitle
+            href={
+                data?.capabilities.editPermissions
+                    ? routes.workspaceManage(workspace.id, 'permissions')
+                    : undefined
+            }
+        >
+            <WorkspaceChip workspace={workspace} size="sm" />
+        </AclTitle>
+    );
+}
+
+/** Link to the permissions of the parent, when the user can manage them */
+function AclTitle({href, children}: {href?: string; children: ReactNode}) {
+    const {t} = useTranslation();
+
+    return (
+        <div className="flex items-center justify-between gap-2">
+            {children}
+            {href ? (
+                <Link
+                    href={href}
+                    className="inline-flex shrink-0 items-center gap-1 text-xs text-primary hover:underline"
+                >
+                    {t('acl.manage_inherited', 'Manage permissions')}
+                    <ArrowRightIcon className="size-3.5" />
+                </Link>
             ) : null}
         </div>
     );

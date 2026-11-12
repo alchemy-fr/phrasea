@@ -6,8 +6,9 @@ import {RefreshCwIcon, ScanFaceIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
 import {runIntegrationAction} from '@/lib/api/integrations';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {assetChannel} from '@/lib/realtime/channels';
 import {FaceCard} from './FaceCard';
 import {
     canNameFaces,
@@ -39,7 +40,7 @@ export function FaceRecognitionPanel({
 
     // The analyzer announces every detection of the asset
     useChannelEvent(
-        `asset-${asset.id}`,
+        assetChannel(asset.id),
         `integration:${faceRecognition}`,
         () => void refresh()
     );

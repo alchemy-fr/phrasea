@@ -33,7 +33,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -146,7 +145,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     order: ['title' => 'ASC']
 )]
 #[ORM\Entity]
-#[UniqueEntity(fields: ['slug'], message: 'This slug is already used by another publication.')]
 class Publication implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
@@ -166,13 +164,13 @@ class Publication implements AclObjectInterface, \Stringable
     final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     #[ApiProperty(identifier: true)]
-    #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, Asset::GROUP_READ])]
+    #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, Asset::GROUP_READ, PublicationShare::GROUP_PUBLIC])]
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private string $id;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ, self::GROUP_WRITE])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, self::GROUP_WRITE, PublicationShare::GROUP_PUBLIC])]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
@@ -247,6 +245,12 @@ class Publication implements AclObjectInterface, \Stringable
     #[ORM\OrderBy(['title' => 'ASC'])]
     private Collection $children;
 
+    /**
+     * @var PublicationShare[]|Collection
+     */
+    #[ORM\OneToMany(targetEntity: PublicationShare::class, mappedBy: 'publication', cascade: ['remove'])]
+    private Collection $shares;
+
     #[ORM\Embedded(class: PublicationConfig::class)]
     #[Groups([self::GROUP_INDEX, self::GROUP_ADMIN_READ, self::GROUP_WRITE])]
     private PublicationConfig $config;
@@ -254,7 +258,7 @@ class Publication implements AclObjectInterface, \Stringable
     /**
      * URL slug.
      */
-    #[Groups(['_', self::GROUP_INDEX, self::GROUP_WRITE])]
+    #[Groups(['_', self::GROUP_INDEX, self::GROUP_WRITE, PublicationShare::GROUP_PUBLIC])]
     #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
     #[Assert\Length(max: 100)]
     protected ?string $slug = null;
@@ -282,6 +286,7 @@ class Publication implements AclObjectInterface, \Stringable
         $this->createdAt = new \DateTimeImmutable();
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
+        $this->shares = new ArrayCollection();
         $this->config = new PublicationConfig();
         $this->id = Uuid::uuid4()->toString();
     }
@@ -374,9 +379,12 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->config->getTheme() ?? $this->profile?->getConfig()->getTheme();
     }
 
+    /**
+     * Whether anyone may read the publication, given the security method it inherits.
+     */
     public function isPublic(): bool
     {
-        return null === $this->getSecurityMethod();
+        return self::SECURITY_METHOD_NONE === $this->getSecurityContainer()->getSecurityMethod();
     }
 
     #[Groups(['_', self::GROUP_INDEX, Asset::GROUP_READ])]
@@ -388,15 +396,20 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_ADMIN_READ])]
     public function getSecurityOptions(): array
     {
-        if (!empty($this->config->getSecurityOptions())) {
-            return $this->config->getSecurityOptions();
+        return $this->getSecurityConfig()?->getSecurityOptions() ?? [];
+    }
+
+    /**
+     * The configuration holding the security options of this publication: its
+     * own, else the one of its profile.
+     */
+    public function getSecurityConfig(): ?PublicationConfig
+    {
+        if ($this->config->hasSecurityOptions()) {
+            return $this->config;
         }
 
-        if ($this->profile) {
-            return $this->profile->getConfig()->getSecurityOptions();
-        }
-
-        return [];
+        return $this->profile?->getConfig();
     }
 
     public function getDescription(): ?string
@@ -651,13 +664,32 @@ class Publication implements AclObjectInterface, \Stringable
         $this->cover = $cover;
     }
 
+    /**
+     * Enabled and within its dates, as are all its ancestors: a publication hidden
+     * hides its whole branch.
+     */
     public function isVisible(?\DateTimeImmutable $now = null): bool
     {
         $now ??= new \DateTimeImmutable();
 
         return $this->isEnabled()
             && (null === $this->getBeginsAt() || $this->getBeginsAt() < $now)
-            && (null === $this->getExpiresAt() || $this->getExpiresAt() > $now);
+            && (null === $this->getExpiresAt() || $this->getExpiresAt() > $now)
+            && (null === $this->parent || $this->parent->isVisible($now));
+    }
+
+    /**
+     * The earliest expiration of the publication and of its ancestors.
+     */
+    public function getVisibleUntil(): ?\DateTimeImmutable
+    {
+        $visibleUntil = $this->getExpiresAt();
+        $parentVisibleUntil = $this->parent?->getVisibleUntil();
+        if (null === $visibleUntil || (null !== $parentVisibleUntil && $parentVisibleUntil < $visibleUntil)) {
+            return $parentVisibleUntil;
+        }
+
+        return $visibleUntil;
     }
 
     public function getBeginsAt(): ?\DateTimeImmutable

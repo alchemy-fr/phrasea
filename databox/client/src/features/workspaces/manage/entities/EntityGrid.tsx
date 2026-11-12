@@ -38,8 +38,8 @@ import {
     putAttributeEntity,
     uploadAttributeEntityImage,
 } from '@/lib/api/metadata';
-import {Button} from '@/components/ui/button';
-import {Badge} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {FilterInput} from '@/components/ui/filter-input';
 import {
     ContextMenu,
@@ -50,16 +50,16 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {ConfirmDialog} from '@/components/ui/confirm';
-import {useModals} from '@/components/modals/ModalProvider';
+} from '@alchemy/next-ui/ui/menu';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {DataTable} from '@/components/ui/data-table/DataTable';
 import type {CellPosition} from '@/components/ui/data-table/types';
-import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
 import {useRoutePath} from '@/lib/navigation/routePath';
-import {toastError} from '@/lib/utils/errors';
-import {downloadUrl} from '@/lib/utils/misc';
-import {cn} from '@/lib/utils/cn';
+import {toastError} from '@alchemy/next-ui/utils/errors';
+import {downloadUrl} from '@alchemy/next-ui/utils/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     checkUploadFile,
     describeUploadRejection,

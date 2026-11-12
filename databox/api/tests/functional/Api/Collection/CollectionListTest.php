@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api\Collection;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface as Privacy;
 use App\Tests\Functional\AbstractSearchTestCase;
+use App\Util\NaturalSortKey;
 
 /**
  * GET /collections (Elasticsearch for admins and for any parent/query filter,
@@ -16,6 +19,18 @@ use App\Tests\Functional\AbstractSearchTestCase;
 final class CollectionListTest extends AbstractSearchTestCase
 {
     use CollectionTestTrait;
+
+    private const string GROUP = KeycloakClientTestMock::GROUP_UID;
+
+    /**
+     * Created in this order, see SORTED_NAMES.
+     */
+    private const array NAMES = ['Lot 10', 'lot 2', 'Lot 1', 'Été 2024', 'ete 2023', 'Zèbre', 'apple', 'Äpfel', 'B', '  Beta  ', '_misc', '10 ans', '9 vies'];
+
+    /**
+     * Natural order, case and accent insensitive ("_" is between the digits and the letters).
+     */
+    private const array SORTED_NAMES = ['9 vies', '10 ans', '_misc', 'Äpfel', 'apple', 'B', '  Beta  ', 'ete 2023', 'Été 2024', 'Lot 1', 'lot 2', 'Lot 10', 'Zèbre'];
 
     public function testAdminListsRootCollectionsWithTheirChildren(): void
     {
@@ -175,10 +190,7 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->createCollectionAccess($c1, self::USER, Privacy::SECRET);
         $this->createCollectionAccess($c2, self::USER, Privacy::SECRET);
 
-        $response = $this->request('GET', '/collections', self::USER);
-        $names = array_column($response->toArray()['member'], 'name');
-        sort($names);
-        $this->assertSame(['In 1', 'In 2'], $names);
+        $this->assertSame(['In 1', 'In 2'], $this->listOrderedNames(self::USER, []));
 
         $response = $this->request('GET', '/collections', self::USER, [
             'query' => ['workspaces' => [$ws2->getId()]],
@@ -479,16 +491,296 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->assertSame(['Kept', 'Trashed'], $this->listNames(self::ADMIN, []));
     }
 
+    public function testAdminRootsAreInNaturalOrder(): void
+    {
+        $workspace = $this->createTestWorkspace();
+        $this->createNamedCollections($workspace);
+        $this->reindex();
+
+        $members = $this->list(self::ADMIN, []);
+        $this->assertSame(self::SORTED_NAMES, array_column($members, 'name'));
+        $this->assertOrderedByDisplayName($members);
+
+        // Same order across pages
+        $this->assertSame(array_slice(self::SORTED_NAMES, 5, 5), $this->listOrderedNames(self::ADMIN, ['limit' => 5, 'page' => 2]));
+    }
+
+    public function testOwnerRootsAreInNaturalOrder(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
+        foreach ($this->createNamedCollections($workspace, ['ownerId' => self::USER]) as $collection) {
+            // collection_access is not computed on SQLite
+            $this->createCollectionAccess($collection, self::USER, Privacy::SECRET);
+        }
+
+        $members = $this->list(self::USER, []);
+        $this->assertSame(self::SORTED_NAMES, array_column($members, 'name'));
+        $this->assertOrderedByDisplayName($members);
+    }
+
+    public function testRootsSharedWithUserOrGroupAreInNaturalOrder(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER, self::OTHER]]);
+        foreach ($this->createNamedCollections($workspace) as $i => $collection) {
+            $this->createCollectionAccess($collection, 0 === $i % 2 ? self::USER : self::GROUP, Privacy::SECRET);
+        }
+        [$sharedWithUser, $sharedWithGroup] = self::splitSharedNames();
+
+        $this->assertSame($sharedWithUser, $this->listOrderedNames(self::USER, [], ['groups' => []]));
+        $this->assertSame($sharedWithGroup, $this->listOrderedNames(self::OTHER, [], ['groups' => [self::GROUP]]));
+        $this->assertSame(self::SORTED_NAMES, $this->listOrderedNames(self::USER, [], ['groups' => [self::GROUP]]));
+    }
+
+    public function testPublicRootsAreInNaturalOrderForAnonymous(): void
+    {
+        $workspace = $this->createTestWorkspace(['public' => true]);
+        foreach ($this->createNamedCollections($workspace, ['public' => true]) as $collection) {
+            $this->createCollectionAccess($collection, null, Privacy::PUBLIC);
+        }
+
+        $members = $this->list(self::ANONYMOUS, []);
+        $this->assertSame(self::SORTED_NAMES, array_column($members, 'name'));
+        $this->assertOrderedByDisplayName($members);
+    }
+
+    public function testTrashedRootIsNotListedForUsers(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
+        $kept = $this->createCollection(['workspace' => $workspace, 'name' => 'Kept', 'ownerId' => self::USER]);
+        $trashed = $this->createCollection(['workspace' => $workspace, 'name' => 'Trashed', 'ownerId' => self::USER]);
+        $shared = $this->createCollection(['workspace' => $workspace, 'name' => 'Shared trashed']);
+        foreach ([$kept, $trashed, $shared] as $collection) {
+            $this->createCollectionAccess($collection, self::USER, Privacy::SECRET);
+        }
+        $this->assertSame(['Kept', 'Shared trashed', 'Trashed'], $this->listOrderedNames(self::USER, []));
+
+        foreach ([$trashed->getId(), $shared->getId()] as $id) {
+            $this->findCollection($id)->setDeletedAt(new \DateTimeImmutable());
+            self::getEntityManager()->flush();
+        }
+
+        $this->assertSame(['Kept'], $this->listOrderedNames(self::USER, []));
+    }
+
+    public function testTrashedPublicRootIsNotListedForAnonymous(): void
+    {
+        $workspace = $this->createTestWorkspace(['public' => true]);
+        $kept = $this->createCollection(['workspace' => $workspace, 'name' => 'Kept', 'public' => true]);
+        $trashed = $this->createCollection(['workspace' => $workspace, 'name' => 'Trashed', 'public' => true]);
+        foreach ([$kept, $trashed] as $collection) {
+            $this->createCollectionAccess($collection, null, Privacy::PUBLIC);
+        }
+        $this->assertSame(['Kept', 'Trashed'], $this->listOrderedNames(self::ANONYMOUS, []));
+
+        $this->findCollection($trashed->getId())->setDeletedAt(new \DateTimeImmutable());
+        self::getEntityManager()->flush();
+
+        $this->assertSame(['Kept'], $this->listOrderedNames(self::ANONYMOUS, []));
+    }
+
+    /**
+     * Same thresholds as the READ of CollectionVoter: below "public", a collection
+     * is only listed to authenticated users.
+     */
+    public function testAnonymousOnlyListsPublicRoots(): void
+    {
+        $workspace = $this->createTestWorkspace(['public' => true, 'members' => [self::USER]]);
+        foreach ([Privacy::PRIVATE_IN_WORKSPACE, Privacy::PUBLIC_IN_WORKSPACE, Privacy::PRIVATE, Privacy::PUBLIC_FOR_USERS, Privacy::PUBLIC] as $privacy) {
+            $collection = $this->createCollection(['workspace' => $workspace, 'name' => Privacy::KEYS[$privacy], 'no_flush' => true]);
+            $collection->setPrivacy($privacy);
+            $this->createCollectionAccess($collection, null, $privacy);
+        }
+
+        $this->assertSame(['public'], $this->listNames(self::ANONYMOUS, []));
+        $this->assertSame(
+            ['private', 'private_in_workspace', 'public', 'public_for_users', 'public_in_workspace'],
+            $this->listNames(self::USER, []),
+        );
+    }
+
+    public function testChildrenAreInNaturalOrder(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER, self::OTHER]]);
+        $root = $this->createCollection(['workspace' => $workspace, 'name' => 'Root', 'ownerId' => self::USER]);
+        $this->createNamedCollections($workspace, ['parent' => $root, 'ownerId' => self::USER]);
+        $sharedRoot = $this->createCollection(['workspace' => $workspace, 'name' => 'Shared root']);
+        foreach ($this->createNamedCollections($workspace, ['parent' => $sharedRoot]) as $i => $collection) {
+            if (0 === $i % 2) {
+                $this->grantUserOnObject(self::USER, $collection, PermissionInterface::VIEW);
+            } else {
+                $this->grantGroupOnObject(self::GROUP, $collection, PermissionInterface::VIEW);
+            }
+        }
+        $this->reindex();
+
+        $members = $this->list(self::USER, ['parent' => $root->getId()]);
+        $this->assertSame(self::SORTED_NAMES, array_column($members, 'name'));
+        $this->assertOrderedByDisplayName($members);
+        $this->assertSame(self::SORTED_NAMES, $this->listOrderedNames(self::ADMIN, ['parent' => $root->getId()]));
+
+        [$sharedWithUser, $sharedWithGroup] = self::splitSharedNames();
+        $this->assertSame($sharedWithUser, $this->listOrderedNames(self::USER, ['parent' => $sharedRoot->getId()], ['groups' => []]));
+        $this->assertSame($sharedWithGroup, $this->listOrderedNames(self::OTHER, ['parent' => $sharedRoot->getId()], ['groups' => [self::GROUP]]));
+        $this->assertSame(self::SORTED_NAMES, $this->listOrderedNames(self::USER, ['parent' => $sharedRoot->getId()], ['groups' => [self::GROUP]]));
+
+        // Children embedded in their root
+        $members = $this->list(self::ADMIN, []);
+        $this->assertSame(['Root', 'Shared root'], array_column($members, 'name'));
+        $this->assertSame(self::SORTED_NAMES, array_column($members[0]['children'], 'name'));
+        $this->assertOrderedByDisplayName($members[0]['children']);
+        $this->assertSame(self::SORTED_NAMES, array_column($members[1]['children'], 'name'));
+    }
+
+    /**
+     * The order is the one of the displayed name, in the locale of the user.
+     */
+    public function testTranslatedNamesAreSortedAsDisplayed(): void
+    {
+        $root = $this->createTranslatedCollections([
+            ['Caption', ['fr' => 'Légende']],
+            ['Zoo', ['fr' => 'Animaux']],
+            ['Beach', null],
+        ]);
+
+        foreach ([
+            'fr' => ['Animaux', 'Beach', 'Légende'],
+            'fr-CA' => ['Animaux', 'Beach', 'Légende'],
+            'en' => ['Beach', 'Caption', 'Zoo'],
+        ] as $locale => $expected) {
+            $headers = ['X-Data-Locale' => $locale];
+            foreach ([
+                [self::ADMIN, []],
+                [self::USER, []],
+                [self::USER, ['parent' => $root->getId()]],
+            ] as [$userId, $query]) {
+                $members = $this->list($userId, $query, $headers);
+                $this->assertSame($expected, self::withoutRoot(array_column($members, 'displayName')), $locale);
+                $this->assertOrderedByDisplayName($members, $locale);
+            }
+        }
+    }
+
+    public function testTranslatedNamesInTheWorkspaceFallbackLocales(): void
+    {
+        $root = $this->createTranslatedCollections([
+            ['Alpha', ['en' => 'Xylo']],
+            ['Mike', ['en_US' => 'Charlie']],
+            ['Beta', null],
+            ['Zulu', null],
+        ], ['de', 'en']);
+
+        // "it" falls back to the workspace locales: "en" of Alpha, the first "en_*" of Mike
+        foreach (['it', 'en'] as $locale) {
+            $headers = ['X-Data-Locale' => $locale, 'Accept-Language' => $locale];
+            foreach ([
+                [self::ADMIN, []],
+                [self::USER, []],
+                [self::USER, ['parent' => $root->getId()]],
+            ] as [$userId, $query]) {
+                $members = $this->list($userId, $query, $headers);
+                $this->assertSame(['Beta', 'Mike', 'Alpha', 'Zulu'], self::withoutRoot(array_column($members, 'name')), $locale);
+                $this->assertOrderedByDisplayName($members, $locale);
+            }
+        }
+    }
+
+    /**
+     * The Elasticsearch sort script picks the translation of the displayed name (LocaleUtil::getBestLocale()).
+     */
+    public function testSortScriptPicksTheDisplayedTranslation(): void
+    {
+        $root = $this->createTranslatedCollections([
+            ['n1', ['fr' => 'f1', 'fr_FR' => 'h5', 'en_US' => 'u3', 'en_GB' => 'g4', 'de' => 'd2']],
+            ['n2', ['de' => 'd5', 'en_GB' => 'g1', 'en_US' => 'u4', 'fr_FR' => 'h2', 'fr' => 'f3']],
+            ['n3', ['en_US' => 'u1', 'fr_FR' => 'h3', 'de' => 'd4']],
+            ['n4', ['fr_FR' => 'h4', 'en_GB' => 'g5', 'fr' => 'f2']],
+            ['n5', ['en_GB' => 'g2', 'en_US' => 'u5', 'fr' => 'f5', 'de' => 'd1']],
+            ['n6', ['fr' => 'f4', 'de' => 'd3', 'en_US' => 'u2']],
+            ['n7', ['fr_FR' => 'h1', 'de' => 'd6']],
+            ['n8', ['fr' => 'f6', 'fr_CA' => 'c0']],
+            ['n0', null],
+        ]);
+
+        $orders = [];
+        foreach (['', 'fr', 'fr_CA', 'en', 'en, fr-FR', 'en, en-GB', 'de-AT'] as $languages) {
+            $headers = '' !== $languages ? ['Accept-Language' => $languages] : [];
+            foreach ([
+                [self::ADMIN, []],
+                [self::USER, []],
+                [self::USER, ['parent' => $root->getId()]],
+            ] as [$userId, $query]) {
+                $members = $this->list($userId, $query, $headers);
+                $this->assertCount([] === $query ? 10 : 9, $members);
+                $this->assertOrderedByDisplayName($members, $languages);
+                $orders[implode(',', array_column($members, 'displayName'))] = true;
+            }
+        }
+        // The languages do pick different translations
+        $this->assertGreaterThan(10, count($orders));
+    }
+
+    /**
+     * A collection created through the API is listed at the place the client inserts it at.
+     */
+    public function testOrderAfterCreationIsTheOrderAfterReload(): void
+    {
+        $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
+        $root = $this->createCollection(['workspace' => $workspace, 'name' => 'Root', 'ownerId' => self::USER]);
+        $this->createCollectionAccess($root, self::USER, Privacy::SECRET);
+        $this->reindex();
+
+        $headers = ['X-Data-Locale' => 'fr'];
+        $children = [];
+        $roots = [];
+        foreach (['Lot 10', 'lot 2', 'Été 2024', 'ete 2023', 'Zèbre', 'Lot 1', 'Lot 1'] as $i => $name) {
+            $translations = 0 === $i ? ['name' => ['fr' => 'Avant tout']] : null;
+            $children[] = $this->request('POST', '/collections', self::USER, [
+                'headers' => $headers,
+                'json' => [
+                    'name' => $name,
+                    'parent' => '/collections/'.$root->getId(),
+                    'translations' => $translations,
+                ],
+            ])->toArray();
+            $this->assertResponseStatusCodeSame(201);
+            $roots[] = $this->request('POST', '/collections', self::USER, [
+                'headers' => $headers,
+                'json' => [
+                    'name' => $name,
+                    'workspace' => '/workspaces/'.$workspace->getId(),
+                    'translations' => $translations,
+                ],
+            ])->toArray();
+            $this->assertResponseStatusCodeSame(201);
+        }
+        foreach ($roots as $created) {
+            // collection_access is not computed on SQLite
+            $this->createCollectionAccess($this->findCollection($created['id']), self::USER, Privacy::SECRET);
+        }
+        self::waitForESIndex('collection');
+
+        $expected = array_column($this->sortLikeTheClient($children), 'id');
+        $this->assertSame('Avant tout', $this->sortLikeTheClient($children)[0]['displayName']);
+        $this->assertSame($expected, array_column($this->list(self::USER, ['parent' => $root->getId()], $headers), 'id'));
+
+        $members = $this->list(self::USER, [], $headers);
+        $this->assertSame(
+            array_column($this->sortLikeTheClient([...$roots, ...array_filter($members, static fn (array $m): bool => $m['id'] === $root->getId())]), 'id'),
+            array_column($members, 'id'),
+        );
+    }
+
     private function reindex(): void
     {
         self::forceNewEntitiesToBeIndexed();
         self::waitForESIndex('collection');
     }
 
-    private function list(string $userId, array $query): array
+    private function list(string $userId, array $query, array $headers = []): array
     {
         $response = $this->request('GET', '/collections', $userId, [
             'query' => $query,
+            'headers' => $headers,
         ]);
         $this->assertResponseStatusCodeSame(200);
 
@@ -509,5 +801,114 @@ final class CollectionListTest extends AbstractSearchTestCase
         sort($names);
 
         return $names;
+    }
+
+    /**
+     * @return Collection[] the collections of NAMES, in this order
+     */
+    private function createNamedCollections(Workspace $workspace, array $options = []): array
+    {
+        return array_map(fn (string $name): Collection => $this->createCollection([
+            ...$options,
+            'workspace' => $workspace,
+            'name' => $name,
+        ]), self::NAMES);
+    }
+
+    /**
+     * @return array{0: string[], 1: string[]} the sorted names of the even (shared with USER) and odd (with GROUP) NAMES
+     */
+    private static function splitSharedNames(): array
+    {
+        $odd = array_values(array_filter(self::SORTED_NAMES, static fn (string $name): bool => 1 === array_search($name, self::NAMES, true) % 2));
+
+        return [array_values(array_diff(self::SORTED_NAMES, $odd)), $odd];
+    }
+
+    /**
+     * Creates the same collections as roots (readable by USER through collection_access) and as children of a "Root".
+     *
+     * @param array<array{0: string, 1: array<string, string>|null}> $cases name and name translations
+     *
+     * @return Collection the "Root" collection
+     */
+    private function createTranslatedCollections(array $cases, ?array $localeFallbacks = null): Collection
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
+        if (null !== $localeFallbacks) {
+            $workspace->setLocaleFallbacks($localeFallbacks);
+            self::getEntityManager()->flush();
+        }
+        $root = $this->createCollection(['workspace' => $workspace, 'name' => 'Root', 'ownerId' => self::USER]);
+        $this->createCollectionAccess($root, self::USER, Privacy::SECRET);
+        foreach ([null, $root] as $parent) {
+            foreach ($cases as [$name, $translations]) {
+                $collection = $this->createCollection([
+                    'workspace' => $workspace,
+                    'name' => $name,
+                    'ownerId' => self::USER,
+                    'parent' => $parent,
+                    'translations' => null !== $translations ? ['name' => $translations] : null,
+                ]);
+                if (null === $parent) {
+                    $this->createCollectionAccess($collection, self::USER, Privacy::SECRET);
+                }
+            }
+        }
+        $this->reindex();
+
+        return $root;
+    }
+
+    /**
+     * @return string[] names, in the order of the response
+     */
+    private function listOrderedNames(string $userId, array $query, array $options = []): array
+    {
+        $response = $this->request('GET', '/collections', $userId, [
+            ...$options,
+            'query' => $query,
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+
+        return array_column($response->toArray()['member'], 'name');
+    }
+
+    /**
+     * The members in the order of CollectionSorter, CollectionSearch and the client:
+     * natural order of the displayed name, then creation date, then ID.
+     */
+    private function sortLikeTheClient(array $members): array
+    {
+        $rows = array_map(fn (array $m): array => [
+            $m,
+            NaturalSortKey::fromString($m['displayName'] ?? $m['name'] ?? ''),
+            isset($m['createdAt'])
+                ? (new \DateTimeImmutable($m['createdAt']))->getTimestamp()
+                : self::getEntityManager()->find(Collection::class, $m['id'])->getCreatedAt()->getTimestamp(),
+        ], $members);
+        usort($rows, static fn (array $a, array $b): int => NaturalSortKey::compare($a[1], $b[1])
+            ?: $a[2] <=> $b[2]
+            ?: strcmp($a[0]['id'], $b[0]['id']) <=> 0);
+
+        return array_column($rows, 0);
+    }
+
+    private function assertOrderedByDisplayName(array $members, string $message = ''): void
+    {
+        $this->assertNotEmpty($members);
+        $expected = $this->sortLikeTheClient($members);
+        $this->assertSame(array_column($expected, 'displayName'), array_column($members, 'displayName'), $message);
+        $this->assertSame(array_column($expected, 'id'), array_column($members, 'id'), $message);
+    }
+
+    /**
+     * @param string[] $names
+     *
+     * @return string[]
+     */
+    private static function withoutRoot(array $names): array
+    {
+        return array_values(array_filter($names, static fn (string $name): bool => 'Root' !== $name));
     }
 }

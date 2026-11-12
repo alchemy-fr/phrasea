@@ -10,8 +10,8 @@ import {
     SavedSearchAutomation,
 } from '@/types/api';
 import {getAutomationRuns} from '@/lib/api/automations';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
 import {
     Accordion,
     AccordionContent,
@@ -20,8 +20,8 @@ import {
     Badge,
     EmptyState,
     Skeleton,
-} from '@/components/ui/misc';
-import {Button} from '@/components/ui/button';
+} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {formatDateTime} from '@/lib/utils/format';
 import {getActionDefinition} from './actions/registry';
 import {automationRunsQueryKey} from './queryKeys';
@@ -177,6 +177,24 @@ function RunSummary({run, lang}: {run: AutomationRun; lang: string}) {
             {run.dryRun ? (
                 <Badge variant="outline">
                     {t('automation.run.dry_run', 'Dry run')}
+                </Badge>
+            ) : null}
+            {run.limitReached ? (
+                <Badge
+                    variant="outline"
+                    title={
+                        run.dryRun
+                            ? t(
+                                  'automation.run.limit_would_be_reached_help',
+                                  'Maximum number of assets per run would be reached: the rest would be handled by the next runs'
+                              )
+                            : t(
+                                  'automation.run.limit_reached_help',
+                                  'Maximum number of assets per run reached: the rest will be handled by the next runs'
+                              )
+                    }
+                >
+                    {t('automation.run.limit_reached', 'Limit reached')}
                 </Badge>
             ) : null}
             <span className="text-muted-foreground">

@@ -1,0 +1,23 @@
+{
+    "app.title": "Panel",
+    "error.404.back": "Volver al panel",
+    "git_log.back": "Volver al panel",
+    "git_log.empty": "El historial de cambios no está disponible para esta versión.",
+    "git_log.title": "Últimos cambios",
+    "service.action.admin": "Administración",
+    "service.action.api_doc": "Documentación de la API",
+    "service.action.master_admin": "Administración master",
+    "service.dashboard.description": "Punto de entrada de Phrasea",
+    "service.databox.description": "Su DAM",
+    "service.expose.description": "Compartir publicaciones",
+    "service.iam.description": "Keycloak IAM",
+    "service.iam.title": "Gestión de identidades",
+    "service.uploader.description": "Depósito de assets independiente",
+    "services.title": "Servicios",
+    "stack.dev_mode": "El modo desarrollador está activado",
+    "stack.version.title": "Últimos cambios",
+    "status.degraded": "Degradado",
+    "status.down": "No disponible",
+    "status.up": "Operativo",
+    "tools.title": "Herramientas técnicas"
+}

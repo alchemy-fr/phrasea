@@ -28,7 +28,8 @@ describe('getSubtitleTracks', () => {
                 attribute('code', AttributeType.Code, vtt, 'en'),
                 attribute('text', AttributeType.Text, 'WEBVTT'),
             ],
-            'en'
+            'en',
+            ['en']
         );
 
         expect(tracks).toEqual([
@@ -37,6 +38,7 @@ describe('getSubtitleTracks', () => {
                 label: 'Transcript (English)',
                 locale: 'en',
                 src: vtt,
+                default: true,
             },
             {
                 id: 'fr',
@@ -53,7 +55,15 @@ describe('getSubtitleTracks', () => {
                 [attribute('en', AttributeType.WebVtt, vtt, 'en')],
                 'en'
             )
-        ).toEqual([{id: 'en', label: 'Transcript', locale: 'en', src: vtt}]);
+        ).toEqual([
+            {
+                id: 'en',
+                label: 'Transcript',
+                locale: 'en',
+                src: vtt,
+                default: true,
+            },
+        ]);
     });
 
     it('names a value without a locale after its attribute, without a language', () => {
@@ -62,7 +72,8 @@ describe('getSubtitleTracks', () => {
                 attribute('u', AttributeType.WebVtt, vtt, '_', 'Subtitles'),
                 attribute('en', AttributeType.WebVtt, vtt, 'en'),
             ],
-            'fr'
+            'fr',
+            ['fr']
         );
 
         expect(untranslated).toEqual({
@@ -70,6 +81,7 @@ describe('getSubtitleTracks', () => {
             label: 'Subtitles',
             locale: undefined,
             src: vtt,
+            default: true,
         });
         expect(english.label).toBe('Transcript (Anglais)');
     });
@@ -85,5 +97,102 @@ describe('getSubtitleTracks', () => {
             )
         ).toEqual([]);
         expect(getSubtitleTracks(undefined)).toEqual([]);
+    });
+
+    describe('the track shown by default', () => {
+        const defaults = (tracks: {id: string; default?: boolean}[]) =>
+            tracks.filter(t => t.default).map(t => t.id);
+
+        it('is the single one', () => {
+            expect(
+                defaults(
+                    getSubtitleTracks(
+                        [attribute('en', AttributeType.WebVtt, vtt, 'en')],
+                        'en',
+                        ['fr']
+                    )
+                )
+            ).toEqual(['en']);
+        });
+
+        it('is the one of the preferred language', () => {
+            expect(
+                defaults(
+                    getSubtitleTracks(
+                        [
+                            attribute('en', AttributeType.WebVtt, vtt, 'en'),
+                            attribute('fr', AttributeType.WebVtt, vtt, 'fr_FR'),
+                            attribute('u', AttributeType.WebVtt, vtt, '_'),
+                        ],
+                        'fr',
+                        ['fr-FR', 'en']
+                    )
+                )
+            ).toEqual(['fr']);
+        });
+
+        it('is the first one without a value in the preferred language', () => {
+            expect(
+                defaults(
+                    getSubtitleTracks(
+                        [
+                            attribute('de', AttributeType.WebVtt, vtt, 'de'),
+                            attribute('es', AttributeType.WebVtt, vtt, 'es'),
+                        ],
+                        'en',
+                        ['en']
+                    )
+                )
+            ).toEqual(['de']);
+        });
+
+        it('is the value without a locale when it is the only one', () => {
+            expect(
+                defaults(
+                    getSubtitleTracks(
+                        [
+                            attribute('u', AttributeType.WebVtt, vtt),
+                            attribute('blank', AttributeType.WebVtt, '', 'en'),
+                        ],
+                        'en',
+                        ['en']
+                    )
+                )
+            ).toEqual(['u']);
+        });
+
+        it('is one value of the first WebVTT attribute', () => {
+            expect(
+                defaults(
+                    getSubtitleTracks(
+                        [
+                            attribute(
+                                'a-en',
+                                AttributeType.WebVtt,
+                                vtt,
+                                'en',
+                                'A'
+                            ),
+                            attribute(
+                                'b-fr',
+                                AttributeType.WebVtt,
+                                vtt,
+                                'fr',
+                                'B'
+                            ),
+                            attribute(
+                                'a-fr',
+                                AttributeType.WebVtt,
+                                vtt,
+                                'fr',
+                                'A'
+                            ),
+                        ],
+                        'fr',
+                        ['fr']
+                    )
+                )
+            ).toEqual(['a-fr']);
+        });
     });
 });

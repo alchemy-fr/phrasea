@@ -1,8 +1,8 @@
 'use client';
 
 import {useTranslation} from 'react-i18next';
-import {Badge} from '@/components/ui/misc';
-import {cn} from '@/lib/utils/cn';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     AnalysisMessage,
     analyzerResults,

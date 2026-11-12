@@ -21,18 +21,19 @@ import {
     getRenditionDefinitions,
 } from '@/lib/api/misc';
 import {fetchAllPages} from '@/lib/api/hydra';
-import {Button} from '@/components/ui/button';
-import {Badge, Skeleton} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Badge, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {formatFileSize} from '@/lib/utils/format';
-import {useModals} from '@/components/modals/ModalProvider';
-import {ConfirmDialog} from '@/components/ui/confirm';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {assetChannel, RENDITION_UPDATE_EVENT} from '@/lib/realtime/channels';
 import {UploadRenditionDialog} from '../dialogs/UploadRenditionDialog';
 import {CreateDynamicRenditionDialog} from '../dialogs/CreateDynamicRenditionDialog';
 import {SaveAsDialog} from '@/features/assets/actions/SaveAsDialog';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export function AssetRenditionsTab({
     asset,
@@ -71,11 +72,7 @@ export function AssetRenditionsTab({
         },
     });
     const refresh = () => queryClient.invalidateQueries({queryKey});
-    useChannelEvent(
-        'assets',
-        'rendition-update',
-        (e: {assetId: string}) => e.assetId === asset.id && refresh()
-    );
+    useChannelEvent(assetChannel(asset.id), RENDITION_UPDATE_EVENT, refresh);
 
     if (query.isLoading) {
         return (

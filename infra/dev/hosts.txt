@@ -15,7 +15,6 @@ ${IP} saml-idp.${PHRASEA_DOMAIN}
 ${IP} pma.${PHRASEA_DOMAIN}
 ${IP} mailpit.${PHRASEA_DOMAIN}
 ${IP} dashboard.${PHRASEA_DOMAIN}
-${IP} databox.${PHRASEA_DOMAIN}
 ${IP} elastichq.${PHRASEA_DOMAIN}
 ${IP} report-kibana.${PHRASEA_DOMAIN}
 ${IP} traefik-console.${PHRASEA_DOMAIN}

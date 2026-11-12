@@ -7,6 +7,8 @@ namespace App\Tests\Functional\Workspace;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Entity\Automation\AutomationShare;
+use App\Entity\Automation\SavedSearchAutomation;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetImport;
@@ -49,11 +51,14 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
     private const array NOT_IN_TEMPLATE = [
         Asset::class,
         AssetImport::class,
+        AutomationShare::class,
         Collection::class,
         CollectionAccess::class,
         File::class,
         // Photos of the entity list values and logos are not carried by templates
         ImageSet::class,
+        // Automations belong to saved searches, the workspace only limits their results
+        SavedSearchAutomation::class,
     ];
 
     private const array IN_TEMPLATE = [
@@ -145,6 +150,12 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
             $this->createUserFromId(KeycloakClientTestMock::OTHER_USER_UID),
             $em->find(AttributePolicy::class, $newAd->getPolicy()->getId()),
             PermissionInterface::VIEW,
+        ));
+        $this->assertTrue(self::getPermissionManager()->isGranted(
+            $this->createUserFromId(KeycloakClientTestMock::OTHER_USER_UID),
+            $newList,
+            PermissionInterface::EDIT,
+            false,
         ));
     }
 
@@ -493,6 +504,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         $em->flush();
         $this->grantUserOnObject(KeycloakClientTestMock::OTHER_USER_UID, $attributePolicy, PermissionInterface::VIEW);
         $this->grantUserOnObject(KeycloakClientTestMock::OTHER_USER_UID, $workspace, PermissionInterface::VIEW);
+        $this->grantUserOnObject(KeycloakClientTestMock::OTHER_USER_UID, $list, PermissionInterface::EDIT);
 
         return [
             'workspace' => $workspace,

@@ -7,6 +7,7 @@ namespace App\Listener;
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use Alchemy\Workflow\Listener\WorkflowUpdateEvent;
 use Alchemy\Workflow\State\WorkflowState;
+use App\Realtime\RealtimeChannel;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
@@ -26,7 +27,7 @@ final readonly class AssetIngestWorkflowListener
             WorkflowState::STATUS_FAILURE,
         ])) {
             $assetId = $state->getEvent()->getInputs()['assetId'];
-            $this->pusherManager->trigger('asset-'.$assetId, 'asset_ingested', [], direct: true);
+            $this->pusherManager->trigger(RealtimeChannel::asset($assetId), 'asset_ingested', [], direct: true);
         }
     }
 }

@@ -22,26 +22,26 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import type {SortBy} from '@/types/api';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from '@/components/ui/overlays';
-import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
+} from '@alchemy/next-ui/ui/overlays';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import {FilterInput} from '@/components/ui/filter-input';
 import {useSearch} from '../SearchProvider';
 import {BuiltInAttribute, isDefaultSortBy, resolveSortBy} from '../searchState';
 import {useDefinitionsBySearchSlug} from '@/features/attributes/definitionsStore';
 import {AttributeDefinitionSelect} from '@/components/form/selects';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     overlayRow,
     SortableOverlay,
     SortableRow,
     sortableMeasuring,
     useSortableRow,
-} from '@/components/ui/sortable';
+} from '@alchemy/next-ui/ui/sortable';
 
 type Row = SortBy & {enabled: boolean};
 

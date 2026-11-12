@@ -669,6 +669,62 @@ final class KeycloakManager
             ])->getHeaders(), null, $data);
     }
 
+    /**
+     * Makes roles of a client (e.g. "manage-users" of "realm-management") composites of a realm role:
+     * the users holding the realm role get them. The roles already composed are left as they are.
+     *
+     * @param string[] $clientRoleNames
+     */
+    public function addClientRolesToRealmRole(string $realmRole, string $clientId, array $clientRoleNames): void
+    {
+        $client = $this->getClientByClientId($clientId);
+        if (null === $client) {
+            throw new \InvalidArgumentException(sprintf('Client "%s" not found in realm "%s"', $clientId, $this->keycloakRealm));
+        }
+
+        $clientRoles = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/clients/{clientUuid}/roles', [
+                'realm' => $this->keycloakRealm,
+                'clientUuid' => $client['id'],
+            ]))->toArray();
+
+        $existingComposites = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/roles/{name}/composites/clients/{clientUuid}', [
+                'realm' => $this->keycloakRealm,
+                'name' => $realmRole,
+                'clientUuid' => $client['id'],
+            ]))->toArray();
+        $existingIds = array_column($existingComposites, 'id');
+
+        $roles = [];
+        foreach ($clientRoleNames as $roleName) {
+            $role = array_values(array_filter($clientRoles, fn (array $r): bool => $roleName === $r['name']))[0] ?? null;
+            if (null === $role) {
+                throw new \InvalidArgumentException(sprintf('Role "%s" of client "%s" not found', $roleName, $clientId));
+            }
+            if (!in_array($role['id'], $existingIds, true)) {
+                $roles[] = [
+                    'id' => $role['id'],
+                    'name' => $role['name'],
+                    'clientRole' => true,
+                    'containerId' => $client['id'],
+                ];
+            }
+        }
+
+        if (empty($roles)) {
+            return;
+        }
+
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/roles/{name}/composites', [
+                'realm' => $this->keycloakRealm,
+                'name' => $realmRole,
+            ]), [
+                'json' => $roles,
+            ])->getHeaders(), null, $roles);
+    }
+
     public function getRealmRoles(): array
     {
         $response = $this->getAuthenticatedClient()

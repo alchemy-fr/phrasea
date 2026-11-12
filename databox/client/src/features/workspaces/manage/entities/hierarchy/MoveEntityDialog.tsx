@@ -9,11 +9,11 @@ import {
     getEntityHierarchyImpact,
     moveAttributeEntity,
 } from '@/lib/api/metadata';
-import {FormRow} from '@/components/ui/input';
-import {InlineLoader} from '@/components/ui/loader';
+import {FormRow} from '@alchemy/next-ui/ui/input';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {AttributeEntitySelect} from '@/components/form/selects';
-import {FormDialog} from '@/components/modals/FormDialog';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {formatDepthRange} from '@/features/attributes/hierarchy/HierarchyBindingFields';
 
 /**

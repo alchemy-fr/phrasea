@@ -7,6 +7,7 @@ namespace App\Service\Workspace\Template\Section;
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Entity\Core\AttributePolicy;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -50,6 +51,7 @@ final class AccessControlSection extends AbstractTemplateSection
             ...$this->findByWorkspace(AttributePolicy::class, $workspace),
             ...$this->findByWorkspace(WorkspaceIntegration::class, $workspace),
             ...$this->findByWorkspace(AssetDataTemplate::class, $workspace),
+            ...$this->findByWorkspace(EntityList::class, $workspace),
         ];
 
         $o = [];

@@ -12,6 +12,7 @@ use App\Entity\Core\Share;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
+use App\Service\Share\ShareAttachmentResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,7 @@ final class ShareAttachmentProvider implements ProviderInterface
         private readonly EntityManagerInterface $em,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRepository $shareRepository,
+        private readonly ShareAttachmentResolver $attachmentResolver,
     ) {
     }
 
@@ -51,8 +53,12 @@ final class ShareAttachmentProvider implements ProviderInterface
             }
         }
 
-        $file = $attachment->getAttachment()?->getSource();
-        if (!$belongsToShare || null === $file) {
+        if (!$belongsToShare) {
+            return $this->createNotFoundResponse();
+        }
+
+        $file = $this->attachmentResolver->getSharedRendition($item, $attachment)?->getFile();
+        if (null === $file) {
             return $this->createNotFoundResponse();
         }
 

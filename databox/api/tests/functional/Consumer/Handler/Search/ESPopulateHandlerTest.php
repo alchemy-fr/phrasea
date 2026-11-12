@@ -78,6 +78,33 @@ final class ESPopulateHandlerTest extends KernelTestCase
         }
     }
 
+    public function testTheCauseOfADeadProcessIsFoundInItsErrorOutput(): void
+    {
+        $oom = 'Allowed memory size of 3221225472 bytes exhausted (tried to allocate 20480 bytes)';
+        $symfonyOutput = <<<EOT
+            PHP Fatal error:  {$oom} in /srv/app/vendor/doctrine/dbal/src/Types/JsonType.php on line 66
+
+            In JsonType.php line 66:
+
+              Error: {$oom}
+
+
+            fos:elastica:populate [--index INDEX] [--no-reset] [--no-delete] [--sleep SLEEP] [--ignore-errors]
+
+            EOT;
+
+        $this->assertSame(
+            $oom.' in /srv/app/vendor/doctrine/dbal/src/Types/JsonType.php on line 66',
+            ESPopulateHandler::extractCause($symfonyOutput),
+        );
+        $this->assertSame(
+            'PHP Fatal error:  Uncaught Error: Call to undefined method in /srv/app/src/Foo.php:12',
+            ESPopulateHandler::extractCause("PHP Fatal error:  Uncaught Error: Call to undefined method in /srv/app/src/Foo.php:12\nStack trace:\n#0 {main}\n"),
+        );
+        $this->assertSame('Killed', ESPopulateHandler::extractCause("Populating asset\n  Killed  \n\n"));
+        $this->assertNull(ESPopulateHandler::extractCause(" \n"));
+    }
+
     private function getHandler(): ESPopulateHandler
     {
         return static::getContainer()->get(ESPopulateHandler::class);

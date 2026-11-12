@@ -15,7 +15,7 @@ const VIEW = 1;
 const SHARE = 256;
 const QUARANTINE = 3;
 const CREATE_WORKSPACE = 5;
-const CREATE_PROFILE = 6;
+const SHARE_PROFILE = 6;
 const SHARE_BASKET = 7;
 const PUBLISH_SAVED_SEARCH = 8;
 
@@ -37,7 +37,7 @@ const permission = (key: string) =>
 describe('mergeTypeAces', () => {
     it('merges the type ACEs per user or group, "all users" first', () => {
         const rows = mergeTypeAces([
-            ace({objectType: 'profile', metadata: [CREATE_PROFILE]}),
+            ace({objectType: 'profile', metadata: [SHARE_PROFILE]}),
             ace({objectType: 'basket', metadata: [SHARE_BASKET]}),
             ace({
                 userType: UserType.User,
@@ -50,9 +50,9 @@ describe('mergeTypeAces', () => {
         expect(rows.map(r => r.key)).toEqual(['user:', 'group:g1', 'user:u1']);
         expect(rows[0].aces).toEqual({});
         expect(Object.keys(rows[1].aces)).toEqual(['profile', 'basket']);
-        expect(
-            hasInstancePermission(rows[1], permission('createProfile'))
-        ).toBe(true);
+        expect(hasInstancePermission(rows[1], permission('shareProfile'))).toBe(
+            true
+        );
         expect(hasInstancePermission(rows[1], permission('shareBasket'))).toBe(
             true
         );
@@ -144,13 +144,13 @@ describe('getToggleWrite', () => {
     it('creates the type ACE', () => {
         const [row] = mergeTypeAces([]);
 
-        expect(getToggleWrite(row, permission('createProfile'), true)).toEqual({
+        expect(getToggleWrite(row, permission('shareProfile'), true)).toEqual({
             type: 'put',
             userType: UserType.User,
             userId: USER_WILDCARD,
             objectType: 'profile',
             mask: 0,
-            metadata: [CREATE_PROFILE],
+            metadata: [SHARE_PROFILE],
         });
     });
 
@@ -212,7 +212,7 @@ describe('getRemoveRowWrites', () => {
                 mask: VIEW,
                 metadata: [SHARE_BASKET, QUARANTINE],
             }),
-            ace({objectType: 'profile', metadata: [CREATE_PROFILE]}),
+            ace({objectType: 'profile', metadata: [SHARE_PROFILE]}),
         ]);
 
         expect(getRemoveRowWrites(row)).toEqual([

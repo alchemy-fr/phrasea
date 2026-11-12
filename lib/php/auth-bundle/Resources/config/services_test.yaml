@@ -4,6 +4,7 @@ services:
         autoconfigure: true
 
     Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock: ~
+    Alchemy\AuthBundle\Tests\Client\TestAllowedClientIdsProvider: ~
 
     Alchemy\AuthBundle\Client\KeycloakClient:
         arguments:

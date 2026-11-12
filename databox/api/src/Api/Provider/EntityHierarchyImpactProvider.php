@@ -9,11 +9,11 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\EntityHierarchyImpactOutput;
+use App\Elasticsearch\AttributeValueSearch;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
-use App\Repository\Core\AttributeRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -25,7 +25,7 @@ final class EntityHierarchyImpactProvider implements ProviderInterface
         private readonly EntityManagerInterface $em,
         private readonly AttributeEntityRepository $attributeEntityRepository,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
-        private readonly AttributeRepository $attributeRepository,
+        private readonly AttributeValueSearch $attributeValueSearch,
     ) {
     }
 
@@ -41,7 +41,9 @@ final class EntityHierarchyImpactProvider implements ProviderInterface
         $output->entityCount = \count($ids);
 
         $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity($entity->getWorkspaceId(), $entity->getListId());
-        $usage = $this->attributeRepository->countUsage(array_map(fn (AttributeDefinition $d): string => $d->getId(), $definitions), $ids);
+        // On the assets the user can read
+        $user = $this->getUser();
+        $usage = $this->attributeValueSearch->countUsage($user?->getId(), $user?->getGroups() ?? [], array_map(fn (AttributeDefinition $d): string => $d->getId(), $definitions), $ids);
         foreach ($usage as $u) {
             $output->attributeCount += $u['attributes'];
             $output->humanAttributeCount += $u['humanAttributes'];

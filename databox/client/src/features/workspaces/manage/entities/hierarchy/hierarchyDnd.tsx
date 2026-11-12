@@ -20,7 +20,7 @@ import {
 import {getEventCoordinates} from '@dnd-kit/utilities';
 import type {AttributeEntity} from '@/types/api';
 import {mostSpecificPointerWithin} from '@/features/dnd/collision';
-import {SortableOverlay, sortableMeasuring} from '@/components/ui/sortable';
+import {SortableOverlay, sortableMeasuring} from '@alchemy/next-ui/ui/sortable';
 
 /** Where a node receives the dragged entity: as a sibling or as its last child */
 export type DropZone = 'before' | 'inside' | 'after';

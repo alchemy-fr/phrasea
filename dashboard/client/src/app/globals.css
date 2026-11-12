@@ -1,0 +1,7 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@alchemy/next-theme/styles/themes.css';
+@import '@alchemy/next-ui/styles/base.css';
+
+/* Framed by the services menu of another client (see lib/embedded.ts) */
+@custom-variant embedded (&:where([data-embedded], [data-embedded] *));

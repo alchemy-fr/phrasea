@@ -8,3 +8,11 @@ services:
     App\Integration\Core\FaceRecognition\FaceRecognitionClient: '@App\Tests\Functional\Face\FaceRecognitionClientMock'
     App\Tests\Functional\Similarity\EmbedderClientMock: ~
     App\Service\Vector\EmbedderClient: '@App\Tests\Functional\Similarity\EmbedderClientMock'
+    App\Tests\Functional\Integration\Expose\ExposeHttpClientMock:
+        arguments: ['@http_client']
+    App\Integration\Phrasea\PhraseaClientFactory:
+        autowire: true
+        arguments:
+            $client: '@App\Tests\Functional\Integration\Expose\ExposeHttpClientMock'
+    App\Tests\Functional\Integration\Aws\Transcribe\SnsCertificateClientMock: ~
+    App\Integration\Aws\Sns\SnsCertificateClient: '@App\Tests\Functional\Integration\Aws\Transcribe\SnsCertificateClientMock'

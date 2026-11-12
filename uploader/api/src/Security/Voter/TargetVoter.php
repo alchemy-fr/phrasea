@@ -6,6 +6,7 @@ namespace App\Security\Voter;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Target;
+use App\Security\UploadLinkUser;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -35,6 +36,18 @@ class TargetVoter extends Voter
         }
 
         $user = $token->getUser();
+        if ($user instanceof UploadLinkUser) {
+            if ($user->getTargetId() !== $subject->getId()) {
+                return false;
+            }
+
+            return match ($attribute) {
+                self::UPLOAD => $subject->isEnabled(),
+                self::READ => true,
+                default => false,
+            };
+        }
+
         $groups = [];
         if ($user instanceof JwtUser) {
             $groups = $user->getGroups();

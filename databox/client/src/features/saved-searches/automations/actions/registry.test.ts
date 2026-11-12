@@ -24,10 +24,12 @@ describe('automation actions registry', () => {
             'tags',
             'email_report',
             'remote_export',
+            'share_export',
             'webhook',
             'trigger_workflow',
             'trash',
             'set_privacy',
+            'expose_publish',
         ]);
         expect(getActionDefinition('unknown')).toBeUndefined();
     });
@@ -95,6 +97,18 @@ describe('automation actions registry', () => {
         expect(
             getActionDefinition('set_privacy')!.isComplete({privacy: 9})
         ).toBe(false);
+        expect(
+            getActionDefinition('expose_publish')!.isComplete({
+                integrationId: 'i1',
+                publicationId: '',
+            })
+        ).toBe(false);
+        expect(
+            getActionDefinition('expose_publish')!.isComplete({
+                integrationId: 'i1',
+                publicationId: 'p1',
+            })
+        ).toBe(true);
     });
 
     it('completes the remote export configurations', () => {
@@ -137,6 +151,87 @@ describe('automation actions registry', () => {
         ).toBe(true);
     });
 
+    it('completes the share export configurations', () => {
+        const shareExport = getActionDefinition('share_export')!;
+        const context = {workspaceId: 'ws1'};
+        const ftp = {
+            ...shareExport.defaultConfig(),
+            protocol: 'ftp',
+            ftp: {host: 'h', username: 'anonymous'},
+        };
+        // At least one rendition
+        expect(shareExport.isComplete(ftp, context)).toBe(false);
+        expect(
+            shareExport.isComplete({...ftp, renditionIds: ['r1']}, context)
+        ).toBe(true);
+        // The automation needs a workspace
+        expect(shareExport.isComplete({...ftp, renditionIds: ['r1']})).toBe(
+            false
+        );
+        expect(shareExport.isComplete({...ftp, renditionIds: ['r1']}, {})).toBe(
+            false
+        );
+        expect(
+            shareExport.isComplete(
+                {
+                    ...ftp,
+                    renditionIds: ['r1'],
+                    attributeIds: Array.from({length: 51}, (_, i) => `a${i}`),
+                },
+                context
+            )
+        ).toBe(false);
+        expect(
+            shareExport.isComplete(
+                {
+                    ...shareExport.defaultConfig(),
+                    renditionIds: ['r1'],
+                    s3: {bucket: 'b', accessKeyId: 'id'},
+                },
+                context
+            )
+        ).toBe(false);
+        expect(
+            shareExport.isComplete(
+                {
+                    ...shareExport.defaultConfig(),
+                    renditionIds: ['r1'],
+                    s3: {
+                        bucket: 'b',
+                        accessKeyId: 'id',
+                        secretAccessKeySet: true,
+                    },
+                },
+                context
+            )
+        ).toBe(true);
+    });
+
+    it('resets the definitions of the share export with the workspace', () => {
+        const shareExport = getActionDefinition('share_export')!;
+        expect(shareExport.defaultConfig()).toMatchObject({
+            renditionIds: [],
+            attributeIds: [],
+        });
+        expect(
+            shareExport.onWorkspaceChange!({
+                ...shareExport.defaultConfig(),
+                pathTemplate: 'x.xlsx',
+                renditionIds: ['r1'],
+                attributeIds: ['a1'],
+            })
+        ).toEqual({
+            ...shareExport.defaultConfig(),
+            pathTemplate: 'x.xlsx',
+            renditionIds: [],
+            attributeIds: [],
+        });
+        // The other actions do not depend on the workspace
+        expect(getActionDefinition('remote_export')!.onWorkspaceChange).toBe(
+            undefined
+        );
+    });
+
     it('summarizes the configurations', () => {
         expect(
             getActionDefinition('tags')!.summary(
@@ -159,6 +254,13 @@ describe('automation actions registry', () => {
                 t
             )
         ).toBe('Export to SFTP (files.example.com)');
+        const shareExport = getActionDefinition('share_export')!;
+        expect(
+            shareExport.summary({protocol: 's3', s3: {bucket: 'reports'}}, t)
+        ).toBe('Share and export the links to S3 (reports)');
+        expect(shareExport.summary(shareExport.defaultConfig(), t)).toBe(
+            'Share and export the links (XLSX)'
+        );
         expect(
             getActionDefinition('webhook')!.summary(
                 {url: 'https://hooks.example.com:8443/phrasea'},
@@ -168,6 +270,26 @@ describe('automation actions registry', () => {
         expect(
             getActionDefinition('set_privacy')!.summary({privacy: 5}, t)
         ).toBe('Privacy: Public');
+        const exposePublish = getActionDefinition('expose_publish')!;
+        expect(
+            exposePublish.summary(
+                {publicationId: 'p1', publicationTitle: 'Press kit'},
+                t
+            )
+        ).toBe('Publish to Press kit');
+        expect(
+            exposePublish.summary(
+                {
+                    publicationId: 'p1',
+                    publicationTitle: 'Press kit',
+                    removeMissing: true,
+                },
+                t
+            )
+        ).toBe('Publish to Press kit (mirror)');
+        expect(exposePublish.summary(exposePublish.defaultConfig(), t)).toBe(
+            'Publish to Expose'
+        );
     });
 
     it('parses the email addresses', () => {

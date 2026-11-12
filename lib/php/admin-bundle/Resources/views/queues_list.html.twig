@@ -19,8 +19,12 @@
         {% for qs in queuesStatus %}
             <tr>
                 <td>{{ qs.queueName }}</td>
-                <td>{{ qs.messageCount }}</td>
-                <td>{{ qs.consumerCount }}</td>
+                {% if qs.messageCount is null %}
+                    <td colspan="2"><span class="text-danger">Not declared</span></td>
+                {% else %}
+                    <td>{{ qs.messageCount }}</td>
+                    <td>{{ qs.consumerCount }}</td>
+                {% endif %}
             </tr>
         {% endfor %}
         </tbody>

@@ -111,7 +111,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
      * storage and the MultipartUpload row is complete, so the endpoint does
      * not need to reach S3. Returns the "multipart" request payload.
      */
-    private function createCompletedUpload(string $content, string $name, string $type): array
+    private function createCompletedUpload(string $content, string $name, string $type, string $ownerId = KeycloakClientTestMock::ADMIN_UID): array
     {
         $container = static::getContainer();
         /** @var EntityManagerInterface $em */
@@ -120,6 +120,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $storage = $container->get(FileStorageManager::class);
 
         $upload = new MultipartUpload();
+        $upload->setOwnerId($ownerId);
         $upload->setFilename($name);
         $upload->setType($type);
         $upload->setSize(strlen($content));
@@ -194,7 +195,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client->request('POST', $iri.'/terms', [
             'headers' => $this->userHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload('%PDF-1.4 x', 'terms.pdf', 'application/pdf'),
+                'multipart' => $this->createCompletedUpload('%PDF-1.4 x', 'terms.pdf', 'application/pdf', KeycloakClientTestMock::USER_UID),
             ],
         ]);
         $this->assertResponseStatusCodeSame(403);

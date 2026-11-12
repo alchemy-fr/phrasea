@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useRef} from 'react';
+import {type RefObject, useEffect, useMemo, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PauseIcon, PlayIcon} from 'lucide-react';
 import {useWavesurfer} from '@wavesurfer/react';
@@ -8,11 +8,15 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.esm.js';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js';
 import type {ClipTimeRange} from '@/types/api';
-import {Button} from '@/components/ui/button';
-import {Spinner} from '@/components/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 import {formatDuration} from '@/lib/utils/format';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {clipPlaybackTarget} from '@/features/clip/clip';
+import {
+    type MediaPlaybackControl,
+    useRegisterMediaPlayback,
+} from './MediaPlaybackProvider';
 
 /**
  * Resolve a CSS color expression (may use `var(--token)` / `color-mix`) to a
@@ -39,6 +43,9 @@ function formatTime(seconds: number): string {
     return formatted.startsWith('00:') ? formatted.slice(3) : formatted;
 }
 
+/** Moves the sound to a time, in seconds, without playing it */
+export type AudioSeek = (time: number) => void;
+
 /**
  * Sound player rendering the waveform with wavesurfer.js. With `controls`, the
  * waveform is seekable, shows a timeline, can be zoomed (ctrl + wheel) and is
@@ -54,7 +61,15 @@ function formatTime(seconds: number): string {
  * the ranges are highlighted on the waveform and the playback is bounded to
  * them: it starts at the start of the first one, jumps from one to the next,
  * and stops (loops, when driven by `playing`) at the end of the last one.
- * With `boundPlayback` false, they are only highlighted.
+ * With `boundPlayback` false, they are only highlighted; with `'playing'`,
+ * the sound can be sought out of them while paused (an editor placing them),
+ * and moves into them when played.
+ *
+ * With `syncPlayback`, it is the player of the asset view: it plays from the
+ * cue of a transcript clicked in the side panel.
+ *
+ * With `seekRef`, the parent moves the sound (the timeline of an editor),
+ * once it is loaded.
  *
  * The player fills the width of its box.
  */
@@ -67,6 +82,8 @@ export function AudioPlayer({
     className,
     timeRanges,
     boundPlayback = true,
+    syncPlayback = false,
+    seekRef,
     onTimeUpdate,
     onDuration,
     onPeaks,
@@ -80,7 +97,11 @@ export function AudioPlayer({
     className?: string;
     /** Sorted, not overlapping */
     timeRanges?: ClipTimeRange[];
-    boundPlayback?: boolean;
+    boundPlayback?: boolean | 'playing';
+    /** Plays from the time of a transcript of the asset view */
+    syncPlayback?: boolean;
+    /** Set while the sound is loaded */
+    seekRef?: RefObject<AudioSeek | null>;
     onTimeUpdate?: (time: number) => void;
     /** Called once the sound is loaded */
     onDuration?: (duration: number) => void;
@@ -147,6 +168,41 @@ export function AudioPlayer({
         normalize: true,
         plugins,
     });
+
+    const playbackControl = useMemo<MediaPlaybackControl | undefined>(
+        () =>
+            syncPlayback && wavesurfer && isReady
+                ? {
+                      playFrom: time => {
+                          wavesurfer.setTime(time);
+                          // Rejected when the browser blocks the playback
+                          wavesurfer.play().catch(() => undefined);
+                      },
+                      currentTime: () => wavesurfer.getCurrentTime(),
+                      subscribe: listener => {
+                          const unsubscribe = [
+                              wavesurfer.on('timeupdate', listener),
+                              wavesurfer.on('seeking', listener),
+                          ];
+
+                          return () => unsubscribe.forEach(u => u());
+                      },
+                  }
+                : undefined,
+        [syncPlayback, wavesurfer, isReady]
+    );
+    useRegisterMediaPlayback(playbackControl);
+
+    useEffect(() => {
+        if (!seekRef || !wavesurfer || !isReady) {
+            return;
+        }
+        seekRef.current = time => wavesurfer.setTime(time);
+
+        return () => {
+            seekRef.current = null;
+        };
+    }, [seekRef, wavesurfer, isReady]);
 
     // Autoplay follows visibility: play when shown, pause when scrolled away.
     useEffect(() => {
@@ -237,16 +293,24 @@ export function AudioPlayer({
             return;
         }
 
+        // Sought out of the ranges while paused: left there
+        const free = () =>
+            boundPlayback === 'playing' && !wavesurfer.isPlaying();
         const moveIn = (time: number) => {
             const target = clipPlaybackTarget(time, ranges);
             if (target) {
                 wavesurfer.setTime(target.time);
             }
         };
-        moveIn(wavesurfer.getCurrentTime());
+        if (!free()) {
+            moveIn(wavesurfer.getCurrentTime());
+        }
 
         const unsubscribe = [
             wavesurfer.on('timeupdate', time => {
+                if (free()) {
+                    return;
+                }
                 const target = clipPlaybackTarget(time, ranges);
                 if (!target) {
                     return;
@@ -258,7 +322,11 @@ export function AudioPlayer({
                 }
             }),
             wavesurfer.on('play', () => moveIn(wavesurfer.getCurrentTime())),
-            wavesurfer.on('interaction', moveIn),
+            wavesurfer.on('interaction', time => {
+                if (!free()) {
+                    moveIn(time);
+                }
+            }),
         ];
 
         return () => unsubscribe.forEach(u => u());

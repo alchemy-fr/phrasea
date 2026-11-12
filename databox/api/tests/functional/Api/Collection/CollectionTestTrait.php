@@ -63,8 +63,11 @@ trait CollectionTestTrait
     protected function request(string $method, string $uri, ?string $userId = null, array $options = []): ResponseInterface
     {
         $headers = $options['headers'] ?? [];
+        // the user's groups, instead of its ones in KeycloakClientTestMock::USERS
+        $groups = $options['groups'] ?? null;
+        unset($options['groups']);
         if (null !== $userId && self::ANONYMOUS !== $userId) {
-            $headers['Authorization'] = 'Bearer '.KeycloakClientTestMock::getJwtFor($userId);
+            $headers['Authorization'] = 'Bearer '.KeycloakClientTestMock::getJwtFor($userId, groups: $groups);
         }
         if ('PATCH' === $method) {
             $headers['Content-Type'] ??= 'application/merge-patch+json';

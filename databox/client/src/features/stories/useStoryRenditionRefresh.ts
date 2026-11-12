@@ -4,7 +4,7 @@ import {useEffect, useRef} from 'react';
 import {useQueryClient, type QueryClient} from '@tanstack/react-query';
 import type {Asset} from '@/types/api';
 import {getAsset} from '@/lib/api/assets';
-import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {useRenditionUpdate} from '@/lib/realtime/renditionUpdates';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {
     rewriteItems,
@@ -89,7 +89,7 @@ export function useStoryRenditionRefresh(): void {
 
     useEffect(() => () => clearTimeout(timer.current), []);
 
-    useChannelEvent('assets', 'rendition-update', (e: {assetId: string}) => {
+    useRenditionUpdate(e => {
         pending.current.add(e.assetId);
         if (timer.current) {
             return;

@@ -5,12 +5,21 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use App\Entity\Core\AssetExport;
+use App\Entity\Core\File;
+use App\Model\UserData;
+use App\Realtime\RealtimeChannel;
+use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Functional coverage of the core Pusher/Sockudo channel-authorization endpoint
- * (POST /pusher/auth) that makes per-user channels private: a user may only
- * authorize their own `private-user-{sub}` channel (e.g. in-app notifications).
+ * (POST /pusher/auth): a user may only authorize their own `private-user-{sub}`
+ * channel (e.g. in-app notifications), and a channel bound to an entity is
+ * granted to whoever may read it, anonymous visitors included.
  */
 class PusherAuthTest extends AbstractDataboxTestCase
 {
@@ -89,5 +98,203 @@ class PusherAuthTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
+    }
+
+    public function testAnonymousMayFollowAPublicAssetOfAPublicWorkspace(): void
+    {
+        $workspace = $this->createWorkspace(['public' => true, 'ownerId' => KeycloakClientTestMock::USER_UID]);
+        $asset = $this->createAsset([
+            'workspace' => $workspace,
+            'public' => true,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+        ]);
+
+        $this->authorize(RealtimeChannel::asset($asset->getId()), null);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize(RealtimeChannel::workspace($workspace->getId()), null);
+        $this->assertResponseStatusCodeSame(200);
+    }
+
+    public function testAnonymousCannotFollowPrivateObjects(): void
+    {
+        $publicWorkspace = $this->createWorkspace(['public' => true, 'slug' => 'public-ws']);
+        $privateAsset = $this->createAsset(['workspace' => $publicWorkspace]);
+        $privateWorkspace = $this->createWorkspace(['slug' => 'private-ws']);
+
+        $this->authorize(RealtimeChannel::asset($privateAsset->getId()), null);
+        $this->assertResponseStatusCodeSame(401);
+
+        $this->authorize(RealtimeChannel::workspace($privateWorkspace->getId()), null);
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testOnlyReadersMayFollowPrivateObjects(): void
+    {
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $asset = $this->createAsset([
+            'workspace' => $workspace,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+        ]);
+
+        foreach ([
+            RealtimeChannel::asset($asset->getId()),
+            RealtimeChannel::workspace($workspace->getId()),
+        ] as $channel) {
+            $this->authorize($channel, KeycloakClientTestMock::USER_UID);
+            $this->assertResponseStatusCodeSame(200, $channel);
+
+            $this->authorize($channel, KeycloakClientTestMock::OTHER_USER_UID);
+            $this->assertResponseStatusCodeSame(403, $channel);
+        }
+    }
+
+    public function testOnlyTheOwnerMayFollowAnExport(): void
+    {
+        $em = self::getEntityManager();
+        $export = new AssetExport();
+        $export->setOwnerId(KeycloakClientTestMock::USER_UID);
+        $export->setUserData(new UserData(KeycloakClientTestMock::USER_UID, []));
+        $export->setAssets([]);
+        $export->setRenditions([]);
+        $em->persist($export);
+        $em->flush();
+
+        $this->authorize(RealtimeChannel::export($export->getId()), KeycloakClientTestMock::USER_UID);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize(RealtimeChannel::export($export->getId()), KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testOnlyReadersMayFollowAFile(): void
+    {
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $file = new File();
+        $file->setWorkspace($workspace);
+        $file->setStorage(File::STORAGE_URL);
+        $file->setPath('https://cdn.example.com/file.jpg');
+        $file->setPathPublic(true);
+        $file->setType('image/jpeg');
+        $file->setExtension('jpg');
+        $file->setOriginalName('file.jpg');
+        $this->createAsset([
+            'workspace' => $workspace,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+            'no_flush' => true,
+        ])->setSource($file);
+        $em = self::getEntityManager();
+        $em->persist($file);
+        $em->flush();
+
+        $channel = RealtimeChannel::file($file->getId());
+
+        $this->authorize($channel, KeycloakClientTestMock::USER_UID);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize($channel, KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->authorize($channel, null);
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testOnlyReadersMayFollowABasket(): void
+    {
+        $basket = $this->createBasket(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $channel = RealtimeChannel::basket($basket->getId());
+
+        $this->authorize($channel, KeycloakClientTestMock::USER_UID);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize($channel, KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->authorize($channel, null);
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testOnlyEditorsOfTheAssetMayFollowItsWorkflow(): void
+    {
+        // OTHER may read the asset, not edit it
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $this->addUserOnWorkspace(KeycloakClientTestMock::OTHER_USER_UID, $workspace->getId());
+        $asset = $this->createAsset([
+            'workspace' => $workspace,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+            'public' => true,
+        ]);
+
+        /** @var StateRepositoryInterface $stateRepository */
+        $stateRepository = self::getContainer()->get(StateRepositoryInterface::class);
+        $state = new ModelWorkflowState(
+            $stateRepository,
+            'asset-ingest:'.$asset->getWorkspaceId(),
+            AssetIngestWorkflowEvent::createEvent($asset->getId(), $asset->getWorkspaceId()),
+        );
+        $stateRepository->persistWorkflowState($state);
+
+        $channel = RealtimeChannel::WORKFLOW.$state->getId();
+
+        $this->authorize($channel, KeycloakClientTestMock::USER_UID);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize($channel, KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testThreadIsGrantedOnItsObjectBeforeItExists(): void
+    {
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $asset = $this->createAsset([
+            'workspace' => $workspace,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+        ]);
+
+        // Channel names are normalized: the thread key "asset:<id>" becomes "asset.<id>"
+        $channel = RealtimeChannel::THREAD.'asset.'.$asset->getId();
+
+        $this->authorize($channel, KeycloakClientTestMock::USER_UID);
+        $this->assertResponseStatusCodeSame(200);
+
+        $this->authorize($channel, KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public static function getRejectedChannels(): array
+    {
+        $uuid = '4a1c3b6e-2f0d-4c55-9d7c-3b8e8a0b9f10';
+
+        return [
+            'former global channel' => ['assets', KeycloakClientTestMock::USER_UID],
+            'public asset channel' => ['asset-'.$uuid, KeycloakClientTestMock::USER_UID],
+            'public channel, anonymous' => ['assets', null],
+            'unknown asset' => [RealtimeChannel::ASSET.$uuid, KeycloakClientTestMock::USER_UID],
+            'invalid id' => [RealtimeChannel::WORKSPACE.'foo', KeycloakClientTestMock::USER_UID],
+            'unknown thread object' => [RealtimeChannel::THREAD.'foo.'.$uuid, KeycloakClientTestMock::USER_UID],
+            'unknown prefix' => ['private-foo-'.$uuid, KeycloakClientTestMock::USER_UID],
+        ];
+    }
+
+    #[DataProvider('getRejectedChannels')]
+    public function testRejectsChannel(string $channel, ?string $userId): void
+    {
+        $this->authorize($channel, $userId);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    private function authorize(string $channel, ?string $userId): void
+    {
+        $options = [
+            'json' => [
+                'socket_id' => '123.456',
+                'channel_name' => $channel,
+            ],
+        ];
+        if (null !== $userId) {
+            $options['headers']['Authorization'] = 'Bearer '.KeycloakClientTestMock::getJwtFor($userId);
+        }
+
+        static::createClient()->request('POST', self::ENDPOINT, $options);
     }
 }

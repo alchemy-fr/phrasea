@@ -38,6 +38,7 @@ class AutomationRunOutputMapper implements OutputMapperInterface
         $output->newCount = $data->getNewCount();
         $output->processedCount = $data->getProcessedCount();
         $output->failedCount = $data->getFailedCount();
+        $output->limitReached = $data->isLimitReached();
         $output->actionResults = $data->getActionResults();
         $output->error = $data->getError();
 

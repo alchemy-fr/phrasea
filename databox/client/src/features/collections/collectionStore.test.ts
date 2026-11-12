@@ -2,26 +2,39 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import type {Collection, Workspace} from '@/types/api';
 import {pagerKey, useCollectionStore} from './collectionStore';
 
-const {api} = vi.hoisted(() => ({api: {getWorkspaces: vi.fn()}}));
+const {api} = vi.hoisted(() => ({
+    api: {getWorkspaces: vi.fn(), getCollections: vi.fn()},
+}));
 
 vi.mock('@/lib/api/collections', async importOriginal => ({
     ...(await importOriginal<typeof import('@/lib/api/collections')>()),
     getWorkspaces: api.getWorkspaces,
+    getCollections: api.getCollections,
 }));
 
 function workspace(id: string, name = id): Workspace {
     return {id, name, capabilities: {}} as unknown as Workspace;
 }
 
-function collection(id: string, parentId?: string): Collection {
+function collection(
+    id: string,
+    parentId?: string,
+    name = id,
+    createdAt = '2026-01-01T00:00:00+00:00'
+): Collection {
     return {
         id,
         '@id': `/collections/${id}`,
-        'name': id,
-        'displayName': id,
+        name,
+        'displayName': name,
         parentId,
+        createdAt,
         'capabilities': {createAsset: true, createCollection: true},
     } as unknown as Collection;
+}
+
+function rootIds(): string[] {
+    return useCollectionStore.getState().pagers[pagerKey('ws')].ids;
 }
 
 describe('useCollectionStore.upsertCollection', () => {
@@ -150,5 +163,140 @@ describe('useCollectionStore workspaces', () => {
         expect(api.getWorkspaces).toHaveBeenCalledTimes(1);
         // The resolved workspaces stay out of the paged list
         expect(useCollectionStore.getState().workspaces).toEqual([]);
+    });
+});
+
+describe('useCollectionStore order', () => {
+    beforeEach(() => {
+        api.getCollections.mockReset();
+        useCollectionStore.setState({collections: {}, pagers: {}});
+    });
+
+    it('inserts a created collection at its place', () => {
+        const {upsertCollection} = useCollectionStore.getState();
+        upsertCollection(collection('a', undefined, 'Lot 1'), 'ws', true);
+        upsertCollection(collection('b', undefined, 'Zoo'), 'ws', true);
+        upsertCollection(collection('c', undefined, 'Lot 10'), 'ws', true);
+        upsertCollection(collection('d', undefined, 'lot 2'), 'ws', true);
+        upsertCollection(collection('e', undefined, 'Été'), 'ws', true);
+
+        expect(rootIds()).toEqual(['e', 'a', 'd', 'c', 'b']);
+        expect(useCollectionStore.getState().pagers[pagerKey('ws')].total).toBe(
+            5
+        );
+    });
+
+    it('breaks ties by creation date, then id', () => {
+        const {upsertCollection} = useCollectionStore.getState();
+        upsertCollection(
+            collection('b', undefined, 'Same', '2026-01-02T00:00:00+00:00'),
+            'ws'
+        );
+        upsertCollection(
+            collection('c', undefined, 'same', '2026-01-01T00:00:00+00:00'),
+            'ws'
+        );
+        upsertCollection(
+            collection('a', undefined, 'SAME', '2026-01-02T00:00:00+00:00'),
+            'ws'
+        );
+
+        expect(rootIds()).toEqual(['c', 'a', 'b']);
+    });
+
+    it('moves a renamed collection to its new place', () => {
+        const {upsertCollection} = useCollectionStore.getState();
+        upsertCollection(collection('a', undefined, 'Alpha'), 'ws');
+        upsertCollection(collection('b', undefined, 'Beta'), 'ws');
+        upsertCollection(collection('c', undefined, 'Gamma'), 'ws');
+
+        upsertCollection(collection('a', undefined, 'Zeta'), 'ws');
+        expect(rootIds()).toEqual(['b', 'c', 'a']);
+
+        // Same name: the place is kept
+        useCollectionStore.setState(s => ({
+            pagers: {
+                ...s.pagers,
+                [pagerKey('ws')]: {
+                    ...s.pagers[pagerKey('ws')],
+                    ids: ['a', 'b', 'c'],
+                },
+            },
+        }));
+        upsertCollection(collection('a', undefined, 'Zeta'), 'ws');
+        expect(rootIds()).toEqual(['a', 'b', 'c']);
+    });
+
+    it('inserts a moved collection at its place in the target', () => {
+        const {upsertCollection, moveCollection} =
+            useCollectionStore.getState();
+        upsertCollection(collection('p'), 'ws', true);
+        upsertCollection(collection('x', 'p', 'Beta'), 'ws', true);
+        upsertCollection(collection('y', 'p', 'Delta'), 'ws', true);
+        upsertCollection(collection('m', undefined, 'Charlie'), 'ws', true);
+
+        moveCollection('m', 'p');
+
+        const {pagers, collections} = useCollectionStore.getState();
+        expect(pagers[pagerKey('ws', 'p')].ids).toEqual(['x', 'm', 'y']);
+        expect(rootIds()).toEqual(['p']);
+        expect(collections.m.parentId).toBe('p');
+    });
+
+    it('keeps a local collection not indexed yet at its place on reload', async () => {
+        const {upsertCollection, loadChildren} = useCollectionStore.getState();
+        upsertCollection(collection('local', undefined, 'Lot 2'), 'ws', true);
+        api.getCollections.mockResolvedValueOnce({
+            items: [
+                collection('a', undefined, 'Lot 1'),
+                collection('b', undefined, 'Lot 10'),
+            ],
+            total: 3,
+            next: '/collections?page=2',
+        });
+
+        await loadChildren('ws', undefined, true);
+
+        expect(rootIds()).toEqual(['a', 'local', 'b']);
+    });
+
+    it('places the local collections of the loaded range on load more', async () => {
+        const {loadMore} = useCollectionStore.getState();
+        useCollectionStore.setState({
+            collections: {
+                a: {...collection('a', undefined, 'A'), workspaceId: 'ws'},
+                b: {...collection('b', undefined, 'B'), workspaceId: 'ws'},
+                local: {
+                    ...collection('local', undefined, 'D'),
+                    workspaceId: 'ws',
+                },
+            },
+            pagers: {
+                [pagerKey('ws')]: {
+                    ids: ['a', 'b', 'local'],
+                    next: '/collections?page=2',
+                    total: 5,
+                    loading: false,
+                    loaded: true,
+                },
+            },
+        });
+        api.getCollections.mockResolvedValueOnce({
+            items: [
+                collection('c', undefined, 'C'),
+                collection('e', undefined, 'E'),
+            ],
+            total: 5,
+        });
+
+        await loadMore('ws');
+
+        expect(api.getCollections).toHaveBeenCalledWith({
+            url: '/collections?page=2',
+        });
+        expect(rootIds()).toEqual(['a', 'b', 'c', 'local', 'e']);
+        expect(
+            useCollectionStore.getState().pagers[pagerKey('ws')].next
+        ).toBeUndefined();
     });
 });

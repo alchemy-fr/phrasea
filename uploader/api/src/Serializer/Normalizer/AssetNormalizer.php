@@ -18,7 +18,10 @@ readonly class AssetNormalizer implements EntityNormalizerInterface
      */
     public function normalize($object, array &$context = []): void
     {
-        $object->setUrl($this->urlSigner->getSignedUrl($object->getPath()));
+        $object->setUrl($this->urlSigner->getSignedUrl($object->getPath(), [
+            'type' => $object->getMimeType(),
+            'inline' => true,
+        ]));
     }
 
     public function support($object): bool

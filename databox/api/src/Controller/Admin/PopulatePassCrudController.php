@@ -93,6 +93,8 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             ->onlyOnIndex();
         yield TextareaField::new('timeTakenUnit')
             ->onlyOnIndex();
+        yield TextField::new('memoryString', 'Memory')
+            ->onlyOnIndex();
         yield DateTimeField::new('endedAt');
         yield IntegerField::new('documentCount')
             ->hideOnForm();
@@ -102,6 +104,8 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             ->renderAsSwitch(false)
             ->onlyOnIndex();
         yield TextField::new('error');
+        yield JsonField::new('stats')
+            ->onlyOnDetail();
         yield JsonField::new('mapping')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')

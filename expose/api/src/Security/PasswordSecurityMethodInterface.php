@@ -8,4 +8,5 @@ interface PasswordSecurityMethodInterface
 {
     public const string ERROR_NO_PASSWORD_PROVIDED = 'missing_password';
     public const string ERROR_INVALID_PASSWORD = 'invalid_password';
+    public const string ERROR_TOO_MANY_ATTEMPTS = 'too_many_attempts';
 }

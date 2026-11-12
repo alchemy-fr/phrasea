@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Integration\Phrasea\Expose;
 
 use Alchemy\CoreBundle\Upload\MultipartUploader;
-use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeDefinition;
 use App\Entity\Integration\IntegrationToken;
 use App\Http\LocaleContext;
 use App\Integration\IntegrationConfig;
@@ -36,6 +34,7 @@ final readonly class ExposeClient
         private LocaleContext $localeContext,
         private MultipartUploader $multipartUploader,
         private MediaClipper $mediaClipper,
+        private ExposeAttributeHtmlRenderer $attributeHtmlRenderer,
     ) {
     }
 
@@ -121,7 +120,7 @@ final readonly class ExposeClient
                         }
 
                         foreach ($entityTranslations as $eLocale => $entityTranslation) {
-                            $attributeHtml = $this->getAttributeHtml(
+                            $attributeHtml = $this->attributeHtmlRenderer->render(
                                 $definition,
                                 $definition->isMultiple() ? array_map(fn (?string $v,
                                 ): ?string => $v, $entityTranslation) : $entityTranslation,
@@ -132,7 +131,7 @@ final readonly class ExposeClient
                             }
                         }
                     } else {
-                        $attributeHtml = $this->getAttributeHtml(
+                        $attributeHtml = $this->attributeHtmlRenderer->render(
                             $definition,
                             $definition->isMultiple() ? array_map(fn (Attribute $a,
                             ): string => $attributeType->getStringValue($a->getValue(), $locale), $attribute) : $attributeType->getStringValue($attribute->getValue(), $locale),
@@ -177,49 +176,12 @@ final readonly class ExposeClient
             }
 
             return array_merge([
-                'name' => $resolvedName,
+                'title' => $resolvedName,
                 'description' => $description,
                 'tracking_id' => $asset->getResolvedTrackingId(),
                 'translations' => $translations,
             ], $extraData);
         });
-    }
-
-    private function getAttributeHtml(
-        AttributeDefinition $definition,
-        string|array|null $value,
-        ?string $locale = null,
-    ): ?string {
-        if (empty($value)) {
-            return null;
-        }
-
-        $hasLocale = $locale && AttributeInterface::NO_LOCALE !== $locale;
-
-        $attributeName = $definition->getName();
-        if ($hasLocale) {
-            $nameTranslations = $definition->getTranslations()['name'] ?? [];
-            if (!empty($nameTranslations)) {
-
-                $bestLocale = LocaleUtil::getBestLocale(array_keys($nameTranslations), [$locale]);
-                if ($bestLocale) {
-                    $attributeName = $nameTranslations[$bestLocale];
-                }
-            }
-        }
-
-        return sprintf(
-            '  <div class="attribute-group">
-    <div class="attribute-name attribute-name-type-%1$s attribute-name-%2$s">%3$s</div>
-    <div class="attribute-value attribute-value-type-%1$s attribute-name-%2$s"%5$s>%4$s</div>
-  </div>
-',
-            $definition->getType(),
-            $definition->getSlug(),
-            $attributeName,
-            $definition->isMultiple() ? implode(', ', $value) : $value,
-            $hasLocale ? ' lang="'.$locale.'"' : '',
-        );
     }
 
     public function postAsset(
@@ -286,7 +248,7 @@ final readonly class ExposeClient
         AssetRendition $rendition,
         array $extraData = [],
         ?MediaClip $clip = null,
-    ): void {
+    ): string {
         $file = $rendition->getFile();
         $subDefFetchedFile = $this->fileFetcher->getFile($file);
         try {
@@ -322,6 +284,8 @@ final readonly class ExposeClient
             @unlink($subDefFetchedFile);
             $this->mediaClipper->cleanUp();
         }
+
+        return $subDefResponse['id'];
     }
 
     public function deleteAsset(IntegrationConfig $config, IntegrationToken $integrationToken, string $assetId): void

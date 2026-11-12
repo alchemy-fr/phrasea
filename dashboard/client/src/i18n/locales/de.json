@@ -1,0 +1,23 @@
+{
+    "app.title": "Dashboard",
+    "error.404.back": "Zurück zum Dashboard",
+    "git_log.back": "Zurück zum Dashboard",
+    "git_log.empty": "Der Änderungsverlauf ist für diesen Build nicht verfügbar.",
+    "git_log.title": "Letzte Änderungen",
+    "service.action.admin": "Administration",
+    "service.action.api_doc": "API-Dokumentation",
+    "service.action.master_admin": "Master-Administration",
+    "service.dashboard.description": "Einstiegspunkt von Phrasea",
+    "service.databox.description": "Ihr DAM",
+    "service.expose.description": "Publikationen teilen",
+    "service.iam.description": "Keycloak IAM",
+    "service.iam.title": "Identitätsverwaltung",
+    "service.uploader.description": "Eigenständige Asset-Ablage",
+    "services.title": "Dienste",
+    "stack.dev_mode": "Der Entwicklermodus ist aktiviert",
+    "stack.version.title": "Letzte Änderungen",
+    "status.degraded": "Eingeschränkt",
+    "status.down": "Nicht verfügbar",
+    "status.up": "Betriebsbereit",
+    "tools.title": "Technische Werkzeuge"
+}

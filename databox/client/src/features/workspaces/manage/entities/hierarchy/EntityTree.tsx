@@ -20,16 +20,16 @@ import {
     moveAttributeEntity,
     postAttributeEntity,
 } from '@/lib/api/metadata';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
-import {Badge} from '@/components/ui/misc';
-import {InlineLoader} from '@/components/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {EntityChip} from '@/components/chips';
 import {AttributeEntitySelect} from '@/components/form/selects';
-import {useModals} from '@/components/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {iri} from '@/lib/utils/iri';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {MoveEntityDialog} from './MoveEntityDialog';
 import {
     dropZoneClass,

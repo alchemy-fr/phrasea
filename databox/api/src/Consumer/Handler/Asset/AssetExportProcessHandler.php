@@ -12,7 +12,6 @@ use Alchemy\CoreBundle\Util\ZipUtil;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
-use Alchemy\StorageBundle\Storage\UrlSigner;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
@@ -56,7 +55,6 @@ class AssetExportProcessHandler
         private readonly FileMetadataEmbedder $fileMetadataEmbedder,
         private readonly FileStorageManager $fileStorageManager,
         private readonly PathGeneratorInterface $pathGenerator,
-        private readonly UrlSigner $urlSigner,
         private readonly AttributeMetadataEmbedder $attributeMetadataEmbedder,
         private readonly TermsManager $termsManager,
         private readonly TermsPdfGenerator $termsPdfGenerator,
@@ -271,9 +269,8 @@ class AssetExportProcessHandler
                 $this->em->persist($export);
                 $this->em->flush();
 
-                $this->triggerExportPush($export->getId(), 'ready', [
-                    'downloadUrl' => $this->urlSigner->getSignedUrl($archivePath),
-                ]);
+                // The signed URL is only served by GET /asset-exports/{id}, to the export owner
+                $this->triggerExportPush($export->getId(), 'ready', []);
             } finally {
                 FilesystemUtils::rrmdir($archiveDir);
                 if (null !== $archiveSrc && is_file($archiveSrc)) {

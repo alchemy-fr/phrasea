@@ -56,7 +56,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
     private function uploadImage(?string $userId, ?array $multipart = null): array
     {
         return $this->api('POST', $this->imageUri(), $userId, [
-            'multipart' => $multipart ?? self::multipartPayload($this->createPngUpload()),
+            'multipart' => $multipart ?? self::multipartPayload($this->createPngUpload(ownerId: $userId ?? self::USER)),
         ])->toArray(false);
     }
 

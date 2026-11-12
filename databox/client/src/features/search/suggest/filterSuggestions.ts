@@ -16,7 +16,7 @@ import {
     getAttributeType,
     privacyLabels,
 } from '@/features/attributes/types/registry';
-import {fileFamilies} from '@/lib/utils/mime';
+import {fileFamilies} from '@alchemy/next-ui/utils/mime';
 import {AQLOperator, AQLValueExpr, RawType, ScalarValue} from '../aql/types';
 import {conditionToString} from '../aql/serializer';
 import {rawTypeMap, validateAST} from '../aql/validation';
@@ -65,10 +65,7 @@ export type RawSuggestion = {
 export type TextSuggestion = {kind: 'text'; suggestion: SearchSuggestion};
 
 export type SuggestionItem =
-    | FieldSuggestion
-    | ValueSuggestion
-    | RawSuggestion
-    | TextSuggestion;
+    FieldSuggestion | ValueSuggestion | RawSuggestion | TextSuggestion;
 
 const FIELD_INPUT = /^(@?[a-zA-Z_][\w-]*):(.*)$/;
 const FIELD_TOKEN = /^@?[\w-]*$/;

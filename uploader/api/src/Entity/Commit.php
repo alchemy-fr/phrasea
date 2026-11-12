@@ -103,9 +103,6 @@ class Commit extends AbstractUuidEntity
     #[Groups(['asset:read', self::GROUP_READ])]
     private ?string $formLocale = null;
 
-    #[Groups([self::GROUP_WRITE])]
-    public ?string $schemaId = null;
-
     #[Groups(['asset:read', self::GROUP_READ, self::GROUP_WRITE])]
     #[ORM\Column(type: Types::JSON)]
     private array $options = [];
@@ -143,6 +140,13 @@ class Commit extends AbstractUuidEntity
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['asset:read', self::GROUP_READ])]
     private readonly \DateTimeImmutable $createdAt;
+
+    /**
+     * The upload link the files were sent through, if any.
+     */
+    #[ORM\ManyToOne(targetEntity: UploadLink::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?UploadLink $uploadLink = null;
 
     /**
      * Not mapped.
@@ -225,8 +229,8 @@ class Commit extends AbstractUuidEntity
             $this->formData,
             $this->notify,
             $this->locale,
-            $this->schemaId,
             $this->options,
+            $this->uploadLink?->getId(),
         );
     }
 
@@ -241,8 +245,11 @@ class Commit extends AbstractUuidEntity
         $instance->setUserId($message->getUserId());
         $instance->setNotify($message->isNotify());
         $instance->setLocale($message->getLocale());
-        $instance->schemaId = $message->getSchemaId();
         $instance->setOptions($message->getOptions());
+        if (null !== $uploadLinkId = $message->getUploadLinkId()) {
+            // The link may have been deleted since
+            $instance->setUploadLink($em->find(UploadLink::class, $uploadLinkId));
+        }
 
         return $instance;
     }
@@ -328,5 +335,15 @@ class Commit extends AbstractUuidEntity
     public function setFormLocale(?string $formLocale): void
     {
         $this->formLocale = $formLocale;
+    }
+
+    public function getUploadLink(): ?UploadLink
+    {
+        return $this->uploadLink;
+    }
+
+    public function setUploadLink(?UploadLink $uploadLink): void
+    {
+        $this->uploadLink = $uploadLink;
     }
 }

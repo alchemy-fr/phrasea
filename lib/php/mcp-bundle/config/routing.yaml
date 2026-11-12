@@ -1,0 +1,8 @@
+# The MCP endpoints of the "mcp.servers" configuration (route "_mcp_endpoint_<server>").
+alchemy_mcp_endpoints:
+    resource: .
+    type: mcp
+
+alchemy_mcp_controllers:
+    resource: '../src/Controller/'
+    type: attribute

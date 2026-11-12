@@ -12,20 +12,20 @@ import {
     PlusIcon,
     Trash2Icon,
 } from 'lucide-react';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {useModals} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Button} from '@/components/ui/button';
-import {Input, FormRow, Textarea} from '@/components/ui/input';
-import {LabeledControl, Switch} from '@/components/ui/controls';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Input, FormRow, Textarea} from '@alchemy/next-ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {ConfirmDialog} from '@/components/ui/confirm';
-import {Tooltip} from '@/components/ui/overlays';
+} from '@alchemy/next-ui/ui/menu';
+import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import {ProfileOwnership} from './ProfileOwnership';
 import {useProfileStore} from './profileStore';
 import {usePreferencesStore} from '@/features/preferences/store';
@@ -34,11 +34,10 @@ import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabil
 import {routes} from '@/lib/routes';
 import type {DisplayProfile} from '@/types/api';
 import {useAuth} from '@/lib/auth/AuthProvider';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
     const {t} = useTranslation();
-    const capabilities = useInstanceCapabilities();
     const {user} = useAuth();
     const router = useRouter();
     const {openModal} = useModals();
@@ -63,18 +62,16 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
             submitLabel={t('common.close', 'Close')}
             bodyClassName="space-y-2"
             footerStart={
-                capabilities.createProfile ? (
-                    <Button
-                        variant="outline"
-                        onClick={() =>
-                            openModal(CreateProfileDialog, {
-                                onCreated: () => onOpenChange(false),
-                            })
-                        }
-                    >
-                        <PlusIcon /> {t('profile.create', 'New profile')}
-                    </Button>
-                ) : undefined
+                <Button
+                    variant="outline"
+                    onClick={() =>
+                        openModal(CreateProfileDialog, {
+                            onCreated: () => onOpenChange(false),
+                        })
+                    }
+                >
+                    <PlusIcon /> {t('profile.create', 'New profile')}
+                </Button>
             }
         >
             <ProfileRow
@@ -254,6 +251,7 @@ export function CreateProfileDialog({
 }) {
     const {t} = useTranslation();
     const router = useRouter();
+    const {shareProfile} = useInstanceCapabilities();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPublic, setIsPublic] = useState(false);
@@ -266,7 +264,7 @@ export function CreateProfileDialog({
         const profile = await postProfile({
             name,
             description,
-            public: isPublic,
+            public: shareProfile && isPublic,
             data: data as any,
         });
         upsert(profile);
@@ -304,9 +302,11 @@ export function CreateProfileDialog({
                     onChange={e => setDescription(e.target.value)}
                 />
             </FormRow>
-            <LabeledControl label={t('common.public', 'Public')}>
-                <Switch checked={isPublic} onCheckedChange={setIsPublic} />
-            </LabeledControl>
+            {shareProfile ? (
+                <LabeledControl label={t('common.public', 'Public')}>
+                    <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+                </LabeledControl>
+            ) : null}
         </FormDialog>
     );
 }

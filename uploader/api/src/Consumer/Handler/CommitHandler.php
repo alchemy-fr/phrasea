@@ -6,8 +6,6 @@ namespace App\Consumer\Handler;
 
 use App\Entity\Asset;
 use App\Entity\Commit;
-use App\Entity\FormSchema;
-use App\Entity\TargetParams;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -29,37 +27,12 @@ final readonly class CommitHandler
         $commit->generateToken();
         $target = $commit->getTarget();
 
-        if (null !== $commit->schemaId) {
-            $formSchema = $this->em
-                ->getRepository(FormSchema::class)
-                ->find($commit->schemaId);
-
-            if ($formSchema instanceof FormSchema) {
-                switch ($formSchema->getLocaleMode()) {
-                    case FormSchema::LOCALE_MODE_NO_LOCALE:
-                        $commit->setFormLocale(null);
-                        break;
-                    case FormSchema::LOCALE_MODE_USE_UA:
-                        $commit->setFormLocale($message->getLocale());
-                        break;
-                    case FormSchema::LOCALE_MODE_FORCED:
-                        $commit->setFormLocale($formSchema->getLocale());
-                        break;
-                }
-            }
-        }
+        $commit->setFormLocale($message->getLocale());
 
         $totalSize = $this->assetManager->getTotalSize($commit->getFiles());
         $commit->setTotalSize($totalSize);
 
-        $targetParams = $this->em
-            ->getRepository(TargetParams::class)
-            ->findOneBy([
-                'target' => $commit->getTarget()->getId(),
-            ]);
-        $targetData = $targetParams ? $targetParams->getData() : [];
-
-        $formData = array_merge($commit->getFormData(), $targetData);
+        $formData = array_merge($commit->getFormData(), $target->getData() ?? []);
         if (!isset($formData['collection_destination']) && null !== $target->getDefaultDestination()) {
             $formData['collection_destination'] = $target->getDefaultDestination();
         }

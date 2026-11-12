@@ -13,7 +13,7 @@ import {
 } from '@/lib/api/metadata';
 import {fetchAllPages} from '@/lib/api/hydra';
 import {BuiltInAttribute as BuiltInEnum} from '@/features/search/searchState';
-import {getFileFamily} from '@/lib/utils/mime';
+import {getFileFamily} from '@alchemy/next-ui/utils/mime';
 
 export type DefinitionsIndex<
     T extends AttributeDefinitionOrBuiltIn = AttributeDefinitionOrBuiltIn,

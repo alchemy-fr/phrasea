@@ -2,8 +2,7 @@
 
 import {useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useRouter} from 'next/navigation';
-import {AlertTriangleIcon, ListIcon, PlusIcon, XIcon} from 'lucide-react';
+import {AlertTriangleIcon, PlusIcon, XIcon} from 'lucide-react';
 import type {AssetAnnotation, AttributeDefinition} from '@/types/api';
 import {AssetTypeFilter} from '@/types/api';
 import {AttributeWidget} from '@/features/attributes/widgets/AttributeWidget';
@@ -12,18 +11,18 @@ import {
     AttributeIndex,
     DefinitionIndex,
 } from './attributeEditorModel';
-import {Button} from '@/components/ui/button';
-import {Label} from '@/components/ui/input';
-import {Tabs, TabsList, TabsTrigger, Alert} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Label} from '@alchemy/next-ui/ui/input';
+import {Tabs, TabsList, TabsTrigger, Alert} from '@alchemy/next-ui/ui/misc';
 import {NO_LOCALE, isRtl} from '@/lib/utils/locale';
-import {routes} from '@/lib/routes';
 import {idFromIri} from '@/lib/utils/iri';
-import {shortId} from '@/lib/utils/misc';
-import {cn} from '@/lib/utils/cn';
+import {shortId} from '@alchemy/next-ui/utils/misc';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {Flag} from '@/components/ui/flag';
 import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetButton';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
-import {Spinner} from '@/components/ui/loader';
+import {ManageEntityListButton} from '@/features/entities/manage/ManageEntityListButton';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {Spinner} from '@alchemy/next-ui/ui/loader';
 
 export type OnAttributeChange = (
     definitionId: string,
@@ -62,7 +61,6 @@ export function AttributesEditor({
     loadingMore = false,
 }: Props) {
     const {t} = useTranslation();
-    const router = useRouter();
     // The viewport: the form scrolls with its container
     const viewport = useRef<HTMLElement>(null);
     const sentinelRef = useInfiniteScroll(
@@ -130,23 +128,11 @@ export function AttributesEditor({
                                     ({t('attribute.read_only', 'read only')})
                                 </span>
                             ) : null}
-                            {listId && workspaceId ? (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="ml-auto h-6 text-xs"
-                                    onClick={() =>
-                                        router.push(
-                                            routes.entityListValues(
-                                                workspaceId,
-                                                listId
-                                            )
-                                        )
-                                    }
-                                >
-                                    <ListIcon />{' '}
-                                    {t('attribute.manage_list', 'Manage list')}
-                                </Button>
+                            {listId ? (
+                                <ManageEntityListButton
+                                    listId={listId}
+                                    className="ml-auto"
+                                />
                             ) : null}
                         </div>
                         {translatable ? (

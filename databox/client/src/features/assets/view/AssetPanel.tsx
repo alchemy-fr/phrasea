@@ -31,19 +31,19 @@ import {
     Tabs,
     UnderlineTabsList,
     UnderlineTabsTrigger,
-} from '@/components/ui/misc';
-import {Button} from '@/components/ui/button';
+} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {useModals} from '@/components/modals/ModalProvider';
+} from '@alchemy/next-ui/ui/menu';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {usePreferencesStore} from '@/features/preferences/store';
 import {resolveOrder} from '@/lib/utils/order';
-import {Tooltip} from '@/components/ui/overlays';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
 import type {AssetTabProps} from '@/features/assets/manage/types';
 import {ShapeEditorsScope} from '@/features/annotations/AnnotationsProvider';
 import {AssetEditTab} from '@/features/assets/manage/tabs/AssetEditTab';
@@ -60,7 +60,7 @@ import {
     useFileIntegrations,
 } from '@/features/integrations/FileIntegrations';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {AssetSidePanel} from './AssetSidePanel';
 import {AssetPanelTabsDialog} from './AssetPanelTabsDialog';
 

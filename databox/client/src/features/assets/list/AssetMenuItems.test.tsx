@@ -3,7 +3,7 @@ import {render, screen} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import type {Asset} from '@/types/api';
-import {DropdownMenu, DropdownMenuContent} from '@/components/ui/menu';
+import {DropdownMenu, DropdownMenuContent} from '@alchemy/next-ui/ui/menu';
 import {AssetMenuItems} from './AssetContextMenu';
 
 vi.mock('@/features/assets/actions/useAssetActions', () => ({

@@ -38,4 +38,6 @@ return [
     Alchemy\NotifierBundle\AlchemyNotifierBundle::class => ['all' => true],
     Alchemy\TrackBundle\AlchemyTrackBundle::class => ['all' => true],
     Twig\Extra\TwigExtraBundle\TwigExtraBundle::class => ['all' => true],
+    Symfony\AI\McpBundle\McpBundle::class => ['all' => true],
+    Alchemy\McpBundle\AlchemyMcpBundle::class => ['all' => true],
 ];

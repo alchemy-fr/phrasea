@@ -47,7 +47,7 @@ baked at build time.
 | `S3_MULTIPART_*`, `S3_MAX_OBJECT_SIZE`, `ALLOWED_FILE_TYPES` | Uploads |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES` | Matomo analytics (see `doc/tech/Databox/analytics.md`) |
-| `SENTRY_DSN`, `SENTRY_ENVIRONMENT` | Monitoring |
+| `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `DATABOX_TICKETING_ENABLED`, `DATABOX_TICKETING_JIRA_*` | Ticketing (see below) |
 | `CONFIGURATOR_S3_*`, `CONFIG_IS_PUBLIC`, `STACK_CONFIG_SRC`, `STACK_CONFIG_REFRESH_INTERVAL` | Stack configuration (see below) |
 
@@ -56,10 +56,10 @@ baked at build time.
 Like the other clients, this one reads the **stack configuration**: the
 configurator entries (`Global Config` in the API admin) that the API dumps to
 `config.json` in the static bucket. It carries the `logo` and the
-**organisation theme** (`databox.theme`). The other clients fetch it once at
-container start (`lib/bash/configurator/get-config.sh`) and compile it into
-their HTML; this server does the same at request time, so that the theme is
-served as CSS with the page (no flash, no extra request):
+**organisation theme** (`databox.theme`). The PHP APIs fetch it once at
+container start (`lib/bash/configurator/get-config.sh`); this server reads it
+at request time, so that the theme is served as CSS with the page (no flash,
+no extra request):
 
 - when `CONFIGURATOR_S3_ENDPOINT` / `CONFIGURATOR_S3_BUCKET_NAME` are set,
   `config.json` is fetched from the bucket (same URL and signature rules as
@@ -75,13 +75,14 @@ The theme menu has two independent choices: the **appearance** (light / dark
 (`data-theme` on `<html>`): the base palette, ten built-in presets or, when
 one is defined, the organisation theme. Every preset is a light palette with a
 dark alternative and its own font, corner radius, base size and letter spacing
-(`src/app/globals.css`, `[data-theme='<id>']` and `.dark[data-theme='<id>']`).
-Each preset is set in one of ten popular Google fonts, self-hosted by Next
-(`src/app/fonts.ts`, nothing is fetched from Google at runtime) and reached
-through the custom property it defines — the families are renamed at build
-time, so `src/features/theme/fonts.ts` is what maps a font id to it.
-The base font size of a theme drives the whole Tailwind text scale
-(`--text-…` in the `@theme` block of `globals.css`): the sizes are fixed rem
+(`styles/themes.css` of `@alchemy/next-theme`, `[data-theme='<id>']` and
+`.dark[data-theme='<id>']`). Each preset is set in one of ten popular Google
+fonts, self-hosted by Next (`src/googleFonts.ts` of the same package, nothing
+is fetched from Google at runtime) and reached through the custom property it
+defines — the families are renamed at build time, so `src/fonts.ts` is what
+maps a font id to it. The base font size of a theme drives the whole Tailwind
+text scale (`--text-…` in the `@theme` block of
+`@alchemy/next-ui/styles/base.css`): the sizes are fixed rem
 values out of the box, so without it only the elements inheriting the size of
 the body would follow.
 
@@ -101,6 +102,18 @@ characters each — subset the font). The palette is inlined in the page so
 that it never flashes; the `@font-face` rules are served apart by
 `/api/theme-fonts`, addressed by the digest of their content and cached for
 good.
+
+## Error monitoring (Sentry)
+
+When `SENTRY_DSN` is set (`CLIENT_SENTRY_DSN` of the stack), the browser
+errors are reported to Sentry by the browser SDK (`@sentry/react`, errors
+only: neither tracing nor replay), tagged with `app.id` / `app.name` and the
+signed-in user. The SDK posts its envelopes to the same origin route
+`/api/relay` (no ad blocker, no CORS), which relays them to the project of
+`SENTRY_DSN` only, behind an in-memory rate limit of the client process:
+`SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
+`SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
+code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel*`).
 
 ## Ticketing (JIRA)
 
@@ -141,12 +154,24 @@ and per process.
 src/
   app/            Next.js routes (App Router). Shareable dialogs are
                   intercepting routes under app/(app)/@modal.
-  components/ui   Design-system primitives (Radix + Tailwind)
+  components/ui   Design-system primitives specific to Databox
   features/       Domain modules (search, assets, collections, upload…)
-  lib/            Config, auth (OIDC/PKCE), API client, realtime, utils
-  i18n/           i18next setup and translations
+  lib/            Config, auth, API client, realtime, utils
+  i18n/           Languages and translations of Databox
   types/          API contracts
 ```
+
+The code shared with the other Next.js clients lives in workspace packages
+(`lib/js/next-*`):
+
+- `@alchemy/next-ui`: design-system primitives (Radix + Tailwind), modals,
+  the unsaved changes guard, the elements of the top bar (logo, services
+  link, settings, language and user menus) and the base stylesheet;
+- `@alchemy/next-theme`: palettes, presets, organisation theme, theme menu;
+- `@alchemy/next-i18n`: languages, i18next setup and the translations common
+  to every client (a client's own translations override them key by key);
+- `@alchemy/next-core`: OIDC client, stack and runtime configuration, Matomo,
+  OAuth callback page and session expired dialog.
 
 The top bar (`components/layout/TopBar`) is permanent chrome: it always shows
 the logo, where the user is and the user menu. Screens that take over the
@@ -206,7 +231,6 @@ Not (fully) implemented yet:
 - Annotations / drawing tools on the viewer.
 - Leaflet / OpenStreetMap maps (the geo facet is list-only).
 - Page-by-page PDF player (iframe fallback is used).
-- Sentry wiring (env variables are exposed, no SDK yet).
 - Vendor-specific integration UIs, apart from the Toast UI photo editor
   (Rekognition boxes, Remove.bg compare).
 - Translations: `en` and `fr` are complete, `de` / `es` fall back to English.

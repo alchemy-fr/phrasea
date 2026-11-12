@@ -120,6 +120,7 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
     - [Version et configuration](../Configuration/01_env_var.mdx#elasticsearch-settings)
 - **Sockudo** – serveur WebSocket.
     - [Version et configuration](../Configuration/01_env_var.mdx#sockudo-websocket-server-settings)
+    - Sa clé d’application est publique : tous les canaux sont privés, et les API n’autorisent un abonnement (`POST /pusher/auth`) qu’à qui peut lire l’objet concerné, visiteurs anonymes compris sur un contenu public. Les messages client sont désactivés (`SOCKUDO_DEFAULT_APP_ENABLE_CLIENT_MESSAGES=false`) et les connexions ne sont acceptées que depuis les origines des clients (`SOCKUDO_DEFAULT_APP_ALLOWED_ORIGINS`, séparées par des virgules).
 
 #### Outils additionnels utiles pour le développement et les tests de la stack :
 
@@ -234,6 +235,8 @@ Capacité disque pour les volumes temporaires : 100 Go
 * Supervision : Mettez en place la collecte des logs et la supervision pour capturer la sortie standard des conteneurs (ex : Fluent Bit, Prometheus, Grafana).
 * APM : Vous pouvez utiliser le service SaaS [Sentry](https://sentry.io/welcome/) pour capturer les erreurs de la stack ; les agents front-end et back-end sont installés dans les images Phrasea.
   Configurez vos [identifiants Sentry ici](../Configuration/01_env_var.mdx#php_sentry_dsn).
+  `CLIENT_SENTRY_DSN` active le SDK navigateur des clients (erreurs seulement). Il envoie ses envelopes à la route `/api/relay` de chaque client, sur la même origine, qui les relaie au seul projet de ce DSN derrière une limite de débit (`SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL`, envelopes par minute). Ces limites sont tenues en mémoire, par processus client : elles sont multipliées par le nombre de réplicas.
+  Le DSN n’arrive jamais au navigateur : le SDK reçoit un DSN factice (`https://public@sentry-tunnel.invalid/0`), que `/api/relay` remplace par le vrai. Si un DSN a été publié par une version antérieure, faites tourner sa clé dans Sentry (Project settings > Client Keys) et activez les filtres entrants du projet (extensions de navigateur, anciens navigateurs, robots, domaines autorisés).
 * Sauvegardes : Mettez en place des sauvegardes régulières pour PostgreSQL et le stockage objet.
 * Elasticsearch n’est pas un datastore principal, mais le temps d’indexation peut être significatif si le nombre d’assets est important. Sauvegarder les index Elasticsearch permet une reprise rapide après incident. Il est aussi conseillé d’utiliser un cluster externe pour Elasticsearch.
 * La base de données des messages RabbitMQ doit être persistée pour éviter une perte de messages en cas de redémarrage du conteneur.

@@ -9,7 +9,7 @@ export const instanceCapabilitiesQueryKey = ['instance-capabilities'];
 
 const none: InstanceCapabilities = {
     createWorkspace: false,
-    createProfile: false,
+    shareProfile: false,
     shareBasket: false,
     publishSavedSearch: false,
 };

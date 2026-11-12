@@ -8,6 +8,7 @@ use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Automation\AutomationRunner;
 use App\Entity\Automation\AutomationRun;
 use App\Entity\Automation\SavedSearchAutomation;
+use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\AutomationScopeEnum;
 use App\Model\AutomationTriggerEnum;
@@ -45,6 +46,12 @@ trait AutomationTestTrait
         $automation->setSchedule($options['schedule'] ?? null);
         $automation->setNextRunAt($options['nextRunAt'] ?? null);
         $automation->setConsecutiveFailures($options['consecutiveFailures'] ?? 0);
+        if (isset($options['workspace'])) {
+            $automation->setWorkspace($em->find(Workspace::class, $options['workspace']->getId()));
+        }
+        if (isset($options['maxAssetsPerRun'])) {
+            $automation->setMaxAssetsPerRun($options['maxAssetsPerRun']);
+        }
         $em->persist($automation);
         $em->flush();
 

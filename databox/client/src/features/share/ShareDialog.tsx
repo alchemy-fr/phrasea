@@ -21,23 +21,23 @@ import {
     type Share,
     type ShareAlternateUrl,
 } from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {useModals} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Button} from '@/components/ui/button';
-import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
-import {Input, FormRow} from '@/components/ui/input';
-import {InlineLoader} from '@/components/ui/loader';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {Input, FormRow} from '@alchemy/next-ui/ui/input';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {CopyButton} from '@/components/ui/copy-button';
-import {Badge} from '@/components/ui/misc';
-import {Tooltip} from '@/components/ui/overlays';
-import {FileKindIcon} from '@/components/chips';
+import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {
     createShare,
     deleteShare,
@@ -48,9 +48,9 @@ import {
 import {fetchAllPages} from '@/lib/api/hydra';
 import {routes} from '@/lib/routes';
 import {formatDateTime} from '@/lib/utils/format';
-import {copyToClipboard} from '@/lib/utils/misc';
-import {toastError} from '@/lib/utils/errors';
-import {cn} from '@/lib/utils/cn';
+import {copyToClipboard} from '@alchemy/next-ui/utils/misc';
+import {toastError} from '@alchemy/next-ui/utils/errors';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {ShareSocials} from './ShareSocials';
 import {EmbedDialog} from './EmbedDialog';
 import {EventCategory, ShareEvent, track} from '@/lib/analytics/events';
@@ -836,7 +836,7 @@ function ShareAssets({
                                     className="size-full object-cover"
                                 />
                             ) : (
-                                <FileKindIcon
+                                <FileFamilyIcon
                                     mimeType={type}
                                     className="size-5"
                                 />

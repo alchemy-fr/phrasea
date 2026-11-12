@@ -7,19 +7,16 @@ namespace App\Elasticsearch\Listener;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\EntityAttributeType;
+use App\Elasticsearch\AssetIndexPreloader;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\BuiltInAttribute\PositionBuiltInAttribute;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetEmbedding;
-use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query\Expr\Join;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -41,6 +38,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         private FieldNameResolver $fieldNameResolver,
         private AttributesResolver $attributesResolver,
         private EntityManagerInterface $em,
+        private AssetIndexPreloader $preloader,
     ) {
     }
 
@@ -58,12 +56,12 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
             $document->set($key, $value);
         }
 
-        $document->set('renditions', $this->compileRenditions($asset));
+        $document->set('renditions', $this->preloader->getRenditionDefinitionIds($asset->getId()));
         $document->set(PositionBuiltInAttribute::ES_FIELD, $this->compileCollectionPositions($asset));
 
-        $embedding = $this->em->getRepository(AssetEmbedding::class)->findOneBy(['asset' => $asset->getId()]);
+        $embedding = $this->preloader->getEmbedding($asset->getId());
         if (null !== $embedding) {
-            $document->set('embedding', $embedding->getVector());
+            $document->set('embedding', $embedding);
         }
 
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
@@ -108,20 +106,6 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         }
 
         return $positions;
-    }
-
-    private function compileRenditions(Asset $asset): array
-    {
-        $renditionsDefinitions = $this->em->createQueryBuilder()
-            ->select('rd.id')
-            ->from(AssetRendition::class, 'r')
-            ->innerJoin(RenditionDefinition::class, 'rd', Join::WITH, 'rd.id = r.definition')
-            ->andWhere('r.asset = :id')
-            ->setParameter('id', $asset->getId())
-            ->getQuery()
-            ->getScalarResult();
-
-        return array_column($renditionsDefinitions, 'id');
     }
 
     private function compileAttributes(AttributeIndex $attributeIndex): array

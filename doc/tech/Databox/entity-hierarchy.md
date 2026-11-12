@@ -60,7 +60,8 @@ A flat list is a forest of single entities at depth 0: lists can be organized pr
 - `PATCH /attribute-entities/{id}` `{"parent": …, "position": n}`: moves a branch (`"parent": null`:
   to the top level); the depth of the whole subtree is shifted (`EntityHierarchyManager`).
 - `GET /attribute-entities/{id}/hierarchy-impact`: entities of the branch, attribute values referencing
-  them (and how many were entered by users), bound definitions — shown before a move.
+  them on the assets the user can read (and how many were entered by users), bound definitions — shown
+  before a move.
 - `GET /attribute-entities` parameters: `parent` (children, by position), `depth` (`0`: the top
   level), `branch` (descendants), `placeholder`, and `definition`, which applies the depth range of a
   definition and excludes the placeholders. Each entity has `parentId`, `hierarchyDepth`,

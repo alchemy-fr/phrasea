@@ -1,31 +1,70 @@
 ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
-FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} AS client-build
+FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} AS deps
 
-COPY ./dashboard/client/docker/entrypoint.d/* /docker/entrypoint.d/
-COPY ./lib/bash/configurator /docker/configurator
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
-COPY --chown=node:node ./lib/js ./lib/js
-COPY --chown=node:node ./dashboard/client ./dashboard/client
+COPY --chown=node:node ./dashboard/client/package.json ./dashboard/client/package.json
+# Workspace libraries (and the ones they depend on)
+COPY --chown=node:node ./lib/js/next-core/package.json ./lib/js/next-core/package.json
+COPY --chown=node:node ./lib/js/next-i18n/package.json ./lib/js/next-i18n/package.json
+COPY --chown=node:node ./lib/js/next-theme/package.json ./lib/js/next-theme/package.json
+COPY --chown=node:node ./lib/js/next-ui/package.json ./lib/js/next-ui/package.json
 
 USER node
-
-WORKDIR /srv/workspace/phrasea/dashboard/client
-
-RUN pnpm install \
-    && mv index.tpl.html index.html
-
-RUN pnpm build
+RUN pnpm install --filter "dashboard-client..." --frozen-lockfile \
+    && mkdir -p /srv/workspace/phrasea/dashboard/client/.next
 
 ############
 
-FROM ${REGISTRY_NAMESPACE}nginx-client-base:${BASE_TAG} AS client-nginx
+FROM deps AS client-dev
 
-COPY ./dashboard/client/docker/entrypoint.d/* /docker/entrypoint.d/
-COPY ./lib/bash/configurator /docker/configurator
-COPY ./dashboard/client/config-compiler.js .
-COPY --from=client-build /srv/workspace/phrasea/dashboard/client/dist .
-COPY ./dashboard/client/git-log.html /var/app/
+COPY --chown=node:node ./lib/js/next-core ./lib/js/next-core
+COPY --chown=node:node ./lib/js/next-i18n ./lib/js/next-i18n
+COPY --chown=node:node ./lib/js/next-theme ./lib/js/next-theme
+COPY --chown=node:node ./lib/js/next-ui ./lib/js/next-ui
+COPY --chown=node:node ./dashboard/client ./dashboard/client
+WORKDIR /srv/workspace/phrasea/dashboard/client
+ENV NODE_OPTIONS=
+EXPOSE 3000
+CMD ["pnpm", "dev"]
+
+############
+
+FROM deps AS client-build
+
+COPY --chown=node:node ./lib/js/next-core ./lib/js/next-core
+COPY --chown=node:node ./lib/js/next-i18n ./lib/js/next-i18n
+COPY --chown=node:node ./lib/js/next-theme ./lib/js/next-theme
+COPY --chown=node:node ./lib/js/next-ui ./lib/js/next-ui
+COPY --chown=node:node ./dashboard/client ./dashboard/client
+WORKDIR /srv/workspace/phrasea/dashboard/client
+ENV NODE_OPTIONS=--max-old-space-size=4096 \
+    NEXT_TELEMETRY_DISABLED=1
+# build-info/ holds the commit history written by bin/git-log.sh, when run
+RUN pnpm build && mkdir -p build-info
+
+############
+
+FROM node:26.12.1-alpine3.24 AS runner
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HOSTNAME=0.0.0.0 \
+    PORT=3000
+
+WORKDIR /app
+
+RUN addgroup -S app && adduser -S -G app app
+
+COPY --from=client-build --chown=app:app /srv/workspace/phrasea/dashboard/client/.next/standalone ./
+COPY --from=client-build --chown=app:app /srv/workspace/phrasea/dashboard/client/.next/static ./dashboard/client/.next/static
+COPY --from=client-build --chown=app:app /srv/workspace/phrasea/dashboard/client/public ./dashboard/client/public
+COPY --from=client-build --chown=app:app /srv/workspace/phrasea/dashboard/client/build-info ./dashboard/client/build-info
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
+
+USER app
+EXPOSE 3000
+
+CMD ["node", "dashboard/client/server.js"]

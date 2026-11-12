@@ -32,30 +32,37 @@ final readonly class JobConsumerHandler
         $workflowId = $message->getWorkflowId();
         $jobStateId = $message->getJobStateId();
 
-        if ($retryCount > 0) {
-            // Messenger retry logic: mark the job as failed as it should have been interrupted
-            $this->jobStateManager->wrapInTransaction(function () use ($workflowId, $jobStateId): void {
-                $this->jobStateManager->acquireJobLock($workflowId, $jobStateId);
-                $state = $this->jobStateManager->getJobState($workflowId, $jobStateId);
-                if (null === $state) {
-                    // The workflow (and its job states) was removed meanwhile: nothing to mark as failed.
-                    $this->logger->warning(sprintf('Job state "%s" of workflow "%s" not found after retry, skipping', $jobStateId, $workflowId));
+        try {
+            if ($retryCount > 0) {
+                // Messenger retry logic: mark the job as failed as it should have been interrupted
+                $marked = $this->jobStateManager->wrapInTransaction(function () use ($workflowId, $jobStateId): bool {
+                    $this->jobStateManager->acquireJobLock($workflowId, $jobStateId);
+                    $state = $this->jobStateManager->getJobState($workflowId, $jobStateId);
+                    if (null === $state) {
+                        // The workflow (and its job states) was removed meanwhile: nothing to mark as failed.
+                        $this->logger->warning(sprintf('Job state "%s" of workflow "%s" not found after retry, skipping', $jobStateId, $workflowId));
 
-                    return;
+                        return false;
+                    }
+
+                    $state->setStatus(JobState::STATUS_FAILURE);
+                    $state->setEndedAt(new MicroDateTime());
+                    $state->addError('Job timeout error');
+                    $this->jobStateManager->persistJobState($state);
+
+                    return true;
+                });
+
+                $this->jobStateManager->flushEvents();
+
+                if ($marked) {
+                    // Ends the workflow (or runs the jobs that do not need this one), otherwise it stays started forever.
+                    $this->orchestrator->continueWorkflow($workflowId);
                 }
 
-                $state->setStatus(JobState::STATUS_FAILURE);
-                $state->setEndedAt(new MicroDateTime());
-                $state->addError('Job timeout error');
-                $this->jobStateManager->persistJobState($state);
-            });
+                return;
+            }
 
-            $this->jobStateManager->flushEvents();
-
-            return;
-        }
-
-        try {
             $this->runner->run(new JobTrigger(
                 $workflowId,
                 $message->getJobId(),

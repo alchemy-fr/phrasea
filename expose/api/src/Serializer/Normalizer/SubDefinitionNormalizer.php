@@ -13,15 +13,11 @@ class SubDefinitionNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = []): void
     {
-        $object->setUrl($this->generateSubDefinitionUrl($object));
+        // None without the details of the publication or downloads disabled
+        $object->setDownloadUrl($this->generateSubDefinitionDownloadUrl($object));
 
-        $downloadViaEmail = $context['download_via_email'] ?? false;
-
-        if (!$downloadViaEmail) {
-            $object->setDownloadUrl($this
-                ->generateDownloadSubDefTrackerUrl($object));
-        } else {
-            $object->setDownloadUrl($this->getDownloadViaEmailUrl($object->getAsset(), $object->getId()));
+        if ($this->getDownloadMode($object->getAsset()->getPublication())->exposesFiles()) {
+            $object->setUrl($this->generateSubDefinitionUrl($object));
         }
     }
 

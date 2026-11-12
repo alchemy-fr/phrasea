@@ -40,13 +40,9 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             }
         }
 
-        if ($object->isDownloadViaEmail()) {
-            $context['download_via_email'] = true;
-        }
-
         $object->setChildren(new ArrayCollection($object->getChildren()->filter(fn (Publication $child): bool => $this->security->isGranted(PublicationVoter::READ, $child))->getValues()));
 
-        if ($object->getPackage() instanceof Asset) {
+        if ($object->getPackage() instanceof Asset && $this->getDownloadMode($object)->exposesFiles()) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
         }
 
@@ -59,26 +55,13 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             ], UrlGeneratorInterface::ABSOLUTE_URL));
         }
 
-        $config = $object->getConfig();
-        $securityContainer = $object->getSecurityContainer();
-        $object->setSecurityContainerId($securityContainer->getId());
-        $config->setSecurityMethod($securityContainer->getSecurityMethod());
-        $config->setSecurityOptions($securityContainer->getSecurityOptions());
+        $object->setSecurityContainerId($object->getSecurityContainer()->getId());
 
         $object->setCapabilities([
             'edit' => $this->security->isGranted(AbstractVoter::EDIT, $object),
             'delete' => $this->security->isGranted(AbstractVoter::DELETE, $object),
             'operator' => $this->security->isGranted(AbstractVoter::OPERATOR, $object),
         ]);
-    }
-
-    protected function generateArchiveDownloadUrl(Publication $publication): string
-    {
-        $uri = $this->urlGenerator->generate(!$publication->isDownloadViaEmail() ? 'archive_download' : 'archive_download_request_create', [
-            'id' => $publication->getId(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
-
-        return $this->uriJwtManager->signUri($uri);
     }
 
     public function support($object): bool

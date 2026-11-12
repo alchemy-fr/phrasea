@@ -77,11 +77,11 @@ class AutomationRun extends AbstractUuidEntity
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $endedAt = null;
 
-    // Results of the saved search the owner may read
+    // Results of the saved search the owner may read (up to the batch where the asset limit was reached)
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $matchedCount = 0;
 
-    // Results not handled by a previous run
+    // Results not handled by a previous run (up to the batch where the asset limit was reached)
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $newCount = 0;
 
@@ -91,6 +91,13 @@ class AutomationRun extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $failedCount = 0;
+
+    /**
+     * Whether eligible assets were left out because of the limit of assets per run
+     * (for a dry run: whether a real run would reach it).
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $limitReached = false;
 
     /**
      * Per action: {type, status, processed, failed, skipped, errors: [{assetId?, message}]}.
@@ -209,6 +216,16 @@ class AutomationRun extends AbstractUuidEntity
     public function setFailedCount(int $failedCount): void
     {
         $this->failedCount = $failedCount;
+    }
+
+    public function isLimitReached(): bool
+    {
+        return $this->limitReached;
+    }
+
+    public function setLimitReached(bool $limitReached): void
+    {
+        $this->limitReached = $limitReached;
     }
 
     public function getActionResults(): array

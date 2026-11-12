@@ -8,7 +8,7 @@ import {
     useState,
 } from 'react';
 import {XIcon} from 'lucide-react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 type Props = {
     'value': string[];

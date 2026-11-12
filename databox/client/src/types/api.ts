@@ -161,6 +161,9 @@ export enum EntityName {
     File = 'files',
     Workflow = 'workflows',
     AuditLog = 'audit-logs',
+    WorkspaceSecret = 'workspace-secrets',
+    WorkspaceEnv = 'workspace-envs',
+    SystemEnv = 'system-envs',
 }
 
 export enum AttributeBatchActionEnum {
@@ -505,6 +508,8 @@ export interface EntityList extends HydraObject, Entity {
     workspace?: Workspace | string;
     createdAt: string;
     updatedAt: string;
+    /** Served with the list itself, not when nested in another resource */
+    capabilities?: Capabilities<{editValues: boolean}>;
 }
 
 export interface FieldType extends HydraObject {
@@ -727,7 +732,7 @@ export interface SavedSearch
  */
 export type InstanceCapabilities = {
     createWorkspace: boolean;
-    createProfile: boolean;
+    shareProfile: boolean;
     shareBasket: boolean;
     publishSavedSearch: boolean;
 };
@@ -759,12 +764,16 @@ export type AutomationAction = {
 
 export interface SavedSearchAutomation extends HydraObject, Entity {
     savedSearchId: string;
+    /** Workspace the results of the saved search are limited to */
+    workspaceId?: string | null;
     name: string;
     enabled: boolean;
     /** Cron expression, null when run on demand only */
     schedule?: string | null;
     timezone: string;
     scope: AutomationScope;
+    /** Maximum number of assets handed to the actions per run */
+    maxAssetsPerRun: number;
     actions: AutomationAction[];
     nextRunAt?: string | null;
     lastRunAt?: string | null;
@@ -797,6 +806,8 @@ export interface AutomationRun extends HydraObject, Entity {
     newCount: number;
     processedCount: number;
     failedCount: number;
+    /** Eligible assets were left out by the limit of assets per run (dry run: would be) */
+    limitReached: boolean;
     actionResults: AutomationActionResult[];
     error?: string | null;
     createdAt: string;
@@ -871,7 +882,8 @@ export type ProfileItem = {
     defaultQuery?: string | null;
 };
 
-export interface DisplayProfile extends WithCapabilities, Entity {
+export interface DisplayProfile
+    extends WithCapabilities<{share: boolean}>, Entity {
     name: string;
     description?: string;
     items?: ProfileItem[];
@@ -1235,6 +1247,53 @@ export type IntegrationType = {
     }[];
     /** The configuration tree, from which the form is generated */
     schema: ConfigObjectSchema;
+};
+
+/** A Keycloak OAuth client an integration can authorize its users with */
+export type OAuthClient = {
+    /** The Keycloak ID (not the client ID) */
+    id: string;
+    clientId: string;
+    name?: string;
+    description?: string;
+    redirectUris: string[];
+    /** The redirect URIs of the client allow the one of the integration */
+    redirectUriAllowed: boolean;
+    /** Expose accepts the access tokens of the client */
+    acceptedByExpose: boolean;
+};
+
+/**
+ * A value referenced as `${NAME}` by the configuration of the integrations of
+ * its workspace. Write only: its value is never returned.
+ */
+export type WorkspaceSecret = {
+    id: string;
+    name: string;
+    /** IRI of the workspace, missing for an instance secret */
+    workspace?: string | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+/** A plain value, referenced like a secret but stored and returned in clear */
+export type WorkspaceEnv = {
+    id: string;
+    name: string;
+    value: string;
+    /** IRI of the workspace, missing for an instance variable */
+    workspace?: string | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+/**
+ * A `PWI_<NAME>` environment variable of the instance, that a reference
+ * resolves to when no secret nor variable of its scope has this name. Named
+ * without the prefix; its value is never returned.
+ */
+export type SystemEnv = {
+    name: string;
 };
 
 export type MetadataTag = {

@@ -1,5 +1,5 @@
 import {useCallback, useEffect} from 'react';
-import {useModals} from '@/components/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {SwitchUserDialog} from './SwitchUserDialog';
 

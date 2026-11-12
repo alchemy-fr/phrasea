@@ -25,6 +25,10 @@ The Uploader service is a core component of the Alchemy ecosystem, designed to s
 3. Depending on configuration, the uploader either notifies Phraseanet (push mode) or waits for Phraseanet to fetch new uploads (pull mode).
 4. Phraseanet or another service retrieves the files for further processing, cataloging, or storage.
 
+## Upload Links
+
+Users with the `upload_link` permission create upload links: secret URLs letting someone without an account send files to one target, within a number of files, a total size and an expiration date. See [Upload Links](./upload_links.md).
+
 ## Integration
 
 The uploader is designed to be flexible and can be integrated with various backend systems. It supports custom form schemas, bulk metadata, and can be tailored to different asset management workflows.

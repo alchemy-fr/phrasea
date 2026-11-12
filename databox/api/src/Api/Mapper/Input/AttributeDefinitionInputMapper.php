@@ -65,7 +65,7 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         if ($data->policy) {
             $object->setPolicy($data->policy);
         }
-        if ($data->allowInvalid) {
+        if (null !== $data->allowInvalid) {
             $object->setAllowInvalid($data->allowInvalid);
         }
         if (null !== $data->fallback) {
@@ -124,7 +124,9 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         if (null !== $data->fillFromName) {
             $object->setFillFromName($data->fillFromName);
         }
-        $object->setNamePriority($data->namePriority);
+        if (self::hasKey('namePriority', $data->namePriority, $context)) {
+            $object->setNamePriority($data->namePriority);
+        }
 
         if (null !== $data->fileType) {
             $object->setFileType($data->fileType);

@@ -91,6 +91,10 @@ class RenditionDefinitionRepository extends ServiceEntityRepository
             }
         }
 
+        if ($withConditions) {
+            $queryBuilder->andWhere('acl_w.deletedAt IS NULL');
+        }
+
         return $queryBuilder;
     }
 

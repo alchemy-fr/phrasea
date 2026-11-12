@@ -44,9 +44,15 @@ class AutomationRunOutput extends AbstractUuidOutput
     #[Groups([AutomationRun::GROUP_LIST, AutomationRun::GROUP_READ])]
     public ?\DateTimeImmutable $endedAt = null;
 
+    /**
+     * Results of the saved search the owner may read, up to the batch where the asset limit was reached.
+     */
     #[Groups([AutomationRun::GROUP_LIST, AutomationRun::GROUP_READ])]
     public int $matchedCount = 0;
 
+    /**
+     * Results not handled by a previous run, up to the batch where the asset limit was reached.
+     */
     #[Groups([AutomationRun::GROUP_LIST, AutomationRun::GROUP_READ])]
     public int $newCount = 0;
 
@@ -55,6 +61,13 @@ class AutomationRunOutput extends AbstractUuidOutput
 
     #[Groups([AutomationRun::GROUP_LIST, AutomationRun::GROUP_READ])]
     public int $failedCount = 0;
+
+    /**
+     * Whether eligible assets were left out because of the limit of assets per run
+     * (for a dry run: whether a real run would reach it).
+     */
+    #[Groups([AutomationRun::GROUP_LIST, AutomationRun::GROUP_READ])]
+    public bool $limitReached = false;
 
     /**
      * Per action: {type, status, processed, failed, skipped, errors: [{assetId?, message}]}.

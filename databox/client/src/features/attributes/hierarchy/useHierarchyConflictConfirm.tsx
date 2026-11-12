@@ -2,7 +2,7 @@
 
 import {useCallback} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useConfirm} from '@/components/ui/confirm';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {isApiError} from '@/lib/api/http';
 import type {HierarchyConflictStrategy} from '@/lib/api/assets';
 

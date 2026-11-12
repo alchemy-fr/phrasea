@@ -6,6 +6,7 @@ namespace App\Tests\Functional\Api\Rendition;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Entity\Core\RenditionPolicy;
 use App\Tests\Functional\AbstractDataboxTestCase;
 
 /**
@@ -144,6 +145,22 @@ final class RenditionPolicyApiTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(204);
         $this->jsonRequest('GET', $iri, self::EDITOR);
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testWorkspaceIsNotWritable(): void
+    {
+        [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        [$otherWs] = $this->createWorkspaceWithDefaults('ws-b', self::EDITOR);
+        $policy = $this->createRenditionPolicy($ws, 'Restricted', false, false);
+        $iri = '/rendition-policies/'.$policy->getId();
+
+        // EDITOR edits both workspaces, but a policy does not move
+        $this->jsonRequest('PATCH', $iri, self::EDITOR, ['workspace' => '/workspaces/'.$otherWs->getId()]);
+        $this->assertResponseStatusCodeSame(400);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertSame($ws->getId(), $em->find(RenditionPolicy::class, $policy->getId())->getWorkspaceId());
     }
 
     public function testDeleteCascadesToDefinitionsAndRenditions(): void

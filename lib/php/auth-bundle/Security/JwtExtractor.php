@@ -15,6 +15,14 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 final readonly class JwtExtractor
 {
+    /**
+     * Roles of the Keycloak "realm-management" client: composite roles (e.g. "realm-admin")
+     * are expanded in the token.
+     */
+    final public const string KEYCLOAK_ROLE_VIEW_CLIENTS = 'view-clients';
+    final public const string KEYCLOAK_ROLE_MANAGE_CLIENTS = 'manage-clients';
+    final public const string KEYCLOAK_ROLE_MANAGE_USERS = 'manage-users';
+
     private Parser $parser;
 
     public function __construct(
@@ -80,6 +88,16 @@ final readonly class JwtExtractor
         $clientRoles = $claims->get('resource_access', [])[Impersonator::KEYCLOAK_CLIENT]['roles'] ?? [];
         if (in_array(Impersonator::KEYCLOAK_ROLE, $clientRoles, true)) {
             $roles[] = JwtUser::ROLE_IMPERSONATOR;
+        }
+        $canManageClients = in_array(self::KEYCLOAK_ROLE_MANAGE_CLIENTS, $clientRoles, true);
+        if ($canManageClients || in_array(self::KEYCLOAK_ROLE_VIEW_CLIENTS, $clientRoles, true)) {
+            $roles[] = JwtUser::ROLE_KEYCLOAK_VIEW_CLIENTS;
+        }
+        if ($canManageClients) {
+            $roles[] = JwtUser::ROLE_KEYCLOAK_MANAGE_CLIENTS;
+        }
+        if (in_array(self::KEYCLOAK_ROLE_MANAGE_USERS, $clientRoles, true)) {
+            $roles[] = JwtUser::ROLE_KEYCLOAK_MANAGE_GROUPS;
         }
 
         return new JwtUser(

@@ -65,7 +65,7 @@ abstract class AbstractFileInputMapper extends AbstractInputMapper
     protected function handleUpload(?MultipartUploadInput $multipart, Workspace $workspace): ?File
     {
         if ($multipart) {
-            $multipartUpload = $this->uploadManager->handleMultipartUpload($multipart);
+            $multipartUpload = $this->uploadManager->handleMultipartUpload($multipart, $this->getStrictUserOrOAuthClient()->getUserIdentifier());
 
             $file = new File();
             $file->setWorkspace($workspace);

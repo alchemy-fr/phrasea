@@ -15,6 +15,7 @@ import {toIris} from '@/lib/utils/iri';
 export enum IntegrationContext {
     AssetView = 'asset-view',
     Basket = 'basket',
+    Automation = 'automation',
 }
 
 export async function getIntegrationsOfContext(

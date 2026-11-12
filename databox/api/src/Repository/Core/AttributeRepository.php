@@ -86,22 +86,32 @@ class AttributeRepository extends ServiceEntityRepository
      * Load the attributes of many assets in a single query and fill the
      * per-request cache used by getCachedAssetAttributes().
      *
+     * Without the embeddings, the attributes are partial objects whose embedding (a face
+     * signature: hundreds of floats to decode, never indexed) is only loaded if read, with
+     * one query per attribute. Only for the indexing: the attributes stay in the cache and
+     * the identity map until they are cleared.
+     *
      * @param string[] $assetIds
      */
-    public function prefetchAssetAttributes(array $assetIds): void
+    public function prefetchAssetAttributes(array $assetIds, bool $withEmbeddings = true): void
     {
         $assetIds = array_values(array_unique($assetIds));
         if (empty($assetIds)) {
             return;
         }
 
+        $queryBuilder = $this->createAssetAttributesQueryBuilder()
+            ->andWhere('a.asset IN (:assets)')
+            ->setParameter('assets', $assetIds);
+        if (!$withEmbeddings) {
+            // Every other field, so that a field added later is loaded
+            $fields = array_diff($this->getClassMetadata()->getFieldNames(), ['embedding']);
+            $queryBuilder->select(sprintf('PARTIAL a.{%s}, d', implode(', ', $fields)));
+        }
+
         $byAsset = array_fill_keys($assetIds, []);
         /** @var Attribute $attribute */
-        foreach ($this->createAssetAttributesQueryBuilder()
-            ->andWhere('a.asset IN (:assets)')
-            ->setParameter('assets', $assetIds)
-            ->getQuery()
-            ->getResult() as $attribute) {
+        foreach ($queryBuilder->getQuery()->getResult() as $attribute) {
             if ($attribute->isValidValue()) {
                 $byAsset[$attribute->getAsset()->getId()][] = $attribute;
             }
@@ -194,45 +204,6 @@ class AttributeRepository extends ServiceEntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
-    }
-
-    /**
-     * How many attribute values of the definitions reference each value, and how many of them
-     * were set by a user.
-     *
-     * @param string[] $definitionIds
-     * @param string[] $values
-     *
-     * @return array<string, array{attributes: int, humanAttributes: int}>
-     */
-    public function countUsage(array $definitionIds, array $values): array
-    {
-        if (empty($definitionIds) || empty($values)) {
-            return [];
-        }
-
-        $rows = $this->createQueryBuilder('a')
-            ->select('a.value AS value', 'COUNT(a.id) AS attributes', 'SUM(CASE WHEN a.origin = :human THEN 1 ELSE 0 END) AS humanAttributes')
-            ->innerJoin('a.asset', 'ast')
-            ->andWhere('a.definition IN (:defs)')
-            ->andWhere('a.value IN (:values)')
-            ->andWhere('ast.deletedAt IS NULL')
-            ->setParameter('defs', $definitionIds)
-            ->setParameter('values', $values)
-            ->setParameter('human', Attribute::ORIGIN_HUMAN)
-            ->groupBy('a.value')
-            ->getQuery()
-            ->getArrayResult();
-
-        $usage = [];
-        foreach ($rows as $row) {
-            $usage[(string) $row['value']] = [
-                'attributes' => (int) $row['attributes'],
-                'humanAttributes' => (int) $row['humanAttributes'],
-            ];
-        }
-
-        return $usage;
     }
 
     /**

@@ -6,6 +6,7 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAccess;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Query\Expr;
@@ -42,6 +43,20 @@ class CollectionRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * Without loading the children (a collection can have thousands of them).
+     */
+    public function hasChildren(string $collectionId): bool
+    {
+        return [] !== $this->createQueryBuilder('t')
+            ->select('t.id')
+            ->andWhere('t.parent = :id')
+            ->setParameter('id', $collectionId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getScalarResult();
+    }
+
     public function getESQueryBuilder(): QueryBuilder
     {
         return $this
@@ -53,6 +68,8 @@ class CollectionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Unordered: see CollectionSorter.
+     *
      * @param string[] $allowedWorkspaces
      */
     public function getRootCollections(array $allowedWorkspaces, ?string $userId, array $groups): array
@@ -60,7 +77,10 @@ class CollectionRepository extends ServiceEntityRepository
         $supportsLTree = $this->getEntityManager()->getConnection()->getDatabasePlatform() instanceof PostgreSQLPlatform;
         $expr = $this->getEntityManager()->getExpressionBuilder();
 
-        $createUserCondition = fn (string $alias) => null !== $userId ? $alias.'.userId IN (:users) OR '.$alias.'.privacy > 0' : $alias.'.privacy > 0';
+        // Same thresholds as the READ of CollectionVoter: an anonymous user only reads the public collections
+        $createUserCondition = fn (string $alias) => null !== $userId
+            ? $alias.'.userId IN (:users) OR '.$alias.'.privacy > 0'
+            : $alias.'.privacy >= '.WorkspaceItemPrivacyInterface::PUBLIC;
 
         $sub = $this->getEntityManager()->createQueryBuilder()
             ->select('1')
@@ -88,8 +108,7 @@ class CollectionRepository extends ServiceEntityRepository
                     ->andWhere($expr->not($expr->exists($sub->getDQL())))
                     ->getDQL()
             ))
-            ->addOrderBy('t.name', 'DESC')
-            ->addOrderBy('t.createdAt', 'ASC');
+            ->andWhere('t.deletedAt IS NULL');
 
         if (null !== $userId) {
             $queryBuilder->setParameter('users', array_merge([$userId], $groups));

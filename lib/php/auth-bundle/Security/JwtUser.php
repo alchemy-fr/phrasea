@@ -17,6 +17,21 @@ class JwtUser implements JwtInterface, JwtUserInterface
      * Granted by the Keycloak "impersonation" role of the "realm-management" client.
      */
     final public const string ROLE_IMPERSONATOR = 'ROLE_IMPERSONATOR';
+    /**
+     * Granted by the Keycloak "view-clients" or "manage-clients" role of the "realm-management" client:
+     * the user's token can list the OAuth clients of the realm.
+     */
+    final public const string ROLE_KEYCLOAK_VIEW_CLIENTS = 'ROLE_KEYCLOAK_VIEW_CLIENTS';
+    /**
+     * Granted by the Keycloak "manage-clients" role of the "realm-management" client:
+     * the user's token can create OAuth clients in the realm.
+     */
+    final public const string ROLE_KEYCLOAK_MANAGE_CLIENTS = 'ROLE_KEYCLOAK_MANAGE_CLIENTS';
+    /**
+     * Granted by the Keycloak "manage-users" role of the "realm-management" client:
+     * the user's token can create, rename and delete the groups of the realm and change their members.
+     */
+    final public const string ROLE_KEYCLOAK_MANAGE_GROUPS = 'ROLE_KEYCLOAK_MANAGE_GROUPS';
 
     private ?string $refreshToken = null;
 

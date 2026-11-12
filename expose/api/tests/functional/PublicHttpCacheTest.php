@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use Alchemy\AuthBundle\Security\UriJwtManager;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Publication;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -29,7 +30,7 @@ class PublicHttpCacheTest extends AbstractExposeTestCase
             ]);
             $this->assertEquals(200, $response->getStatusCode(), $uri);
             $this->assertPubliclyCached($response, 600);
-            $this->assertEqualsCanonicalizing(['Accept', 'Authorization', 'Origin', 'X-Passwords'], $response->getVary());
+            $this->assertEqualsCanonicalizing(['Accept', 'Authorization', 'Origin', 'X-Passwords', 'X-Share-Tokens'], $response->getVary());
         }
     }
 
@@ -108,6 +109,50 @@ class PublicHttpCacheTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         $response = $this->request(null, 'GET', '/publications/'.$child->getId());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertNotPubliclyCached($response);
+    }
+
+    public function testChildOfHiddenPublicationIsNotCacheable(): void
+    {
+        $parent = $this->createPublication(['enabled' => false]);
+        $child = $this->createPublication(['parent' => $parent]);
+        $assetId = $this->createAsset($child);
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(null, 'GET', '/publications/'.$child->getId());
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertNotPubliclyCached($response);
+
+        $response = $this->request(null, 'GET', '/assets/'.$assetId);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertNotPubliclyCached($response);
+    }
+
+    public function testMaxAgeDoesNotExceedExpirationOfAnAncestor(): void
+    {
+        $parent = $this->createPublication([
+            'endDate' => new \DateTimeImmutable('+2 minutes'),
+        ]);
+        $child = $this->createPublication(['parent' => $parent]);
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(null, 'GET', '/publications/'.$child->getId());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue($response->headers->hasCacheControlDirective('public'));
+        $maxAge = (int) $response->headers->getCacheControlDirective('s-maxage');
+        $this->assertGreaterThan(100, $maxAge);
+        $this->assertLessThanOrEqual(120, $maxAge);
+    }
+
+    public function testSignedUrlIsNotCacheable(): void
+    {
+        $publication = $this->createPublication();
+        $this->clearEmBeforeApiCall();
+
+        /** @var UriJwtManager $uriJwtManager */
+        $uriJwtManager = self::getService(UriJwtManager::class);
+        $response = $this->request(null, 'GET', $uriJwtManager->signUri('http://localhost/publications/'.$publication->getId()));
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertNotPubliclyCached($response);
     }

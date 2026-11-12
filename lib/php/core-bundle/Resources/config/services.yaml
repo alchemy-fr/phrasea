@@ -21,3 +21,4 @@ services:
     Alchemy\CoreBundle\Cache\TemporaryCacheFactory: ~
     Alchemy\CoreBundle\Command\DocumentationDumperCommand: ~
     Alchemy\CoreBundle\Upload\MultipartUploader: ~
+    Alchemy\CoreBundle\Env\OriginEnvVarProcessor: ~

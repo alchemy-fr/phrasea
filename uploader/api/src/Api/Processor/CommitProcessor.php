@@ -11,8 +11,10 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
+use App\Entity\UploadLink;
 use App\Form\FormValidator;
 use App\Report\UploaderLogActionInterface;
+use App\Security\UploadLinkUser;
 use App\Security\Voter\TargetVoter;
 use App\Storage\AssetManager;
 use App\Validation\CommitValidator;
@@ -49,6 +51,13 @@ final readonly class CommitProcessor implements ProcessorInterface
         /** @var Request $request */
         $request = $context['request'];
 
+        $user = $this->security->getUser();
+        $link = null;
+        if ($user instanceof UploadLinkUser) {
+            $link = $this->em->find(UploadLink::class, $user->getLinkId())
+                ?? throw new AccessDeniedHttpException('Upload link not found');
+        }
+
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
             $target = $this->em->getRepository(Target::class)->findOneBy([
                 'slug' => $targetSlug,
@@ -59,35 +68,59 @@ final readonly class CommitProcessor implements ProcessorInterface
             $data->setTarget($target);
         }
 
+        if (null !== $link) {
+            if (null === $data->getTarget()) {
+                $data->setTarget($link->getTarget());
+            } elseif ($data->getTarget()->getId() !== $link->getTarget()->getId()) {
+                throw new AccessDeniedHttpException('Cannot upload to this target');
+            }
+        }
+
         if (!$this->security->isGranted(TargetVoter::UPLOAD, $data->getTarget())) {
             throw new AccessDeniedHttpException('Cannot upload to this target');
         }
 
-        $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget(), $request);
+        $data->setFormData($this->formValidator->prepareData($data->getFormData(), $data->getTarget()));
+        $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget());
         if (!empty($errors)) {
             throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors, JSON_THROW_ON_ERROR)));
         }
 
-        $user = $this->security->getUser();
-        if (!$user instanceof JwtUser) {
+        if (null !== $link) {
+            $userId = (string) $link->getOwnerId();
+            $username = 'upload-link:'.($link->getName() ?? $link->getId());
+        } elseif ($user instanceof JwtUser) {
+            $userId = $user->getId();
+            $username = $user->getUsername();
+        } else {
             throw new AccessDeniedHttpException('Authentication required');
         }
 
-        $this->assertFilesCanBeCommitted($data, $user);
+        $this->assertFilesCanBeCommitted($data, $userId, $link);
 
         $totalSize = $this->assetManager->getTotalSize($data->getFiles());
         $data->setTotalSize($totalSize);
 
         $this->commitValidator->validate($data);
 
-        $data->setUserId($user->getId());
+        $data->setUserId($userId);
         $data->setLocale($request->getLocale() ?? $request->getDefaultLocale());
 
         $formData = $data->getFormData();
-        if ($formData['__notify'] ?? false) {
+        // Nobody to notify behind a link: the commit is attributed to its creator
+        if (null === $link && ($formData['__notify'] ?? false)) {
             $data->setNotify(true);
         }
         $data->setFormData(FormValidator::cleanExtraFields($formData));
+
+        if (null !== $link) {
+            $data->setNotify(false);
+            $data->setUploadLink($link);
+            // Before Target.data is merged by the handler: only what was entered
+            $link->setLastFormData([] !== $data->getFormData() ? $data->getFormData() : null);
+            $link->setLastCommitAt(new \DateTimeImmutable());
+            $this->em->flush();
+        }
 
         $this->bus->dispatch($data->toMessage());
 
@@ -96,8 +129,8 @@ final readonly class CommitProcessor implements ProcessorInterface
             UploaderLogActionInterface::UPLOAD_COMMIT,
             $data->getId(),
             [
-                'userId' => $user->getId(),
-                'username' => $user->getUsername(),
+                'userId' => $userId,
+                'username' => $username,
                 'totalSize' => $totalSize,
                 'fileCount' => count($data->getFiles()),
             ]
@@ -106,7 +139,10 @@ final readonly class CommitProcessor implements ProcessorInterface
         return new JsonResponse(true);
     }
 
-    private function assertFilesCanBeCommitted(Commit $commit, JwtUser $user): void
+    /**
+     * The files of a link are committed through it only, the ones of a user by them only.
+     */
+    private function assertFilesCanBeCommitted(Commit $commit, string $userId, ?UploadLink $link): void
     {
         $files = array_values(array_unique($commit->getFiles()));
         if (empty($files) || array_any($files, fn ($id): bool => !is_string($id) || !Uuid::isValid($id))) {
@@ -120,7 +156,10 @@ final readonly class CommitProcessor implements ProcessorInterface
         }
 
         foreach ($assets as $asset) {
-            if ($asset->getUserId() !== $user->getId()
+            $owned = null !== $link
+                ? $asset->getUploadLink()?->getId() === $link->getId()
+                : null === $asset->getUploadLink() && $asset->getUserId() === $userId;
+            if (!$owned
                 || $asset->getTarget()?->getId() !== $commit->getTarget()->getId()
                 || $asset->isCommitted()) {
                 throw new AccessDeniedHttpException(sprintf('File "%s" cannot be committed', $asset->getId()));

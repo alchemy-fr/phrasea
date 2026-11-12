@@ -8,6 +8,7 @@ import {
     FilterIcon,
     ImagesIcon,
     InfoIcon,
+    KeyRoundIcon,
     ListIcon,
     PencilIcon,
     PlugIcon,
@@ -25,7 +26,7 @@ import {
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
-import type {DialogSize} from '@/components/ui/dialog';
+import type {DialogSize} from '@alchemy/next-ui/ui/dialog';
 import {routes} from '@/lib/routes';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {WorkspaceInfoTab} from './tabs/WorkspaceInfoTab';
@@ -39,6 +40,7 @@ import {RenditionDefinitionsTab} from './tabs/RenditionDefinitionsTab';
 import {RenditionPoliciesTab} from './tabs/RenditionPoliciesTab';
 import {AssetPoliciesTab} from './tabs/AssetPoliciesTab';
 import {IntegrationsTab} from './tabs/IntegrationsTab';
+import {SecretsTab} from './tabs/SecretsTab';
 import {FilterRulesTab} from './tabs/FilterRulesTab';
 import {WorkspaceImportsTab} from '@/features/import/WorkspaceImportsTab';
 
@@ -154,6 +156,13 @@ function useTabs(workspace?: Workspace): DialogTab<WorkspaceTabProps>[] {
             title: t('workspace.manage.integrations', 'Integrations'),
             icon: <PlugIcon />,
             component: IntegrationsTab,
+            enabled: canEdit,
+        },
+        {
+            id: 'secrets',
+            title: t('workspace.manage.secrets', 'Secrets & variables'),
+            icon: <KeyRoundIcon />,
+            component: SecretsTab,
             enabled: canEdit,
         },
         {

@@ -10,6 +10,7 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Profile\Profile;
 use App\Entity\Profile\ProfileItem;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\ProfileVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
@@ -72,6 +73,7 @@ class ProfileOutputMapper implements OutputMapperInterface
             $output->setCapabilities([
                 'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
                 'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'share' => $this->isGranted(ProfileVoter::SHARE, $data),
                 'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }

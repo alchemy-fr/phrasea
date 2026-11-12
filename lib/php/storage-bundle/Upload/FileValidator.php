@@ -4,54 +4,84 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Upload;
 
+use Alchemy\StorageBundle\Storage\InlineContentTypePolicy;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Mime\MimeTypes;
 
+/**
+ * Checks the (MIME type, extension) couple of an uploaded file.
+ *
+ * Allowed types are written "mask(.ext1,.ext2),mask2(…)" (ALLOWED_FILE_TYPES):
+ * a file is accepted when one mask matches its type AND lists its extension.
+ * A mask without extensions accepts the extensions registered for the file type
+ * (Symfony MIME database). "*" only stands for the subtype ("image/*"): a mask
+ * with a wildcard main type, which would accept any type, is refused.
+ * An empty configuration accepts every file.
+ */
 final class FileValidator
 {
     /**
-     * @var array{string, string[]}
+     * @var array<string, string[]>|null extensions (lower case, without dot) by type mask
      */
-    private array $allowedTypes;
+    private ?array $parsedTypes = null;
 
+    /**
+     * The configuration is parsed on first use: an invalid one only breaks uploads,
+     * not every service depending on this one.
+     *
+     * @param array<string, string[]>|string $allowedTypes
+     */
     public function __construct(
-        array|string $allowedTypes,
+        private readonly array|string $allowedTypes,
     ) {
-        $this->allowedTypes = $this->normalizeTypes($allowedTypes);
+    }
+
+    /**
+     * @return array<string, string[]>
+     */
+    private function getAllowedTypes(): array
+    {
+        return $this->parsedTypes ??= $this->normalizeTypes($this->allowedTypes);
     }
 
     private function normalizeTypes(array|string $value): array
     {
         if (is_string($value)) {
             $types = [];
-            preg_match_all('/([\w*]+\/[\w*]+)(\([\w,.]*\))?/', $value, $matches);
+            preg_match_all('#([\w*]+/[\w*+.-]+)\s*(\([^)]*\))?#', $value, $matches);
 
-            foreach ($matches[0] as $i => $match) {
+            foreach ($matches[1] as $i => $mask) {
                 $extensions = [];
-
                 if (!empty($matches[2][$i])) {
-                    $extensions = array_map(function (string $ext): string {
-                        return preg_replace('#^\.#', '', trim($ext));
-                    }, explode(',', substr($matches[2][$i], 1, -1)));
+                    $extensions = explode(',', substr($matches[2][$i], 1, -1));
                 }
 
-                $types[$matches[1][$i]] = $extensions;
+                $types[$mask] = array_merge($types[$mask] ?? [], $extensions);
             }
 
-            return $types;
+            $value = $types;
         }
 
-        return $value;
-    }
+        $normalized = [];
+        foreach ($value as $mask => $extensions) {
+            $mask = strtolower(trim((string) $mask));
+            if (str_starts_with($mask, '*/')) {
+                throw new \InvalidArgumentException(sprintf('Invalid allowed file type "%s": the main type cannot be a wildcard, list the actual MIME types with their extensions (e.g. "application/x-indesign(.indd)")', $mask));
+            }
 
-    private function getAllowedExtensions(): array
-    {
-        return array_merge(...array_values($this->allowedTypes));
+            $normalized[$mask] = array_values(array_unique(array_filter(array_map(
+                static fn (string $ext): string => strtolower(ltrim(trim($ext), '.')),
+                $extensions,
+            ))));
+        }
+
+        return $normalized;
     }
 
     public function validateFile(string $path, ?string $type): void
     {
-        if (empty($this->allowedTypes)) {
+        if (empty($this->getAllowedTypes())) {
             return;
         }
 
@@ -59,35 +89,25 @@ final class FileValidator
         if (null === $type) {
             $type = FileUtil::getTypeFromExtension($extension);
         }
+        $type = InlineContentTypePolicy::normalize($type);
 
-        if (!$this->hasValidType($type)) {
-            throw $this->createException($type, array_keys($this->allowedTypes), 'type');
-        }
-
-        if (!$this->hasValidExtension($extension ?? '')) {
-            throw $this->createException($extension ?? '', $this->getAllowedExtensions(), 'extension');
+        if (null === $type || null === $extension || !$this->isAllowed($type, $extension)) {
+            throw new BadRequestHttpException(sprintf('File type "%s" with extension "%s" is not allowed. Allowed types are %s', $type ?? '', $extension ?? '', $this->describeAllowedTypes()));
         }
     }
 
-    private function createException(string $value, array $allowed, string $type): BadRequestHttpException
+    private function isAllowed(string $type, string $extension): bool
     {
-        return new BadRequestHttpException(sprintf('File %1$s "%2$s" is not allowed. Allowed %1$ss are %3$s',
-            $type,
-            $value,
-            implode(', ', $allowed),
-        ));
-    }
+        foreach ($this->getAllowedTypes() as $mask => $extensions) {
+            if (!$this->matches($type, $mask)) {
+                continue;
+            }
 
-    private function hasValidExtension(string $extension): bool
-    {
-        $allowedExtensions = $this->getAllowedExtensions();
+            if (empty($extensions)) {
+                $extensions = (new MimeTypes())->getExtensions($type);
+            }
 
-        if (in_array($extension, $allowedExtensions, true)) {
-            return true;
-        }
-
-        foreach ($allowedExtensions as $allowedExtension) {
-            if ($this->matches($extension, $allowedExtension)) {
+            if (in_array($extension, $extensions, true)) {
                 return true;
             }
         }
@@ -95,25 +115,24 @@ final class FileValidator
         return false;
     }
 
-    private function hasValidType(string $type): bool
+    private function describeAllowedTypes(): string
     {
-        $allowedTypes = array_keys($this->allowedTypes);
+        $descriptions = [];
+        foreach ($this->getAllowedTypes() as $mask => $extensions) {
+            $descriptions[] = empty($extensions)
+                ? $mask
+                : sprintf('%s (%s)', $mask, implode(', ', array_map(static fn (string $ext): string => '.'.$ext, $extensions)));
+        }
 
-        if (in_array($type, $allowedTypes, true)) {
+        return implode(', ', $descriptions);
+    }
+
+    private function matches(string $type, string $mask): bool
+    {
+        if ($type === $mask) {
             return true;
         }
 
-        foreach ($allowedTypes as $allowedType) {
-            if ($this->matches($type, $allowedType)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function matches(string $value, string $mask): bool
-    {
-        return 1 === preg_match('#^'.str_replace('*', '.+', $mask).'$#', $value);
+        return 1 === preg_match('#^'.str_replace('\*', '[^/]+', preg_quote($mask, '#')).'$#', $type);
     }
 }

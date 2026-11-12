@@ -1,7 +1,7 @@
 'use client';
 
 import {ReactNode, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 type Props<T> = {
     items: T[];

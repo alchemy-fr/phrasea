@@ -86,11 +86,21 @@ final readonly class EntityHttpCacheListener
         }
     }
 
-    private function invalidateAssetCache(Asset $asset): void
+    /**
+     * @param array<array-key, array{id: string}>|null $webVTT the subtitles to purge, the current ones by default
+     */
+    private function invalidateAssetCache(Asset $asset, ?array $webVTT = null): void
     {
         $this->proxyCachePurger->purgeRoute(Asset::GET_ASSET_ROUTE_NAME, [
             'id' => $asset->getId(),
         ]);
+
+        foreach ($webVTT ?? $asset->getWebVTT() ?? [] as $vtt) {
+            $this->proxyCachePurger->purgeRoute(Asset::GET_WEBVTT_ROUTE_NAME, [
+                'id' => $asset->getId(),
+                'vttId' => $vtt['id'],
+            ]);
+        }
     }
 
     public function postUpdate(PostUpdateEventArgs $args): void
@@ -103,6 +113,12 @@ final readonly class EntityHttpCacheListener
             $oldParent = $args->getObjectManager()->getUnitOfWork()->getEntityChangeSet($entity)['parent'][0] ?? null;
             if ($oldParent instanceof Publication) {
                 $this->invalidatePublicationCache($oldParent);
+            }
+        } elseif ($entity instanceof Asset) {
+            // The subtitles removed from the asset are only in the change set.
+            $oldWebVTT = $args->getObjectManager()->getUnitOfWork()->getEntityChangeSet($entity)['webVTT'][0] ?? null;
+            if (is_array($oldWebVTT)) {
+                $this->invalidateAssetCache($entity, $oldWebVTT);
             }
         }
     }

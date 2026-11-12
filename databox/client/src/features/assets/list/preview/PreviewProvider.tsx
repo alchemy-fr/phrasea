@@ -17,9 +17,9 @@ import {
     useDisplayPreferences,
     usePreferencesStore,
 } from '@/features/preferences/store';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {useLiveAsset} from '@/features/assets/assetStore';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {AssetPreview} from './AssetPreview';
 
 type PreviewContextValue = {

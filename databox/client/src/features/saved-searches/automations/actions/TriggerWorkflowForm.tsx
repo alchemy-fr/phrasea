@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {WorkflowIcon} from 'lucide-react';
-import {FieldHelp} from '@/components/ui/input';
+import {FieldHelp} from '@alchemy/next-ui/ui/input';
 import type {ActionDefinition} from './types';
 
 export function TriggerWorkflowForm() {

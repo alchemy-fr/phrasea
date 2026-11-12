@@ -9,6 +9,7 @@ import {
     getWorkspaces,
 } from '@/lib/api/collections';
 import {fetchAllPages} from '@/lib/api/hydra';
+import {compareCollections, insertSorted} from './collectionOrder';
 
 export type CollectionNode = Collection & {
     workspaceId: string;
@@ -301,10 +302,10 @@ export const useCollectionStore = create<State>((set, get) => ({
                 );
                 // keep locally created collections not yet indexed
                 const previous = pagers[key]?.ids ?? [];
-                const ids = page.items.map(c => c.id);
+                let ids = page.items.map(c => c.id);
                 previous.forEach(id => {
-                    if (!ids.includes(id) && collections[id] && !page.next) {
-                        ids.push(id);
+                    if (!ids.includes(id) && collections[id]) {
+                        ids = insertSorted(ids, id, collections);
                     }
                 });
                 pagers[key] = {
@@ -345,14 +346,27 @@ export const useCollectionStore = create<State>((set, get) => ({
             page.items.forEach(c =>
                 ingest(collections, pagers, c, workspaceId, parentId)
             );
+            const pageIds = page.items.map(c => c.id);
+            const first = page.items[0] && collections[page.items[0].id];
+            const head: string[] = [];
+            // Ordered after the page start: local ones not indexed yet
+            const tail: string[] = [];
+            pagers[key].ids
+                .filter(id => !pageIds.includes(id))
+                .forEach(id => {
+                    const c = collections[id];
+                    (first && c && compareCollections(c, first) > 0
+                        ? tail
+                        : head
+                    ).push(id);
+                });
+            let ids = [...head, ...pageIds];
+            tail.forEach(id => {
+                ids = insertSorted(ids, id, collections);
+            });
             pagers[key] = {
                 ...pagers[key],
-                ids: [
-                    ...pagers[key].ids,
-                    ...page.items
-                        .map(c => c.id)
-                        .filter(id => !pagers[key].ids.includes(id)),
-                ],
+                ids,
                 next: page.next,
                 total: page.total,
                 loading: false,
@@ -398,15 +412,16 @@ export const useCollectionStore = create<State>((set, get) => ({
             const parentId = collection.parentId ?? collection.parent?.id;
             const collections = {...s.collections};
             const pagers = {...s.pagers};
-            const isNew = !collections[collection.id];
+            const previous = collections[collection.id];
             collections[collection.id] = {
-                ...collections[collection.id],
+                ...previous,
                 ...collection,
                 workspaceId: wsId,
                 parentId,
             };
-            if (isNew) {
-                const key = pagerKey(wsId, parentId);
+            const node = collections[collection.id];
+            const key = pagerKey(wsId, parentId);
+            if (!previous) {
                 const pager = pagers[key] ?? {
                     ids: [],
                     loading: false,
@@ -415,10 +430,28 @@ export const useCollectionStore = create<State>((set, get) => ({
                 if (!pager.ids.includes(collection.id)) {
                     pagers[key] = {
                         ...pager,
-                        ids: [...pager.ids, collection.id],
+                        ids: insertSorted(
+                            pager.ids,
+                            collection.id,
+                            collections
+                        ),
                         total: (pager.total ?? pager.ids.length) + 1,
                     };
                 }
+            } else if (
+                pagers[key]?.ids.includes(collection.id) &&
+                ((previous.displayName ?? previous.name) !==
+                    (node.displayName ?? node.name) ||
+                    previous.createdAt !== node.createdAt)
+            ) {
+                pagers[key] = {
+                    ...pagers[key],
+                    ids: insertSorted(
+                        pagers[key].ids,
+                        collection.id,
+                        collections
+                    ),
+                };
             }
             const childrenKey = pagerKey(wsId, collection.id);
             if (created && !pagers[childrenKey]) {
@@ -485,15 +518,16 @@ export const useCollectionStore = create<State>((set, get) => ({
                 loading: false,
                 loaded: false,
             };
-            pagers[newKey] = {...target, ids: [...target.ids, id]};
-
-            return {
-                pagers,
-                collections: {
-                    ...s.collections,
-                    [id]: {...node, parentId: newParentId},
-                },
+            const collections = {
+                ...s.collections,
+                [id]: {...node, parentId: newParentId},
             };
+            pagers[newKey] = {
+                ...target,
+                ids: insertSorted(target.ids, id, collections),
+            };
+
+            return {pagers, collections};
         }),
 }));
 

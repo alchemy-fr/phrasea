@@ -1,5 +1,5 @@
 import {api} from '@/lib/api/http';
-import type {ClientTheme} from './customTheme';
+import type {ClientTheme} from '@alchemy/next-theme/customTheme';
 
 /**
  * The organisation theme as stored by the API (the `databox.theme` entry of

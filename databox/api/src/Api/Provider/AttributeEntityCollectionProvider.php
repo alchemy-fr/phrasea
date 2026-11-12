@@ -10,10 +10,10 @@ use App\Api\EntityIriConverter;
 use App\Api\Traits\CollectionProviderAwareTrait;
 use App\Api\Traits\WorkspaceCollectionTrait;
 use App\Elasticsearch\AttributeEntitySearch;
+use App\Elasticsearch\AttributeValueSearch;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
-use App\Repository\Core\AttributeRepository;
 use App\Service\Image\ImageSetManager;
 
 final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
@@ -25,7 +25,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
     public function __construct(
         private readonly AttributeEntitySearch $search,
         private readonly EntityIriConverter $entityIriConverter,
-        private readonly AttributeRepository $attributeRepository,
+        private readonly AttributeValueSearch $attributeValueSearch,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly ImageSetManager $imageSetManager,
         private readonly AttributeEntityRepository $attributeEntityRepository,
@@ -88,7 +88,8 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
     }
 
     /**
-     * Counts, per entity of the page, the attribute values referencing it (in the definitions bound to its list).
+     * Counts, per entity of the page, the attribute values referencing it (in the definitions bound to its list),
+     * on the assets the user can read.
      *
      * @param iterable<AttributeEntity> $entities
      */
@@ -101,10 +102,14 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
             }
         }
 
+        $user = $this->getUser();
+        $userId = $user?->getId();
+        $groupIds = $user?->getGroups() ?? [];
+
         foreach ($byList as $listId => $listEntities) {
             $workspaceId = $listEntities[0]->getWorkspaceId();
             $definitionIds = array_map(fn ($d): string => $d->getId(), $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity($workspaceId, $listId));
-            $usage = $this->attributeRepository->countUsage($definitionIds, array_map(fn (AttributeEntity $e): string => $e->getId(), $listEntities));
+            $usage = $this->attributeValueSearch->countUsage($userId, $groupIds, $definitionIds, array_map(fn (AttributeEntity $e): string => $e->getId(), $listEntities));
             foreach ($listEntities as $entity) {
                 $entity->setUsage($usage[$entity->getId()] ?? ['attributes' => 0, 'humanAttributes' => 0]);
             }

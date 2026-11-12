@@ -1,0 +1,26 @@
+framework:
+    rate_limiter:
+        # Wrong passwords of a publication, by client IP and security container
+        publication_password:
+            policy: sliding_window
+            limit: 10
+            interval: '15 minutes'
+            cache_pool: rate_limiter.cache
+        # Download links sent by email, by client IP
+        download_request:
+            policy: sliding_window
+            limit: 10
+            interval: '1 hour'
+            cache_pool: rate_limiter.cache
+        # Download links sent by email, by recipient address
+        download_request_recipient:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
+            cache_pool: rate_limiter.cache
+        # Publication and asset views, by client IP
+        client_log:
+            policy: sliding_window
+            limit: 60
+            interval: '1 minute'
+            cache_pool: rate_limiter.cache

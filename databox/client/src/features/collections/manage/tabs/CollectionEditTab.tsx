@@ -6,12 +6,12 @@ import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {Privacy} from '@/types/api';
 import type {CollectionTabProps} from '../CollectionManageRoute';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {PrivacyField} from '@/components/form/PrivacyField';
 import {TranslatableField} from '@/components/form/TranslatableField';
 import {putCollection} from '@/lib/api/collections';
 import {useCollectionStore} from '../../collectionStore';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 
 export function CollectionEditTab({collection, refresh}: CollectionTabProps) {
     const {t} = useTranslation();

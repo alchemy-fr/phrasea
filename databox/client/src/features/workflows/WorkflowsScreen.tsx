@@ -9,14 +9,14 @@ import {WorkflowStatus} from '@/types/api';
 import {getWorkflows} from '@/lib/api/misc';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     EmptyState,
     Skeleton,
     Tabs,
     TabsList,
     TabsTrigger,
-} from '@/components/ui/misc';
+} from '@alchemy/next-ui/ui/misc';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {formatDateTime} from '@/lib/utils/format';
 import {routes} from '@/lib/routes';
@@ -26,6 +26,7 @@ import {
     workflowStatusBadge,
     workflowTitle,
 } from './workflowLabel';
+import {ScrollablePage} from '@/components/layout/ScrollablePage';
 
 const statusFilters = {
     started: WorkflowStatus.Started,
@@ -86,9 +87,9 @@ export function WorkflowsScreen() {
                     )}
                 />
             ) : (
-                <div
+                <ScrollablePage
                     data-testid="workflows-screen"
-                    className="mx-auto w-full max-w-5xl space-y-4 overflow-y-auto p-4"
+                    className="max-w-5xl"
                 >
                     <div className="flex flex-wrap items-center gap-3">
                         <WorkflowIcon className="size-5 text-muted-foreground" />
@@ -206,7 +207,7 @@ export function WorkflowsScreen() {
                             {t('common.load_more', 'Load more')}
                         </Button>
                     ) : null}
-                </div>
+                </ScrollablePage>
             )}
         </RequireAuth>
     );

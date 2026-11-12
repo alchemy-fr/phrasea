@@ -3,3 +3,8 @@ alchemy_auth_permissions:
   name_prefix: alchemy_auth_
   resource: 'Alchemy\AuthBundle\Controller\PermissionsController'
   type: attribute
+
+alchemy_auth_groups:
+  name_prefix: alchemy_auth_
+  resource: 'Alchemy\AuthBundle\Controller\GroupsController'
+  type: attribute

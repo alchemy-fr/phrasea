@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api\Asset;
 
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\AttributeEntity;
@@ -298,8 +299,28 @@ final class AssetActionsTest extends AbstractDataboxTestCase
         $this->assertCount(1, $states);
         $this->assertSame(self::OWNER, $states[0]->getInitiatorId());
 
+        // While the run is going on, a second click must not run the ingest twice
+        $this->setWorkflowStatus($states[0]->getId(), ModelWorkflowState::STATUS_STARTED);
         $this->request('PUT', '/assets/'.$asset->getId().'/trigger-workflow', self::OWNER, []);
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertCount(1, $this->findWorkflowStates($asset->getId()));
+
+        $this->setWorkflowStatus($states[0]->getId(), ModelWorkflowState::STATUS_SUCCESS);
+        $this->request('PUT', '/assets/'.$asset->getId().'/trigger-workflow', self::OWNER, []);
+        $this->assertResponseIsSuccessful();
         $this->assertCount(2, $this->findWorkflowStates($asset->getId()));
+    }
+
+    private function setWorkflowStatus(string $workflowId, int $status): void
+    {
+        self::getEntityManager()->createQueryBuilder()
+            ->update(WorkflowState::class, 'w')
+            ->set('w.status', ':status')
+            ->andWhere('w.id = :id')
+            ->setParameter('status', $status)
+            ->setParameter('id', $workflowId)
+            ->getQuery()
+            ->execute();
     }
 
     public function testElasticsearchDocumentIsReservedToTechUsers(): void

@@ -25,8 +25,9 @@ class DashboardController extends AbstractAdminDashboardController
     public function configureMenuItems(): iterable
     {
         $submenu1 = [
-            MenuItem::linkToRoute('Target params permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'target_params']),
-            MenuItem::linkToRoute('Form schema permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'form_schema']),
+            MenuItem::linkToRoute('Target params permissions', '', GlobalPermissionsController::ROUTE_TARGET_DATA),
+            MenuItem::linkToRoute('Form schema permissions', '', GlobalPermissionsController::ROUTE_FORM_SCHEMA),
+            MenuItem::linkToRoute('Upload link permissions', '', GlobalPermissionsController::ROUTE_UPLOAD_LINK),
             MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)', ''),
         ];
 
@@ -37,14 +38,8 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(MultipartUploadCrudController::class, 'MultipartUpload', ''),
         ];
 
-        $submenu3 = [
-            MenuItem::linkTo(FormSchemaCrudController::class, 'FormSchema', ''),
-            MenuItem::linkTo(TargetParamsCrudController::class, 'TargetParams', ''),
-        ];
-
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Uploads', 'fas fa-folder-open')->setSubItems($submenu2);
-        yield MenuItem::subMenu('Data', 'fas fa-folder-open')->setSubItems($submenu3);
         yield NotifierAdminMenu::createMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();

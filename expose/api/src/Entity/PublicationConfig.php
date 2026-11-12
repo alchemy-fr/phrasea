@@ -9,6 +9,7 @@ use App\Model\MapOptions;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Configuration of a publication or a profile.
@@ -18,6 +19,7 @@ class PublicationConfig implements MergeableValueObjectInterface
 {
     final public const string SECURITY_METHOD_PASSWORD = 'password';
     final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
+    private const string PASSWORD_OPTION = 'password';
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
@@ -40,10 +42,12 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Length(max: 20)]
     private ?string $layout = null;
 
     #[ORM\Column(type: Types::STRING, length: 30, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Length(max: 30)]
     private ?string $theme = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
@@ -64,10 +68,12 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Valid]
     private TermsConfig $terms;
 
     #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Valid]
     private TermsConfig $downloadTerms;
 
     /**
@@ -75,11 +81,14 @@ class PublicationConfig implements MergeableValueObjectInterface
      */
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    #[Assert\Length(max: 20)]
     private ?string $securityMethod = null;
 
     /**
-     * If securityMethod="password", you must provide:
+     * If securityMethod="password", the password is set with:
      * {"password":"$3cr3t!"}.
+     * It is stored hashed and never output: a write without a password keeps
+     * the current one.
      */
     #[ORM\Column(type: Types::JSON)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
@@ -176,16 +185,63 @@ class PublicationConfig implements MergeableValueObjectInterface
     public function setSecurityMethod(?string $securityMethod): void
     {
         $this->securityMethod = $securityMethod;
+        if (self::SECURITY_METHOD_PASSWORD !== $securityMethod) {
+            unset($this->securityOptions[self::PASSWORD_OPTION]);
+        }
     }
 
+    /**
+     * The security options, without the password hash.
+     */
     public function getSecurityOptions(): array
     {
-        return $this->securityOptions;
+        $options = $this->securityOptions;
+        unset($options[self::PASSWORD_OPTION]);
+
+        return $options;
     }
 
     public function setSecurityOptions(array $securityOptions): void
     {
+        $password = $securityOptions[self::PASSWORD_OPTION] ?? null;
+        unset($securityOptions[self::PASSWORD_OPTION]);
+
+        $hash = $this->securityOptions[self::PASSWORD_OPTION] ?? null;
         $this->securityOptions = $securityOptions;
+        if (null !== $hash) {
+            $this->securityOptions[self::PASSWORD_OPTION] = $hash;
+        }
+
+        if (is_string($password) && '' !== $password) {
+            $this->securityOptions[self::PASSWORD_OPTION] = password_hash($password, PASSWORD_DEFAULT);
+        }
+    }
+
+    /**
+     * Whether these options carry anything, the password included.
+     */
+    public function hasSecurityOptions(): bool
+    {
+        return !empty($this->securityOptions);
+    }
+
+    /**
+     * Read as "hasPassword": a "hasPassword()" method would be the accessor of
+     * a "password" property for the serializer.
+     */
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    public function getHasPassword(): bool
+    {
+        $hash = $this->securityOptions[self::PASSWORD_OPTION] ?? null;
+
+        return is_string($hash) && '' !== $hash;
+    }
+
+    public function isPasswordValid(string $password): bool
+    {
+        $hash = $this->securityOptions[self::PASSWORD_OPTION] ?? null;
+
+        return is_string($hash) && password_verify($password, $hash);
     }
 
     public function getLayout(): ?string
@@ -228,19 +284,17 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->theme = $theme;
     }
 
-    public function getPassword(): ?string
-    {
-        return $this->securityOptions['password'] ?? null;
-    }
-
+    /**
+     * Sets a new password, hashed. An empty one keeps the current password.
+     */
     public function setPassword(?string $password): void
     {
-        if (!empty($password)) {
-            $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
-            $this->securityOptions['password'] = $password;
-        } else {
-            unset($this->securityOptions['password']);
+        if (null === $password || '' === $password) {
+            return;
         }
+
+        $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
+        $this->securityOptions[self::PASSWORD_OPTION] = password_hash($password, PASSWORD_DEFAULT);
     }
 
     public function getEnabled(): ?bool

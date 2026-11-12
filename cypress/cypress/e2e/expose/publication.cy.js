@@ -1,182 +1,128 @@
 import {exposeUrl} from '../lib/urls';
 
+const viewports = [
+    [320, 480], // Mobile
+    [768, 1024], // Tablet
+    [1280, 800], // Desktop
+];
+
+/**
+ * The media is drawn inside its player, whatever the viewport, and keeps its
+ * aspect ratio.
+ */
+function assertFitted(playerSelector, mediaSelector, ratio) {
+    viewports.forEach(([width, height]) => {
+        cy.viewport(width, height);
+        cy.getBySel('lightbox').should('be.visible');
+        cy.getBySel(playerSelector).should($player => {
+            const box = $player[0].getBoundingClientRect();
+            const media = $player.find(mediaSelector)[0];
+            expect(media, mediaSelector).to.exist;
+            const rect = media.getBoundingClientRect();
+
+            expect(rect.width, 'width').to.be.greaterThan(0);
+            expect(rect.width, 'width').to.be.lte(box.width + 1);
+            expect(rect.height, 'height').to.be.lte(box.height + 1);
+            expect(rect.width / rect.height, 'ratio').to.be.closeTo(ratio, ratio * 0.03);
+        });
+    });
+}
+
+function assertAsset(title, description) {
+    cy.getBySel('asset-legend').should('contain', title).and('contain', description);
+}
+
+/**
+ * Fired on the document: on the body, Cypress targets the element at its
+ * center, which can sit in a shadow root (the audio waveform) that the event
+ * does not leave.
+ */
+function press(key) {
+    cy.document().trigger('keydown', {key});
+}
+
+function next() {
+    press('ArrowRight');
+}
+
 describe('Visit publication', () => {
     it('is responsive lightbox', () => {
+        cy.viewport(1280, 800);
         cy.visit(`${exposeUrl}/test-pub`);
         cy.contains('Test publication');
         cy.contains('This is a test publication.');
 
-        cy.get('.thumbContainer').eq(0).click();
-        cy.contains('A wide image');
-        cy.contains('This is a wide image');
+        cy.getBySel('grid-item').eq(0).click();
+        cy.getBySel('lightbox').should('be.visible');
+        assertAsset('A wide image', 'This is a wide image');
+        assertFitted('zoomable-image', 'img', 1000 / 100);
 
-        cy.get('.lightbox').should('be.visible');
-        cy.get('.lb-media-container').should('be.visible');
+        next();
+        assertAsset('A classic image', 'This is a classic image');
+        assertFitted('zoomable-image', 'img', 1024 / 683);
 
-        const assertDimensionEquals = (dimension, expected, mediaSelector) => {
-            const sel = '.lb-media-container ' + mediaSelector;
-            cy.get(sel)
-                .invoke(dimension)
-                .should('be.lte', Math.ceil(expected + 1))
-                .and('be.gte', Math.floor(expected - 1));
-        };
+        next();
+        assertAsset('A tall image', 'This is a tall image');
+        assertFitted('zoomable-image', 'img', 100 / 1000);
 
-        const assertDimensionsEquals = (width, height, mediaSelector) => {
-            assertDimensionEquals('innerWidth', width, mediaSelector);
-            assertDimensionEquals('innerHeight', height, mediaSelector);
-        };
+        press('ArrowLeft');
+        assertAsset('A classic image', 'This is a classic image');
 
-        let ratio = 100 / 1000;
-        cy.viewport(320, 480); // Mobile
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(320, 320 * ratio, 'img');
+        next();
+        assertAsset('A tall image', 'This is a tall image');
+        next();
+        assertAsset('A test audio', 'This is a test audio');
+        cy.getBySel('audio-player').should('be.visible');
 
-        cy.viewport(768, 1024); // Tablet
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(768, 768 * ratio, 'img');
+        next();
+        assertAsset('A classic video', 'This is a classic video');
+        cy.get('[data-testid=video-player] video').should($video => {
+            expect($video[0].readyState, 'readyState').to.be.gte(1);
+        });
+        assertFitted('video-player', 'video', 2560 / 1440);
 
-        cy.viewport(1280, 800); // Desktop
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(1000, 1000 * ratio, 'img');
+        next();
+        assertAsset('A tall video', 'This is a tall video');
+        cy.get('[data-testid=video-player] video').should($video => {
+            expect($video[0].readyState, 'readyState').to.be.gte(1);
+        });
+        assertFitted('video-player', 'video', 2160 / 4096);
 
-        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
-        cy.contains('A classic image');
-        cy.contains('This is a classic image');
-        ratio = 683 / 1024;
+        next();
+        assertAsset('A one page PDF document', 'This is a one page PDF document');
+        cy.getBySel('pdf-viewer').should('be.visible');
+        cy.getBySel('pdf-page-count', {timeout: 30000}).should('have.text', '/ 1');
 
-        cy.viewport(320, 480); // Mobile
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(320, 320 * ratio, 'img');
+        next();
+        assertAsset('A two page PDF document', 'This is a two page PDF document');
+        cy.getBySel('pdf-page-count', {timeout: 30000}).should('have.text', '/ 2');
 
-        cy.viewport(768, 1024); // Tablet
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(768, 768 * ratio, 'img');
+        // Zooming scrolls the pages inside the viewer, which keeps its size
+        cy.getBySel('pdf-viewer').then($viewer => {
+            const initialWidth = $viewer[0].getBoundingClientRect().width;
 
-        cy.viewport(1280, 800); // Desktop
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(1016, 1016 * ratio, 'img');
+            for (let i = 0; i < 5; i++) {
+                cy.getBySel('pdf-zoom-in').click();
+            }
 
-        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
-        cy.contains('A tall image');
-        cy.contains('This is a tall image');
-        ratio = 1000 / 100;
+            cy.window().then(win => {
+                cy.getBySel('pdf-viewer').should($v => {
+                    const box = $v[0].getBoundingClientRect();
+                    expect(box.width, 'viewer width').to.be.closeTo(initialWidth, 1);
+                    expect(box.right, 'viewer right').to.be.lte(win.innerWidth);
 
-        cy.viewport(320, 480); // Mobile
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(28.8555, 28.8555 * ratio, 'img');
-
-        cy.viewport(768, 1024); // Tablet
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(61.4335, 61.4335 * ratio, 'img');
-
-        cy.viewport(1280, 800); // Desktop
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(68.8555, 68.8555 * ratio, 'img');
-
-        cy.get('body').trigger('keydown', {key: 'ArrowLeft'});
-        cy.contains('A classic image');
-        cy.contains('This is a classic image');
-
-        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
-        cy.contains('A tall image');
-        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
-        cy.contains('A test audio');
-        cy.contains('This is a test audio');
-        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
-        cy.contains('A classic video');
-        cy.contains('This is a classic video');
-
-        cy.get('.lb-media-container video').should('be.visible');
-        cy.get('video')
-            .should('have.prop', 'paused', true)
-            .and('have.prop', 'ended', false);
-
-        cy.get('video').then($video => {
-            return new Cypress.Promise(resolve => {
-                $video.on('loadedmetadata', () => {
-                    resolve();
+                    const scroll = $v.find('[data-testid=pdf-scroll]')[0];
+                    expect(scroll.scrollWidth, 'scroll width').to.be.greaterThan(scroll.clientWidth);
                 });
+                cy.getBySel('asset-legend')
+                    .should('be.visible')
+                    .and($legend => {
+                        expect($legend[0].getBoundingClientRect().right, 'legend right').to.be.lte(win.innerWidth);
+                    });
             });
         });
 
-        ratio = 1440 / 2560;
-        cy.viewport(320, 480); // Mobile
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(320, 320 * ratio, 'video');
-
-        cy.viewport(768, 1024); // Tablet
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(768, 768 * ratio, 'video');
-
-        cy.viewport(1280, 800); // Desktop
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(1016, 1016 * ratio, 'video');
-
-        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
-        cy.contains('A tall video');
-        cy.contains('This is a tall video');
-        cy.get('.lb-media-container video').should('be.visible');
-        cy.get('video')
-            .should('have.prop', 'paused', true)
-            .and('have.prop', 'ended', false);
-
-        cy.get('video').then($video => {
-            return new Cypress.Promise(resolve => {
-                $video.on('loadedmetadata', () => {
-                    resolve();
-                });
-            });
-        });
-
-        ratio = 4096 / 2160;
-        cy.viewport(320, 480); // Mobile
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(151.88555, 151.88555 * ratio, 'video');
-
-        cy.viewport(768, 1024); // Tablet
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(324, 324 * ratio, 'video');
-
-        cy.viewport(1280, 800); // Desktop
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(362.81555, 362.81555 * ratio, 'video');
-
-        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
-        cy.contains('A one page PDF document');
-        cy.contains('This is a one page PDF document');
-
-        ratio = 11 / 8.5;
-        cy.viewport(320, 480); // Mobile
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(222, 222 * ratio, '.react-pdf__Document');
-
-        cy.viewport(768, 1024); // Tablet
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(222, 222 * ratio, '.react-pdf__Document');
-
-        cy.viewport(1280, 800); // Desktop
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(531, 531 * ratio, '.react-pdf__Document');
-
-        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
-        cy.contains('A two page PDF document');
-        cy.contains('This is a two page PDF document');
-
-        ratio = 8.50 / 11.93;
-        cy.viewport(320, 480); // Mobile
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(320, 320 * ratio, '.react-pdf__Document');
-
-        cy.viewport(768, 1024); // Tablet
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(768, 768 * ratio, '.react-pdf__Document');
-
-        cy.viewport(1280, 800); // Desktop
-        cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(965, 965 * ratio, '.react-pdf__Document');
-
-        // Close lightbox
-        cy.get('.lb-close').click();
-        cy.get('.lightbox').should('not.exist');
+        cy.getBySel('lightbox-close').click();
+        cy.getBySel('lightbox').should('not.exist');
     });
 });

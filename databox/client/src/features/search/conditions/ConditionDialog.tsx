@@ -4,11 +4,11 @@ import {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {CodeIcon, WandSparklesIcon} from 'lucide-react';
 import type {AQLQuery} from '@/types/api';
-import type {ModalProps} from '@/components/modals/ModalProvider';
-import {FormDialog} from '@/components/modals/FormDialog';
-import {Textarea} from '@/components/ui/input';
-import {Alert, Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
-import {LabeledControl, Switch} from '@/components/ui/controls';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import {Textarea} from '@alchemy/next-ui/ui/input';
+import {Alert, Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
+import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import type {SearchContextValue} from '../SearchProvider';
 import {parseAQL} from '../aql/parser';
 import {astToString} from '../aql/serializer';
@@ -24,9 +24,9 @@ import {
     emptyCondition,
     normalizeExpression,
 } from './ConditionBuilder';
-import {InlineLoader} from '@/components/ui/loader';
-import {cn} from '@/lib/utils/cn';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 
 type Props = ModalProps<string> & {
     condition?: AQLQuery;

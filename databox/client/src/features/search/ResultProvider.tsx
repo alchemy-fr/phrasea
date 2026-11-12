@@ -15,9 +15,10 @@ import {searchAssets, SearchAssetsOptions} from '@/lib/api/assets';
 import {isAbortError} from '@/lib/api/http';
 import {useSearch} from './SearchProvider';
 import {conditionQuery, resolveSortBy} from './searchState';
+import {appendPage} from './resultPages';
 import {useAssetStore} from '@/features/assets/assetStore';
-import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
-import {trackSiteSearch} from '@/lib/analytics/matomo';
+import {useRenditionUpdate} from '@/lib/realtime/renditionUpdates';
+import {trackSiteSearch} from '@alchemy/next-core/analytics/matomo';
 
 export type ResultContextValue = {
     pages: Asset[][];
@@ -77,13 +78,9 @@ export function ResultProvider({
     const storeAssets = useAssetStore(s => s.setAssets);
     const reloadAsset = useAssetStore(s => s.reloadAsset);
 
-    useChannelEvent(
-        'assets',
-        'rendition-update',
-        (event: {assetId: string}) => {
-            void reloadAsset(event.assetId);
-        }
-    );
+    useRenditionUpdate(event => {
+        void reloadAsset(event.assetId);
+    });
 
     const extraOptionsKey = JSON.stringify(extraOptions ?? null);
     const stableExtraOptions = useMemo(
@@ -157,7 +154,7 @@ export function ResultProvider({
                 }
                 setState(prev => ({
                     pages: nextUrl
-                        ? [...prev.pages, result.items]
+                        ? appendPage(prev.pages, result.items)
                         : [result.items],
                     checksum,
                     next: result.next,

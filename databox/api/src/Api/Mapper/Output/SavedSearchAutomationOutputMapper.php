@@ -40,11 +40,13 @@ class SavedSearchAutomationOutputMapper implements OutputMapperInterface
         $output->setUpdatedAt($data->getUpdatedAt());
 
         $output->savedSearchId = $data->getSavedSearch()?->getId();
+        $output->workspaceId = $data->getWorkspaceId();
         $output->name = $data->getName();
         $output->enabled = $data->isEnabled();
         $output->schedule = $data->getSchedule();
         $output->timezone = $data->getTimezone();
         $output->scope = $data->getScope()->value;
+        $output->maxAssetsPerRun = $data->getMaxAssetsPerRun();
         $output->actions = array_map(fn (array $action): array => [
             'type' => $action['type'],
             'config' => $this->secretsHandler->mask($action['type'], $action['config'] ?? []),

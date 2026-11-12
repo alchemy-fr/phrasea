@@ -29,6 +29,18 @@ class GroupRepository extends AbstractKeycloakRepository implements GroupReposit
     }
 
     /**
+     * Drops the cached list of the groups and, with an ID, the cached group: after a change made
+     * through the admin API, they would be stale until the cache expires.
+     */
+    public function invalidateGroup(?string $groupId = null): void
+    {
+        $this->keycloakRealmCache->delete('groups');
+        if (null !== $groupId) {
+            $this->keycloakRealmCache->delete('groups_'.$groupId);
+        }
+    }
+
+    /**
      * Not cached: the membership must be the current one.
      */
     public function getGroupMemberIds(string $groupId): array

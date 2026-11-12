@@ -87,6 +87,8 @@ class AutomationRunCrudController extends AbstractAdminCrudController
         yield IntegerField::new('newCount', 'New');
         yield IntegerField::new('processedCount', 'Processed');
         yield IntegerField::new('failedCount', 'Failed');
+        yield BooleanField::new('limitReached')
+            ->renderAsSwitch(false);
         yield JsonField::new('actionResults')
             ->hideOnIndex();
         yield TextareaField::new('error')

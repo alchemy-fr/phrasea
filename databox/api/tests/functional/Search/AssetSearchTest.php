@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Search;
 
+use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Tests\Functional\AbstractSearchTestCase;
 
@@ -334,7 +336,81 @@ class AssetSearchTest extends AbstractSearchTestCase
         $this->getEntityManager()->flush();
         self::releaseIndex();
 
-        $this->assertSortedNames(['ghost_text_s' => 'asc'], ['Lonely']);
+        // Same answer as for an attribute the user cannot read: no existence oracle
+        $client = self::createClient();
+        $client->request('GET', '/assets', ['query' => ['order' => ['ghost_text_s' => 'asc']]]);
+        $this->assertResponseStatusCodeSame(400);
+    }
+
+    /**
+     * The order of the assets would reveal the values of an attribute the user cannot read.
+     */
+    public function testSortOnUnreadableAttributeIsRejected(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $city = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'City',
+            'sortable' => true,
+            'no_flush' => true,
+        ]);
+        $privatePolicy = $this->createAttributePolicy([
+            'workspace' => $workspace,
+            'name' => 'Private',
+            'public' => false,
+            'no_flush' => true,
+        ]);
+        $salary = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Salary',
+            'policy' => $privatePolicy,
+            'sortable' => true,
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+
+        foreach ([
+            'PARIS' => ['Paris', 'b'],
+            'AMSTERDAM' => ['Amsterdam', 'a'],
+        ] as $name => [$cityValue, $salaryValue]) {
+            $this->createAsset([
+                'workspace' => $workspace,
+                'name' => $name,
+                'public' => true,
+                'attributes' => [
+                    [
+                        'definition' => $city,
+                        'value' => $cityValue,
+                    ],
+                    [
+                        'definition' => $salary,
+                        'value' => $salaryValue,
+                    ],
+                ],
+                'no_flush' => true,
+            ]);
+        }
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $client = self::createClient();
+        $client->request('GET', '/assets', ['query' => ['order' => ['salary_text_s' => 'asc']]]);
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('not allowed to read', $client->getResponse()->getContent(false));
+
+        $this->assertSortedNames(['city_text_s' => 'desc'], ['PARIS', 'AMSTERDAM']);
+
+        $this->grantUserOnObject(KeycloakClientTestMock::USER_UID, $privatePolicy, PermissionInterface::VIEW);
+        $response = $client->request('GET', '/assets', [
+            'query' => ['order' => ['salary_text_s' => 'desc']],
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
+        $this->assertSame(['PARIS', 'AMSTERDAM'], array_column($this->getDataFromResponse($response, 200)['member'], 'name'));
     }
 
     public function testSortOnNonSortableBuiltInIsRejected(): void

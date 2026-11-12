@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Admin;
 
-use Alchemy\AdminBundle\Tests\AbstractAdminTestCase;
-
-class AdminTest extends AbstractAdminTestCase
+class AdminTest extends AbstractDataboxAdminTestCase
 {
     public function testAdmin()
     {

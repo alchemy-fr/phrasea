@@ -6,8 +6,8 @@ script that runs the same way locally (in Docker) and in GitHub Actions.
 | Tier | When (GitHub Actions) | Content | Stack | Budget |
 |---|---|---|---|---|
 | **quick** | every push on every branch (`quick.yaml`); pull requests from forks | static checks and unit tests | none | < 8 min |
-| **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, GHCR/ECR push (Cypress smoke: not run in CI, see below) | full | ≈ 20 min |
-| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay (indexer end-to-end: not run in CI, see below); Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
+| **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, Cypress smoke, GHCR/ECR push | full | ≈ 20 min |
+| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay + indexer end-to-end; Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
 
 ## What each tier runs
 
@@ -24,8 +24,8 @@ Every lib in `lib/php/*` runs its own `composer test` (var-dump-check, plus
 PHPUnit for the libs that have tests).
 
 JS (`pnpm test:quick`): `pnpm lint` (eslint), `pnpm typecheck` (`tsc`) and
-`pnpm test` (vitest: `databox/client`, `databox/indexer`
-unit suite, `@alchemy/api`, `@alchemy/auth`, `@alchemy/i18n`).
+`pnpm test` (vitest: the clients, the `databox/indexer`
+unit suite, `@alchemy/api`, `@alchemy/auth`, `@alchemy/next-*`).
 
 In CI the PHP part runs on the runner with `setup-php` and a Composer cache,
 the JS part with pnpm; no image is built.
@@ -43,20 +43,17 @@ Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
 ### Keycloak and report-api in CI
 
 The Keycloak and report-api images are built outside this repository and are
-not pulled by `ci.yaml`. The workflow sets `CONFIGURATOR_CONFIGURE_KEYCLOAK=false`
-and an empty `REPORT_API_URL`, and the scripts follow:
+pulled from `public.ecr.aws`. Anonymous pulls from the shared GitHub runners
+hit its rate and data limits, so `ci.yaml` logs in to ECR Public with the
+`AWS_ECR_ACCESS_KEY_ID`/`AWS_ECR_ACCESS_KEY_SECRET` secrets before pulling.
 
-- `bin/setup.sh` and `bin/test.sh` leave out the `report` profile when
-  `REPORT_API_URL` is empty, and Keycloak when `CONFIGURATOR_CONFIGURE_KEYCLOAK`
-  is `false` (`compose_up_services` in `bin/functions.sh`: Keycloak has no
-  profile, so the other services are listed explicitly);
-- the configurator skips its Keycloak configuration and its Keycloak
-  migrations (`KeycloakMigrationTrait`);
-- the steps that log in through Keycloak, Cypress and the indexer end-to-end,
-  do not run.
-
-The PHP suites do not need either service: they mock Keycloak, and an empty
-`REPORT_API_URL` disables the report client.
+Outside the CI, a stack can still run without them:
+`CONFIGURATOR_CONFIGURE_KEYCLOAK=false` and an empty `REPORT_API_URL` make
+`bin/setup.sh` and `bin/test.sh` leave out Keycloak (`compose_up_services` in
+`bin/functions.sh`: Keycloak has no profile, so the other services are listed
+explicitly) and the `report` profile, and the configurator skip its Keycloak
+configuration and migrations (`KeycloakMigrationTrait`). The PHP suites pass
+that way, but Cypress and the indexer end-to-end log in through Keycloak.
 
 ### release — `bin/test.sh release`
 

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Attribute\AttributeInterface;
+use App\Entity\Core\Attribute;
+use Elastica\Aggregation;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Result;
@@ -122,6 +124,74 @@ class AttributeValueSearch extends AbstractSearch
             'attributeIds' => $attributeIds,
             'total' => $resultSet->getTotalHits(),
         ];
+    }
+
+    /**
+     * How many attribute values of the definitions hold each of the values (an entity ID), and
+     * how many of them were set by a user, across the assets the user may see (quarantined ones
+     * included when the user has access to them).
+     *
+     * @param string[] $definitionIds
+     * @param string[] $values
+     *
+     * @return array<string, array{attributes: int, humanAttributes: int}>
+     */
+    public function countUsage(?string $userId, array $groupIds, array $definitionIds, array $values): array
+    {
+        $values = array_values(array_unique($values));
+        if (empty($definitionIds) || empty($values)) {
+            return [];
+        }
+
+        try {
+            $baseFilters = $this->assetSearch->createBaseFilterQueries($userId, $groupIds, filterStatus: false);
+        } catch (NoWorkspaceAllowedException) {
+            return [];
+        }
+
+        $field = AttributeInterface::VALUES_FIELD;
+        $valueQuery = new Query\BoolQuery();
+        $valueQuery->addFilter(new Query\Terms($field.'.definitionId', array_values($definitionIds)));
+        $valueQuery->addFilter(new Query\Terms($field.'.value', $values));
+
+        $nestedQuery = new Query\Nested();
+        $nestedQuery->setPath($field);
+        $nestedQuery->setQuery($valueQuery);
+
+        $filterQuery = new Query\BoolQuery();
+        foreach ($baseFilters as $filter) {
+            $filterQuery->addFilter($filter);
+        }
+        $filterQuery->addFilter($nestedQuery);
+
+        $human = new Aggregation\Filter('human', new Query\Term([$field.'.origin' => Attribute::ORIGIN_HUMAN]));
+        $byValue = new Aggregation\Terms('values');
+        $byValue->setField($field.'.value');
+        $byValue->setSize(count($values));
+        $byValue->addAggregation($human);
+        // The other values of the matching assets are left out
+        $matching = new Aggregation\Filter('matching', $valueQuery);
+        $matching->addAggregation($byValue);
+        $nested = new Aggregation\Nested('usage', $field);
+        $nested->addAggregation($matching);
+
+        $query = new Query($filterQuery);
+        $query->setSize(0);
+        $query->setTrackTotalHits(false);
+        $query->addAggregation($nested);
+
+        /** @var ResultSet $resultSet */
+        $resultSet = $this->executeSearch(fn (): ResultSet => $this->index->search($query));
+
+        $usage = [];
+        foreach ($resultSet->getAggregation('usage')['matching']['values']['buckets'] ?? [] as $bucket) {
+            $usage[(string) $bucket['key']] = [
+                'attributes' => (int) $bucket['doc_count'],
+                'humanAttributes' => (int) ($bucket['human']['doc_count'] ?? 0),
+            ];
+        }
+
+        return $usage;
     }
 
     /**

@@ -13,6 +13,7 @@ import {
 } from '@/features/annotations/types';
 import {VideoJsPlayer} from './VideoJsPlayer';
 import type {SubtitleTrack} from './subtitles';
+import {MediaPlaybackProvider, useMediaPlayback} from './MediaPlaybackProvider';
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
@@ -113,6 +114,12 @@ const pause = vi.fn(function (this: HTMLMediaElement) {
     media.paused = true;
     this.dispatchEvent(new Event('pause'));
 });
+const play = vi.fn(function (this: HTMLMediaElement) {
+    media.paused = false;
+    this.dispatchEvent(new Event('play'));
+
+    return Promise.resolve();
+});
 
 function SetTarget({target}: {target?: AnnotationTarget}) {
     const ctx = useAnnotations();
@@ -177,6 +184,7 @@ describe('VideoJsPlayer', () => {
         media.currentTime = 0;
         media.duration = 20;
         pause.mockClear();
+        play.mockClear();
         vi.stubGlobal(
             'ResizeObserver',
             class {
@@ -212,20 +220,30 @@ describe('VideoJsPlayer', () => {
             configurable: true,
             value: pause,
         });
+        Object.defineProperty(proto, 'play', {
+            configurable: true,
+            value: play,
+        });
     });
 
     afterEach(() => {
         cleanup();
         vi.unstubAllGlobals();
         // Back to the members of HTMLMediaElement
-        for (const name of ['paused', 'duration', 'currentTime', 'pause']) {
+        for (const name of [
+            'paused',
+            'duration',
+            'currentTime',
+            'pause',
+            'play',
+        ]) {
             Reflect.deleteProperty(HTMLVideoElement.prototype, name);
         }
         Reflect.deleteProperty(URL, 'createObjectURL');
         Reflect.deleteProperty(URL, 'revokeObjectURL');
     });
 
-    it('offers the subtitles as tracks, none shown, revoked once gone', () => {
+    it('offers the subtitles as tracks, the default one marked, revoked once gone', () => {
         let n = 0;
         const createObjectURL = vi.fn(() => `blob:track-${++n}`);
         const revokeObjectURL = vi.fn();
@@ -245,6 +263,7 @@ describe('VideoJsPlayer', () => {
                     label: 'Transcript (French)',
                     locale: 'fr',
                     src: vtt,
+                    default: true,
                 },
             ],
         });
@@ -271,7 +290,7 @@ describe('VideoJsPlayer', () => {
                 src: 'blob:track-2',
                 lang: 'fr',
                 label: 'Transcript (French)',
-                default: false,
+                default: true,
             },
         ]);
         const blob = createObjectURL.mock.calls[0] as unknown as [Blob];
@@ -405,5 +424,61 @@ describe('VideoJsPlayer', () => {
                 name: 'Cue #1',
             }),
         ]);
+    });
+
+    describe('as the player of the asset view', () => {
+        function renderInView(annotate: boolean) {
+            const seen: {ctx?: ReturnType<typeof useMediaPlayback>} = {};
+            function Consumer() {
+                const ctx = useMediaPlayback();
+                useEffect(() => {
+                    seen.ctx = ctx;
+                });
+
+                return null;
+            }
+            render(
+                <TooltipPrimitive.Provider>
+                    <AnnotationsProvider>
+                        <MediaPlaybackProvider>
+                            <VideoJsPlayer
+                                src="https://s3/video.mp4"
+                                type="video/mp4"
+                                annotate={annotate}
+                            />
+                            <Consumer />
+                        </MediaPlaybackProvider>
+                    </AnnotationsProvider>
+                </TooltipPrimitive.Provider>
+            );
+
+            return seen;
+        }
+
+        it('plays from the time asked for, and tells its time', () => {
+            media.paused = true;
+            const seen = renderInView(true);
+            const listener = vi.fn();
+            const unsubscribe = seen.ctx!.subscribeTime(listener);
+
+            expect(seen.ctx?.available).toBe(true);
+            act(() => seen.ctx?.playFrom(12));
+
+            expect(media.currentTime).toBe(12);
+            expect(play).toHaveBeenCalled();
+            expect(pause).not.toHaveBeenCalled();
+            expect(seen.ctx?.currentTime()).toBe(12);
+            expect(listener).toHaveBeenCalled();
+
+            act(() => seen.ctx?.playFrom(50));
+            expect(media.currentTime).toBe(20);
+            unsubscribe();
+        });
+
+        it('is not the player of the view without annotations', () => {
+            const seen = renderInView(false);
+
+            expect(seen.ctx?.available).toBe(false);
+        });
     });
 });

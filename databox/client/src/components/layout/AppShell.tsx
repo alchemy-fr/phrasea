@@ -5,7 +5,7 @@ import {useAuth} from '@/lib/auth/AuthProvider';
 import {LeftPanel} from './LeftPanel';
 import {TopBar} from './TopBar';
 import {useLayoutStore} from './layoutStore';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {GlobalToasts} from '@/features/upload/GlobalToasts';
 import {NotificationUriListener} from '@/features/notifications/NotificationUriListener';
 import {TicketButton} from '@/features/ticketing/TicketButton';
@@ -15,6 +15,7 @@ import {ImpersonationBanner} from '@/features/impersonation/ImpersonationBanner'
 import {useResizablePanel} from '@/hooks/useResizablePanel';
 import {ResizeHandle} from '@/components/ui/resize-handle';
 import {useStoryRenditionRefresh} from '@/features/stories/useStoryRenditionRefresh';
+import {RenditionUpdateFeed} from '@/lib/realtime/renditionUpdates';
 
 export function AppShell({children}: PropsWithChildren) {
     const {status} = useAuth();
@@ -53,6 +54,7 @@ export function AppShell({children}: PropsWithChildren) {
                         {children}
                     </main>
                 </div>
+                <RenditionUpdateFeed />
                 {status === 'authenticated' ? (
                     <>
                         <GlobalToasts />

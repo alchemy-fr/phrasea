@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Cdn;
 
+use Alchemy\StorageBundle\Storage\InlineContentTypePolicy;
 use Aws\CloudFront\CloudFrontClient;
 
 class CloudFrontUrlGenerator
@@ -40,13 +41,27 @@ class CloudFrontUrlGenerator
         return !empty($this->cloudFrontUrl);
     }
 
+    /**
+     * Same options as UrlSigner::getSignedUrl(). The response headers are passed as
+     * response-content-* query parameters: the distribution must forward them to
+     * S3 and include them in its cache key (see doc/tech/Storage/02_cloudfront.md).
+     */
     public function getSignedUrl(string $path, array $options = []): string
     {
         $url = $this->cloudFrontUrl.'/'.$this->pathPrefix.$path;
 
-        if ($options['download'] ?? false) {
-            $url .= '?response-content-disposition=attachment';
+        $headers = InlineContentTypePolicy::getResponseHeaders(
+            $options['type'] ?? null,
+            basename($path),
+            ($options['inline'] ?? false) && !($options['download'] ?? false),
+        );
+        $query = [
+            'response-content-type' => $headers['contentType'],
+        ];
+        if (null !== $headers['contentDisposition']) {
+            $query['response-content-disposition'] = $headers['contentDisposition'];
         }
+        $url .= '?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986);
 
         return $this->cloudFrontClient->getSignedUrl([
             'url' => $url,

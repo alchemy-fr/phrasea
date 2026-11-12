@@ -35,7 +35,13 @@ const nextConfig: NextConfig = {
     },
     turbopack: {},
     // Workspace libraries are shipped as TypeScript sources
-    transpilePackages: ['@alchemy/api'],
+    transpilePackages: [
+        '@alchemy/api',
+        '@alchemy/next-core',
+        '@alchemy/next-i18n',
+        '@alchemy/next-theme',
+        '@alchemy/next-ui',
+    ],
     async redirects() {
         return [
             {

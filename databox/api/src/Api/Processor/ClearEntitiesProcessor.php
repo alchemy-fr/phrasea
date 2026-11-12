@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Consumer\Handler\Search\AttributeEntityListClear;
 use App\Entity\Core\EntityList;
-use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\EntityListVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -27,7 +27,7 @@ class ClearEntitiesProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): EntityList
     {
         $list = DoctrineUtil::findStrict($this->em, EntityList::class, (string) $uriVariables['id']);
-        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
+        $this->denyAccessUnlessGranted(EntityListVoter::EDIT_VALUES, $list);
 
         $this->bus->dispatch(new AttributeEntityListClear($list->getId(), $list->getWorkspace()->getId()));
 

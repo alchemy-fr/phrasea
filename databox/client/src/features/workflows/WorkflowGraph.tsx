@@ -25,7 +25,7 @@ import 'reactflow/dist/base.css';
 import './WorkflowGraph.css';
 import {BanIcon} from 'lucide-react';
 import type {WorkflowDetail} from '@/types/api';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     buildWorkflowGraph,
     jobNodeType,

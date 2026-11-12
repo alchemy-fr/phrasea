@@ -32,6 +32,7 @@ lib/php/configurator-bundle
 lib/php/core-bundle
 lib/php/es-bundle
 lib/php/messenger-bundle
+lib/php/mcp-bundle
 lib/php/metadata-manipulator-bundle
 lib/php/notifier-bundle
 lib/php/rendition-factory
@@ -50,15 +51,9 @@ JS_LIBS="
 lib/js/api
 lib/js/auth
 lib/js/core
-lib/js/i18n
-lib/js/navigation
-lib/js/notification
-lib/js/phrasea-ui
-lib/js/phrasea-framework
-lib/js/react-auth
-lib/js/react-form
-lib/js/react-hooks
-lib/js/react-ps
+lib/js/next-core
+lib/js/next-i18n
+lib/js/next-theme
+lib/js/next-ui
 lib/js/storage
-lib/js/visual-workflow
 "

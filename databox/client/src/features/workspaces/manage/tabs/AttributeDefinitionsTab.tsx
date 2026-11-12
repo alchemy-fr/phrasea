@@ -20,11 +20,11 @@ import {
     putAttributeDefinition,
     sortAttributeDefinitions,
 } from '@/lib/api/metadata';
-import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
-import {SimpleSelect} from '@/components/ui/select';
-import {Badge} from '@/components/ui/misc';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Badge} from '@alchemy/next-ui/ui/misc';
 import {
     NO_LOCALE,
     TranslatableField,
@@ -33,7 +33,7 @@ import {LocalizedCodeField} from '@/components/form/code/LocalizedCodeField';
 import {MetadataTagsField} from '@/components/form/MetadataTagsField';
 import {iri} from '@/lib/utils/iri';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
-import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {EntityListSelect} from '@/components/form/selects';
 import {RenditionPicker} from '@/features/integrations/config/pickers/RenditionPicker';
@@ -277,10 +277,19 @@ function DefinitionForm({
         }
     };
 
-    const flag = (k: keyof typeof form, label: string) => (
-        <LabeledControl key={k} label={label}>
+    const flag = (
+        k: keyof typeof form,
+        label: string,
+        opts: {disabled?: boolean; description?: string} = {}
+    ) => (
+        <LabeledControl
+            key={k}
+            label={label}
+            description={opts.disabled ? opts.description : undefined}
+        >
             <Checkbox
                 checked={!!form[k]}
+                disabled={opts.disabled}
                 onCheckedChange={v => set(k, (v === true) as never)}
             />
         </LabeledControl>
@@ -313,7 +322,17 @@ function DefinitionForm({
                 <FormRow label={t('attribute_def.type', 'Type')}>
                     <SimpleSelect
                         value={form.type}
-                        onValueChange={v => set('type', v as AttributeType)}
+                        onValueChange={v =>
+                            setForm(f => ({
+                                ...f,
+                                type: v as AttributeType,
+                                // An entity attribute is translated through its entity list
+                                translatable:
+                                    v === AttributeType.Entity
+                                        ? false
+                                        : f.translatable,
+                            }))
+                        }
                         options={fieldTypes}
                         disabled={!!d}
                     />
@@ -404,7 +423,14 @@ function DefinitionForm({
                     t(
                         'attribute_def.editable_in_gui',
                         'Editable in the interface'
-                    )
+                    ),
+                    {
+                        disabled: !form.editable,
+                        description: t(
+                            'attribute_def.editable_in_gui_help',
+                            'Requires Editable'
+                        ),
+                    }
                 )}
                 {flag('sortable', t('attribute_def.sortable', 'Sortable'))}
                 {flag(
@@ -413,11 +439,27 @@ function DefinitionForm({
                 )}
                 {flag(
                     'translatable',
-                    t('attribute_def.translatable', 'Translatable')
+                    t('attribute_def.translatable', 'Translatable'),
+                    {
+                        disabled:
+                            form.type === AttributeType.Entity &&
+                            !form.translatable,
+                        description: t(
+                            'attribute_def.translatable_entity_help',
+                            'Entity translations come from the entity list'
+                        ),
+                    }
                 )}
                 {flag(
                     'multiple',
-                    t('attribute_def.multiple_values', 'Multiple values')
+                    t('attribute_def.multiple_values', 'Multiple values'),
+                    {
+                        disabled: form.fillFromName && !form.multiple,
+                        description: t(
+                            'attribute_def.multiple_fill_from_name_help',
+                            'Not available for an attribute used as name'
+                        ),
+                    }
                 )}
                 {flag(
                     'allowInvalid',
@@ -436,7 +478,14 @@ function DefinitionForm({
                     t(
                         'attribute_def.fill_from_name',
                         'Fill from asset name / use as name'
-                    )
+                    ),
+                    {
+                        disabled: form.multiple && !form.fillFromName,
+                        description: t(
+                            'attribute_def.fill_from_name_multiple_help',
+                            'Not available for multiple values attributes'
+                        ),
+                    }
                 )}
             </div>
             {form.fillFromName ? (

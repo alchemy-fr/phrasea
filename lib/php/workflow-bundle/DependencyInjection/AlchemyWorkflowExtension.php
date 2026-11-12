@@ -5,6 +5,7 @@ namespace Alchemy\WorkflowBundle\DependencyInjection;
 use Alchemy\WorkflowBundle\Doctrine\EntityLoadListener;
 use Alchemy\WorkflowBundle\Entity\WorkflowState;
 use Alchemy\WorkflowBundle\Message\JobUpdatePusherHandler;
+use Alchemy\WorkflowBundle\Message\WorkflowUpdatePusherHandler;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -30,8 +31,9 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
 
         if ($config['pusher']['enabled']) {
             $loader->load('pusher.yaml');
-            $def = $container->getDefinition(JobUpdatePusherHandler::class);
-            $def->setArgument('$channelPrefix', $config['pusher']['channel_prefix']);
+            foreach ([JobUpdatePusherHandler::class, WorkflowUpdatePusherHandler::class] as $handlerClass) {
+                $container->getDefinition($handlerClass)->setArgument('$channelPrefix', $config['pusher']['channel_prefix']);
+            }
         }
 
         if (WorkflowState::class !== $config['doctrine']['workflow_state_entity']) {

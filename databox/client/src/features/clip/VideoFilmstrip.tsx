@@ -1,77 +1,56 @@
 'use client';
 
 import {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {cn} from '@/lib/utils/cn';
-import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
 import {
     extractVideoFrames,
     getFilmstripCount,
-    getFilmstripTimes,
+    getFilmstripSlots,
 } from './filmstrip';
+import {
+    captureFrame,
+    createFrameVideo,
+    drawCachedFrame,
+    frameSeekTime,
+    releaseVideo,
+    type VideoFrameCache,
+} from './frameCanvas';
+import {frameIndex, type TimelineView} from './timeline';
 
 /**
- * Draws the current frame of `video` on `canvas`, covering it (like
- * `object-fit: cover`), at the resolution of the screen.
- *
- * A cross-origin video taints the canvas: it is still shown, its pixels just
- * cannot be read back, so the frame is never turned into a data URL.
- */
-function drawFrame(canvas: HTMLCanvasElement, video: HTMLVideoElement) {
-    const dpr = window.devicePixelRatio || 1;
-    const width = Math.round(canvas.clientWidth * dpr);
-    const height = Math.round(canvas.clientHeight * dpr);
-    const {videoWidth, videoHeight} = video;
-    if (!width || !height || !videoWidth || !videoHeight) {
-        return;
-    }
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        return;
-    }
-    const scale = Math.max(width / videoWidth, height / videoHeight);
-    const sw = width / scale;
-    const sh = height / scale;
-    try {
-        ctx.drawImage(
-            video,
-            (videoWidth - sw) / 2,
-            (videoHeight - sh) / 2,
-            sw,
-            sh,
-            0,
-            0,
-            width,
-            height
-        );
-    } catch {
-        // The thumbnail stays empty
-    }
-}
-
-/**
- * Thumbnails of a video, side by side, filling the width of the box: the
- * background of the clip timeline. Decorative.
+ * Thumbnails of the part of a video shown by the timeline, side by side,
+ * filling the width of the box: the background of the clip timeline.
+ * Decorative.
  *
  * The frames are taken by a video element of its own (the player is left
- * alone), seeking to each instant in turn: the thumbnails appear one after
- * the other. A frame which fails to load stays empty, silently.
+ * alone), kept while the source is the same, seeking to each instant in
+ * turn: the thumbnails appear one after the other. A change of the view
+ * restarts the extraction once it settles, and the frames already taken are
+ * drawn again from the cache. A frame which fails to load stays empty,
+ * silently.
  */
 export function VideoFilmstrip({
     src,
     duration,
+    view,
+    frameDuration,
+    cache,
     aspect,
     className,
 }: {
     src: string;
     duration: number;
+    view: TimelineView;
+    frameDuration: number;
+    cache: VideoFrameCache;
     /** Width / height of the video, 16/9 when unknown */
     aspect?: number;
     className?: string;
 }) {
     const ref = useRef<HTMLDivElement>(null);
-    const canvases = useRef<(HTMLCanvasElement | null)[]>([]);
+    const canvases = useRef(new Map<number, HTMLCanvasElement>());
+    const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
     const [size, setSize] = useState({width: 0, height: 0});
 
     useLayoutEffect(() => {
@@ -94,62 +73,130 @@ export function VideoFilmstrip({
         return () => observer.disconnect();
     }, []);
 
+    useEffect(
+        () => () => {
+            if (videoRef.current) {
+                releaseVideo(videoRef.current);
+                videoRef.current = undefined;
+            }
+        },
+        [src]
+    );
+
     const ratio = aspect && aspect > 0 ? aspect : 16 / 9;
-    const frameWidth = size.height * ratio;
-    // Resizing restarts the extraction: only once it settles
-    const count = useDebouncedValue(
+    const count =
         size.width > 0 && size.height > 0
-            ? getFilmstripCount(size.width, size.height, ratio)
-            : 0,
+            ? getFilmstripCount(
+                  size.width,
+                  size.height,
+                  ratio,
+                  frameDuration > 0 ? view.span / frameDuration : undefined
+              )
+            : 0;
+    const seen = new Set<number>();
+    const slots = getFilmstripSlots(view, count, duration)
+        .map(slot => {
+            const frame = frameIndex(slot.time, frameDuration);
+
+            return {
+                ...slot,
+                frame,
+                seekTime: frameSeekTime(frame, frameDuration, duration),
+            };
+        })
+        .filter(slot => {
+            // Two slices may fall on the same frame at the deepest zoom
+            if (seen.has(slot.frame)) {
+                return false;
+            }
+            seen.add(slot.frame);
+
+            return true;
+        });
+    const sliceWidth = count > 0 && view.span > 0 ? 100 / count : 0;
+
+    // Scrolling or zooming restarts the extraction: only once it settles
+    const pending = useDebouncedValue(
+        slots
+            .filter(s => !cache.has(s.frame))
+            .map(s => `${s.frame}:${s.seekTime}`)
+            .join(','),
         200
     );
 
     useEffect(() => {
-        if (count < 1 || !(duration > 0)) {
+        if (!pending) {
             return;
         }
-        const video = document.createElement('video');
-        video.muted = true;
-        video.playsInline = true;
-        video.preload = 'auto';
-        video.src = src;
+        const frames = pending
+            .split(',')
+            .map(p => {
+                const [frame, time] = p.split(':');
+
+                return {frame: Number(frame), time: Number(time)};
+            })
+            .filter(f => !cache.has(f.frame));
+        if (frames.length === 0) {
+            return;
+        }
+        if (!videoRef.current) {
+            videoRef.current = createFrameVideo(src);
+        }
         const controller = new AbortController();
 
         void extractVideoFrames(
-            video,
-            getFilmstripTimes(duration, count),
-            (i, v) => {
-                const canvas = canvases.current[i];
+            videoRef.current,
+            frames.map(f => f.time),
+            (i, video) => {
+                const frame = captureFrame(video);
+                if (!frame) {
+                    return;
+                }
+                cache.set(frames[i].frame, frame);
+                const canvas = canvases.current.get(frames[i].frame);
                 if (canvas) {
-                    drawFrame(canvas, v);
+                    canvas.dataset.drawn = '1';
+                    drawCachedFrame(canvas, frame);
                 }
             },
             controller.signal
         );
 
-        return () => {
-            controller.abort();
-            // Releases the download and the decoder
-            video.removeAttribute('src');
-            video.load();
-        };
-    }, [src, duration, count]);
+        return () => controller.abort();
+    }, [src, cache, pending]);
 
     return (
         <div
             ref={ref}
-            className={cn('flex overflow-hidden bg-muted', className)}
+            className={cn('relative overflow-hidden bg-muted', className)}
             aria-hidden
             data-testid="clip-filmstrip"
         >
-            {Array.from({length: count}, (_, i) => (
+            {slots.map(slot => (
                 <canvas
-                    key={i}
+                    key={slot.frame}
                     ref={el => {
-                        canvases.current[i] = el;
+                        if (!el) {
+                            return;
+                        }
+                        canvases.current.set(slot.frame, el);
+                        const cached = cache.get(slot.frame);
+                        if (cached && el.dataset.drawn !== '1') {
+                            el.dataset.drawn = '1';
+                            drawCachedFrame(el, cached);
+                        }
+
+                        return () => {
+                            if (canvases.current.get(slot.frame) === el) {
+                                canvases.current.delete(slot.frame);
+                            }
+                        };
                     }}
-                    className="h-full flex-none"
-                    style={{width: frameWidth}}
+                    className="absolute inset-y-0 h-full"
+                    style={{
+                        left: `${((slot.start - view.start) / view.span) * 100}%`,
+                        width: `${sliceWidth}%`,
+                    }}
                 />
             ))}
         </div>

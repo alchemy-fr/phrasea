@@ -1,14 +1,21 @@
 'use client';
 
+import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {PlugIcon} from 'lucide-react';
+import {KeyRoundIcon, PlugIcon} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
-import {EmptyState} from '@/components/ui/misc';
+import {
+    EmptyState,
+    Tabs,
+    TabsList,
+    TabsTrigger,
+} from '@alchemy/next-ui/ui/misc';
 import {UrlPathProvider} from '@/lib/navigation/routePath';
 import {routes} from '@/lib/routes';
 import {usePageTrail} from '@/components/layout/layoutStore';
+import {SecretManager} from '@/features/secrets/SecretManager';
 import {IntegrationManager} from './IntegrationManager';
 
 /**
@@ -20,6 +27,9 @@ export function InstanceIntegrationsScreen() {
     const {hasRole} = useAuth();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
     const pathname = usePathname();
+    const [section, setSection] = useState<'integrations' | 'secrets'>(
+        'integrations'
+    );
 
     // Where the user is, shown in the top bar with the way back to the assets
     usePageTrail(
@@ -44,7 +54,7 @@ export function InstanceIntegrationsScreen() {
                 >
                     <div className="flex shrink-0 items-start gap-2">
                         <PlugIcon className="mt-0.5 size-5 text-muted-foreground" />
-                        <div>
+                        <div className="min-w-0 flex-1">
                             <h1 className="text-lg font-semibold">
                                 {t(
                                     'integration.instance.title',
@@ -58,14 +68,49 @@ export function InstanceIntegrationsScreen() {
                                 )}
                             </p>
                         </div>
+                        <Tabs
+                            value={section}
+                            onValueChange={v =>
+                                setSection(v as 'integrations' | 'secrets')
+                            }
+                        >
+                            <TabsList>
+                                <TabsTrigger
+                                    value="integrations"
+                                    data-testid="instance-integrations-tab"
+                                >
+                                    <PlugIcon />
+                                    {t(
+                                        'integration.instance.integrations',
+                                        'Integrations'
+                                    )}
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="secrets"
+                                    data-testid="instance-secrets-tab"
+                                >
+                                    <KeyRoundIcon />
+                                    {t(
+                                        'integration.instance.secrets',
+                                        'Instance secrets & variables'
+                                    )}
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
                     </div>
-                    {/* `/admin/integrations/:id`: the integration edited */}
-                    <UrlPathProvider
-                        base={routes.instanceIntegrations()}
-                        pathname={pathname}
-                    >
-                        <IntegrationManager fill />
-                    </UrlPathProvider>
+                    {section === 'secrets' ? (
+                        <div className="min-h-0 flex-1 overflow-y-auto">
+                            <SecretManager />
+                        </div>
+                    ) : (
+                        // `/admin/integrations/:id`: the integration edited
+                        <UrlPathProvider
+                            base={routes.instanceIntegrations()}
+                            pathname={pathname}
+                        >
+                            <IntegrationManager fill />
+                        </UrlPathProvider>
+                    )}
                 </div>
             )}
         </RequireAuth>

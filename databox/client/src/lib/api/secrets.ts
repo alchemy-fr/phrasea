@@ -1,0 +1,124 @@
+import {api} from './http';
+import {toPage} from './hydra';
+import {
+    EntityName,
+    HydraCollection,
+    Page,
+    SystemEnv,
+    WorkspaceEnv,
+    WorkspaceSecret,
+} from '@/types/api';
+import {iri} from '@/lib/utils/iri';
+
+/**
+ * Where secrets and variables live: a workspace, or the whole instance
+ * (administrators only) without one.
+ */
+export type SecretScope = {workspaceId?: string};
+
+/** Query key prefix of every listing of secrets */
+export const secretsQueryKey = 'workspace-secrets';
+/** Query key prefix of every listing of variables */
+export const envsQueryKey = 'workspace-envs';
+/** Query key prefix of every listing of system variables */
+export const systemEnvsQueryKey = 'system-envs';
+
+function scopeParams({workspaceId}: SecretScope): Record<string, unknown> {
+    return workspaceId ? {workspace: workspaceId} : {global: true};
+}
+
+/** The secrets of a workspace (to its editors) or of the instance, by name */
+export async function getWorkspaceSecrets(
+    scope: SecretScope,
+    signal?: AbortSignal
+): Promise<Page<WorkspaceSecret>> {
+    return toPage(
+        await api.get<HydraCollection<WorkspaceSecret>>(
+            `/${EntityName.WorkspaceSecret}`,
+            {params: {...scopeParams(scope), limit: 100}, signal}
+        )
+    );
+}
+
+/** The variables of a workspace (to its editors) or of the instance, by name */
+export async function getWorkspaceEnvs(
+    scope: SecretScope,
+    signal?: AbortSignal
+): Promise<Page<WorkspaceEnv>> {
+    return toPage(
+        await api.get<HydraCollection<WorkspaceEnv>>(
+            `/${EntityName.WorkspaceEnv}`,
+            {params: {...scopeParams(scope), limit: 100}, signal}
+        )
+    );
+}
+
+/**
+ * The names of the system variables of the instance a reference of the scope
+ * can point to (same rights as the listings of secrets and variables): names
+ * only, without the instance prefix, never their values.
+ */
+export async function getSystemEnvs(
+    scope: SecretScope,
+    signal?: AbortSignal
+): Promise<string[]> {
+    const page = toPage(
+        await api.get<HydraCollection<SystemEnv>>(`/${EntityName.SystemEnv}`, {
+            params: scopeParams(scope),
+            signal,
+        })
+    );
+
+    return page.items.map(e => e.name);
+}
+
+export function postWorkspaceSecret({
+    workspaceId,
+    name,
+    value,
+}: SecretScope & {name: string; value: string}): Promise<WorkspaceSecret> {
+    return api.post<WorkspaceSecret>(`/${EntityName.WorkspaceSecret}`, {
+        workspace: workspaceId ? iri(EntityName.Workspace, workspaceId) : null,
+        name,
+        value,
+    });
+}
+
+/** Replaces the value; the name of a secret cannot change */
+export function putWorkspaceSecret(
+    id: string,
+    data: {value: string}
+): Promise<WorkspaceSecret> {
+    return api.patch<WorkspaceSecret>(
+        `/${EntityName.WorkspaceSecret}/${id}`,
+        data
+    );
+}
+
+export function deleteWorkspaceSecret(id: string): Promise<void> {
+    return api.delete(`/${EntityName.WorkspaceSecret}/${id}`);
+}
+
+export function postWorkspaceEnv({
+    workspaceId,
+    name,
+    value,
+}: SecretScope & {name: string; value: string}): Promise<WorkspaceEnv> {
+    return api.post<WorkspaceEnv>(`/${EntityName.WorkspaceEnv}`, {
+        workspace: workspaceId ? iri(EntityName.Workspace, workspaceId) : null,
+        name,
+        value,
+    });
+}
+
+/** Replaces the value; the name of a variable cannot change */
+export function putWorkspaceEnv(
+    id: string,
+    data: {value: string}
+): Promise<WorkspaceEnv> {
+    return api.patch<WorkspaceEnv>(`/${EntityName.WorkspaceEnv}/${id}`, data);
+}
+
+export function deleteWorkspaceEnv(id: string): Promise<void> {
+    return api.delete(`/${EntityName.WorkspaceEnv}/${id}`);
+}

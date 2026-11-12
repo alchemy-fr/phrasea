@@ -15,6 +15,11 @@ class ProfileVoter extends AbstractVoter
 {
     private const string SCOPE_PREFIX = 'profile:';
 
+    /**
+     * Make the profile public, or grant others access to it.
+     */
+    final public const string SHARE = 'SHARE';
+
     protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof Profile;
@@ -40,8 +45,7 @@ class ProfileVoter extends AbstractVoter
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
-            self::CREATE => $this->isAuthenticated()
-                && $this->security->isGranted(InstancePermission::CREATE_PROFILE),
+            self::CREATE => $this->isAuthenticated(),
             self::READ => $subject->isPublic()
                 || $isOwner()
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
@@ -49,8 +53,9 @@ class ProfileVoter extends AbstractVoter
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::DELETE => $isOwner()
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
-            self::EDIT_PERMISSIONS => $isOwner()
-                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
+            // Sharing its own profiles is an instance capability
+            self::SHARE, self::EDIT_PERMISSIONS => ($isOwner() && $this->security->isGranted(InstancePermission::SHARE_PROFILE))
+                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token, ownershipGrants: false),
             default => false,
         };
     }

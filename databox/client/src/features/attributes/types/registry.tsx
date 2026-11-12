@@ -18,7 +18,7 @@ import {
 } from '@/lib/utils/format';
 import {Highlight} from '@/components/ui/highlight';
 import {pickTranslation} from '@/lib/utils/locale';
-import {FileFamily} from '@/lib/utils/mime';
+import {FileFamily} from '@alchemy/next-ui/utils/mime';
 import {
     AssetStatusChip,
     CollectionChip,
@@ -31,6 +31,7 @@ import {
     WorkspaceChip,
 } from '@/components/chips';
 import {GeoPointMapValue} from '@/features/map/GeoPointMapValue';
+import {WebVttTranscript} from './WebVttTranscript';
 
 export type FormatContext = {
     t: TFunction;
@@ -659,6 +660,20 @@ const jsonType: AttributeTypeDef = {
         typeof value === 'string' ? value : JSON.stringify(value),
 };
 
+/** A transcript: the raw WebVTT is edited and copied */
+const webVttType: AttributeTypeDef = {
+    formats: () => [],
+    format: (value, _f, ctx) => (
+        <WebVttTranscript
+            source={str(value)}
+            highlight={
+                typeof ctx.highlight === 'string' ? ctx.highlight : undefined
+            }
+        />
+    ),
+    formatString: value => str(value),
+};
+
 const htmlType: AttributeTypeDef = {
     rich: true,
     formats: () => [],
@@ -694,7 +709,7 @@ const registry: Record<AttributeType, AttributeTypeDef> = {
     [AttributeType.FileFamily]: fileFamilyType,
     [AttributeType.Rendition]: renditionType,
     [AttributeType.Code]: jsonType,
-    [AttributeType.WebVtt]: jsonType,
+    [AttributeType.WebVtt]: webVttType,
     [AttributeType.Json]: jsonType,
     [AttributeType.Html]: htmlType,
     [AttributeType.Boolean]: booleanType,

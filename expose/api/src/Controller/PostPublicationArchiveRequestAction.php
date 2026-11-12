@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Consumer\Handler\PublicationArchiveRequest;
-use App\Entity\DownloadRequest;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;
+use App\Security\DownloadRequestFactory;
+use App\Security\PublicationDownloadPolicy;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +27,9 @@ final class PostPublicationArchiveRequestAction extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ReportUserService $reportClient,
+        private readonly PublicationDownloadPolicy $downloadPolicy,
+        private readonly DownloadRequestFactory $downloadRequestFactory,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -42,16 +47,16 @@ final class PostPublicationArchiveRequestAction extends AbstractController
         if ($publication->getAssets()->isEmpty()) {
             throw new NotFoundHttpException('Publication has no asset to archive.');
         }
+        $this->downloadPolicy->denyEmailRequestUnlessGranted($publication, $request);
 
-        $downloadRequest = new DownloadRequest();
-        $downloadRequest->setPublication($publication);
-        $downloadRequest->setEmail($request->request->get('email'));
-        $downloadRequest->setLocale($request->getLocale());
+        $downloadRequest = $this->downloadRequestFactory->create($publication, $request);
+
+        $this->validator->validate($downloadRequest);
 
         $this->em->persist($downloadRequest);
         $this->em->flush();
 
-        $bus->dispatch(new PublicationArchiveRequest($downloadRequest->getId()));
+        $bus->dispatch(new PublicationArchiveRequest($publication->getId(), $downloadRequest->getId()));
 
         $this->reportClient->pushHttpRequestLog(
             $request,

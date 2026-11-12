@@ -35,7 +35,7 @@ final class FileUrlResolver
     public function resolveUrl(File $file): string
     {
         return match ($file->getStorage()) {
-            File::STORAGE_S3_MAIN => $this->getSignedUrl($file->getPath()),
+            File::STORAGE_S3_MAIN => $this->getSignedUrl($file->getPath(), $file->getType()),
             File::STORAGE_URL => $file->getPath(),
             default => throw new \RuntimeException(sprintf('Unsupported storage "%s"', $file->getStorage())),
         };
@@ -49,13 +49,13 @@ final class FileUrlResolver
      */
     public function preloadUrls(array $files): void
     {
-        $paths = [];
+        $toSign = [];
         foreach ($files as $file) {
             if (File::STORAGE_S3_MAIN === $file->getStorage()) {
-                $paths[$this->getCacheKey($file->getPath())] = $file->getPath();
+                $toSign[$this->getCacheKey($file->getPath(), $file->getType())] = $file;
             }
         }
-        if (empty($paths)) {
+        if (empty($toSign)) {
             return;
         }
 
@@ -65,7 +65,7 @@ final class FileUrlResolver
         }
 
         $missing = [];
-        foreach ($this->signedUrlCache->getItems(array_keys($paths)) as $key => $item) {
+        foreach ($this->signedUrlCache->getItems(array_keys($toSign)) as $key => $item) {
             if ($item->isHit()) {
                 $url = $item->get();
                 $this->requestCache->get($key, fn (): string => $url);
@@ -75,7 +75,7 @@ final class FileUrlResolver
         }
 
         foreach ($missing as $key => $item) {
-            $url = $this->urlSigner->getSignedUrl($paths[$key]);
+            $url = $this->sign($toSign[$key]->getPath(), $toSign[$key]->getType());
             $item->set($url);
             $item->expiresAfter($cacheTtl);
             $this->signedUrlCache->saveDeferred($item);
@@ -86,23 +86,35 @@ final class FileUrlResolver
         }
     }
 
-    private function getSignedUrl(string $path): string
+    private function getSignedUrl(string $path, ?string $type): string
     {
         $cacheTtl = $this->getCacheTtl();
         if (null === $cacheTtl) {
-            return $this->urlSigner->getSignedUrl($path);
+            return $this->sign($path, $type);
         }
 
-        $key = $this->getCacheKey($path);
+        $key = $this->getCacheKey($path, $type);
 
         return $this->requestCache->get(
             $key,
-            fn (): string => $this->signedUrlCache->get($key, function (ItemInterface $item) use ($path, $cacheTtl): string {
+            fn (): string => $this->signedUrlCache->get($key, function (ItemInterface $item) use ($path, $type, $cacheTtl): string {
                 $item->expiresAfter($cacheTtl);
 
-                return $this->urlSigner->getSignedUrl($path);
+                return $this->sign($path, $type);
             })
         );
+    }
+
+    /**
+     * The response type comes from the known file type: the one stored on the
+     * object was declared by the uploading client.
+     */
+    private function sign(string $path, ?string $type): string
+    {
+        return $this->urlSigner->getSignedUrl($path, [
+            'type' => $type,
+            'inline' => true,
+        ]);
     }
 
     private function getCacheTtl(): ?int
@@ -115,8 +127,8 @@ final class FileUrlResolver
         return intdiv($ttl, self::CACHE_TTL_DIVIDER);
     }
 
-    private function getCacheKey(string $path): string
+    private function getCacheKey(string $path, ?string $type): string
     {
-        return hash('xxh128', $path);
+        return hash('xxh128', $path."\0".$type);
     }
 }

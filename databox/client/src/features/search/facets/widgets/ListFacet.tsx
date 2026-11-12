@@ -13,13 +13,13 @@ import {
     someInBranch,
     type BucketNode,
 } from '../bucketTree';
-import {Checkbox} from '@/components/ui/controls';
+import {Checkbox} from '@alchemy/next-ui/ui/controls';
 import {formatAttributeString} from '@/features/attributes/types/registry';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
 import {EntityChip, TagChip} from '@/components/chips';
 import {formatNumber} from '@/lib/utils/format';
 import type {ScalarValue} from '../../aql/types';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 export function ListFacet({name, facet}: FacetWidgetProps) {
     const {t, i18n} = useTranslation();

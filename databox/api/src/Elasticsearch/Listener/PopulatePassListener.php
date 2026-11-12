@@ -6,14 +6,19 @@ namespace App\Elasticsearch\Listener;
 
 use Alchemy\ESBundle\Service\IndexRemover;
 use App\Elasticsearch\Exception\PopulateAlreadyRunningException;
+use App\Elasticsearch\Exception\PopulateMemoryExceededException;
 use App\Elasticsearch\Mapping\IndexSyncState;
 use App\Elasticsearch\PopulateLockManager;
+use App\Elasticsearch\PopulatePageTracker;
 use App\Entity\Admin\PopulatePass;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
 use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
+use FOS\ElasticaBundle\Persister\Event\PreFetchObjectsEvent;
+use FOS\ElasticaBundle\Persister\Event\PreInsertObjectsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
@@ -25,6 +30,10 @@ use Symfony\Component\Lock\LockInterface;
  * Two concurrent populates of the same index used to delete each other's pass
  * and half-built physical index ("Populate cancelled"). A lock per index is
  * now taken before anything is touched and refreshed after every inserted page.
+ *
+ * The memory of every page is recorded on the pass (see PopulatePageTracker): the stats
+ * of the page being indexed are written before its insertion, so that a process killed
+ * by an out-of-memory error leaves its page on the pass.
  */
 class PopulatePassListener implements EventSubscriberInterface
 {
@@ -46,6 +55,11 @@ class PopulatePassListener implements EventSubscriberInterface
         private readonly IndexSyncState $indexSyncState,
         private readonly IndexRemover $indexRemover,
         private readonly LockFactory $lockFactory,
+        private readonly PopulatePageTracker $pageTracker,
+        /**
+         * Share of the memory limit that the memory left after a page must not exceed.
+         */
+        private readonly float $memoryGuardRatio = 0.8,
     ) {
     }
 
@@ -118,13 +132,77 @@ class PopulatePassListener implements EventSubscriberInterface
         $populatePass = $this->getPass($indexName);
         $populatePass->setProgress($populatePass->getDocumentCount());
         $populatePass->setEndedAt(new \DateTimeImmutable());
+        $populatePass->setStats($this->pageTracker->getStats());
         $this->em->persist($populatePass);
 
         $this->indexSyncState->snapshotStateMapping($indexName);
 
         $this->em->flush();
 
+        $this->pageTracker->finish($indexName);
         $this->release($indexName);
+    }
+
+    /**
+     * The hydration of the page counts in its peak.
+     */
+    public function beforePageFetched(PreFetchObjectsEvent $event): void
+    {
+        if (isset($this->pendingPasses[$event->getOptions()['indexName']])) {
+            $this->pageTracker->resetPeak();
+        }
+    }
+
+    /**
+     * Runs after the listeners that may filter the objects of the page.
+     */
+    public function beforePageInserted(PreInsertObjectsEvent $event): void
+    {
+        $options = $event->getOptions();
+        $indexName = $options['indexName'];
+        if (!isset($this->pendingPasses[$indexName])) {
+            return;
+        }
+
+        $ids = [];
+        foreach ($event->getObjects() as $object) {
+            if (method_exists($object, 'getId')) {
+                $ids[] = (string) $object->getId();
+            }
+        }
+
+        $stats = $this->pageTracker->pageStarted(
+            $indexName,
+            $event->getPager()->getCurrentPage(),
+            (int) ($options['max_per_page'] ?? $event->getPager()->getMaxPerPage()),
+            $ids,
+        );
+
+        // No row updated: the pass has been deleted, which the progress update of the page cancels
+        $this->em->createQuery(sprintf('UPDATE %s p SET p.stats = :s WHERE p.id = :id', PopulatePass::class))
+            ->setParameter('s', $stats, Types::JSON)
+            ->setParameter('id', $this->pendingPasses[$indexName])
+            ->execute();
+    }
+
+    /**
+     * Runs once the page is released (see PopulateListener::afterPageCleared): its stats are
+     * written with the next page, or at the end of the populate.
+     */
+    public function afterPageReleased(PostInsertObjectsEvent $event): void
+    {
+        $indexName = $event->getOptions()['indexName'];
+        if (!isset($this->pendingPasses[$indexName])) {
+            return;
+        }
+
+        $stats = $this->pageTracker->pageEnded();
+
+        $memory = $stats['lastPageMemoryAfterGc'] ?? 0;
+        $limit = $stats['memoryLimit'];
+        if (null !== $limit && $memory > $limit * $this->memoryGuardRatio) {
+            throw new PopulateMemoryExceededException($indexName, (int) $stats['page'], $memory, $limit);
+        }
     }
 
     public function postInsertObjects(PostInsertObjectsEvent $event): void
@@ -163,6 +241,7 @@ class PopulatePassListener implements EventSubscriberInterface
 
         $populatePass->setError(substr($event->getException()->getMessage(), 0, 255));
         $populatePass->setEndedAt(new \DateTimeImmutable());
+        $populatePass->setStats($this->pageTracker->getStats());
         $this->em->persist($populatePass);
         $this->em->flush();
 
@@ -230,7 +309,13 @@ class PopulatePassListener implements EventSubscriberInterface
         return [
             PreIndexPopulateEvent::class => 'preIndexPopulate',
             PostIndexPopulateEvent::class => 'postIndexPopulate',
-            PostInsertObjectsEvent::class => 'postInsertObjects',
+            PreFetchObjectsEvent::class => 'beforePageFetched',
+            PreInsertObjectsEvent::class => ['beforePageInserted', -1024],
+            PostInsertObjectsEvent::class => [
+                ['postInsertObjects', 0],
+                // After PopulateListener::afterPageCleared (-1024)
+                ['afterPageReleased', -1536],
+            ],
             OnExceptionEvent::class => 'onException',
         ];
     }

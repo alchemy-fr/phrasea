@@ -88,6 +88,8 @@ class SavedSearchAutomationCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield ChoiceField::new('scope')
             ->setChoices(AutomationScopeEnum::getChoices());
+        yield IntegerField::new('maxAssetsPerRun', 'Max assets per run')
+            ->hideOnIndex();
         yield JsonField::new('actions')
             ->hideOnIndex();
         yield DateTimeField::new('nextRunAt');

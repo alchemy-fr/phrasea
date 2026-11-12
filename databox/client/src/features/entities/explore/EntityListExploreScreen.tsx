@@ -16,12 +16,12 @@ import {getWorkspace} from '@/lib/api/collections';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {routes} from '@/lib/routes';
 import {idFromIri} from '@/lib/utils/iri';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {FilterInput} from '@/components/ui/filter-input';
-import {Badge, EmptyState, Skeleton} from '@/components/ui/misc';
+import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {usePageTrail} from '@/components/layout/layoutStore';
-import {useDebouncedValue} from '@/hooks/useDebouncedValue';
-import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
+import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
+import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
 import {useEntityListDefinitions} from '@/features/workspaces/manage/entities/useEntityAssets';
 import {EntityValueCard} from './EntityValueCard';
 
@@ -103,7 +103,7 @@ function ExploreBrowser({listId}: {listId: string}) {
         queryFn: () => getWorkspace(workspaceId!),
         enabled: !!workspaceId,
     });
-    const canEdit = !!workspace.data?.capabilities?.edit;
+    const canEdit = !!list.data?.capabilities?.editValues;
 
     usePageTrail(
         list.data?.name ?? t('entity_list.explore.title', 'Explore values'),
@@ -196,18 +196,17 @@ function ExploreBrowser({listId}: {listId: string}) {
         );
     }
 
-    const manageLink =
-        canEdit && workspaceId ? (
-            <Button asChild variant="ghost" size="sm">
-                <Link
-                    href={routes.entityListValues(workspaceId, listId)}
-                    data-testid="entity-explore-manage"
-                >
-                    <ListIcon />{' '}
-                    {t('entity_list.explore.manage_values', 'Manage values')}
-                </Link>
-            </Button>
-        ) : null;
+    const manageLink = canEdit ? (
+        <Button asChild variant="ghost" size="sm">
+            <Link
+                href={routes.entityListManage(listId)}
+                data-testid="entity-explore-manage"
+            >
+                <ListIcon />{' '}
+                {t('entity_list.explore.manage_values', 'Manage values')}
+            </Link>
+        </Button>
+    ) : null;
 
     return (
         <div className="flex h-full min-h-0 flex-col">

@@ -3,53 +3,44 @@
 import {Fragment, ReactNode} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {useGuardedRouter} from '@/components/modals/UnsavedChangesGuard';
+import {useGuardedRouter} from '@alchemy/next-ui/modals/UnsavedChangesGuard';
 import {useTranslation} from 'react-i18next';
 import {
     BellIcon,
     ChevronRightIcon,
     ImagesIcon,
     LayoutGridIcon,
-    LogInIcon,
-    LogOutIcon,
     PanelLeftIcon,
     ScrollTextIcon,
-    SettingsIcon,
     ShieldIcon,
-    UserIcon,
-    LanguagesIcon,
     ListChecksIcon,
     PlugIcon,
     UserRoundCogIcon,
     UndoIcon,
     WorkflowIcon,
 } from 'lucide-react';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuRadioGroup,
-    DropdownMenuRadioItem,
     DropdownMenuSeparator,
     DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
-    DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import {Tooltip} from '@/components/ui/overlays';
-import {Avatar} from '@/components/ui/misc';
+} from '@alchemy/next-ui/ui/menu';
+import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {
+    AppLogo,
+    LanguageMenu,
+    ServicesMenuLink,
+    SettingsMenu,
+    UserMenu,
+} from '@alchemy/next-ui/layout/menus';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {useLayoutStore} from './layoutStore';
 import {topBarHeight} from './chrome';
-import {supportedLanguages} from '@/i18n';
+import {languages} from '@/i18n';
 import {routes} from '@/lib/routes';
-import {useModals} from '@/components/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
-import {InstancePermissionsDialog} from '@/features/permissions/InstancePermissionsDialog';
 import {
     SWITCH_USER_SHORTCUT,
     useSwitchUserShortcut,
@@ -59,7 +50,9 @@ import {ThemeMenu} from '@/features/theme/ThemeMenu';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
 import {getAuthClient} from '@/lib/auth/client';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
+import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
+import {groupsApi} from '@/lib/api/groups';
 
 /**
  * The application header: the logo, where the user is and the way back, then
@@ -76,7 +69,7 @@ export function TopBar({
     variant?: 'app' | 'public';
     children?: ReactNode;
 }) {
-    const {t, i18n} = useTranslation();
+    const {t} = useTranslation();
     const isPublic = variant === 'public';
     const {
         user,
@@ -89,6 +82,7 @@ export function TopBar({
         redirecting,
         logout,
         hasRole,
+        canManageGroups,
     } = useAuth();
     const config = useConfig();
     const router = useGuardedRouter();
@@ -101,11 +95,6 @@ export function TopBar({
     const {openModal} = useModals();
     const openSwitchUser = useSwitchUserShortcut();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
-
-    const changeLanguage = (lng: string) => {
-        void i18n.changeLanguage(lng);
-        router.refresh();
-    };
 
     return (
         <header
@@ -129,26 +118,18 @@ export function TopBar({
                     </Button>
                 </Tooltip>
             )}
-            <Link
+            <AppLogo
                 href={routes.assets()}
-                className="flex items-center gap-2 rounded-md px-2 py-1 font-semibold hover:bg-accent"
+                name="Databox"
+                icon={<ImagesIcon />}
+                logo={config.logo}
                 onClick={e => {
                     if (pathname === routes.assets()) {
                         e.preventDefault();
                         router.push(routes.assets());
                     }
                 }}
-            >
-                {config.logo?.src ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={config.logo.src} alt="Databox" className="h-6" />
-                ) : (
-                    <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                        <ImagesIcon className="size-4" />
-                    </span>
-                )}
-                <span className="hidden sm:inline">Databox</span>
-            </Link>
+            />
 
             {/* A screen opened over the main view takes over this row: where
                 the user is, and the way back */}
@@ -206,168 +187,101 @@ export function TopBar({
             )}
 
             {config.displayServicesMenu && config.dashboardUrl ? (
-                <Tooltip content={t('nav.dashboard', 'All services')}>
-                    <Button variant="ghost" size="icon-sm" asChild>
-                        <a
-                            href={config.dashboardUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <LayoutGridIcon />
-                        </a>
-                    </Button>
-                </Tooltip>
+                <ServicesMenuLink url={config.dashboardUrl} />
             ) : null}
 
             {isAuthenticated && config.notifications ? (
                 <NotificationsMenu />
             ) : null}
 
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        data-testid="settings-menu"
-                        aria-label={t('nav.settings', 'Settings')}
-                    >
-                        <SettingsIcon />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                    align="end"
-                    className="w-60"
-                    // An item opened a dialog, which took the focus: giving
-                    // it back to the trigger once the menu has faded out
-                    // would steal it (and the next key reopen the menu)
-                    onCloseAutoFocus={e => {
-                        if (document.activeElement?.closest('[role=dialog]')) {
-                            e.preventDefault();
-                        }
-                    }}
+            <SettingsMenu className="w-60">
+                {isAuthenticated && !isPublic ? <ProfileMenu /> : null}
+                <ThemeMenu />
+                <LanguageMenu
+                    languages={languages.supportedLanguages}
+                    onChange={() => router.refresh()}
                 >
-                    {isAuthenticated && !isPublic ? <ProfileMenu /> : null}
-                    <ThemeMenu />
-                    <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>
-                            <LanguagesIcon />{' '}
-                            {t('settings.language', 'Language')}
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent>
-                            <DropdownMenuRadioGroup
-                                value={i18n.language}
-                                onValueChange={changeLanguage}
-                            >
-                                {supportedLanguages.map(l => (
-                                    <DropdownMenuRadioItem
-                                        key={l.code}
-                                        value={l.code}
-                                    >
-                                        <span className={`fi fi-${l.flag}`} />{' '}
-                                        {l.label}
-                                    </DropdownMenuRadioItem>
-                                ))}
-                            </DropdownMenuRadioGroup>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                onSelect={() => openModal(DataLocaleDialog, {})}
-                            >
-                                {t('settings.data_locale', 'Data language…')}
-                            </DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    {isAdmin ? (
-                        <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                onSelect={() =>
-                                    router.push(routes.operationTasks())
-                                }
-                            >
-                                <ListChecksIcon />{' '}
-                                {t(
-                                    'settings.operation_tasks',
-                                    'Operation tasks'
-                                )}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                data-testid="settings-workflows"
-                                onSelect={() => router.push(routes.workflows())}
-                            >
-                                <WorkflowIcon />{' '}
-                                {t('settings.workflows', 'Workflows')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onSelect={() =>
-                                    router.push(routes.instanceIntegrations())
-                                }
-                            >
-                                <PlugIcon />{' '}
-                                {t(
-                                    'settings.instance_integrations',
-                                    'Instance integrations'
-                                )}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                data-testid="settings-audit-log"
-                                onSelect={() => router.push(routes.auditLog())}
-                            >
-                                <ScrollTextIcon />{' '}
-                                {t('settings.audit_log', 'Audit log')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                data-testid="settings-instance-permissions"
-                                onSelect={() =>
-                                    openModal(InstancePermissionsDialog, {})
-                                }
-                            >
-                                <ShieldIcon />{' '}
-                                {t(
-                                    'settings.instance_permissions',
-                                    'Instance permissions'
-                                )}
-                            </DropdownMenuItem>
-                        </>
-                    ) : null}
-                </DropdownMenuContent>
-            </DropdownMenu>
-
-            {isAuthenticated && user ? (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <button
-                            type="button"
-                            data-testid="user-menu"
-                            className="rounded-full focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
-                            aria-label={user.username}
-                        >
-                            <Avatar
-                                name={user.name ?? user.username}
-                                size="md"
-                            />
-                        </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuLabel className="truncate text-sm text-foreground">
-                            {user.name ?? user.username}
-                            {user.email ? (
-                                <div className="truncate text-xs font-normal text-muted-foreground">
-                                    {user.email}
-                                </div>
-                            ) : null}
-                            {impersonating && realUser ? (
-                                <div
-                                    data-testid="impersonated-by"
-                                    className="truncate text-xs font-normal text-muted-foreground"
-                                >
-                                    {t('impersonation.via', 'via {{name}}', {
-                                        name:
-                                            realUser.name ?? realUser.username,
-                                    })}
-                                </div>
-                            ) : null}
-                        </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        onSelect={() => openModal(DataLocaleDialog, {})}
+                    >
+                        {t('settings.data_locale', 'Data language…')}
+                    </DropdownMenuItem>
+                </LanguageMenu>
+                {isAdmin ? (
+                    <>
                         <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onSelect={() =>
+                                router.push(routes.operationTasks())
+                            }
+                        >
+                            <ListChecksIcon />{' '}
+                            {t('settings.operation_tasks', 'Operation tasks')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            data-testid="settings-workflows"
+                            onSelect={() => router.push(routes.workflows())}
+                        >
+                            <WorkflowIcon />{' '}
+                            {t('settings.workflows', 'Workflows')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={() =>
+                                router.push(routes.instanceIntegrations())
+                            }
+                        >
+                            <PlugIcon />{' '}
+                            {t(
+                                'settings.instance_integrations',
+                                'Instance integrations'
+                            )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            data-testid="settings-audit-log"
+                            onSelect={() => router.push(routes.auditLog())}
+                        >
+                            <ScrollTextIcon />{' '}
+                            {t('settings.audit_log', 'Audit log')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            data-testid="settings-instance-permissions"
+                            onSelect={() =>
+                                router.push(routes.instancePermissions())
+                            }
+                        >
+                            <ShieldIcon />{' '}
+                            {t(
+                                'settings.instance_permissions',
+                                'Instance permissions'
+                            )}
+                        </DropdownMenuItem>
+                    </>
+                ) : null}
+            </SettingsMenu>
+
+            <UserMenu
+                user={isAuthenticated ? user : undefined}
+                redirecting={redirecting}
+                accountUrl={() =>
+                    getAuthClient().getAccountUrl(window.location.href)
+                }
+                onLogin={() => login()}
+                onLogout={logout}
+                details={
+                    impersonating && realUser ? (
+                        <div
+                            data-testid="impersonated-by"
+                            className="truncate text-xs font-normal text-muted-foreground"
+                        >
+                            {t('impersonation.via', 'via {{name}}', {
+                                name: realUser.name ?? realUser.username,
+                            })}
+                        </div>
+                    ) : null
+                }
+                leadingItems={
+                    <>
                         {openSwitchUser ? (
                             <DropdownMenuItem
                                 data-testid="switch-user"
@@ -392,32 +306,13 @@ export function TopBar({
                             </DropdownMenuItem>
                         ) : null}
                         {canImpersonate ? <DropdownMenuSeparator /> : null}
-                        <DropdownMenuItem asChild>
-                            <a
-                                href={getAuthClient().getAccountUrl(
-                                    typeof window !== 'undefined'
-                                        ? window.location.href
-                                        : '/'
-                                )}
-                            >
-                                <UserIcon /> {t('user.account', 'My account')}
-                            </a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={logout}>
-                            <LogOutIcon /> {t('user.logout', 'Sign out')}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            ) : (
-                <Button
-                    size="sm"
-                    data-testid="sign-in"
-                    loading={redirecting}
-                    onClick={() => login()}
-                >
-                    <LogInIcon /> {t('user.login', 'Sign in')}
-                </Button>
-            )}
+                    </>
+                }
+            >
+                {canManageGroups ? (
+                    <ManageGroupsMenuItem api={groupsApi} />
+                ) : null}
+            </UserMenu>
         </header>
     );
 }

@@ -25,10 +25,10 @@ import {
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
-import {useModals} from '@/components/modals/ModalProvider';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {routes} from '@/lib/routes';
-import {isHttpUrl} from '@/lib/utils/misc';
+import {isHttpUrl} from '@alchemy/next-ui/utils/misc';
 import {useAddToCurrentBasket} from '@/features/baskets/useAddToCurrentBasket';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {ExportDialog} from './ExportDialog';

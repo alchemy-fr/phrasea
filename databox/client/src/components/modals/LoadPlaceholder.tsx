@@ -5,9 +5,9 @@ import type {TFunction} from 'i18next';
 import {useTranslation} from 'react-i18next';
 import {LockIcon, SearchXIcon, TriangleAlertIcon} from 'lucide-react';
 import {isApiError} from '@/lib/api/http';
-import {EmptyState} from '@/components/ui/misc';
-import {FullPageLoader} from '@/components/ui/loader';
-import {Button} from '@/components/ui/button';
+import {EmptyState} from '@alchemy/next-ui/ui/misc';
+import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {useCloseRoute} from './RouteDialog';
 
 /** Why an item could not be loaded: missing, not accessible, or failed */

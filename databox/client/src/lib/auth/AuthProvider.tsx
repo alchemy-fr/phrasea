@@ -11,7 +11,7 @@ import {
 } from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {AUTH_CALLBACK_PATH, getAuthClient} from './client';
-import type {AuthUser} from './oidc';
+import type {AuthUser} from '@alchemy/next-core/auth/oidc';
 import {
     clearImpersonation,
     getImpersonation,
@@ -22,7 +22,7 @@ import {
     stopImpersonation,
     type ImpersonatedUser,
 } from './impersonation';
-import {toastError} from '@/lib/utils/errors';
+import {toastError} from '@alchemy/next-ui/utils/errors';
 import {getImpersonationIdentity} from '@/lib/api/impersonation';
 import {isApiError} from '@/lib/api/http';
 import {clearDefinitionsCache} from '@/features/attributes/definitionsCache';
@@ -38,6 +38,20 @@ export type AuthContextValue = {
     impersonating: boolean;
     /** The signed-in user may switch to another user's account */
     canImpersonate: boolean;
+    /**
+     * The Keycloak account of the signed-in user can list the OAuth clients
+     * of the realm. Off while impersonating: the API refuses to act on
+     * Keycloak with the admin's token under another identity.
+     */
+    canViewOAuthClients: boolean;
+    /** Same, to create OAuth clients */
+    canManageOAuthClients: boolean;
+    /**
+     * The Keycloak account of the signed-in user can manage the groups of
+     * the realm (`manage-users`). Off while impersonating, for the same
+     * reason.
+     */
+    canManageGroups: boolean;
     /** Switches to another user's account (reloads the app) */
     impersonate: (user: ImpersonatedUser) => void;
     /** Goes back to the signed-in user's account (reloads the app) */
@@ -52,6 +66,12 @@ export type AuthContextValue = {
      */
     redirecting: boolean;
     logout: () => void;
+    /**
+     * A sign-out is under way: the session is cleared and the browser is
+     * leaving for Keycloak. Private screens must not ask for a sign-in
+     * meanwhile, it would replace the sign-out navigation.
+     */
+    loggingOut: boolean;
     hasRole: (role: string) => boolean;
     sessionExpired: boolean;
     /** Closes the "session expired" dialog and stays signed out */
@@ -74,6 +94,7 @@ export function AuthProvider({children}: PropsWithChildren) {
     >();
     const [sessionExpired, setSessionExpired] = useState(false);
     const [redirecting, setRedirecting] = useState(false);
+    const [loggingOut, setLoggingOut] = useState(false);
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -157,6 +178,7 @@ export function AuthProvider({children}: PropsWithChildren) {
         const onPageShow = (e: PageTransitionEvent) => {
             if (e.persisted) {
                 setRedirecting(false);
+                setLoggingOut(false);
             }
         };
         window.addEventListener('pageshow', onPageShow);
@@ -186,10 +208,17 @@ export function AuthProvider({children}: PropsWithChildren) {
     const logout = useCallback(() => {
         clearImpersonation();
         clearDefinitionsCache();
+        setLoggingOut(true);
         void getAuthClient().logout();
     }, []);
 
     const user = realUser ? (impersonated ?? realUser) : undefined;
+    const impersonating = !!realUser && !!impersonated;
+    const canViewOAuthClients =
+        !impersonating && !!realUser?.canViewOAuthClients;
+    const canManageOAuthClients =
+        !impersonating && !!realUser?.canManageOAuthClients;
+    const canManageGroups = !impersonating && !!realUser?.canManageGroups;
 
     const impersonate = useCallback(
         (target: ImpersonatedUser) => {
@@ -217,14 +246,18 @@ export function AuthProvider({children}: PropsWithChildren) {
             status,
             user,
             realUser,
-            impersonating: !!realUser && !!impersonated,
+            impersonating,
             canImpersonate,
+            canViewOAuthClients,
+            canManageOAuthClients,
+            canManageGroups,
             impersonate,
             stopImpersonating: stopImpersonation,
             isAuthenticated: status === 'authenticated',
             login,
             redirecting,
             logout,
+            loggingOut,
             hasRole: role => !!user?.roles.includes(role),
             sessionExpired,
             dismissSessionExpired,
@@ -233,12 +266,16 @@ export function AuthProvider({children}: PropsWithChildren) {
             status,
             user,
             realUser,
-            impersonated,
+            impersonating,
             canImpersonate,
+            canViewOAuthClients,
+            canManageOAuthClients,
+            canManageGroups,
             impersonate,
             login,
             redirecting,
             logout,
+            loggingOut,
             sessionExpired,
             dismissSessionExpired,
         ]

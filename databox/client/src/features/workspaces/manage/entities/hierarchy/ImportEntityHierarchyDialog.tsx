@@ -10,10 +10,10 @@ import {
     importEntityHierarchy,
     type EntityHierarchyImportReport,
 } from '@/lib/api/metadata';
-import {Button} from '@/components/ui/button';
-import {FormRow, Textarea} from '@/components/ui/input';
-import {FormDialog} from '@/components/modals/FormDialog';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {FormRow, Textarea} from '@alchemy/next-ui/ui/input';
+import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {hierarchyQueryKey} from './EntityTree';
 
 /**

@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {Trash2Icon, TriangleAlertIcon} from 'lucide-react';
-import {Alert} from '@/components/ui/misc';
+import {Alert} from '@alchemy/next-ui/ui/misc';
 import type {ActionDefinition} from './types';
 
 export function TrashActionForm() {

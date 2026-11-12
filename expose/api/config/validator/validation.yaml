@@ -28,3 +28,10 @@ App\Entity\Asset:
     publication:
       - NotNull: ~
 
+App\Entity\PublicationShare:
+  constraints:
+    - Callback: validate
+  properties:
+    name:
+      - Length:
+          max: 255

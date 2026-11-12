@@ -2,10 +2,14 @@
 
 import {CSSProperties, ReactNode, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Popover, PopoverContent, PopoverTrigger} from './overlays';
-import {Input} from './input';
-import {Button} from './button';
-import {cn} from '@/lib/utils/cn';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@alchemy/next-ui/ui/overlays';
+import {Input} from '@alchemy/next-ui/ui/input';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {cn} from '@alchemy/next-ui/utils/cn';
 
 const HEX_RE = /^#[0-9a-f]{6}$/i;
 

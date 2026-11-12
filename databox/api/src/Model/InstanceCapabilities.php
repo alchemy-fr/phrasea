@@ -13,7 +13,7 @@ use App\Api\Provider\InstanceCapabilitiesProvider;
 
 /**
  * The instance capabilities of the current user (see App\Security\InstancePermission),
- * answered as a plain JSON object: {"createWorkspace": bool, "createProfile": bool, …}.
+ * answered as a plain JSON object: {"createWorkspace": bool, "shareProfile": bool, …}.
  */
 #[ApiResource(
     shortName: 'capabilities',
@@ -22,7 +22,7 @@ use App\Api\Provider\InstanceCapabilitiesProvider;
             uriTemplate: '/capabilities',
             openapi: new OpenApiOperation(
                 summary: 'Instance capabilities of the current user',
-                description: 'Capabilities granted outside any workspace: creating a workspace or a profile, sharing its baskets, publishing its saved searches.',
+                description: 'Capabilities granted outside any workspace: creating a workspace, sharing its profiles and its baskets, publishing its saved searches.',
             ),
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             name: 'instance_capabilities',

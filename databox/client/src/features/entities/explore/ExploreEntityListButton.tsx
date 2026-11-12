@@ -3,16 +3,16 @@
 import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
 import {ChevronDownIcon, CompassIcon} from 'lucide-react';
-import {Button} from '@/components/ui/button';
+import {Button} from '@alchemy/next-ui/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@alchemy/next-ui/ui/menu';
 import {WorkspaceName} from '@/features/collections/WorkspaceName';
 import {routes} from '@/lib/routes';
-import {cn} from '@/lib/utils/cn';
+import {cn} from '@alchemy/next-ui/utils/cn';
 import type {EntityListRef} from './useEntityListsOfFacet';
 
 type Props = {

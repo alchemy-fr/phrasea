@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@alchemy/next-theme/styles/themes.css';
+@import '@alchemy/next-ui/styles/base.css';
+
+@theme {
+    --animate-draw-stroke: draw-stroke 500ms ease-out both;
+    --animate-success-ring: success-ring 900ms ease-out 400ms forwards;
+
+    @keyframes draw-stroke {
+        from {
+            stroke-dashoffset: 1;
+        }
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    @keyframes success-ring {
+        from {
+            opacity: 0.8;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(1.8);
+        }
+    }
+}

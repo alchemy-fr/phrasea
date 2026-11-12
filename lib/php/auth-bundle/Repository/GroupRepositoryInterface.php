@@ -14,4 +14,9 @@ interface GroupRepositoryInterface extends AclGroupRepositoryInterface
      * @return string[] IDs of the enabled direct members of the group
      */
     public function getGroupMemberIds(string $groupId): array;
+
+    /**
+     * Drops what is cached of the groups, and of the given one.
+     */
+    public function invalidateGroup(?string $groupId = null): void;
 }

@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react';
 import type {ColumnDef} from '@tanstack/react-table';
-import {Checkbox} from '@/components/ui/controls';
+import {Checkbox} from '@alchemy/next-ui/ui/controls';
 
 export function selectionColumn<T>(labels: {
     selectAll: string;

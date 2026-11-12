@@ -108,7 +108,7 @@ class RenditionDefinitionInput
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
-    public $definition = '';
+    public $definition;
 
     /**
      * @var int|null

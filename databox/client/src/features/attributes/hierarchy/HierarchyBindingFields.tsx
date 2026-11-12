@@ -3,8 +3,8 @@
 import {useEffect} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
-import {FormRow, Input} from '@/components/ui/input';
-import {Checkbox, LabeledControl} from '@/components/ui/controls';
+import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
 import {getAttributeEntities, getEntityList} from '@/lib/api/metadata';
 import {idFromIri} from '@/lib/utils/iri';
 
