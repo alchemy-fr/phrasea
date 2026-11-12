@@ -138,7 +138,15 @@
             "sum_other_doc_count": 0
         },
         "@owner": {
-            "buckets": [],
+            "buckets": [
+                {
+                    "doc_count": 2,
+                    "key": {
+                        "label": "user",
+                        "value": "<uuid>"
+                    }
+                }
+            ],
             "doc_count_error_upper_bound": 0,
             "meta": {
                 "displayName": "Owner",
