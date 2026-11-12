@@ -1,6 +1,11 @@
 import {api} from './http';
 import {toPage} from './hydra';
 import {getPasswordsHeader} from './passwords';
+import {
+    getShareTokensHeader,
+    type ShareTokenPublication,
+    type ShareTokenTarget,
+} from './shareTokens';
 import type {
     Asset,
     HydraCollection,
@@ -10,8 +15,21 @@ import type {
     PublicationProfile,
 } from '@/types/api';
 
-function passwordHeaders(): Record<string, string | undefined> {
-    return {'X-Passwords': getPasswordsHeader()};
+/** What the visitor gave to open the publication: passwords, share links */
+function publicationHeaders(
+    publication: ShareTokenTarget
+): Record<string, string | undefined> {
+    return {
+        'X-Passwords': getPasswordsHeader(),
+        'X-Share-Tokens': getShareTokensHeader(publication),
+    };
+}
+
+/** The share links of the publication, for the anonymous requests */
+function shareTokenHeaders(
+    publication: ShareTokenTarget
+): Record<string, string | undefined> {
+    return {'X-Share-Tokens': getShareTokensHeader(publication)};
 }
 
 export const publicationKeys = {
@@ -72,7 +90,7 @@ export async function getPublications(
 /** A publication by slug or id; `authorized: false` without access to it */
 export async function getPublication(id: string): Promise<Publication> {
     return api.get<Publication>(`/publications/${encodeURIComponent(id)}`, {
-        headers: passwordHeaders(),
+        headers: publicationHeaders(id),
     });
 }
 
@@ -96,22 +114,31 @@ export async function deletePublication(id: string): Promise<void> {
     await api.delete(`/publications/${id}`);
 }
 
-export async function getAsset(id: string): Promise<Asset> {
+/**
+ * An asset; its publication, when known, gives the share links to send
+ * (the share tokens are kept per publication).
+ */
+export async function getAsset(
+    id: string,
+    publication?: ShareTokenTarget
+): Promise<Asset> {
     return api.get<Asset>(`/assets/${encodeURIComponent(id)}`, {
-        headers: passwordHeaders(),
+        headers: publication
+            ? publicationHeaders(publication)
+            : {'X-Passwords': getPasswordsHeader()},
     });
 }
 
-export function logPublicationView(id: string): void {
-    api.post(`/logs/publication-view/${id}`, undefined, {
-        headers: passwordHeaders(),
+export function logPublicationView(publication: ShareTokenPublication): void {
+    api.post(`/logs/publication-view/${publication.id}`, undefined, {
+        headers: publicationHeaders(publication),
     }).catch(() => undefined);
 }
 
 /** The API logs only the views of the assets the reader may see */
-export function logAssetView(id: string): void {
+export function logAssetView(id: string, publication: ShareTokenTarget): void {
     api.post(`/logs/asset-view/${id}`, undefined, {
-        headers: passwordHeaders(),
+        headers: publicationHeaders(publication),
     }).catch(() => undefined);
 }
 
@@ -122,10 +149,12 @@ export function logAssetView(id: string): void {
 export async function requestDownload(
     url: string,
     email: string,
-    acceptTerms: boolean
+    acceptTerms: boolean,
+    publication: ShareTokenTarget
 ): Promise<void> {
     await api.post(url, acceptTerms ? {email, acceptTerms: true} : {email}, {
         anonymous: true,
+        headers: shareTokenHeaders(publication),
     });
 }
 
@@ -136,24 +165,30 @@ export async function requestDownload(
 export type ArchiveStatus =
     {status: 'preparing'} | {status: 'ready'; url: string};
 
-export async function getArchiveStatus(url: string): Promise<ArchiveStatus> {
+export async function getArchiveStatus(
+    url: string,
+    publication: ShareTokenTarget
+): Promise<ArchiveStatus> {
     return api.get<ArchiveStatus>(url, {
         anonymous: true,
-        // Rather than the redirection to the archive, which would download it here
-        headers: {Accept: 'application/json'},
+        headers: {
+            ...shareTokenHeaders(publication),
+            // Rather than the redirection to the archive, which would download it here
+            Accept: 'application/json',
+        },
     });
 }
 
 /** Asks for the link to the archive of the publication by email */
 export async function requestArchiveByEmail(
-    publicationId: string,
+    publication: ShareTokenPublication,
     email: string,
     acceptTerms: boolean
 ): Promise<void> {
     await api.post(
-        `/publications/${encodeURIComponent(publicationId)}/archive/download-request`,
+        `/publications/${encodeURIComponent(publication.id)}/archive/download-request`,
         acceptTerms ? {email, acceptTerms: true} : {email},
-        {headers: passwordHeaders()}
+        {headers: publicationHeaders(publication)}
     );
 }
 
@@ -166,13 +201,13 @@ export type DownloadTarget =
  * the download terms are accepted.
  */
 export async function getDownloadUrl(
-    publicationId: string,
+    publication: ShareTokenPublication,
     target: DownloadTarget
 ): Promise<string> {
     const {url} = await api.post<{url: string}>(
-        `/publications/${encodeURIComponent(publicationId)}/download-url`,
+        `/publications/${encodeURIComponent(publication.id)}/download-url`,
         {...target, acceptTerms: true},
-        {headers: passwordHeaders()}
+        {headers: publicationHeaders(publication)}
     );
 
     return url;

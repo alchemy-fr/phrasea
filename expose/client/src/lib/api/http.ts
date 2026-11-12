@@ -2,7 +2,6 @@ import ky, {HTTPError, isHTTPError, type KyInstance, type Options} from 'ky';
 import {getConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {ApiError} from '@alchemy/next-ui/utils/errors';
-import {getShareTokensHeader} from './shareTokens';
 
 export type QueryParams = Record<string, unknown>;
 
@@ -66,17 +65,6 @@ export function setApiLocale(locale: string): void {
 
 type Context = {anonymous?: boolean; retried?: boolean};
 
-export function isApiUrl(url: string, apiUrl: string): boolean {
-    try {
-        return (
-            new URL(url).origin ===
-            new URL(apiUrl, globalThis.location?.href).origin
-        );
-    } catch {
-        return false;
-    }
-}
-
 let instance: KyInstance | undefined;
 
 function createInstance(): KyInstance {
@@ -104,11 +92,6 @@ function createInstance(): KyInstance {
                                 `Bearer ${token}`
                             );
                         }
-                    }
-                    // Anonymous requests too (downloads, view logs), but never to another host (S3 uploads)
-                    const shareTokens = getShareTokensHeader();
-                    if (shareTokens && isApiUrl(request.url, config.apiUrl)) {
-                        request.headers.set('X-Share-Tokens', shareTokens);
                     }
                     if (!request.headers.has('Accept')) {
                         request.headers.set(

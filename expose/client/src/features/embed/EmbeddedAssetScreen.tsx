@@ -22,7 +22,7 @@ export function EmbeddedAssetScreen({assetId}: {assetId: string}) {
     const {data: asset, error, isPending, refetch} = useEmbeddedAsset(assetId);
     const publication = asset?.publication;
     const authorized = !!publication?.authorized;
-    useAssetViewLog(authorized ? asset?.id : undefined);
+    useAssetViewLog(authorized ? asset?.id : undefined, publication);
 
     let content;
     if (isPending) {

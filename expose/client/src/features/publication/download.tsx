@@ -78,13 +78,14 @@ export function useDownload(publication: Publication) {
             );
             if (publication.downloadViaEmail) {
                 openModal(DownloadViaEmailDialog, {
-                    request: email => requestDownload(url, email, withTerms),
+                    request: email =>
+                        requestDownload(url, email, withTerms, publication),
                 });
 
                 return;
             }
             const downloadUrl = withTerms
-                ? await getDownloadUrl(publication.id, target)
+                ? await getDownloadUrl(publication, target)
                 : url;
             if (!('archive' in target)) {
                 openDownloadLink(downloadUrl);
@@ -93,7 +94,7 @@ export function useDownload(publication: Publication) {
             }
 
             try {
-                const status = await getArchiveStatus(downloadUrl);
+                const status = await getArchiveStatus(downloadUrl, publication);
                 if (status.status === 'ready') {
                     openDownloadLink(status.url);
 
@@ -105,9 +106,9 @@ export function useDownload(publication: Publication) {
                 return;
             }
             openModal(ArchiveDownloadDialog, {
-                check: () => getArchiveStatus(downloadUrl),
+                check: () => getArchiveStatus(downloadUrl, publication),
                 requestByEmail: email =>
-                    requestArchiveByEmail(publication.id, email, withTerms),
+                    requestArchiveByEmail(publication, email, withTerms),
             });
         },
         [publication, openModal]

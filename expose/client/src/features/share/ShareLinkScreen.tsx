@@ -15,8 +15,8 @@ import {SecurityCard} from '@/features/security/SecurityScreen';
 import {ErrorScreen} from '@/components/ErrorScreen';
 
 /**
- * The permalink of a share link: keeps its token, which the API calls carry
- * from then on, and opens the shared publication.
+ * The permalink of a share link: keeps its token under the shared publication,
+ * whose API calls carry it from then on, and opens that publication.
  */
 export function ShareLinkScreen({token}: {token: string}) {
     const {t} = useTranslation();
@@ -33,7 +33,7 @@ export function ShareLinkScreen({token}: {token: string}) {
         if (!data) {
             return;
         }
-        storeShareToken(token);
+        storeShareToken(data.publication, token);
         // Loaded without the token, the publication would stay locked
         queryClient.removeQueries({queryKey: publicationKeys.all});
         router.replace(routes.publication(data.publication));

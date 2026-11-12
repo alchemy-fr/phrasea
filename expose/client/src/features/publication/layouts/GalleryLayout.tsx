@@ -32,7 +32,7 @@ export function GalleryLayout({
     const several = assets.length > 1;
     const previous = () => route.move(cycle(assets, current, -1));
     const next = () => route.move(cycle(assets, current, 1));
-    useAssetViewLog(current.id);
+    useAssetViewLog(current.id, publication);
     useAssetKeys({
         onPrevious: several ? previous : undefined,
         onNext: several ? next : undefined,

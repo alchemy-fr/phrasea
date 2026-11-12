@@ -46,11 +46,16 @@ A new expiration must be in the future. The token never changes.
 active link (`{"publication": {"id", "slug", "title"}, "expiresAt"}`), and the same 404 for an
 unknown, expired or revoked token.
 
-The permalink page of the client resolves the token, keeps it in the `shareTokens` cookie
-(`SameSite=None; Secure` in HTTPS, so that it works in an iframe; the 20 most recent tokens) and
-redirects to the publication. From then on, every request of the client to the API carries the
-tokens in the `X-Share-Tokens` header, comma separated. The API reads 20 tokens at most, of
-64 characters at most, and ignores the others.
+The permalink page of the client resolves the token, keeps it in a cookie of its publication,
+`shareTokens_<id>`, and `shareTokens_<slug>` when the publication has a slug, so that a client
+URL by slug or by id finds it (`SameSite=None; Secure` in HTTPS, so that it works in an iframe;
+the 5 most recent tokens of the publication), and redirects to the publication. From then on,
+only the requests of the client about that publication (its page, its assets, the view logs, the
+downloads) carry its tokens in the `X-Share-Tokens` header, comma separated: the tokens of the
+other publications are never sent with them. The embed page of an asset (`/embed/{assetId}`)
+does not know the publication before the response: when the asset is not authorized and tokens
+are kept for its publication, it asks for the asset again with them. The API reads 20 tokens at
+most, of 64 characters at most, and ignores the others.
 
 Responses to a request carrying `X-Share-Tokens` are never cached publicly (`Vary` lists the
 header).
@@ -59,5 +64,7 @@ header).
 
 - The signed URLs already given to a link holder (downloads, archive, WebVTT, `?jwt=`) stay
   valid until they expire (`URI_JWT_TTL`, 24 hours by default) after the link is revoked.
+- Each publication opened by a link adds one or two cookies to the domain of the client (sent
+  to its Next.js server too), without any cap on their number.
 - The client reserves the first path segment `s`, the API does not: the client URLs of a
   publication whose slug is `s` (`/s`, `/s/{asset}`) do not open it, its slug must be changed.

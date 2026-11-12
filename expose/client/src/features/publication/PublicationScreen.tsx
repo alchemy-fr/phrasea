@@ -30,7 +30,7 @@ export function PublicationScreen({publicationKey}: {publicationKey: string}) {
         refetch,
     } = usePublication(publicationKey);
     const authorized = !!publication?.authorized;
-    usePublicationViewLog(publication?.id, authorized);
+    usePublicationViewLog(publication, authorized);
     const title = publication ? translate(publication, 'title') : undefined;
 
     let content;

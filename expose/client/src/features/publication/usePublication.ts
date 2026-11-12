@@ -10,6 +10,8 @@ import {
     publicationKeys,
     assetKeys,
 } from '@/lib/api/publications';
+import {getShareTokens, type ShareTokenTarget} from '@/lib/api/shareTokens';
+import type {Asset, Publication} from '@/types/api';
 
 export function usePublication(id: string) {
     return useQuery({
@@ -18,10 +20,28 @@ export function usePublication(id: string) {
     });
 }
 
+/**
+ * The asset of an embed, whose publication is unknown before the response:
+ * asked again with the share links of that publication when they may open it.
+ */
+export async function getEmbeddedAsset(id: string): Promise<Asset> {
+    const asset = await getAsset(id);
+    const publication = asset.publication;
+    if (
+        publication &&
+        !publication.authorized &&
+        getShareTokens(publication).length > 0
+    ) {
+        return getAsset(id, publication);
+    }
+
+    return asset;
+}
+
 export function useEmbeddedAsset(id: string) {
     return useQuery({
         queryKey: assetKeys.detail(id),
-        queryFn: () => getAsset(id),
+        queryFn: () => getEmbeddedAsset(id),
     });
 }
 
@@ -30,30 +50,36 @@ export function useEmbeddedAsset(id: string) {
  * neither the password screen nor a reload of the data count.
  */
 export function usePublicationViewLog(
-    publicationId: string | undefined,
+    publication: Publication | undefined,
     authorized: boolean
 ): void {
     const logged = useRef<string | undefined>(undefined);
 
     useEffect(() => {
-        if (publicationId && authorized && logged.current !== publicationId) {
-            logged.current = publicationId;
-            logPublicationView(publicationId);
+        if (publication && authorized && logged.current !== publication.id) {
+            logged.current = publication.id;
+            logPublicationView(publication);
         }
-    }, [publicationId, authorized]);
+    }, [publication, authorized]);
 }
 
 /**
  * Logs the view of the asset displayed, once it stayed a second on screen:
  * browsing quickly through a publication logs the assets looked at only.
  */
-export function useAssetViewLog(assetId: string | undefined): void {
+export function useAssetViewLog(
+    assetId: string | undefined,
+    publication: ShareTokenTarget | undefined
+): void {
     useEffect(() => {
-        if (!assetId) {
+        if (!assetId || !publication) {
             return;
         }
-        const timeout = setTimeout(() => logAssetView(assetId), 1000);
+        const timeout = setTimeout(
+            () => logAssetView(assetId, publication),
+            1000
+        );
 
         return () => clearTimeout(timeout);
-    }, [assetId]);
+    }, [assetId, publication]);
 }

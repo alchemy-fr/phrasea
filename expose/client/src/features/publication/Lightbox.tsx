@@ -36,7 +36,7 @@ export function Lightbox({
     const several = assets.length > 1;
     const previous = () => onMove(cycle(assets, current, -1));
     const next = () => onMove(cycle(assets, current, 1));
-    useAssetViewLog(current.id);
+    useAssetViewLog(current.id, publication);
     useAssetKeys({
         onPrevious: several ? previous : undefined,
         onNext: several ? next : undefined,
