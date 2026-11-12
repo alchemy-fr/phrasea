@@ -133,8 +133,14 @@ final class PermissionAceTest extends AbstractDataboxTestCase
         $this->assertSame($wsId, $ace['objectId']);
         $this->assertSame(5, $ace['mask']);
         $this->assertSame([], $ace['metadata']);
-        // The user is resolved for display
+        // The user is resolved for display, without the rest of its IdP record
         $this->assertArrayHasKey('username', $ace['user']);
+        $this->assertArrayNotHasKey('email', $ace['user']);
+        $this->assertArrayNotHasKey('attributes', $ace['user']);
+        $this->assertSame([], array_diff(array_keys($ace['user']), ['id', 'username', 'firstName', 'lastName']));
+        foreach ($this->getAces(self::OWNER, 'workspace', $wsId, uri: $acesUri) as $listed) {
+            $this->assertSame([], array_diff(array_keys($listed['user'] ?? []), ['id', 'username', 'firstName', 'lastName']));
+        }
 
         // Putting it again updates the same entry
         $updated = $this->putAce(self::OWNER, 'workspace', $wsId, self::THIRD_USER, PermissionInterface::VIEW, uri: $aceUri);
@@ -157,6 +163,27 @@ final class PermissionAceTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
         $this->assertNull($this->findAce(self::THIRD_USER, 'workspace', $wsId));
         $this->assertNotContains(self::THIRD_USER, array_column($this->getAces(self::OWNER, 'workspace', $wsId, uri: $acesUri), 'userId'));
+    }
+
+    public function testTheGroupOfAnAceIsResolvedWithItsDisplayFieldsOnly(): void
+    {
+        $workspace = $this->createSharedWorkspace();
+        $wsId = $workspace->getId();
+
+        $ace = $this->putAce(self::OWNER, 'workspace', $wsId, KeycloakClientTestMock::GROUP_UID, PermissionInterface::VIEW, ['userType' => 'group']);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame('group', $ace['userType']);
+        $this->assertSame(KeycloakClientTestMock::GROUP_NAME, $ace['group']['name']);
+        $this->assertSame([], array_diff(array_keys($ace['group']), ['id', 'name', 'path']));
+
+        $aces = $this->getAces(self::OWNER, 'workspace', $wsId, [
+            'userType' => 'group',
+            'userId' => KeycloakClientTestMock::GROUP_UID,
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(1, $aces);
+        $this->assertSame(KeycloakClientTestMock::GROUP_NAME, $aces[0]['group']['name']);
+        $this->assertSame([], array_diff(array_keys($aces[0]['group']), ['id', 'name', 'path']));
     }
 
     public function testAcesCanBeFilteredByUser(): void

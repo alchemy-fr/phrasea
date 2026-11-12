@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use Alchemy\AclBundle\Repository\UserRepositoryInterface;
+use Alchemy\AuthBundle\Repository\IdentityProjection;
+use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
@@ -57,7 +58,8 @@ class ResolveEntitiesProcessor implements ProcessorInterface
             }
         }
 
-        $fetchedUsers = !empty($users) ? $this->userRepository->getUsersByIds($users) : [];
+        // Read through the service account: the full IdP records are not disclosed
+        $fetchedUsers = !empty($users) ? IdentityProjection::users($this->userRepository->getUsersByIds($users)) : [];
 
         $fetchedAssets = [];
         if (!empty($assetIds)) {

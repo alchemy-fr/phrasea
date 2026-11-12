@@ -308,6 +308,21 @@ class KeycloakClientTestMock implements HttpClientInterface
             ]));
         }
 
+        $search = (string) ($options['query']['search'] ?? '');
+        if ('GET' === $method && str_ends_with($url, '/admin/realms/phrasea/users') && str_starts_with($search, 'id:')) {
+            $ids = array_intersect(explode(' ', substr($search, 3)), array_keys(self::USERS));
+
+            return $this->createResponse($args, 200, array_values(array_map(fn (string $id): array => [
+                'id' => $id,
+                'username' => self::USERS[$id]['username'],
+                'firstName' => 'Test',
+                'lastName' => 'User',
+                'email' => self::USERS[$id]['username'].'@phrasea.test',
+                'enabled' => true,
+                'attributes' => ['department' => ['Test']],
+            ], $ids)));
+        }
+
         return match (true) {
             str_ends_with($url, '/realms/phrasea') => $this->createResponse($args, 200, [
                 'public_key' => file_get_contents(__DIR__.'/key.pub'),
@@ -320,6 +335,7 @@ class KeycloakClientTestMock implements HttpClientInterface
                 'firstName' => 'Test',
                 'lastName' => 'User',
                 'email' => 'user@phrasea.test',
+                'attributes' => ['department' => ['Test']],
             ]),
             default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
