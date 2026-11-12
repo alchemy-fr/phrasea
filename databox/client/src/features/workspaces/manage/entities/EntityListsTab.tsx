@@ -10,7 +10,6 @@ import {
     getEntityList,
     getEntityLists,
 } from '@/lib/api/metadata';
-import {Badge} from '@alchemy/next-ui/ui/misc';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityGrid} from './EntityGrid';
@@ -51,22 +50,13 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
             getItem={getEntityList}
             itemQueryKey={['entity-lists', workspace.id, 'item']}
             renderItem={l => <span className="block truncate">{l.name}</span>}
-            renderItemDetails={l =>
-                l.allowNewValues ? (
-                    <Badge variant="muted">
-                        {t('entity_list.open', 'open')}
-                    </Badge>
-                ) : null
-            }
             onDelete={l => deleteEntityList(l.id)}
             createLabel={t('entity_list.create', 'New list')}
             manageLabel={t('entity_list.manage', 'Values')}
             renderRowActions={l => (
-                <ExploreEntityListButton
-                    listId={l.id}
-                    className="h-7 text-xs"
-                />
+                <ExploreEntityListButton listId={l.id} iconOnly />
             )}
+            narrowPanel
             renderManage={(l, back) => (
                 <EntityGrid list={l} workspace={workspace} onBack={back} />
             )}

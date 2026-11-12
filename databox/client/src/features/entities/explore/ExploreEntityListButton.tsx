@@ -18,6 +18,8 @@ import type {EntityListRef} from './useEntityListsOfFacet';
 type Props = {
     /** Smaller, for the facets and the pickers */
     compact?: boolean;
+    /** The icon alone, the label as its tooltip */
+    iconOnly?: boolean;
     className?: string;
     /** Called when leaving for the exploration (to close the overlay it sits in) */
     onNavigate?: () => void;
@@ -33,6 +35,7 @@ type Props = {
 /** Opens the exploration of the values of an entity list */
 export function ExploreEntityListButton({
     compact,
+    iconOnly,
     className,
     onNavigate,
     ...props
@@ -46,16 +49,24 @@ export function ExploreEntityListButton({
 
     if (listId) {
         return (
-            <Button asChild variant="ghost" size="sm" className={buttonClass}>
+            <Button
+                asChild
+                variant="ghost"
+                size={iconOnly ? 'icon-xs' : 'sm'}
+                className={buttonClass}
+            >
                 <Link
                     href={routes.entityListExplore(listId)}
                     data-testid="entity-list-explore"
+                    aria-label={iconOnly ? label : undefined}
+                    title={iconOnly ? label : undefined}
                     onClick={e => {
                         e.stopPropagation();
                         onNavigate?.();
                     }}
                 >
-                    <CompassIcon /> {label}
+                    <CompassIcon />
+                    {iconOnly ? null : <> {label}</>}
                 </Link>
             </Button>
         );

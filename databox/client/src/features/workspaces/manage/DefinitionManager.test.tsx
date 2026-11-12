@@ -144,6 +144,22 @@ describe('DefinitionManager', () => {
         );
     });
 
+    it('opens the management panel of a row on a double click', () => {
+        const navigate = vi.fn();
+        renderManager({
+            segments: [],
+            navigate,
+            renderManage: () => null,
+            manageLabel: 'Values',
+        });
+
+        fireEvent.doubleClick(screen.getByText('Bravo'));
+
+        return waitFor(() =>
+            expect(navigate).toHaveBeenLastCalledWith(['b', 'manage'])
+        );
+    });
+
     it('shows the details of a row on a second line, after the name', () => {
         renderManager({
             renderItemDetails: i => (

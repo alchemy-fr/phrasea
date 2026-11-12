@@ -84,7 +84,8 @@ type Props<D extends DefinitionItem> = {
     toolbar?: ReactNode;
     /**
      * Render a nested management panel for the selected item (e.g. entities
-     * of a list). It gets the URL below `:id/manage` (`useRoutePath`).
+     * of a list), opened by the manage button or a double click on the row.
+     * It gets the URL below `:id/manage` (`useRoutePath`).
      */
     renderManage?: (item: D, back: () => void) => ReactNode;
     manageLabel?: string;
@@ -92,6 +93,8 @@ type Props<D extends DefinitionItem> = {
     renderRowActions?: (item: D) => ReactNode;
     /** Take the whole height of the parent (a flex column); both panes scroll */
     fill?: boolean;
+    /** A short form: the edit panel takes less width than the list */
+    narrowPanel?: boolean;
     /** More items to load (`onReachEnd`) after `items` */
     hasMore?: boolean;
     loadingMore?: boolean;
@@ -147,6 +150,7 @@ export function DefinitionManager<D extends DefinitionItem>({
     manageLabel,
     renderRowActions,
     fill,
+    narrowPanel,
     hasMore,
     loadingMore,
     onReachEnd,
@@ -296,7 +300,10 @@ export function DefinitionManager<D extends DefinitionItem>({
             className={cn(
                 'grid gap-4',
                 // minmax(0, …): wide content (YAML, references) must not widen the columns
-                panelOpen && 'lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]',
+                panelOpen &&
+                    (narrowPanel
+                        ? 'lg:grid-cols-[minmax(16rem,1fr)_minmax(0,1fr)]'
+                        : 'lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]'),
                 fill && 'min-h-0 flex-1 lg:grid-rows-[minmax(0,1fr)]'
             )}
         >
@@ -625,8 +632,13 @@ function RowView({
             ) : null}
             <button
                 type="button"
-                className="min-w-0 flex-1 px-2 py-2 text-left"
+                className={cn(
+                    'min-w-0 flex-1 px-2 py-2 text-left',
+                    // A double click opens the management panel, not a text selection
+                    onManage && 'select-none'
+                )}
                 onClick={onClick}
+                onDoubleClick={onManage}
             >
                 <span className="flex flex-col gap-0.5">
                     <span className="min-w-0 truncate">{children}</span>
