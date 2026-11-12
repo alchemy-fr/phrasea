@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Phrasea\Expose;
 
-use Alchemy\AuthBundle\Security\DataboxIntegrationClient;
+use Alchemy\AuthBundle\Security\ApiAudience;
 use Alchemy\CoreBundle\Upload\MultipartUploader;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
@@ -14,7 +14,6 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Integration\IntegrationToken;
 use App\Http\LocaleContext;
-use App\Integration\Auth\OAuthRedirectUriMatcher;
 use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Model\MediaClip;
@@ -41,7 +40,6 @@ final readonly class ExposeClient
         private MultipartUploader $multipartUploader,
         private MediaClipper $mediaClipper,
         private ExposeAttributeHtmlRenderer $attributeHtmlRenderer,
-        private OAuthRedirectUriMatcher $redirectUriMatcher,
     ) {
     }
 
@@ -153,9 +151,9 @@ final readonly class ExposeClient
         $response = $e->getResponse();
         if (Response::HTTP_UNAUTHORIZED === $response->getStatusCode()) {
             return new BadRequestHttpException(sprintf(
-                'Expose refused the access token of the OAuth client "%s": the client must be allowed on Expose (created from Databox, redirect URIs under %s only, or listed in EXPOSE_API_ALLOWED_CLIENT_IDS), and the Expose service account needs the "view-clients" role of "realm-management" (run bin/migrate.sh). See doc/tech/Authentication/clients.md.',
+                'Expose refused the access token of the OAuth client "%1$s": the client must have the "%2$s" client scope, which puts Expose in the audience of its tokens (in Keycloak: Clients › %1$s › Client scopes › Add client scope › %2$s, as Default), then the users must authorize the integration again. See doc/tech/Authentication/clients.md.',
                 $config['clientId'] ?? '',
-                $this->redirectUriMatcher->getClientRootUrl().DataboxIntegrationClient::INTEGRATIONS_PATH,
+                ApiAudience::getScopeName('expose'),
             ), $e);
         }
 

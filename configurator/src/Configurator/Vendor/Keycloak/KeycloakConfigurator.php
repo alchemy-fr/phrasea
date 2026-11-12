@@ -133,6 +133,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 ],
             ]);
         }
+
+        $this->configureApiAudiences();
     }
 
     public function synchronize(): void
@@ -140,6 +142,100 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->configureRealm();
         $this->configureGroupAdminRole();
         $this->configureClients();
+        $this->configureApiAudiences();
+    }
+
+    /**
+     * Each API only accepts the access tokens whose audience ("aud" claim) includes its admin client
+     * (see JwtValidator of the auth bundle), but the ones of its admin client itself. The client scope
+     * "<app>-api" of each API puts it there, through an audience mapper: the clients calling an API have
+     * its scope among their default ones.
+     */
+    private function configureApiAudiences(): void
+    {
+        foreach ($this->symfonyApplications as $app) {
+            $scopeName = self::getApiScopeName($app);
+            $this->keycloakManager->createScope($scopeName, [
+                'description' => sprintf('Access to the %s API: audience of the access tokens', ucwords($app)),
+                'attributes' => [
+                    // Not mixed with the functional scopes of the "scope" claim
+                    'include.in.token.scope' => 'false',
+                ],
+            ]);
+            $scope = $this->keycloakManager->getScopeByName($scopeName);
+            if (null === $scope) {
+                throw new \InvalidArgumentException(sprintf('Scope named "%s" not found in client scopes', $scopeName));
+            }
+
+            $mapperName = 'audience';
+            $mapperData = [
+                'protocol' => 'openid-connect',
+                'protocolMapper' => 'oidc-audience-mapper',
+                'name' => $mapperName,
+                'config' => [
+                    'included.client.audience' => EnvHelper::getEnvOrThrow(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app))),
+                    'access.token.claim' => 'true',
+                    'id.token.claim' => 'false',
+                    'introspection.token.claim' => 'true',
+                ],
+            ];
+            $protocolMapper = $this->keycloakManager->getClientScopeProtocolMapperByName($scope['id'], $mapperName);
+            if (null === $protocolMapper) {
+                $this->keycloakManager->addClientScopeProtocolMapper($scope['id'], $mapperData);
+            } else {
+                $this->keycloakManager->putClientScopeProtocolMapper($scope['id'], $protocolMapper['id'], $mapperData);
+            }
+        }
+
+        foreach ($this->getApiAudienceClients() as $clientId => $apps) {
+            $client = $this->keycloakManager->getClientByClientId($clientId);
+            if (null === $client) {
+                continue;
+            }
+
+            foreach ($apps as $app) {
+                $this->keycloakManager->addScopeToClient(self::getApiScopeName($app), $client['id'], true);
+            }
+        }
+
+        // The clients Databox creates for its integrations (CreateOAuthClientProcessor), whose tokens reach Expose
+        foreach ($this->keycloakManager->getClientsByAttribute('phrasea.created_by', 'databox') as $client) {
+            $this->keycloakManager->addScopeToClient(self::getApiScopeName('expose'), $client['id'], true);
+        }
+    }
+
+    /**
+     * The APIs each client calls with its access tokens, by client ID. The admin clients of the APIs are
+     * accepted by their own API without audience.
+     *
+     * @return array<string, string[]>
+     */
+    private function getApiAudienceClients(): array
+    {
+        $clients = [];
+        foreach ([
+            [EnvHelper::getEnvOrThrow('DATABOX_CLIENT_ID'), ['databox']],
+            [EnvHelper::getEnvOrThrow('EXPOSE_CLIENT_ID'), ['expose']],
+            // The Uploader API forwards the token of the user to Databox
+            [EnvHelper::getEnvOrThrow('UPLOADER_CLIENT_ID'), ['uploader', 'databox']],
+            [EnvHelper::getEnvOrThrow('DASHBOARD_CLIENT_ID'), ['databox']],
+            [EnvHelper::getEnv('INDEXER_DATABOX_CLIENT_ID'), ['databox']],
+            [EnvHelper::getEnv('DATABOX_EXPOSE_INTEGRATION_CLIENT_ID'), ['expose']],
+            // Created by the "dev" preset
+            ['postman', ['databox', 'expose', 'uploader']],
+        ] as [$clientId, $apps]) {
+            if (empty($clientId)) {
+                continue;
+            }
+            $clients[$clientId] = array_values(array_unique([...$clients[$clientId] ?? [], ...$apps]));
+        }
+
+        return $clients;
+    }
+
+    private static function getApiScopeName(string $app): string
+    {
+        return sprintf('%s-api', $app);
     }
 
     private function configureGroupAdminRole(): void
@@ -304,11 +400,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return [
             'databox' => [
                 'manage-users',
-            ],
-            // Expose accepts the tokens of the clients Databox creates for its integrations,
-            // which it reads from Keycloak (DataboxIntegrationClientIds).
-            'expose' => [
-                'view-clients',
             ],
         ];
     }

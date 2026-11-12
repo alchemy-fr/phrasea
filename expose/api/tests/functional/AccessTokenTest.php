@@ -8,7 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 
 class AccessTokenTest extends AbstractExposeTestCase
 {
-    public function testAcceptsTheAccessTokenOfAnAllowedClient(): void
+    public function testAcceptsAnAccessTokenForTheApi(): void
     {
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/publications');
         $this->assertSame(200, $response->getStatusCode());
@@ -21,21 +21,33 @@ class AccessTokenTest extends AbstractExposeTestCase
         $this->assertSame('Invalid token.', json_decode((string) $response->getContent(), true)['message']);
     }
 
-    public function testRefusesAnUnknownClient(): void
+    public function testRefusesATokenWithoutTheAudienceOfExpose(): void
     {
-        $response = $this->request($this->createUserJwt(['azp' => 'unknown-client']), 'GET', '/publications');
+        $response = $this->request($this->createUserJwt(['aud' => null]), 'GET', '/publications');
+        $this->assertSame(401, $response->getStatusCode());
+
+        // A token for another API only
+        $response = $this->request($this->createUserJwt(['azp' => 'databox-app', 'aud' => 'another-api-admin']), 'GET', '/publications');
         $this->assertSame(401, $response->getStatusCode());
     }
 
-    public function testAcceptsAClientCreatedByDatabox(): void
+    public function testAcceptsAnyClientGivenTheAudienceOfExpose(): void
     {
-        // "an-integration" carries the attribute set by Databox in the Keycloak mock
-        $response = $this->request($this->createUserJwt(['azp' => 'an-integration']), 'GET', '/publications');
+        // e.g. a client created by Databox for its integrations, which has the "expose-api" client scope
+        $response = $this->request($this->createUserJwt([
+            'azp' => 'an-integration',
+            'aud' => [KeycloakClientTestMock::getApiAudience(), 'account'],
+        ]), 'GET', '/publications');
         $this->assertSame(200, $response->getStatusCode());
+    }
 
-        // a public client of the realm not created by Databox
-        $response = $this->request($this->createUserJwt(['azp' => 'account-console']), 'GET', '/publications');
-        $this->assertSame(401, $response->getStatusCode());
+    public function testAcceptsTheAdminClientOfExposeWithoutAudience(): void
+    {
+        $response = $this->request($this->createUserJwt([
+            'azp' => KeycloakClientTestMock::getApiAudience(),
+            'aud' => null,
+        ]), 'GET', '/publications');
+        $this->assertSame(200, $response->getStatusCode());
     }
 
     private function createUserJwt(array $claims): string

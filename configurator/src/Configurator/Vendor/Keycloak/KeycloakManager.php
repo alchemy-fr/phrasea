@@ -118,6 +118,17 @@ final class KeycloakManager
         return null;
     }
 
+    /**
+     * The clients of the realm having an attribute of the given value.
+     */
+    public function getClientsByAttribute(string $name, string $value): array
+    {
+        return array_values(array_filter(
+            $this->getClients(),
+            fn (array $client): bool => $value === ($client['attributes'][$name] ?? null),
+        ));
+    }
+
     public function getDefaultClientScopes(): array
     {
         return $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/default-default-client-scopes', [
@@ -297,7 +308,7 @@ final class KeycloakManager
         return $response->toArray();
     }
 
-    private function getScopeByName(string $name): ?array
+    public function getScopeByName(string $name): ?array
     {
         $scopes = $this->getScopes();
 

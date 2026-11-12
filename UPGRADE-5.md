@@ -16,8 +16,9 @@ Follow these steps in order. Each one is detailed in the sections below.
    `*_ALLOWED_FILE_TYPES` as type/extension couples, without `*/*`, and pass
    `ALLOWED_FILE_TYPES` to the Expose API (see
    [Allowed file types and file serving](#allowed-file-types-and-file-serving)).
-   Declare in `*_API_ALLOWED_CLIENT_IDS` the custom Keycloak clients calling the
-   APIs (see [Access tokens: allowed clients](#access-tokens-allowed-clients)).
+   Give the custom Keycloak clients calling the APIs the client scope of each
+   API they call, once `bin/migrate.sh` has created them (see
+   [Access tokens: audiences](#access-tokens-audiences)).
 4. Start Elasticsearch 9:
 
     ```bash
@@ -311,41 +312,37 @@ act on behalf of another user by sending the `X-Impersonate-User` header. This
 role is part of `realm-admin`, granted to the default admin. There is no switch
 to disable it: review who holds these roles.
 
-### Access tokens: allowed clients
+### Access tokens: audiences
 
 The APIs used to accept any token signed by the realm. They now only accept
-the access tokens (`typ: Bearer`, so no more ID tokens) of the OAuth clients
-allowed on each of them, matched against the `azp` claim (else `client_id`),
-and check `nbf` and `iat` besides `exp` (30 seconds of clock skew tolerated).
-See [Access tokens and allowed clients](doc/tech/Authentication/clients.md).
+the access tokens (`typ: Bearer`, so no more ID tokens) whose audience (`aud`
+claim) includes the admin client of the API (`*_ADMIN_CLIENT_ID`), and check
+`nbf` and `iat` besides `exp` (30 seconds of clock skew tolerated). The tokens
+of the admin client itself are accepted without audience. See
+[Access tokens and audiences](doc/tech/Authentication/clients.md).
 
-- New variables, passed to the APIs as `ALLOWED_CLIENT_IDS` (comma separated):
-  `DATABOX_API_ALLOWED_CLIENT_IDS` (default: Databox, Dashboard and Uploader
-  clients, Databox indexer), `EXPOSE_API_ALLOWED_CLIENT_IDS` (Expose client,
-  `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`) and `UPLOADER_API_ALLOWED_CLIENT_IDS`
-  (Uploader client). The admin client of each API (`*_ADMIN_CLIENT_ID`) is
-  always allowed. The defaults are built from the existing `*_CLIENT_ID`
-  variables: a stack with the standard clients has nothing to change.
+- Keycloak gives the audiences: `bin/migrate.sh` (Keycloak synchronization)
+  creates a client scope per API (`databox-api`, `expose-api`, `uploader-api`,
+  with an audience mapper) and adds them to the default scopes of the clients
+  of the stack: Databox, Expose, Uploader (Uploader and Databox) and Dashboard
+  clients, Databox indexer, `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`, `postman`
+  when it exists, and every client created from Databox for its integrations
+  (Keycloak attribute `phrasea.created_by=databox`). No variable to set.
+- Until it has run, and for the tokens issued before, the APIs answer
+  `401 Invalid token.`: users log in again (the Expose integrations of
+  Databox are authorized again by their users).
 - Deployments with custom clients (scripts, MCP clients, integrations whose
-  Keycloak client was created by hand, the `postman` client of the `dev`
-  preset…) must declare them, or their calls answer `401 Invalid token.` (the
-  API logs the refused client ID).
-- The clients created from Databox for its integrations stay accepted by
-  Expose: its admin client's service account now gets the `view-clients` role
-  of `realm-management`, granted by the configurator at the next
-  `bin/migrate.sh` (Keycloak synchronization). Until it has run, Expose refuses
-  them (`401`, shown in Databox as "Expose refused the access token of the
-  OAuth client…").
-- Expose also accepts the public clients (standard flow only) whose redirect
-  URIs all lead to `<DATABOX_API_URL>/integrations/`: the Expose API now reads
-  `DATABOX_API_URL` (empty: rule disabled). The Databox API reads
-  `EXPOSE_ALLOWED_CLIENT_IDS` (the `EXPOSE_API_ALLOWED_CLIENT_IDS` of the
-  stack) to flag the clients Expose refuses in the client picker of the Expose
-  integration.
-- Helm: pass `ALLOWED_CLIENT_IDS` to the three APIs (and the workers) when the
-  client IDs differ from the defaults (`databox-app`, `expose-app`…),
-  `DATABOX_API_URL` to the Expose API and `EXPOSE_ALLOWED_CLIENT_IDS` to the
-  Databox API.
+  Keycloak client was created by hand…) must give them the scope of each API
+  they call, as a default client scope (Clients › `<client>` › Client scopes ›
+  Add client scope), or their calls answer `401 Invalid token.` (the API logs
+  the refused client and the scope it lacks).
+- No `ALLOWED_CLIENT_IDS` / `*_API_ALLOWED_CLIENT_IDS` /
+  `EXPOSE_ALLOWED_CLIENT_IDS` variables (they briefly existed on the 5.0
+  development branch): remove them from `.env.local` and the deployment
+  values if you added them. The Expose API does not read `DATABOX_API_URL`.
+- The `view-clients` role of `realm-management` that a development version of
+  the configurator granted to the service account of the Expose admin client is
+  no longer needed; it is left in place, without effect, and can be removed.
 
 ### Helm
 

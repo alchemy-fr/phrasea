@@ -92,6 +92,7 @@ class KeycloakClientTestMock implements HttpClientInterface
             'standardFlowEnabled' => true,
             'rootUrl' => 'http://localhost',
             'redirectUris' => ['http://localhost/*'],
+            'defaultClientScopes' => ['web-origins', 'profile', 'roles', 'expose-api', 'email'],
         ],
         [
             'id' => 'c0000002-fc1a-492b-9e76-c2e8e6979786',
@@ -103,6 +104,7 @@ class KeycloakClientTestMock implements HttpClientInterface
             'standardFlowEnabled' => true,
             'rootUrl' => 'https://databox.phrasea.test',
             'redirectUris' => ['/*'],
+            'defaultClientScopes' => ['web-origins', 'profile', 'roles', 'databox-api', 'email'],
         ],
         [
             'id' => 'c0000003-fc1a-492b-9e76-c2e8e6979786',
@@ -135,8 +137,26 @@ class KeycloakClientTestMock implements HttpClientInterface
             'attributes' => [
                 'phrasea.created_by' => 'databox',
             ],
+            'defaultClientScopes' => ['web-origins', 'profile', 'roles', 'expose-api', 'email'],
         ],
     ];
+
+    /**
+     * Client scopes of the realm, as returned by the IdP.
+     */
+    final public const array CLIENT_SCOPES = [
+        ['id' => 'd0000001-fc1a-492b-9e76-c2e8e6979786', 'name' => 'profile'],
+        ['id' => 'd0000002-fc1a-492b-9e76-c2e8e6979786', 'name' => 'databox-api'],
+        ['id' => 'd0000003-fc1a-492b-9e76-c2e8e6979786', 'name' => 'expose-api'],
+        ['id' => 'd0000004-fc1a-492b-9e76-c2e8e6979786', 'name' => 'uploader-api'],
+    ];
+
+    /**
+     * Client scopes added to the default ones of a client during the test: client UUID => scope IDs.
+     *
+     * @var array<string, list<string>>
+     */
+    public static array $addedDefaultClientScopes = [];
 
     /**
      * Clients created during the test, by client ID, as sent to the IdP.
@@ -157,8 +177,7 @@ class KeycloakClientTestMock implements HttpClientInterface
     ];
 
     /**
-     * The client of the user tokens ("azp" claim), allowed on the APIs in the test environment
-     * (see TestAllowedClientIdsProvider).
+     * The client of the user tokens ("azp" claim).
      */
     final public const string CLIENT_ID = 'test-app';
 
@@ -193,10 +212,25 @@ class KeycloakClientTestMock implements HttpClientInterface
     }
 
     /**
-     * An access token of the realm, as Keycloak issues them (issuer, dates, "typ" and "azp" claims),
-     * signed with the test key.
+     * The audience of the API under test, given to the forged tokens: its admin client
+     * (ADMIN_CLIENT_ID, read as the kernel reads it).
+     */
+    public static function getApiAudience(): string
+    {
+        $audience = $_ENV['ADMIN_CLIENT_ID'] ?? $_SERVER['ADMIN_CLIENT_ID'] ?? getenv('ADMIN_CLIENT_ID');
+        if (!is_string($audience) || '' === $audience) {
+            throw new \LogicException('ADMIN_CLIENT_ID is not defined');
+        }
+
+        return $audience;
+    }
+
+    /**
+     * An access token of the realm, as Keycloak issues them (issuer, dates, "typ", "azp" claims, and the
+     * API under test as audience), signed with the test key.
      *
-     * @param array<string, mixed> $claims the other claims, or ones replacing the defaults ("azp", "typ"…)
+     * @param array<string, mixed> $claims the other claims, or ones replacing the defaults ("azp", "typ", "aud"…);
+     *                                     null removes a claim
      */
     public static function createJwt(array $claims, ?string $subject = null): string
     {
@@ -221,9 +255,15 @@ class KeycloakClientTestMock implements HttpClientInterface
         foreach ([
             'typ' => JwtValidator::ACCESS_TOKEN_TYPE,
             'azp' => self::CLIENT_ID,
+            'aud' => self::getApiAudience(),
             ...$claims,
         ] as $name => $value) {
-            $builder = $builder->withClaim($name, $value);
+            if (null === $value) {
+                continue;
+            }
+            $builder = 'aud' === $name
+                ? $builder->permittedFor(...(array) $value)
+                : $builder->withClaim($name, $value);
         }
 
         return $builder->getToken(new Sha256(), $key)->toString();
@@ -254,6 +294,21 @@ class KeycloakClientTestMock implements HttpClientInterface
 
         if (str_ends_with($url, '/admin/realms/phrasea/clients')) {
             return $this->handleClients($args);
+        }
+
+        if ('GET' === $method && str_ends_with($url, '/admin/realms/phrasea/client-scopes')) {
+            return $this->createResponse($args, 200, self::CLIENT_SCOPES);
+        }
+
+        if ('PUT' === $method && 1 === preg_match('#/admin/realms/phrasea/clients/([^/]+)/default-client-scopes/([^/]+)$#', $url, $match)) {
+            if (null === self::getClientScopeName($match[2])) {
+                return $this->createResponse($args, 404, [
+                    'error' => 'Could not find client scope',
+                ]);
+            }
+            self::$addedDefaultClientScopes[$match[1]][] = $match[2];
+
+            return $this->createResponse($args, 204, []);
         }
 
         if ('GET' !== $method && 1 === preg_match('#/admin/realms/phrasea/(?:groups(?:/[^/]+)?|users/[^/]+/groups/[^/]+)$#', $url)) {
@@ -362,9 +417,19 @@ class KeycloakClientTestMock implements HttpClientInterface
         $clients = [...self::CLIENTS];
         foreach (self::$createdClients as $clientId => $data) {
             $clients[] = [
+                // The default scopes of the realm, when the representation sent has none
+                'defaultClientScopes' => ['web-origins', 'profile', 'roles', 'email'],
                 ...$data,
                 'id' => md5($clientId),
             ];
+        }
+        foreach ($clients as $i => $client) {
+            foreach (self::$addedDefaultClientScopes[$client['id']] ?? [] as $scopeId) {
+                $clients[$i]['defaultClientScopes'] = array_values(array_unique([
+                    ...$clients[$i]['defaultClientScopes'] ?? [],
+                    self::getClientScopeName($scopeId),
+                ]));
+            }
         }
 
         if (isset($query['clientId'])) {
@@ -379,6 +444,17 @@ class KeycloakClientTestMock implements HttpClientInterface
             (int) ($query['first'] ?? 0),
             (int) ($query['max'] ?? 100),
         ));
+    }
+
+    private static function getClientScopeName(string $scopeId): ?string
+    {
+        foreach (self::CLIENT_SCOPES as $scope) {
+            if ($scopeId === $scope['id']) {
+                return $scope['name'];
+            }
+        }
+
+        return null;
     }
 
     /**

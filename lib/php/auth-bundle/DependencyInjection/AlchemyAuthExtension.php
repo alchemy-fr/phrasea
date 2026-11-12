@@ -5,7 +5,6 @@ namespace Alchemy\AuthBundle\DependencyInjection;
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Listener\LogoutListener;
-use Alchemy\AuthBundle\Security\AllowedClientIdsProviderInterface;
 use Alchemy\AuthBundle\Security\Impersonator;
 use Alchemy\AuthBundle\Security\JwtExtractor;
 use Alchemy\AuthBundle\Security\JwtUserProvider;
@@ -53,11 +52,8 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
         $def->setArgument('$requiredRoles', $config['required_roles']);
 
         $def = $container->findDefinition(JwtValidator::class);
-        $def->setArgument('$allowedClientIds', $config['allowed_client_ids']);
         $def->setArgument('$clientId', $config['client_id']);
         $def->setArgument('$tokenLeeway', $config['token_leeway']);
-        $container->registerForAutoconfiguration(AllowedClientIdsProviderInterface::class)
-            ->addTag(AllowedClientIdsProviderInterface::TAG);
 
         $def = $container->findDefinition(OAuthAuthorizationAuthenticator::class);
         $def->setArgument('$clientId', $config['client_id']);

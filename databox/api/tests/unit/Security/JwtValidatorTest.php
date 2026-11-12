@@ -6,7 +6,6 @@ namespace App\Tests\Unit\Security;
 
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
-use Alchemy\AuthBundle\Security\AllowedClientIdsProviderInterface;
 use Alchemy\AuthBundle\Security\JwtValidator;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
@@ -18,6 +17,9 @@ use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\MockClock;
@@ -29,7 +31,7 @@ class JwtValidatorTest extends TestCase
     private const string NOW = '2026-11-11 12:00:00';
     private const string ADMIN_CLIENT_ID = 'databox-admin';
 
-    public function testAcceptsAnAccessTokenOfAnAllowedClient(): void
+    public function testAcceptsAnAccessTokenForTheApi(): void
     {
         $this->assertTrue($this->createValidator()->isTokenValid($this->createToken()));
     }
@@ -44,56 +46,63 @@ class JwtValidatorTest extends TestCase
         $this->assertFalse($this->createValidator()->isTokenValid($this->createToken(['typ' => null])));
     }
 
-    public function testRefusesAnUnknownClient(): void
-    {
-        $this->assertFalse($this->createValidator()->isTokenValid($this->createToken(['azp' => 'another-app'])));
-    }
-
-    public function testRefusesATokenWithoutClient(): void
-    {
-        $this->assertFalse($this->createValidator()->isTokenValid($this->createToken(['azp' => null])));
-    }
-
-    public function testAcceptsTheClientOfTheApplication(): void
-    {
-        $this->assertTrue($this->createValidator()->isTokenValid($this->createToken(['azp' => self::ADMIN_CLIENT_ID])));
-    }
-
-    public function testFallsBackToTheClientIdClaim(): void
+    public function testAcceptsTheAudienceAmongOthers(): void
     {
         $validator = $this->createValidator();
 
-        $this->assertTrue($validator->isTokenValid($this->createToken(['azp' => null, 'client_id' => 'databox-indexer'])));
-        $this->assertFalse($validator->isTokenValid($this->createToken(['azp' => null, 'client_id' => 'another-app'])));
+        $this->assertTrue($validator->isTokenValid($this->createToken(['aud' => ['uploader-admin', self::ADMIN_CLIENT_ID, 'account']])));
+        $this->assertTrue($validator->isTokenValid($this->createToken(['azp' => 'another-app', 'aud' => self::ADMIN_CLIENT_ID])));
+    }
+
+    public function testRefusesATokenWithoutTheAudienceOfTheApi(): void
+    {
+        $validator = $this->createValidator();
+
+        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => null])));
+        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => 'expose-admin'])));
+        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => ['expose-admin', 'account']])));
+        // A client is not an audience
+        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => 'databox-app'])));
+    }
+
+    public function testAcceptsTheClientOfTheApplicationWithoutAudience(): void
+    {
+        $validator = $this->createValidator();
+
+        $this->assertTrue($validator->isTokenValid($this->createToken(['azp' => self::ADMIN_CLIENT_ID, 'aud' => null])));
+        $this->assertTrue($validator->isTokenValid($this->createToken(['azp' => null, 'client_id' => self::ADMIN_CLIENT_ID, 'aud' => null])));
         // azp wins over client_id
-        $this->assertFalse($validator->isTokenValid($this->createToken(['azp' => 'another-app', 'client_id' => 'databox-indexer'])));
+        $this->assertFalse($validator->isTokenValid($this->createToken(['azp' => 'another-app', 'client_id' => self::ADMIN_CLIENT_ID, 'aud' => null])));
     }
 
-    public function testAsksTheProvidersForTheOtherClients(): void
+    public function testRefusesATokenWithoutClientNorAudience(): void
     {
-        $asked = [];
-        $provider = $this->createMock(AllowedClientIdsProviderInterface::class);
-        $provider->method('isClientAllowed')->willReturnCallback(function (string $clientId) use (&$asked): bool {
-            $asked[] = $clientId;
-
-            return 'an-integration' === $clientId;
-        });
-        $validator = $this->createValidator(providers: [$provider]);
-
-        $this->assertTrue($validator->isTokenValid($this->createToken(['azp' => 'an-integration'])));
-        $this->assertFalse($validator->isTokenValid($this->createToken(['azp' => 'another-app'])));
-        $this->assertTrue($validator->isTokenValid($this->createToken()));
-        $this->assertSame(['an-integration', 'another-app'], $asked);
+        $this->assertFalse($this->createValidator()->isTokenValid($this->createToken(['azp' => null, 'aud' => null])));
     }
 
-    public function testNeverAsksTheProvidersForAnInvalidToken(): void
+    public function testNamesTheClientScopeToAddWhenRefusingTheAudience(): void
     {
-        $provider = $this->createMock(AllowedClientIdsProviderInterface::class);
-        $provider->expects($this->never())->method('isClientAllowed');
-        $validator = $this->createValidator(providers: [$provider]);
+        $logger = new class extends AbstractLogger {
+            /**
+             * @var list<array{string, array<string, mixed>}>
+             */
+            public array $warnings = [];
 
-        $this->assertFalse($validator->isTokenValid($this->createToken(['azp' => 'an-integration', 'typ' => 'ID'])));
-        $this->assertFalse($validator->isTokenValid($this->createToken(['azp' => 'an-integration'], issuer: 'https://other.test/realms/phrasea')));
+            public function log($level, \Stringable|string $message, array $context = []): void
+            {
+                if (LogLevel::WARNING === $level) {
+                    $this->warnings[] = [(string) $message, $context];
+                }
+            }
+        };
+
+        $this->assertFalse($this->createValidator(logger: $logger)->isTokenValid($this->createToken(['aud' => 'expose-admin'])));
+        $this->assertCount(1, $logger->warnings);
+        $this->assertSame([
+            'client_id' => 'databox-app',
+            'audience' => self::ADMIN_CLIENT_ID,
+            'scope' => 'databox-api',
+        ], $logger->warnings[0][1]);
     }
 
     public function testRefusesATokenSignedByAnotherKey(): void
@@ -138,10 +147,7 @@ class JwtValidatorTest extends TestCase
         $this->assertTrue($this->createValidator(leeway: 60)->isTokenValid($this->createToken(dates: ['+50 seconds', '-1 minute', '+5 minutes'])));
     }
 
-    /**
-     * @param AllowedClientIdsProviderInterface[] $providers
-     */
-    private function createValidator(int $leeway = 30, array $providers = []): JwtValidator
+    private function createValidator(int $leeway = 30, ?LoggerInterface $logger = null): JwtValidator
     {
         return new JwtValidator(
             new KeycloakClient(
@@ -153,16 +159,16 @@ class JwtValidatorTest extends TestCase
             ),
             new KeycloakUrlGenerator(self::KEYCLOAK_URL, null, 'phrasea'),
             new MockClock(self::NOW),
-            new NullLogger(),
-            ['databox-app', ' databox-indexer ', ''],
+            $logger ?? new NullLogger(),
             self::ADMIN_CLIENT_ID,
             $leeway,
-            $providers,
+            'databox',
         );
     }
 
     /**
-     * @param array<string, mixed>          $claims the claims replacing the ones of an access token of "databox-app" (null removes the claim)
+     * @param array<string, mixed>          $claims the claims replacing the ones of an access token of "databox-app" for the
+     *                                              API (null removes the claim)
      * @param array{string, string, string} $dates  iat, nbf and exp, relative to NOW
      */
     private function createToken(
@@ -182,13 +188,17 @@ class JwtValidatorTest extends TestCase
         $claims = [
             'typ' => JwtValidator::ACCESS_TOKEN_TYPE,
             'azp' => 'databox-app',
+            'aud' => [self::ADMIN_CLIENT_ID, 'account'],
             'preferred_username' => 'user',
             ...$claims,
         ];
         foreach ($claims as $name => $value) {
-            if (null !== $value) {
-                $builder = $builder->withClaim($name, $value);
+            if (null === $value) {
+                continue;
             }
+            $builder = 'aud' === $name
+                ? $builder->permittedFor(...(array) $value)
+                : $builder->withClaim($name, $value);
         }
 
         $keyDir = dirname((string) new \ReflectionClass(KeycloakClientTestMock::class)->getFileName());

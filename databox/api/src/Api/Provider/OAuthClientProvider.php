@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Client\KeycloakClient;
-use Alchemy\AuthBundle\Security\DataboxIntegrationClient;
+use Alchemy\AuthBundle\Security\ApiAudience;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\KeycloakTokenOwnerTrait;
 use ApiPlatform\Metadata\Operation;
@@ -13,7 +13,6 @@ use ApiPlatform\State\ProviderInterface;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Integration\Auth\OAuthRedirectUriMatcher;
 use App\Model\OAuthClient;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -40,14 +39,9 @@ final class OAuthClientProvider implements ProviderInterface
         'security-admin-console',
     ];
 
-    /**
-     * @param string[] $exposeAllowedClientIds the clients listed in the ALLOWED_CLIENT_IDS of the Expose API
-     */
     public function __construct(
         private readonly KeycloakClient $keycloakClient,
         private readonly OAuthRedirectUriMatcher $redirectUriMatcher,
-        #[Autowire('%env(csv:EXPOSE_ALLOWED_CLIENT_IDS)%')]
-        private readonly array $exposeAllowedClientIds,
     ) {
     }
 
@@ -104,9 +98,8 @@ final class OAuthClientProvider implements ProviderInterface
         $client->description = !empty($data['description']) ? $data['description'] : null;
         $client->redirectUris = array_values(array_filter($data['redirectUris'] ?? [], is_string(...)));
         $client->redirectUriAllowed = OAuthRedirectUriMatcher::isAllowed($target, $client->redirectUris, $data['rootUrl'] ?? null);
-        // The clients of the integrations have their redirect URIs under the root URL of the API
-        $client->acceptedByExpose = in_array($client->clientId, array_map(trim(...), $this->exposeAllowedClientIds), true)
-            || DataboxIntegrationClient::isAccepted($data, $this->redirectUriMatcher->getClientRootUrl());
+        // Expose requires its audience, given by its client scope
+        $client->acceptedByExpose = in_array(ApiAudience::getScopeName('expose'), $data['defaultClientScopes'] ?? [], true);
 
         return $client;
     }

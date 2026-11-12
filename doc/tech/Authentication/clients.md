@@ -1,4 +1,4 @@
-# Access tokens and allowed clients
+# Access tokens and audiences
 
 The Databox, Expose and Uploader APIs authenticate their requests with a Keycloak access token of the
 Phrasea realm (`Authorization: Bearer <token>`), checked by `Alchemy\AuthBundle\Security\JwtValidator`
@@ -15,55 +15,39 @@ A token is accepted when all of these hold:
   clock skew between Keycloak and the API (`alchemy_auth.token_leeway`, in seconds).
 - **Type**: the `typ` claim is `Bearer`. The ID tokens (`typ: ID`) and refresh tokens, signed by the same
   key, are refused: an ID token travels more than an access token (e.g. `id_token_hint` of the logout).
-- **Client**: the client the token was issued to, read from the `azp` claim (else `client_id`), is allowed
-  on this API.
+- **Audience**: the `aud` claim (a string or a list) includes the **admin client of the API**
+  (`ADMIN_CLIENT_ID` of the API: `DATABOX_ADMIN_CLIENT_ID`, `EXPOSE_ADMIN_CLIENT_ID`,
+  `UPLOADER_ADMIN_CLIENT_ID`, read by the bundle as `alchemy_auth.client_id`). The tokens of that admin
+  client itself (admin, Swagger UI, client credentials of its service account), read from the `azp` claim
+  (else `client_id`), are accepted without it.
 
-The audience (`aud`) is not checked: Keycloak does not put the APIs in it without an audience mapper.
+## Audiences
 
-## Allowed clients
+Keycloak decides which clients get which audience: each API has a **client scope** named `<app>-api`
+(`databox-api`, `expose-api`, `uploader-api`), whose audience mapper (`oidc-audience-mapper`, "Included
+Client Audience" = the admin client of the API) adds the API to the `aud` claim of the access tokens. The
+scope is not added to the `scope` claim of the token (`include.in.token.scope = false`), which keeps carrying
+the functional scopes only (`databox:*`, `publish`…).
 
-Each API accepts the tokens of:
+A client calls an API when it has the scope of the API among its **default** client scopes. The configurator
+creates the scopes and gives them to the clients of the stack, at the installation (`bin/setup.sh`) and at
+each upgrade (`bin/migrate.sh`, Keycloak synchronization):
 
-- **its own admin client** (`ADMIN_CLIENT_ID` of the API: `DATABOX_ADMIN_CLIENT_ID`,
-  `EXPOSE_ADMIN_CLIENT_ID`, `UPLOADER_ADMIN_CLIENT_ID`), always: admin, Swagger UI, client credentials of
-  its service account;
-- **the clients listed in `ALLOWED_CLIENT_IDS`** (comma separated), set from the `.env` of the stack:
+| Caller                                         | Client                                                 | Client scopes                  |
+| ---------------------------------------------- | ------------------------------------------------------ | ------------------------------ |
+| Databox client                                 | `DATABOX_CLIENT_ID`                                    | `databox-api`                  |
+| Expose client                                  | `EXPOSE_CLIENT_ID`                                     | `expose-api`                   |
+| Uploader client                                | `UPLOADER_CLIENT_ID`                                   | `uploader-api`, `databox-api`: the Uploader API forwards the user's token to read Databox |
+| Dashboard                                      | `DASHBOARD_CLIENT_ID`                                  | `databox-api` (groups management) |
+| Databox indexer                                | `INDEXER_DATABOX_CLIENT_ID` (client credentials)       | `databox-api`                  |
+| Expose integration of Databox                  | `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`                 | `expose-api`                   |
+| Expose integration of Databox                  | the clients created from Databox (`POST /oauth-clients`, Keycloak attribute `phrasea.created_by=databox`) | `expose-api` |
+| Development                                    | `postman` (`dev` preset)                               | `databox-api`, `expose-api`, `uploader-api` |
+| Admins (EasyAdmin), Swagger UI, service accounts | `*_ADMIN_CLIENT_ID`                                  | none: accepted by their own API |
+| MCP clients (`/mcp` of each API)               | none by default, see below                             | the scope of the API of the server; the Uploader one also reaches Databox with the same token |
 
-  | API      | Variable of the stack            | Default                                                                                          |
-  | -------- | -------------------------------- | ------------------------------------------------------------------------------------------------ |
-  | Databox  | `DATABOX_API_ALLOWED_CLIENT_IDS`  | `DATABOX_CLIENT_ID`, `DASHBOARD_CLIENT_ID`, `UPLOADER_CLIENT_ID`, `INDEXER_DATABOX_CLIENT_ID`    |
-  | Expose   | `EXPOSE_API_ALLOWED_CLIENT_IDS`   | `EXPOSE_CLIENT_ID`, `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`                                        |
-  | Uploader | `UPLOADER_API_ALLOWED_CLIENT_IDS` | `UPLOADER_CLIENT_ID`                                                                             |
-
-  The defaults are built from the client variables of the `.env`: overriding `DATABOX_CLIENT_ID` (or the
-  others) carries over. Without the variable, an API falls back to the default client IDs of its own
-  `.env` (`databox-app`, `expose-app`…);
-- **Expose only: the clients of the Databox integrations**, enabled and either
-  - created by Databox (from the configuration of an integration in the Databox client,
-    `POST /oauth-clients`: Keycloak attribute `phrasea.created_by=databox`),
-  - or public, with the standard flow only (neither implicit flow nor direct access grants), and whose
-    redirect URIs **all** start with `<DATABOX_API_URL>/integrations/` (a relative URI is resolved against
-    the root URL of the client): Keycloak only gives their tokens to Databox, whoever created them. The
-    Expose API reads `DATABOX_API_URL` for it; empty, the rule is disabled.
-
-  Both rules live in `Alchemy\AuthBundle\Security\DataboxIntegrationClient`. Expose looks each unknown
-  client up in Keycloak with its service account, which the configurator grants the `view-clients` role of
-  `realm-management` (`bin/migrate.sh`), and caches the answer for a minute. Without that role, or if
-  Keycloak cannot be reached, these clients are refused for 30 seconds (an error is logged) while the listed
-  ones keep working.
-
-### Who calls what
-
-| Caller                                         | Client                                                 | APIs                                                                                   |
-| ---------------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| Databox client                                 | `DATABOX_CLIENT_ID`                                    | Databox                                                                                |
-| Expose client                                  | `EXPOSE_CLIENT_ID`                                     | Expose                                                                                 |
-| Uploader client                                | `UPLOADER_CLIENT_ID`                                   | Uploader, and Databox: the Uploader API forwards the user's token to read Databox      |
-| Dashboard                                      | `DASHBOARD_CLIENT_ID`                                  | Databox (groups management)                                                            |
-| Admins (EasyAdmin), Swagger UI                 | `*_ADMIN_CLIENT_ID`                                    | their own API                                                                          |
-| Databox indexer                                | `INDEXER_DATABOX_CLIENT_ID` (client credentials)       | Databox                                                                                |
-| Expose integration of Databox                  | `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`, or a client of the Databox integrations (see above) | Expose                                                     |
-| MCP clients (`/mcp` of each API)               | none by default, see below                             | the API of the server; the Uploader one also reaches Databox with the same token       |
+Databox creates the clients of its integrations with the `expose-api` default scope, and the configurator gives
+it again to every client carrying the `phrasea.created_by=databox` attribute.
 
 These do not go through the access tokens, and are not affected: upload links of the Uploader
 (`UploadLink` scheme), commits sent by the Uploader to Databox (`ApiKey`), signed URLs, one-time tokens.
@@ -71,49 +55,32 @@ These do not go through the access tokens, and are not affected: upload links of
 
 ## Allowing a new client
 
-A refused token answers `401 Invalid token.`, and the API logs a warning naming the client:
+A refused token answers `401 Invalid token.`, and the API logs a warning naming the client and the scope it
+lacks:
 
 ```
-Access token of the OAuth client "my-script" refused: the client is not allowed on this API
+Access token of the OAuth client "my-script" refused: its audience does not include "databox-admin" (give the client the "databox-api" client scope in Keycloak)
 ```
 
-Add its client ID to the variable of every API it calls, in the `.env.local` of the stack (or the values of
-the deployment), then recreate the API containers (`dc up -d`):
-
-```dotenv
-DATABOX_API_ALLOWED_CLIENT_IDS="${DATABOX_CLIENT_ID},${DASHBOARD_CLIENT_ID},${UPLOADER_CLIENT_ID},${INDEXER_DATABOX_CLIENT_ID},my-script"
-```
+In Keycloak, add the scope of every API the client calls: Clients › `<client>` › Client scopes › Add client
+scope › `<app>-api`, as **Default**. As **Optional**, the client must ask for it when obtaining the token
+(`scope=openid databox-api`). The tokens issued before the change keep their audience: log in again (or
+refresh the token).
 
 - **MCP clients**: create a Keycloak client for them (e.g. a public client `mcp` with the standard flow and
-  the redirect URIs of the MCP clients), and allow it on the APIs whose server they use, plus Databox for the
-  Uploader server. Clients registered dynamically get a random client ID: they cannot be listed, prefer a
+  the redirect URIs of the MCP clients), with the scopes of the APIs whose server they use, plus
+  `databox-api` for the Uploader server. Clients registered dynamically do not have the scopes: prefer a
   dedicated client.
-- **Integrations** of Databox calling Expose: a client created from Databox, or one whose redirect URIs all
-  lead to the integrations of the Databox API, is accepted by itself; another client created by hand in
-  Keycloak must be added to `EXPOSE_API_ALLOWED_CLIENT_IDS`. The client picker of the Expose integration flags
-  the clients Expose refuses ("Refused by Expose"; the Databox API reads `EXPOSE_API_ALLOWED_CLIENT_IDS` as
-  `EXPOSE_ALLOWED_CLIENT_IDS` for it), and Databox answers the refusal of Expose with a message naming the
-  client instead of `401 Invalid token.`.
-- **Development**: the `postman` client created by the `dev` preset of the configurator is not allowed by
-  default; add it to the variables of the APIs you call with it.
-
-Outside the stack's `.env`, the API reads `ALLOWED_CLIENT_IDS`, through the bundle configuration:
-
-```yaml
-# config/packages/alchemy_auth.yaml
-alchemy_auth:
-    allowed_client_ids: '%env(csv:ALLOWED_CLIENT_IDS)%' # default, or a list
-    token_leeway: 30 # seconds
-```
-
-An application can also allow clients known at runtime only, with a service implementing
-`Alchemy\AuthBundle\Security\AllowedClientIdsProviderInterface` (autoconfigured): it is asked about the
-clients missing from the list, once the token is otherwise valid (see `DataboxIntegrationClientIds` of
-Expose).
+- **Integrations** of Databox calling Expose: a client created from Databox has the `expose-api` scope; one
+  created by hand in Keycloak must be given it. The client picker of the Expose integration flags the clients
+  without it ("Refused by Expose", read from the default client scopes of the client), and Databox answers the
+  refusal of Expose with a message naming the client and the scope instead of `401 Invalid token.`. The users
+  must then authorize the integration again, for a token with the new audience.
+- **Scripts** with client credentials: the scope applies to the service account tokens as well.
 
 ## Tests
 
 `KeycloakClientTestMock::getJwtFor()`, `getClientCredentialJwt()` and `createJwt()` forge access tokens
-like Keycloak's (`typ: Bearer`, `azp: test-app`, `nbf` and `iat` at the current time). In the `test`
-environment, `TestAllowedClientIdsProvider` allows their clients (`test-app`, `machine_client`), whatever
-`ALLOWED_CLIENT_IDS` the container defines.
+like Keycloak's (`typ: Bearer`, `azp: test-app`, `nbf` and `iat` at the current time), with the admin client of
+the API under test as audience (`aud`: `ADMIN_CLIENT_ID` of the environment,
+`KeycloakClientTestMock::getApiAudience()`). Pass `'aud' => null` to `createJwt()` for a token without audience.

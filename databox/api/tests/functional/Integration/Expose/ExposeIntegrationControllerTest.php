@@ -175,7 +175,7 @@ final class ExposeIntegrationControllerTest extends AbstractDataboxTestCase
         $this->assertSame(400, $response->getStatusCode());
         $message = self::getErrorMessage($response);
         $this->assertStringContainsString(self::ACCESS_TOKEN_REFUSED, $message);
-        $this->assertStringContainsString('redirect URIs under http://localhost/integrations/ only', $message);
+        $this->assertStringContainsString('the client must have the "expose-api" client scope', $message);
     }
 
     public function testTheProxiesExplainTheRefusalOfTheAccessToken(): void

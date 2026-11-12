@@ -13,6 +13,7 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\HasClaimWithValue;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
+use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
@@ -21,7 +22,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Accepts the access tokens of the realm (not its ID or refresh tokens, signed by the same key)
- * obtained by an OAuth client allowed on this API.
+ * meant for this API: obtained by its own client, or whose audience includes that client.
  */
 final class JwtValidator implements JwtValidatorInterface
 {
@@ -34,31 +35,21 @@ final class JwtValidator implements JwtValidatorInterface
     private ?string $publicKey = null;
 
     /**
-     * @var string[]
-     */
-    private readonly array $allowedClientIds;
-
-    /**
-     * @param array                                       $allowedClientIds          client IDs whose tokens are accepted, besides $clientId
-     * @param string                                      $clientId                  the client of the application itself (admin, Swagger UI…), always accepted
-     * @param int                                         $tokenLeeway               clock skew tolerated on "exp", "nbf" and "iat", in seconds
-     * @param iterable<AllowedClientIdsProviderInterface> $allowedClientIdsProviders
+     * @param string $clientId    the client of the application itself (admin, Swagger UI, service account), always
+     *                            accepted, and the audience required from the tokens of the other clients
+     * @param int    $tokenLeeway clock skew tolerated on "exp", "nbf" and "iat", in seconds
+     * @param string $appName     the application, naming the client scope giving the audience in the logs
      */
     public function __construct(
         private readonly KeycloakClient $keycloakClient,
         private readonly KeycloakUrlGenerator $keycloakUrlGenerator,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
-        array $allowedClientIds,
         private readonly string $clientId,
         private readonly int $tokenLeeway,
-        private readonly iterable $allowedClientIdsProviders = [],
+        private readonly string $appName,
     ) {
         $this->validator = new Validator();
-        $this->allowedClientIds = array_values(array_filter(
-            array_map(static fn (mixed $id): string => trim((string) $id), $allowedClientIds),
-            static fn (string $id): bool => '' !== $id,
-        ));
     }
 
     public function isTokenValid(TokenInterface $token): bool
@@ -82,11 +73,16 @@ final class JwtValidator implements JwtValidatorInterface
             return false;
         }
 
-        // Checked once the token is known to be signed by the realm: the providers may query the IdP.
         $clientId = self::getClientId($token);
-        if (null === $clientId || !$this->isClientAllowed($clientId)) {
-            $this->logger->warning('Access token of the OAuth client "{client_id}" refused: the client is not allowed on this API', [
+        if (null !== $clientId && $clientId === $this->clientId) {
+            return true;
+        }
+
+        if (!$this->validator->validate($token, new PermittedFor($this->clientId))) {
+            $this->logger->warning('Access token of the OAuth client "{client_id}" refused: its audience does not include "{audience}" (give the client the "{scope}" client scope in Keycloak)', [
                 'client_id' => $clientId,
+                'audience' => $this->clientId,
+                'scope' => ApiAudience::getScopeName($this->appName),
             ]);
 
             return false;
@@ -113,21 +109,6 @@ final class JwtValidator implements JwtValidatorInterface
         }
 
         return null;
-    }
-
-    private function isClientAllowed(string $clientId): bool
-    {
-        if ($clientId === $this->clientId || in_array($clientId, $this->allowedClientIds, true)) {
-            return true;
-        }
-
-        foreach ($this->allowedClientIdsProviders as $provider) {
-            if ($provider->isClientAllowed($clientId)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function getPublicKey(): string
