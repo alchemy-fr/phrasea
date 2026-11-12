@@ -50,16 +50,14 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
             onReachEnd={lists.loadMore}
             getItem={getEntityList}
             itemQueryKey={['entity-lists', workspace.id, 'item']}
-            renderItem={l => (
-                <span className="flex items-center gap-2">
-                    <span className="flex-1 truncate">{l.name}</span>
-                    {l.allowNewValues ? (
-                        <Badge variant="muted">
-                            {t('entity_list.open', 'open')}
-                        </Badge>
-                    ) : null}
-                </span>
-            )}
+            renderItem={l => <span className="block truncate">{l.name}</span>}
+            renderItemDetails={l =>
+                l.allowNewValues ? (
+                    <Badge variant="muted">
+                        {t('entity_list.open', 'open')}
+                    </Badge>
+                ) : null
+            }
             onDelete={l => deleteEntityList(l.id)}
             createLabel={t('entity_list.create', 'New list')}
             manageLabel={t('entity_list.manage', 'Values')}

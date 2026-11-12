@@ -108,17 +108,19 @@ export function IntegrationManager({workspaceId, fill}: Props) {
                                 className="size-6 rounded-md [&>svg]:size-3.5"
                             />
                         ) : null}
-                        <span className="flex-1 truncate">
+                        <span className="min-w-0 flex-1 truncate">
                             {integrationLabel(i)}
                         </span>
-                        {i.name ? (
-                            <Badge variant="muted">
-                                {type?.displayName ?? i.integration}
-                            </Badge>
-                        ) : null}
                     </span>
                 );
             }}
+            renderItemDetails={i =>
+                i.name ? (
+                    <Badge variant="muted">
+                        {typeOf(i.integration)?.displayName ?? i.integration}
+                    </Badge>
+                ) : null
+            }
             onDuplicate={i => duplicateIntegration(i.id)}
             onDelete={i => deleteIntegration(i.id)}
             createLabel={t('integration.create', 'New integration')}

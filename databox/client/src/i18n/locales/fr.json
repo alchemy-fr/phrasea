@@ -762,7 +762,6 @@
     "definition.duplicate": "Dupliquer",
     "definition.duplicated": "Copie créée",
     "definition.not_found": "Cet élément n'existe plus.",
-    "definition.select_hint": "Sélectionnez un élément pour le modifier, ou créez-en un nouveau.",
     "discussion.annotate": "Annoter le média",
     "discussion.annotate_stop": "Arrêter d'annoter le média",
     "discussion.annotate_unsupported": "Ce média ne peut pas être annoté",

@@ -31,12 +31,8 @@ export function RenditionPoliciesTab({workspace}: WorkspaceTabProps) {
             error={policies.error}
             onChanged={() => policies.refetch()}
             filter={(p, q) => p.name.toLowerCase().includes(q)}
-            renderItem={p => (
-                <span className="flex items-center gap-2">
-                    <span className="flex-1 truncate">{p.name}</span>
-                    <PolicyBadges policy={p} />
-                </span>
-            )}
+            renderItem={p => <span className="block truncate">{p.name}</span>}
+            renderItemDetails={p => <PolicyBadges policy={p} />}
             onDelete={p => deleteRenditionPolicy(p.id)}
             createLabel={t('policy.create', 'New policy')}
             renderForm={(p, onSaved) => (

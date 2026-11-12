@@ -6,7 +6,7 @@ import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {DefinitionManager} from './DefinitionManager';
-import {RoutePathProvider} from '@/lib/navigation/routePath';
+import {RoutePathNavigate, RoutePathProvider} from '@/lib/navigation/routePath';
 import {ApiError} from '@/lib/api/http';
 
 vi.mock('next/navigation', () => ({
@@ -64,9 +64,10 @@ function renderManager(
     props: Partial<ComponentProps<typeof DefinitionManager<Item>>> & {
         /** The URL below the screen */
         segments?: string[];
+        navigate?: RoutePathNavigate;
     } = {}
 ) {
-    const {segments, ...rest} = props;
+    const {segments, navigate = () => undefined, ...rest} = props;
     const manager = (
         <DefinitionManager<Item>
             items={items}
@@ -87,9 +88,7 @@ function renderManager(
             <I18nextProvider i18n={createI18n('en')}>
                 <ModalProvider>
                     {segments ? (
-                        <RoutePathProvider
-                            value={{segments, navigate: () => undefined}}
-                        >
+                        <RoutePathProvider value={{segments, navigate}}>
                             {manager}
                         </RoutePathProvider>
                     ) : (
@@ -105,6 +104,59 @@ describe('DefinitionManager', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         observers = [];
+    });
+
+    it('lets the list take the whole width while nothing is selected', () => {
+        const {container} = renderManager({segments: []});
+
+        expect(screen.getAllByTestId('definition-item')).toHaveLength(2);
+        expect(screen.queryByTestId('form')).toBeNull();
+        expect(screen.queryByTestId('definition-close')).toBeNull();
+        expect(screen.queryByText(/Select an item/)).toBeNull();
+        expect(container.firstElementChild!.className).not.toContain(
+            'grid-cols'
+        );
+    });
+
+    it('opens the panel of the selected item, closed by its button', () => {
+        const navigate = vi.fn();
+        const {container} = renderManager({segments: ['a'], navigate});
+
+        expect(screen.getByTestId('form').textContent).toBe('Alpha');
+        expect(container.firstElementChild!.className).toContain('grid-cols');
+        expect(
+            screen.getByTestId('definition-close').getAttribute('aria-label')
+        ).toBe('Close');
+
+        fireEvent.click(screen.getByTestId('definition-close'));
+
+        return waitFor(() => expect(navigate).toHaveBeenCalledWith([]));
+    });
+
+    it('opens the panel when an item is clicked', () => {
+        renderManager({});
+
+        expect(screen.queryByTestId('form')).toBeNull();
+        fireEvent.click(screen.getByText('Bravo'));
+
+        return waitFor(() =>
+            expect(screen.getByTestId('form').textContent).toBe('Bravo')
+        );
+    });
+
+    it('shows the details of a row on a second line, after the name', () => {
+        renderManager({
+            renderItemDetails: i => (
+                <span data-testid="details">{`#${i.id}`}</span>
+            ),
+        });
+
+        const rows = screen.getAllByTestId('definition-item');
+        expect(rows[0].textContent).toBe('Alpha#a');
+        const details = screen.getAllByTestId('details');
+        expect(details).toHaveLength(2);
+        expect(rows[1].contains(details[1])).toBe(true);
+        expect(details[1].parentElement!.className).toContain('text-xs');
     });
 
     it('has no duplicate action without onDuplicate', () => {

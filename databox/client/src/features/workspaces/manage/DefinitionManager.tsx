@@ -9,6 +9,7 @@ import {
     MoreHorizontalIcon,
     PlusIcon,
     Trash2Icon,
+    XIcon,
 } from 'lucide-react';
 import {
     closestCenter,
@@ -61,8 +62,10 @@ type Props<D extends DefinitionItem> = {
     loading?: boolean;
     /** Error of the list load, shown in place of the list while it is empty */
     error?: unknown;
-    /** Render the list row (title, badges...) */
+    /** First line of the row: the name */
     renderItem: (item: D) => ReactNode;
+    /** Second line of the row: badges, slug, type… */
+    renderItemDetails?: (item: D) => ReactNode;
     /** Render the edit / create form. `onSaved` must be called with the saved item. */
     renderForm: (
         item: D | undefined,
@@ -118,7 +121,8 @@ const MANAGE = 'manage';
 /**
  * Generic master / detail manager used for workspace definitions (tags,
  * attribute definitions, rendition definitions, policies, integrations...):
- * filterable, sortable list on the left, form on the right.
+ * filterable, sortable list, and the form of the selected item on its right.
+ * With nothing selected, the list takes the whole width.
  *
  * What is shown lives in the URL (`useRoutePath`), so that a refresh or a
  * shared link lands on it: `:id` (edited), `new`, `:id/manage/…` (the nested
@@ -129,6 +133,7 @@ export function DefinitionManager<D extends DefinitionItem>({
     loading,
     error,
     renderItem,
+    renderItemDetails,
     renderForm,
     onDelete,
     onDuplicate,
@@ -256,6 +261,7 @@ export function DefinitionManager<D extends DefinitionItem>({
     const listFailed = !!error && !items?.length;
     const sortable = !!onSort && !query && complete;
     const managed = managing ? current : undefined;
+    const panelOpen = selected !== null;
 
     const onDragEnd = async (e: DragEndEvent) => {
         const {active, over} = e;
@@ -288,8 +294,9 @@ export function DefinitionManager<D extends DefinitionItem>({
     return (
         <div
             className={cn(
+                'grid gap-4',
                 // minmax(0, …): wide content (YAML, references) must not widen the columns
-                'grid gap-4 lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]',
+                panelOpen && 'lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]',
                 fill && 'min-h-0 flex-1 lg:grid-rows-[minmax(0,1fr)]'
             )}
         >
@@ -397,6 +404,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                                         }
                                         manageLabel={manageLabel}
                                         actions={renderRowActions?.(item)}
+                                        details={renderItemDetails?.(item)}
                                         onDuplicate={
                                             duplicate
                                                 ? () => duplicate(item)
@@ -466,6 +474,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                                         }
                                         manageLabel={manageLabel}
                                         actions={renderRowActions?.(item)}
+                                        details={renderItemDetails?.(item)}
                                         onDuplicate={
                                             onDuplicate ? noop : undefined
                                         }
@@ -479,54 +488,63 @@ export function DefinitionManager<D extends DefinitionItem>({
                     </DndContext>
                 )}
             </div>
-            <div
-                ref={formPane}
-                className={cn(
-                    'min-h-64 min-w-0 rounded-md border p-4',
-                    fill && 'lg:overflow-y-auto'
-                )}
-            >
-                {missing && !missingError && (!items || fetchingMissing) ? (
-                    <Skeleton className="h-32" />
-                ) : missing &&
-                  missingError &&
-                  !isApiError(missingError, 404) ? (
-                    <LoadError error={missingError} />
-                ) : missing ? (
-                    <EmptyState
-                        title={t(
-                            'definition.not_found',
-                            'This item does not exist anymore.'
+            {panelOpen ? (
+                <div
+                    ref={formPane}
+                    className={cn(
+                        'relative min-h-64 min-w-0 rounded-md border p-4',
+                        fill && 'lg:overflow-y-auto'
+                    )}
+                >
+                    <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className="absolute top-2 right-2"
+                        onClick={() => select(null)}
+                        aria-label={t('common.close', 'Close')}
+                        data-testid="definition-close"
+                    >
+                        <XIcon />
+                    </Button>
+                    {/* Clear of the close button */}
+                    <div className="h-full pr-8">
+                        {missing &&
+                        !missingError &&
+                        (!items || fetchingMissing) ? (
+                            <Skeleton className="h-32" />
+                        ) : missing &&
+                          missingError &&
+                          !isApiError(missingError, 404) ? (
+                            <LoadError error={missingError} />
+                        ) : missing ? (
+                            <EmptyState
+                                title={t(
+                                    'definition.not_found',
+                                    'This item does not exist anymore.'
+                                )}
+                                className="h-full"
+                            />
+                        ) : (
+                            <UnsavedChangesScope.Provider value={formScope}>
+                                <div key={selected}>
+                                    {renderForm(
+                                        current,
+                                        saved => {
+                                            onChanged();
+                                            setCreated(saved);
+                                            // Created: `new` would open a blank form
+                                            navigate([saved.id], {
+                                                replace: selected === NEW,
+                                            });
+                                        },
+                                        () => select(null)
+                                    )}
+                                </div>
+                            </UnsavedChangesScope.Provider>
                         )}
-                        className="h-full"
-                    />
-                ) : selected === null ? (
-                    <EmptyState
-                        title={t(
-                            'definition.select_hint',
-                            'Select an item to edit it, or create a new one.'
-                        )}
-                        className="h-full"
-                    />
-                ) : (
-                    <UnsavedChangesScope.Provider value={formScope}>
-                        <div key={selected}>
-                            {renderForm(
-                                current,
-                                saved => {
-                                    onChanged();
-                                    setCreated(saved);
-                                    // Created: `new` would open a blank form
-                                    navigate([saved.id], {
-                                        replace: selected === NEW,
-                                    });
-                                },
-                                () => select(null)
-                            )}
-                        </div>
-                    </UnsavedChangesScope.Provider>
-                )}
-            </div>
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }
@@ -542,6 +560,8 @@ type RowProps = {
     onManage?: () => void;
     manageLabel?: string;
     actions?: ReactNode;
+    /** Second line, below `children` */
+    details?: ReactNode;
     children: ReactNode;
 };
 
@@ -573,6 +593,7 @@ function RowView({
     onManage,
     manageLabel,
     actions,
+    details,
     children,
 }: Omit<RowProps, 'id' | 'onClick'> & {
     drag: SortableRow;
@@ -607,7 +628,14 @@ function RowView({
                 className="min-w-0 flex-1 px-2 py-2 text-left"
                 onClick={onClick}
             >
-                {children}
+                <span className="flex flex-col gap-0.5">
+                    <span className="min-w-0 truncate">{children}</span>
+                    {details ? (
+                        <span className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+                            {details}
+                        </span>
+                    ) : null}
+                </span>
             </button>
             {actions ? (
                 // Acting on the row must not select it

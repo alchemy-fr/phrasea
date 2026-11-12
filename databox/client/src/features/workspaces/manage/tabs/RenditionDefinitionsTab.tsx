@@ -74,24 +74,31 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
             getItem={getRenditionDefinition}
             itemQueryKey={['rendition-definitions', 'item']}
             renderItem={d => (
-                <span className="flex items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate">
-                        {d.displayName ?? d.name}
-                    </span>
-                    {d.useAsMain ? (
-                        <Badge variant="secondary">main</Badge>
-                    ) : null}
-                    {d.useAsPreview ? (
-                        <Badge variant="secondary">preview</Badge>
-                    ) : null}
-                    {d.useAsThumbnail ? (
-                        <Badge variant="secondary">thumb</Badge>
-                    ) : null}
-                    {d.useAsAnimatedThumbnail ? (
-                        <Badge variant="secondary">animated thumb</Badge>
-                    ) : null}
+                <span className="block truncate">
+                    {d.displayName ?? d.name}
                 </span>
             )}
+            renderItemDetails={d =>
+                d.useAsMain ||
+                d.useAsPreview ||
+                d.useAsThumbnail ||
+                d.useAsAnimatedThumbnail ? (
+                    <>
+                        {d.useAsMain ? (
+                            <Badge variant="secondary">main</Badge>
+                        ) : null}
+                        {d.useAsPreview ? (
+                            <Badge variant="secondary">preview</Badge>
+                        ) : null}
+                        {d.useAsThumbnail ? (
+                            <Badge variant="secondary">thumb</Badge>
+                        ) : null}
+                        {d.useAsAnimatedThumbnail ? (
+                            <Badge variant="secondary">animated thumb</Badge>
+                        ) : null}
+                    </>
+                ) : null
+            }
             onDuplicate={d => duplicateRenditionDefinition(d.id)}
             onDelete={d => deleteRenditionDefinition(d.id)}
             createLabel={t('rendition_def.create', 'New rendition')}

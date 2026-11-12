@@ -89,13 +89,13 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
             getItem={getAttributeDefinition}
             itemQueryKey={['attribute-definitions', 'item']}
             renderItem={d => (
-                <span className="flex items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate">
-                        {d.displayName ?? d.name}
-                        <span className="ml-1 font-mono text-[11px] text-muted-foreground">
-                            {d.slug}
-                        </span>
-                    </span>
+                <span className="block truncate">
+                    {d.displayName ?? d.name}
+                </span>
+            )}
+            renderItemDetails={d => (
+                <>
+                    <span className="font-mono text-[11px]">{d.slug}</span>
                     <Badge variant="muted">{d.type}</Badge>
                     {d.multiple ? (
                         <Badge variant="secondary">
@@ -107,10 +107,8 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
                             {t('common.disabled', 'disabled')}
                         </Badge>
                     ) : null}
-                    {!d.editable ? (
-                        <LockIcon className="size-3.5 text-muted-foreground" />
-                    ) : null}
-                </span>
+                    {!d.editable ? <LockIcon className="size-3.5" /> : null}
+                </>
             )}
             onDuplicate={d => duplicateAttributeDefinition(d.id)}
             onDelete={d => deleteAttributeDefinition(d.id)}

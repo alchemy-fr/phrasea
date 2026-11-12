@@ -762,7 +762,6 @@
     "definition.duplicate": "Duplicate",
     "definition.duplicated": "Copy created",
     "definition.not_found": "This item does not exist anymore.",
-    "definition.select_hint": "Select an item to edit it, or create a new one.",
     "discussion.annotate": "Annotate the asset",
     "discussion.annotate_stop": "Stop annotating the asset",
     "discussion.annotate_unsupported": "This media cannot be annotated",
