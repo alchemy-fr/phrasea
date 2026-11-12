@@ -6,10 +6,11 @@ import {ensureTarget, iri, removeForm, TARGETS} from './lib/api';
 import {login} from './lib/app';
 
 /**
- * A file the Uploader API can fetch from inside the stack: a static file of
- * its own nginx (`uploader-api` network alias).
+ * A public file: the API refuses a URL without a TLD and fetches none on a
+ * private network, so no file of the stack can be imported. The file is
+ * fetched while the request is handled.
  */
-const REMOTE_FILE_URL = 'http://uploader-api/logo192.png';
+const REMOTE_FILE_URL = 'https://raw.githubusercontent.com/alchemy-fr/phrasea/master/uploader/client/public/logo192.png';
 
 describe('Uploader import from a URL', () => {
     let target;

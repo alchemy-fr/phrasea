@@ -232,3 +232,15 @@ export function expectToastText(text) {
         expect($toasts.text(), 'toast').to.match(re);
     });
 }
+
+/**
+ * Adds a sort criterion from the "Add a sort…" picker of the open sort
+ * editor: only the built-in attributes are listed as rows up front.
+ */
+export function addSort(label) {
+    cy.contains('[role=dialog]', 'Sort by').within(() => {
+        cy.contains('[role=combobox]', 'Add a sort…').click();
+    });
+    cy.get('[cmdk-input]').type(label);
+    cy.contains('[cmdk-item]', label, {timeout: 20000}).click();
+}
