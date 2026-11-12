@@ -872,6 +872,8 @@
     "entity.image_removed": "La photo sera supprimée",
     "entity.image_upload": "Envoyer une photo",
     "entity.import": "Importer…",
+    "entity.import.progress": "Import en cours… {{percent}} %",
+    "entity.import.running": "Import en cours…",
     "entity.import.title": "Importer dans « {{name}} »",
     "entity.imported": "Valeurs importées",
     "entity.menu.count_one": "{{count}} valeur sélectionnée",

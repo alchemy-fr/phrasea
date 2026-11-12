@@ -20,7 +20,8 @@ interface AttributeEntityImporterInterface
     public function validate(EntityList $entityList, string $data, ?string $defaultLocale = null): void;
 
     /**
-     * @param string|null $defaultLocale locale of the labels given without one, for the formats supporting it
+     * @param string|null                                  $defaultLocale locale of the labels given without one, for the formats supporting it
+     * @param (\Closure(int $done, int $total): void)|null $onProgress    told of the progress, by the formats reporting it
      */
-    public function import(EntityList $entityList, string $data, ?string $defaultLocale = null): void;
+    public function import(EntityList $entityList, string $data, ?string $defaultLocale = null, ?\Closure $onProgress = null): void;
 }

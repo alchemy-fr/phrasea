@@ -31,7 +31,7 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
         $this->parse($data);
     }
 
-    public function import(EntityList $entityList, string $data, ?string $defaultLocale = null): void
+    public function import(EntityList $entityList, string $data, ?string $defaultLocale = null, ?\Closure $onProgress = null): void
     {
         [$headers, $rows] = $this->parse($data);
 

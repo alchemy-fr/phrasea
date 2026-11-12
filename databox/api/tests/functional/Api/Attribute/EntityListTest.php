@@ -278,8 +278,12 @@ final class EntityListTest extends AbstractDataboxTestCase
     public function testDeleteRemovesTheValuesAndTheEntityDefinitions(): void
     {
         $this->setUpScene();
-        $list = $this->createEntityList(['name' => 'Colors']);
+        $list = $this->createEntityList(['name' => 'Colors', 'isHierarchy' => true]);
         $red = $this->createEntity($list, 'Red');
+        // Deleted in bulk: a child goes along with its parent
+        $darkRed = $this->createEntity($list, 'Dark red', ['no_flush' => true]);
+        $darkRed->setParent($red);
+        self::getEntityManager()->flush();
         $definition = $this->createAttributeDefinition([
             'name' => 'Color',
             'type' => EntityAttributeType::NAME,
@@ -302,6 +306,7 @@ final class EntityListTest extends AbstractDataboxTestCase
         $em->clear();
         $this->assertNull($em->find(EntityList::class, $list->getId()));
         $this->assertNull($em->find(AttributeEntity::class, $red->getId()));
+        $this->assertNull($em->find(AttributeEntity::class, $darkRed->getId()));
         $this->assertNull($em->find(AttributeDefinition::class, $definition->getId()), 'the definitions using the list are deleted');
         $this->assertSame(['Kept value'], array_map(
             fn (Attribute $attribute): string => $attribute->getValue(),

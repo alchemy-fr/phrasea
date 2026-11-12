@@ -17,7 +17,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Imports a tabulated thesaurus (see TabulatedThesaurus) into the list hierarchy, all or nothing.
+ * Imports a tabulated thesaurus (see TabulatedThesaurus) into the list hierarchy.
+ *
+ * Every line is checked before anything is written: an invalid entity rejects the whole import. The entities are then
+ * written in batches of BATCH_SIZE, each one committed and reported as progress (checking counts for one half,
+ * writing for the other); a database failure in the middle leaves a partial import, completed by importing the
+ * file again.
  *
  * A line updates the entity of the same value under the same parent, else the only entity of that value in the
  * list (moved there), else a new one. Its status follows the line; its color, translations and synonyms are
@@ -26,6 +31,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[AsTaggedItem(index: TabulatedThesaurus::FORMAT)]
 final readonly class TabulatedThesaurusImporter implements AttributeEntityImporterInterface
 {
+    private const int BATCH_SIZE = 500;
+
     public function __construct(
         private EntityManagerInterface $em,
         private AttributeEntityRepository $repository,
@@ -38,12 +45,12 @@ final readonly class TabulatedThesaurusImporter implements AttributeEntityImport
         $this->parse($entityList, $data, $defaultLocale);
     }
 
-    public function import(EntityList $entityList, string $data, ?string $defaultLocale = null): void
+    public function import(EntityList $entityList, string $data, ?string $defaultLocale = null, ?\Closure $onProgress = null): void
     {
         $lines = $this->parse($entityList, $data, $defaultLocale);
         $restoreLogger = DoctrineUtil::disableLogger($this->em);
         try {
-            $this->importLines($entityList, $lines);
+            $this->importLines($entityList, $lines, $onProgress ?? static function (): void {});
         } finally {
             $restoreLogger();
         }
@@ -72,10 +79,14 @@ final readonly class TabulatedThesaurusImporter implements AttributeEntityImport
     }
 
     /**
-     * @param list<TabulatedThesaurusLine> $lines
+     * @param list<TabulatedThesaurusLine>          $lines
+     * @param \Closure(int $done, int $total): void $onProgress
      */
-    private function importLines(EntityList $entityList, array $lines): void
+    private function importLines(EntityList $entityList, array $lines, \Closure $onProgress): void
     {
+        $count = \count($lines);
+        $total = 2 * $count;
+        $onProgress(0, $total);
 
         $all = $this->repository->findHierarchyEntities($entityList->getId());
         $byPlace = [];
@@ -90,6 +101,9 @@ final readonly class TabulatedThesaurusImporter implements AttributeEntityImport
         $nextPosition = [];
         $errors = [];
         foreach ($lines as $index => $line) {
+            if (0 === $index % self::BATCH_SIZE && 0 !== $index) {
+                $onProgress($index, $total);
+            }
             $parent = null !== $line->parent ? $imported[$line->parent] : null;
             $entity = $this->find($parent, $line->value, $byPlace, $byValue, $taken);
             if (null === $entity) {
@@ -147,12 +161,33 @@ final readonly class TabulatedThesaurusImporter implements AttributeEntityImport
             }
         }
 
-        $this->em->wrapInTransaction(function () use ($imported): void {
-            foreach ($imported as $entity) {
-                $this->em->persist($entity);
+        // The existing entities are managed: every flush writes them, their new ancestors are persisted before the first one
+        /** @var array<string, AttributeEntity> $early */
+        $early = [];
+        foreach ($imported as $entity) {
+            if ($this->em->contains($entity)) {
+                for ($p = $entity->getParent(); null !== $p && !$this->em->contains($p) && !isset($early[$p->getId()]); $p = $p->getParent()) {
+                    $early[$p->getId()] = $p;
+                }
             }
-            $this->em->flush();
-        });
+        }
+        foreach ($early as $entity) {
+            $this->em->persist($entity);
+        }
+        // Then in the order of the file, parents before their children. The entities stay managed, as parents
+        $written = \count($early);
+        foreach ($imported as $entity) {
+            if (isset($early[$entity->getId()])) {
+                continue;
+            }
+            $this->em->persist($entity);
+            if (0 === ++$written % self::BATCH_SIZE) {
+                $this->em->flush();
+                $onProgress($count + $written, $total);
+            }
+        }
+        $this->em->flush();
+        $onProgress($total, $total);
     }
 
     /**

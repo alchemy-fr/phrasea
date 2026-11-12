@@ -50,7 +50,7 @@ final class EntityListThesaurusTest extends AbstractDataboxTestCase
     /**
      * The state of the import queued by the last call to import().
      *
-     * @return array{status: int, output: string|null}
+     * @return array{status: int, output: string|null, progress: int|null, itemTotal: int|null}
      */
     private function importTask(ResponseInterface $response): array
     {
@@ -90,7 +90,11 @@ final class EntityListThesaurusTest extends AbstractDataboxTestCase
         $this->setUpScene();
 
         // The task transport is synchronous in test: the import is done once queued
-        $this->assertSame(OperationTask::STATUS_COMPLETED, $this->importTask($this->import(self::THESAURUS))['status']);
+        $task = $this->importTask($this->import(self::THESAURUS));
+        $this->assertSame(OperationTask::STATUS_COMPLETED, $task['status']);
+        // Checking, then writing: two steps per line
+        $this->assertSame(18, $task['itemTotal']);
+        $this->assertSame(18, $task['progress']);
 
         $e = $this->entitiesByValue();
         $this->assertCount(9, $e);
@@ -146,6 +150,24 @@ final class EntityListThesaurusTest extends AbstractDataboxTestCase
         $this->assertSame(1, $e['dog']->getHierarchyDepth());
         $this->assertSame(2, $e['puppy']->getHierarchyDepth());
         $this->assertSame(['de' => 'Hund', 'en' => 'dog', 'fr' => 'chien'], $e['dog']->getTranslations());
+    }
+
+    public function testAnExistingEntityMovesUnderANewParentOfALaterBatch(): void
+    {
+        $this->setUpScene();
+        $dog = $this->createEntity($this->list, 'dog');
+
+        // The entities are written by batches of 500: "dog" is written with the first one, "animal" would be with the second
+        $lines = array_map(fn (int $i): string => 'term '.$i, range(1, 600));
+        $lines[] = 'animal';
+        $lines[] = '    dog';
+        $this->assertSame(OperationTask::STATUS_COMPLETED, $this->importTask($this->import(implode("\n", $lines)))['status']);
+
+        $e = $this->entitiesByValue();
+        $this->assertCount(602, $e);
+        $this->assertSame($dog->getId(), $e['dog']->getId());
+        $this->assertSame($e['animal']->getId(), $e['dog']->getParentId());
+        $this->assertSame(1, $e['dog']->getHierarchyDepth());
     }
 
     public function testTermsWithoutLocaleTakeTheDefaultLocale(): void

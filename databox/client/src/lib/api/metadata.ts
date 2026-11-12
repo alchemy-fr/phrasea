@@ -274,6 +274,8 @@ export async function exportEntityList(
 type EntityListImportTask = {
     status: OperationTaskStatus;
     output: string | null;
+    progress: number | null;
+    itemTotal: number | null;
 };
 
 export function getEntityListImportTask(
@@ -299,14 +301,17 @@ export async function importEntityList(
     options: {
         /** Locale of the labels given without one (tabulated thesaurus) */
         defaultLocale?: string;
+        /** Told of the progress of the task, for the formats reporting it */
+        onProgress?: (done: number, total: number) => void;
     } = {}
 ): Promise<void> {
+    const {onProgress, ...body} = options;
     const res = await api.post<{taskId?: string}>(
         `/${EntityName.EntityList}/${listId}/import`,
         {
             format,
             data,
-            ...options,
+            ...body,
         }
     );
     if (!res?.taskId) {
@@ -317,6 +322,9 @@ export async function importEntityList(
     while (true) {
         await new Promise(resolve => setTimeout(resolve, IMPORT_POLL_INTERVAL));
         const task = await getEntityListImportTask(listId, res.taskId);
+        if (task.itemTotal && task.progress !== null) {
+            onProgress?.(task.progress, task.itemTotal);
+        }
         if (task.status === OperationTaskStatus.Completed) {
             return;
         }

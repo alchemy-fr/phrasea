@@ -112,9 +112,15 @@ export formats.
 `POST /entity-lists/{id}/import` (every format) only checks the data — a syntax error still answers 400 — and
 queues an `import_entities` `OperationTask` (`ImportEntitiesTask`, run by the worker): a large thesaurus outlasts
 an HTTP request. It answers `202 {taskId}`; `GET /entity-lists/{id}/import-tasks/{taskId}` (EDIT on the list)
-gives `{status, output}`, `output` holding the error of a failed import (e.g. the invalid entities, by line).
+gives `{status, output, progress, itemTotal}`, `output` holding the error of a failed import (e.g. the invalid entities, by line).
 The imported data is dropped from the task payload once handled. The client polls it until the task completes
 or fails.
+
+The thesaurus import reports its progress in the task (`progress`/`itemTotal`, also answered by the polling): every
+line is checked first (the first half), then the entities are written by batches of 500, each one committed (the
+second half). The import dialogs show it as a progress bar (indeterminate for the formats not reporting it).
+An invalid entity still rejects the whole import before anything is written; only a database failure in the middle
+leaves a partial import, which importing the same file again completes.
 
 ## Upward filling
 

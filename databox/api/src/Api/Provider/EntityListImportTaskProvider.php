@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * The state of an import queued by ImportEntitiesProcessor: {status, output}, output holding the error of a failed
- * import. The task itself stays reserved to the admins.
+ * The state of an import queued by ImportEntitiesProcessor: {status, output, progress, itemTotal}, output holding the
+ * error of a failed import. The task itself stays reserved to the admins.
  */
 final class EntityListImportTaskProvider implements ProviderInterface
 {
@@ -44,6 +44,8 @@ final class EntityListImportTaskProvider implements ProviderInterface
         return new JsonResponse([
             'status' => $task->getStatus(),
             'output' => $task->getOutput(),
+            'progress' => $task->getProgress(),
+            'itemTotal' => $task->getItemTotal(),
         ]);
     }
 }

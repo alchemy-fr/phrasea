@@ -24,6 +24,7 @@ use App\Api\Model\Input\EntityHierarchyImportInput;
 use App\Api\Model\Input\ExportEntitiesInput;
 use App\Api\Model\Input\ImportEntitiesInput;
 use App\Api\Processor\ClearEntitiesProcessor;
+use App\Api\Processor\DeleteEntityListProcessor;
 use App\Api\Processor\ExportEntitiesProcessor;
 use App\Api\Processor\ExportEntityHierarchyProcessor;
 use App\Api\Processor\ImportEntitiesProcessor;
@@ -47,7 +48,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'entity-list',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
-        new Delete(security: 'is_granted("DELETE", object)'),
+        new Delete(
+            security: 'is_granted("DELETE", object)',
+            processor: DeleteEntityListProcessor::class,
+        ),
         new Patch(
             security: 'is_granted("EDIT", object)',
             denormalizationContext: [
