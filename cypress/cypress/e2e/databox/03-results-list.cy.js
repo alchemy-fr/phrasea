@@ -3,7 +3,7 @@
  * display options.
  */
 import {deleteWorkspace, seedWorkspace} from './lib/api';
-import {assetItem, login, openAssetContextMenu, visitWorkspace, waitForResults} from './lib/app';
+import {addSort, assetItem, login, openAssetContextMenu, visitWorkspace, waitForResults} from './lib/app';
 
 describe('Results list', () => {
     let ctx;
@@ -146,13 +146,13 @@ describe('Results list', () => {
 
     it('groups results into sections when sorting with grouping enabled', () => {
         cy.getBySel('sort-button').click();
-        cy.get('[role=dialog]').last().within(() => {
+        // Grouping works on single-valued attributes
+        addSort('Description');
+        cy.contains('[role=dialog]', 'Sort by').within(() => {
             // Grouping needs a non-score first criterion: drop the built-in
             // Score and Created At rows, which are labelled by the API
             cy.contains(/^Score$/).parent().find('[role=switch]').click();
             cy.contains(/^Created At$/).parent().find('[role=switch]').click();
-            // Grouping works on single-valued attributes
-            cy.contains('Description').parent().find('[role=switch]').click();
             cy.fieldByLabel('Group by sections').click();
             cy.contains('button', 'Apply').click();
         });

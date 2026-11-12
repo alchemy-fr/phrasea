@@ -4,6 +4,7 @@
  */
 import {deleteWorkspace, seedWorkspace} from './lib/api';
 import {
+    addSort,
     assetItem,
     login,
     openLeftPanelTab,
@@ -123,10 +124,9 @@ describe('Search', () => {
         visitWorkspace(ctx.workspace.id);
         waitForResults(4);
         cy.getBySel('sort-button').click();
-        cy.get('[role=dialog]').last().within(() => {
-            cy.contains('Sort by').should('be.visible');
-            cy.get('input[placeholder="Filter…"]').type('Description');
-            cy.contains('Description').parent().find('[role=switch]').click();
+        addSort('Description');
+        cy.contains('[role=dialog]', 'Sort by').within(() => {
+            cy.contains('Description').parent().find('[role=switch]').should('have.attr', 'data-state', 'checked');
             cy.contains('button', 'Apply').click();
         });
         cy.url().should('include', 's=');

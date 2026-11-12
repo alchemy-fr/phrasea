@@ -32,8 +32,17 @@ function assertAsset(title, description) {
     cy.getBySel('asset-legend').should('contain', title).and('contain', description);
 }
 
+/**
+ * Fired on the document: on the body, Cypress targets the element at its
+ * center, which can sit in a shadow root (the audio waveform) that the event
+ * does not leave.
+ */
+function press(key) {
+    cy.document().trigger('keydown', {key});
+}
+
 function next() {
-    cy.get('body').trigger('keydown', {key: 'ArrowRight'});
+    press('ArrowRight');
 }
 
 describe('Visit publication', () => {
@@ -56,7 +65,7 @@ describe('Visit publication', () => {
         assertAsset('A tall image', 'This is a tall image');
         assertFitted('zoomable-image', 'img', 100 / 1000);
 
-        cy.get('body').trigger('keydown', {key: 'ArrowLeft'});
+        press('ArrowLeft');
         assertAsset('A classic image', 'This is a classic image');
 
         next();
