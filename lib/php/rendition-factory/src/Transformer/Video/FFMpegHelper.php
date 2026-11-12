@@ -2,6 +2,8 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
+use Alchemy\BinaryDriver\AbstractBinary;
+use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\RestrictedProcessBuilderFactory;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 
@@ -23,7 +25,40 @@ class FFMpegHelper
             $ffmpegOptions['ffmpeg.threads'] = $threads;
         }
 
-        return FFMpeg\FFMpeg::create($ffmpegOptions, $options['logger'] ?? null);
+        return self::restrict(FFMpeg\FFMpeg::create($ffmpegOptions, $options['logger'] ?? null));
+    }
+
+    /**
+     * Limits ffmpeg and its ffprobe to local files (see RestrictedProcessBuilderFactory).
+     * To call before opening any media: a media keeps the drivers it was opened with.
+     */
+    public static function restrict(FFMpeg\FFMpeg $ffmpeg): FFMpeg\FFMpeg
+    {
+        self::restrictDriver($ffmpeg->getFFMpegDriver(), false);
+        self::restrictProbe($ffmpeg->getFFProbe());
+
+        return $ffmpeg;
+    }
+
+    public static function restrictProbe(FFMpeg\FFProbe $probe): FFMpeg\FFProbe
+    {
+        self::restrictDriver($probe->getFFProbeDriver(), true);
+
+        return $probe;
+    }
+
+    private static function restrictDriver(AbstractBinary $driver, bool $probe): void
+    {
+        $factory = $driver->getProcessBuilderFactory();
+        if ($factory instanceof RestrictedProcessBuilderFactory) {
+            return;
+        }
+
+        $restricted = new RestrictedProcessBuilderFactory($factory->getBinary(), $probe);
+        if (null !== $timeout = $factory->getTimeout()) {
+            $restricted->setTimeout($timeout);
+        }
+        $driver->setProcessBuilderFactory($restricted);
     }
 
     public static function pointAsText(FFMpeg\Coordinate\Point $point): string

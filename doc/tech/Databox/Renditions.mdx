@@ -42,6 +42,14 @@ Consequences:
 With the `imagine` module, a refused source fails as an unsupported source
 file: the rendition is given up instead of being retried.
 
+## Protocols opened by ffmpeg
+
+Video and audio renditions, and the clips of the exports and of the Expose
+publications, run ffmpeg and ffprobe with `-protocol_whitelist file,pipe` on
+every input: a source which references other resources (HLS playlist, URL...)
+can only make them open local files, never the network
+(`RestrictedProcessBuilderFactory`, installed by `FFMpegHelper`).
+
 ## Story contact sheet (`generate:`)
 
 A story has no source file of its own until a cover is set. A `generate:` build
