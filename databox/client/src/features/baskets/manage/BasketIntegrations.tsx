@@ -24,12 +24,14 @@ import {Badge, Progress} from '@alchemy/next-ui/ui/misc';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
 import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {basketChannel} from '@/lib/realtime/channels';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 import {useIntegrationData} from '@/features/integrations/useIntegrationData';
 import {useIntegrationAuth} from '@/features/integrations/useIntegrationAuth';
+import {StopExposeSyncDialog} from './StopExposeSyncDialog';
 
 /**
  * Basket integrations (context `basket`), notably Phrasea Expose: OAuth
@@ -93,6 +95,7 @@ function ExposeIntegration({
 }) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
+    const {openModal} = useModals();
     const {authorized, authorize, loading} = useIntegrationAuth(integration);
     const queryKey = ['integration-data', integration.id, basket.id];
     const data = useIntegrationData(
@@ -132,21 +135,28 @@ function ExposeIntegration({
         }
     );
 
+    const perform = async (
+        action: string,
+        payload: Record<string, unknown>
+    ) => {
+        await runIntegrationAction(integration.id, action, {
+            basketId: basket.id,
+            ...payload,
+        });
+        track(EventCategory.Integration, IntegrationEvent.Run, {
+            name: `${integration.integration}:${action}`,
+        });
+        void queryClient.invalidateQueries({queryKey});
+        toast.success(
+            t('integrations.action_done', 'Action "{{action}}" started', {
+                action,
+            })
+        );
+    };
+
     const run = async (action: string, payload: Record<string, unknown>) => {
         try {
-            await runIntegrationAction(integration.id, action, {
-                basketId: basket.id,
-                ...payload,
-            });
-            track(EventCategory.Integration, IntegrationEvent.Run, {
-                name: `${integration.integration}:${action}`,
-            });
-            void queryClient.invalidateQueries({queryKey});
-            toast.success(
-                t('integrations.action_done', 'Action "{{action}}" started', {
-                    action,
-                })
-            );
+            await perform(action, payload);
         } catch (e: any) {
             toast.error(e?.message);
         }
@@ -171,6 +181,8 @@ function ExposeIntegration({
                     typeof s.value === 'object' && s.value ? s.value : {}
                 ) as Record<string, any>;
                 const p = progress[s.id];
+                const name =
+                    v.title ?? (v.id ? `#${v.id.substring(0, 6)}` : s.keyId);
 
                 return (
                     <div
@@ -178,9 +190,7 @@ function ExposeIntegration({
                         className="space-y-2 rounded-md bg-muted/50 p-2"
                     >
                         <div className="flex items-center gap-2">
-                            <span className="flex-1 font-medium">
-                                {v.title ?? v.slug ?? s.keyId}
-                            </span>
+                            <span className="flex-1 font-medium">{name}</span>
                             {v.ignoreRoi ? (
                                 <Badge
                                     variant="muted"
@@ -255,14 +265,13 @@ function ExposeIntegration({
                                 size="sm"
                                 className="text-destructive"
                                 onClick={() =>
-                                    run('stop', {
-                                        id: s.id,
-                                        deletePublication: window.confirm(
-                                            t(
-                                                'integrations.expose.also_delete',
-                                                'Also delete the publication?'
-                                            )
-                                        ),
+                                    openModal(StopExposeSyncDialog, {
+                                        name,
+                                        onConfirm: deletePublication =>
+                                            perform('stop', {
+                                                id: s.id,
+                                                deletePublication,
+                                            }),
                                     })
                                 }
                             >
