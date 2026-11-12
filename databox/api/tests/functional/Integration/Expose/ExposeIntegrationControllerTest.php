@@ -45,6 +45,16 @@ final class ExposeIntegrationControllerTest extends AbstractDataboxTestCase
         ]);
     }
 
+    private function runSync(string $userId, array $json): ResponseInterface
+    {
+        return static::createClient()->request('POST', '/integrations/'.$this->integration->getId().'/actions/sync', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId),
+            ],
+            'json' => $json,
+        ]);
+    }
+
     private function proxyPublications(string $userId): ResponseInterface
     {
         return static::createClient()->request('GET', '/integrations/expose/'.$this->integration->getId().'/proxy/publications', [
@@ -85,10 +95,55 @@ final class ExposeIntegrationControllerTest extends AbstractDataboxTestCase
         $this->assertSame([
             'title' => 'Press kit',
             'slug' => 'press-kit',
-            'enabled' => false,
+            'config' => ['enabled' => false],
             'parent' => '/publications/parent-id',
             'profile' => '/publication-profiles/profile-id',
         ], $this->api->publications[$data['id']]['data']);
+    }
+
+    public function testTheSyncOfABasketCreatesThePublicationFromItsProperties(): void
+    {
+        $this->createExposeToken($this->integration, self::OWNER);
+        $basket = $this->createBasket(['ownerId' => self::OWNER, 'name' => 'Basket']);
+
+        $response = $this->runSync(self::OWNER, [
+            'basketId' => $basket->getId(),
+            'ignoreRoi' => true,
+            'publication' => [
+                'title' => 'Basket',
+                'enabled' => true,
+                'profile' => 'profile-id',
+            ],
+        ]);
+
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+        $this->assertCount(1, $this->api->publications);
+        $publication = array_values($this->api->publications)[0];
+        $this->assertSame([
+            'title' => 'Basket',
+            'config' => ['enabled' => true],
+            'profile' => '/publication-profiles/profile-id',
+        ], $publication['data']);
+
+        $value = $response->toArray()['value'];
+        $this->assertSame(array_key_first($this->api->publications), $value['id']);
+        $this->assertSame('Basket', $value['title']);
+        $this->assertTrue($value['ignoreRoi']);
+    }
+
+    public function testTheSyncOfABasketRequiresATitle(): void
+    {
+        $this->createExposeToken($this->integration, self::OWNER);
+        $basket = $this->createBasket(['ownerId' => self::OWNER]);
+
+        $response = $this->runSync(self::OWNER, [
+            'basketId' => $basket->getId(),
+            'publication' => ['title' => ''],
+        ]);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('The title is required', self::getErrorMessage($response));
+        $this->assertSame([], $this->api->publications);
     }
 
     public function testRequiresATitle(): void

@@ -160,6 +160,10 @@ final class FakeExposeApi
 
     private function createPublication(array $body): MockResponse
     {
+        if ('' === trim((string) ($body['title'] ?? ''))) {
+            return self::json(['detail' => 'title: This value should not be blank.'], 422);
+        }
+
         $id = $this->addPublication((string) ($body['title'] ?? ''));
         $this->publications[$id]['data'] = $body;
 

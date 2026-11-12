@@ -25,6 +25,7 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
@@ -91,13 +92,14 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 // The basket assets are published: it must be one the user can read
                 $this->denyAccessUnlessGranted(AbstractVoter::READ, $basket);
 
-                // Fixed for the life of the publication. Not an Expose property: the body is sent as is.
+                $publication = $data['publication'] ?? null;
+                if (!is_array($publication)) {
+                    throw new BadRequestHttpException('Missing "publication"');
+                }
+                // Fixed for the life of the publication
                 $ignoreRoi = filter_var($data['ignoreRoi'] ?? false, FILTER_VALIDATE_BOOL);
-                unset($data['ignoreRoi']);
 
-                $response = $this->exposeClient->createPublication($config, $integrationToken, $data);
-
-                $publicationId = $response['id'];
+                $created = $this->exposeClient->createPublicationFromInput($config, $integrationToken, $publication);
 
                 $integrationData = $this->integrationDataManager->storeData(
                     $config->getWorkspaceIntegration(),
@@ -105,8 +107,10 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                     $basket,
                     self::DATA_PUBLICATION_ID,
                     json_encode([
-                        'id' => $publicationId,
+                        'id' => $created['id'],
                         'ignoreRoi' => $ignoreRoi,
+                        // As created: a later renaming in Expose is not reflected
+                        'title' => $created['title'],
                     ], JSON_THROW_ON_ERROR),
                     multiple: true,
                 );
@@ -166,10 +170,11 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
     public function transformData(IntegrationData $data, IntegrationConfig $config): void
     {
-        ['id' => $publicationId, 'ignoreRoi' => $ignoreRoi] = self::readPublicationData($data);
+        ['id' => $publicationId, 'ignoreRoi' => $ignoreRoi, 'title' => $title] = self::readPublicationData($data);
 
         $data->setValue([
             'id' => $publicationId,
+            'title' => $title,
             'url' => $config['clientUrl'].'/'.$publicationId,
             'editUrl' => $config['clientUrl'].'/publications/'.$publicationId.'/edit',
             'ignoreRoi' => $ignoreRoi,
@@ -180,8 +185,9 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
     /**
      * The publication of a basket synchronization: stored as JSON, or as the bare publication ID
      * by the synchronizations created before the option to publish the whole files.
+     * The title is only known for the synchronizations created since it is stored.
      *
-     * @return array{id: string, ignoreRoi: bool}
+     * @return array{id: string, ignoreRoi: bool, title: string|null}
      */
     public static function readPublicationData(IntegrationData $data): array
     {
@@ -192,6 +198,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 return [
                     'id' => $decoded['id'],
                     'ignoreRoi' => true === ($decoded['ignoreRoi'] ?? false),
+                    'title' => is_string($decoded['title'] ?? null) ? $decoded['title'] : null,
                 ];
             }
         }
@@ -199,6 +206,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         return [
             'id' => (string) $value,
             'ignoreRoi' => false,
+            'title' => null,
         ];
     }
 

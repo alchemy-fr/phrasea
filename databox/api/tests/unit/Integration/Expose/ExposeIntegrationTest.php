@@ -24,9 +24,10 @@ class ExposeIntegrationTest extends TestCase
     {
         $id = '2c1d7d1e-3c4b-4b8a-9d55-0d6f8b1c2a3e';
 
-        yield 'bare ID of the former synchronizations' => [$id, ['id' => $id, 'ignoreRoi' => false]];
-        yield 'regions of interest applied' => [json_encode(['id' => $id, 'ignoreRoi' => false]), ['id' => $id, 'ignoreRoi' => false]];
-        yield 'whole files' => [json_encode(['id' => $id, 'ignoreRoi' => true]), ['id' => $id, 'ignoreRoi' => true]];
-        yield 'option missing' => [json_encode(['id' => $id]), ['id' => $id, 'ignoreRoi' => false]];
+        yield 'bare ID of the former synchronizations' => [$id, ['id' => $id, 'ignoreRoi' => false, 'title' => null]];
+        yield 'regions of interest applied' => [json_encode(['id' => $id, 'ignoreRoi' => false]), ['id' => $id, 'ignoreRoi' => false, 'title' => null]];
+        yield 'whole files' => [json_encode(['id' => $id, 'ignoreRoi' => true]), ['id' => $id, 'ignoreRoi' => true, 'title' => null]];
+        yield 'option missing' => [json_encode(['id' => $id]), ['id' => $id, 'ignoreRoi' => false, 'title' => null]];
+        yield 'with its title' => [json_encode(['id' => $id, 'ignoreRoi' => false, 'title' => 'Press kit']), ['id' => $id, 'ignoreRoi' => false, 'title' => 'Press kit']];
     }
 }
