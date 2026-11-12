@@ -17,6 +17,7 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Http\LocaleContext;
 use App\Integration\Auth\IntegrationTokenManager;
 use App\Integration\Phrasea\Expose\ExposeAssetPublisher;
+use App\Integration\Phrasea\Expose\ExposeAttributeHtmlRenderer;
 use App\Integration\Phrasea\Expose\ExposeClient;
 use App\Integration\Phrasea\Expose\ExposeIntegration;
 use App\Integration\Phrasea\PhraseaClientFactory;
@@ -48,6 +49,7 @@ trait ExposeTestTrait
             self::getService(LocaleContext::class),
             new MultipartUploader($http),
             self::getService(MediaClipper::class),
+            new ExposeAttributeHtmlRenderer(),
         );
     }
 
