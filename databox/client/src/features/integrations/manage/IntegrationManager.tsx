@@ -409,7 +409,9 @@ function IntegrationForm({
                         </div>
                     ) : null}
                 </div>
-                {reference.isLoading ? (
+                {/* The fields take their initial mode (value or reference)
+                    from the defaults: they are mounted once seeded */}
+                {reference.isLoading || (schema && !seeded) ? (
                     <Skeleton className="h-24 w-full" />
                 ) : mode === 'form' && schema ? (
                     <ConfigForm

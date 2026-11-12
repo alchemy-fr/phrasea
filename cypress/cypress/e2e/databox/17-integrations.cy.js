@@ -106,7 +106,11 @@ describe('Integrations', () => {
             cy.getBySel('definition-create').click();
             cy.get('[data-integration="remove.bg"]').click();
             cy.fieldByLabel('Title').type('E2E remove.bg');
+            // The key defaults to a reference to the REMOVE_BG_API_KEY variable
+            cy.getBySel('config-mode-reference-apiKey').should('have.attr', 'aria-selected', 'true');
+            cy.getBySel('config-mode-value-apiKey').click();
             // A secret typed in clear is masked, and offered to be saved as a secret
+            cy.get('#config-apiKey').clear();
             cy.get('#config-apiKey').should('have.attr', 'type', 'password').type('e2e-remove-bg-key');
             cy.getBySel('config-save-secret-apiKey').click();
         });
