@@ -1,9 +1,18 @@
 'use client';
 
 import {useEffect} from 'react';
-import {Toaster as SonnerToaster} from 'sonner';
+import {Toaster as SonnerToaster, toast} from 'sonner';
 
 const toastTextSelector = '[data-sonner-toast] [data-content]';
+
+/**
+ * Error toasts stay until the user closes them, so that an error is never
+ * missed. Sonner only has a global duration: every `toast.error()` of the
+ * clients gets an infinite one by default (an explicit duration still wins).
+ */
+const sonnerError = toast.error;
+toast.error = (message, data) =>
+    sonnerError(message, {duration: Infinity, ...data});
 
 /**
  * Sonner's toast captures the pointer on pointerdown (swipe to dismiss),
