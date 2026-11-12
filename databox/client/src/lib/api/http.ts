@@ -3,6 +3,7 @@ import {getConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {getImpersonation, IMPERSONATION_HEADER} from '@/lib/auth/impersonation';
 import {ApiError} from '@alchemy/next-ui/utils/errors';
+import {isApiUrl} from '@alchemy/next-core/api/isApiUrl';
 
 export type QueryParams = Record<string, unknown>;
 
@@ -94,7 +95,12 @@ function createInstance(): KyInstance {
             beforeRequest: [
                 async ({request, options}) => {
                     const ctx = options.context as Context;
-                    if (!ctx.anonymous) {
+                    // ky also sends absolute URLs (S3, presigned, third
+                    // parties): the token is for the API only
+                    if (
+                        !ctx.anonymous &&
+                        isApiUrl(request.url, config.apiUrl)
+                    ) {
                         const token = await getAuthClient()
                             .getAccessToken()
                             .catch(() => undefined);
@@ -106,11 +112,7 @@ function createInstance(): KyInstance {
                             const impersonated = ctx.asRealUser
                                 ? undefined
                                 : getImpersonation();
-                            // Only the API knows the header (CORS)
-                            if (
-                                impersonated &&
-                                request.url.startsWith(config.apiUrl)
-                            ) {
+                            if (impersonated) {
                                 request.headers.set(
                                     IMPERSONATION_HEADER,
                                     impersonated.id
@@ -143,7 +145,8 @@ function createInstance(): KyInstance {
                     if (
                         response.status === 401 &&
                         !ctx.anonymous &&
-                        !ctx.retried
+                        !ctx.retried &&
+                        isApiUrl(request.url, config.apiUrl)
                     ) {
                         const auth = getAuthClient();
                         if (auth.hasSession()) {

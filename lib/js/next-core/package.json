@@ -9,6 +9,7 @@
         "*.css"
     ],
     "exports": {
+        "./api/isApiUrl": "./src/api/isApiUrl.ts",
         "./auth/oidc": "./src/auth/oidc.ts",
         "./auth/AuthCallbackPage": "./src/auth/AuthCallbackPage.tsx",
         "./auth/SessionExpiredDialog": "./src/auth/SessionExpiredDialog.tsx",

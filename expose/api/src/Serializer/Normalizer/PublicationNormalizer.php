@@ -8,7 +8,6 @@ use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -40,7 +39,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             }
         }
 
-        $object->setChildren(new ArrayCollection($object->getChildren()->filter(fn (Publication $child): bool => $this->security->isGranted(PublicationVoter::READ, $child))->getValues()));
+        $object->setVisibleChildren($object->getChildren()->filter(fn (Publication $child): bool => $this->security->isGranted(PublicationVoter::READ, $child))->getValues());
 
         if ($object->getPackage() instanceof Asset && $this->getDownloadMode($object)->exposesFiles()) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));

@@ -6,6 +6,7 @@ namespace App\Tests\Functional;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Doctrine\PublicationExtension;
+use App\Entity\Publication;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class NestedPublicationSecurityTest extends AbstractExposeTestCase
@@ -143,6 +144,27 @@ class NestedPublicationSecurityTest extends AbstractExposeTestCase
         $this->assertArrayNotHasKey('cover', $json['children'][0]);
         $this->assertArrayNotHasKey('assets', $json['children'][0]);
         $this->assertStringNotContainsString('Secret', $response->getContent());
+    }
+
+    public function testAHiddenChildIsFilteredOutWithoutChangingTheParentEntity(): void
+    {
+        $parent = $this->createPublication(['title' => 'Parent']);
+        $visible = $this->createPublication(['title' => 'Visible child', 'parent' => $parent]);
+        $hidden = $this->createPublication(['title' => 'Hidden child', 'enabled' => false, 'parent' => $parent]);
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(null, 'GET', '/publications/'.$parent->getId());
+        $this->assertSame(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame([$visible->getId()], array_column($json['children'], 'id'));
+        $this->assertSame(1, $json['childrenCount']);
+        $this->assertStringNotContainsString('Hidden child', $response->getContent());
+
+        $children = self::getEntityManager()->find(Publication::class, $parent->getId())->getChildren();
+        $this->assertEqualsCanonicalizing(
+            [$visible->getId(), $hidden->getId()],
+            array_map(fn (Publication $child): string => $child->getId(), $children->getValues()),
+        );
     }
 
     public function testTheCoverOfAProtectedPublicationOnlyExposesItsThumbnail(): void
