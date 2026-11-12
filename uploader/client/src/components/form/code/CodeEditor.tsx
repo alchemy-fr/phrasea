@@ -64,7 +64,10 @@ export function CodeEditor({
         onChangeRef.current = onChange;
     }, [onChange]);
     // Initial options, the effects below keep them in sync
-    const initial = useRef({value, placeholder, readOnly, minLines, maxLines});
+    const initial = useRef({placeholder, readOnly, minLines, maxLines});
+    // Last value received from the parent. The editor follows its changes
+    // only: a render older than an edit must not overwrite it
+    const received = useRef(value);
 
     useEffect(() => {
         let cancelled = false;
@@ -73,10 +76,9 @@ export function CodeEditor({
             if (cancelled || !container.current) {
                 return;
             }
-            const {value, placeholder, readOnly, minLines, maxLines} =
-                initial.current;
+            const {placeholder, readOnly, minLines, maxLines} = initial.current;
             instance = ace.edit(container.current, {
-                value,
+                value: received.current,
                 minLines,
                 maxLines,
                 placeholder,
@@ -107,6 +109,10 @@ export function CodeEditor({
     }, [id]);
 
     useEffect(() => {
+        if (value === received.current) {
+            return;
+        }
+        received.current = value;
         if (editor && editor.getValue() !== value) {
             editor.session.setValue(value);
         }
