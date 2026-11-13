@@ -13,6 +13,38 @@ export type PhotoEditorInstance = {
 };
 
 /**
+ * Downloads the image into a same-origin `blob:` URL, or returns undefined
+ * when the URL is already local (`data:`, `blob:`).
+ *
+ * The signed file URL is the very one the preview loads through a plain
+ * `<img>` (no CORS): the storage answers it without `Vary: Origin`, so the
+ * browser may serve that cached, non-CORS response to the editor, which loads
+ * its image with `crossOrigin` (it reads the canvas back on export) and gets
+ * it blocked. A CORS request bypassing the HTTP cache avoids it, and a `blob:`
+ * URL keeps the canvas untainted.
+ */
+async function fetchImage(
+    url: string,
+    signal: AbortSignal
+): Promise<string | undefined> {
+    if (url.startsWith('data:') || url.startsWith('blob:')) {
+        return undefined;
+    }
+
+    const res = await fetch(url, {
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'no-store',
+        signal,
+    });
+    if (!res.ok) {
+        throw new Error(`The image could not be loaded (HTTP ${res.status})`);
+    }
+
+    return URL.createObjectURL(await res.blob());
+}
+
+/**
  * Toast UI photo editor on a file.
  *
  * The library draws its own (imperative, canvas based) UI and touches
@@ -36,21 +68,35 @@ export function PhotoEditor({
 
     useEffect(() => {
         let instance: PhotoEditorInstance | undefined;
+        let objectUrl: string | undefined;
         let cancelled = false;
+        const abortController = new AbortController();
+        const revokeObjectUrl = () => {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = undefined;
+            }
+        };
 
         void (async () => {
             try {
-                const mod = await import('tui-image-editor');
+                const [mod] = await Promise.all([
+                    import('tui-image-editor'),
+                    fetchImage(url, abortController.signal).then(u => {
+                        objectUrl = u;
+                    }),
+                ]);
                 const ImageEditor = (mod.default ?? mod) as new (
                     el: HTMLElement,
                     options: object
                 ) => PhotoEditorInstance;
                 if (cancelled || !container.current) {
+                    revokeObjectUrl();
                     return;
                 }
                 instance = new ImageEditor(container.current, {
                     includeUI: {
-                        loadImage: {path: url, name},
+                        loadImage: {path: objectUrl ?? url, name},
                         initMenu: 'filter',
                         menuBarPosition: 'bottom',
                         uiSize: {width: '100%', height: '100%'},
@@ -64,6 +110,10 @@ export function PhotoEditor({
                 editorRef.current = instance;
                 setLoading(false);
             } catch (e: unknown) {
+                if (cancelled) {
+                    revokeObjectUrl();
+                    return;
+                }
                 setError(
                     e instanceof Error ? e.message : 'Photo editor failed'
                 );
@@ -72,8 +122,12 @@ export function PhotoEditor({
 
         return () => {
             cancelled = true;
+            abortController.abort();
             editorRef.current = null;
             instance?.destroy();
+            // The editor reloads the image from this URL on "Reset": it can
+            // only go once the editor is gone
+            revokeObjectUrl();
         };
     }, [url, name, editorRef]);
 
