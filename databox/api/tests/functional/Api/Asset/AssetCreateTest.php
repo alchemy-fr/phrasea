@@ -73,7 +73,8 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         $this->assertSame($workspace->getId(), $asset->getSource()->getWorkspaceId());
     }
 
-    public function testAlternateUrlsMustBeHttpUrls(): void
+    #[DataProvider('alternateUrlProvider')]
+    public function testAlternateUrlScheme(string $url, int $expectedStatus): void
     {
         $workspace = $this->createOwnedWorkspace();
 
@@ -82,22 +83,25 @@ final class AssetCreateTest extends AbstractDataboxTestCase
             'sourceFile' => [
                 'url' => 'https://example.com/files/photo.jpg',
                 'alternateUrls' => [
-                    ['type' => 'open', 'url' => 'javascript:alert(document.domain)'],
+                    ['type' => 'open', 'url' => $url],
                 ],
             ],
         ]);
-        $this->assertResponseStatusCodeSame(422);
+        $this->assertResponseStatusCodeSame($expectedStatus);
+    }
 
-        $this->request('POST', '/assets', self::OWNER, [
-            'workspace' => '/workspaces/'.$workspace->getId(),
-            'sourceFile' => [
-                'url' => 'https://example.com/files/photo.jpg',
-                'alternateUrls' => [
-                    ['type' => 'open', 'url' => 'https://example.com/hd/photo.jpg'],
-                ],
-            ],
-        ]);
-        $this->assertResponseStatusCodeSame(201);
+    public static function alternateUrlProvider(): array
+    {
+        return [
+            ['https://example.com/hd/photo.jpg', 201],
+            ['indexer:///e2e/src/Dossier Accentué/Été 2024.txt', 201],
+            ['javascript:alert(document.domain)', 422],
+            ['JavaScript:alert(document.domain)', 422],
+            [' javascript:alert(document.domain)', 422],
+            ['vbscript:msgbox(1)', 422],
+            ['data:text/html,<script>alert(1)</script>', 422],
+            ['/relative/path.jpg', 422],
+        ];
     }
 
     public function testPrivateSourceUrlIsNotExposed(): void
