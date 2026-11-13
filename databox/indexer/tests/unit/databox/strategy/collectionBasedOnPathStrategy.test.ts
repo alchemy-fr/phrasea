@@ -137,6 +137,8 @@ describe('asset creation', () => {
             workspaceId: 'ws-1',
             sourceFile: {
                 url: 'http://indexer.test/assets/?path=fs%2Fa%2Fb%2Fphoto.jpg',
+                // From the path, not from the custom asset name
+                originalName: 'photo.jpg',
                 isPrivate: true,
                 alternateUrls: [
                     {type: 'indexer', url: 'indexer:///source/a/b/photo.jpg'},

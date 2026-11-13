@@ -23,6 +23,7 @@ type AlternateUrl = {
 
 type Source = {
     url: string;
+    originalName?: string;
     isPrivate?: boolean;
     alternateUrls?: AlternateUrl[];
     importFile?: boolean;

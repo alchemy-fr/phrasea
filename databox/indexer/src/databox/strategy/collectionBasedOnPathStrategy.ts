@@ -42,6 +42,9 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             sourceFile: asset.publicUrl
                 ? {
                       url: asset.publicUrl,
+                      // The public URL carries the path in its query string:
+                      // the API guesses the type from this name instead.
+                      originalName: p.basename(path),
                       isPrivate: asset.isPrivate,
                       alternateUrls,
                       importFile: asset.importFile,
