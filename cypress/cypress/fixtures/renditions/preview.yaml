@@ -60,7 +60,7 @@ video:
                     -
                         name: synchronize
                 format: video-mpeg4
-                timeout: 14400
+                timeout: 3600
                 threads: 4
                 passes: 2
                 video_kilobitrate: 1500
