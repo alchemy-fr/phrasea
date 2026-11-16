@@ -55,6 +55,9 @@ class SimilarAssetCollectionProvider implements ProviderInterface
             fn (Asset $a): bool => $this->isGranted(AbstractVoter::READ, $a)
         ));
 
+        $returnedIds = array_map(static fn (Asset $a): string => $a->getId(), $assets);
+        $scores = array_intersect_key($scores, array_flip($returnedIds));
+
         $response = new ApiMetaWrapperOutput(new \ArrayIterator($assets));
         $response->setMeta('scores', $scores);
 
