@@ -124,7 +124,6 @@ describe('asset creation', () => {
                 generateRenditions: true,
                 importFile: true,
                 attributes: [{definition: '/d/1', value: 'v'} as any],
-                tags: ['/tags/1'],
                 renditions: [{name: 'preview'}],
                 isStory: false,
             }),
@@ -150,7 +149,6 @@ describe('asset creation', () => {
             key: 'fs/a/b/photo.jpg',
             name: 'Custom name',
             attributes: [{definition: '/d/1', value: 'v'}],
-            tags: ['/tags/1'],
             renditions: [{name: 'preview'}],
             isStory: false,
         });
@@ -242,14 +240,12 @@ describe('shortcut collections', () => {
             ids: ['asset-42'],
             byReference: true,
             withAttributes: false,
-            withTags: false,
         });
         expect(client.copyAsset).toHaveBeenNthCalledWith(2, {
             destination: '/collections/c2',
             ids: ['asset-42'],
             byReference: true,
             withAttributes: false,
-            withTags: false,
         });
     });
 

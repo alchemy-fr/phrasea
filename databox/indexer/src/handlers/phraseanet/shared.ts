@@ -12,7 +12,14 @@ export type AttrDefinitionIndex = Record<
     }
 >;
 
-export type TagIndex = Record<number, string>;
+/**
+ * The Phraseanet status bits imported as the values of the "Tags" entity list:
+ * the multi-valued entity attribute receiving them and, per bit, its entity ID.
+ */
+export type StatusBitIndex = {
+    definitionId: string;
+    entities: Record<number, string>;
+};
 
 export type AttrPolicyIndex = Record<string, AttributePolicy>;
 
@@ -146,7 +153,7 @@ export async function createAsset(
     key: string,
     isStory: boolean,
     fieldMap: Record<string, FieldMap>,
-    tagIndex: TagIndex,
+    statusBitIndex: StatusBitIndex | undefined,
     shortcutIntoCollections: {id: string; path: string}[],
     sourceSubdefName: string | undefined,
     subdefToRendition: Record<string, string[]>,
@@ -208,10 +215,31 @@ export async function createAsset(
         }
     }
 
-    const tags: string[] = [];
-    for (const sb of record.status) {
-        if (sb.state && tagIndex[sb.bit] !== undefined) {
-            tags.push(tagIndex[sb.bit]);
+    if (statusBitIndex) {
+        const entityIds: string[] = [];
+        for (const sb of record.status) {
+            const entityId = statusBitIndex.entities[sb.bit];
+            if (
+                sb.state &&
+                entityId !== undefined &&
+                !entityIds.includes(entityId)
+            ) {
+                entityIds.push(entityId);
+            }
+        }
+
+        if (entityIds.length > 0) {
+            const d = {
+                definitionId: statusBitIndex.definitionId,
+                origin: 'machine',
+                originVendor: 'indexer-import',
+                position: 0,
+            } as Partial<AttributeInput>;
+
+            attributes.push({
+                ...d,
+                value: entityIds,
+            } as AttributeInput);
         }
     }
 
@@ -251,7 +279,6 @@ export async function createAsset(
         publicUrl: sourceFileUrl,
         isPrivate: false,
         attributes: attributes,
-        tags: tags,
         generateRenditions: false,
         renditions: renditions,
         shortcutIntoCollections: shortcutIntoCollections,
@@ -270,6 +297,7 @@ export enum DataboxAttributeType {
     Color = 'color',
     Date = 'date',
     DateTime = 'date_time',
+    Entity = 'entity',
     GeoPoint = 'geo_point',
     Html = 'html',
     Ip = 'ip',
