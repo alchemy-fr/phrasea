@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\AQL;
 
+use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
@@ -21,6 +22,7 @@ use App\Elasticsearch\BuiltInAttribute\CreatedAtBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\FileFamilyBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\OwnerBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\SimilarBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\WorkspaceBuiltInAttribute;
 use App\Elasticsearch\Query\Knn;
@@ -33,6 +35,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\ServiceLocatorTrait;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -84,7 +87,35 @@ class AQLToESQueryTest extends TestCase
         yield 'list of ints' => ['bool IN (1, 0)', ['terms' => ['attrs._.bool_boolean_s' => [true, false]]]];
     }
 
-    private function convert(string $expression, ?string $locale = null): array
+    /**
+     * A built-in attribute disabled for the user (@owner without the required role) does not
+     * exist for them, unless the condition comes from an attribute filter rule.
+     */
+    #[DataProvider('getDisabledBuiltInCases')]
+    public function testDisabledBuiltInAttributeIsUnknownToTheUser(string $expression): void
+    {
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Built-in field "@owner" not found');
+
+        $this->convert($expression);
+    }
+
+    public static function getDisabledBuiltInCases(): iterable
+    {
+        yield 'criteria' => ['@owner = "u1"'];
+        yield 'negated' => ['NOT (@owner = "u1")'];
+        yield 'script' => ['@owner = number'];
+    }
+
+    public function testDisabledBuiltInAttributeAppliesInTrustedConditions(): void
+    {
+        $this->assertSame(
+            ['term' => ['ownerId' => 'u1']],
+            $this->convert('@owner = "u1"', options: [AQLToESQuery::OPT_TRUSTED_CONDITIONS => true]),
+        );
+    }
+
+    private function convert(string $expression, ?string $locale = null, array $options = []): array
     {
         $parser = new AQLParser();
         $result = $parser->parse($expression);
@@ -99,7 +130,7 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $security), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $security), FileFamilyBuiltInAttribute::getKey() => fn () => new FileFamilyBuiltInAttribute($translator), SimilarBuiltInAttribute::getKey() => fn () => $this->createSimilarBuiltInAttribute()]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $security), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $security), FileFamilyBuiltInAttribute::getKey() => fn () => new FileFamilyBuiltInAttribute($translator), SimilarBuiltInAttribute::getKey() => fn () => $this->createSimilarBuiltInAttribute(), OwnerBuiltInAttribute::getKey() => fn () => $this->createDisabledOwnerBuiltInAttribute($security)]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInAttributeRegistry = new BuiltInAttributeRegistry($container);
@@ -166,7 +197,19 @@ class AQLToESQueryTest extends TestCase
 
         return $esQueryConverter->createQuery($fieldClusters, $result['data'], [
             'locale' => $locale,
+            ...$options,
         ])->toArray();
+    }
+
+    /**
+     * Requires a role that an anonymous user lacks.
+     */
+    private function createDisabledOwnerBuiltInAttribute(Security $security): OwnerBuiltInAttribute
+    {
+        $attribute = new OwnerBuiltInAttribute($this->createStub(UserRepositoryInterface::class), 'admin');
+        $attribute->setSecurity($security);
+
+        return $attribute;
     }
 
     private function createSimilarBuiltInAttribute(): SimilarBuiltInAttribute
