@@ -15,8 +15,6 @@ final readonly class PhraseanetDownloadSubdef
         private string $recordId,
         private string $subdefName,
         private string $permalink,
-        private ?string $type = null,
-        private ?int $size = null,
     ) {
     }
 
@@ -43,15 +41,5 @@ final readonly class PhraseanetDownloadSubdef
     public function getSubdefName(): string
     {
         return $this->subdefName;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function getSize(): ?int
-    {
-        return $this->size;
     }
 }
