@@ -42,9 +42,22 @@ bin/build.sh
 
 ### Secure your installation
 
-Change all the default passwords or secrets you find in `.env`.
+Change all the default passwords or secrets you find in `.env`, by overriding them in `.env.local`.
 
-They often start with `__CHANGE_ME_`.
+They often start with `__CHANGE_ME_`. The default `ADMIN_BASIC_AUTH_USER` (basic auth of the
+[administration consoles](#administration-consoles)) is public too, its password is written in
+`.env`: generate your own with `htpasswd -nb admin 'my-secret-password'` and quote it in
+`.env.local`, since the hash contains `$`:
+
+```dotenv
+ADMIN_BASIC_AUTH_USER='admin:$apr1$…'
+```
+
+Outside a development stack (`APP_ENV=dev`, or `docker-compose.dev.yml` in `COMPOSE_FILE`),
+`bin/setup.sh` and `bin/migrate.sh` refuse to run, before any action, while a variable still starts
+with `__CHANGE_ME_` or `ADMIN_BASIC_AUTH_USER` still has the value of `.env`, and list the
+variables to change. For a demonstration only, `PHRASEA_ALLOW_DEFAULT_SECRETS=1` skips that check
+(the CI sets it).
 
 ### Install dependencies and configure projects
 
@@ -151,7 +164,8 @@ Traefik exposes the technical consoles behind two middlewares, defined on the `t
 - `admin-allowlist`: only the IP ranges of `ADMIN_ALLOWED_SOURCE_RANGES` (CIDR, comma-separated) get
   through, the others get a 403;
 - `admin-console`: `admin-allowlist` followed by the basic auth `admin-secured`
-  (`ADMIN_BASIC_AUTH_USER`, generated with `htpasswd -nb admin 'my-secret-password'`).
+  (`ADMIN_BASIC_AUTH_USER`, generated with `htpasswd -nb admin 'my-secret-password'`; the default
+  one is public and refused outside a dev stack, see [Secure your installation](#secure-your-installation)).
 
 | Console                                                                                             | Middleware        |
 |-----------------------------------------------------------------------------------------------------|-------------------|

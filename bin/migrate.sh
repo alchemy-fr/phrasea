@@ -5,6 +5,7 @@ set -e
 . bin/functions.sh
 
 load-env
+check_default_secrets
 
 set -ex
 

@@ -5,6 +5,7 @@ set -e
 . bin/functions.sh
 
 load-env
+check_default_secrets
 
 export COMPOSE_PROFILES="dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,uploader"
 if [ -n "${REPORT_API_URL}" ]; then

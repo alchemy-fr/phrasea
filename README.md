@@ -143,8 +143,11 @@ git clone https://github.com/alchemy-fr/phrasea.git
 cd phrasea
 ```
 
-Change every default password or secret of `.env` (their values start with `__CHANGE_ME_`), by
-overriding them in a `.env.local` file at the root of the project. Then define the `dc` function
+Change every default password or secret of `.env` (their values start with `__CHANGE_ME_`, plus
+`ADMIN_BASIC_AUTH_USER`, to generate with `htpasswd -nb admin 'my-secret-password'`), by
+overriding them in a `.env.local` file at the root of the project: outside a dev stack,
+`bin/setup.sh` refuses the default ones (`PHRASEA_ALLOW_DEFAULT_SECRETS=1` to try Phrasea out
+with them anyway). Then define the `dc` function
 in your `~/.bashrc` or `~/.zshrc`, so that Docker Compose loads `.env.local`:
 
 ```bash
