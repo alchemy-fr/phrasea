@@ -32,6 +32,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
     public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
+        private int $ffmpegMaxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
     ) {
     }
 
@@ -93,9 +94,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
                         ->defaultValue(2)
                         ->info('Change the number of ffmpeg passes')
                     ->end()
-                    ->scalarNode('timeout')
-                        ->info('Change the default timeout used by ffmpeg (defaults to symphony process timeout)')
-                        ->end()
+                    ->append(FFMpegHelper::createTimeoutNode($this->ffmpegMaxTimeout))
                     ->scalarNode('threads')
                         ->info('Change the default number of threads used by ffmpeg')
                     ->end()
@@ -113,7 +112,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver, $this->ffmpegMaxTimeout);
         $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var Video $video */

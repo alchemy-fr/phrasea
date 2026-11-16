@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Border;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\FileValidator;
+use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderOrigins;
@@ -50,7 +51,7 @@ class BorderManagerTest extends TestCase
 
         return new BorderManager(
             $this->createStub(EntityManagerInterface::class),
-            new UriDownloader(new MockHttpClient(new MockResponse(self::PNG)), 'prod'),
+            new UriDownloader(new MockHttpClient(new MockResponse(self::PNG)), 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024 * 1024), 900),
             $this->createStub(FileStorageManager::class),
             new FilePathGenerator($pathGenerator),
             new FileValidator(''),

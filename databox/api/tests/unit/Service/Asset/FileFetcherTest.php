@@ -10,6 +10,7 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use Alchemy\StorageBundle\Upload\ContentTypeDetector;
 use Alchemy\StorageBundle\Upload\FileValidator;
+use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Border\UriDownloader;
 use App\Entity\Core\File;
 use App\Service\Asset\Exception\RefusedFileContentException;
@@ -223,7 +224,7 @@ class FileFetcherTest extends TestCase
         return new FileFetcher(
             $this->createUrlResolver(),
             // "dev" lets the mocked responses through, without resolving the host to check the network is public.
-            new UriDownloader($httpClient ?? new MockHttpClient(), 'dev'),
+            new UriDownloader($httpClient ?? new MockHttpClient(), 'dev', new MultipartUploadPlanner(1, 1024, 1024, 1024 * 1024), 900),
             $this->storageManager,
             new FileValidator(''),
         );
