@@ -39,6 +39,17 @@ export FIXTURES_GENERATE_IMAGES=true
 export PHRASEA_ALLOW_DEFAULT_SECRETS=1
 # The S3 minimum part size, so that the e2e uploads span several parts
 export S3_MULTIPART_MIN_CHUNK_SIZE=5242880
+# One PostgreSQL role per application (optional in production): the CI exercises it
+export DATABOX_POSTGRES_USER=databox
+export DATABOX_POSTGRES_PASSWORD=databox-ci
+export EXPOSE_POSTGRES_USER=expose
+export EXPOSE_POSTGRES_PASSWORD=expose-ci
+export UPLOADER_POSTGRES_USER=uploader
+export UPLOADER_POSTGRES_PASSWORD=uploader-ci
+export KEYCLOAK_POSTGRES_USER=keycloak
+export KEYCLOAK_POSTGRES_PASSWORD=keycloak-ci
+export REPORT_POSTGRES_USER=report
+export REPORT_POSTGRES_PASSWORD=report-ci
 
 if [[ "${CLEAN}" == "1" ]]; then
   docker compose kill

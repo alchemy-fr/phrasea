@@ -205,6 +205,47 @@ With an external cluster, leave the `elasticsearch` profile out and set `ELASTIC
 `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD` (both empty for a cluster without
 authentication).
 
+### Database roles
+
+By default every application connects to PostgreSQL with the superuser `POSTGRES_USER`: whoever
+steals the credentials of one container (they are in its environment) gets every database, Keycloak
+included. Give each application a role of its own in `.env.local`, both variables of each pair:
+
+```dotenv
+DATABOX_POSTGRES_USER=databox
+DATABOX_POSTGRES_PASSWORD=…
+EXPOSE_POSTGRES_USER=expose
+EXPOSE_POSTGRES_PASSWORD=…
+UPLOADER_POSTGRES_USER=uploader
+UPLOADER_POSTGRES_PASSWORD=…
+# Keycloak and keycloak2
+KEYCLOAK_POSTGRES_USER=keycloak
+KEYCLOAK_POSTGRES_PASSWORD=…
+# report-api
+REPORT_POSTGRES_USER=report
+REPORT_POSTGRES_PASSWORD=…
+```
+
+An application whose pair is empty keeps the superuser. For each defined pair, the `database` step
+of the configurator (`bin/setup.sh`, or `bin/console configure --filter database` in `configurator`)
+connects as the superuser and, at every run:
+
+1. creates the role (`LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE`), or resets its password;
+2. creates the database with that owner, or gives it to the role;
+3. gives the role the `public` schema and every table, sequence, view, materialized view and
+   function of it (the extensions, such as Databox's `ltree`, stay with the superuser);
+4. revokes `CONNECT` on the database from `PUBLIC` and grants it to the role only.
+
+The roles of the three APIs also join the `configurator_editor` group, which reads and writes the
+rows of the configurator database (global configuration, edited from the admin of each API), without
+any DDL; `PUBLIC` loses `CONNECT` on that database as well. The superuser keeps access to everything:
+the configurator, pgAdmin, `dev`, manual maintenance. Each API runs its Doctrine migrations with its
+own role, owner of its database.
+
+A role cannot be the superuser itself, nor another superuser: the configurator refuses both. With a
+managed PostgreSQL or Kubernetes, where the roles are handled by the infrastructure, leave the
+variables empty.
+
 ### Administration consoles
 
 Traefik exposes the technical consoles behind two middlewares, defined on the `traefik` service:
