@@ -139,16 +139,16 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
 
         $definition = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($workspaceId, (string) $config['attribute']);
         if (null === $definition) {
-            throw self::createAttributeException(sprintf('Attribute "%s" not found in the workspace', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" not found in the workspace', $config->getClientValue('attribute')));
         }
         if (EntityAttributeType::NAME !== $definition->getType()) {
-            throw self::createAttributeException(sprintf('Attribute "%s" must be of type "entity"', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be of type "entity"', $config->getClientValue('attribute')));
         }
         if (!$definition->isMultiple()) {
-            throw self::createAttributeException(sprintf('Attribute "%s" must be multi-valued', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be multi-valued', $config->getClientValue('attribute')));
         }
         if (null === $definition->getEntityList()) {
-            throw self::createAttributeException(sprintf('Attribute "%s" must be bound to an entity list', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be bound to an entity list', $config->getClientValue('attribute')));
         }
     }
 
@@ -238,7 +238,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         $definition = null !== $config->getWorkspaceId() ? $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($config->getWorkspaceId(), (string) $config['attribute']) : null;
 
         return [
-            'attribute' => $config['attribute'],
+            'attribute' => $definition?->getSlug(),
             'attributeDefinition' => $definition?->getId(),
             'entityList' => $definition?->getEntityList()?->getId(),
             'processIncoming' => $config['processIncoming'],

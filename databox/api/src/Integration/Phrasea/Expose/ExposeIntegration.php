@@ -63,7 +63,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 ->attribute(ConfigWidget::ATTR_URL, true)
             ->end();
         ConfigWidget::apply($builder->scalarNode('clientId'), ConfigWidget::OAuthClient)
-                ->isRequired()
+                ->defaultValue('${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}')
                 ->cannotBeEmpty()
                 ->info('Keycloak OAuth client (public, standard flow) used to authorize users on Expose')
             ->end()

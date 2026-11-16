@@ -1203,6 +1203,7 @@
     "integration.config.secret_ref.search": "Rechercher ou saisir un nom…",
     "integration.config.secret_ref.secrets": "Secrets",
     "integration.config.secret_ref.system": "Système",
+    "integration.config.secret_ref.system_not_resolved": "Variable système de l'instance : résolue seulement dans un champ secret, ou comme valeur par défaut du champ",
     "integration.config.secret_ref.type": "Saisir le nom d'un secret ou d'une variable…",
     "integration.config.secret_ref.undefined": "Non défini dans ce workspace",
     "integration.config.secret_ref.undefined_instance": "Non défini sur l'instance",

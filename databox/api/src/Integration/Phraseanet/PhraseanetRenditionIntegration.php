@@ -113,16 +113,20 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         $info = [];
 
         if (self::METHOD_ENQUEUE === $config['method']) {
-            $secret = $config['webhookSecret'] ?? null;
+            $secret = (string) $config->getClientValue('webhookSecret');
+            $isReference = str_contains($secret, '$');
+            $url = '' === $secret ? 'Not set' : $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
+                'integrationId' => $config->getIntegrationId(),
+                'token' => $secret,
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
             $info[] = [
                 'label' => 'Webhook URL',
-                'description' => empty($secret)
-                    ? 'Phraseanet events are refused until a "webhookSecret" is set in the configuration.'
-                    : 'The URL to which Phraseanet will send incoming renditions. It carries the webhook secret: keep it private.',
-                'value' => empty($secret) ? 'Not set' : $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
-                    'integrationId' => $config->getIntegrationId(),
-                    'token' => $secret,
-                ], UrlGeneratorInterface::ABSOLUTE_URL),
+                'description' => match (true) {
+                    '' === $secret => 'Phraseanet events are refused until a "webhookSecret" is set in the configuration.',
+                    $isReference => sprintf('The URL to which Phraseanet will send incoming renditions, its "token" being the value of %s (not shown). It carries the webhook secret: keep it private.', $secret),
+                    default => 'The URL to which Phraseanet will send incoming renditions. It carries the webhook secret: keep it private.',
+                },
+                'value' => $isReference ? strtr($url, [rawurlencode($secret) => $secret]) : $url,
             ];
         }
 

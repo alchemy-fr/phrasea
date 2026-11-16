@@ -56,7 +56,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $attrDef = $this->attributeDefinitionRepository
                 ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $config['attribute'])
-                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['attribute'], $asset->getWorkspaceId()));
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config->getClientValue('attribute'), $asset->getWorkspaceId()));
 
         $toTranscript = false;
         foreach ($allEnabledLocales as $locale) {
@@ -105,7 +105,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $srcLanguageAttrDef = $this->attributeDefinitionRepository
                 ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $config['sourceLanguageAttribute'])
-                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['sourceLanguageAttribute'], $asset->getWorkspaceId()));
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config->getClientValue('sourceLanguageAttribute'), $asset->getWorkspaceId()));
 
         $sourceLanguage = $attributeIndex->getAttribute($srcLanguageAttrDef->getId(), AttributeInterface::NO_LOCALE)?->getValue() ?? $config['defaultSourceLanguage'];
         $sourceLanguage = trim((string) $sourceLanguage);

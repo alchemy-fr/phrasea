@@ -23,9 +23,10 @@ final readonly class EnvResolver
     }
 
     /**
-     * @param bool $allowInstance false when the value may be sent to a host chosen by a
-     *                            workspace editor: the `PWI_<NAME>` variable of the instance
-     *                            then resolves to an empty string
+     * @param bool $allowInstance false when the value may reach a workspace editor (sent to a
+     *                            host they chose, shown in a message or an asset…): the
+     *                            `PWI_<NAME>` variable of the instance then resolves to an
+     *                            empty string
      */
     public function getEnv(?string $workspaceId, string $key, bool $allowInstance = true): string
     {
@@ -53,7 +54,7 @@ final readonly class EnvResolver
         $value = getenv(self::ENV_PREFIX.$key) ?: '';
         if ('' !== $value && !$allowInstance) {
             $this->logger->warning(sprintf(
-                'Instance variable "%s%s" not resolved for an integration of workspace "%s": it calls a URL set by its editor',
+                'Instance variable "%s%s" not resolved for an integration of workspace "%s": only a secret key or a default value resolves it, while the integration calls the URLs of the instance',
                 self::ENV_PREFIX,
                 $key,
                 $workspaceId ?? 'NULL',

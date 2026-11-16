@@ -24,12 +24,20 @@ final class IntegrationConfigTest extends TestCase
     private const array INSTANCE_VARIABLES = [
         'PWI_UT_CFG_KEY' => 'instance-key',
         'PWI_UT_CFG_URL' => 'https://service.instance.test',
+        'PWI_UT_CFG_CLIENT' => 'instance-client',
     ];
 
     private const array URL_DEFAULTS = [
         'baseUrl' => '${UT_CFG_URL}',
         'hookUrl' => null,
     ];
+
+    private const array DEFAULTS = [
+        'baseUrl' => '${UT_CFG_URL}',
+        'clientId' => '${UT_CFG_CLIENT}',
+    ];
+
+    private const array SECRET_KEYS = ['apiKey'];
 
     /**
      * @var array<string, string> the variables of the workspace
@@ -145,12 +153,50 @@ final class IntegrationConfigTest extends TestCase
         $config = $this->createConfig([
             'baseUrl' => 'https://${UT_CFG_HOST}',
             'apiKey' => '${UT_CFG_KEY}',
+            'label' => '${UT_CFG_KEY}',
         ], workspace: false);
 
         $this->assertSame('https://service.instance.test', $config['baseUrl']);
         $this->assertSame('instance-key', $config['apiKey']);
+        $this->assertSame('instance-key', $config['label']);
         $config->validateUrls();
         $this->assertSame([], $this->warnings);
+    }
+
+    public function testAWorkspaceIntegrationResolvesTheInstanceVariablesInItsSecretKeysOnly(): void
+    {
+        $this->workspaceEnvs['UT_CFG_OWN'] = 'own-value';
+        $config = $this->createConfig([
+            'apiKey' => '${UT_CFG_KEY}',
+            'label' => 'Key: ${UT_CFG_KEY}',
+            'other' => '${UT_CFG_OWN}',
+        ]);
+
+        $this->assertSame('instance-key', $config['apiKey']);
+        $this->assertSame('Key: ', $config['label']);
+        // The values of the workspace still resolve
+        $this->assertSame('own-value', $config['other']);
+        $this->assertCount(1, $this->warnings);
+        $this->assertStringContainsString('PWI_UT_CFG_KEY', $this->warnings[0]);
+    }
+
+    public function testAKeyLeftToItsDefaultResolvesTheInstanceVariables(): void
+    {
+        $this->assertSame('instance-client', $this->createConfig(['clientId' => '${UT_CFG_CLIENT}'])['clientId']);
+        $this->assertSame('', $this->createConfig(['clientId' => '${UT_CFG_KEY}'])['clientId']);
+    }
+
+    public function testTheClientValueIsTheValueAsWritten(): void
+    {
+        $config = $this->createConfig([
+            'apiKey' => '${UT_CFG_KEY}',
+            'label' => 'plain',
+        ]);
+
+        $this->assertSame('instance-key', $config['apiKey']);
+        $this->assertSame('${UT_CFG_KEY}', $config->getClientValue('apiKey'));
+        $this->assertSame('plain', $config->getClientValue('label'));
+        $this->assertNull($config->getClientValue('missing'));
     }
 
     private function createConfig(array $values, bool $workspace = true): IntegrationConfig
@@ -166,6 +212,8 @@ final class IntegrationConfigTest extends TestCase
             $this->createStub(IntegrationInterface::class),
             $this->createEnvResolver(),
             self::URL_DEFAULTS,
+            self::DEFAULTS,
+            self::SECRET_KEYS,
         );
     }
 

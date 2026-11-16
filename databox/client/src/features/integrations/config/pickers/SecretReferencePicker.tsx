@@ -51,6 +51,8 @@ type Props = {
     workspaceId?: string;
     /** A sensitive field: the secrets come first, and only a secret is created */
     secret?: boolean;
+    /** The name the default value of the field refers to */
+    defaultName?: string;
     /** Name offered to a new secret or variable when nothing is searched */
     suggestedName?: string;
     defaultOpen?: boolean;
@@ -69,6 +71,7 @@ export function SecretReferencePicker({
     onChange,
     workspaceId,
     secret,
+    defaultName,
     suggestedName,
     defaultOpen,
     invalid,
@@ -108,6 +111,12 @@ export function SecretReferencePicker({
 
     const matches = (n: string) =>
         search === '' || n.toLowerCase().includes(typed.toLowerCase());
+    // In a workspace, the API resolves a system variable in a secret field or
+    // as the default value of the field only: any other value may reach the
+    // editors of the workspace
+    const systemResolves = (n: string) =>
+        !workspaceId || !!secret || n === defaultName;
+    const systemNames = system.names?.filter(systemResolves);
 
     // Same order as the resolution: secret, variable, then system variable
     const variable = envs?.find(e => e.name === name);
@@ -163,12 +172,12 @@ export function SecretReferencePicker({
                 ))}
         </CommandGroup>
     ) : null;
-    const systemGroup = system.names?.some(matches) ? (
+    const systemGroup = systemNames?.some(matches) ? (
         <CommandGroup
             key="system"
             heading={t('integration.config.secret_ref.system', 'System')}
         >
-            {system.names.filter(matches).map(n => (
+            {systemNames.filter(matches).map(n => (
                 <NameItem
                     key={n}
                     name={n}
@@ -347,6 +356,7 @@ export function SecretReferencePicker({
                 kind={kind}
                 value={variable?.value}
                 secretField={secret}
+                systemResolves={systemResolves(name)}
             />
         </div>
     );
@@ -423,12 +433,14 @@ function ReferenceStatus({
     kind,
     value,
     secretField,
+    systemResolves,
 }: {
     name: string;
     workspaceId?: string;
     kind?: Kind;
     value?: string;
     secretField?: boolean;
+    systemResolves?: boolean;
 }) {
     const {t} = useTranslation();
     if (name === '') {
@@ -478,7 +490,15 @@ function ReferenceStatus({
             );
             break;
         case 'system':
-            content = (
+            content = !systemResolves ? (
+                <>
+                    <CircleAlertIcon className="size-3.5 shrink-0 text-warning-foreground" />
+                    {t(
+                        'integration.config.secret_ref.system_not_resolved',
+                        'System variable of the instance: only resolved in a secret field, or as the default value of the field'
+                    )}
+                </>
+            ) : (
                 <>
                     <ServerIcon className="size-3.5 shrink-0" />
                     {t(
