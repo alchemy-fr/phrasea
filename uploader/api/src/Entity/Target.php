@@ -69,6 +69,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             processor: TargetDataProcessor::class,
         ),
         new GetCollection(
+            paginationEnabled: false,
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             provider: TargetDataProvider::class,
             parameters: [
