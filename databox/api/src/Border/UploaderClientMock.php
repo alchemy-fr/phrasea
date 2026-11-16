@@ -16,8 +16,11 @@ class UploaderClientMock extends UploaderClient
 
     /**
      * The uploading user sent with the commits: the owner of the test workspace by default.
+     *
+     * Not defaulted to the constant here: the test class is missing from a --no-dev install,
+     * and reflecting the default properties (container build) would evaluate it.
      */
-    public string $userId = KeycloakClientTestMock::ADMIN_UID;
+    public ?string $userId = null;
 
     /**
      * Merged into the uploaded asset, as returned by the Uploader.
@@ -29,7 +32,7 @@ class UploaderClientMock extends UploaderClient
     {
         return [
             'id' => $id,
-            'userId' => $this->userId,
+            'userId' => $this->userId ?? KeycloakClientTestMock::ADMIN_UID,
             'assets' => [
                 '42',
             ],
