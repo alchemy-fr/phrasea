@@ -162,10 +162,10 @@ A stack created when every container shared the single `internal` network must b
 `proxy` claims `PS_SUBNET`, still held by `<project>_internal` (`Pool overlaps with other one on this
 address space`). Run `dc down` (the volumes are kept) then `dc up -d`.
 
-`proxy` takes the `PS_SUBNET` subnet (`172.30.0.0/16` by default), whose gateway is
+`proxy` takes the `PS_SUBNET` subnet (`10.230.0.0/16` by default), whose gateway is
 `PS_GATEWAY_IP`: the containers reach the public hosts of the stack through Traefik on the host
 (`extra_hosts` → `PS_GATEWAY_IP`), from `proxy` or `egress`. Traefik gets the fixed address
-`PS_TRAEFIK_IP` (`172.30.255.254`) in it, and `TRUSTED_PROXIES` defaults to that address: the APIs
+`PS_TRAEFIK_IP` (`10.230.255.254`) in it, and `TRUSTED_PROXIES` defaults to that address: the APIs
 and Keycloak only honour the `X-Forwarded-*` headers sent by Traefik, so that no other container can
 spoof the client IP, host or scheme.
 
@@ -173,15 +173,20 @@ To run another stack on the same host, give it its own `PS_SUBNET` and change `P
 `PS_TRAEFIK_IP` along with it, e.g. in its `.env.local`:
 
 ```dotenv
-PS_SUBNET=172.31.0.0/16
-PS_GATEWAY_IP=172.31.0.1
-PS_TRAEFIK_IP=172.31.255.254
+PS_SUBNET=10.231.0.0/16
+PS_GATEWAY_IP=10.231.0.1
+PS_TRAEFIK_IP=10.231.255.254
 ```
 
-The other networks get a subnet from the Docker address pools, which do not skip the `PS_SUBNET` of
-a stack stopped by `dc down`: one of them can take `172.31.0.0/16` and keep the other stack from
-starting (`Pool overlaps with other one on this address space`). On a machine running several stacks,
-move the Docker pools out of `172.16.0.0/12` in `/etc/docker/daemon.json`, then restart Docker:
+Choose a `PS_SUBNET` outside the Docker address pools (`172.17.0.0/16` to `172.31.0.0/16`, then
+`192.168.0.0/16` split in `/20`, when `/etc/docker/daemon.json` sets no `default-address-pools`). The
+other networks (`app`, `data`, `egress`, those of other projects…) get their subnet from these pools,
+which do not skip the `PS_SUBNET` of a stack stopped by `dc down`: a `PS_SUBNET` inside them can be
+taken by another network while the stack is stopped, and the stack no longer starts (`Pool overlaps
+with other one on this address space`).
+
+To keep a `PS_SUBNET` in `172.16.0.0/12` anyway, move the Docker pools out of it in
+`/etc/docker/daemon.json`, then restart Docker, choosing a base that overlaps no stack's `PS_SUBNET`:
 
 ```json
 {

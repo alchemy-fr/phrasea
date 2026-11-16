@@ -501,11 +501,22 @@ To upgrade a running stack:
 - `similarity-embedder` runs with `HF_HUB_OFFLINE=1` and
   `TRANSFORMERS_OFFLINE=1` (its models are in the image), `face-recognition`
   with `NO_ALBUMENTATIONS_UPDATE=1` (no version check at startup);
-- on a machine running several stacks, the networks other than `proxy` take
-  their subnet from the Docker address pools, which may grab the `PS_SUBNET`
-  of a stopped stack: move the pools out of `172.16.0.0/12`
+- the default `PS_SUBNET` moves from `172.30.0.0/16` to `10.230.0.0/16`
+  (gateway `10.230.0.1`, Traefik `10.230.255.254`), out of the Docker address
+  pools. Nothing to do without an override (the `dc down` above applies it).
+  A `PS_SUBNET` overridden in `.env.local` needs `PS_GATEWAY_IP` and
+  `PS_TRAEFIK_IP` changed along with it, and an explicit `TRUSTED_PROXIES`
+  holding `172.30.255.254` must be updated. To keep `172.30.0.0/16`, set
+  `PS_SUBNET=172.30.0.0/16`, `PS_GATEWAY_IP=172.30.0.1` and
+  `PS_TRAEFIK_IP=172.30.255.254` in `.env.local`;
+- the networks other than `proxy` take their subnet from the Docker address
+  pools (`172.17.0.0/16` to `172.31.0.0/16`, then `192.168.0.0/16`, by
+  default), which may grab the `PS_SUBNET` of a stopped stack: choose every
+  `PS_SUBNET` outside of them (e.g. `10.231.0.0/16` for a second stack). To
+  keep a `PS_SUBNET` in `172.16.0.0/12`, move the pools out of it
   (`default-address-pools` in `/etc/docker/daemon.json`, e.g.
-  `{"base": "10.210.0.0/16", "size": 24}`).
+  `{"base": "10.210.0.0/16", "size": 24}`, with a base that overlaps no
+  stack's `PS_SUBNET`).
 
 ### PostgreSQL role per application (optional)
 
