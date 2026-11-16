@@ -90,6 +90,19 @@ class AttributeMetadataRenditionScopeTest extends AbstractDataboxTestCase
         $this->assertSame(['IPTC:City' => ['Paris']], $this->buildBag($asset, $thumbnail));
     }
 
+    public function testTagsNotAllowedToBeWrittenAreSkipped(): void
+    {
+        $definition = $this->createDefinition('Credit', 'IPTC:Credit', 'CoolMedia');
+        // saved before the tags were checked on input
+        $definition->setWriteMetadata(['File:HardLink', 'system:Directory', 'SYSTEM:FileName', 'IPTC:Credit']);
+        self::getEntityManager()->persist($definition);
+        self::getEntityManager()->flush();
+
+        $asset = $this->createAssetWithAttributes();
+
+        $this->assertSame(['IPTC:Credit' => ['CoolMedia']], $this->buildBag($asset, null));
+    }
+
     /**
      * @return array<string, array>
      */

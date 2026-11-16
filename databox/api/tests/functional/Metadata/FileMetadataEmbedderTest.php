@@ -74,6 +74,19 @@ class FileMetadataEmbedderTest extends KernelTestCase
         $this->assertNull($this->embedder->buildMetadataBag($file));
     }
 
+    public function testTagsNotAllowedToBeWrittenAreSkipped(): void
+    {
+        $file = new File();
+        $file->setMetadataValue('File:HardLink', '/srv/app/var/cache/link.php');
+        $file->setMetadataValue('system:Directory', '/tmp');
+        $file->setMetadataValue('IPTC:City', 'Lyon');
+
+        $bag = $this->embedder->buildMetadataBag($file);
+
+        $this->assertInstanceOf(MetadataBag::class, $bag);
+        $this->assertSame(['IPTC:City' => ['Lyon']], $this->indexBag($bag));
+    }
+
     public function testUnknownTagIsSkippedInsteadOfFailingTheWholeBag(): void
     {
         $file = new File();

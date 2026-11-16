@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Validator;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
+use App\Service\Metadata\WritableMetadataPolicy;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class ValidRenditionMetadataConstraintValidator extends ConstraintValidator
 {
-    public function __construct(private readonly MetadataManipulator $metadataManipulator)
-    {
+    public function __construct(
+        private readonly MetadataManipulator $metadataManipulator,
+        private readonly WritableMetadataPolicy $writableMetadataPolicy,
+    ) {
     }
 
     /**
@@ -30,7 +33,7 @@ class ValidRenditionMetadataConstraintValidator extends ConstraintValidator
         }
 
         foreach ($value as $tagGroupId => $tagValue) {
-            if (!is_string($tagGroupId) || !str_contains($tagGroupId, ':') || str_starts_with($tagGroupId, 'System:')) {
+            if (!is_string($tagGroupId) || !str_contains($tagGroupId, ':')) {
                 $this->addViolation($constraint->invalidTagMessage, (string) $tagGroupId);
                 continue;
             }
@@ -39,6 +42,11 @@ class ValidRenditionMetadataConstraintValidator extends ConstraintValidator
                 $tagGroup = $this->metadataManipulator->createTagGroup($tagGroupId);
             } catch (\Throwable) {
                 $this->addViolation($constraint->unknownTagMessage, $tagGroupId);
+                continue;
+            }
+
+            if (!$this->writableMetadataPolicy->isWritable($tagGroup->getId())) {
+                $this->addViolation($constraint->forbiddenTagMessage, $tagGroupId);
                 continue;
             }
 

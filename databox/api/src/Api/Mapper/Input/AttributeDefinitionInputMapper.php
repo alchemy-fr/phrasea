@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Mapper\Input;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Attribute\Type\AttributeTypeChangeService;
 use App\Attribute\Type\EntityAttributeType;
@@ -13,6 +14,8 @@ use App\Consumer\Handler\Attribute\AttributeMigrateToEntityList;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Model\AssetTypeEnum;
+use App\Service\Metadata\WritableMetadataPolicy;
+use PHPExiftool\Exception\TagUnknown;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -24,6 +27,8 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         private readonly AttributeTypeChangeService $attributeTypeChangeService,
         private readonly PostFlushStack $postFlushStack,
         private readonly LoggerInterface $logger,
+        private readonly MetadataManipulator $metadataManipulator,
+        private readonly WritableMetadataPolicy $writableMetadataPolicy,
     ) {
     }
 
@@ -79,6 +84,9 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         }
         if (null !== $data->writeMetadata) {
             $object->setWriteMetadata($data->writeMetadata);
+            foreach ($object->getWriteMetadata() ?? [] as $tag) {
+                $this->assertWritableMetadataTag($tag);
+            }
         }
         if (null !== $data->writeMetadataRenditions) {
             $object->setWriteMetadataRenditions($data->writeMetadataRenditions);
@@ -179,5 +187,20 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         }
 
         return $object;
+    }
+
+    private function assertWritableMetadataTag(string $tag): void
+    {
+        try {
+            $tagGroupId = $this->metadataManipulator->createTagGroup($tag)->getId();
+        } catch (TagUnknown) {
+            throw new BadRequestHttpException(sprintf('Unknown metadata tag "%s"', $tag));
+        }
+
+        try {
+            $this->writableMetadataPolicy->assertWritable($tagGroupId);
+        } catch (\InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
     }
 }

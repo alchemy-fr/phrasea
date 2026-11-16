@@ -280,3 +280,19 @@ of its renditions — is exported:
 The tags are embedded into the exported file copy; the stored original is never modified.
 Use `writeMetadataRenditions` to restrict which renditions carry them — see
 [Choosing which renditions an attribute reaches](#choosing-which-renditions-an-attribute-reaches).
+
+### Tags allowed to be written
+
+Some exiftool tags act on the file system rather than on the file content (`File:HardLink`,
+`File:SymLink`, `System:FileName`, `System:Directory`, `File:Geotag`…). Since workspace editors
+choose the tags to write, only descriptive metadata families can be written, whatever the case
+in which the tag is typed (`App\Service\Metadata\WritableMetadataPolicy`):
+
+| Allowed groups | `EXIF`, `IPTC`, `XMP` and every `XMP-*` group, `IFD0`, `ExifIFD`, `GPS`, `Photoshop`, `QuickTime`, `ID3`, `PDF`, `Keys`, `ItemList`, `UserData`, `Canon` |
+|---|---|
+| Always refused | `File`, `System`, `Composite`, `ExifTool`, `Extra` |
+
+Any other tag is refused when saving an attribute definition's `writeMetadata` (400) or a
+rendition definition's `metadata` (422), and skipped — with a warning log — when a file is
+written, which covers definitions saved before the rule existed. The `/metadata-tags`
+dictionary reports such tags as not `writable`.
