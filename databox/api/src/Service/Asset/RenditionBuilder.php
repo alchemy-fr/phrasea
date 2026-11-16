@@ -89,7 +89,7 @@ final readonly class RenditionBuilder
         }
 
         // The base renditions are built before the analysis on purpose (WorkspaceCreator)
-        $this->processingGuard->assertProcessable($source, $asset, allowPendingAnalysis: true);
+        $this->processingGuard->assertProcessable($source, allowPendingAnalysis: true);
 
         $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
 
@@ -280,7 +280,7 @@ final readonly class RenditionBuilder
         }
 
         $source = $this->resolveDynamicRenditionSource($rendition);
-        $this->processingGuard->assertProcessable($source, $asset);
+        $this->processingGuard->assertProcessable($source);
         $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetNameResolver);
 
         try {

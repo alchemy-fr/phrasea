@@ -9,7 +9,7 @@ use Symfony\Component\Messenger\Exception\UnrecoverableExceptionInterface;
 
 /**
  * The file must not be read by any processing (rendition build, analysis…):
- * its content is refused, its asset is quarantined or its analysis is not accepted.
+ * its content is refused or its analysis is not accepted.
  *
  * Not a job skip: a workflow job refused this way ends in failure.
  */
