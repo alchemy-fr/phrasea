@@ -56,6 +56,34 @@ Notes:
   string: `location WITHIN CIRCLE (48.85, 2.35, "1500m")`. `WITHIN RECTANGLE` takes the
   top-left then the bottom-right corner.
 
+## Comparing fields (script conditions)
+
+When the value of a condition depends on the asset (another field, or an expression or
+function reading one), the condition becomes a Painless `script` query:
+
+```
+n >= m * 2
+label = CONCAT(SUBSTRING(code, 0, 3), "!")
+```
+
+- The left operand is always a field. The operators are `=`, `!=`, `<`, `<=`, `>` and `>=`.
+- Arithmetic: `+`, `-`, `*`, `/`. A division gives a decimal number, as between constants:
+  `n / m` is `2.5` for `10 / 4`.
+- `SUBSTRING(s, start[, length])` follows PHP `substr`: `start` is 0-based, `length` is a
+  length (not an end position), a negative `start` or `length` counts from the end, and out of
+  range bounds give a shorter or empty string rather than an error.
+- `CONCAT(a, b)` joins the text of both values, numbers included.
+- An asset missing a value read by the condition never matches it, whatever the operator,
+  `!=` included: `n != m` does not retain the assets without `m` (unlike `n != 3`, which retains
+  the assets without `n`). `NOT (n = m)` does retain them, as any `NOT`.
+- A text field is compared on its raw value, indexed up to its first 256 characters: a longer
+  value counts as missing. Only the first value of a multi-valued field is read.
+- Dates are not supported: neither comparing date fields (`@createdAt > @editedAt`) nor
+  `NOW()`, `DATE_ADD()` or `DATE_SUB()` in a condition that reads another field.
+
+The constant values are passed as script parameters, so that conditions of the same shape share
+a single script compilation.
+
 ## Builder labels
 
 The condition builders show the operators with an Airtable-like vocabulary, which

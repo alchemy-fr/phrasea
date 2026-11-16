@@ -27,4 +27,9 @@ final readonly class NowFunction implements AQLFunctionInterface
     {
         throw new InvalidAQLException(sprintf('Function "%s" is not supported in script conditions', self::getName()));
     }
+
+    public function getScriptDeclaration(): ?string
+    {
+        return null;
+    }
 }

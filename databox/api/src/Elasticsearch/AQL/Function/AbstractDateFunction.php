@@ -35,4 +35,9 @@ abstract readonly class AbstractDateFunction implements AQLFunctionInterface
     {
         throw new InvalidAQLException(sprintf('Function "%s" is not supported in script conditions', static::getName()));
     }
+
+    public function getScriptDeclaration(): ?string
+    {
+        return null;
+    }
 }

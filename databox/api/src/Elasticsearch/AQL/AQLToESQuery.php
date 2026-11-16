@@ -578,7 +578,7 @@ final readonly class AQLToESQuery
 
         $queries = array_map(
             function (ClusterGroup $q) use ($params): Query\AbstractQuery {
-                $script = new Query\Script(new Script($q->getItem(), $params->all() ?: null));
+                $script = new Query\Script(new Script($this->createScriptSource($q, $params), $params->all() ?: null));
 
                 return $this->wrapCluster($script, $q);
             },
@@ -603,7 +603,25 @@ final readonly class AQLToESQuery
     }
 
     /**
-     * @return ClusterGroup[] the script source, per group of fields it reads
+     * The functions called by the expression are declared first. An asset missing a value read by
+     * the expression matches no operator, "!=" included, rather than failing on a null value.
+     */
+    private function createScriptSource(ClusterGroup $group, ScriptParams $params): string
+    {
+        $statements = $params->getDeclarations();
+        if (!empty($group->getScriptFields())) {
+            $statements[] = sprintf('if (%s) { return false; }', implode(' || ', array_map(
+                static fn (string $fieldName): string => sprintf('doc["%s"].empty', $fieldName),
+                $group->getScriptFields(),
+            )));
+        }
+        $statements[] = sprintf('return %s;', $group->getItem());
+
+        return implode(' ', $statements);
+    }
+
+    /**
+     * @return ClusterGroup[] the script expression, per group of fields it reads
      */
     private function expressionToScript(mixed $node, array $fieldClusters, array $options, ScriptParams $params): array
     {
@@ -619,23 +637,24 @@ final readonly class AQLToESQuery
             if (null !== $type) {
                 switch ($type) {
                     case 'criteria':
-                        if (!in_array($node['operator'], [
-                            ConditionOperatorEnum::EQUALS->value,
-                            ConditionOperatorEnum::NOT_EQUALS->value,
-                            ConditionOperatorEnum::GT->value,
-                            ConditionOperatorEnum::GTE->value,
-                            ConditionOperatorEnum::LT->value,
-                            ConditionOperatorEnum::LTE->value,
-                        ], true)) {
-                            throw new BadRequestHttpException(sprintf('Unsupported operator "%s" in script conditions', $node['operator']));
-                        }
+                        $operator = ConditionOperatorEnum::tryFrom($node['operator']);
+                        $scriptOperator = match ($operator) {
+                            // "=" is an assignment in Painless
+                            ConditionOperatorEnum::EQUALS => '==',
+                            ConditionOperatorEnum::NOT_EQUALS,
+                            ConditionOperatorEnum::GT,
+                            ConditionOperatorEnum::GTE,
+                            ConditionOperatorEnum::LT,
+                            ConditionOperatorEnum::LTE => $operator->value,
+                            default => throw new BadRequestHttpException(sprintf('Unsupported operator "%s" in script conditions', $node['operator'])),
+                        };
                         $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters, $options, $params);
                         $rights = $this->expressionToScript($node['rightOperand'] ?? null, $fieldClusters, $options, $params);
 
                         $scripts = ClusterGroup::mix(
                             $lefts,
                             $rights,
-                            fn (string $l, string $r) => sprintf('%s %s %s', $l, $node['operator'], $r)
+                            fn (string $l, string $r): string => sprintf('%s %s %s', $l, $scriptOperator, $r)
                         );
                         break;
                     case 'value_expression':
@@ -655,11 +674,17 @@ final readonly class AQLToESQuery
                         $scripts = ClusterGroup::mix(
                             $lefts,
                             $rights,
-                            fn (string $l, string $r): string => sprintf('(%s %s %s)', $l, $operator->value, $r)
+                            // Painless divides integers as integers, a constant division gives a decimal number
+                            fn (string $l, string $r): string => ExpressionOperatorEnum::DIVIDE === $operator
+                                ? sprintf('(%s * 1.0 / %s)', $l, $r)
+                                : sprintf('(%s %s %s)', $l, $operator->value, $r)
                         );
                         break;
                     case 'function_call':
                         $functionHandle = $this->getCheckedFunctionHandle($node);
+                        if (null !== $declaration = $functionHandle->getScriptDeclaration()) {
+                            $params->addDeclaration($functionHandle::getName(), $declaration);
+                        }
                         $args = [];
                         foreach ($node['arguments'] as $i => $arg) {
                             $args[] = $this->isResolvableValue($arg)
@@ -692,8 +717,9 @@ final readonly class AQLToESQuery
                 foreach ($fields as $field) {
                     foreach ($this->resolveScriptFieldNames($field, $options) as $locale => $fieldName) {
                         $scripts[] = $field
-                            ->convert(sprintf('(!doc["%1$s"].empty ? doc["%1$s"].value : null)', $fieldName))
-                            ->withFieldLocale(is_string($locale) ? $locale : null);
+                            ->convert(sprintf('doc["%s"].value', $fieldName))
+                            ->withFieldLocale(is_string($locale) ? $locale : null)
+                            ->withScriptField($fieldName);
                     }
                 }
             } else {
@@ -709,12 +735,19 @@ final readonly class AQLToESQuery
     /**
      * The fields a script reads for a field of the condition: a translatable field is read in the
      * locale of the search or, without one, in each locale of its workspaces and untranslated.
+     * A field with a raw sub-field is read from it (text fields have no doc values, the value of an
+     * entity is its ID), except a date, whose raw value is not comparable to a timestamp.
      *
      * @return array<int|string, string> the field names, indexed by locale for a translatable field
      */
     private function resolveScriptFieldNames(ClusterGroup $field, array $options): array
     {
         $fieldName = $field->getItem()['field'];
+        /** @var AttributeTypeInterface $type */
+        $type = $field->getItem()['type'];
+        if (!$type instanceof DateTimeAttributeType && null !== $rawField = $type->getElasticSearchRawField()) {
+            $fieldName .= '.'.$rawField;
+        }
         if (!str_contains($fieldName, '{l}')) {
             return [$fieldName];
         }

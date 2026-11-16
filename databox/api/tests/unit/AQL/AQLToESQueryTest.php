@@ -15,6 +15,7 @@ use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
+use App\Elasticsearch\AQL\Function\SubstringFunction;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
@@ -210,7 +211,7 @@ class AQLToESQueryTest extends TestCase
         $first = $this->convert('number > othernumber * 2 + 1');
         $second = $this->convert('number > othernumber * 7 + 30');
 
-        $source = '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > (((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * params.v0) + params.v1)';
+        $source = 'if (doc["attrs._.number_number_s"].empty || doc["attrs._.othernumber_number_s"].empty) { return false; } return doc["attrs._.number_number_s"].value > ((doc["attrs._.othernumber_number_s"].value * params.v0) + params.v1);';
         $this->assertSame(['script' => ['script' => ['source' => $source, 'params' => ['v0' => 2, 'v1' => 1]]]], $first);
         $this->assertSame(['script' => ['script' => ['source' => $source, 'params' => ['v0' => 7, 'v1' => 30]]]], $second);
     }
@@ -218,7 +219,7 @@ class AQLToESQueryTest extends TestCase
     public function testScriptStringLiteralIsAParameter(): void
     {
         $this->assertSame(['script' => ['script' => [
-            'source' => '(!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null) = (!doc["attrs.fr.field_text_s"].empty ? doc["attrs.fr.field_text_s"].value : null).Concat(params.v0)',
+            'source' => self::scriptSource('doc["attrs.fr.foo_text_s.raw"].value == (\'\' + doc["attrs.fr.field_text_s.raw"].value + params.v0)', ['attrs.fr.foo_text_s.raw', 'attrs.fr.field_text_s.raw']),
             'params' => ['v0' => "x'); doc.clear(); ('"],
         ]]], $this->convert('foo = CONCAT(field, "x\'); doc.clear(); (\'")', 'fr'));
     }
@@ -230,7 +231,11 @@ class AQLToESQueryTest extends TestCase
     public function testScriptReadsTranslatableFieldsInEachLocale(): void
     {
         $script = static fn (string $l): array => ['script' => ['script' => [
-            'source' => sprintf('(!doc["attrs.%1$s.foo_text_s"].empty ? doc["attrs.%1$s.foo_text_s"].value : null) = (!doc["attrs.%1$s.field_text_s"].empty ? doc["attrs.%1$s.field_text_s"].value : null).Substring(params.v0)', $l),
+            'source' => self::scriptSource(
+                sprintf('doc["attrs.%1$s.foo_text_s.raw"].value == aqlSubstring(doc["attrs.%1$s.field_text_s.raw"].value, params.v0, null)', $l),
+                [sprintf('attrs.%s.foo_text_s.raw', $l), sprintf('attrs.%s.field_text_s.raw', $l)],
+                true,
+            ),
             'params' => ['v0' => 1],
         ]]];
 
@@ -238,6 +243,82 @@ class AQLToESQueryTest extends TestCase
             'minimum_should_match' => 1,
             'should' => [$script('it'), $script('de'), $script('_')],
         ]], $this->convert('foo = SUBSTRING(field, 1)'));
+    }
+
+    /**
+     * "=" is an assignment in Painless, the other operators are written as in AQL.
+     */
+    #[DataProvider('getScriptOperatorCases')]
+    public function testScriptComparisonOperator(string $operator, string $scriptOperator): void
+    {
+        $this->assertSame(['script' => ['script' => [
+            'source' => self::scriptSource(sprintf('doc["attrs._.number_number_s"].value %s doc["attrs._.othernumber_number_s"].value', $scriptOperator), ['attrs._.number_number_s', 'attrs._.othernumber_number_s']),
+        ]]], $this->convert(sprintf('number %s othernumber', $operator)));
+    }
+
+    public static function getScriptOperatorCases(): iterable
+    {
+        yield '=' => ['=', '=='];
+        yield '!=' => ['!=', '!='];
+        yield '<' => ['<', '<'];
+        yield '<=' => ['<=', '<='];
+        yield '>' => ['>', '>'];
+        yield '>=' => ['>=', '>='];
+    }
+
+    /**
+     * A text field has no doc values: a script reads its raw keyword sub-field.
+     */
+    public function testScriptReadsTheRawValueOfATextField(): void
+    {
+        $this->assertSame(['script' => ['script' => [
+            'source' => 'if (doc["attrs.fr.foo_text_s.raw"].empty || doc["attrs.fr.field_text_s.raw"].empty) { return false; } return doc["attrs.fr.foo_text_s.raw"].value == doc["attrs.fr.field_text_s.raw"].value;',
+        ]]], $this->convert('foo = field', 'fr'));
+    }
+
+    /**
+     * Each field read is checked once, however many times the expression reads it.
+     */
+    public function testScriptChecksEachFieldOnce(): void
+    {
+        $this->assertSame(['script' => ['script' => [
+            'source' => self::scriptSource('doc["attrs._.number_number_s"].value > ((doc["attrs._.othernumber_number_s"].value * doc["attrs._.number_number_s"].value) + doc["attrs._.othernumber_number_s"].value)', ['attrs._.number_number_s', 'attrs._.othernumber_number_s']),
+        ]]], $this->convert('number > othernumber * number + othernumber'));
+    }
+
+    public function testScriptDeclaresSubstringOnce(): void
+    {
+        $query = $this->convert('foo = CONCAT(SUBSTRING(field, 0, 2), SUBSTRING(foo, 1))', 'fr');
+        $source = $query['script']['script']['source'];
+
+        $this->assertSame(1, substr_count($source, 'String aqlSubstring('));
+        $this->assertStringStartsWith(new SubstringFunction()->getScriptDeclaration(), $source);
+        $this->assertSame(self::scriptSource(
+            'doc["attrs.fr.foo_text_s.raw"].value == (\'\' + aqlSubstring(doc["attrs.fr.field_text_s.raw"].value, params.v0, params.v1) + aqlSubstring(doc["attrs.fr.foo_text_s.raw"].value, params.v2, null))',
+            ['attrs.fr.foo_text_s.raw', 'attrs.fr.field_text_s.raw'],
+            true,
+        ), $source);
+    }
+
+    /**
+     * Painless divides integers as integers: a script divides as a constant does.
+     */
+    public function testScriptDivisionIsDecimal(): void
+    {
+        $this->assertSame(['script' => ['script' => [
+            'source' => self::scriptSource('doc["attrs._.number_number_s"].value > ((doc["attrs._.othernumber_number_s"].value * 1.0 / doc["attrs._.n0_number_s"].value) * 1.0 / params.v0)', ['attrs._.number_number_s', 'attrs._.othernumber_number_s', 'attrs._.n0_number_s']),
+            'params' => ['v0' => 2],
+        ]]], $this->convert('number > othernumber / n0 / 2'));
+    }
+
+    /**
+     * @param list<string> $fields
+     */
+    private static function scriptSource(string $expression, array $fields, bool $declareSubstring = false): string
+    {
+        return ($declareSubstring ? new SubstringFunction()->getScriptDeclaration().' ' : '')
+            .sprintf('if (%s) { return false; } ', implode(' || ', array_map(static fn (string $f): string => sprintf('doc["%s"].empty', $f), $fields)))
+            .sprintf('return %s;', $expression);
     }
 
     private function convert(string $expression, ?string $locale = null, array $options = []): array
@@ -769,14 +850,14 @@ class AQLToESQueryTest extends TestCase
             ['number > othernumber', [
                 'script' => [
                     'script' => [
-                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > (!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null)',
+                        'source' => self::scriptSource('doc["attrs._.number_number_s"].value > doc["attrs._.othernumber_number_s"].value', ['attrs._.number_number_s', 'attrs._.othernumber_number_s']),
                     ],
                 ],
             ]],
             ['number > othernumber * 2', [
                 'script' => [
                     'script' => [
-                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > ((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * params.v0)',
+                        'source' => self::scriptSource('doc["attrs._.number_number_s"].value > (doc["attrs._.othernumber_number_s"].value * params.v0)', ['attrs._.number_number_s', 'attrs._.othernumber_number_s']),
                         'params' => ['v0' => 2],
                     ],
                 ],
@@ -784,7 +865,7 @@ class AQLToESQueryTest extends TestCase
             ['number > othernumber * (2 + 1)', [
                 'script' => [
                     'script' => [
-                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > ((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * params.v0)',
+                        'source' => self::scriptSource('doc["attrs._.number_number_s"].value > (doc["attrs._.othernumber_number_s"].value * params.v0)', ['attrs._.number_number_s', 'attrs._.othernumber_number_s']),
                         'params' => ['v0' => 3],
                     ],
                 ],
@@ -792,14 +873,14 @@ class AQLToESQueryTest extends TestCase
             ['n0 > n1 * (n2 + n3)', [
                 'script' => [
                     'script' => [
-                        'source' => '(!doc["attrs._.n0_number_s"].empty ? doc["attrs._.n0_number_s"].value : null) > ((!doc["attrs._.n1_number_s"].empty ? doc["attrs._.n1_number_s"].value : null) * ((!doc["attrs._.n2_number_s"].empty ? doc["attrs._.n2_number_s"].value : null) + (!doc["attrs._.n3_number_s"].empty ? doc["attrs._.n3_number_s"].value : null)))',
+                        'source' => self::scriptSource('doc["attrs._.n0_number_s"].value > (doc["attrs._.n1_number_s"].value * (doc["attrs._.n2_number_s"].value + doc["attrs._.n3_number_s"].value))', ['attrs._.n0_number_s', 'attrs._.n1_number_s', 'attrs._.n2_number_s', 'attrs._.n3_number_s']),
                     ],
                 ],
             ]],
             ['n0 > n1 * (n2 + n3)', [
                 'script' => [
                     'script' => [
-                        'source' => '(!doc["attrs._.n0_number_s"].empty ? doc["attrs._.n0_number_s"].value : null) > ((!doc["attrs._.n1_number_s"].empty ? doc["attrs._.n1_number_s"].value : null) * ((!doc["attrs._.n2_number_s"].empty ? doc["attrs._.n2_number_s"].value : null) + (!doc["attrs._.n3_number_s"].empty ? doc["attrs._.n3_number_s"].value : null)))',
+                        'source' => self::scriptSource('doc["attrs._.n0_number_s"].value > (doc["attrs._.n1_number_s"].value * (doc["attrs._.n2_number_s"].value + doc["attrs._.n3_number_s"].value))', ['attrs._.n0_number_s', 'attrs._.n1_number_s', 'attrs._.n2_number_s', 'attrs._.n3_number_s']),
                     ],
                 ],
             ]],
@@ -827,7 +908,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['foo = SUBSTRING(foo, 1, 2)', [
                 'script' => [
-                    'script' => ['source' => '(!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null) = (!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
+                    'script' => ['source' => self::scriptSource('doc["attrs.fr.foo_text_s.raw"].value == aqlSubstring(doc["attrs.fr.foo_text_s.raw"].value, params.v0, params.v1)', ['attrs.fr.foo_text_s.raw'], true), 'params' => ['v0' => 1, 'v1' => 2]],
                 ],
             ], 'fr'],
             ['www = SUBSTRING(foo, 1, 2)', [
@@ -835,7 +916,7 @@ class AQLToESQueryTest extends TestCase
                     'must' => [
                         [
                             'script' => [
-                                'script' => ['source' => '(!doc["attrs.fr.www_text_s"].empty ? doc["attrs.fr.www_text_s"].value : null) = (!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
+                                'script' => ['source' => self::scriptSource('doc["attrs.fr.www_text_s.raw"].value == aqlSubstring(doc["attrs.fr.foo_text_s.raw"].value, params.v0, params.v1)', ['attrs.fr.www_text_s.raw', 'attrs.fr.foo_text_s.raw'], true), 'params' => ['v0' => 1, 'v1' => 2]],
                             ],
                         ],
                         [
@@ -855,7 +936,7 @@ class AQLToESQueryTest extends TestCase
                                 'must' => [
                                     [
                                         'script' => [
-                                            'script' => ['source' => '(!doc["attrs.fr.www_text_s"].empty ? doc["attrs.fr.www_text_s"].value : null) = (!doc["attrs.fr.hybrid_text_s"].empty ? doc["attrs.fr.hybrid_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
+                                            'script' => ['source' => self::scriptSource('doc["attrs.fr.www_text_s.raw"].value == aqlSubstring(doc["attrs.fr.hybrid_text_s.raw"].value, params.v0, params.v1)', ['attrs.fr.www_text_s.raw', 'attrs.fr.hybrid_text_s.raw'], true), 'params' => ['v0' => 1, 'v1' => 2]],
                                         ],
                                     ],
                                     [
@@ -871,7 +952,7 @@ class AQLToESQueryTest extends TestCase
                                 'must' => [
                                     [
                                         'script' => [
-                                            'script' => ['source' => '(!doc["attrs.fr.www_text_s"].empty ? doc["attrs.fr.www_text_s"].value : null) = (!doc["attrs.fr.hybrid_number_s"].empty ? doc["attrs.fr.hybrid_number_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
+                                            'script' => ['source' => self::scriptSource('doc["attrs.fr.www_text_s.raw"].value == aqlSubstring(doc["attrs.fr.hybrid_number_s"].value, params.v0, params.v1)', ['attrs.fr.www_text_s.raw', 'attrs.fr.hybrid_number_s'], true), 'params' => ['v0' => 1, 'v1' => 2]],
                                         ],
                                     ],
                                     [
@@ -891,7 +972,7 @@ class AQLToESQueryTest extends TestCase
                     'should' => [
                         [
                             'script' => [
-                                'script' => ['source' => '(!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null) = (!doc["attrs.fr.hybrid_text_s"].empty ? doc["attrs.fr.hybrid_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
+                                'script' => ['source' => self::scriptSource('doc["attrs.fr.foo_text_s.raw"].value == aqlSubstring(doc["attrs.fr.hybrid_text_s.raw"].value, params.v0, params.v1)', ['attrs.fr.foo_text_s.raw', 'attrs.fr.hybrid_text_s.raw'], true), 'params' => ['v0' => 1, 'v1' => 2]],
                             ],
                         ],
                         [
@@ -899,7 +980,7 @@ class AQLToESQueryTest extends TestCase
                                 'must' => [
                                     [
                                         'script' => [
-                                            'script' => ['source' => '(!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null) = (!doc["attrs.fr.hybrid_number_s"].empty ? doc["attrs.fr.hybrid_number_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
+                                            'script' => ['source' => self::scriptSource('doc["attrs.fr.foo_text_s.raw"].value == aqlSubstring(doc["attrs.fr.hybrid_number_s"].value, params.v0, params.v1)', ['attrs.fr.foo_text_s.raw', 'attrs.fr.hybrid_number_s'], true), 'params' => ['v0' => 1, 'v1' => 2]],
                                         ],
                                     ],
                                     [
@@ -919,7 +1000,7 @@ class AQLToESQueryTest extends TestCase
                     'should' => [
                         [
                             'script' => [
-                                'script' => ['source' => '(!doc["attrs.fr.hybrid_text_s"].empty ? doc["attrs.fr.hybrid_text_s"].value : null) = (!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
+                                'script' => ['source' => self::scriptSource('doc["attrs.fr.hybrid_text_s.raw"].value == aqlSubstring(doc["attrs.fr.foo_text_s.raw"].value, params.v0, params.v1)', ['attrs.fr.hybrid_text_s.raw', 'attrs.fr.foo_text_s.raw'], true), 'params' => ['v0' => 1, 'v1' => 2]],
                             ],
                         ],
                         [
@@ -927,7 +1008,7 @@ class AQLToESQueryTest extends TestCase
                                 'must' => [
                                     [
                                         'script' => [
-                                            'script' => ['source' => '(!doc["attrs.fr.hybrid_number_s"].empty ? doc["attrs.fr.hybrid_number_s"].value : null) = (!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
+                                            'script' => ['source' => self::scriptSource('doc["attrs.fr.hybrid_number_s"].value == aqlSubstring(doc["attrs.fr.foo_text_s.raw"].value, params.v0, params.v1)', ['attrs.fr.hybrid_number_s', 'attrs.fr.foo_text_s.raw'], true), 'params' => ['v0' => 1, 'v1' => 2]],
                                         ],
                                     ],
                                     [
