@@ -308,6 +308,7 @@ final class PopulateMemoryTest extends KernelTestCase
             $container->get(IndexRemover::class),
             $container->get(LockFactory::class),
             $container->get(PopulatePageTracker::class),
+            $container->get(PopulateLockManager::class),
             memoryGuardRatio: 0.0001,
         );
         $dispatcher->removeSubscriber($listener);

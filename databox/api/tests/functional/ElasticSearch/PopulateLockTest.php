@@ -8,7 +8,6 @@ use Alchemy\ApiTest\ApiTestTrait;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use App\Command\ESPopulateUnlockCommand;
 use App\Elasticsearch\Exception\PopulateAlreadyRunningException;
-use App\Elasticsearch\Listener\PopulatePassListener;
 use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
 use App\Tests\Functional\DataboxTestTrait;
@@ -64,7 +63,7 @@ class PopulateLockTest extends KernelTestCase
     {
         /** @var LockFactory $lockFactory */
         $lockFactory = static::getContainer()->get(LockFactory::class);
-        $otherProcess = $lockFactory->createLock(PopulatePassListener::getLockName(self::INDEX), 60);
+        $otherProcess = $lockFactory->createLock(static::getContainer()->get(PopulateLockManager::class)->getLockName(self::INDEX), 60);
         $this->assertTrue($otherProcess->acquire(), 'the lock is free before the test');
 
         try {
@@ -121,7 +120,7 @@ class PopulateLockTest extends KernelTestCase
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
 
-        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName(self::INDEX), 600);
+        $deadWorker = $lockFactory->createLock($manager->getLockName(self::INDEX), 600);
         $this->assertTrue($deadWorker->acquire());
         $open = new PopulatePass();
         $open->setIndexName(self::INDEX);
@@ -148,6 +147,36 @@ class PopulateLockTest extends KernelTestCase
 
         // releasing a free lock is harmless
         $this->assertSame(['lockReleased' => false, 'passesClosed' => 0], $manager->forceRelease(self::INDEX));
+    }
+
+    public function testLocksAreScopedByTheIndexPrefix(): void
+    {
+        $container = static::getContainer();
+        /** @var LockFactory $lockFactory */
+        $lockFactory = $container->get(LockFactory::class);
+        /** @var PopulateLockManager $manager */
+        $manager = $container->get(PopulateLockManager::class);
+        // another stack sharing the same Redis server
+        $otherStack = new PopulateLockManager(
+            (new \ReflectionProperty(PopulateLockManager::class, 'redisDsn'))->getValue($manager),
+            $this->em,
+            'other_stack_',
+        );
+
+        $this->assertSame('es_populate_other_stack_'.self::INDEX, $otherStack->getLockName(self::INDEX));
+        $this->assertNotSame($manager->getLockName(self::INDEX), $otherStack->getLockName(self::INDEX));
+
+        $lock = $lockFactory->createLock($manager->getLockName(self::INDEX), 600);
+        $this->assertTrue($lock->acquire());
+
+        try {
+            $this->assertTrue($manager->isLocked(self::INDEX));
+            $this->assertFalse($otherStack->isLocked(self::INDEX), 'the other stack can populate the same logical index');
+            $this->assertFalse($otherStack->forceRelease(self::INDEX)['lockReleased']);
+            $this->assertTrue($manager->isLocked(self::INDEX), 'the other stack cannot release this lock');
+        } finally {
+            $lock->release();
+        }
     }
 
     public function testPopulateProgressIsRecordedPageByPage(): void
@@ -213,7 +242,7 @@ class PopulateLockTest extends KernelTestCase
         $otherIndex = $this->createOpenPass(new \DateTimeImmutable(), indexName: 'collection');
         $this->em->clear();
 
-        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName(self::INDEX), 600);
+        $deadWorker = $lockFactory->createLock($manager->getLockName(self::INDEX), 600);
         $this->assertTrue($deadWorker->acquire());
 
         try {
@@ -255,7 +284,7 @@ class PopulateLockTest extends KernelTestCase
         $this->assertSame(0, $tester->execute([], ['interactive' => false]));
         $this->assertStringContainsString('No populate lock is held', $tester->getDisplay());
 
-        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName(self::INDEX), 600);
+        $deadWorker = $lockFactory->createLock($manager->getLockName(self::INDEX), 600);
         $this->assertTrue($deadWorker->acquire());
 
         // unknown index

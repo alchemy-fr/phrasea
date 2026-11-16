@@ -17,6 +17,9 @@ use FOS\ElasticaBundle\Index\Resetter;
  *
  * Every mutation is executed synchronously against the cluster; callers are
  * expected to have confirmed the action with the user first.
+ *
+ * Every index or alias name received is checked (see assertManaged()): the admin can
+ * never reach an index of another deployment sharing the cluster, even by crafted URL/form.
  */
 final readonly class ESIndexAdmin
 {
@@ -25,6 +28,13 @@ final readonly class ESIndexAdmin
     public const string ROLE_OLD = 'old';            // dated index left behind by a previous populate
     public const string ROLE_SYSTEM = 'system';      // hidden ES index (".something")
     public const string ROLE_UNMANAGED = 'unmanaged'; // not related to any logical index of this app
+
+    /**
+     * A single concrete index or alias name: no list (","), wildcard ("*", "?"), date math ("<"),
+     * exclusion ("-" first), "_all" or hidden (".") name, which would make Elasticsearch act on
+     * other indices than the one named.
+     */
+    public const string NAME_PATTERN = '#^[a-z0-9][a-z0-9._-]*$#D';
 
     public function __construct(
         private IndexManager $indexManager,
@@ -44,12 +54,31 @@ final readonly class ESIndexAdmin
         return $this->indexPrefix;
     }
 
+    public static function isValidName(string $name): bool
+    {
+        return 1 === preg_match(self::NAME_PATTERN, $name);
+    }
+
     /**
-     * Whether a physical index or alias name is within the managed scope (name prefix).
+     * Whether a physical index or alias name designates a single index or alias within the
+     * managed scope (name prefix).
      */
     public function isManaged(string $name): bool
     {
-        return '' === $this->indexPrefix || str_starts_with($name, $this->indexPrefix);
+        return self::isValidName($name) && $this->isInScope($name);
+    }
+
+    /**
+     * @throws \InvalidArgumentException when the name is not a single index or alias name within the managed scope
+     */
+    public function assertManaged(string $name): void
+    {
+        if (!self::isValidName($name)) {
+            throw new \InvalidArgumentException(\sprintf('"%s" is not a valid index or alias name: only a single name made of lowercase letters, digits, ".", "_" and "-" (not first) is accepted.', $name));
+        }
+        if (!$this->isInScope($name)) {
+            throw new \InvalidArgumentException(\sprintf('"%s" is outside the managed scope: only indices and aliases prefixed with "%s" can be managed here.', $name, $this->indexPrefix));
+        }
     }
 
     /**
@@ -131,7 +160,7 @@ final readonly class ESIndexAdmin
         $result = [];
         foreach ($rows as $row) {
             $name = $row['index'];
-            if (!$this->isManaged($name)) {
+            if (!$this->isInScope($name)) {
                 continue;
             }
             $indexAliases = $aliases[$name] ?? [];
@@ -178,6 +207,7 @@ final readonly class ESIndexAdmin
      */
     public function getIndexDetails(string $indexName): array
     {
+        $this->assertManaged($indexName);
         $info = $this->client->indices()->get(['index' => $indexName])->asArray()[$indexName] ?? [];
         $stats = $this->client->indices()->stats(['index' => $indexName])->asArray();
 
@@ -191,31 +221,39 @@ final readonly class ESIndexAdmin
 
     public function indexExists(string $indexName): bool
     {
+        $this->assertManaged($indexName);
+
         return $this->client->indices()->exists(['index' => $indexName])->asBool();
     }
 
     public function deleteIndex(string $indexName): void
     {
+        $this->assertManaged($indexName);
         $this->client->indices()->delete(['index' => $indexName]);
     }
 
     public function openIndex(string $indexName): void
     {
+        $this->assertManaged($indexName);
         $this->client->indices()->open(['index' => $indexName]);
     }
 
     public function closeIndex(string $indexName): void
     {
+        $this->assertManaged($indexName);
         $this->client->indices()->close(['index' => $indexName]);
     }
 
     public function refreshIndex(string $indexName): void
     {
+        $this->assertManaged($indexName);
         $this->client->indices()->refresh(['index' => $indexName]);
     }
 
     public function addAlias(string $indexName, string $alias): void
     {
+        $this->assertManaged($indexName);
+        $this->assertManaged($alias);
         $this->updateAliases([
             ['add' => ['index' => $indexName, 'alias' => $alias]],
         ]);
@@ -223,6 +261,8 @@ final readonly class ESIndexAdmin
 
     public function removeAlias(string $indexName, string $alias): void
     {
+        $this->assertManaged($indexName);
+        $this->assertManaged($alias);
         $this->updateAliases([
             ['remove' => ['index' => $indexName, 'alias' => $alias]],
         ]);
@@ -235,6 +275,9 @@ final readonly class ESIndexAdmin
      */
     public function switchAlias(string $alias, string $indexName): array
     {
+        $this->assertManaged($indexName);
+        $this->assertManaged($alias);
+
         $previous = array_values(array_filter(
             $this->getAliases()[$alias] ?? [],
             fn (string $i): bool => $i !== $indexName,
@@ -285,6 +328,14 @@ final readonly class ESIndexAdmin
         }
     }
 
+    /**
+     * Listing scope (name prefix only): hidden system indices are listed, but not manageable.
+     */
+    private function isInScope(string $name): bool
+    {
+        return '' === $this->indexPrefix || str_starts_with($name, $this->indexPrefix);
+    }
+
     private function usesAlias(string $logicalIndex): bool
     {
         $config = $this->configManager->getIndexConfiguration($logicalIndex);
@@ -314,12 +365,12 @@ final readonly class ESIndexAdmin
     {
         $result = [];
         foreach ($this->client->indices()->getAlias()->asArray() as $index => $data) {
-            if (!$this->isManaged($index)) {
+            if (!$this->isInScope($index)) {
                 continue;
             }
             $result[$index] = array_values(array_filter(
                 array_keys($data['aliases'] ?? []),
-                $this->isManaged(...),
+                $this->isInScope(...),
             ));
         }
 

@@ -6,7 +6,6 @@ namespace App\Tests\Functional\Admin;
 
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\Search\ESPopulate;
-use App\Elasticsearch\Listener\PopulatePassListener;
 use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
 use Doctrine\ORM\EntityManagerInterface;
@@ -147,7 +146,7 @@ class PopulatePassAdminTest extends AbstractDataboxAdminTestCase
         $lockFactory = static::getContainer()->get(LockFactory::class);
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
-        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName('tag'), 600);
+        $deadWorker = $lockFactory->createLock(static::getContainer()->get(PopulateLockManager::class)->getLockName('tag'), 600);
         $this->assertTrue($deadWorker->acquire());
 
         try {

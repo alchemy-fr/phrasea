@@ -10,6 +10,8 @@
     </style>
     {% if indexPrefix is not empty %}
         <p class="text-muted"><i class="fa fa-filter"></i> Only indices and aliases prefixed with <code>{{ indexPrefix }}</code> are shown and manageable here (<code>alchemy_es.admin.index_prefix</code>).</p>
+    {% else %}
+        <div class="alert alert-warning" id="es-no-prefix"><i class="fa fa-triangle-exclamation"></i> No index prefix: <strong>every index of the cluster</strong> is shown and manageable here. On a cluster shared with other deployments, set <code>ELASTICSEARCH_INDEX_PREFIX</code> (<code>alchemy_es.admin.index_prefix</code>).</div>
     {% endif %}
     <h2 class="mt-3">Logical indices (FOS Elastica configuration)</h2>
     <p class="text-muted">

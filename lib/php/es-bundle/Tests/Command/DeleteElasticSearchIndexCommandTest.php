@@ -146,7 +146,7 @@ class DeleteElasticSearchIndexCommandTest extends TestCase
 
         $display = $tester->getDisplay();
         $this->assertStringContainsString('all configured indices', $display);
-        $this->assertStringContainsString('every physical index prefixed', $display);
+        $this->assertStringContainsString('every physical index of the logical index', $display);
         $this->assertSame(['asset_dev_2026-01-01-000000', 'asset_dev_2025-12-01-000000', 'asset_dev_2025-11-01-000000', 'tag_dev'], $this->deleted);
     }
 }

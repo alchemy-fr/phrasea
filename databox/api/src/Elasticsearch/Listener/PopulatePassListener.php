@@ -56,6 +56,7 @@ class PopulatePassListener implements EventSubscriberInterface
         private readonly IndexRemover $indexRemover,
         private readonly LockFactory $lockFactory,
         private readonly PopulatePageTracker $pageTracker,
+        private readonly PopulateLockManager $lockManager,
         /**
          * Share of the memory limit that the memory left after a page must not exceed.
          */
@@ -63,19 +64,12 @@ class PopulatePassListener implements EventSubscriberInterface
     ) {
     }
 
-    /**
-     * @see PopulateLockManager to inspect / force-release these locks
-     */
-    public static function getLockName(string $indexName): string
-    {
-        return PopulateLockManager::getLockName($indexName);
-    }
-
     public function preIndexPopulate(PreIndexPopulateEvent $event): void
     {
         $indexName = $event->getIndex();
 
-        $lock = $this->lockFactory->createLock(self::getLockName($indexName), self::LOCK_TTL);
+        // PopulateLockManager inspects / force-releases these locks
+        $lock = $this->lockFactory->createLock($this->lockManager->getLockName($indexName), self::LOCK_TTL);
         if (!$lock->acquire()) {
             $this->recordRefusedPass($indexName);
 
