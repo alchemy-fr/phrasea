@@ -21,6 +21,7 @@
         "./monitoring/sentry": "./src/monitoring/sentry.ts",
         "./monitoring/SentryInit": "./src/monitoring/SentryInit.tsx",
         "./monitoring/SentryUser": "./src/monitoring/SentryUser.tsx",
+        "./privacy/redactUrl": "./src/privacy/redactUrl.ts",
         "./server/http": "./src/server/http.ts",
         "./server/rateLimit": "./src/server/rateLimit.ts",
         "./server/sentryTunnel": "./src/server/sentryTunnel.ts",

@@ -28,6 +28,8 @@ A link only opens the upload flow of its target (`UploadLinkRequestListener`): `
 
 `GET /upload-links/current` gives the page the name of the link, its target, its limits and counters and `lastFormData`, never the token nor the creator.
 
+The token never leaves the page for a third party: the link page is neither indexed nor sent as a referrer (`noindex`, `no-referrer`), and the URLs given to Matomo (page views) and Sentry (events, breadcrumbs) go through `src/lib/privacy/redactUrl.ts`, which turns `/l/<token>` into `/l/[token]` (`createUrlRedactor()` of `@alchemy/next-core/privacy/redactUrl`); the `Authorization` header is dropped from the Sentry events.
+
 ## Attribution
 
 What is sent through a link belongs to its creator: the files and the commit get the `userId` of the creator (the publisher Databox receives) and keep a reference to the link. Nobody is behind the link to be notified: the `__notify` field is hidden on the link page and the commit is never flagged for a notification. The report logs record the commits with the username `upload-link:<name or id>`.

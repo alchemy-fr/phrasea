@@ -8,6 +8,10 @@ import {
     trackPageView,
     type MatomoConfig,
 } from './matomo';
+import {
+    redactUrl as defaultRedactUrl,
+    type UrlRedactor,
+} from '../privacy/redactUrl';
 
 /**
  * Path sent to Matomo for a page, or undefined when the page is not tracked:
@@ -31,18 +35,23 @@ export function getTrackedPath(
  * Next navigates without reloading the page: the URL, the referrer and the
  * title are given to Matomo before every page view. Page views wait for the
  * session to be resolved (`authResolved`), to come with the user id.
+ *
+ * The secrets of the path (`redactUrl`) are masked after `trackedPath`.
  */
 export function MatomoTracker({
     matomo,
     userId,
     authResolved,
     trackedPath = getTrackedPath,
+    redactUrl = defaultRedactUrl,
 }: {
     matomo: MatomoConfig | undefined;
     userId: string | undefined;
     authResolved: boolean;
     /** What is sent of a URL, `getTrackedPath` by default */
     trackedPath?: (pathname: string, query: string) => string | undefined;
+    /** Masks the secrets of the URLs, `redactUrl` by default */
+    redactUrl?: UrlRedactor;
 }) {
     const pathname = usePathname();
     const query = useSearchParams().toString();
@@ -69,7 +78,7 @@ export function MatomoTracker({
         if (!path) {
             return;
         }
-        const url = `${window.location.origin}${path}`;
+        const url = `${window.location.origin}${redactUrl(path)}`;
         // Effects may run twice for the same URL (strict mode)
         if (history.current.url !== url) {
             history.current = {url, referrer: history.current.url};
@@ -82,7 +91,7 @@ export function MatomoTracker({
         }, 0);
 
         return () => clearTimeout(timeout);
-    }, [ready, authResolved, pathname, query, trackedPath]);
+    }, [ready, authResolved, pathname, query, trackedPath, redactUrl]);
 
     return null;
 }
