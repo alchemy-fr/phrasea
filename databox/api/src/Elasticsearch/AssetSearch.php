@@ -187,6 +187,43 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
+     * Among the given assets, the IDs of those the base filters let the user see: ACL and
+     * attribute filter rules. Deleted and quarantined assets keep the scope of the AssetVoter.
+     *
+     * @param string[] $assetIds
+     *
+     * @return string[]
+     */
+    public function getVisibleIds(?string $userId, array $groupIds, array $assetIds): array
+    {
+        $assetIds = array_values(array_unique($assetIds));
+        if (empty($assetIds)) {
+            return [];
+        }
+
+        try {
+            $filterQueries = $this->createBaseFilterQueries($userId, $groupIds, filterDeleted: false, filterStatus: false);
+        } catch (NoWorkspaceAllowedException) {
+            return [];
+        }
+
+        $boolQuery = new Query\BoolQuery();
+        foreach ($filterQueries as $filterQuery) {
+            $boolQuery->addFilter($filterQuery);
+        }
+        $boolQuery->addFilter(new Query\Terms('_id', $assetIds));
+
+        $query = new Query($boolQuery);
+        $query->setSource(false);
+        $query->setSize(count($assetIds));
+
+        return array_map(
+            static fn (Result $result): string => (string) $result->getId(),
+            $this->index->search($query)->getResults(),
+        );
+    }
+
+    /**
      * Clusters the geolocated assets matching the search on a tile grid.
      *
      * @param string                                                           $field     the geo point attribute key (e.g. "location_geo-point_s")

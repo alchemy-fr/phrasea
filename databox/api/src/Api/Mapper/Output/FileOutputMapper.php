@@ -16,6 +16,7 @@ use App\Entity\Core\File;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
+use App\Service\Asset\VisibleAssetResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -32,6 +33,7 @@ class FileOutputMapper implements OutputMapperInterface
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly EntityManagerInterface $em,
         private readonly AssetNameResolver $assetNameResolver,
+        private readonly VisibleAssetResolver $visibleAssetResolver,
         TemporaryCacheFactory $temporaryCacheFactory,
     ) {
         $this->cache = $temporaryCacheFactory->createCache();
@@ -114,14 +116,37 @@ class FileOutputMapper implements OutputMapperInterface
         return $output;
     }
 
+    /**
+     * The assets using the file, restricted to those the user may see in a listing
+     * (voter and attribute filter rules).
+     */
     private function resolveUsages(File $file): array
     {
-        $usages = [];
+        /** @var Asset[] $sourceAssets */
+        $sourceAssets = $this->em->getRepository(Asset::class)->findBy(['source' => $file->getId()]);
+        /** @var array<int, array{AssetFileVersion, Asset}> $versions */
+        $versions = [];
+        /** @var AssetFileVersion $version */
+        foreach ($this->em->getRepository(AssetFileVersion::class)->findBy(['file' => $file->getId()]) as $version) {
+            if (null !== $asset = $version->getAsset()) {
+                $versions[] = [$version, $asset];
+            }
+        }
+        /** @var AssetRendition[] $renditions */
+        $renditions = $this->em->getRepository(AssetRendition::class)->findBy(['file' => $file->getId()]);
 
-        /** @var Asset[] $assets */
-        $assets = $this->em->getRepository(Asset::class)->findBy(['source' => $file->getId()]);
-        foreach ($assets as $asset) {
-            if (!$this->isGranted(AbstractVoter::READ, $asset)) {
+        $visibleAssets = [];
+        foreach ($this->visibleAssetResolver->filterVisible(array_merge(
+            $sourceAssets,
+            array_column($versions, 1),
+            array_map(static fn (AssetRendition $rendition): Asset => $rendition->getAsset(), $renditions),
+        )) as $asset) {
+            $visibleAssets[$asset->getId()] = true;
+        }
+
+        $usages = [];
+        foreach ($sourceAssets as $asset) {
+            if (!isset($visibleAssets[$asset->getId()])) {
                 continue;
             }
 
@@ -132,11 +157,8 @@ class FileOutputMapper implements OutputMapperInterface
             ];
         }
 
-        /** @var AssetFileVersion[] $versions */
-        $versions = $this->em->getRepository(AssetFileVersion::class)->findBy(['file' => $file->getId()]);
-        foreach ($versions as $version) {
-            $asset = $version->getAsset();
-            if (null === $asset || !$this->isGranted(AbstractVoter::READ, $asset)) {
+        foreach ($versions as [$version, $asset]) {
+            if (!isset($visibleAssets[$asset->getId()])) {
                 continue;
             }
 
@@ -148,11 +170,11 @@ class FileOutputMapper implements OutputMapperInterface
             ];
         }
 
-        /** @var AssetRendition[] $renditions */
-        $renditions = $this->em->getRepository(AssetRendition::class)->findBy(['file' => $file->getId()]);
         foreach ($renditions as $rendition) {
             $asset = $rendition->getAsset();
-            if (!$this->isGranted(AbstractVoter::READ, $asset)) {
+            if (!isset($visibleAssets[$asset->getId()])
+                || !$this->isGranted(AbstractVoter::READ, $rendition)
+            ) {
                 continue;
             }
 
