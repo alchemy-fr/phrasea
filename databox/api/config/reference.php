@@ -2243,6 +2243,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type AlchemyMetadataManipulatorConfig = array{
  *     debug?: bool|Param, // Default: false
  *     classes_directory?: scalar|Param|null, // Default: "%kernel.cache_dir%/phpexiftool"
+ *     converter_url?: scalar|Param|null, // URL of the conversion container; when not empty, exiftool runs there through "converter_exiftool" // Default: null
+ *     converter_exiftool?: scalar|Param|null, // The convert-exec wrapper of exiftool, in the worker image // Default: "/usr/local/libexec/convert/exiftool"
  * }
  * @psalm-type AlchemyWorkflowConfig = array{
  *     doctrine?: array{
@@ -2385,6 +2387,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     mapping?: array<string, scalar|Param|null>,
  * }
  * @psalm-type AlchemyRenditionFactoryConfig = array{
+ *     converter_url?: scalar|Param|null, // URL of the conversion container (tcp://host:port) running LibreOffice, ffmpeg, ffprobe and exiftool; empty: the tools run locally // Default: null
  *     download?: array{ // Limits of each remote file downloaded by the renditions (download module, watermarks)
  *         max_size?: int|Param, // In bytes // Default: 5368709120
  *         max_duration?: float|Param, // In seconds, for the whole transfer // Default: 900.0

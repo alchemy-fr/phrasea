@@ -6,24 +6,41 @@ use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\TagGroupInterface;
 use PHPExiftool\Exception\ExceptionInterface as PHPExiftoolExceptionInterface;
+use PHPExiftool\Exiftool;
 use PHPExiftool\PHPExiftool;
+use PHPExiftool\RDFParser;
+use PHPExiftool\Reader;
 use PHPExiftool\Writer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class MetadataManipulator
 {
+    /** Installed in the worker image, runs exiftool in the conversion container (CONVERTER_URL) */
+    public const string CONVERTER_EXIFTOOL = '/usr/local/libexec/convert/exiftool';
+
     private ?array $knownTagGroups = null;  // cache
     private readonly PHPExiftool $phpExifTool;
     private readonly LoggerInterface $logger;
+    /** null: the exiftool of phpexiftool (vendor/exiftool/exiftool) */
+    private readonly ?string $exiftoolBinary;
 
+    /**
+     * @param string|null $converterUrl when not empty, exiftool reads and writes the files through
+     *                                  $converterExiftool, in the conversion container (the tag
+     *                                  classes are still generated with the local exiftool, of the
+     *                                  same version)
+     */
     public function __construct(
         string $classesDirectory,
         ?LoggerInterface $logger = null,
         bool $debug = false,
+        ?string $converterUrl = null,
+        string $converterExiftool = self::CONVERTER_EXIFTOOL,
     ) {
         $this->phpExifTool = new PHPExiftool($classesDirectory);
         $this->logger = $logger ?? new NullLogger();
+        $this->exiftoolBinary = null !== $converterUrl && '' !== $converterUrl ? $converterExiftool : null;
 
         if ($debug) {
             $this->phpExifTool->setLogger($this->logger);
@@ -50,7 +67,10 @@ class MetadataManipulator
 
     public function getAllMetadata(\SplFileObject $file): MetadataBag
     {
-        $reader = $this->phpExifTool->getFactory()->createReader();
+        $reader = Reader::create(
+            $this->createExiftool(),
+            new RDFParser($this->phpExifTool->getClassesRootDirectory(), $this->phpExifTool->getLogger()),
+        );
 
         $reader->files($file->getRealPath());
 
@@ -70,7 +90,7 @@ class MetadataManipulator
 
     public function createWriter(): Writer
     {
-        return $this->phpExifTool->getFactory()->createWriter();
+        return Writer::create($this->createExiftool());
     }
 
     /**
@@ -78,8 +98,7 @@ class MetadataManipulator
      */
     public function setMetadata(\SplFileObject $file, MetadataBag $bag): void
     {
-        $writer = $this->phpExifTool->getFactory()->createWriter();
-        $writer->write($file->getRealPath(), $bag);
+        $this->createWriter()->write($file->getRealPath(), $bag);
     }
 
     public function getClassesDirectory(): string
@@ -90,5 +109,15 @@ class MetadataManipulator
     public function getPhpExifTool(): PHPExiftool
     {
         return $this->phpExifTool;
+    }
+
+    public function getExiftoolBinary(): ?string
+    {
+        return $this->exiftoolBinary;
+    }
+
+    private function createExiftool(): Exiftool
+    {
+        return new Exiftool($this->phpExifTool->getLogger(), $this->exiftoolBinary);
     }
 }

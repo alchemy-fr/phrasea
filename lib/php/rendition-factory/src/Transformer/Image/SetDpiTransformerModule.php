@@ -7,6 +7,8 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\RemoteExec\ConverterTools;
+use Alchemy\RenditionFactory\RemoteExec\Tool;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
@@ -22,8 +24,10 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
 {
     public const string NAME = 'set_dpi';
 
-    public function __construct(private LoggerInterface $logger)
-    {
+    public function __construct(
+        private LoggerInterface $logger,
+        private ?ConverterTools $converterTools = null,
+    ) {
     }
 
     public static function getName(): string
@@ -68,7 +72,7 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
         $dpi = $options['dpi'];
         $this->logger->info(sprintf('Setting DPI to %s', $dpi));
         $writer = Writer::create(
-            new Exiftool($this->logger)
+            new Exiftool($this->logger, $this->converterTools?->getBinary(Tool::Exiftool))
         );
         $writer->write(
             $inputFile->getPath(),

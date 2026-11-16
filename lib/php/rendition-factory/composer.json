@@ -20,7 +20,8 @@
         "rector": "vendor/bin/rector",
         "cs": "vendor/bin/php-cs-fixer fix",
         "test": [
-            "vendor/bin/var-dump-check --symfony src"
+            "vendor/bin/var-dump-check --symfony src",
+            "vendor/bin/phpunit"
         ]
     },
     "repositories": [

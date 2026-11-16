@@ -1,0 +1,3 @@
+alchemy_metadata_manipulator:
+    # exiftool reads and writes the files in the conversion container (databox-converter) when set
+    converter_url: '%env(CONVERTER_URL)%'
