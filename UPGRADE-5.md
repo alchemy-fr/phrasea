@@ -433,14 +433,16 @@ to disable it: review who holds these roles.
 
 The APIs used to accept any token signed by the realm. They now only accept
 the access tokens (`typ: Bearer`, so no more ID tokens) whose audience (`aud`
-claim) includes the admin client of the API (`*_ADMIN_CLIENT_ID`), and check
-`nbf` and `iat` besides `exp` (30 seconds of clock skew tolerated). The tokens
-of the admin client itself are accepted without audience. See
+claim) includes the name of the application (`databox`, `expose`,
+`uploader`), and check `nbf` and `iat` besides `exp` (30 seconds of clock skew
+tolerated). The tokens of the admin client of the API itself
+(`*_ADMIN_CLIENT_ID`) are accepted without audience. See
 [Access tokens and audiences](doc/tech/Authentication/clients.md).
 
 - Keycloak gives the audiences: `bin/migrate.sh` (Keycloak synchronization)
   creates a client scope per API (`databox-api`, `expose-api`, `uploader-api`,
-  with an audience mapper) and adds them to the default scopes of the clients
+  with an audience mapper giving the name of the application as "Included
+  Custom Audience") and adds them to the default scopes of the clients
   of the stack: Databox, Expose, Uploader (Uploader and Databox) and Dashboard
   clients, Databox indexer, `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`, `postman`
   when it exists, and every client created from Databox for its integrations
