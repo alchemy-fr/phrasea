@@ -19,6 +19,9 @@ Follow these steps in order. Each one is detailed in the sections below.
    Give the custom Keycloak clients calling the APIs the client scope of each
    API they call, once `bin/migrate.sh` has created them (see
    [Access tokens: audiences](#access-tokens-audiences)).
+   With Docker Compose, run `dc down` (volumes kept) before starting the new
+   stack: the containers move to new networks (see
+   [Docker networks split](#docker-networks-split)).
 4. Start Elasticsearch 9:
 
     ```bash
@@ -343,6 +346,51 @@ of the admin client itself are accepted without audience. See
 - The `view-clients` role of `realm-management` that a development version of
   the configurator granted to the service account of the Expose admin client is
   no longer needed; it is left in place, without effect, and can be removed.
+
+### Docker networks split
+
+The single `internal` network shared by every container is replaced by four
+networks, so that a compromised container (a client, a console…) no longer
+reaches the databases, Redis, Elasticsearch, RabbitMQ or php-fpm, and the data
+services have no Internet access (see
+[Networks and trusted proxies](doc/tech/01_setup.md#networks-and-trusted-proxies)):
+
+- `proxy` (bridge, `PS_SUBNET`, gateway `PS_GATEWAY_IP`): Traefik and the
+  services it routes from the front;
+- `app` (`internal`): the API nginx and their php-fpm;
+- `data` (`internal`): databases, queues, storage, internal services, and
+  their clients;
+- `egress` (bridge): Internet and the host for php, the workers and the
+  configurator.
+
+To upgrade a running stack:
+
+- recreate it, since `proxy` takes the `PS_SUBNET` still held by
+  `<project>_internal` (`Pool overlaps with other one on this address space`):
+
+    ```bash
+    dc down    # the volumes are kept
+    dc up -d
+    ```
+
+  or `docker network rm <project>_internal` once its containers are stopped;
+- services added to the stack by an override file must be given the networks
+  they need instead of `internal`, and a routed service that is not on `proxy`
+  the label `traefik.docker.network=${COMPOSE_PROJECT_NAME}_data`. A service
+  only on `app`/`data` gets no published port, no Internet and no
+  `extra_hosts` route to the host;
+- `TRAEFIK_PROVIDERS_DOCKER_NETWORK` is now `${COMPOSE_PROJECT_NAME}_proxy`;
+- the Expose API nginx no longer reads `PS_SUBNET`: `/purge` only refuses the
+  requests relayed by a proxy. The variable can stay in the Helm values,
+  without effect;
+- `similarity-embedder` runs with `HF_HUB_OFFLINE=1` and
+  `TRANSFORMERS_OFFLINE=1` (its models are in the image), `face-recognition`
+  with `NO_ALBUMENTATIONS_UPDATE=1` (no version check at startup);
+- on a machine running several stacks, the networks other than `proxy` take
+  their subnet from the Docker address pools, which may grab the `PS_SUBNET`
+  of a stopped stack: move the pools out of `172.16.0.0/12`
+  (`default-address-pools` in `/etc/docker/daemon.json`, e.g.
+  `{"base": "10.210.0.0/16", "size": 24}`).
 
 ### Helm
 

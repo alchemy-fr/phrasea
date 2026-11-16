@@ -2,7 +2,7 @@ services:
   saml-idp:
     image: alchemyfr/test-saml-idp:${DOCKER_TAG}
     networks:
-      - internal
+      - proxy
     environment:
       - SIMPLESAMLPHP_URL=${SAML_URL}
       - SIMPLESAMLPHP_SP_ENTITY_ID=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/realms/phrasea
@@ -17,7 +17,7 @@ services:
   saml-idp2:
     image: alchemyfr/test-saml-idp:${DOCKER_TAG}
     networks:
-      - internal
+      - proxy
     environment:
       - SIMPLESAMLPHP_URL=${SAML2_URL}
       - SIMPLESAMLPHP_SP_ENTITY_ID=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/realms/phrasea

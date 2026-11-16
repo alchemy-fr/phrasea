@@ -15,7 +15,7 @@ services:
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
     networks:
-      - internal
+      - data
 
   report-logstash:
     image: ${REGISTRY_NAMESPACE}report-logstash:$DOCKER_TAG
@@ -47,7 +47,8 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
     networks:
-      - internal
+      - data
+      - host-ports
     depends_on:
       - report-elasticsearch
 
@@ -61,15 +62,24 @@ services:
     environment:
       - ELASTICSEARCH_HOST=report-elasticsearch:9200
     networks:
-      - internal
+      - data
     depends_on:
       - report-elasticsearch
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME}_data"
       - "traefik.http.routers.report-kibana.rule=Host(`report-kibana.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.report-kibana.loadbalancer.server.port=5601"
       - "traefik.http.routers.report-kibana.middlewares=admin-console@docker"
+
+networks:
+  # Docker publishes no port of a container attached only to internal networks
+  # (`data`). Without NAT, this network gives no Internet access either.
+  host-ports:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "false"
 
 volumes:
   report_elasticsearch:
