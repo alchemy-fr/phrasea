@@ -59,6 +59,47 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
     }
 
     /**
+     * `/assets/{id}/similar` only ranks the assets the user may find: the attribute filter
+     * rules apply to the nearest neighbors, and the scores only cover the returned assets.
+     */
+    public function testSimilarEndpointAppliesAttributeFilterRules(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $reference = $this->createEmbeddedAsset($workspace, 'Reference', self::vector([0 => 1.0]));
+        $visible = $this->createEmbeddedAsset($workspace, 'Visible', self::vector([0 => 1.0, 1 => 0.5]), ['tags' => ['shown']]);
+        $this->createEmbeddedAsset($workspace, 'Hidden', self::vector([0 => 1.0, 1 => 0.2]));
+        self::getAttributeFilterManager()->saveRule(
+            $workspace,
+            [KeycloakClientTestMock::USER_UID],
+            [],
+            sprintf('@tag = "%s"', $this->findOrCreateTagByName('shown', $workspace)->getId()),
+        );
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $similar = function (string $userId) use ($reference): array {
+            $response = self::createClient()->request('GET', '/assets/'.$reference->getId().'/similar', [
+                'headers' => [
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId),
+                ],
+            ]);
+
+            return $this->getDataFromResponse($response, 200);
+        };
+
+        $data = $similar(KeycloakClientTestMock::USER_UID);
+        $this->assertSame(['Visible'], array_map(fn (array $asset): ?string => $asset['name'] ?? null, $data['member']));
+        $this->assertSame([$visible->getId()], array_keys($data['scores']));
+
+        // The rule only targets USER_UID
+        $data = $similar(KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertSame(['Hidden', 'Visible'], array_map(fn (array $asset): ?string => $asset['name'] ?? null, $data['member']));
+    }
+
+    /**
      * The embedding job runs once the asset is already indexed (and again on a workflow rerun):
      * the document must follow.
      */
@@ -257,14 +298,14 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
         $em->flush();
     }
 
-    private function createEmbeddedAsset(Workspace $workspace, string $name, ?array $vector): Asset
+    private function createEmbeddedAsset(Workspace $workspace, string $name, ?array $vector, array $options = []): Asset
     {
-        $asset = $this->createAsset([
+        $asset = $this->createAsset(array_merge($options, [
             'workspace' => $workspace,
             'name' => $name,
             'public' => true,
             'no_flush' => true,
-        ]);
+        ]));
         if (null !== $vector) {
             $embedding = new AssetEmbedding();
             $embedding->setAsset($asset);
