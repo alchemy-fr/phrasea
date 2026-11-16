@@ -86,6 +86,70 @@ class AttributeBatchUpdateSecurityTest extends AbstractDataboxTestCase
         $this->assertSame('All rights reserved', $this->getAttributeOf($asset)->getValue());
     }
 
+    public function testOAuthClientNeedsTheEditScopeToReplaceInLockedPolicies(): void
+    {
+        $client = static::createClient();
+        $this->createMemberWorkspace();
+        $locked = $this->createAttributeDefinition([
+            'name' => 'Rights',
+            'slug' => 'rights',
+            'policy' => $this->createAttributePolicy(['name' => 'Locked', 'editable' => false]),
+        ]);
+        $asset = $this->createAsset([
+            'ownerId' => self::USER,
+            'attributes' => [['definition' => $locked, 'value' => 'All rights reserved']],
+        ]);
+        $uri = '/assets/'.$asset->getId().'/attributes';
+        $json = ['actions' => [['action' => 'replace', 'value' => 'All', 'replaceWith' => 'No']]];
+
+        $this->sendAsClient($client, $uri, 'asset:edit attribute-definition:read', $json);
+        $this->assertResponseIsSuccessful();
+        self::getEntityManager()->clear();
+        $this->assertSame('All rights reserved', $this->getAttributeOf($asset)->getValue());
+
+        $this->sendAsClient($client, $uri, 'asset:edit attribute-definition:edit', $json);
+        $this->assertResponseIsSuccessful();
+        self::getEntityManager()->clear();
+        $this->assertSame('No rights reserved', $this->getAttributeOf($asset)->getValue());
+    }
+
+    public function testTagOfAnotherWorkspaceIsRefused(): void
+    {
+        $client = static::createClient();
+        $workspace = $this->createMemberWorkspace();
+        $otherWorkspace = $this->createWorkspace(['ownerId' => self::ADMIN, 'slug' => 'other-workspace']);
+        $tag = $this->findOrCreateTagByName('Approved', $workspace);
+        $foreignTag = $this->findOrCreateTagByName('Secret', $otherWorkspace);
+        $asset = $this->createAsset(['ownerId' => self::USER]);
+        $uri = '/assets/'.$asset->getId().'/attributes';
+
+        $refusedActions = [
+            ['action' => 'add', 'definitionId' => 'tags', 'value' => $foreignTag->getId()],
+            ['action' => 'add', 'definitionId' => 'tags', 'value' => '6f1c2f0e-5b3a-4c1e-9d6a-0b8e2a7c4d11'],
+            ['action' => 'add', 'definitionId' => 'tags', 'value' => 'not-a-uuid'],
+            ['action' => 'add', 'definitionId' => 'tags', 'value' => [$tag->getId()]],
+            ['action' => 'delete', 'definitionId' => 'tags', 'ids' => [$foreignTag->getId()]],
+            ['action' => 'set', 'definitionId' => 'tags', 'value' => $tag->getId()],
+        ];
+        foreach ($refusedActions as $action) {
+            $this->send($client, 'POST', $uri, self::USER, ['actions' => [$action]]);
+            $this->assertResponseStatusCodeSame(400, json_encode($action, JSON_THROW_ON_ERROR));
+        }
+
+        self::getEntityManager()->clear();
+        $this->assertCount(0, $this->findAsset($asset->getId())->getTags());
+
+        $this->send($client, 'POST', $uri, self::USER, [
+            'actions' => [['action' => 'add', 'definitionId' => 'tags', 'value' => $tag->getId()]],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        self::getEntityManager()->clear();
+        $tags = $this->findAsset($asset->getId())->getTags();
+        $this->assertCount(1, $tags);
+        $this->assertSame($tag->getId(), $tags->first()->getId());
+    }
+
     /**
      * A workspace of the admin, the user being one of its readers (and more if $extraPermissions).
      */
@@ -100,6 +164,14 @@ class AttributeBatchUpdateSecurityTest extends AbstractDataboxTestCase
     private function getAttributeOf(Asset $asset): Attribute
     {
         return self::getEntityManager()->getRepository(Attribute::class)->findOneBy(['asset' => $asset->getId()]);
+    }
+
+    private function sendAsClient(Client $client, string $uri, string $scope, array $json): void
+    {
+        $client->request('POST', $uri, [
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getClientCredentialJwt($scope)],
+            'json' => $json,
+        ]);
     }
 
     private function send(Client $client, string $method, string $uri, string $userId, array $json): void
