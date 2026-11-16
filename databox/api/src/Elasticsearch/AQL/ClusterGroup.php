@@ -13,6 +13,13 @@ final class ClusterGroup
     private ?string $fieldLocale = null;
 
     /**
+     * The Elasticsearch fields read by a script: it matches no asset missing one of them.
+     *
+     * @var list<string>
+     */
+    private array $scriptFields = [];
+
+    /**
      * @param list<array{w: string, p: string[]}> $hiddenScopes the assets on which asset policies hide the field (see HiddenAttributeScope)
      */
     public function __construct(
@@ -48,6 +55,22 @@ final class ClusterGroup
     public function getFieldLocale(): ?string
     {
         return $this->fieldLocale;
+    }
+
+    public function withScriptField(string $fieldName): self
+    {
+        $new = clone $this;
+        $new->scriptFields = array_values(array_unique([...$this->scriptFields, $fieldName]));
+
+        return $new;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getScriptFields(): array
+    {
+        return $this->scriptFields;
     }
 
     public function getWorkspaceIds(): array
@@ -101,6 +124,7 @@ final class ClusterGroup
                     // An expression reading two fields must ignore the assets where either is hidden
                     $group->hiddenScopes = array_values(array_unique([...$l->hiddenScopes, ...$r->hiddenScopes], SORT_REGULAR));
                     $group->fieldLocale = $l->fieldLocale ?? $r->fieldLocale;
+                    $group->scriptFields = array_values(array_unique([...$l->scriptFields, ...$r->scriptFields]));
                     $groups[] = $group;
                 }
             }
