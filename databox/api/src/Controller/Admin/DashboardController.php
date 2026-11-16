@@ -143,6 +143,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
         yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
         yield NotifierAdminMenu::createMenuItem();
+        yield $this->createRealtimeMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }

@@ -18,6 +18,9 @@ abstract class PusherFactory
     ): Pusher {
         $options = [
             'host' => $host,
+            // Pusher passes its own timeout (30s by default) to every request,
+            // which overrides the one of the Guzzle client below.
+            'timeout' => 5,
         ];
 
         // Server side, Sockudo can be reached directly instead of through the

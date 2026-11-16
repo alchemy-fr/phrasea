@@ -10,4 +10,9 @@ class AdminTest extends AbstractDataboxAdminTestCase
     {
         $this->doTestAllPages();
     }
+
+    public function testRealtimePage(): void
+    {
+        $this->doTestRealtimePage();
+    }
 }

@@ -1,0 +1,110 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% macro count(value) %}{{ value is null ? '—' : value }}{% endmacro %}
+
+{% block content_title %}
+    Realtime (Sockudo)
+{% endblock %}
+
+{% block main %}
+    {% if status is null %}
+        <p class="text-muted">Sockudo is not configured in this application.</p>
+    {% else %}
+        <h2 class="h4 mt-3">Server</h2>
+        <table class="table datagrid">
+            <tbody>
+            <tr>
+                <th>Status</th>
+                <td>
+                    {% if not status.enabled %}
+                        <span class="text-muted">Disabled</span>
+                    {% elseif status.reachable %}
+                        <span class="text-success">Reachable</span> ({{ status.latencyMs }} ms)
+                    {% else %}
+                        <span class="text-danger">Unreachable: {{ status.error }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>App ID</th>
+                <td>{{ status.appId ?? '—' }}</td>
+            </tr>
+            {% if status.reachable %}
+                <tr>
+                    <th>Occupied channels</th>
+                    <td>{{ status.channelCount }}</td>
+                </tr>
+                <tr>
+                    <th>Subscriptions</th>
+                    <td>{{ _self.count(status.subscriptionCount) }}</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        {% if status.reachable %}
+            <h2 class="h4 mt-4">Connected users ({{ users|length }})</h2>
+            <p class="text-muted">
+                Only users of the Databox client are listed: they subscribe to their in-app notification channel.
+                Connections are the subscriptions to this channel (one per open tab).
+            </p>
+            {% if usersError is not null %}
+                <p class="text-danger">Cannot resolve the user names: {{ usersError }}</p>
+            {% endif %}
+            <table class="table datagrid">
+                <thead>
+                <tr>
+                    <th>User</th>
+                    <th>ID</th>
+                    <th>Connections</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>
+                            {% if user.name is not null %}
+                                {{ user.name }}
+                            {% elseif user.known is same as(false) %}
+                                <span class="text-muted">Unknown user</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td><code>{{ user.id }}</code></td>
+                        <td>{{ _self.count(user.connections) }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-muted">No connected user.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h2 class="h4 mt-4">Channels by type</h2>
+            <table class="table datagrid">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Channels</th>
+                    <th>Subscriptions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for type, channels in status.channelsByType %}
+                    <tr>
+                        <td>{{ type }}</td>
+                        <td>{{ channels.channels }}</td>
+                        <td>{{ _self.count(channels.subscriptions) }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-muted">No occupied channel.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endif %}
+{% endblock %}

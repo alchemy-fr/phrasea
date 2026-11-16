@@ -10,6 +10,7 @@ use Alchemy\MessengerBundle\Controller\MessengerMessageCrudController;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\RouteMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
@@ -54,6 +55,12 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             ->setFaviconPath('favicon.ico')
             ->setTitle('<div>'.($this->adminConfigRegistry->getLogo() ?: '').'<div>'.$this->adminConfigRegistry->getSiteTitle().'</div></div>')
         ;
+    }
+
+    protected function createRealtimeMenuItem(): RouteMenuItem
+    {
+        return MenuItem::linkToRoute('Realtime', 'fa fa-tower-broadcast', RealtimeStatusController::ROUTE_NAME)
+            ->setPermission(JwtUser::ROLE_ADMIN);
     }
 
     protected function createDevMenu(): SubMenuItem

@@ -45,6 +45,11 @@ final readonly class PusherManager
 
     public function normalizeChannel(string $channel): string
     {
+        return self::normalizeChannelName($channel);
+    }
+
+    public static function normalizeChannelName(string $channel): string
+    {
         return preg_replace('/[^a-z0-9_\-=@,.;]/i', '.', $channel);
     }
 
