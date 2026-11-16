@@ -13,6 +13,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\FileProcessingGuard;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -23,6 +24,7 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
 
     public function __construct(
         private readonly AssetRenditionRepository $assetRenditionRepository,
+        private readonly FileProcessingGuard $processingGuard,
     ) {
     }
 
@@ -106,8 +108,12 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
             if (!$sourceRendition->isReady()) {
                 throw new BadRequestHttpException(sprintf('Rendition "%s" has no file yet', $data->sourceRenditionId));
             }
-        } elseif (null === $asset->getSource()) {
-            throw new BadRequestHttpException(sprintf('Asset "%s" has no source file', $asset->getId()));
+            $source = $sourceRendition->getFile();
+        } else {
+            $source = $asset->getSource();
+            if (null === $source) {
+                throw new BadRequestHttpException(sprintf('Asset "%s" has no source file', $asset->getId()));
+            }
         }
 
         $rendition = $this->assetRenditionRepository->findDynamicRenditionByName($asset->getId(), $data->name);
@@ -131,6 +137,10 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
         ], fn ($value): bool => null !== $value && false !== $value) ?: null);
 
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $rendition);
+
+        if (null !== $source && null !== $refusal = $this->processingGuard->getRefusal($source, $asset)) {
+            throw new BadRequestHttpException(sprintf('Rendition cannot be built: %s', $refusal));
+        }
 
         $this->postFlushStackListener->addBusMessage(new BuildDynamicRendition($rendition->getId()));
 
