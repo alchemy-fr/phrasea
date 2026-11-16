@@ -135,6 +135,11 @@ final readonly class FileManager
                 ->andWhere('f.id != :exceptId')
                 ->setParameter('exceptId', $exceptFileId);
         }
+        if (mb_strlen($path) < File::INDEXED_PATH_MAX_LENGTH) {
+            // Inlined rather than bound, so that the planner can match the partial index
+            // even with a generic plan.
+            $fileQuery->andWhere(sprintf('LENGTH(f.path) < %d', File::INDEXED_PATH_MAX_LENGTH));
+        }
 
         if ([] !== $fileQuery->getQuery()->getScalarResult()) {
             return true;
