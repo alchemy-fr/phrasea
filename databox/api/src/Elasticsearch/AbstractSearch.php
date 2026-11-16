@@ -128,7 +128,7 @@ abstract class AbstractSearch
         $workspacesQuery = new Query\BoolQuery();
 
         $should = [];
-        $permittedWorkspaces = $publicWorkspaceIds = $this->workspaceRepository->getPublicWorkspaceIds();
+        $permittedWorkspaces = $publicWorkspaceIds = $this->workspaceRepository->getPublicWorkspaceIds($userId);
         if (null !== $userId) {
             if (!empty($publicWorkspaceIds)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
@@ -139,7 +139,7 @@ abstract class AbstractSearch
                 $should[] = $publicWorkspaceBoolQuery;
             }
 
-            $allowedWorkspaceIds = $this->workspaceRepository->getAllowedWorkspaceIds($userId, $groupIds, $this->isAdmin());
+            $allowedWorkspaceIds = $this->workspaceRepository->getReadableWorkspaceIds($userId, $groupIds, $this->isAdmin());
             if (!empty($allowedWorkspaceIds)) {
                 $permittedWorkspaces = array_merge($permittedWorkspaces, $allowedWorkspaceIds);
                 $workspaceBoolQuery = new Query\BoolQuery();

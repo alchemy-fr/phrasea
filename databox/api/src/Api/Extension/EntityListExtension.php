@@ -42,7 +42,7 @@ final class EntityListExtension implements QueryCollectionExtensionInterface
         }
 
         $user = $this->getUser();
-        $workspaceIds = $this->workspaceRepository->getAllowedWorkspaceIds($user?->getId(), $user?->getGroups() ?? [], false);
+        $workspaceIds = $this->workspaceRepository->getReadableWorkspaceIds($user?->getId(), $user?->getGroups() ?? [], false);
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $param = $queryNameGenerator->generateParameterName('allowedWorkspaces');
