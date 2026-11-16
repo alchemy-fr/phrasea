@@ -99,7 +99,10 @@ COPY supervisor/* /etc/supervisor.d/
 COPY worker/* /docker/worker/
 COPY bin/* /usr/local/bin/
 
-ENV SUPERVISOR_START_SECS=2 \
+# A worker exits on its own once --limit is reached, which takes less than a second on a
+# backlog of small messages: with a non-zero startsecs, supervisor counts each of these exits
+# as a failed start and gives up (FATAL) after startretries of them.
+ENV SUPERVISOR_START_SECS=0 \
     SUPERVISOR_START_RETRIES=10 \
     SUPERVISOR_STOP_WAIT_SECS=20
 
