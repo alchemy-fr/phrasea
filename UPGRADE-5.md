@@ -787,8 +787,19 @@ run in a sandbox:
 - allowed tags: `apply`, `autoescape`, `for`, `if`, `set`, `verbatim`, `with`;
 - forbidden functions: `attribute`, `block`, `constant`, `dump`, `enum`,
   `enum_cases`, `include`, `parent`, `source`, `template_from_string`;
-- on entities, only `get*`, `is*`, `has*` methods and `__toString` can be
-  called;
+- on entities, only an allow list of accessors can be read: `asset.id`,
+  `name`, `ownerId`, `workspaceId`, `locale`, `externalId`, `createdAt`,
+  `updatedAt`, `editedAt`, `story`, `source` and the `sourceFile*`,
+  `sourceChecksum`, `sourceDocUniqueId` shortcuts; `file.id`, `filename`,
+  `originalName`, `extension`, `extensionWithDot`, `type`, `size`, `checksum`,
+  `docUniqueId`, `createdAt`, `metadataValues` and `getMetadata()`; `attr.*`
+  is unchanged (see `doc/tech/Databox/metadata.md`). The other getters are
+  gone, among which `file.path`, `file.pathPublic`, `file.storage`,
+  `file.analysis`, `file.alternateUrls`, `file.workspace`, `asset.workspace`,
+  `asset.collections`, `asset.referenceCollection`, `asset.storyCollection`,
+  `asset.tags`, `asset.attributes`, `asset.renditions`, `asset.extraMetadata`:
+  a template still using one of them fails to render with a "not allowed"
+  error (`?? default` and `is defined` treat them as undefined);
 - `range()` and the `..` operator produce 10,000 elements at most.
 
 The validation constraint also rejects such templates on save: audit your
