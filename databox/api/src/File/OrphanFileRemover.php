@@ -6,6 +6,9 @@ namespace App\File;
 
 use App\Entity\Core\File;
 use App\Entity\Core\FileDuplicate;
+use App\Entity\Discussion\Message;
+use App\Entity\Integration\IntegrationData;
+use App\Security\Voter\FileVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
@@ -48,10 +51,47 @@ final class OrphanFileRemover
             }
         }
 
+        if ($this->isReferencedByValue($fileId)) {
+            return false;
+        }
+
         $this->em->remove($file);
         $this->em->flush();
 
         return true;
+    }
+
+    /**
+     * References without a foreign key: message attachments, which hold the file
+     * ID in their JSON, and integration outputs, which hold it as the data value.
+     */
+    private function isReferencedByValue(string $fileId): bool
+    {
+        $integrationOutput = $this->em->createQueryBuilder()
+            ->select('d.id')
+            ->from(IntegrationData::class, 'd')
+            ->andWhere('d.name = :name')
+            ->andWhere('d.value = :id')
+            ->setParameter('name', FileVoter::INTEGRATION_OUTPUT_DATA_NAME)
+            ->setParameter('id', $fileId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+        if (null !== $integrationOutput) {
+            return true;
+        }
+
+        $cnx = $this->em->getConnection();
+        $metadata = $this->em->getClassMetadata(Message::class);
+
+        return false !== $cnx->createQueryBuilder()
+            ->select('1')
+            ->from($cnx->quoteIdentifier($metadata->getTableName()))
+            ->andWhere(sprintf('CAST(%s AS TEXT) LIKE :pattern', $cnx->quoteIdentifier($metadata->getColumnName('attachments'))))
+            ->setParameter('pattern', '%'.$fileId.'%')
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
     }
 
     private function getColumns(): array
