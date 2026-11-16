@@ -8,10 +8,13 @@ use App\Documentation\ConfigurationReferenceDumper;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Config\ConfigSchemaCustomizerInterface;
 use App\Integration\Config\ConfigSchemaDumper;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\Env\EnvResolver;
 use App\Security\Voter\WorkspaceIntegrationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Config\Definition\ArrayNode;
+use Symfony\Component\Config\Definition\BaseNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\NodeInterface;
@@ -99,6 +102,7 @@ readonly class IntegrationManager
             $integration
         );
 
+        $config->validateUrls();
         $integration->validateConfiguration($config);
     }
 
@@ -155,6 +159,26 @@ readonly class IntegrationManager
             $workspaceIntegration,
             $integration,
             $this->envResolver,
+            self::getUrlDefaults($node),
         );
+    }
+
+    /**
+     * @return array<string, string|null> the default value of each first-level URL key (ConfigWidget::ATTR_URL)
+     */
+    private static function getUrlDefaults(NodeInterface $root): array
+    {
+        if (!$root instanceof ArrayNode) {
+            return [];
+        }
+
+        $defaults = [];
+        foreach ($root->getChildren() as $name => $child) {
+            if ($child instanceof BaseNode && $child->getAttribute(ConfigWidget::ATTR_URL)) {
+                $defaults[$name] = $child->hasDefaultValue() ? $child->getDefaultValue() : null;
+            }
+        }
+
+        return $defaults;
     }
 }

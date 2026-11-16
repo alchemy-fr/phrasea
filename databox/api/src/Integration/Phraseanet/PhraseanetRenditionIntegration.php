@@ -41,6 +41,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
                 ->defaultValue('${PHRASEANET_URL}')
                 ->cannotBeEmpty()
                 ->info('The Phraseanet base URL')
+                ->attribute(ConfigWidget::ATTR_URL, true)
             ->end()
             ->arrayNode('renditions')
                 ->isRequired()

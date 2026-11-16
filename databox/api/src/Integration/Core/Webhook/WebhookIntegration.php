@@ -6,6 +6,7 @@ namespace App\Integration\Core\Webhook;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -30,6 +31,7 @@ class WebhookIntegration extends AbstractIntegration implements WorkflowIntegrat
             ->scalarNode('url')
                 ->isRequired()
                 ->cannotBeEmpty()
+                ->attribute(ConfigWidget::ATTR_URL, true)
             ->end()
             ->arrayNode('options')
             ->end()

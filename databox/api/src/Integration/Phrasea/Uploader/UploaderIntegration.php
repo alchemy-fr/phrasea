@@ -30,6 +30,7 @@ class UploaderIntegration extends AbstractIntegration
                 ->defaultValue('${UPLOADER_API_URL}')
                 ->cannotBeEmpty()
                 ->info('The Uploader API base URL')
+                ->attribute(ConfigWidget::ATTR_URL, true)
             ->end()
             ->scalarNode('collectionId')
                 ->info('The collection target')
