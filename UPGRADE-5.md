@@ -888,8 +888,8 @@ Workflows and files:
   `POST /assets`, `targetRendition` of an upload) must belong to the workspace
   of the asset; `POST /renditions` with a definition of another workspace
   answers 400 (it used to answer 422), as for an unknown one.
-- The `ownerId` of `POST /assets` can only name another user for an admin or a
-  token without user (OAuth client): otherwise 403.
+- The `ownerId` of `POST /assets` and `POST /collections` can only name another
+  user for an admin or a token without user (OAuth client): otherwise 403.
 
 Other reads:
 
