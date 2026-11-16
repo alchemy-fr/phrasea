@@ -15,6 +15,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -80,8 +81,11 @@ readonly class AcceptFileAction implements ActionInterface
             $asset = new Asset();
             $asset->setOwnerId($userId);
             $asset->setWorkspace($workspace);
+            $asset->setReferenceCollection($collection);
+            if (!$this->userContextSwitcher->runAs($userId, fn (): bool => $this->security->isGranted(AbstractVoter::CREATE, $asset))) {
+                throw new \InvalidArgumentException(sprintf('User "%s" cannot create an asset in %s', $userId, null !== $collection ? sprintf('the collection "%s"', $collection->getId()) : sprintf('the workspace "%s"', $workspace->getId())));
+            }
             if (null !== $collection) {
-                $asset->setReferenceCollection($collection);
                 $asset->addToCollection($collection);
             }
         }
