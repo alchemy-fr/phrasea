@@ -19,6 +19,11 @@ class UploaderClientMock extends UploaderClient
      */
     public string $userId = KeycloakClientTestMock::ADMIN_UID;
 
+    /**
+     * Merged into the uploaded asset, as returned by the Uploader.
+     */
+    public array $assetData = [];
+
     #[\Override]
     public function getCommit(string $baseUrl, string $id, string $token): array
     {
@@ -34,7 +39,7 @@ class UploaderClientMock extends UploaderClient
     #[\Override]
     public function getAsset(string $baseUrl, string $id, string $token): array
     {
-        return [
+        return array_merge([
             'originalName' => 'test_file.png',
             'mimeType' => 'image/png',
             'size' => 42,
@@ -43,7 +48,8 @@ class UploaderClientMock extends UploaderClient
             ],
             'formData' => [
             ],
-        ];
+            'fromUploadLink' => false,
+        ], $this->assetData);
     }
 
     #[\Override]

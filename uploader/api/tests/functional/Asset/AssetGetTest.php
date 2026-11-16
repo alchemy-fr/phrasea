@@ -24,6 +24,7 @@ class AssetGetTest extends AbstractAssetTestCase
         $this->assertArrayNotHasKey('token', $contents);
         $this->assertArrayNotHasKey('path', $contents);
         $this->assertArrayHasKey('createdAt', $contents);
+        $this->assertFalse($contents['fromUploadLink']);
     }
 
     public function testAssetGetWithoutToken(): void

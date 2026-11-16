@@ -355,4 +355,13 @@ class Asset extends AbstractUuidEntity
     {
         $this->uploadLink = $uploadLink;
     }
+
+    /**
+     * Whether the file was sent through an upload link, on behalf of the creator of the link.
+     */
+    #[Groups(self::GROUP_READ)]
+    public function isFromUploadLink(): bool
+    {
+        return null !== $this->uploadLink || null !== $this->commit?->getUploadLink();
+    }
 }

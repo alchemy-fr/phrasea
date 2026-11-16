@@ -120,7 +120,7 @@ abstract class AbstractUploadLinkTestCase extends AbstractUploaderTestCase
     }
 
     /**
-     * @param array<string, string> $parameters
+     * @param array<string, mixed> $parameters
      */
     protected function uploadFile(string $token, array $parameters = []): ResponseInterface
     {

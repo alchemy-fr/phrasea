@@ -50,6 +50,8 @@ What is sent through a link belongs to its creator: the files and the commit get
 
 The entity and tag fields of a form read their values from Databox with the token of a user: they cannot be filled through a link.
 
+The `data` of a file sent through a link is ignored: it cannot aim at an existing asset of the creator (`targetAsset`/`targetRendition`, which replace a rendition in Databox). Other uploads keep only these two keys. The asset read by Databox carries `fromUploadLink`, and Databox refuses a substitution coming from a link.
+
 ## Reusing the previous information
 
 The link remembers the data entered in the form of its last commit (`lastFormData`: what was entered, before the target data is merged and without the `__*` keys). On the form step of the next upload, "Reuse my previous information" fills the form with it; the fields removed from the form since are left out.

@@ -12,14 +12,19 @@ use ApiPlatform\Test\Client;
 use App\Border\UploaderClient;
 use App\Border\UploaderClientMock;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Blurhash\BlurhashIntegration;
 use App\Integration\Phrasea\Uploader\UploaderIntegration;
+use App\Model\AssetTypeEnum;
 use App\Repository\Core\AssetRepository;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Tests\Functional\FileUploadTrait;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -81,6 +86,63 @@ class UploaderIntegrationTest extends ApiTestCase
         $this->getService(EntityManagerInterface::class)->clear();
         $this->assertSame($assetCount, $assetRepo->count([]));
         $this->assertCount(0, $uploadClient->getAcknowledgedAssets());
+    }
+
+    #[DataProvider('provideRenditionSubstitution')]
+    public function testRenditionSubstitution(bool $fromUploadLink, bool $substituted): void
+    {
+        self::enableFixtures();
+        $apiClient = static::createClient();
+        $integration = $this->createIntegration();
+        $em = $this->getService(EntityManagerInterface::class);
+        $workspace = $integration->getWorkspace();
+
+        $policy = new RenditionPolicy();
+        $policy->setWorkspace($workspace);
+        $policy->setName('Substitution');
+        $policy->setPublic(true);
+        $policy->setEditable(true);
+        $em->persist($policy);
+        $definition = new RenditionDefinition();
+        $definition->setWorkspace($workspace);
+        $definition->setPolicy($policy);
+        $definition->setName('substitutable');
+        $definition->setTarget(AssetTypeEnum::Both);
+        $definition->setBuildMode(RenditionDefinition::BUILD_MODE_PICK_SOURCE);
+        $definition->setSubstitutable(true);
+        $em->persist($definition);
+        $target = new Asset();
+        $target->setWorkspace($workspace);
+        $target->setOwnerId(KeycloakClientTestMock::ADMIN_UID);
+        $em->persist($target);
+        $em->flush();
+        $assetCount = $this->getService(AssetRepository::class)->count([]);
+
+        /** @var UploaderClientMock $uploadClient */
+        $uploadClient = $this->getService(UploaderClient::class);
+        $uploadClient->assetData = [
+            'data' => [
+                'targetAsset' => $target->getId(),
+                'targetRendition' => $definition->getId(),
+            ],
+            'fromUploadLink' => $fromUploadLink,
+        ];
+
+        $this->postCommit($apiClient, $integration, self::SECURITY_KEY);
+
+        $em->clear();
+        $this->assertSame($assetCount, $this->getService(AssetRepository::class)->count([]), 'No asset is created');
+        $this->assertCount($substituted ? 1 : 0, $uploadClient->getAcknowledgedAssets());
+        $this->assertCount($substituted ? 1 : 0, $em->getRepository(AssetRendition::class)->findBy([
+            'asset' => $target->getId(),
+            'definition' => $definition->getId(),
+        ]));
+    }
+
+    public static function provideRenditionSubstitution(): iterable
+    {
+        yield 'by the uploading user' => [false, true];
+        yield 'through an upload link' => [true, false];
     }
 
     public function testDisabledIntegrationIsNotFound(): void
