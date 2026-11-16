@@ -610,7 +610,13 @@ final class CollectionListTest extends AbstractSearchTestCase
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER, self::OTHER]]);
         foreach ($this->createNamedCollections($workspace) as $i => $collection) {
-            $this->createCollectionAccess($collection, 0 === $i % 2 ? self::USER : self::GROUP, Privacy::SECRET);
+            if (0 === $i % 2) {
+                $this->grantUserOnObject(self::USER, $collection, PermissionInterface::VIEW);
+                $this->createCollectionAccess($collection, self::USER, Privacy::SECRET);
+            } else {
+                $this->grantGroupOnObject(self::GROUP, $collection, PermissionInterface::VIEW);
+                $this->createCollectionAccess($collection, self::GROUP, Privacy::SECRET);
+            }
         }
         [$sharedWithUser, $sharedWithGroup] = self::splitSharedNames();
 
@@ -637,6 +643,7 @@ final class CollectionListTest extends AbstractSearchTestCase
         $kept = $this->createCollection(['workspace' => $workspace, 'name' => 'Kept', 'ownerId' => self::USER]);
         $trashed = $this->createCollection(['workspace' => $workspace, 'name' => 'Trashed', 'ownerId' => self::USER]);
         $shared = $this->createCollection(['workspace' => $workspace, 'name' => 'Shared trashed']);
+        $this->grantUserOnObject(self::USER, $shared, PermissionInterface::VIEW);
         foreach ([$kept, $trashed, $shared] as $collection) {
             $this->createCollectionAccess($collection, self::USER, Privacy::SECRET);
         }

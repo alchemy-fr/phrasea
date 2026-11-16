@@ -40,25 +40,34 @@ Follow these steps in order. Each one is detailed in the sections below.
     bin/migrate.sh
     ```
 
-6. Rebuild every Elasticsearch index, in `databox-api-php`:
+6. Recompute the collection access table, in `databox-api-php` (the migrations
+   purge its stale "everyone" rows: until then, the collections shared with
+   everyone are missing from the root collection tree of the users who do not
+   reach them otherwise):
+
+    ```bash
+    bin/console app:collection:recompute-access
+    ```
+
+7. Rebuild every Elasticsearch index, in `databox-api-php`:
 
     ```bash
     bin/console fos:elastica:populate
     ```
 
-7. Deploy the new `databox-scheduler` and `uploader-scheduler` services, with a
+8. Deploy the new `databox-scheduler` and `uploader-scheduler` services, with a
    single replica each, and remove the host crons (see
    [Scheduler containers replace the cron jobs](#scheduler-containers-replace-the-cron-jobs)).
    Remove the Zippy containers, volume and settings (see
    [Zippy service removed](#zippy-service-removed)).
-8. Optionally, if the integration is enabled and its service deployed:
+9. Optionally, if the integration is enabled and its service deployed:
 
     ```bash
     bin/console app:similarity:index
     bin/console app:face-recognition:index
     ```
 
-9. Audit what this release may break: Twig templates in attribute definitions
+10. Audit what this release may break: Twig templates in attribute definitions
    and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
    replaced by `PATCH`), shared rendition links, the Databox theme, and the
    image formats ImageMagick still reads (SVG and EPS get no thumbnail any
@@ -591,6 +600,11 @@ bin/migrate.sh
 Note that `bin/migrate.sh` starts the whole stack (`docker compose up -d`)
 before migrating: searches will return incomplete results until the indexes
 are rebuilt.
+
+Then run `bin/console app:collection:recompute-access` in `databox-api-php`: a
+migration deletes every "everyone" row (NULL user) of `collection_access`, which
+the former recomputation never purged, and only the recomputation brings back
+the valid ones.
 
 The three Day-0 baselines (databox, expose, uploader) detect the existing schema
 and register themselves without running any SQL. Expect the warning
