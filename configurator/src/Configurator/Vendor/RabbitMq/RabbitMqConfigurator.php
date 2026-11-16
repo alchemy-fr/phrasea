@@ -35,8 +35,8 @@ final readonly class RabbitMqConfigurator implements ConfiguratorInterface
     public function synchronize(OutputInterface $output): void
     {
         $this->rabbitMqManager->awaitService($output);
-        $rabbitConsoleUrl = EnvHelper::getEnvOrThrow('RABBITMQ_CONSOLE_URL');
-        $this->serviceWaiter->waitForService($output, $rabbitConsoleUrl);
+        $managementUrl = EnvHelper::getEnv('RABBITMQ_MANAGEMENT_URL') ?: EnvHelper::getEnvOrThrow('RABBITMQ_CONSOLE_URL');
+        $this->serviceWaiter->waitForService($output, $managementUrl);
 
         foreach ($this->symfonyApplications as $symfonyApplication) {
             $vhost = EnvHelper::getEnvOrThrow(sprintf('%s_RABBITMQ_VHOST', strtoupper($symfonyApplication)));

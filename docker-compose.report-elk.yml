@@ -69,7 +69,7 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.report-kibana.rule=Host(`report-kibana.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.report-kibana.loadbalancer.server.port=5601"
-      - "traefik.http.routers.report-kibana.middlewares=admin-secured@docker"
+      - "traefik.http.routers.report-kibana.middlewares=admin-console@docker"
 
 volumes:
   report_elasticsearch:
