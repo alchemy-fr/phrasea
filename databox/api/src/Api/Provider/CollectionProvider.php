@@ -44,7 +44,7 @@ class CollectionProvider extends AbstractCollectionProvider
             && !$this->isAdmin()
         ) {
             if ($context['userId']) {
-                $allowedWorkspaces = $this->workspaceRepository->getAllowedWorkspaceIds($context['userId'], $context['groupIds'], $this->isAdmin());
+                $allowedWorkspaces = $this->workspaceRepository->getReadableWorkspaceIds($context['userId'], $context['groupIds'], $this->isAdmin());
             } else {
                 $allowedWorkspaces = $this->workspaceRepository->getPublicWorkspaceIds();
             }

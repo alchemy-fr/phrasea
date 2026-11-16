@@ -36,7 +36,7 @@ trait WorkspaceCollectionTrait
 
         if (empty($workspaceIds)) {
             $user = $this->getUser();
-            $workspaces = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($user?->getId(), $user?->getGroups() ?? [], $this->isAdmin());
+            $workspaces = $this->em->getRepository(Workspace::class)->getReadableWorkspaceIds($user?->getId(), $user?->getGroups() ?? [], $this->isAdmin());
         } else {
             $workspaces = [];
             foreach ($workspaceIds as $workspaceId) {
