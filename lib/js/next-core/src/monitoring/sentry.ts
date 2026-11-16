@@ -9,8 +9,16 @@
  * Every function is a no-op on the server and until `initSentry()` has been
  * called, which only happens when the stack configures Sentry: callers never
  * need to check whether monitoring is enabled.
+ *
+ * The URLs of the events and of the breadcrumbs go through the `redactUrl`
+ * of the client: some of them carry an access token.
  */
 import * as Sentry from '@sentry/react';
+import type {Breadcrumb, ErrorEvent} from '@sentry/react';
+import {
+    redactUrl as defaultRedactUrl,
+    type UrlRedactor,
+} from '../privacy/redactUrl';
 import {SENTRY_TUNNEL_PATH} from './tunnelPath';
 import {SENTRY_TUNNEL_DSN} from './tunnelDsn';
 import type {SentryClientConfig} from './config';
@@ -26,9 +34,82 @@ export type SentryUserInfo = {
 
 let initialized = false;
 
+const BREADCRUMB_URL_KEYS = ['url', 'from', 'to'];
+
+/** The event with the URLs it carries masked, without credentials */
+export function redactEvent(
+    event: ErrorEvent,
+    redactUrl: UrlRedactor
+): ErrorEvent {
+    const {request} = event;
+    if (request?.url) {
+        request.url = redactUrl(request.url);
+    }
+    if (request?.headers) {
+        for (const name of Object.keys(request.headers)) {
+            if (/^(authorization|cookie)$/i.test(name)) {
+                delete request.headers[name];
+            } else if (/^referer$/i.test(name)) {
+                request.headers[name] = redactUrl(request.headers[name]);
+            }
+        }
+    }
+    if (event.transaction) {
+        event.transaction = redactUrl(event.transaction);
+    }
+    // The frames of an inline script have the URL of the page
+    event.exception?.values?.forEach(({stacktrace}) => {
+        stacktrace?.frames?.forEach(frame => {
+            if (frame.filename) {
+                frame.filename = redactUrl(frame.filename);
+            }
+            if (frame.abs_path) {
+                frame.abs_path = redactUrl(frame.abs_path);
+            }
+        });
+    });
+    event.breadcrumbs = event.breadcrumbs?.map(b =>
+        redactBreadcrumb(b, redactUrl)
+    );
+
+    return event;
+}
+
+/** The breadcrumb with its URLs (navigation, fetch, xhr) masked */
+export function redactBreadcrumb(
+    breadcrumb: Breadcrumb,
+    redactUrl: UrlRedactor
+): Breadcrumb {
+    const {data} = breadcrumb;
+    if (!data) {
+        return breadcrumb;
+    }
+
+    return {
+        ...breadcrumb,
+        data: Object.fromEntries(
+            Object.entries(data).map(([key, value]) => [
+                key,
+                BREADCRUMB_URL_KEYS.includes(key) && typeof value === 'string'
+                    ? redactUrl(value)
+                    : value,
+            ])
+        ),
+    };
+}
+
 export function initSentry(
     config: SentryClientConfig,
-    {appId, appName}: {appId: string; appName: string}
+    {
+        appId,
+        appName,
+        redactUrl = defaultRedactUrl,
+    }: {
+        appId: string;
+        appName: string;
+        /** Masks the secrets of the URLs, `redactUrl` by default */
+        redactUrl?: UrlRedactor;
+    }
 ): void {
     if (initialized || typeof window === 'undefined') {
         return;
@@ -51,6 +132,8 @@ export function initSentry(
         // ("Failed to fetch (host)"), which `ignoreErrors` would no longer
         // match, and rewrites the message seen by the application
         enhanceFetchErrorMessages: false,
+        beforeSend: event => redactEvent(event, redactUrl),
+        beforeBreadcrumb: breadcrumb => redactBreadcrumb(breadcrumb, redactUrl),
         ignoreErrors: [
             /Loading (CSS )?chunk \d+ failed/i,
             /^Network Error$/i,

@@ -2,6 +2,7 @@
 
 import {useState} from 'react';
 import {initSentry, type SentryClientConfig} from './sentry';
+import type {UrlRedactor} from '../privacy/redactUrl';
 
 /**
  * Starts reporting the browser errors to Sentry when the stack configures it
@@ -15,14 +16,17 @@ export function SentryInit({
     sentry,
     appId,
     appName,
+    redactUrl,
 }: {
     sentry: SentryClientConfig | undefined;
     appId: string;
     appName: string;
+    /** Masks the secrets of the URLs, `redactUrl` by default */
+    redactUrl?: UrlRedactor;
 }) {
     useState(() => {
         if (sentry) {
-            initSentry(sentry, {appId, appName});
+            initSentry(sentry, {appId, appName, redactUrl});
         }
 
         return true;

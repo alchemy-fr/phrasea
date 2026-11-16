@@ -19,6 +19,7 @@ import {Toaster} from '@alchemy/next-ui/ui/toaster';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
 import {SentryInit} from '@alchemy/next-core/monitoring/SentryInit';
 import {SentryUser} from '@/lib/monitoring/SentryUser';
+import {redactUrl} from '@/lib/privacy/redactUrl';
 
 function createQueryClient(): QueryClient {
     return new QueryClient({
@@ -52,6 +53,7 @@ export function Providers({config, language, children}: Props) {
                 sentry={config.sentry}
                 appId={config.appId}
                 appName={config.appName}
+                redactUrl={redactUrl}
             />
             <I18nProvider language={language}>
                 <ThemeProvider
