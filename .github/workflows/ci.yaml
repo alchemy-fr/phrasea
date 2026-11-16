@@ -63,6 +63,17 @@ env:
   KEYCLOAK_POSTGRES_PASSWORD: keycloak-ci
   REPORT_POSTGRES_USER: report
   REPORT_POSTGRES_PASSWORD: report-ci
+  # One MinIO user per consumer, restricted to its bucket (optional in production): the CI exercises it
+  DATABOX_S3_ACCESS_KEY: databox
+  DATABOX_S3_SECRET_KEY: databox-ci
+  EXPOSE_S3_ACCESS_KEY: expose
+  EXPOSE_S3_SECRET_KEY: expose-ci
+  UPLOADER_S3_ACCESS_KEY: uploader
+  UPLOADER_S3_SECRET_KEY: uploader-ci
+  CONFIG_READER_S3_ACCESS_KEY: config-reader
+  CONFIG_READER_S3_SECRET_KEY: config-reader-ci
+  INDEXER_S3_ACCESS_KEY: indexer
+  INDEXER_S3_SECRET_KEY: indexer-ci
   CYPRESS_CPU_LIMIT: '4'
   CYPRESS_MEMORY_LIMIT: '16G'
 

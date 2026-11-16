@@ -50,6 +50,17 @@ export KEYCLOAK_POSTGRES_USER=keycloak
 export KEYCLOAK_POSTGRES_PASSWORD=keycloak-ci
 export REPORT_POSTGRES_USER=report
 export REPORT_POSTGRES_PASSWORD=report-ci
+# One MinIO user per consumer, restricted to its bucket (optional in production): the CI exercises it
+export DATABOX_S3_ACCESS_KEY=databox
+export DATABOX_S3_SECRET_KEY=databox-ci
+export EXPOSE_S3_ACCESS_KEY=expose
+export EXPOSE_S3_SECRET_KEY=expose-ci
+export UPLOADER_S3_ACCESS_KEY=uploader
+export UPLOADER_S3_SECRET_KEY=uploader-ci
+export CONFIG_READER_S3_ACCESS_KEY=config-reader
+export CONFIG_READER_S3_SECRET_KEY=config-reader-ci
+export INDEXER_S3_ACCESS_KEY=indexer
+export INDEXER_S3_SECRET_KEY=indexer-ci
 
 if [[ "${CLEAN}" == "1" ]]; then
   docker compose kill

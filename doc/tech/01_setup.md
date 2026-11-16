@@ -246,6 +246,58 @@ A role cannot be the superuser itself, nor another superuser: the configurator r
 managed PostgreSQL or Kubernetes, where the roles are handled by the infrastructure, leave the
 variables empty.
 
+### MinIO users
+
+By default every consumer of the bundled MinIO (profile `minio`) signs its requests with the root
+user `S3_ACCESS_KEY`/`S3_SECRET_KEY`: whoever steals the environment of one container, a Next.js
+client included, can read, overwrite and delete every bucket, and administer MinIO. Give each
+consumer a user of its own in `.env.local`, both variables of each pair (the secret key takes at
+least 8 characters):
+
+```dotenv
+# The API, its workers and scheduler
+DATABOX_S3_ACCESS_KEY=databox
+DATABOX_S3_SECRET_KEY=…
+EXPOSE_S3_ACCESS_KEY=expose
+EXPOSE_S3_SECRET_KEY=…
+UPLOADER_S3_ACCESS_KEY=uploader
+UPLOADER_S3_SECRET_KEY=…
+# The Next.js clients (CONFIGURATOR_S3_ACCESS_KEY/_SECRET_KEY)
+CONFIG_READER_S3_ACCESS_KEY=config-reader
+CONFIG_READER_S3_SECRET_KEY=…
+# databox-indexer
+INDEXER_S3_ACCESS_KEY=indexer
+INDEXER_S3_SECRET_KEY=…
+```
+
+A consumer whose pair is empty keeps the root user. For each defined pair, the `minio-setup` service
+(profile `setup`, script `infra/docker/minio-setup/setup.sh`) logs in to MinIO as the root user with
+`mc` and creates or replaces the policy `phrasea-<consumer>`, creates the user or resets its secret
+key, and leaves it attached to that policy only:
+
+| Pair             | Policy                                                                                                                                                      |
+|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `DATABOX_S3_*`, `EXPOSE_S3_*`, `UPLOADER_S3_*` | its bucket (`*_S3_BUCKET_NAME`): list it, read, write and delete objects, multipart uploads (presigned URLs are signed with these keys); `config.json` of the configurator bucket: read and write (the admin of each API pushes the global configuration) |
+| `CONFIG_READER_S3_*` | the configurator bucket (`CONFIGURATOR_S3_BUCKET_NAME`, under `S3_PATH_PREFIX`): read                                                                    |
+| `INDEXER_S3_*`   | `INDEXER_BUCKET_NAME`: list and read                                                                                                                        |
+
+None of them can change the configuration of a bucket (policy, notifications, versioning), create
+or delete one, or administer MinIO: the root user remains for the configurator (buckets, public
+policy of the configurator bucket, AMQP notifications of the indexer bucket), `minio-setup`, the
+MinIO console and `dev`. `bin/setup.sh` runs `minio-setup` after the configurator, `bin/migrate.sh`
+and `bin/test.sh standard` at every run, all three only with the `minio` profile; by hand:
+
+```bash
+dc run --rm minio-setup
+dc up -d        # the containers take their new keys
+```
+
+It is idempotent: run it again after changing a secret key. A pair emptied afterwards switches the
+consumer back to the root user without removing its MinIO user (`mc admin user remove`). An access
+key cannot be the root user, nor be shared by two consumers: `minio-setup` refuses both. The image
+running `mc` is `MINIO_MC_IMAGE`, the MinIO image by default (it ships `mc`). With another S3
+storage (AWS…), whose users or IAM roles are managed outside the stack, leave the pairs empty.
+
 ### Administration consoles
 
 Traefik exposes the technical consoles behind two middlewares, defined on the `traefik` service:

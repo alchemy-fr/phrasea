@@ -88,6 +88,8 @@ setup_elasticsearch_users || fail
 setup_container configurator "bin/setup.sh $@"
 wait_all || fail
 
+setup_minio_users || fail
+
 setup_container uploader-api-php "bin/setup.sh"
 setup_container expose-api-php "bin/setup.sh"
 setup_container databox-api-php "bin/setup.sh"

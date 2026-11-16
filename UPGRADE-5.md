@@ -515,6 +515,34 @@ creating objects in an application database as the superuser: it is
 idempotent, and `bin/setup.sh` runs it as well. Emptying a pair switches the
 application back to the superuser, which keeps access to every database.
 
+### MinIO user per consumer (optional)
+
+The APIs (with their workers and schedulers), the Next.js clients and
+databox-indexer can now sign their requests to the bundled MinIO with a user of
+their own, restricted to their bucket, instead of the root user `S3_ACCESS_KEY`
+(see [MinIO users](doc/tech/01_setup.md#minio-users)). Nothing changes while
+the new `*_S3_ACCESS_KEY`/`*_S3_SECRET_KEY` variables are empty. To switch an
+existing install:
+
+1. set the pairs in `.env.local` (`DATABOX_`, `EXPOSE_`, `UPLOADER_`,
+   `CONFIG_READER_` for the clients, `INDEXER_`);
+2. create the users and their policies with the new `minio-setup` service
+   (profile `setup`, image `MINIO_MC_IMAGE`):
+
+    ```bash
+    dc run --rm minio-setup
+    ```
+
+3. recreate the services, so that they use their keys:
+
+    ```bash
+    dc up -d
+    ```
+
+`bin/setup.sh`, `bin/migrate.sh` and `bin/test.sh standard` run step 2 as well
+(idempotent: run it again after changing a secret key). The configurator and
+`dev` keep the root user.
+
 ### Helm
 
 This repository no longer has any Helm chart: the unmaintained

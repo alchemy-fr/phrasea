@@ -14,6 +14,7 @@ docker compose up -d
 # Wait for services to be ready
 docker compose run --rm dockerize
 setup_elasticsearch_users
+setup_minio_users
 
 APPS="
 expose-api-php

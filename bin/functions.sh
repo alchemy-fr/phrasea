@@ -125,6 +125,16 @@ function setup_elasticsearch_users {
   fi
 }
 
+# Create or update the MinIO user of each consumer whose *_S3_ACCESS_KEY pair is
+# set (minio-setup, profile `setup`). Nothing to do without the `minio` profile
+# (external S3, whose keys are managed there).
+# Usage: setup_minio_users
+function setup_minio_users {
+  if docker compose config --services | grep -qx minio; then
+    docker compose run --rm -T minio-setup
+  fi
+}
+
 # execute a shell command in a container defined in docker-compose.yml
 function exec_container() {
   docker compose exec -T "$1" sh -c "$2"
