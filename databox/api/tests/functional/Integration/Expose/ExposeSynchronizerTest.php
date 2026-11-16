@@ -128,7 +128,9 @@ final class ExposeSynchronizerTest extends AbstractDataboxTestCase
             $this->assertTrue($exposeAsset['uploaded']);
             $annotations = json_decode((string) $exposeAsset['clientAnnotations'], true);
             $this->assertSame(['basketAssetId', 'fileId'], array_keys($annotations));
-            $this->assertSame(['preview', 'thumbnail'], array_keys($this->api->getSubDefinitions($exposeAsset['id'])));
+            $subDefinitions = $this->api->getSubDefinitions($exposeAsset['id']);
+            $this->assertSame(['preview', 'thumbnail'], array_keys($subDefinitions));
+            $this->assertSame([true, true], array_column($subDefinitions, 'uploaded'), 'Sent as multipart uploads, checked by Expose');
         }
     }
 
@@ -186,7 +188,8 @@ final class ExposeSynchronizerTest extends AbstractDataboxTestCase
 
         $this->synchronize($data);
 
-        $this->assertSame([['filename' => 'file.pdf', 'type' => 'application/pdf']], $this->api->uploads);
+        // The source first, then its renditions
+        $this->assertSame(['filename' => 'file.pdf', 'type' => 'application/pdf'], $this->api->uploads[0]);
         $this->assertCount(1, $this->api->getPublicationAssets($this->publicationId));
         $this->assertSame([], $this->readPublicationData($data)['skipped']);
     }
@@ -198,7 +201,7 @@ final class ExposeSynchronizerTest extends AbstractDataboxTestCase
 
         $this->synchronize($data);
 
-        $this->assertSame(['press-release.pdf'], array_column($this->api->uploads, 'filename'));
+        $this->assertSame('press-release.pdf', $this->api->uploads[0]['filename']);
         $this->assertCount(1, $this->api->getPublicationAssets($this->publicationId));
     }
 

@@ -473,7 +473,7 @@ final class AssetCreateTest extends AbstractDataboxTestCase
     {
         $workspace = $this->createOwnedWorkspace();
         $this->addUserOnWorkspace(self::OTHER, $workspace->getId());
-        $upload = $this->createUpload('content', 'photo.jpg', 'image/jpeg', self::OTHER);
+        $upload = $this->createUpload("\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb\x00C\x00", 'photo.jpg', 'image/jpeg', self::OTHER);
         $asset = [
             'workspace' => '/workspaces/'.$workspace->getId(),
             'multipart' => self::multipartPayload($upload),

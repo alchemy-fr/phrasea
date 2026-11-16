@@ -17,6 +17,7 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Doctrine\DBAL\Types\Types;
 use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -36,6 +37,9 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
 {
     private const string S3_UPLOAD_ID = 'mock-s3-upload-id';
 
+    private const string MP4 = "\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00mp42isom\x00\x00\x00\x08free";
+    private const string PNG = "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xf8\xcf\xc0\xf0\x1f\x00\x05\x00\x01\xff\x89\x99=\x1d\x00\x00\x00\x00IEND\xaeB`\x82";
+
     private Client $client;
 
     /**
@@ -47,6 +51,11 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
      * ContentLength answered to HeadObject, i.e. the size of the completed object.
      */
     private int $s3ObjectSize = 0;
+
+    /**
+     * Body answered to GetObject, i.e. the head of the completed object.
+     */
+    private string $s3ObjectContent = self::MP4;
 
     /**
      * S3 refuses CompleteMultipartUpload (e.g. a wrong part ETag).
@@ -84,6 +93,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
             return Create::promiseFor(new Result(match ($command->getName()) {
                 'CreateMultipartUpload' => ['UploadId' => self::S3_UPLOAD_ID],
                 'HeadObject' => ['ContentLength' => $this->s3ObjectSize],
+                'GetObject' => ['Body' => Utils::streamFor($this->s3ObjectContent)],
                 'ListMultipartUploads' => ['Uploads' => $this->s3Uploads],
                 default => [],
             }));
@@ -120,18 +130,18 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
     /**
      * Inserts an upload row directly, e.g. one already completed.
      */
-    private function persistUpload(bool $complete = false, ?int $chunkSize = 5_242_880, int $size = 12_000_000, ?string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
+    private function persistUpload(bool $complete = false, ?int $chunkSize = 5_242_880, int $size = 12_000_000, ?string $ownerId = KeycloakClientTestMock::USER_UID, string $filename = 'video.mp4', string $type = 'video/mp4'): MultipartUpload
     {
         $em = self::getEntityManager();
         $upload = new MultipartUpload();
         $upload->setOwnerId($ownerId);
-        $upload->setFilename('video.mp4');
-        $upload->setType('video/mp4');
+        $upload->setFilename($filename);
+        $upload->setType($type);
         $upload->setSize($size);
         if (null !== $chunkSize) {
             $upload->setChunkSize($chunkSize);
         }
-        $upload->setPath('tests/'.uniqid().'.mp4');
+        $upload->setPath('tests/'.uniqid().'.'.pathinfo($filename, PATHINFO_EXTENSION));
         $upload->setUploadId('existing-s3-upload');
         $upload->setComplete($complete);
         $em->persist($upload);
@@ -170,10 +180,10 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
             $this->assertStringContainsString('X-Amz-Signature=', $url);
         }
 
-        // One S3 multipart upload was started, with the file type and extension
+        // One S3 multipart upload was started, with the file extension but not the declared type, unchecked
         $this->assertSame(['CreateMultipartUpload'], $this->getS3CommandNames());
         $args = $this->s3Commands[0]['args'];
-        $this->assertSame('image/jpeg', $args['ContentType']);
+        $this->assertSame('application/octet-stream', $args['ContentType']);
         $this->assertStringEndsWith('.jpg', $args['Key']);
 
         // Internal S3 data is persisted but never exposed
@@ -594,9 +604,48 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
 
         $this->complete($upload);
 
-        $this->assertSame(['CompleteMultipartUpload', 'HeadObject'], $this->getS3CommandNames());
+        $this->assertSame(['CompleteMultipartUpload', 'HeadObject', 'GetObject'], $this->getS3CommandNames());
         $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[1]['args']['Key']);
-        $this->assertTrue($this->findUpload($upload->getId())->isComplete());
+        $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[2]['args']['Key']);
+        $this->assertSame('bytes=0-65535', $this->s3Commands[2]['args']['Range']);
+        $completed = $this->findUpload($upload->getId());
+        $this->assertTrue($completed->isComplete());
+        $this->assertSame('video/mp4', $completed->getType());
+    }
+
+    public function testTheTypeOfTheContentReplacesTheDeclaredOne(): void
+    {
+        $upload = $this->persistUpload(size: strlen(self::PNG), filename: 'photo.png', type: 'image/jpeg');
+        $this->s3ObjectSize = strlen(self::PNG);
+        $this->s3ObjectContent = self::PNG;
+
+        $this->assertSame('image/png', $this->complete($upload)->getType());
+        $this->assertSame('image/png', $this->findUpload($upload->getId())->getType());
+    }
+
+    public static function getRefusedContents(): iterable
+    {
+        yield 'html declared as an image' => ['photo.jpg', 'image/jpeg', '<!DOCTYPE html><html><body><script>alert(1)</script></body></html>', 'content is "text/html"'];
+        yield 'hls playlist declared as a video' => ['video.mp4', 'video/mp4', "#EXTM3U\n#EXTINF:10,\nfile:///etc/passwd\n", 'HLS playlist'];
+    }
+
+    #[DataProvider('getRefusedContents')]
+    public function testARefusedContentIsDeleted(string $filename, string $type, string $content, string $expectedMessage): void
+    {
+        $upload = $this->persistUpload(size: strlen($content), filename: $filename, type: $type);
+        $this->s3ObjectSize = strlen($content);
+        $this->s3ObjectContent = $content;
+
+        try {
+            $this->complete($upload);
+            $this->fail('The upload must be refused');
+        } catch (BadRequestHttpException $e) {
+            $this->assertStringContainsString($expectedMessage, $e->getMessage());
+        }
+
+        $this->assertSame(['CompleteMultipartUpload', 'HeadObject', 'GetObject', 'DeleteObject'], $this->getS3CommandNames());
+        $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[3]['args']['Key']);
+        $this->assertNull($this->findUpload($upload->getId()));
     }
 
     public static function getForeignOwners(): iterable

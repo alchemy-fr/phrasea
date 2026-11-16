@@ -431,7 +431,7 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
 
     public function testMultipartUploadThroughALink(): void
     {
-        $content = 'Hello, multipart!';
+        $content = self::JPEG;
         $link = $this->createLink($this->createTarget(), options: ['maxTotalSize' => strlen($content)]);
 
         $response = $this->linkRequest($link->getToken(), 'POST', '/uploads', [
@@ -470,11 +470,11 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
 
     public function testAMultipartUploadStartedWithinTheQuotaIsRefusedOnCompletionOnceOver(): void
     {
-        $content = 'Hello, multipart!';
+        $content = self::JPEG;
         $link = $this->createLink($this->createTarget(), options: ['maxTotalSize' => strlen($content)]);
 
         $uploads = [];
-        foreach ([$content, 'x'] as $body) {
+        foreach ([$content, $content] as $body) {
             $response = $this->linkRequest($link->getToken(), 'POST', '/uploads', [
                 'filename' => 'file.jpg',
                 'type' => 'image/jpeg',
@@ -495,12 +495,13 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
         // Both fitted when they were started, not together: the reservation on completion decides
         $response = $this->linkRequest($link->getToken(), 'POST', '/assets', ['multipart' => $uploads[1]]);
         $this->assertSame(400, $response->getStatusCode());
+        $this->assertStringEndsWith(UploadLinkQuotaExceededException::CODE, $response->toArray(false)['type']);
         $this->assertSame(1, $this->reloadLink($link)->getUsedAssets());
     }
 
     public function testTheMultipartUploadsOfAHolderBelongToTheirBrowserSession(): void
     {
-        $content = 'Hello, multipart!';
+        $content = self::JPEG;
         $target = $this->createTarget();
         $link = $this->createLink($target);
         $sessionA = Uuid::v4()->toRfc4122();

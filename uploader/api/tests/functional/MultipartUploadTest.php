@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Doctrine\MultipartUploadListener;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Entity\Asset;
 use App\Entity\Commit;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -201,7 +202,7 @@ class MultipartUploadTest extends AbstractUploaderTestCase
 
     public function testAnUploadIsUsedOnce(): void
     {
-        $content = 'Hello, multipart!';
+        $content = self::JPEG;
         $upload = $this->createUpload(strlen($content));
         $multipart = self::sendSinglePart($upload, $content);
 
@@ -223,7 +224,7 @@ class MultipartUploadTest extends AbstractUploaderTestCase
 
     public function testAnotherUserCannotCompleteTheUpload(): void
     {
-        $content = 'Hello, multipart!';
+        $content = self::JPEG;
         $upload = $this->createUpload(strlen($content), KeycloakClientTestMock::USER_UID);
         $multipart = self::sendSinglePart($upload, $content);
 
@@ -246,6 +247,38 @@ class MultipartUploadTest extends AbstractUploaderTestCase
         $em->clear();
         $this->assertNull($em->find(MultipartUpload::class, $upload['id']));
         $this->assertFalse(self::getService(FileStorageManager::class)->has($path));
+    }
+
+    public function testAContentOfAnotherTypeThanDeclaredIsRefusedAndDeleted(): void
+    {
+        $content = '<!DOCTYPE html><html><body><script>alert(1)</script></body></html>';
+        $upload = $this->createUpload(strlen($content));
+        $multipart = self::sendSinglePart($upload, $content);
+        $path = self::getEntityManager()->find(MultipartUpload::class, $upload['id'])->getPath();
+
+        $response = $this->completeAsAsset($multipart);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertStringContainsString('content is "text/html"', $response->toArray(false)['detail']);
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertNull($em->find(MultipartUpload::class, $upload['id']));
+        $this->assertFalse(self::getService(FileStorageManager::class)->has($path));
+        $this->assertSame(0, $em->getRepository(Asset::class)->count([]));
+    }
+
+    public function testTheAssetGetsTheTypeOfTheContent(): void
+    {
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+        // Declared as a JPEG
+        $upload = $this->createUpload(strlen($png));
+        $multipart = self::sendSinglePart($upload, $png);
+
+        $response = $this->completeAsAsset($multipart);
+
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+        $asset = self::getEntityManager()->find(Asset::class, $response->toArray()['id']);
+        $this->assertSame('image/png', $asset->getMimeType());
     }
 
     public function testTheUrlsAreHandedOutByPages(): void
