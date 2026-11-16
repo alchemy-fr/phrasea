@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Integration\Core\FaceRecognition;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
@@ -15,7 +16,9 @@ use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\ImageSet;
+use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Traits\AssetAnnotationsInterface;
 use App\Integration\Core\FaceRecognition\FaceManager;
@@ -489,6 +492,78 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->assertCount($calls, $client->getCalls(), 'The service is not called');
     }
 
+    public function testThePhotoComesFromAFaceEveryReaderOfTheListSees(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+        $analyzer = self::getService(FaceRecognitionAnalyzer::class);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        self::interceptP2();
+
+        // The most confident face of the person is on a secret asset
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $secretAsset = $this->createImageAsset(WorkspaceItemPrivacyInterface::SECRET);
+        $secretFace = $analyzer->analyze($secretAsset, $config)[0];
+        $person = (string) $secretFace->getValue();
+        $client->setFaces([self::face(self::BOX_RIGHT, self::ALICE_LOOKALIKE)]);
+        $openAsset = $this->createImageAsset();
+        $openFace = $analyzer->analyze($openAsset, $config)[0];
+        $this->assertSame($person, (string) $openFace->getValue());
+        $em = self::getEntityManager();
+        $em->find(Attribute::class, $secretFace->getId())->setConfidence(0.99);
+        $em->find(Attribute::class, $openFace->getId())->setConfidence(0.7);
+        $em->flush();
+        // The files of a removed photo are deleted by a message
+        self::stopInterceptingP2();
+        $photo = fn () => self::getService(FaceRecognitionPhotoHandler::class)(new FaceRecognitionPhoto($person, $config->getIntegrationId()));
+
+        // 1. Only the face of the asset every reader of the workspace sees is a candidate
+        $photo();
+        $this->assertSame($openFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
+
+        // 2. Its asset is not open to every reader any more: the photo is removed with its files
+        $files = self::imageFilesOf($this->photoOf($person));
+        $this->updateAsset($openAsset, fn (Asset $a) => $a->setPrivacy(WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE));
+        $photo();
+        $this->assertNull($this->photoOf($person));
+        $this->assertImageFilesAreDeleted($files);
+
+        // 3. The most confident face becomes visible to every reader
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE));
+        $photo();
+        $this->assertSame($secretFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
+
+        // 4. Anyone reads the list of a public workspace: only the public assets are candidates
+        $this->workspace()->setPublic(true);
+        self::getEntityManager()->flush();
+        $photo();
+        $this->assertNull($this->photoOf($person));
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC));
+        $photo();
+        $this->assertSame($secretFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
+
+        // 5. A quarantined asset is not a candidate
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->setStatus(AssetStatusEnum::Quarantined));
+        $photo();
+        $this->assertNull($this->photoOf($person));
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->setStatus(AssetStatusEnum::Accepted));
+
+        // 6. Nor an asset that an attribute filter rule hides from some user
+        $em = self::getEntityManager();
+        $tag = new Tag();
+        $tag->setName('Visible to all');
+        $tag->setWorkspace($this->workspace());
+        $em->persist($tag);
+        $em->flush();
+        self::getAttributeFilterManager()->saveRule($this->workspace(), ['some_user'], [], sprintf('@tag = "%s"', $tag->getId()));
+        $photo();
+        $this->assertNull($this->photoOf($person));
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->addTag(self::getEntityManager()->find(Tag::class, $tag->getId())));
+        $photo();
+        $this->assertSame($secretFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
+    }
+
     public function testAnalyzeActionRefusesAQuarantinedAsset(): void
     {
         $this->setUpScene();
@@ -703,7 +778,11 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         }
     }
 
-    private function createImageAsset(): Asset
+    /**
+     * An image asset open to every reader of the workspace by default (a candidate for the photo of
+     * its persons), indexed.
+     */
+    private function createImageAsset(int $privacy = WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE): Asset
     {
         $em = self::getEntityManager();
         $workspace = $this->workspace();
@@ -723,10 +802,36 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
             'workspace' => $workspace,
             'no_flush' => true,
         ]);
+        $asset->setPrivacy($privacy);
         $asset->setSource($file);
         $em->flush();
+        self::indexAssets();
 
         return $asset;
+    }
+
+    /**
+     * @param \Closure(Asset): void $change
+     */
+    private function updateAsset(Asset $asset, \Closure $change): void
+    {
+        $em = self::getEntityManager();
+        $managed = $em->find(Asset::class, $asset->getId());
+        $change($managed);
+        $em->flush();
+        // A change of its tags alone does not schedule the asset for indexing
+        self::getService(DeferredIndexListener::class)->scheduleForUpdate($managed);
+        self::indexAssets();
+    }
+
+    /**
+     * Sends the pending changes of the assets to the index, without repopulating it.
+     */
+    private static function indexAssets(): void
+    {
+        self::$documentIndices['asset'] = self::getContainer()->get('fos_elastica.index.asset');
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
     }
 
     /**
