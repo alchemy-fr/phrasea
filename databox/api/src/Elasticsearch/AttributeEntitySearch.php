@@ -7,8 +7,12 @@ namespace App\Elasticsearch;
 use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Core\AttributeEntity;
+use App\Security\AttributeEntityVisibility;
+use App\Security\AttributeEntityVisibilityResolver;
+use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
+use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -17,6 +21,7 @@ class AttributeEntitySearch extends AbstractSearch
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.attribute_entity')]
         private readonly PaginatedFinderInterface $finder,
+        private readonly AttributeEntityVisibilityResolver $visibilityResolver,
     ) {
     }
 
@@ -28,6 +33,7 @@ class AttributeEntitySearch extends AbstractSearch
         $maxLimit = 50;
         $filterQuery = new Query\BoolQuery();
         $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
+        $filterQuery->addFilter(self::createVisibilityQuery($this->visibilityResolver->resolve($operation)));
 
         // query (SuggestQueryFilter), list/workspace (ExactSearchFilter), value (PartialSearchFilter), order[value] (SortFilter)
         $searchQuery = new SearchQuery($filterQuery);
@@ -51,10 +57,36 @@ class AttributeEntitySearch extends AbstractSearch
             ],
         ]);
 
-        $data = $this->finder->findPaginated($query);
-        self::applyPagination($data, $options, $maxLimit);
-        $this->executeSearch($data->getCurrentPageResults(...));
+        /** @var FantaPaginatorAdapter $adapter */
+        $adapter = $this->finder->findPaginated($query)->getAdapter();
+        $result = new Pagerfanta(new FilteredPager(fn (AttributeEntity $entity): bool => $this->isGranted(AbstractVoter::READ, $entity), $adapter));
+        self::applyPagination($result, $options, $maxLimit);
+        $this->executeSearch($result->getCurrentPageResults(...));
 
-        return $data;
+        return $result;
+    }
+
+    /**
+     * The Elasticsearch twin of the visibility rule applied by AttributeEntityExtension on the ORM listing.
+     */
+    private static function createVisibilityQuery(AttributeEntityVisibility $visibility): Query\AbstractQuery
+    {
+        if (null !== $visibility->listIds) {
+            return new Query\Terms('listId', $visibility->listIds);
+        }
+
+        $visible = new Query\BoolQuery();
+        $visible->setMinimumShouldMatch(1);
+        $visible->addShould(new Query\Term(['status' => (string) AttributeEntity::STATUS_APPROVED]));
+        if (null !== $visibility->userId) {
+            $visible->addShould(new Query\Term(['creatorId' => $visibility->userId]));
+        }
+        if (!empty($visibility->pendingWorkspaceIds)) {
+            $visible->addShould((new Query\BoolQuery())
+                ->addFilter(new Query\Term(['status' => (string) AttributeEntity::STATUS_PENDING]))
+                ->addFilter(new Query\Terms('workspaceId', $visibility->pendingWorkspaceIds)));
+        }
+
+        return $visible;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Search;
 
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractSearchTestCase;
@@ -13,7 +14,8 @@ use App\Tests\Functional\Api\Attribute\AttributeApiTestTrait;
  * /attribute-entities?query=…: the Elasticsearch search-as-you-type listing.
  *
  * The parameters declared on the collection (list, value, order[value], workspace) apply
- * to this search exactly as they apply to the plain ORM listing.
+ * to this search exactly as they apply to the plain ORM listing, and so does the visibility
+ * of the pending and rejected values.
  */
 final class AttributeEntitySearchTest extends AbstractSearchTestCase
 {
@@ -133,5 +135,87 @@ final class AttributeEntitySearchTest extends AbstractSearchTestCase
             'workspace' => '/workspaces/'.$foreignWorkspace->getId(),
         ]]);
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    /**
+     * USER owns the workspace (hence edits its attributes and its lists), OTHER is a mere member.
+     */
+    private function setUpStatusScene(): void
+    {
+        $this->setUpScene();
+        $this->createEntity($this->colors, 'Teal approved');
+        $this->createEntity($this->colors, 'Teal pending by OTHER', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => self::OTHER]);
+        $this->createEntity($this->colors, 'Teal rejected by OTHER', ['status' => AttributeEntity::STATUS_REJECTED, 'creatorId' => self::OTHER]);
+        $this->createEntity($this->colors, 'Teal pending by someone', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => 'someone']);
+        $this->createEntity($this->colors, 'Teal rejected by someone', ['status' => AttributeEntity::STATUS_REJECTED, 'creatorId' => 'someone']);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('attribute_entity');
+    }
+
+    private function getIndexedDocument(AttributeEntity $entity): array
+    {
+        return self::$documentIndices['attribute_entity']->getDocument($entity->getId())->getData();
+    }
+
+    public function testTheDocumentCarriesTheStatusAndTheCreator(): void
+    {
+        $this->setUpScene();
+        $entity = $this->createEntity($this->colors, 'Teal', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => self::OTHER]);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('attribute_entity');
+
+        $document = $this->getIndexedDocument($entity);
+        $this->assertEquals(AttributeEntity::STATUS_PENDING, $document['status']);
+        $this->assertSame(self::OTHER, $document['creatorId']);
+    }
+
+    public function testQueryOnlyShowsApprovedValuesAndOwnProposals(): void
+    {
+        $this->setUpStatusScene();
+
+        $this->assertEqualsCanonicalizing(
+            ['Teal approved', 'Teal pending by OTHER', 'Teal rejected by OTHER'],
+            $this->searchValues(self::OTHER, ['query' => 'tea']),
+        );
+        // ...even on the list
+        $this->assertEqualsCanonicalizing(
+            ['Teal approved', 'Teal pending by OTHER', 'Teal rejected by OTHER'],
+            $this->searchValues(self::OTHER, ['query' => 'tea', 'list' => $this->colors->getId()]),
+        );
+
+        // Whoever may edit the attributes of the workspace also sees its pending values, not the rejected ones of others
+        $this->assertEqualsCanonicalizing(
+            ['Teal approved', 'Teal pending by OTHER', 'Teal pending by someone'],
+            $this->searchValues(self::USER, ['query' => 'tea']),
+        );
+
+        // A list editor filtering on the list sees every status
+        $this->assertEqualsCanonicalizing(
+            ['Teal approved', 'Teal pending by OTHER', 'Teal rejected by OTHER', 'Teal pending by someone', 'Teal rejected by someone'],
+            $this->searchValues(self::USER, ['query' => 'tea', 'list' => '/entity-lists/'.$this->colors->getId()]),
+        );
+    }
+
+    public function testTheDocumentFollowsTheStatusChanges(): void
+    {
+        $this->setUpScene();
+        $proposal = $this->createEntity($this->colors, 'Teal proposal', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => 'someone']);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('attribute_entity');
+        $this->assertSame([], $this->searchValues(self::OTHER, ['query' => 'tea']));
+        $this->assertSame(['Teal proposal'], $this->searchValues(self::USER, ['query' => 'tea']));
+
+        $this->api('PATCH', '/attribute-entities/'.$proposal->getId(), self::USER, ['status' => AttributeEntity::STATUS_APPROVED]);
+        $this->assertResponseStatusCodeSame(200);
+        self::waitForESIndex('attribute_entity');
+        $this->assertEquals(AttributeEntity::STATUS_APPROVED, $this->getIndexedDocument($proposal)['status']);
+        $this->assertSame(['Teal proposal'], $this->searchValues(self::OTHER, ['query' => 'tea']));
+
+        $this->api('PATCH', '/attribute-entities/'.$proposal->getId(), self::USER, ['status' => AttributeEntity::STATUS_REJECTED]);
+        $this->assertResponseStatusCodeSame(200);
+        self::waitForESIndex('attribute_entity');
+        $this->assertEquals(AttributeEntity::STATUS_REJECTED, $this->getIndexedDocument($proposal)['status']);
+        $this->assertSame([], $this->searchValues(self::OTHER, ['query' => 'tea']));
+        $this->assertSame([], $this->searchValues(self::USER, ['query' => 'tea']));
     }
 }
