@@ -120,9 +120,13 @@ class CollectionRepository extends ServiceEntityRepository
             $queryBuilder->setParameter('users', array_merge([$userId], $groups));
         }
 
-        return $queryBuilder
+        /** @var Collection[] $collections */
+        $collections = $queryBuilder
             ->setParameter('ws', $allowedWorkspaces)
             ->getQuery()
             ->getResult();
+
+        // A collection under a trashed parent is in the trash too, which SQL cannot tell without walking the tree
+        return array_values(array_filter($collections, fn (Collection $collection): bool => !$collection->isDeleted()));
     }
 }

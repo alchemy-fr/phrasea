@@ -28,6 +28,14 @@ class CollectionListener
 
     public bool $softDeleteEnabled = true;
 
+    /**
+     * Collections soft-deleted by a removal in the current flush: the purge that
+     * follows cleans their documents, there is no point in reindexing them.
+     *
+     * @var array<string, true>
+     */
+    private array $purgeScheduled = [];
+
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
         private readonly TagAwareCacheInterface $collectionCache,
@@ -55,17 +63,29 @@ class CollectionListener
             return;
         }
 
-        if (!$this->hasChangedField([
+        $em = $args->getObjectManager();
+        $accessChanged = $this->hasChangedField([
             'privacy',
-            'owner',
+            'ownerId',
             'parent',
-        ], $args->getObjectManager(), $entity)) {
+        ], $em, $entity);
+        // The trash state is inherited by the descendants and their assets
+        $deletionChanged = $this->hasChangedField(['deletedAt'], $em, $entity);
+
+        if (isset($this->purgeScheduled[$entity->getId()])) {
+            unset($this->purgeScheduled[$entity->getId()]);
+            $deletionChanged = false;
+        }
+
+        if (!$accessChanged && !$deletionChanged) {
             return;
         }
 
         $this->collectionCache->invalidateTags([CollectionOutputMapper::COLLECTION_CACHE_NS]);
 
-        $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
+        if ($accessChanged) {
+            $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
+        }
         $this->postFlushStack->addBusMessage(new IndexCollectionBranch($entity->getId(), true));
 
         if ($this->hasChangedField(['parent'], $args->getObjectManager(), $entity)) {
@@ -94,6 +114,7 @@ class CollectionListener
                 // Cancel direct deletion
                 if (null === $entity->getDeletedAt()) {
                     $entity->setDeletedAt(new \DateTimeImmutable());
+                    $this->purgeScheduled[$entity->getId()] = true;
                 }
                 $uow->persist($entity);
                 $uow->recomputeSingleEntityChangeSet($em->getClassMetadata(Collection::class), $entity);

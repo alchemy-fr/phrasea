@@ -10,6 +10,7 @@ final readonly class CollectionPermissionsDTO
         public int $bestPrivacy,
         public string $absolutePath,
         public PermissionsDTO $permissions,
+        public bool $deleted = false,
     ) {
     }
 }
