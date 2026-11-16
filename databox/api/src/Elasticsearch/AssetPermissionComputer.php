@@ -133,35 +133,42 @@ final class AssetPermissionComputer
             $isReferenceCollection = $collection->getId() === $asset->getReferenceCollectionId();
 
             $collectionInfo = $this->getCollectionHierarchyInfo($collection);
-            $collectionBestPrivacy = $collectionInfo->bestPrivacy;
-            if (in_array($collectionBestPrivacy, [
-                WorkspaceItemPrivacyInterface::PRIVATE,
-                WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
-            ], true)) {
-                // Private collections does not expose its assets
-                $collectionBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
-            }
-            $bestPrivacy = max($bestPrivacy, $collectionBestPrivacy);
+            // A collection in the trash (or under a trashed parent) grants nothing on the assets it links,
+            // as for CollectionVoter::ASSET_VIEW; the reference collection is covered by "collectionDeleted"
+            $grantsRights = $isReferenceCollection || !$collectionInfo->deleted;
+            if ($grantsRights) {
+                $collectionBestPrivacy = $collectionInfo->bestPrivacy;
+                if (in_array($collectionBestPrivacy, [
+                    WorkspaceItemPrivacyInterface::PRIVATE,
+                    WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+                ], true)) {
+                    // Private collections does not expose its assets
+                    $collectionBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
+                }
+                $bestPrivacy = max($bestPrivacy, $collectionBestPrivacy);
 
-            $permissions->mergeWith($collectionInfo->permissions, !$isReferenceCollection)->unique();
+                $permissions->mergeWith($collectionInfo->permissions, !$isReferenceCollection)->unique();
+            }
 
             if (null !== $storyAsset = $collection->getStoryAsset()) {
                 $stories[] = $storyAsset->getId();
 
                 $storyPermissions = $this->getAssetPermissionFields($storyAsset);
 
-                $storyBestPrivacy = $storyPermissions->privacy;
-                if (in_array($storyBestPrivacy, [
-                    WorkspaceItemPrivacyInterface::PRIVATE,
-                    WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
-                ], true)) {
-                    // Private stories does not expose its assets
-                    $storyBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
+                if ($grantsRights) {
+                    $storyBestPrivacy = $storyPermissions->privacy;
+                    if (in_array($storyBestPrivacy, [
+                        WorkspaceItemPrivacyInterface::PRIVATE,
+                        WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+                    ], true)) {
+                        // Private stories does not expose its assets
+                        $storyBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
+                    }
+
+                    $bestPrivacy = max($bestPrivacy, $storyBestPrivacy);
+
+                    $permissions->mergeWith($storyPermissions->permissions, !$isReferenceCollection)->unique();
                 }
-
-                $bestPrivacy = max($bestPrivacy, $storyBestPrivacy);
-
-                $permissions->mergeWith($storyPermissions->permissions, !$isReferenceCollection)->unique();
 
                 // Members are not assets of the story's collections: these paths only serve the collection ACL propagation
                 $storyCollectionsPaths = array_merge(
@@ -297,6 +304,7 @@ final class AssetPermissionComputer
             $bestPrivacyInParentHierarchy,
             $collection->getAbsolutePath(),
             $permissions->unique(),
+            $collection->isDeleted(),
         );
     }
 }

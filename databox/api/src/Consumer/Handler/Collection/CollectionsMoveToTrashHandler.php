@@ -6,12 +6,14 @@ namespace App\Consumer\Handler\Collection;
 
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
+use App\Consumer\Handler\Search\IndexCollectionBranch;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Collection;
 use App\Model\AuditLogActionEnum;
 use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 readonly class CollectionsMoveToTrashHandler
@@ -21,6 +23,7 @@ readonly class CollectionsMoveToTrashHandler
         private ElasticSearchClient $elasticSearchClient,
         private AuditLogManager $auditLogManager,
         private SearchIndexer $searchIndexer,
+        private MessageBusInterface $bus,
     ) {
     }
 
@@ -45,6 +48,11 @@ readonly class CollectionsMoveToTrashHandler
         }
         $this->em->flush();
 
+        // A DQL update leaves the loaded entities untouched
+        foreach ($entities as $collection) {
+            $this->em->refresh($collection);
+        }
+
         $this->elasticSearchClient->updateByQuery(
             'asset',
             [
@@ -58,11 +66,12 @@ readonly class CollectionsMoveToTrashHandler
             ]
         );
 
+        // The descendants inherit the trash state
         $this->elasticSearchClient->updateByQuery(
             'collection',
             [
                 'terms' => [
-                    '_id' => $message->getIds(),
+                    'absolutePath' => $collections,
                 ],
             ],
             [
@@ -72,12 +81,13 @@ readonly class CollectionsMoveToTrashHandler
         );
 
         if ([] !== $parentIds) {
-            // Their "hasChildren" flag ignores the collections in the trash. A DQL update leaves
-            // the loaded entities as they were: the parents are indexed from the current state.
-            foreach ($entities as $collection) {
-                $this->em->refresh($collection);
-            }
+            // Their "hasChildren" flag ignores the collections in the trash
             $this->searchIndexer->scheduleObjectsIndex(Collection::class, $parentIds, Operation::Upsert);
+        }
+
+        // The assets only linked to the branch lose the rights it gave them
+        foreach ($message->getIds() as $id) {
+            $this->bus->dispatch(new IndexCollectionBranch($id, true));
         }
     }
 }

@@ -32,6 +32,11 @@ readonly class IndexCleaner
                 'referenceCollectionId' => $collectionId,
             ],
         ]);
+        $this->deleteByQuery($this->collectionIndex, [
+            'ids' => [
+                'values' => [$collectionId],
+            ],
+        ]);
     }
 
     /**
