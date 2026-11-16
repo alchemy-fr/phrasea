@@ -83,6 +83,7 @@ tier_standard() {
 
   docker compose up -d $(compose_up_services)
   docker compose run --rm dockerize
+  setup_elasticsearch_users
 
   for s in ${SF_SERVICES}; do
     APP_ENV=test docker compose run --rm -T ${s} su app -c "composer install --no-interaction && composer test"

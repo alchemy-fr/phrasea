@@ -19,13 +19,17 @@ Follow these steps in order. Each one is detailed in the sections below.
    Give the custom Keycloak clients calling the APIs the client scope of each
    API they call, once `bin/migrate.sh` has created them (see
    [Access tokens: audiences](#access-tokens-audiences)).
+   Set `ELASTIC_PASSWORD` and `ELASTICSEARCH_PASSWORD`: the bundled
+   Elasticsearch now requires authentication (see
+   [Elasticsearch authentication](#elasticsearch-authentication)).
    With Docker Compose, run `dc down` (volumes kept) before starting the new
    stack: the containers move to new networks (see
    [Docker networks split](#docker-networks-split)).
-4. Start Elasticsearch 9:
+4. Start Elasticsearch 9 and create the user of the applications:
 
     ```bash
     dc up -d elasticsearch
+    dc run --rm elasticsearch-setup
     ```
 
 5. Run the migrations, and nothing else (no `doctrine:migrations:version --add`):
@@ -73,12 +77,62 @@ Elasticsearch moves from 7.17 to 9.1.4.
 - The `asset` index now holds a `dense_vector` field (`embedding`, 512 dims,
   indexed, cosine) and `fileFamily`: Elasticsearch older than 8.12 cannot create
   it. Upgrade any external cluster.
-- An external cluster protected by basic authentication is supported through
-  `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD` (empty by default: no
-  authentication). The bundled `elasticsearch` service keeps its security
-  disabled.
+- The bundled `elasticsearch` service requires authentication (see
+  [Elasticsearch authentication](#elasticsearch-authentication)). An external
+  cluster protected by basic authentication is supported through the same
+  `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD`.
 
 See [Elasticsearch 9 and index rebuild](#elasticsearch-9-and-index-rebuild).
+
+### Elasticsearch authentication
+
+The asset rights are applied inside Elasticsearch (the `users` and `groups` of
+each document): anyone reaching the cluster could read every workspace, or
+rewrite those fields. The bundled `elasticsearch` service now runs with its
+security enabled (`xpack.security.enabled=true`, without TLS: it is only
+reachable from the internal `data` network, see
+[Docker networks split](#docker-networks-split)).
+
+- `ELASTIC_PASSWORD` (new, `@change-me`) is the password of the `elastic`
+  superuser. Only the new `elasticsearch-setup` service uses it.
+- `elasticsearch-setup` (profile `elasticsearch`, same image) creates or updates
+  at every `dc up` the user of the applications, `ELASTICSEARCH_USERNAME` (now
+  `databox` by default) with `ELASTICSEARCH_PASSWORD` (`@change-me`), and its
+  role of the same name: every privilege on the indices starting with
+  `ELASTICSEARCH_INDEX_PREFIX`, `monitor` on the cluster. With an empty prefix
+  (the default), the role covers every index of the cluster.
+  `bin/setup.sh`, `bin/migrate.sh` and `bin/test.sh standard` run it in the
+  foreground before using Elasticsearch.
+- `dockerize` waits for the TCP port of Elasticsearch (an HTTP wait now gets a
+  401).
+- With the development port (`DEV_ELASTICSEARCH_PORT`), pass the credentials:
+  `curl -u "databox:${ELASTICSEARCH_PASSWORD}" localhost:9200/_cat/indices`.
+
+To upgrade a running stack, the indices of the `elasticsearch9` volume are kept
+(enabling the security of an existing node is supported):
+
+1. Set `ELASTIC_PASSWORD` and `ELASTICSEARCH_PASSWORD` in `.env.local` (outside a
+   dev stack, `bin/setup.sh` and `bin/migrate.sh` refuse their `__CHANGE_ME_`
+   defaults). Keep `ELASTICSEARCH_USERNAME` to its new default `databox`, or set
+   your own (not `elastic`).
+2. Recreate Elasticsearch and the services using it, then create the user:
+
+    ```bash
+    dc up -d
+    dc run --rm elasticsearch-setup
+    ```
+
+    (`bin/migrate.sh` does both.) Until `elasticsearch-setup` has run, the API
+    and the workers get a 401 from Elasticsearch.
+
+The `elastic` password is only read from `ELASTIC_PASSWORD` as long as it has not
+been changed through the API (`_security/user/elastic/_password`); then set
+`ELASTIC_PASSWORD` to the new one.
+
+With an external cluster (no `elasticsearch` profile), nothing is created:
+provide `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD` yourself, and empty
+both for a cluster without authentication (`ELASTICSEARCH_USERNAME` now defaults
+to `databox`).
 
 ### Keycloak image
 
@@ -400,7 +454,9 @@ particular, replace the databox `CronJob`s with `databox-scheduler` and
 `uploader-scheduler` Deployments (worker image, `WORKER_PRIORITIES` as above,
 `replicas: 1`, `Recreate` strategy so that two pods never overlap), and swap
 Soketi for Sockudo (image, `SOCKUDO_*` variables, hosts, `/usage` on port 6001,
-see [Sockudo replaces Soketi](#sockudo-replaces-soketi)).
+see [Sockudo replaces Soketi](#sockudo-replaces-soketi)), and enable the security
+of the Elasticsearch it deploys, with a dedicated user for the applications (see
+[Elasticsearch authentication](#elasticsearch-authentication)).
 
 ## Database migrations
 

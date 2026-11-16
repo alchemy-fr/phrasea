@@ -114,6 +114,17 @@ function compose_up_services {
   fi
 }
 
+# Create or update the user of the applications on the bundled Elasticsearch,
+# and wait for it: `docker compose up` also runs `elasticsearch-setup`, but in
+# the background. Nothing to do without the `elasticsearch` profile (external
+# cluster).
+# Usage: setup_elasticsearch_users
+function setup_elasticsearch_users {
+  if docker compose config --services | grep -qx elasticsearch-setup; then
+    docker compose run --rm -T elasticsearch-setup
+  fi
+}
+
 # execute a shell command in a container defined in docker-compose.yml
 function exec_container() {
   docker compose exec -T "$1" sh -c "$2"

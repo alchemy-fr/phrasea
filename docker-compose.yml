@@ -565,7 +565,8 @@ services:
       - "-wait"
       - "tcp://rabbitmq:5672"
       - "-wait"
-      - "http://elasticsearch:9200"
+      # An HTTP wait would get a 401: Elasticsearch requires authentication.
+      - "tcp://elasticsearch:9200"
       - "-wait"
       - "tcp://minio:9000"
       - "-timeout"
@@ -1002,11 +1003,39 @@ services:
         soft: -1
         hard: -1
     environment:
-      - xpack.security.enabled=false
+      # Password of the `elastic` superuser, only used by elasticsearch-setup:
+      # the applications get their own user, restricted to their indices.
+      - ELASTIC_PASSWORD
+      - xpack.security.enabled=true
+      # No TLS: Elasticsearch is only reachable from the internal `data` network.
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - discovery.type=single-node
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=${ELASTICSEARCH_JAVA_OPTS}
+
+  # Creates or updates the user of the applications (ELASTICSEARCH_USERNAME) and
+  # its role, restricted to the ELASTICSEARCH_INDEX_PREFIX indices, then exits.
+  # Run at every `up`; bin/setup.sh, bin/migrate.sh and bin/test.sh run it in the
+  # foreground (setup_elasticsearch_users) before anything uses Elasticsearch.
+  elasticsearch-setup:
+    logging: *default-logging
+    profiles:
+      - elasticsearch
+    image: ${ELASTICSEARCH_IMAGE}
+    networks:
+      - data
+    depends_on:
+      - elasticsearch
+    entrypoint: ["/bin/bash", "/usr/local/bin/setup-users.sh"]
+    volumes:
+      - ./infra/docker/elasticsearch/setup-users.sh:/usr/local/bin/setup-users.sh:ro
+    environment:
+      - ELASTIC_PASSWORD
+      - ELASTICSEARCH_USERNAME
+      - ELASTICSEARCH_PASSWORD
+      - ELASTICSEARCH_INDEX_PREFIX
 
   similarity-embedder:
     logging: *default-logging
