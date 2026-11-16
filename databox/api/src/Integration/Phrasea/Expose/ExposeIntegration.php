@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Phrasea\Expose;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\AbstractIntegration;
@@ -90,7 +91,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 }
 
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-                $basket = DoctrineUtil::findStrict($this->em, Basket::class, $data['basketId']);
+                $basket = DoctrineUtil::findStrict($this->em, Basket::class, UuidUtil::assertValid($data['basketId'] ?? null, 'basketId'), throw404: true);
                 // The basket assets are published: it must be one the user can read
                 $this->denyAccessUnlessGranted(AbstractVoter::READ, $basket);
 
@@ -124,7 +125,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 $intData = $this->integrationDataManager->getById(
                     $config->getWorkspaceIntegration(),
-                    $data['id'],
+                    UuidUtil::assertValid($data['id'] ?? null, 'id'),
                     $userId,
                 );
 
@@ -133,7 +134,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 return null;
             case 'stop':
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-                $id = $data['id'] ?? throw new \InvalidArgumentException('Missing "id"');
+                $id = UuidUtil::assertValid($data['id'] ?? null, 'id');
                 $deletePublication = !empty($data['deletePublication']);
 
                 if ($deletePublication) {

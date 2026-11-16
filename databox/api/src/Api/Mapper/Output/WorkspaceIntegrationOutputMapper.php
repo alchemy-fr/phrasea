@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\IriConverterInterface;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -18,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Yaml\Yaml;
 
 #[AsTaggedItem(index: WorkspaceIntegrationOutput::class)]
@@ -67,12 +69,17 @@ class WorkspaceIntegrationOutputMapper implements OutputMapperInterface
 
         $objectId = $filters['objectId'] ?? null;
         if (null !== $objectId) {
+            $objectId = UuidUtil::assertValid($objectId, 'objectId');
             $objectType = $filters['objectType'] ?? throw new BadRequestHttpException('Missing "objectType" to fetch data');
-            $class = $this->objectMapper->getClassName($objectType);
+            try {
+                $class = $this->objectMapper->getClassName(\is_string($objectType) ? $objectType : '');
+            } catch (\InvalidArgumentException $e) {
+                throw new BadRequestHttpException('Invalid "objectType"', $e);
+            }
 
             $object = $this->em->getRepository($class)->find($objectId);
             if (null === $object) {
-                throw new \InvalidArgumentException(sprintf('%s "%s" not found', $class, $objectId));
+                throw new NotFoundHttpException(sprintf('%s "%s" not found', $class, $objectId));
             }
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $object);
 

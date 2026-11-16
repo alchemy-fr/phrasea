@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Consumer\Handler\Asset\AssetsDelete;
@@ -35,6 +36,7 @@ final class DeleteAssetsByKeysProcessor implements ProcessorInterface
         if (!$workspaceId) {
             throw new BadRequestHttpException('Missing "workspace"');
         }
+        $workspaceId = UuidUtil::assertValid($workspaceId, 'workspaceId');
 
         foreach (array_chunk($keys, 50) as $chunk) {
             $assets = $this->em->getRepository(Asset::class)

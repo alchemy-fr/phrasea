@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Traits;
 
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\Exception\ItemNotFoundException;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
@@ -40,6 +41,7 @@ trait WorkspaceCollectionTrait
         } else {
             $workspaces = [];
             foreach ($workspaceIds as $workspaceId) {
+                UuidUtil::assertValid(basename($workspaceId), 'workspace');
                 try {
                     $workspace = $this->entityIriConverter->getItemFromIri(Workspace::class, $workspaceId);
                 } catch (ItemNotFoundException $e) {

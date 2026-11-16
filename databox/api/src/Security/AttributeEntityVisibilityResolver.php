@@ -6,6 +6,7 @@ namespace App\Security;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\EntityList;
@@ -45,7 +46,8 @@ final class AttributeEntityVisibilityResolver
         // Whoever may set attribute values in a workspace may pick its pending values too
         $editableWorkspaces = [];
         $workspaceIds = null !== $operation ? (array) self::getParameterValue($operation, 'workspace', []) : [];
-        foreach (array_unique(array_filter(array_map(static fn (mixed $id): string => basename((string) $id), $workspaceIds))) as $workspaceId) {
+        $workspaceIds = array_filter($workspaceIds, static fn (mixed $id): bool => null !== $id && '' !== $id);
+        foreach (array_unique(array_map(static fn (mixed $id): string => UuidUtil::assertValid(\is_string($id) ? basename($id) : $id, 'workspace'), $workspaceIds)) as $workspaceId) {
             $workspace = $this->em->find(Workspace::class, $workspaceId);
             if ($workspace instanceof Workspace && $this->isGranted(AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES, $workspace)) {
                 $editableWorkspaces[] = $workspaceId;
@@ -78,7 +80,7 @@ final class AttributeEntityVisibilityResolver
         $listIds = [];
         $editsEveryList = true;
         foreach ($values as $value) {
-            $list = DoctrineUtil::findStrict($this->em, EntityList::class, basename($value), throw404: true);
+            $list = DoctrineUtil::findStrict($this->em, EntityList::class, UuidUtil::assertValid(basename($value), 'list'), throw404: true);
             $editsEveryList = $editsEveryList && $this->isGranted(EntityListVoter::EDIT_VALUES, $list);
             $listIds[] = $list->getId();
         }

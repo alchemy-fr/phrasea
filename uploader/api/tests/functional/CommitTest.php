@@ -50,6 +50,16 @@ class CommitTest extends AbstractUploaderTestCase
         $this->assertEmpty($data['member']);
     }
 
+    public function testGetCommitListWithMalformedTargetReturns400(): void
+    {
+        $response = static::createClient()->request('GET', '/commits?target=not-a-uuid', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
     public function testGetCommitListWithAnonymousUser(): void
     {
         $client = static::createClient();

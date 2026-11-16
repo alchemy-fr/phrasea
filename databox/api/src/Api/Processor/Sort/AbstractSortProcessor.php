@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Processor\Sort;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\InputLimits;
@@ -61,6 +62,9 @@ abstract class AbstractSortProcessor implements ProcessorInterface
         }
         if (count($ids) > InputLimits::MAX_IDS) {
             throw new BadRequestHttpException(sprintf('Too many IDs (%d > %d)', count($ids), InputLimits::MAX_IDS));
+        }
+        foreach ($ids as $id) {
+            UuidUtil::assertValid($id, 'id');
         }
 
         if ($this->isReversed()) {
