@@ -27,6 +27,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class AQLToESQuery
 {
+    /**
+     * Marks conditions written by an administrator (attribute filter rules) rather than by the
+     * user running the search: the built-in attributes disabled for this user stay usable in them.
+     */
+    final public const string OPT_TRUSTED_CONDITIONS = 'trustedConditions';
+
     public function __construct(
         private BuiltInAttributeRegistry $builtInAttributeRegistry,
         private AQLFunctionRegistry $functionRegistry,
@@ -72,10 +78,10 @@ final readonly class AQLToESQuery
         if (!isset($leftOperand['field'])
             || (isset($data['rightOperand']) && !$this->isResolvableValue($data['rightOperand']))
         ) {
-            return $this->visitCriteriaWithScripting($fieldClusters, $data);
+            return $this->visitCriteriaWithScripting($fieldClusters, $data, $options);
         }
 
-        $fields = $this->getFieldNames($fieldClusters, $leftOperand['field']);
+        $fields = $this->getFieldNames($fieldClusters, $leftOperand['field'], $options);
         foreach ($fields as $fieldGroup) {
             $field = $fieldGroup->getItem();
             $query = $this->createCriteria($field, $data, $options);
@@ -507,9 +513,9 @@ final readonly class AQLToESQuery
         return $not;
     }
 
-    private function visitCriteriaWithScripting(array $fieldClusters, array $data): Query\AbstractQuery
+    private function visitCriteriaWithScripting(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
-        $queries = $this->expressionToScript($data, $fieldClusters);
+        $queries = $this->expressionToScript($data, $fieldClusters, $options);
 
         $queries = array_map(
             function (ClusterGroup $q): Query\AbstractQuery {
@@ -533,7 +539,7 @@ final readonly class AQLToESQuery
         return $boolQuery;
     }
 
-    private function expressionToScript(mixed $node, array $fieldClusters): array
+    private function expressionToScript(mixed $node, array $fieldClusters, array $options): array
     {
         $scripts = [];
 
@@ -552,8 +558,8 @@ final readonly class AQLToESQuery
                         ], true)) {
                             throw new BadRequestHttpException(sprintf('Unsupported operator "%s" in script conditions', $node['operator']));
                         }
-                        $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
-                        $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
+                        $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters, $options);
+                        $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters, $options);
 
                         $scripts = ClusterGroup::mix(
                             $lefts,
@@ -569,8 +575,8 @@ final readonly class AQLToESQuery
                         ) {
                             $scripts = [new ClusterGroup($this->resolveValueExpression($node), true)];
                         } else {
-                            $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
-                            $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
+                            $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters, $options);
+                            $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters, $options);
 
                             $scripts = ClusterGroup::mix(
                                 $lefts,
@@ -581,7 +587,7 @@ final readonly class AQLToESQuery
                         break;
                     case 'function_call':
                         $functionHandle = $this->getFunctionHandle($node['function']);
-                        $args = array_map(fn (mixed $arg) => $this->expressionToScript($arg, $fieldClusters), $node['arguments']);
+                        $args = array_map(fn (mixed $arg) => $this->expressionToScript($arg, $fieldClusters, $options), $node['arguments']);
 
                         $mixedArguments = [new ClusterGroup([], true)];
                         foreach ($args as $arg) {
@@ -594,13 +600,13 @@ final readonly class AQLToESQuery
                         }
                         break;
                     case 'parentheses':
-                        $scripts = $this->expressionToScript($node['expression'], $fieldClusters);
+                        $scripts = $this->expressionToScript($node['expression'], $fieldClusters, $options);
                         break;
                     default:
                         throw new \RuntimeException(sprintf('Unsupported node type "%s"', $type));
                 }
             } elseif (isset($node['field'])) {
-                $fields = $this->getFieldNames($fieldClusters, $node['field']);
+                $fields = $this->getFieldNames($fieldClusters, $node['field'], $options);
                 if (empty($fields)) {
                     throw new BadRequestHttpException(sprintf('Field "%s" not found', $node['field']));
                 }
@@ -654,11 +660,14 @@ final readonly class AQLToESQuery
     /**
      * @return ClusterGroup[]
      */
-    private function getFieldNames(array $fieldClusters, string $fieldSlug): array
+    private function getFieldNames(array $fieldClusters, string $fieldSlug, array $options): array
     {
         if (str_starts_with($fieldSlug, '@')) {
             $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($fieldSlug);
-            if (null !== $builtInAttribute) {
+            // A built-in attribute disabled for the user does not exist for them
+            if (null !== $builtInAttribute
+                && ($builtInAttribute->isEnabled() || true === ($options[self::OPT_TRUSTED_CONDITIONS] ?? false))
+            ) {
                 return [
                     new ClusterGroup([
                         'field' => $builtInAttribute::getName(),

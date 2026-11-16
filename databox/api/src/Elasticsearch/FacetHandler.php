@@ -30,7 +30,7 @@ final readonly class FacetHandler
     public function addBuiltInFacets(Query $query): void
     {
         foreach ($this->builtInAttributeRegistry->getAll() as $item) {
-            if (!$item->isFacet()) {
+            if (!$item->isFacet() || !$item->isEnabled()) {
                 continue;
             }
 

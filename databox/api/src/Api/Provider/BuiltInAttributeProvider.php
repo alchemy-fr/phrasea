@@ -50,6 +50,8 @@ class BuiltInAttributeProvider extends AbstractCollectionProvider
     }
 
     /**
+     * The built-in attributes disabled for the user are left out: they do not exist for them.
+     *
      * @return BuiltInAttribute[]
      */
     private function getBuiltInAttributes(): array
@@ -64,7 +66,10 @@ class BuiltInAttributeProvider extends AbstractCollectionProvider
             $field->isSortable(),
             $field->isSearchable(),
             $field->isEnabled(),
-        ), iterator_to_array($this->builtInAttributeRegistry->getAll()));
+        ), array_filter(
+            iterator_to_array($this->builtInAttributeRegistry->getAll()),
+            fn (BuiltInAttributeInterface $field): bool => $field->isEnabled(),
+        ));
 
         usort($results, fn (BuiltInAttribute $a, BuiltInAttribute $b): int => $a->displayName <=> $b->displayName);
 

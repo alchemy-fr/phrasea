@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\GeoPointAttributeType;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
@@ -534,7 +535,7 @@ class AssetSearch extends AbstractSearch
                 $conditionQuery = $this->attributeSearch->buildConditionQuery(
                     $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
                     $condition,
-                    $options
+                    [...$options, AQLToESQuery::OPT_TRUSTED_CONDITIONS => false]
                 );
 
                 if ($this->isScoreBasedCondition((string) $condition)) {
@@ -662,7 +663,7 @@ class AssetSearch extends AbstractSearch
                     $conditionQuery = $this->attributeSearch->buildConditionQuery(
                         $attributeGroups,
                         $condition,
-                        $options
+                        [...$options, AQLToESQuery::OPT_TRUSTED_CONDITIONS => true]
                     );
                 } catch (\Throwable $e) {
                     // Fail-closed: hide the whole workspace rather than breaking search or leaking assets
@@ -742,14 +743,18 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
-     * Grouping exposes the value of the first asset of each group: only a built-in attribute or
-     * an attribute the user may read can group the results.
+     * Grouping exposes the value of the first asset of each group: only a built-in attribute enabled
+     * for the user or an attribute the user may read can group the results.
      */
     private function isGroupableField(string $field, array $options): bool
     {
         try {
             $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
         } catch (\InvalidArgumentException) {
+            return false;
+        }
+
+        if (!$esFieldInfo->enabled) {
             return false;
         }
 
