@@ -23,7 +23,7 @@ Files are uploaded (S3 multipart) and committed from the Uploader client: the se
 | `list_targets`           | List/search the targets the user may use                                    | any user                         |
 | `get_target`             | Get a target                                                                | target allowed to the user       |
 | `get_target_form_schema` | Get the upload form of a target (`/targets/{id}/form`), null without form   | target allowed to the user       |
-| `validate_form_data`     | Validate form data against the form of a target (`POST /form/validate`)     | any user                         |
+| `validate_form_data`     | Validate form data against the form of a target (`POST /form/validate`)     | target allowed to the user       |
 | `list_commits`           | List the commits, filtered by target and acknowledgement                    | `commit:list` scope or admin     |
 | `get_commit`             | Get a commit with its files and form data                                   | `commit:list` scope or admin     |
 | `get_upload_asset`       | Get an uploaded file (asset) of a commit                                    | admin                            |

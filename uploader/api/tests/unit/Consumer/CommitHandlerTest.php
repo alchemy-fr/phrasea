@@ -11,8 +11,10 @@ use App\Entity\AssetRepository;
 use App\Entity\Commit;
 use App\Entity\Target;
 use App\Storage\AssetManager;
+use App\Storage\CommitManager;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -22,7 +24,8 @@ class CommitHandlerTest extends TestCase
     {
         $assetRepo = $this->createMock(AssetRepository::class);
         $assetRepo->expects($this->once())
-            ->method('attachCommit');
+            ->method('attachCommit')
+            ->willReturn(2);
         $target = new Target();
         $target->setData(['origin' => 'target', 'source' => 'uploader']);
 
@@ -59,8 +62,9 @@ class CommitHandlerTest extends TestCase
 
         $handler = new CommitHandler(
             $busStub,
-            $assetManager,
-            $em
+            new CommitManager($em, $assetManager),
+            $em,
+            new NullLogger(),
         );
         $message = new CommitMessage(
             '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09',
@@ -80,5 +84,34 @@ class CommitHandlerTest extends TestCase
         // The data of the target wins over the values entered by the user
         $this->assertSame(['foo' => 'bar', 'origin' => 'target', 'source' => 'uploader'], $persisted->getFormData());
         $this->assertSame('fr', $persisted->getFormLocale());
+    }
+
+    public function testACommitWhoseFilesWereTakenMeanwhileIsDropped(): void
+    {
+        $assetRepo = $this->createMock(AssetRepository::class);
+        // One of the two files went with another commit
+        $assetRepo->expects($this->once())->method('attachCommit')->willReturn(1);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->willReturnMap([[Asset::class, $assetRepo]]);
+        $em->method('getReference')->willReturn(new Target());
+        $em->expects($this->once())->method('rollback');
+        $em->expects($this->never())->method('commit');
+
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())->method('dispatch');
+
+        $handler = new CommitHandler(
+            $bus,
+            new CommitManager($em, $this->createStub(AssetManager::class)),
+            $em,
+            new NullLogger(),
+        );
+
+        $handler(new CommitMessage(
+            '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09',
+            'd03fc9f6-3c6b-4428-8d6f-ba07c7c6e856',
+            ['4c097077-a26b-4af4-9a5d-b13fd4c77b3d', 'a134145e-9461-4f0a-8bd8-7025d31a6b8e'],
+            [],
+        ));
     }
 }

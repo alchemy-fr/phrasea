@@ -228,6 +228,7 @@
     "upload_link.error.invalid": "Ce lien est invalide",
     "upload_link.error.revoked": "Ce lien n'est plus valable",
     "upload_link.exhausted": "Plus rien ne peut être envoyé avec ce lien : sa limite est atteinte.",
+    "upload_link.forget_last_commit": "Oublier mes informations précédentes",
     "upload_link.reuse_last_commit": "Reprendre mes informations précédentes",
     "upload_links.copied": "Lien copié",
     "upload_links.copy": "Copier le lien",

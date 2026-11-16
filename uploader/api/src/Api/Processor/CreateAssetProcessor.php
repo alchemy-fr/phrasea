@@ -23,6 +23,7 @@ use App\Repository\UploadLinkRepository;
 use App\Security\UploadLinkUser;
 use App\Security\Voter\TargetVoter;
 use App\Storage\AssetManager;
+use App\Storage\FileNameSanitizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -98,7 +99,8 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
             $uploadedFile->getMimeType(),
         );
 
-        $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
+        $originalName = FileNameSanitizer::sanitize($uploadedFile->getClientOriginalName());
+        $extension = pathinfo($originalName, PATHINFO_EXTENSION);
         $path = $this->pathGenerator->generatePath($extension);
 
         $stream = fopen($uploadedFile->getRealPath(), 'r+');
@@ -109,11 +111,11 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
             $this->reserve($link, $size, $path);
         }
 
-        return $this->assetManager->createAsset(
+        return $this->createAsset(
             $target,
             $path,
             $uploadedFile->getMimeType(),
-            $uploadedFile->getClientOriginalName(),
+            $originalName,
             $size,
             $userId,
             $request->request->all('data'),
@@ -178,6 +180,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         }
 
         $multipartUpload = $this->uploadManager->handleMultipartUpload($input, $ownerIdentifier);
+        $originalName = FileNameSanitizer::sanitize($multipartUpload->getFilename());
 
         if (null !== $link) {
             try {
@@ -190,16 +193,47 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
             }
         }
 
-        return $this->assetManager->createAsset(
+        return $this->createAsset(
             $target,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
-            $multipartUpload->getFilename(),
+            $originalName,
             $multipartUpload->getSize(),
             $userId,
             $request->request->all('data'),
             $link,
         );
+    }
+
+    /**
+     * After the file was counted against the limits of the link: an asset that cannot be created gives back
+     * what it reserved, and its file is removed.
+     */
+    private function createAsset(
+        Target $target,
+        string $path,
+        string $mimeType,
+        string $originalName,
+        int $size,
+        string $userId,
+        array $data,
+        ?UploadLink $link,
+    ): Asset {
+        try {
+            return $this->assetManager->createAsset($target, $path, $mimeType, $originalName, $size, $userId, $data, $link);
+        } catch (\Throwable $e) {
+            if (null !== $link) {
+                // The row of the asset was never inserted: AssetManager::removeUncommitted() has nothing to delete
+                $this->uploadLinkRepository->release($link->getId(), $size);
+            }
+            try {
+                $this->storageManager->delete($path);
+            } catch (\Throwable) {
+                // The error of the asset is the one to report
+            }
+
+            throw $e;
+        }
     }
 
     /**

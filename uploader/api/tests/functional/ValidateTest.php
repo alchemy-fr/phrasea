@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Entity\Target;
 use App\Form\FormValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -66,6 +67,31 @@ class ValidateTest extends AbstractUploaderTestCase
             ],
         ]);
         $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    public function testValidateATargetTheUserCannotRead(): void
+    {
+        $target = new Target();
+        $target->setName('Restricted');
+        $target->setSlug('restricted');
+        $target->setAllowedGroups(['a_group_the_user_is_not_in']);
+        $target->setForm(TargetFormTest::definition());
+        $em = self::getEntityManager();
+        $em->persist($target);
+        $em->flush();
+
+        // The errors would tell the fields of its form
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'POST', '/form/validate', [
+            'target' => '/targets/'.$target->getId(),
+            'data' => [],
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID, groups: ['a_group_the_user_is_not_in']), 'POST', '/form/validate', [
+            'target' => '/targets/'.$target->getId(),
+            'data' => [],
+        ]);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
     }
 
     public function testValidateWithoutForm(): void

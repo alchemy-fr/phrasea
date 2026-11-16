@@ -961,6 +961,28 @@ unchanged. Only `PUT` → `PATCH`, the `hydra:` prefix and filter typing change:
   `{"enabled": false}` only), even without the `upload_link` permission.
 - The holders of a link send their own session id in `X-Upload-Session` (a
   UUID): the multipart uploads they start belong to that session only.
+- `GET /upload-links/current` no longer gives `lastFormData`: what was entered
+  in the form of the last commit is kept by the browser that entered it
+  (`localStorage`), not by the link, whose other holders could read it. The
+  migration drops `upload_link.last_form_data`.
+
+### Hardening
+
+- `POST /form/validate` answers `403` for a target the user may not read, like
+  `GET /targets/{id}/form`.
+- `POST /commit` stores the commit right away (it was stored by a worker): files
+  committed twice at once go with the first commit, the second answers `409`.
+- `POST /downloads` is rate limited per user: `UPLOADER_DOWNLOAD_RATE_LIMIT`
+  downloads per hour (30 by default, `DOWNLOAD_RATE_LIMIT` in the API
+  container), `429` with `Retry-After` beyond. A download lasts 600 seconds at
+  most (`app.download.max_duration`), however slow the server is; the name of
+  the file is the last segment of its name (`Content-Disposition` or URL),
+  without control characters, 255 bytes at most.
+- The names of the uploaded files are cut to 255 bytes (their extension kept).
+- The target URL (`targetUrl`) must use `https`: the authorization key is sent
+  to it. `http` is accepted for a host of the stack, without dot
+  (`http://databox-api/…`), and in the dev and test environments. The existing
+  targets are not checked until they are edited.
 
 ## Allowed file types and file serving
 

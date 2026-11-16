@@ -196,12 +196,6 @@ class UploadLink extends AbstractUuidEntity
     #[ORM\Column(type: Types::JSON)]
     private array $creatorRoles = [];
 
-    /**
-     * What was entered in the form of the last commit, without the target data: offered again for the next one.
-     */
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $lastFormData = null;
-
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[ApiProperty(writable: false)]
     #[Groups([self::GROUP_READ])]
@@ -359,16 +353,6 @@ class UploadLink extends AbstractUuidEntity
     public function setCreatorRoles(array $creatorRoles): void
     {
         $this->creatorRoles = array_values($creatorRoles);
-    }
-
-    public function getLastFormData(): ?array
-    {
-        return $this->lastFormData;
-    }
-
-    public function setLastFormData(?array $lastFormData): void
-    {
-        $this->lastFormData = $lastFormData;
     }
 
     public function getLastCommitAt(): ?\DateTimeImmutable

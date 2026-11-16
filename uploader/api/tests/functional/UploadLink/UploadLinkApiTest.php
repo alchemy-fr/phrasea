@@ -338,8 +338,6 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
         $target = $this->createTarget();
         $target->setDescription('Send your pictures');
         $link = $this->createLink($target, options: ['maxAssets' => 10, 'maxTotalSize' => 5000, 'expiresAt' => new \DateTimeImmutable('+1 day')]);
-        $link->setLastFormData(['title' => 'Previous']);
-        self::getEntityManager()->flush();
 
         $response = $this->linkRequest($link->getToken(), 'GET', '/upload-links/current');
 
@@ -353,7 +351,7 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
         $this->assertSame(0, $data['usedAssets']);
         $this->assertSame(0, $data['usedSize']);
         $this->assertNotNull($data['expiresAt']);
-        $this->assertSame(['title' => 'Previous'], $data['lastFormData']);
+        $this->assertArrayNotHasKey('lastFormData', $data, 'What another holder of the link entered');
         $this->assertArrayNotHasKey('token', $data);
         $this->assertArrayNotHasKey('ownerId', $data);
 
@@ -410,6 +408,12 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
         $this->assertSame(403, $response->getStatusCode());
 
         $response = $this->linkRequest($link->getToken(), 'GET', '/targets/'.$other->getId().'/form');
+        $this->assertSame(403, $response->getStatusCode());
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/form/validate', ['target' => '/targets/'.$target->getId(), 'data' => []]);
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/form/validate', ['target' => '/targets/'.$other->getId(), 'data' => []]);
         $this->assertSame(403, $response->getStatusCode());
     }
 

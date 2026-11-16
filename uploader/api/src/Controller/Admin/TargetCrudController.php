@@ -53,7 +53,7 @@ class TargetCrudController extends AbstractAdminCrudController
         yield CodeField::new('pullModeUrl', 'Pull mode URL')
             ->onlyOnIndex();
         yield TextField::new('targetUrl')
-            ->setHelp('Leave empty for pull mode. i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet');
+            ->setHelp('Leave empty for pull mode. i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet. https only: the authorization key is sent to it (http is accepted for a host of the stack, without dot).');
         yield TextField::new('authorizationScheme')
             ->setHelp('Use "OAuth" for Phraseanet')
             ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "'.AssetConsumerNotifyHandler::DEFAULT_AUTHORIZATION_SCHEME.'"']])
