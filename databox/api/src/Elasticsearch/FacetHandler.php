@@ -15,6 +15,11 @@ final readonly class FacetHandler
 {
     public const string MISSING_SUFFIX = '::missing';
 
+    /**
+     * Name of the aggregation nested in a filter aggregation that restricts a facet to some documents.
+     */
+    public const string VISIBLE_AGG = '_visible';
+
     public function __construct(
         private BuiltInAttributeRegistry $builtInAttributeRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
@@ -42,6 +47,10 @@ final readonly class FacetHandler
         $missing = [];
         $mergedFacets = [];
         foreach ($facets as $k => $f) {
+            if (isset($f[self::VISIBLE_AGG])) {
+                $f = $f[self::VISIBLE_AGG];
+            }
+
             if (str_ends_with((string) $k, self::MISSING_SUFFIX)) {
                 $k = substr((string) $k, 0, -strlen(self::MISSING_SUFFIX));
 

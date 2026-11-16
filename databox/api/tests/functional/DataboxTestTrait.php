@@ -176,6 +176,7 @@ trait DataboxTestTrait
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
         $definition->setSortable($options['sortable'] ?? false);
+        $definition->setFacetEnabled($options['facet_enabled'] ?? false);
         $definition->setName($options['name'] ?? null);
         $definition->setSlug($options['slug'] ?? null);
         $definition->setEntityList($options['list'] ?? null);

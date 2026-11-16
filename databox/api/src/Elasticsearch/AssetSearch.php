@@ -6,6 +6,7 @@ namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
@@ -48,6 +49,32 @@ class AssetSearch extends AbstractSearch
      * Marks an order resolved from a saved search, whose fields may have disappeared since it was saved.
      */
     private const string OPT_SAVED_SORT = '_savedSearchSort';
+
+    /**
+     * Sorts on the values indexed in the workspaces of params.w only, the others count as missing
+     * (params.m, sorted last). Like a field sort, a multi-valued field sorts on its lowest value
+     * in ascending order and on its highest one in descending order (doc values are sorted).
+     */
+    private const string RESTRICTED_SORT_VALUE = <<<'PAINLESS'
+        String f = params.f;
+        if (!doc.containsKey(f) || doc[f].size() == 0 || doc['workspaceId'].size() == 0 || !params.w.contains(doc['workspaceId'].value)) {
+            return params.m;
+        }
+        def v = doc[f][params.asc ? 0 : doc[f].size() - 1];
+
+        PAINLESS;
+
+    private const string RESTRICTED_SORT_STRING_SCRIPT = self::RESTRICTED_SORT_VALUE.'return v;';
+
+    private const string RESTRICTED_SORT_NUMBER_SCRIPT = self::RESTRICTED_SORT_VALUE.<<<'PAINLESS'
+        if (params.k == 'd') {
+            return v.toInstant().toEpochMilli();
+        }
+        if (params.k == 'b') {
+            return v ? 1.0 : 0.0;
+        }
+        return v;
+        PAINLESS;
 
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset')]
@@ -252,7 +279,7 @@ class AssetSearch extends AbstractSearch
 
         $geoFilter = new Query\BoolQuery();
         $geoFilter->addFilter(new Query\Exists($fieldInfo->name));
-        if (null !== $workspaceRestriction = $this->createFieldWorkspaceRestriction($userId, $groupIds, $fieldInfo->name)) {
+        if (null !== $workspaceRestriction = $this->attributeSearch->createVisibilityQuery($userId, $groupIds, $field)) {
             $geoFilter->addFilter($workspaceRestriction);
         }
 
@@ -311,30 +338,6 @@ class AssetSearch extends AbstractSearch
             'bottom' => $bounds['bottom_right']['lat'],
             'right' => $bounds['bottom_right']['lon'],
         ];
-    }
-
-    /**
-     * Restricts an attribute field to the workspaces where the user may read it.
-     * Null when the user may read it everywhere.
-     */
-    private function createFieldWorkspaceRestriction(?string $userId, array $groupIds, string $fieldName): ?Query\AbstractQuery
-    {
-        $workspaceIds = [];
-        foreach ($this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds) as $cluster) {
-            if (!isset($cluster['fields'][$fieldName])) {
-                continue;
-            }
-            if (empty($cluster['w'])) {
-                return null;
-            }
-            array_push($workspaceIds, ...$cluster['w']);
-        }
-
-        if (empty($workspaceIds)) {
-            return new Query\MatchNone();
-        }
-
-        return new Query\Terms('workspaceId', array_values(array_unique($workspaceIds)));
     }
 
     /**
@@ -726,12 +729,28 @@ class AssetSearch extends AbstractSearch
 
                 if ($esFieldInfo->builtIn) {
                     $sort[] = [$fieldName => $w];
-                } else {
+
+                    continue;
+                }
+
+                $readableWorkspaceIds = $this->attributeSearch->getReadableWorkspaceIds($options['userId'] ?? null, $options['groupIds'] ?? [], $field);
+                if (null === $readableWorkspaceIds) {
                     $sort[] = [$fieldName => [
                         'order' => $w,
                         'unmapped_type' => 'keyword',
                     ]];
+
+                    continue;
                 }
+
+                // The values of the workspaces where the user cannot read the attribute must not order the assets
+                if (null === $restrictedSort = self::createRestrictedSort($fieldName, $esFieldInfo->type, $w, $readableWorkspaceIds)) {
+                    if ($lenient) {
+                        continue;
+                    }
+                    throw new BadRequestHttpException(sprintf('Cannot sort on attribute "%s": you are not allowed to read it in every workspace', $field));
+                }
+                $sort[] = $restrictedSort;
             }
         }
 
@@ -746,6 +765,49 @@ class AssetSearch extends AbstractSearch
         $sort[] = ['sequence' => 'ASC'];
 
         $query->setSort($sort);
+    }
+
+    /**
+     * @param string[] $workspaceIds
+     */
+    private static function createRestrictedSort(string $fieldName, AttributeTypeInterface $type, string $way, array $workspaceIds): ?array
+    {
+        $kind = null !== $type->getElasticSearchSortSubField() ? 's' : match ($type->getElasticSearchType()) {
+            'keyword', 'ip' => 's',
+            'long', 'integer', 'short', 'byte', 'double', 'float', 'half_float', 'scaled_float', 'unsigned_long' => 'n',
+            'date' => 'd',
+            'boolean' => 'b',
+            default => null,
+        };
+        if (null === $kind) {
+            return null;
+        }
+
+        $asc = 'ASC' === $way;
+        if ('s' === $kind) {
+            // Code point U+10FFFF sorts after any value, the empty string before
+            $missing = $asc ? "\u{10FFFF}" : '';
+        } else {
+            $missing = $asc ? PHP_FLOAT_MAX : -PHP_FLOAT_MAX;
+        }
+
+        return [
+            '_script' => [
+                'type' => 's' === $kind ? 'string' : 'number',
+                'order' => $way,
+                'script' => [
+                    'lang' => 'painless',
+                    'source' => 's' === $kind ? self::RESTRICTED_SORT_STRING_SCRIPT : self::RESTRICTED_SORT_NUMBER_SCRIPT,
+                    'params' => [
+                        'f' => $fieldName,
+                        'w' => array_values($workspaceIds),
+                        'asc' => $asc,
+                        'k' => $kind,
+                        'm' => $missing,
+                    ],
+                ],
+            ],
+        ];
     }
 
     protected function getAdminScope(): ?string
