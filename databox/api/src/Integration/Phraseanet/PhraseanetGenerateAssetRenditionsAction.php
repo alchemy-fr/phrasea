@@ -30,7 +30,8 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
         $asset = $this->getAsset($context);
         $file = $asset->getSource();
 
-        $url = $this->fileUrlResolver->resolveUrl($file);
+        $url = $this->fileUrlResolver->resolveUrl($file)
+            ?? throw new \InvalidArgumentException(sprintf('Source file "%s" has no HTTP(S) URL', $file->getId()));
 
         $destUrl = $this->urlGenerator->generate('integration_phraseanet_incoming_rendition', [
             'integrationId' => $config->getIntegrationId(),

@@ -73,6 +73,59 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         $this->assertSame($workspace->getId(), $asset->getSource()->getWorkspaceId());
     }
 
+    #[DataProvider('sourceUrlProvider')]
+    public function testSourceUrlScheme(string $url, int $expectedStatus): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+
+        $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'sourceFile' => [
+                'url' => $url,
+                'originalName' => 'photo.jpg',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame($expectedStatus);
+    }
+
+    public static function sourceUrlProvider(): array
+    {
+        return [
+            ['https://example.com/files/photo.jpg', 201],
+            ['HTTP://example.com/files/photo.jpg', 201],
+            ['javascript:alert(1)', 422],
+            ['JavaScript://example.com/%0Aalert(1)', 422],
+            [' https://example.com/files/photo.jpg', 422],
+            ['data:text/html,<script>alert(1)</script>', 422],
+            ['indexer:///e2e/photo.jpg', 422],
+            ['ftp://example.com/photo.jpg', 422],
+            ['//example.com/photo.jpg', 422],
+            ['https:///photo.jpg', 422],
+        ];
+    }
+
+    public function testRenditionSourceUrlScheme(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+
+        $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'sourceFile' => [
+                'url' => 'https://example.com/files/photo.jpg',
+            ],
+            'renditions' => [
+                [
+                    'name' => 'preview',
+                    'sourceFile' => [
+                        'url' => 'javascript:alert(1)',
+                        'originalName' => 'preview.jpg',
+                    ],
+                ],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     #[DataProvider('alternateUrlProvider')]
     public function testAlternateUrlScheme(string $url, int $expectedStatus): void
     {

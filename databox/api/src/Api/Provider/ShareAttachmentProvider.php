@@ -13,6 +13,7 @@ use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Share\ShareAttachmentResolver;
+use App\Service\Share\ShareRenditionUrlGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,11 +59,12 @@ final class ShareAttachmentProvider implements ProviderInterface
         }
 
         $file = $this->attachmentResolver->getSharedRendition($item, $attachment)?->getFile();
-        if (null === $file) {
+        if (!ShareRenditionUrlGenerator::isServable($file)
+            || null === $url = $this->fileUrlResolver->resolveUrl($file)) {
             return $this->createNotFoundResponse();
         }
 
-        return new RedirectResponse($this->fileUrlResolver->resolveUrl($file));
+        return new RedirectResponse($url);
     }
 
     private function createNotFoundResponse(): Response

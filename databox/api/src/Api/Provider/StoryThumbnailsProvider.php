@@ -52,8 +52,9 @@ class StoryThumbnailsProvider implements ProviderInterface
             $renditions = StoryRenditionPreference::sort($asset, 'thumbnail', $this->renditionManager->getAssetRenditionsUsedAs('thumbnail', $asset->getId()));
             foreach ($renditions as $rendition) {
                 if (str_starts_with($rendition->getFile()?->getType() ?? '', 'image/')) {
-                    if ($this->isGranted(AbstractVoter::READ, $rendition)) {
-                        $thumbnails[] = $this->fileUrlResolver->resolveUrl($rendition->getFile());
+                    if ($this->isGranted(AbstractVoter::READ, $rendition)
+                        && null !== $url = $this->fileUrlResolver->resolveUrl($rendition->getFile())) {
+                        $thumbnails[] = $url;
                         break;
                     }
                 }

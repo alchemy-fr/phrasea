@@ -91,7 +91,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
     {
         $client = static::createClient();
         $this->setUpWorkspace();
-        $file = $this->createUrlFile($this->workspace, 'https://example.org/foo.jpg');
+        $file = $this->createStorageFile($this->workspace, 'shares/foo.jpg');
         $definitions = [];
         foreach (['preview', 'thumbnail', 'original'] as $name) {
             $definitions[$name] = $this->createRenditionDefinition($this->workspace, $name, 'original' !== $name);
@@ -157,7 +157,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
     {
         $client = static::createClient();
         $this->setUpWorkspace();
-        $file = $this->createUrlFile($this->workspace, 'https://example.org/foo.jpg');
+        $file = $this->createStorageFile($this->workspace, 'shares/foo.jpg');
         $definitions = [];
         foreach (['preview', 'thumbnail'] as $name) {
             $definitions[$name] = $this->createRenditionDefinition($this->workspace, $name, true);

@@ -6,6 +6,7 @@ namespace App\Service\Asset;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\FileValidator;
+use App\Border\Exception\UnsupportedUriException;
 use App\Border\UriDownloader;
 use App\Entity\Core\File;
 use App\Entity\Core\FileAnalysisStateEnum;
@@ -95,7 +96,7 @@ class FileFetcher implements ResetInterface
             return $file->localTmpPath = $path;
         }
 
-        $path = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), path: $path);
+        $path = $this->fileDownloader->download($this->getRemoteUrl($file), path: $path);
         if ($isTemporary) {
             $this->temporaryPaths[$path] = true;
         }
@@ -160,7 +161,7 @@ class FileFetcher implements ResetInterface
             }
         }
 
-        return $this->fileDownloader->downloadHead($this->fileUrlResolver->resolveUrl($file), $length);
+        return $this->fileDownloader->downloadHead($this->getRemoteUrl($file), $length);
     }
 
     public function downloadFile(File $file, array &$headers = []): string
@@ -173,9 +174,14 @@ class FileFetcher implements ResetInterface
             throw new \LogicException(sprintf('File "%s" is not a remote URL', $file->getId()));
         }
 
-        $path = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), $headers);
+        $path = $this->fileDownloader->download($this->getRemoteUrl($file), $headers);
         $this->temporaryPaths[$path] = true;
 
         return $file->localTmpPath = $path;
+    }
+
+    private function getRemoteUrl(File $file): string
+    {
+        return $this->fileUrlResolver->resolveUrl($file) ?? throw new UnsupportedUriException($file->getPath());
     }
 }

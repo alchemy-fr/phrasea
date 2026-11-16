@@ -56,6 +56,7 @@ class AssetInput extends AbstractOwnerIdInput
     /**
      * @var AssetRenditionInput[]
      */
+    #[Assert\Valid]
     public ?array $renditions = null;
 
     #[Groups(['_'])]
