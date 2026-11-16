@@ -184,4 +184,121 @@ final class OperationTaskTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(400);
         $this->assertSame(0, self::getEntityManager()->getRepository(OperationTask::class)->count([]));
     }
+
+    public static function getCancellableStatuses(): iterable
+    {
+        yield 'pending' => [OperationTask::STATUS_PENDING];
+        yield 'in progress' => [OperationTask::STATUS_IN_PROGRESS];
+    }
+
+    public static function getTerminatedStatuses(): iterable
+    {
+        yield 'completed' => [OperationTask::STATUS_COMPLETED];
+        yield 'failed' => [OperationTask::STATUS_FAILED];
+        yield 'cancelled' => [OperationTask::STATUS_CANCELLED];
+    }
+
+    private function cancel(string $id, ?string $userId = KeycloakClientTestMock::ADMIN_UID): array
+    {
+        return static::createClient()->request('POST', '/operation-tasks/'.$id.'/cancel', [
+            'headers' => $this->headers($userId),
+            'json' => [],
+        ])->toArray(false);
+    }
+
+    private function delete(string $id, ?string $userId = KeycloakClientTestMock::ADMIN_UID): void
+    {
+        static::createClient()->request('DELETE', '/operation-tasks/'.$id, [
+            'headers' => $this->headers($userId),
+        ]);
+    }
+
+    private function findTask(string $id): ?OperationTask
+    {
+        $em = self::getEntityManager();
+        $em->clear();
+
+        return $em->find(OperationTask::class, $id);
+    }
+
+    #[DataProvider('getCancellableStatuses')]
+    public function testAdminsCancelAPendingOrRunningTask(int $status): void
+    {
+        $task = $this->createTask('index_assets', status: $status);
+
+        $data = $this->cancel($task->getId());
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(OperationTask::STATUS_CANCELLED, $data['status']);
+        $this->assertNotEmpty($data['endedAt']);
+        $this->assertArrayNotHasKey('cancellable', $data);
+        $this->assertArrayNotHasKey('terminated', $data);
+
+        $task = $this->findTask($task->getId());
+        $this->assertSame(OperationTask::STATUS_CANCELLED, $task->getStatus());
+        $this->assertNotNull($task->getEndedAt());
+    }
+
+    #[DataProvider('getTerminatedStatuses')]
+    public function testATerminatedTaskCannotBeCancelled(int $status): void
+    {
+        $task = $this->createTask('index_assets', status: $status);
+
+        $this->cancel($task->getId());
+
+        $this->assertResponseStatusCodeSame(409);
+        $task = $this->findTask($task->getId());
+        $this->assertSame($status, $task->getStatus());
+        $this->assertNull($task->getEndedAt());
+    }
+
+    public function testCancellingAnUnknownTaskIs404(): void
+    {
+        $this->cancel('00000000-0000-4000-8000-000000000000');
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    #[DataProvider('getTerminatedStatuses')]
+    public function testAdminsDeleteATerminatedTask(int $status): void
+    {
+        $task = $this->createTask('index_assets', status: $status);
+
+        $this->delete($task->getId());
+
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertNull($this->findTask($task->getId()));
+    }
+
+    #[DataProvider('getCancellableStatuses')]
+    public function testAPendingOrRunningTaskCannotBeDeleted(int $status): void
+    {
+        $task = $this->createTask('index_assets', status: $status);
+
+        $this->delete($task->getId());
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertNotNull($this->findTask($task->getId()));
+    }
+
+    public static function getForbiddenTaskActions(): iterable
+    {
+        yield 'anonymous cancel' => [null, 'cancel', OperationTask::STATUS_IN_PROGRESS, 401];
+        yield 'user cancel' => [KeycloakClientTestMock::USER_UID, 'cancel', OperationTask::STATUS_IN_PROGRESS, 403];
+        yield 'anonymous delete' => [null, 'delete', OperationTask::STATUS_COMPLETED, 401];
+        yield 'user delete' => [KeycloakClientTestMock::USER_UID, 'delete', OperationTask::STATUS_COMPLETED, 403];
+    }
+
+    #[DataProvider('getForbiddenTaskActions')]
+    public function testCancellingAndDeletingAreReservedToAdmins(?string $userId, string $action, int $status, int $expectedCode): void
+    {
+        $task = $this->createTask('index_assets', status: $status);
+
+        'cancel' === $action ? $this->cancel($task->getId(), $userId) : $this->delete($task->getId(), $userId);
+
+        $this->assertResponseStatusCodeSame($expectedCode);
+        $task = $this->findTask($task->getId());
+        $this->assertNotNull($task);
+        $this->assertSame($status, $task->getStatus());
+    }
 }

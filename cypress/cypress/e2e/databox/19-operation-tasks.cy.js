@@ -5,6 +5,8 @@ import {deleteWorkspace, seedWorkspace} from './lib/api';
 import {expectToastText, login, openSettingsMenu, visitAssets} from './lib/app';
 import {databoxUrl} from '../lib/urls';
 
+const taskDetailsUrl = /\/admin\/tasks\/([0-9a-f-]{36})$/;
+
 describe('Operation tasks', () => {
     let ctx;
 
@@ -39,20 +41,43 @@ describe('Operation tasks', () => {
 
     it('runs an "Index assets" task on the workspace', () => {
         cy.visit(`${databoxUrl}/admin/tasks`);
-        cy.contains('button', 'New task').click();
+        cy.contains('a', 'New task').click();
+        cy.url().should('match', /\/admin\/tasks\/new$/);
         cy.getBySel('task-catalog-intro')
             .should('contain.text', 'You are about to start a new task');
         cy.contains('Index assets').click();
+        cy.url().should('match', /\/admin\/tasks\/new\/index_assets$/);
         cy.fieldByLabel('Workspace').selectOption(ctx.workspace.name);
         cy.contains('button', 'Run').click();
         expectToastText('Task started');
+        // The details of the created task
+        cy.url({timeout: 20000}).should('match', taskDetailsUrl);
         cy.contains('Index assets', {timeout: 20000}).should('be.visible');
         cy.contains(/Completed|In progress|Pending/, {timeout: 60000}).should('be.visible');
     });
 
     it('opens the task details', () => {
         cy.visit(`${databoxUrl}/admin/tasks`);
-        cy.contains('Index assets').first().click();
+        cy.getBySel('task-row').contains('Index assets').first().click();
+        cy.url().should('match', taskDetailsUrl);
         cy.contains(/Payload|Output|Started at/).should('be.visible');
+        // The details stay on reload
+        cy.reload();
+        cy.url().should('match', taskDetailsUrl);
+        cy.contains('Payload', {timeout: 20000}).should('be.visible');
+    });
+
+    it('deletes a completed task', () => {
+        cy.visit(`${databoxUrl}/admin/tasks`);
+        cy.getBySel('task-row').contains('Index assets').first().click();
+        cy.url().should('match', taskDetailsUrl).then(url => {
+            const id = url.match(taskDetailsUrl)[1];
+            cy.contains('Completed', {timeout: 60000}).should('be.visible');
+            cy.getBySel('task-delete').click();
+            cy.get('[role=dialog]').contains('button', 'Delete').click();
+            expectToastText('Task deleted');
+            cy.url().should('match', /\/admin\/tasks$/);
+            cy.get(`a[href$="/admin/tasks/${id}"]`).should('not.exist');
+        });
     });
 });

@@ -76,14 +76,7 @@ final class RunContext
 
     private function reload(): void
     {
-        $this->taskEntity = $this->em->find(OperationTask::class, $this->taskEntity->getId());
-        if (!$this->taskEntity) {
-            throw new \RuntimeException('Task not found');
-        }
-
-        if (OperationTask::STATUS_CANCELLED === $this->taskEntity->getStatus()) {
-            throw new \RuntimeException('Task cancelled');
-        }
+        $this->taskEntity = OperationTaskManager::reloadTask($this->em, $this->taskEntity);
     }
 
     public function getOutput(): OutputInterface
