@@ -125,7 +125,8 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 $groupIds,
                 withConditions: false
             )
-            ->select('t.type')
+            ->select('t.id')
+            ->addSelect('t.type')
             ->addSelect('t.slug')
             ->addSelect('t.multiple')
             ->addSelect('t.searchBoost')

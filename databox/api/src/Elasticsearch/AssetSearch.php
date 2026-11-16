@@ -53,14 +53,37 @@ class AssetSearch extends AbstractSearch
     private const string OPT_SAVED_SORT = '_savedSearchSort';
 
     /**
-     * Sorts on the values indexed in the workspaces of params.w only, the others count as missing
-     * (params.m, sorted last). Like a field sort, a multi-valued field sorts on its lowest value
-     * in ascending order and on its highest one in descending order (doc values are sorted).
+     * Sorts on the values indexed in the workspaces of params.w only (any workspace when null),
+     * minus the assets of the scopes of params.x (see HiddenAttributeScope): the others count as
+     * missing (params.m, sorted last). Like a field sort, a multi-valued field sorts on its lowest
+     * value in ascending order and on its highest one in descending order (doc values are sorted).
      */
     private const string RESTRICTED_SORT_VALUE = <<<'PAINLESS'
         String f = params.f;
-        if (!doc.containsKey(f) || doc[f].size() == 0 || doc['workspaceId'].size() == 0 || !params.w.contains(doc['workspaceId'].value)) {
+        if (!doc.containsKey(f) || doc[f].size() == 0 || doc['workspaceId'].size() == 0) {
             return params.m;
+        }
+        String ws = doc['workspaceId'].value;
+        if (params.w != null && !params.w.contains(ws)) {
+            return params.m;
+        }
+        if (!params.x.isEmpty() && doc.containsKey('referenceCollectionPath.raw') && doc['referenceCollectionPath.raw'].size() > 0) {
+            String path = doc['referenceCollectionPath.raw'].value;
+            for (def s : params.x) {
+                if (s.w != ws) {
+                    continue;
+                }
+                boolean inScope = true;
+                for (def p : s.p) {
+                    if (path != p && !path.startsWith(p + '/')) {
+                        inScope = false;
+                        break;
+                    }
+                }
+                if (inScope) {
+                    return params.m;
+                }
+            }
         }
         def v = doc[f][params.asc ? 0 : doc[f].size() - 1];
 
@@ -123,6 +146,11 @@ class AssetSearch extends AbstractSearch
     ): array {
         [$query, $limit, $options] = $this->buildQuery($userId, $groupIds, $options);
 
+        $groupByKey = $options['group'][0] ?? null;
+        if (null !== $groupByKey && (!is_string($groupByKey) || !$this->isGroupableField($groupByKey, $options))) {
+            throw new BadRequestHttpException(sprintf('Cannot group by "%s": it does not exist or you are not allowed to read it', is_scalar($groupByKey) ? $groupByKey : get_debug_type($groupByKey)));
+        }
+
         $this->applySort($query, $options);
 
         $query->setHighlight([
@@ -161,7 +189,6 @@ class AssetSearch extends AbstractSearch
 
         $esQuery = $query->toArray();
 
-        $groupByKey = $options['group'][0] ?? null;
         if (null !== $groupByKey) {
             $this->assetSortGroupMapper->resolveSortGroups($result, $groupByKey);
         }
@@ -705,7 +732,7 @@ class AssetSearch extends AbstractSearch
             if (!empty($order)) {
                 $options['order'] = $order;
                 $options[self::OPT_SAVED_SORT] = true;
-                if (null !== $group && !isset($options['group']) && $this->isKnownField($group)) {
+                if (null !== $group && !isset($options['group']) && $this->isGroupableField($group, $options)) {
                     $options['group'] = [$group];
                 }
             }
@@ -714,15 +741,20 @@ class AssetSearch extends AbstractSearch
         return $options;
     }
 
-    private function isKnownField(string $field): bool
+    /**
+     * Grouping exposes the value of the first asset of each group: only a built-in attribute or
+     * an attribute the user may read can group the results.
+     */
+    private function isGroupableField(string $field, array $options): bool
     {
         try {
-            $this->attributeSearch->getESFieldInfo($field);
-
-            return true;
+            $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
         } catch (\InvalidArgumentException) {
             return false;
         }
+
+        return $esFieldInfo->builtIn
+            || $this->attributeSearch->isReadableAttributeKey($options['userId'] ?? null, $options['groupIds'] ?? [], $field);
     }
 
     private function applySort(Query $query, array $options): void
@@ -805,7 +837,8 @@ class AssetSearch extends AbstractSearch
                 }
 
                 $readableWorkspaceIds = $this->attributeSearch->getReadableWorkspaceIds($options['userId'] ?? null, $options['groupIds'] ?? [], $field);
-                if (null === $readableWorkspaceIds) {
+                $hiddenScopes = $this->attributeSearch->getHiddenScopes($options['userId'] ?? null, $options['groupIds'] ?? [], $field);
+                if (null === $readableWorkspaceIds && empty($hiddenScopes)) {
                     $sort[] = [$fieldName => [
                         'order' => $w,
                         'unmapped_type' => 'keyword',
@@ -814,8 +847,8 @@ class AssetSearch extends AbstractSearch
                     continue;
                 }
 
-                // The values of the workspaces where the user cannot read the attribute must not order the assets
-                if (null === $restrictedSort = self::createRestrictedSort($fieldName, $esFieldInfo->type, $w, $readableWorkspaceIds)) {
+                // The values the user cannot read (other workspaces, assets where asset policies hide the attribute) must not order the assets
+                if (null === $restrictedSort = self::createRestrictedSort($fieldName, $esFieldInfo->type, $w, $readableWorkspaceIds, $hiddenScopes)) {
                     if ($lenient) {
                         continue;
                     }
@@ -839,9 +872,10 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
-     * @param string[] $workspaceIds
+     * @param string[]|null                       $workspaceIds null for every workspace
+     * @param list<array{w: string, p: string[]}> $hiddenScopes
      */
-    private static function createRestrictedSort(string $fieldName, AttributeTypeInterface $type, string $way, array $workspaceIds): ?array
+    private static function createRestrictedSort(string $fieldName, AttributeTypeInterface $type, string $way, ?array $workspaceIds, array $hiddenScopes): ?array
     {
         $kind = null !== $type->getElasticSearchSortSubField() ? 's' : match ($type->getElasticSearchType()) {
             'keyword', 'ip' => 's',
@@ -871,7 +905,8 @@ class AssetSearch extends AbstractSearch
                     'source' => 's' === $kind ? self::RESTRICTED_SORT_STRING_SCRIPT : self::RESTRICTED_SORT_NUMBER_SCRIPT,
                     'params' => [
                         'f' => $fieldName,
-                        'w' => array_values($workspaceIds),
+                        'w' => null !== $workspaceIds ? array_values($workspaceIds) : null,
+                        'x' => $hiddenScopes,
                         'asc' => $asc,
                         'k' => $kind,
                         'm' => $missing,

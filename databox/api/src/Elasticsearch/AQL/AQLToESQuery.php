@@ -20,6 +20,7 @@ use App\Elasticsearch\AQL\Function\Argument;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInAttribute\CustomFilterQueryBuiltInAttributeInterface;
+use App\Elasticsearch\HiddenAttributeScope;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -111,10 +112,15 @@ final readonly class AQLToESQuery
 
     private function wrapCluster(Query\AbstractQuery $query, ClusterGroup $group): Query\AbstractQuery
     {
-        if (!empty($group->getWorkspaceIds())) {
+        if (!empty($group->getWorkspaceIds()) || !empty($group->getHiddenScopes())) {
             $boolQuery = new Query\BoolQuery();
             $boolQuery->addMust($query);
-            $boolQuery->addMust(new Query\Terms('workspaceId', $group->getWorkspaceIds()));
+            if (!empty($group->getWorkspaceIds())) {
+                $boolQuery->addMust(new Query\Terms('workspaceId', $group->getWorkspaceIds()));
+            }
+            foreach ($group->getHiddenScopes() as $scope) {
+                $boolQuery->addMustNot(HiddenAttributeScope::createQuery($scope));
+            }
             $query = $boolQuery;
         }
 
@@ -684,7 +690,8 @@ final readonly class AQLToESQuery
                             ],
                             false,
                             $cluster['w'] ?? [],
-                            $cluster['locales'] ?? null
+                            $cluster['locales'] ?? null,
+                            $cluster['x'] ?? [],
                         );
                     }
                 }

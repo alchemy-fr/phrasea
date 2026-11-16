@@ -87,8 +87,10 @@ class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvide
 
     /**
      * The attributes found by the search, loaded by ID, in the order of their assets, minus the
-     * ones the search should already have left out (unreadable asset, definition hidden by the
-     * asset policies): the search applies the rights, this only guards against a stale index.
+     * ones the user may not see. The search only returns the assets holding a value the user may
+     * see (asset rights, asset policies), and counts them, but lists every matching value of these
+     * assets, those of a definition an asset policy hides on the asset included; the index may
+     * also be stale.
      *
      * @param string[]                $assetIds     in page order
      * @param array<string, string[]> $attributeIds by asset ID

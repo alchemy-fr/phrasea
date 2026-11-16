@@ -11,8 +11,10 @@ use App\Api\Traits\CollectionProviderAwareTrait;
 use App\Api\Traits\WorkspaceCollectionTrait;
 use App\Elasticsearch\AttributeEntitySearch;
 use App\Elasticsearch\AttributeValueSearch;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Security\Voter\AttributeDefinitionVoter;
 use App\Service\Image\ImageSetManager;
 
 final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
@@ -62,8 +64,8 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
     }
 
     /**
-     * Counts, per entity of the page, the attribute values referencing it (in the definitions bound to its list),
-     * on the assets the user can read.
+     * Counts, per entity of the page, the attribute values referencing it (in the definitions bound to its list
+     * that the user may read), on the assets the user can read, minus those an asset policy hides from them.
      *
      * @param iterable<AttributeEntity> $entities
      */
@@ -82,7 +84,14 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 
         foreach ($byList as $listId => $listEntities) {
             $workspaceId = $listEntities[0]->getWorkspaceId();
-            $definitionIds = array_map(fn ($d): string => $d->getId(), $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity($workspaceId, $listId));
+            // Only the values the user may read count, as in GET /attributes?definition=
+            $definitionIds = array_map(
+                fn (AttributeDefinition $d): string => $d->getId(),
+                array_filter(
+                    $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity($workspaceId, $listId),
+                    fn (AttributeDefinition $d): bool => $this->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $d),
+                ),
+            );
             $usage = $this->attributeValueSearch->countUsage($userId, $groupIds, $definitionIds, array_map(fn (AttributeEntity $e): string => $e->getId(), $listEntities));
             foreach ($listEntities as $entity) {
                 $entity->setUsage($usage[$entity->getId()] ?? ['attributes' => 0, 'humanAttributes' => 0]);

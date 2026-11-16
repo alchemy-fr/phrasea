@@ -13,6 +13,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Notification\ExceptionNotifier;
 use App\Notification\UserNotifyableException;
 use App\Security\Voter\AttributeDefinitionVoter;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -28,11 +29,17 @@ readonly class AttributesResolver
         private FallbackResolver $fallbackResolver,
         private Security $security,
         private ExceptionNotifier $exceptionNotifier,
+        private AssetPolicyManager $assetPolicyManager,
         TemporaryCacheFactory $cacheFactory,
     ) {
         $this->definitionPermissionCache = $cacheFactory->createCache();
     }
 
+    /**
+     * With $applyPermissions, only the attributes the current user may see: the definitions they
+     * may not read and the ones the asset policies hide from them for this asset are left out.
+     * The asset name, its groups and its output all read this index.
+     */
     public function resolveAssetAttributes(Asset $asset, bool $applyPermissions): AttributeIndex
     {
         if ($applyPermissions && $asset->attributesIndex) {
@@ -47,9 +54,10 @@ readonly class AttributesResolver
         $this->resolveFallbacks($asset, $index);
 
         if ($applyPermissions) {
+            $hiddenByPolicy = $this->assetPolicyManager->getPolicyApplicationFilter($asset)->getFilteredAttributes();
             foreach ($index->getDefinitions() as $definitionIndex) {
                 $definition = $definitionIndex->getDefinition();
-                if (!$this->canViewDefinitionAttributes($definition)) {
+                if (\in_array($definition->getId(), $hiddenByPolicy, true) || !$this->canViewDefinitionAttributes($definition)) {
                     $index->removeDefinition($definition->getId());
                 }
             }
