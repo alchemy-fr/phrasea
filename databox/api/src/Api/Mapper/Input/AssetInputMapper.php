@@ -22,6 +22,7 @@ use App\Service\Clip\ClipFamily;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[AsTaggedItem(index: AssetInput::class)]
 class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInterface
@@ -114,6 +115,13 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
                     $object->setReferenceCollection($data->collection);
                 }
                 $object->addToCollection($data->collection, extraMetadata: $data->relationExtraMetadata);
+            }
+
+            // Checked before anything is stored, the uploaded file included: completing a
+            // multipart upload writes its object on S3, which nothing would reference.
+            $this->processOwnerId($object);
+            if (!$this->isGranted(AbstractVoter::CREATE, $object)) {
+                throw new AccessDeniedException('Not allowed to create an asset here');
             }
 
             if (!empty($data->attributes)) {

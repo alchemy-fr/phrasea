@@ -7,7 +7,7 @@ namespace Alchemy\StorageBundle\Upload;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Api\Dto\PartInput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
-use Aws\Api\DateTimeResult;
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,6 +23,17 @@ final readonly class UploadManager
      * must outlive the whole transfer (clients refresh them past this point).
      */
     public const string PART_URL_TTL = '+3 hours';
+
+    /**
+     * Default minimum age of the uploads aborted by pruneParts(), well beyond
+     * PART_URL_TTL: a client may still be sending the parts of a younger one.
+     */
+    public const int PRUNE_MIN_AGE = 24 * 3600;
+
+    /**
+     * Lowest minimum age accepted by pruneParts(): the lifetime of the part URLs.
+     */
+    public const int PRUNE_MIN_AGE_LIMIT = 3 * 3600;
 
     public function __construct(
         private S3Client $client,
@@ -48,9 +59,17 @@ final readonly class UploadManager
 
     public function cancelMultipartUpload(string $path, string $uploadId): void
     {
+        $this->abortUpload($this->pathPrefix.$path, $uploadId);
+    }
+
+    /**
+     * @param string $key the S3 key, path prefix included
+     */
+    private function abortUpload(string $key, string $uploadId): void
+    {
         $this->client->abortMultipartUpload([
             'Bucket' => $this->uploadBucket,
-            'Key' => $this->pathPrefix.$path,
+            'Key' => $key,
             'UploadId' => $uploadId,
         ]);
     }
@@ -126,33 +145,90 @@ final readonly class UploadManager
         return (string) $request->getUri();
     }
 
-    public function pruneParts(): void
+    /**
+     * Aborts the incomplete S3 multipart uploads of the application initiated
+     * at least $minAge seconds ago, then deletes the uploads of that age never
+     * used by a resource.
+     *
+     * @return array{aborted: int, deleted: int}
+     */
+    public function pruneParts(int $minAge = self::PRUNE_MIN_AGE): array
     {
-        $result = $this->client->listMultipartUploads([
-            'Bucket' => $this->uploadBucket,
-            'MaxUploads' => 100,
-            // Uncomment this line to test with Minio (see https://github.com/minio/minio/issues/7632#issuecomment-490959779)
-            // 'Prefix' => 'fc/6e/fc6e0e4d-aad6-4f7d-9133-682607991072.jpg',
-        ]);
-
-        if (empty($result['Uploads'])) {
-            $this->logger->info('No upload to remove');
-
-            return;
+        if ($minAge < self::PRUNE_MIN_AGE_LIMIT) {
+            throw new \InvalidArgumentException(sprintf('The minimum age of the uploads to prune must be at least %d seconds (the lifetime of the part URLs), got %d', self::PRUNE_MIN_AGE_LIMIT, $minAge));
         }
 
-        $this->logger->info(sprintf('%s upload(s) to remove', count($result['Uploads'])));
+        $threshold = new \DateTimeImmutable(sprintf('-%d seconds', $minAge));
+        $aborted = $this->abortStaleUploads($threshold);
+        $deleted = $this->deleteUnusedUploads($threshold);
 
-        $gracePeriod = 3600 * 24 * 3;
+        $this->logger->info(sprintf('%d upload(s) aborted on S3, %d unused upload(s) deleted', $aborted, $deleted));
 
-        foreach ($result['Uploads'] as $upload) {
-            /** @var DateTimeResult $initiated */
-            $initiated = $upload['Initiated'];
-            if ($initiated->getTimestamp() < time() - $gracePeriod) {
-                $this->cancelMultipartUpload($upload['Key'], $upload['UploadId']);
-                $this->logger->info(sprintf('Removed: upload %s at %s', $upload['UploadId'], $upload['Key']));
+        return ['aborted' => $aborted, 'deleted' => $deleted];
+    }
+
+    /**
+     * Aborts the S3 multipart uploads under the path prefix of the application
+     * initiated before $initiatedBefore, whether a MultipartUpload row refers to
+     * them or not (the row may never have been flushed).
+     *
+     * With an empty path prefix, every multipart upload of the bucket is
+     * concerned: the bucket must not be shared with another application.
+     *
+     * @return int the number of aborted uploads
+     */
+    public function abortStaleUploads(\DateTimeImmutable $initiatedBefore): int
+    {
+        $params = ['Bucket' => $this->uploadBucket];
+        if ('' !== $this->pathPrefix) {
+            $params['Prefix'] = $this->pathPrefix;
+        }
+
+        $aborted = 0;
+        foreach ($this->client->getPaginator('ListMultipartUploads', $params) as $result) {
+            foreach ($result['Uploads'] ?? [] as $upload) {
+                /** @var \DateTimeInterface $initiated */
+                $initiated = $upload['Initiated'];
+                if ($initiated >= $initiatedBefore) {
+                    continue;
+                }
+
+                try {
+                    $this->abortUpload($upload['Key'], $upload['UploadId']);
+                } catch (S3Exception $e) {
+                    if ('NoSuchUpload' !== $e->getAwsErrorCode()) {
+                        throw $e;
+                    }
+
+                    $this->logger->warning(sprintf('Upload %s at %s was already gone', $upload['UploadId'], $upload['Key']));
+
+                    continue;
+                }
+
+                ++$aborted;
+                $this->logger->info(sprintf('Aborted upload %s at %s', $upload['UploadId'], $upload['Key']));
             }
         }
+
+        return $aborted;
+    }
+
+    /**
+     * Deletes the uploads created before $createdBefore that no resource used.
+     *
+     * @return int the number of deleted uploads
+     */
+    public function deleteUnusedUploads(\DateTimeImmutable $createdBefore): int
+    {
+        // A DQL delete skips the listeners: the S3 uploads are aborted by abortStaleUploads().
+        return (int) $this->em->createQueryBuilder()
+            ->delete(MultipartUpload::class, 'u')
+            ->andWhere('u.complete = false')
+            ->andWhere('u.consumedAt IS NULL')
+            ->andWhere('u.createdAt < :createdBefore')
+            ->setParameter('createdBefore', $createdBefore, Types::DATETIME_IMMUTABLE)
+            ->getQuery()
+            ->execute();
     }
 
     /**

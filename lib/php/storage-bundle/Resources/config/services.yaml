@@ -50,9 +50,7 @@ services:
 
     Alchemy\StorageBundle\Upload\MultipartUploadGuard: ~
 
-    Alchemy\StorageBundle\Command\PruneMultipartUploadsCommand:
-        tags:
-            - { name: console.command }
+    Alchemy\StorageBundle\Command\PruneMultipartUploadsCommand: ~
 
     Alchemy\StorageBundle\Api\Processor\:
         resource: '../../Api/Processor/'

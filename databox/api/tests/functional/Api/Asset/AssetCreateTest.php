@@ -6,12 +6,14 @@ namespace App\Tests\Functional\Api\Asset;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\StorageBundle\Entity\MultipartUpload;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use App\Tests\Functional\Api\MultipartUploadTestTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -20,6 +22,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 final class AssetCreateTest extends AbstractDataboxTestCase
 {
     use AssetApiTestTrait;
+    use MultipartUploadTestTrait;
 
     public function testCreateAssetWithoutFile(): void
     {
@@ -454,6 +457,46 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         $this->grantContributor(self::OTHER, $workspace);
         $this->request('POST', '/assets', self::OTHER, $payload);
         $this->assertResponseStatusCodeSame(201);
+    }
+
+    public static function getMultipartCreations(): iterable
+    {
+        yield 'single' => [false];
+        yield 'multiple' => [true];
+    }
+
+    /**
+     * Completing the upload would leave on S3 an object that no asset references.
+     */
+    #[DataProvider('getMultipartCreations')]
+    public function testUploadIsNotCompletedWithoutTheRightToCreate(bool $multiple): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $this->addUserOnWorkspace(self::OTHER, $workspace->getId());
+        $upload = $this->createUpload('content', 'photo.jpg', 'image/jpeg', self::OTHER);
+        $asset = [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'multipart' => self::multipartPayload($upload),
+        ];
+        $uri = $multiple ? '/assets/multiple' : '/assets';
+        $payload = $multiple ? ['assets' => [$asset]] : $asset;
+
+        $this->request('POST', $uri, self::OTHER, $payload);
+        $this->assertResponseStatusCodeSame(403);
+
+        self::getEntityManager()->clear();
+        $stored = self::getEntityManager()->find(MultipartUpload::class, $upload->getId());
+        $this->assertFalse($stored->isComplete());
+        $this->assertFalse($stored->isConsumed());
+        $this->assertSame(0, self::getEntityManager()->getRepository(Asset::class)->count([]));
+
+        // The upload can still be used where the user is allowed to
+        $this->grantContributor(self::OTHER, $workspace);
+        $this->request('POST', $uri, self::OTHER, $payload);
+        $this->assertResponseStatusCodeSame(201);
+
+        self::getEntityManager()->clear();
+        $this->assertTrue(self::getEntityManager()->find(MultipartUpload::class, $upload->getId())->isComplete());
     }
 
     public function testChildCreateOnACollectionAllowsCreatingInIt(): void

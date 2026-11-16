@@ -55,8 +55,9 @@ Follow these steps in order. Each one is detailed in the sections below.
     bin/console fos:elastica:populate
     ```
 
-8. Deploy the new `databox-scheduler` and `uploader-scheduler` services, with a
-   single replica each, and remove the host crons (see
+8. Deploy the new `databox-scheduler`, `expose-scheduler` and `uploader-scheduler`
+   services, with a single replica each (add `expose-scheduler` to any custom
+   `COMPOSE_PROFILES`), and remove the host crons (see
    [Scheduler containers replace the cron jobs](#scheduler-containers-replace-the-cron-jobs)).
    Remove the Zippy containers, volume and settings (see
    [Zippy service removed](#zippy-service-removed)).
@@ -260,12 +261,14 @@ The three clients follow the Databox client (see above): same images
 
 ### Scheduler containers replace the cron jobs
 
-The periodic tasks of databox and uploader are now planned by Symfony Scheduler
-and consumed by two new services, built from the worker images (no new image):
+The periodic tasks of databox, expose and uploader are now planned by Symfony
+Scheduler and consumed by three new services, built from the worker images (no
+new image), each in the profile of the same name:
 
 | Service              | `WORKER_PRIORITIES` | Replicas |
 | -------------------- | ------------------- | -------- |
 | `databox-scheduler`  | `scheduler_main`    | 1        |
+| `expose-scheduler`   | `scheduler_main`    | 1        |
 | `uploader-scheduler` | `scheduler_main`    | 1        |
 
 Run them with **exactly one replica** and never scale them: scale the
@@ -284,6 +287,10 @@ Run them with **exactly one replica** and never scale them: scale the
 - The uploader now removes its expired assets daily
   (`app:asset:clean-expired`, retention `ASSET_DAYS_RETENTION`, 31 days by
   default), which was not scheduled before.
+- The three APIs now prune their abandoned multipart uploads daily
+  (`alchemy:storage:prune-multipart-uploads`, see
+  [Abandoned multipart uploads](#abandoned-multipart-uploads)), which was not
+  scheduled before.
 
 The commands are kept for manual runs; `bin/console app:automation:run-due`
 triggers the due automations once, for development.
@@ -579,8 +586,8 @@ existing install:
 This repository no longer has any Helm chart: the unmaintained
 `infra/helm/report-elk` chart (archived elastic/helm-charts 7.11.2 charts) is
 removed. Apply the same changes in `alchemy-fr/phrasea-helm-charts`: in
-particular, replace the databox `CronJob`s with `databox-scheduler` and
-`uploader-scheduler` Deployments (worker image, `WORKER_PRIORITIES` as above,
+particular, replace the databox `CronJob`s with `databox-scheduler`,
+`expose-scheduler` and `uploader-scheduler` Deployments (worker image, `WORKER_PRIORITIES` as above,
 `replicas: 1`, `Recreate` strategy so that two pods never overlap), and swap
 Soketi for Sockudo (image, `SOCKUDO_*` variables, hosts, `/usage` on port 6001,
 see [Sockudo replaces Soketi](#sockudo-replaces-soketi)), and enable the security
@@ -1033,6 +1040,30 @@ on the storage (see "Upload limits" in `doc/tech/Storage/01_s3.md`):
   of its total size is refused at creation (400 `upload_link_quota_exceeded`).
   The `AssetToken` of a commit can no longer use `/uploads` (403).
 - New index on `multipart_upload` (migration of databox, expose and uploader).
+- `POST /uploads` refuses (422) a `filename` longer than 255 characters or a
+  `type` longer than 150, before anything is opened on the storage.
+- Databox checks the right to create the asset (`POST /assets`,
+  `POST /assets/multiple`) before completing its multipart upload: without it,
+  the request still answers 403, but the upload is left untouched (neither
+  completed nor used), to be sent again elsewhere, cancelled or pruned.
+
+### Abandoned multipart uploads
+
+`alchemy:storage:prune-multipart-uploads`, now run daily by the scheduler of
+each API, aborts the S3 multipart uploads initiated more than 24 hours ago
+(`--min-age` in hours, 3 at least) and deletes the `multipart_upload` rows of
+that age never used by a resource. It only lists the uploads under
+`S3_PATH_PREFIX`; it used to abort the uploads of the whole bucket, and with a
+non-empty `S3_PATH_PREFIX` it failed on the first one.
+
+With an empty `S3_PATH_PREFIX`, it aborts every multipart upload of the bucket:
+do not share the bucket of an application with anything else, or give it a
+prefix.
+
+On AWS S3, also add a lifecycle rule aborting the incomplete multipart uploads
+after 7 days to each application bucket (see "Abandoned uploads" in
+`doc/tech/Storage/01_s3.md`). MinIO does not support it, but removes them by
+itself after 24 hours.
 
 ## Collections and stories are ordered
 

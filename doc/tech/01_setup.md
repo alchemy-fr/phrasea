@@ -102,8 +102,9 @@ LETS_ENCRYPT_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory
 
 ### Periodic tasks
 
-The periodic tasks of databox and uploader are planned by Symfony Scheduler and
-consumed by dedicated containers, `databox-scheduler` and `uploader-scheduler`.
+The periodic tasks of databox, expose and uploader are planned by Symfony
+Scheduler and consumed by dedicated containers, `databox-scheduler`,
+`expose-scheduler` and `uploader-scheduler`.
 They run the worker image with `WORKER_PRIORITIES` restricted to the
 `scheduler_main` transport (a single process running the tasks of the `main`
 schedule one after the other), while the `*-worker` services only consume the
@@ -121,6 +122,7 @@ scale the `*-worker` services instead.
 | databox     | `app:trash:empty`                                                                            | daily        |
 | databox     | `app:audit-log:purge` (retention `AUDIT_LOG_RETENTION_DAYS`, 365 days by default, see `doc/tech/Databox/audit-log.md`) | daily        |
 | uploader    | `app:asset:clean-expired` (retention `ASSET_DAYS_RETENTION`, 31 days by default)             | daily        |
+| all three   | `alchemy:storage:prune-multipart-uploads` (abandoned multipart uploads, see `doc/tech/Storage/01_s3.md`) | daily        |
 
 Hourly and daily tasks start at a fixed minute derived from the task (daily
 ones between 00:00 and 02:59), to spread the load. The commands can still be
@@ -128,7 +130,7 @@ run by hand; `bin/console app:automation:run-due` triggers the due automations
 once, for development.
 
 `SCHEDULER_OFFSET` (in seconds, `0` by default, negative to run earlier) shifts
-every task of both schedulers (with `600`, each hourly and daily task runs 10
+every task of the schedulers (with `600`, each hourly and daily task runs 10
 minutes later). Give each stack sharing the same resources its own offset so
 that they do not run their tasks at the same time.
 

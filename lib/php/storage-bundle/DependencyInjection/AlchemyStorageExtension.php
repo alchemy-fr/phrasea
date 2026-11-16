@@ -77,11 +77,6 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
             ],
             'validation' => [
                 'enabled' => true,
-                'mapping' => [
-                    'paths' => [
-                        __DIR__.'/../Resources/config/validator/validation.yaml',
-                    ],
-                ],
             ],
         ]);
     }

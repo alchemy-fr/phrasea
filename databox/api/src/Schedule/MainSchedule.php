@@ -43,6 +43,7 @@ final readonly class MainSchedule implements ScheduleProviderInterface
                 RecurringMessage::cron('#hourly', new RunCommandMessage('app:file:unblock-analyses')),
                 RecurringMessage::cron('#midnight', new RunCommandMessage('app:trash:empty')),
                 RecurringMessage::cron('#midnight', new RunCommandMessage('app:audit-log:purge')),
+                RecurringMessage::cron('#midnight', new RunCommandMessage('alchemy:storage:prune-multipart-uploads')),
             )
             ->lock($this->lockFactory->createLock('main-schedule'))
             ->stateful($this->cache)

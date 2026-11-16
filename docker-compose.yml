@@ -501,6 +501,20 @@ services:
     environment:
       - WORKER_PRIORITIES=p1
 
+  # Never scale it: a schedule must be consumed by a single process.
+  expose-scheduler:
+    logging: *default-logging
+    extends:
+      service: expose-worker
+    profiles: !reset
+      - expose-scheduler
+    build: !reset null
+    deploy:
+      replicas: 1
+    environment:
+      - WORKER_PRIORITIES=scheduler_main
+      - SCHEDULER_OFFSET
+
   expose-api-nginx:
     logging: *default-logging
     profiles:

@@ -33,6 +33,6 @@ final class MainScheduleTest extends KernelTestCase
             }
         }
 
-        $this->assertSame(['app:asset:clean-expired'], $commands);
+        $this->assertSame(['app:asset:clean-expired', 'alchemy:storage:prune-multipart-uploads'], $commands);
     }
 }

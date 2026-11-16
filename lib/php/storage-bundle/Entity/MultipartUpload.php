@@ -24,6 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'Upload',
@@ -148,10 +149,14 @@ class MultipartUpload
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups(['upload:read', 'upload:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $filename = null;
 
     #[ORM\Column(type: Types::STRING, length: 150)]
     #[Groups(['upload:read', 'upload:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 150)]
     private ?string $type = null;
 
     #[ORM\Column(name: 'size', type: 'bigint', options: ['unsigned' => true])]
@@ -311,6 +316,7 @@ class MultipartUpload
     }
 
     #[Groups('upload:read')]
+    #[Assert\NotNull]
     public function getSize(): int
     {
         return (int) $this->sizeAsString;
