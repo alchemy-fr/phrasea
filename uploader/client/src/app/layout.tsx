@@ -1,11 +1,12 @@
 import type {Metadata, Viewport} from 'next';
 import {connection} from 'next/server';
-import {cookies} from 'next/headers';
+import {cookies, headers} from 'next/headers';
 import './globals.css';
 import {getServerConfig} from '@/lib/config/server';
 import {getStackConfig} from '@alchemy/next-core/config/stackConfig';
 import {compileStackTheme} from '@alchemy/next-theme/compile';
 import {Providers} from './providers';
+import {NONCE_HEADER} from '@alchemy/next-core/security/csp';
 import {languages} from '@/i18n/config';
 import {fontVariables} from '@alchemy/next-theme/googleFonts';
 
@@ -44,6 +45,8 @@ export default async function RootLayout({
     const language = languages.resolveLanguage(
         (await cookies()).get(languages.cookie)?.value
     );
+    // Set by the proxy (src/proxy.ts) with the Content Security Policy
+    const nonce = (await headers()).get(NONCE_HEADER) ?? undefined;
 
     return (
         <html
@@ -71,7 +74,7 @@ export default async function RootLayout({
                         href={`/api/theme-fonts?v=${compiledTheme.fontsHash}`}
                     />
                 ) : null}
-                <Providers config={config} language={language}>
+                <Providers config={config} language={language} nonce={nonce}>
                     {children}
                 </Providers>
             </body>

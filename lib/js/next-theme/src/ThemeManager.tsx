@@ -27,9 +27,16 @@ const previewFontsId = 'client-theme-preview-fonts';
  * <html>, applies the draft previewed by a theme editor as inline custom
  * properties for the current appearance, and renders the pre-paint script so
  * that reloads do not flash the base palette. `meta` is the organisation
- * theme of the page, when one is defined.
+ * theme of the page, when one is defined; `nonce` the one of the Content
+ * Security Policy of the response, without which the script is blocked.
  */
-export function ThemeManager({meta}: {meta?: ClientThemeMeta}) {
+export function ThemeManager({
+    meta,
+    nonce,
+}: {
+    meta?: ClientThemeMeta;
+    nonce?: string;
+}) {
     const {resolvedTheme} = useTheme();
     const theme = useThemeStore(s => s.theme);
     const setTheme = useThemeStore(s => s.setTheme);
@@ -92,5 +99,13 @@ export function ThemeManager({meta}: {meta?: ClientThemeMeta}) {
         style.textContent = css;
     }, [preview]);
 
-    return <script dangerouslySetInnerHTML={{__html: script}} />;
+    // The browser hides the nonce of the elements from the DOM once parsed:
+    // rendered on the server only, like next-themes does
+    return (
+        <script
+            nonce={typeof window === 'undefined' ? nonce : ''}
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{__html: script}}
+        />
+    );
 }

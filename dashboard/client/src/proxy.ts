@@ -1,21 +1,23 @@
-import {NextResponse} from 'next/server';
-import {buildContentSecurityPolicy} from '@/lib/security/csp';
+import type {NextRequest} from 'next/server';
+import {cspResponse} from '@alchemy/next-core/security/cspProxy';
+import {contentSecuritySources, ENFORCED_DIRECTIVES} from '@/lib/security/csp';
 
 /**
- * Sets the Content Security Policy of the pages at request time: the sites
- * allowed to embed them (the clients of the stack, `ALLOWED_FRAME_ANCESTORS`)
- * come from the container environment, not from the build.
+ * Sets the Content Security Policy of the pages at request time, with a nonce
+ * of its own: the sources and the sites allowed to embed the pages (the
+ * clients of the stack, `ALLOWED_FRAME_ANCESTORS`) come from the container
+ * environment, not from the build.
  */
-export function proxy() {
-    const response = NextResponse.next();
-    response.headers.set(
-        'Content-Security-Policy',
-        buildContentSecurityPolicy(process.env)
-    );
-
-    return response;
+export function proxy(request: NextRequest) {
+    return cspResponse(request, contentSecuritySources(process.env), {
+        enforced: ENFORCED_DIRECTIVES,
+    });
 }
 
 export const config = {
-    matcher: ['/((?!_next/static|_next/image|favicon.svg).*)'],
+    // The page of the Keycloak silent sign-in is static: its inline script
+    // cannot bear the nonce
+    matcher: [
+        '/((?!_next/static|_next/image|favicon.svg|silent-check-sso.html).*)',
+    ],
 };
