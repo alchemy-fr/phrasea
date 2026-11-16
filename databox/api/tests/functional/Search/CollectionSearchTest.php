@@ -123,6 +123,34 @@ class CollectionSearchTest extends AbstractSearchTestCase
         $this->assertSame('A', $data[0]['name']);
     }
 
+    public function testStaleEveryoneAccessRowDoesNotExposeSecretRootCollection(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $workspace->getId());
+        $collection = $this->createCollection([
+            'workspace' => $workspace,
+            'name' => 'Formerly public',
+            'no_flush' => true,
+        ]);
+        // Left over from a revoked ACE granted to everyone, when the collection was public
+        $this->createCollectionAccess($collection, null, WorkspaceItemPrivacyInterface::PUBLIC);
+        self::releaseIndex();
+
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
+        $this->assertCount(0, $this->getDataFromResponse($response, 200)['member']);
+
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
+        $this->assertCount(0, $this->getDataFromResponse($response, 200)['member']);
+    }
+
     public function testSearchPublicCollectionsInPrivateWorkspaceAsAnonymousUser(): void
     {
         $this->createCollection([
