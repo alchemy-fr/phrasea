@@ -138,12 +138,34 @@ No host cron is needed: every periodic task runs in the scheduler containers.
 
 You can change service ports by overriding the environment variables (see the `.env` file).
 
-### Network and trusted proxies
+### Networks and trusted proxies
 
-The containers share the `PS_SUBNET` network (`172.30.0.0/16` by default), whose gateway is
-`PS_GATEWAY_IP`. Traefik gets the fixed address `PS_TRAEFIK_IP` (`172.30.255.254`) in it, and
-`TRUSTED_PROXIES` defaults to that address: the APIs and Keycloak only honour the `X-Forwarded-*`
-headers sent by Traefik, so that no other container can spoof the client IP, host or scheme.
+Each container only joins the networks it needs, and only reaches the containers it shares one
+with:
+
+| Network  | Type       | Members                                                                                         |
+|----------|------------|-------------------------------------------------------------------------------------------------|
+| `proxy`  | bridge     | Traefik, the clients, the API nginx, Keycloak, Matomo nginx, the indexer, the webhook endpoint, the SAML IdPs |
+| `app`    | `internal` | the API nginx and their php-fpm (FastCGI), Matomo nginx and php                                  |
+| `data`   | `internal` | the databases, Redis, Elasticsearch, RabbitMQ, MinIO, Sockudo, the report API, the ML services, the consoles (pgAdmin, Mailpit…), and their clients: php, workers, Keycloak, the configurator, Traefik |
+| `egress` | bridge     | php, workers, schedulers, Matomo php, the configurator, `dev`, k6: Internet and the host          |
+
+`internal` networks have no Internet access and no route to the host: a data service never joins
+`proxy`, a client never joins `data`. Traefik routes the services that are not on `proxy` through
+`data` (label `traefik.docker.network=${COMPOSE_PROJECT_NAME}_data`). The services that publish a
+port in development (`db`, `elasticsearch`…) also join `host-ports`, a bridge without NAT: Docker
+publishes no port of a container that is only on internal networks.
+
+A stack created when every container shared the single `internal` network must be recreated once:
+`proxy` claims `PS_SUBNET`, still held by `<project>_internal` (`Pool overlaps with other one on this
+address space`). Run `dc down` (the volumes are kept) then `dc up -d`.
+
+`proxy` takes the `PS_SUBNET` subnet (`172.30.0.0/16` by default), whose gateway is
+`PS_GATEWAY_IP`: the containers reach the public hosts of the stack through Traefik on the host
+(`extra_hosts` → `PS_GATEWAY_IP`), from `proxy` or `egress`. Traefik gets the fixed address
+`PS_TRAEFIK_IP` (`172.30.255.254`) in it, and `TRUSTED_PROXIES` defaults to that address: the APIs
+and Keycloak only honour the `X-Forwarded-*` headers sent by Traefik, so that no other container can
+spoof the client IP, host or scheme.
 
 To run another stack on the same host, give it its own `PS_SUBNET` and change `PS_GATEWAY_IP` and
 `PS_TRAEFIK_IP` along with it, e.g. in its `.env.local`:
@@ -152,6 +174,17 @@ To run another stack on the same host, give it its own `PS_SUBNET` and change `P
 PS_SUBNET=172.31.0.0/16
 PS_GATEWAY_IP=172.31.0.1
 PS_TRAEFIK_IP=172.31.255.254
+```
+
+The other networks get a subnet from the Docker address pools, which do not skip the `PS_SUBNET` of
+a stack stopped by `dc down`: one of them can take `172.31.0.0/16` and keep the other stack from
+starting (`Pool overlaps with other one on this address space`). On a machine running several stacks,
+move the Docker pools out of `172.16.0.0/12` in `/etc/docker/daemon.json`, then restart Docker:
+
+```json
+{
+  "default-address-pools": [{"base": "10.210.0.0/16", "size": 24}]
+}
 ```
 
 Only set `TRUSTED_PROXIES` when another proxy (e.g. a load balancer) sits in front of Traefik: list
