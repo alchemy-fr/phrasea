@@ -28,6 +28,7 @@ class WorkspaceRepository extends ServiceEntityRepository
             ->createQueryBuilder('t')
             ->select('t.id')
             ->andWhere('t.public = true')
+            ->andWhere('t.deletedAt IS NULL')
             ->getQuery()
             ->getResult()
         );
@@ -48,7 +49,8 @@ class WorkspaceRepository extends ServiceEntityRepository
 
     private function createAllowedWorkspacesQueryBuilder(?string $userId, ?array $groupIds, bool $isAdmin): QueryBuilder
     {
-        $queryBuilder = $this->createQueryBuilder('t');
+        $queryBuilder = $this->createQueryBuilder('t')
+            ->andWhere('t.deletedAt IS NULL');
 
         if ($isAdmin) {
             return $queryBuilder;
