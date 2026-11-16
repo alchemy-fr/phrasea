@@ -144,6 +144,10 @@ final readonly class CommitProcessor implements ProcessorInterface
      */
     private function assertFilesCanBeCommitted(Commit $commit, string $userId, ?UploadLink $link): void
     {
+        if (count($commit->getFiles()) > Commit::MAX_FILES) {
+            throw new BadRequestHttpException(sprintf('Too many files (%d > %d)', count($commit->getFiles()), Commit::MAX_FILES));
+        }
+
         $files = array_values(array_unique($commit->getFiles()));
         if (empty($files) || array_any($files, fn ($id): bool => !is_string($id) || !Uuid::isValid($id))) {
             throw new BadRequestHttpException('Invalid files');

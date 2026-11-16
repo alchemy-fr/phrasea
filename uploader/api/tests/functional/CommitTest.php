@@ -7,6 +7,7 @@ namespace App\Tests\Functional;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
+use Ramsey\Uuid\Uuid;
 
 class CommitTest extends AbstractUploaderTestCase
 {
@@ -72,6 +73,23 @@ class CommitTest extends AbstractUploaderTestCase
             ]
         );
         $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    public function testCommitWithTooManyFilesIsRefusedBeforeLookup(): void
+    {
+        $target = $this->getOrCreateDefaultTarget();
+        $files = [];
+        for ($i = 0; $i <= Commit::MAX_FILES; ++$i) {
+            $files[] = Uuid::uuid4()->toString();
+        }
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/commit', [
+            'files' => $files,
+            'formData' => [],
+            'target' => '/targets/'.$target->getId(),
+        ]);
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertStringContainsString('Too many files', $response->getContent(false));
     }
 
     private function createCommit(): array

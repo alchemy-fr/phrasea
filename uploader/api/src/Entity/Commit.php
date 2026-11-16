@@ -77,6 +77,12 @@ class Commit extends AbstractUuidEntity
 {
     public const string GROUP_READ = 'commit:r';
     public const string GROUP_WRITE = 'commit:w';
+
+    /**
+     * Hard limit of files per commit, whatever the configured one: keeps the SQL "IN" clauses on the files far
+     * below the 65 535 parameters allowed by PostgreSQL.
+     */
+    public const int MAX_FILES = 10_000;
     /**
      * @var Asset[]|Collection
      */

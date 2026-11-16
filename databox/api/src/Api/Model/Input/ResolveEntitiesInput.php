@@ -13,6 +13,7 @@ class ResolveEntitiesInput
      *
      * @var string[]
      */
+    #[Assert\Count(max: InputLimits::MAX_IDS)]
     #[Assert\All([
         new Assert\Type('string'),
     ])]
