@@ -484,6 +484,37 @@ To upgrade a running stack:
   (`default-address-pools` in `/etc/docker/daemon.json`, e.g.
   `{"base": "10.210.0.0/16", "size": 24}`).
 
+### PostgreSQL role per application (optional)
+
+The APIs, their workers, Keycloak and the report services can now connect with
+a role of their own, owner of their database only, instead of the superuser
+`POSTGRES_USER` (see
+[Database roles](doc/tech/01_setup.md#database-roles)). Nothing changes while
+the new `*_POSTGRES_USER`/`*_POSTGRES_PASSWORD` variables are empty. To switch
+an existing install:
+
+1. back up the databases;
+2. set the pairs in `.env.local` (`DATABOX_`, `EXPOSE_`, `UPLOADER_`,
+   `KEYCLOAK_`, `REPORT_`; `KEYCLOAK_` also serves `keycloak2`);
+3. run the `database` step of the configurator, which creates the roles and
+   hands them the databases and their objects (add `--preset dev` if
+   `keycloak2` is deployed):
+
+    ```bash
+    dc run --rm configurator bin/console configure --filter database
+    ```
+
+4. recreate the services, so that they connect with their role:
+
+    ```bash
+    dc up -d
+    ```
+
+Run step 3 again after changing a password (then `dc up -d`), or after
+creating objects in an application database as the superuser: it is
+idempotent, and `bin/setup.sh` runs it as well. Emptying a pair switches the
+application back to the superuser, which keeps access to every database.
+
 ### Helm
 
 This repository no longer has any Helm chart: the unmaintained

@@ -52,6 +52,17 @@ env:
   PHRASEA_ALLOW_DEFAULT_SECRETS: "1"
   # The S3 minimum part size, so that the e2e uploads span several parts
   S3_MULTIPART_MIN_CHUNK_SIZE: '5242880'
+  # One PostgreSQL role per application (optional in production): the CI exercises it
+  DATABOX_POSTGRES_USER: databox
+  DATABOX_POSTGRES_PASSWORD: databox-ci
+  EXPOSE_POSTGRES_USER: expose
+  EXPOSE_POSTGRES_PASSWORD: expose-ci
+  UPLOADER_POSTGRES_USER: uploader
+  UPLOADER_POSTGRES_PASSWORD: uploader-ci
+  KEYCLOAK_POSTGRES_USER: keycloak
+  KEYCLOAK_POSTGRES_PASSWORD: keycloak-ci
+  REPORT_POSTGRES_USER: report
+  REPORT_POSTGRES_PASSWORD: report-ci
   CYPRESS_CPU_LIMIT: '4'
   CYPRESS_MEMORY_LIMIT: '16G'
 

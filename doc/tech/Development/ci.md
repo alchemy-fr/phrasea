@@ -42,6 +42,11 @@ Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
 `APP_ENV=prod` and the default secrets of `.env`: `ci.yaml` and
 `bin/dev/run-tests-in-ci-conditions.sh` set `PHRASEA_ALLOW_DEFAULT_SECRETS=1`,
 otherwise `bin/setup.sh` refuses them (`check_default_secrets` in `bin/functions.sh`).
+They also set the `*_POSTGRES_USER`/`*_POSTGRES_PASSWORD` pairs, so that the
+APIs, Keycloak and report-api connect with a role of their own, as a hardened
+production would (see [Database roles](../01_setup.md#database-roles));
+`bin/dev/test-migrations.sh` replays the migrations as the superuser, which
+creates and drops the scratch databases.
 
 ### Keycloak and report-api in CI
 
