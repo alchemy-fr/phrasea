@@ -15,6 +15,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class AssetManager
 {
+    /**
+     * The keys of the asset data read by the consumers of the commits: Databox replaces
+     * the rendition "targetRendition" of the asset "targetAsset" with the uploaded file.
+     */
+    final public const array DATA_KEYS = ['targetAsset', 'targetRendition'];
+
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UploadLinkRepository $uploadLinkRepository,
@@ -40,13 +46,25 @@ class AssetManager
         $asset->setMimeType($mimeType);
         $asset->setOriginalName($originalName);
         $asset->setSize($size);
-        $asset->setData($data);
+        // Whoever holds a link acts on behalf of its creator: it cannot aim at their assets
+        $asset->setData(null === $uploadLink ? self::filterData($data ?? []) : []);
         $asset->setUploadLink($uploadLink);
 
         $this->em->persist($asset);
         $this->em->flush();
 
         return $asset;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function filterData(array $data): array
+    {
+        return array_filter(
+            array_intersect_key($data, array_flip(self::DATA_KEYS)),
+            static fn (mixed $value): bool => is_string($value) && '' !== $value,
+        );
     }
 
     public function getTotalSize(array $assetIds): int

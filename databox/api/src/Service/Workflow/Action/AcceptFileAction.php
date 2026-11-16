@@ -7,6 +7,7 @@ namespace App\Service\Workflow\Action;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
+use Alchemy\Workflow\State\Inputs;
 use App\Automation\UserContextSwitcher;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
@@ -45,6 +46,11 @@ readonly class AcceptFileAction implements ActionInterface
         $formData = $assetData['formData'] ?? [];
         $formLocale = $assetData['formLocale'] ?? null;
         $renditionDefId = $data['targetRendition'] ?? null;
+
+        // A link uploads on behalf of its creator, for anyone holding it: never onto an existing asset
+        if (($assetData['fromUploadLink'] ?? false) && (null !== $assetId || null !== $renditionDefId)) {
+            throw new \InvalidArgumentException('A file sent through an upload link cannot replace an asset rendition');
+        }
 
         if ($renditionDefId) {
             if (null === $assetId) {
@@ -111,7 +117,7 @@ readonly class AcceptFileAction implements ActionInterface
      * The uploaded file's data and form data are set by the uploading user: they cannot
      * reach outside the workspace the integration is bound to.
      */
-    private function assertInIntegrationWorkspace(string $workspaceId, array $inputs): void
+    private function assertInIntegrationWorkspace(string $workspaceId, Inputs $inputs): void
     {
         $integrationWorkspaceId = $inputs['workspaceId'] ?? null;
         if (null !== $integrationWorkspaceId && $workspaceId !== $integrationWorkspaceId) {

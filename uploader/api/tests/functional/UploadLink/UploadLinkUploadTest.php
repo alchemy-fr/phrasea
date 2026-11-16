@@ -69,6 +69,25 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
         $this->assertSame(['title' => 'My pictures'], $response->toArray()['lastFormData']);
     }
 
+    public function testTheDataOfTheFileIsIgnored(): void
+    {
+        $link = $this->createLink($this->createTarget());
+
+        $response = $this->uploadFile($link->getToken(), [
+            'data' => [
+                'targetAsset' => 'b0a2b1e0-6bd5-4f6a-9a1f-2a3c4d5e6f70',
+                'targetRendition' => 'c1b3c2f1-7ce6-4a7b-8b2a-3b4d5e6f7a81',
+            ],
+        ]);
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $asset = $em->find(Asset::class, $response->toArray()['id']);
+        $this->assertSame([], $asset->getData());
+        $this->assertTrue($asset->isFromUploadLink());
+    }
+
     public function testTheTargetOfTheLinkIsImposed(): void
     {
         $target = $this->createTarget();
