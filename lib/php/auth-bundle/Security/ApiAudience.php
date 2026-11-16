@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Security;
 
 /**
- * An API accepts the access tokens whose audience ("aud" claim) includes its admin client
- * (ADMIN_CLIENT_ID): Keycloak adds it to the tokens of the clients having the client scope of the
- * API, whose audience mapper names that client (see the Keycloak configurator).
+ * An API accepts the access tokens whose audience ("aud" claim) includes the name of its application
+ * ("databox", "expose", "uploader"): Keycloak adds it to the tokens of the clients having the client
+ * scope of the API, whose audience mapper gives that name as custom audience (see the Keycloak configurator).
  */
 final class ApiAudience
 {

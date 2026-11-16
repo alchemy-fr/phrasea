@@ -212,14 +212,14 @@ class KeycloakClientTestMock implements HttpClientInterface
     }
 
     /**
-     * The audience of the API under test, given to the forged tokens: its admin client
-     * (ADMIN_CLIENT_ID, read as the kernel reads it).
+     * The audience of the API under test, given to the forged tokens: the name of its application
+     * (alchemy_core.app_name), declared as API_AUDIENCE in its .env.test and read as the kernel reads it.
      */
     public static function getApiAudience(): string
     {
-        $audience = $_ENV['ADMIN_CLIENT_ID'] ?? $_SERVER['ADMIN_CLIENT_ID'] ?? getenv('ADMIN_CLIENT_ID');
+        $audience = $_ENV['API_AUDIENCE'] ?? $_SERVER['API_AUDIENCE'] ?? getenv('API_AUDIENCE');
         if (!is_string($audience) || '' === $audience) {
-            throw new \LogicException('ADMIN_CLIENT_ID is not defined');
+            throw new \LogicException('API_AUDIENCE is not defined');
         }
 
         return $audience;

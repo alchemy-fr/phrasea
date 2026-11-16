@@ -27,7 +27,7 @@ class AccessTokenTest extends AbstractExposeTestCase
         $this->assertSame(401, $response->getStatusCode());
 
         // A token for another API only
-        $response = $this->request($this->createUserJwt(['azp' => 'databox-app', 'aud' => 'another-api-admin']), 'GET', '/publications');
+        $response = $this->request($this->createUserJwt(['azp' => 'databox-app', 'aud' => 'databox']), 'GET', '/publications');
         $this->assertSame(401, $response->getStatusCode());
     }
 
@@ -44,7 +44,8 @@ class AccessTokenTest extends AbstractExposeTestCase
     public function testAcceptsTheAdminClientOfExposeWithoutAudience(): void
     {
         $response = $this->request($this->createUserJwt([
-            'azp' => KeycloakClientTestMock::getApiAudience(),
+            // Read as the kernel reads it
+            'azp' => $_ENV['ADMIN_CLIENT_ID'] ?? $_SERVER['ADMIN_CLIENT_ID'] ?? getenv('ADMIN_CLIENT_ID'),
             'aud' => null,
         ]), 'GET', '/publications');
         $this->assertSame(200, $response->getStatusCode());

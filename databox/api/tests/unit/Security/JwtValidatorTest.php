@@ -30,6 +30,7 @@ class JwtValidatorTest extends TestCase
     private const string ISSUER = self::KEYCLOAK_URL.'/realms/phrasea';
     private const string NOW = '2026-11-11 12:00:00';
     private const string ADMIN_CLIENT_ID = 'databox-admin';
+    private const string AUDIENCE = 'databox';
 
     public function testAcceptsAnAccessTokenForTheApi(): void
     {
@@ -50,8 +51,8 @@ class JwtValidatorTest extends TestCase
     {
         $validator = $this->createValidator();
 
-        $this->assertTrue($validator->isTokenValid($this->createToken(['aud' => ['uploader-admin', self::ADMIN_CLIENT_ID, 'account']])));
-        $this->assertTrue($validator->isTokenValid($this->createToken(['azp' => 'another-app', 'aud' => self::ADMIN_CLIENT_ID])));
+        $this->assertTrue($validator->isTokenValid($this->createToken(['aud' => ['uploader', self::AUDIENCE, 'account']])));
+        $this->assertTrue($validator->isTokenValid($this->createToken(['azp' => 'another-app', 'aud' => self::AUDIENCE])));
     }
 
     public function testRefusesATokenWithoutTheAudienceOfTheApi(): void
@@ -59,9 +60,10 @@ class JwtValidatorTest extends TestCase
         $validator = $this->createValidator();
 
         $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => null])));
-        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => 'expose-admin'])));
-        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => ['expose-admin', 'account']])));
-        // A client is not an audience
+        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => 'expose'])));
+        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => ['expose', 'account']])));
+        // A client is not an audience, the admin client of the API included
+        $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => self::ADMIN_CLIENT_ID])));
         $this->assertFalse($validator->isTokenValid($this->createToken(['aud' => 'databox-app'])));
     }
 
@@ -96,11 +98,11 @@ class JwtValidatorTest extends TestCase
             }
         };
 
-        $this->assertFalse($this->createValidator(logger: $logger)->isTokenValid($this->createToken(['aud' => 'expose-admin'])));
+        $this->assertFalse($this->createValidator(logger: $logger)->isTokenValid($this->createToken(['aud' => 'expose'])));
         $this->assertCount(1, $logger->warnings);
         $this->assertSame([
             'client_id' => 'databox-app',
-            'audience' => self::ADMIN_CLIENT_ID,
+            'audience' => self::AUDIENCE,
             'scope' => 'databox-api',
         ], $logger->warnings[0][1]);
     }
@@ -162,7 +164,7 @@ class JwtValidatorTest extends TestCase
             $logger ?? new NullLogger(),
             self::ADMIN_CLIENT_ID,
             $leeway,
-            'databox',
+            self::AUDIENCE,
         );
     }
 
@@ -188,7 +190,7 @@ class JwtValidatorTest extends TestCase
         $claims = [
             'typ' => JwtValidator::ACCESS_TOKEN_TYPE,
             'azp' => 'databox-app',
-            'aud' => [self::ADMIN_CLIENT_ID, 'account'],
+            'aud' => [self::AUDIENCE, 'account'],
             'preferred_username' => 'user',
             ...$claims,
         ];
