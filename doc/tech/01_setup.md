@@ -125,6 +125,25 @@ No host cron is needed: every periodic task runs in the scheduler containers.
 
 You can change service ports by overriding the environment variables (see the `.env` file).
 
+### Network and trusted proxies
+
+The containers share the `PS_SUBNET` network (`172.30.0.0/16` by default), whose gateway is
+`PS_GATEWAY_IP`. Traefik gets the fixed address `PS_TRAEFIK_IP` (`172.30.255.254`) in it, and
+`TRUSTED_PROXIES` defaults to that address: the APIs and Keycloak only honour the `X-Forwarded-*`
+headers sent by Traefik, so that no other container can spoof the client IP, host or scheme.
+
+To run another stack on the same host, give it its own `PS_SUBNET` and change `PS_GATEWAY_IP` and
+`PS_TRAEFIK_IP` along with it, e.g. in its `.env.local`:
+
+```dotenv
+PS_SUBNET=172.31.0.0/16
+PS_GATEWAY_IP=172.31.0.1
+PS_TRAEFIK_IP=172.31.255.254
+```
+
+Only set `TRUSTED_PROXIES` when another proxy (e.g. a load balancer) sits in front of Traefik: list
+its address together with `PS_TRAEFIK_IP` (comma-separated) so that the client IP it forwards is kept.
+
 ### Using fixtures
 
 You may want to populate databases with a set of fixtures:
