@@ -100,16 +100,17 @@ class AssetManager
     }
 
     /**
-     * @param callable(Asset): void $assertCanDelete throws to abort before anything is removed
+     * @param callable(Asset): bool $canDelete whether to remove the asset or to leave it out;
+     *                                         throws to abort before anything is removed
      */
-    public function deleteByAssetId(string $assetId, callable $assertCanDelete): void
+    public function deleteByAssetId(string $assetId, callable $canDelete): void
     {
         $assets = $this->em->getRepository(Asset::class)
             ->findBy([
                 'assetId' => $assetId,
             ]);
 
-        array_walk($assets, $assertCanDelete);
+        $assets = array_filter($assets, $canDelete);
 
         foreach ($assets as $asset) {
             $this->em->remove($asset);

@@ -311,7 +311,8 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
             'headers' => self::authHeaders($userId),
         ]);
 
-        $this->assertResponseStatusCodeSame($expectedStatus);
+        // A workspace the user may not read answers as an unknown slug: slugs can be guessed
+        $this->assertResponseStatusCodeSame(200 === $expectedStatus ? 200 : 404);
         if (200 === $expectedStatus) {
             $data = $response->toArray();
             $this->assertSame($ws->getId(), $data['id']);
@@ -348,6 +349,19 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
             'headers' => self::authHeaders(self::ADMIN),
         ]);
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testBySlugOfUnreadableWorkspaceAnswersAsUnknownSlug(): void
+    {
+        $this->createWs('private-ws');
+
+        $client = static::createClient();
+        foreach ([self::USER, null] as $userId) {
+            $client->request('GET', '/workspaces-by-slug/private-ws', [
+                'headers' => self::authHeaders($userId),
+            ]);
+            $this->assertResponseStatusCodeSame(404);
+        }
     }
 
     public function testItemExposesReadGroupWhereasListDoesNot(): void

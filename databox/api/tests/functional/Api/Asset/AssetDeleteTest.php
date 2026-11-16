@@ -312,6 +312,9 @@ final class AssetDeleteTest extends AbstractDataboxTestCase
         $workspace = $this->createOwnedWorkspace();
         $this->grantUserOnObject(self::OTHER, $workspace, PermissionInterface::VIEW | PermissionInterface::CHILD_CREATE);
         $asset = $this->createKeyedAsset('owned-by-user');
+        // Readable by OTHER, who knows of it: refused rather than ignored
+        $asset->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE);
+        self::getEntityManager()->flush();
 
         $this->request('DELETE', '/assets-by-keys', self::OTHER, [
             'workspaceId' => $workspace->getId(),
@@ -325,6 +328,20 @@ final class AssetDeleteTest extends AbstractDataboxTestCase
             'keys' => ['owned-by-user'],
         ]);
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testDeleteByKeysIgnoresTheAssetsTheUserMayNotRead(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $asset = $this->createKeyedAsset('owned-by-user');
+
+        // Answers as for an unknown key: whether the key is used is not disclosed
+        $this->request('DELETE', '/assets-by-keys', self::OTHER, [
+            'workspaceId' => $workspace->getId(),
+            'keys' => ['owned-by-user'],
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertNull($this->reloadAsset($asset->getId())->getDeletedAt());
     }
 
     public function testPrepareDeleteDescribesTheImpact(): void

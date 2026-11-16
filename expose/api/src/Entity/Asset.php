@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -60,6 +61,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(
             uriTemplate: '/assets/delete-by-asset-id/{assetId}',
             uriVariables: [],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             openapi: new OpenApiOperation(
                 summary: 'Delete all assets by the given assetId',
                 description: 'Delete all assets by the given assetId',

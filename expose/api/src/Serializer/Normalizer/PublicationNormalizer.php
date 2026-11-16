@@ -48,10 +48,14 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         $object->setArchiveDownloadUrl($this->generateArchiveDownloadUrl($object));
 
         if (!empty($css = $object->getCss())) {
-            $object->setCssLink($this->urlGenerator->generate('publication_css', [
+            $cssLink = $this->urlGenerator->generate('publication_css', [
                 'id' => $object->getId(),
                 'hash' => md5($css),
-            ], UrlGeneratorInterface::ABSOLUTE_URL));
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            // The stylesheet is loaded by a <link> tag, without the reader's credentials:
+            // the CSS of a publication hidden from anonymous readers is served on a signed URL only.
+            $object->setCssLink($object->isVisible() ? $cssLink : $this->uriJwtManager->signUri($cssLink));
         }
 
         $object->setSecurityContainerId($object->getSecurityContainer()->getId());
