@@ -14,6 +14,7 @@ use App\Repository\UploadLinkRepository;
 use App\Storage\AssetManager;
 use App\Tests\Functional\TargetFormTest;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Uid\Uuid;
 
 class UploadLinkUploadTest extends AbstractUploadLinkTestCase
 {
@@ -385,5 +386,60 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
         ]);
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame(1, $this->reloadLink($link)->getUsedAssets());
+    }
+
+    public function testTheMultipartUploadsOfAHolderBelongToTheirBrowserSession(): void
+    {
+        $content = 'Hello, multipart!';
+        $target = $this->createTarget();
+        $link = $this->createLink($target);
+        $sessionA = Uuid::v4()->toRfc4122();
+        $sessionB = Uuid::v4()->toRfc4122();
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/uploads', [
+            'filename' => 'file.jpg',
+            'type' => 'image/jpeg',
+            'size' => strlen($content),
+        ], $sessionA);
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+        $upload = $response->toArray();
+        $this->assertSame('upload-link:'.$link->getId().':'.$sessionA, self::getEntityManager()->find(MultipartUpload::class, $upload['id'])->getOwnerId());
+
+        $headers = self::getStorageClient()->request('PUT', $upload['urls'][1], ['body' => $content])->getHeaders();
+        $complete = [
+            'multipart' => [
+                'uploadId' => $upload['id'],
+                'parts' => [['ETag' => $headers['etag'][0], 'PartNumber' => 1]],
+            ],
+        ];
+
+        foreach ([$sessionB, null] as $other) {
+            $response = $this->linkRequest($link->getToken(), 'GET', '/uploads/'.$upload['id'], null, $other);
+            $this->assertSame(403, $response->getStatusCode(), 'Read by another holder of the link');
+            $response = $this->linkRequest($link->getToken(), 'DELETE', '/uploads/'.$upload['id'], null, $other);
+            $this->assertSame(403, $response->getStatusCode(), 'Cancelled by another holder of the link');
+            $response = $this->linkRequest($link->getToken(), 'POST', '/assets', $complete, $other);
+            $this->assertSame(403, $response->getStatusCode(), 'Completed by another holder of the link');
+        }
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/assets', $complete, strtoupper($sessionA));
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+        $assetId = $response->toArray()['id'];
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/commit', [
+            'files' => [$assetId],
+            'formData' => [],
+            'target' => '/targets/'.$target->getId(),
+        ], $sessionB);
+        $this->assertSame(200, $response->getStatusCode(), 'The files of the link are committed whoever sent them');
+    }
+
+    public function testAnInvalidBrowserSessionIsRefused(): void
+    {
+        $link = $this->createLink($this->createTarget());
+
+        $response = $this->linkRequest($link->getToken(), 'GET', '/upload-links/current', null, 'not-a-uuid');
+
+        $this->assertSame(400, $response->getStatusCode());
     }
 }

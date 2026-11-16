@@ -222,6 +222,16 @@ class Target extends AbstractUuidEntity implements \Stringable
         $this->allowedGroups = $allowedGroups;
     }
 
+    /**
+     * Whether someone in these groups may use the target: anyone when no group is set.
+     *
+     * @param string[] $groups
+     */
+    public function isAllowedFor(array $groups): bool
+    {
+        return empty($this->allowedGroups) || !empty(array_intersect($groups, $this->allowedGroups));
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;

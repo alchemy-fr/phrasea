@@ -53,11 +53,9 @@ class TargetVoter extends Voter
             $groups = $user->getGroups();
         }
 
-        $isAllowed = fn () => empty($subject->getAllowedGroups()) || !empty(array_intersect($groups, $subject->getAllowedGroups()));
-
         return match ($attribute) {
-            self::UPLOAD => $subject->isEnabled() && $isAllowed(),
-            self::READ => $isAllowed(),
+            self::UPLOAD => $subject->isEnabled() && $subject->isAllowedFor($groups),
+            self::READ => $subject->isAllowedFor($groups),
             default => false,
         };
     }

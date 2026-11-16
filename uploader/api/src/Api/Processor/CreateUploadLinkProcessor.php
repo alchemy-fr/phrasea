@@ -8,19 +8,22 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\UploadLink;
+use App\Security\UploadLinkCreatorChecker;
 use App\Security\Voter\TargetVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * The link belongs to the user creating it, who must be able to upload to its target.
+ * The link belongs to the user creating it, who must be able to upload to its target: what it records of
+ * them (groups, roles) is checked on each request made with it.
  */
 final readonly class CreateUploadLinkProcessor implements ProcessorInterface
 {
     public function __construct(
         private EntityManagerInterface $em,
         private Security $security,
+        private UploadLinkCreatorChecker $creatorChecker,
     ) {
     }
 
@@ -39,6 +42,7 @@ final readonly class CreateUploadLinkProcessor implements ProcessorInterface
         }
 
         $data->setOwnerId($user->getId());
+        $this->creatorChecker->snapshot($data, $user);
 
         $this->em->persist($data);
         $this->em->flush();

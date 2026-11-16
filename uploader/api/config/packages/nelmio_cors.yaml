@@ -2,7 +2,7 @@ nelmio_cors:
     defaults:
         allow_origin: ['%env(origin:UPLOADER_CLIENT_URL)%']
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
-        allow_headers: ['Content-Type', 'Authorization']
+        allow_headers: ['Content-Type', 'Authorization', 'X-Upload-Session']
         expose_headers: ['Link']
         max_age: 3600
     paths:

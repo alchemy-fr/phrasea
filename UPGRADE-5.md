@@ -856,6 +856,27 @@ Routes, methods and bodies of `POST /assets`, `/assets/{id}/ack`, `/commit`,
 unchanged. Only `PUT` → `PATCH`, the `hydra:` prefix and filter typing change:
 `acknowledged` is a strict boolean, `target` accepts an id or an IRI.
 
+### Upload links
+
+- A link must expire: `expiresAt` is required, at most
+  `UPLOADER_UPLOAD_LINK_MAX_TTL` days ahead (90 by default, `UPLOAD_LINK_MAX_TTL`
+  in the API container). The migration gives the links without expiration one
+  90 days after it runs, whatever the configured maximum.
+- A link works only while its creator could still create it: the `upload_link`
+  permission and the allowed groups of the target are checked on each request,
+  against the groups (and admin role) the creator had when they last saved the
+  link. Otherwise the requests made with it answer `403` with the code
+  `upload_link_revoked`. The links created before the migration recorded no
+  group: the ones whose creator gets the permission or the target through a
+  group, or is an admin, stop working until their creator saves them again
+  (editing the link or regenerating its token records them).
+- `POST /upload-links/{id}/regenerate-token` gives a link a new token: the
+  former URL stops working.
+- The creator of a link can always disable it (`PATCH` with
+  `{"enabled": false}` only), even without the `upload_link` permission.
+- The holders of a link send their own session id in `X-Upload-Session` (a
+  UUID): the multipart uploads they start belong to that session only.
+
 ## Allowed file types and file serving
 
 See `doc/tech/Storage/03_file_types.md`.

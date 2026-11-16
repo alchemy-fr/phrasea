@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use Alchemy\CoreBundle\Util\RandomUtil;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -16,10 +15,13 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
 use App\Api\Processor\CreateUploadLinkProcessor;
+use App\Api\Processor\RegenerateUploadLinkTokenProcessor;
+use App\Api\Processor\UpdateUploadLinkProcessor;
 use App\Api\Provider\CurrentUploadLinkProvider;
 use App\Repository\UploadLinkRepository;
 use App\Security\UploadLinkUser;
 use App\Security\Voter\UploadLinkVoter;
+use App\Validation\UploadLinkLifetime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -61,10 +63,23 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext: ['groups' => [self::GROUP_WRITE, self::GROUP_CREATE]],
             processor: CreateUploadLinkProcessor::class,
         ),
+        // The creator may at least disable the link: the processor checks the rest
         new Patch(
             uriTemplate: '/upload-links/{id}',
             requirements: ['id' => self::UUID_PATTERN],
+            security: 'is_granted("'.UploadLinkVoter::DISABLE.'", object)',
+            processor: UpdateUploadLinkProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/upload-links/{id}/regenerate-token',
+            status: 200,
+            requirements: ['id' => self::UUID_PATTERN],
             security: 'is_granted("'.UploadLinkVoter::EDIT.'", object)',
+            throwOnNotFound: true,
+            deserialize: false,
+            validate: false,
+            name: 'regenerate_upload_link_token',
+            processor: RegenerateUploadLinkTokenProcessor::class,
         ),
         new Delete(
             uriTemplate: '/upload-links/{id}',
@@ -78,6 +93,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Table(name: 'upload_link')]
 #[ORM\Entity(repositoryClass: UploadLinkRepository::class)]
+#[UploadLinkLifetime]
 class UploadLink extends AbstractUuidEntity
 {
     final public const string GROUP_READ = 'upload_link:r';
@@ -116,7 +132,11 @@ class UploadLink extends AbstractUuidEntity
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private bool $enabled = true;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    /**
+     * Required, within the maximum lifetime of the links.
+     */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Assert\NotNull(message: 'An upload link must expire.')]
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?\DateTimeImmutable $expiresAt = null;
 
@@ -159,6 +179,24 @@ class UploadLink extends AbstractUuidEntity
     private ?string $ownerId = null;
 
     /**
+     * The groups of the creator when they last saved the link: it keeps working only while the creator,
+     * with these groups, may still create it and upload to its target. Keycloak is not called on each
+     * request made with the link.
+     *
+     * @var string[]
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $creatorGroups = [];
+
+    /**
+     * The roles of the creator granting what the groups do not (admin), when they last saved the link.
+     *
+     * @var string[]
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $creatorRoles = [];
+
+    /**
      * What was entered in the form of the last commit, without the target data: offered again for the next one.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -189,7 +227,15 @@ class UploadLink extends AbstractUuidEntity
 
     public static function generateToken(): string
     {
-        return RandomUtil::generateString(64);
+        return bin2hex(random_bytes(32));
+    }
+
+    /**
+     * The former token stops working at once.
+     */
+    public function regenerateToken(): void
+    {
+        $this->token = self::generateToken();
     }
 
     #[Groups([self::GROUP_READ])]
@@ -281,6 +327,38 @@ class UploadLink extends AbstractUuidEntity
     public function setOwnerId(string $ownerId): void
     {
         $this->ownerId = $ownerId;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getCreatorGroups(): array
+    {
+        return $this->creatorGroups;
+    }
+
+    /**
+     * @param string[] $creatorGroups
+     */
+    public function setCreatorGroups(array $creatorGroups): void
+    {
+        $this->creatorGroups = array_values($creatorGroups);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getCreatorRoles(): array
+    {
+        return $this->creatorRoles;
+    }
+
+    /**
+     * @param string[] $creatorRoles
+     */
+    public function setCreatorRoles(array $creatorRoles): void
+    {
+        $this->creatorRoles = array_values($creatorRoles);
     }
 
     public function getLastFormData(): ?array

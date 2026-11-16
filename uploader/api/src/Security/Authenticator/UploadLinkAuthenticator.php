@@ -11,6 +11,7 @@ use App\Security\UploadLinkUser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -18,9 +19,12 @@ use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * `Authorization: UploadLink <token>`: the token of an upload link, which grants uploading to its target.
+ *
+ * The browser adds its own session id (`X-Upload-Session`, a UUID) to tell apart the people sharing the link.
  */
 final class UploadLinkAuthenticator extends AbstractAuthenticator
 {
@@ -55,9 +59,22 @@ final class UploadLinkAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('This upload link has expired', ['code' => self::ERROR_EXPIRED]);
         }
 
-        $user = new UploadLinkUser($link->getId(), $link->getTarget()->getId(), (string) $link->getOwnerId());
+        $user = new UploadLinkUser($link->getId(), $link->getTarget()->getId(), (string) $link->getOwnerId(), $this->getSessionId($request));
 
         return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), static fn (): UploadLinkUser => $user));
+    }
+
+    private function getSessionId(Request $request): ?string
+    {
+        $sessionId = $request->headers->get(UploadLinkUser::SESSION_HEADER);
+        if (null === $sessionId || '' === $sessionId) {
+            return null;
+        }
+        if (!Uuid::isValid($sessionId)) {
+            throw new BadRequestHttpException(sprintf('Invalid %s header: a UUID is expected', UploadLinkUser::SESSION_HEADER));
+        }
+
+        return strtolower($sessionId);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
