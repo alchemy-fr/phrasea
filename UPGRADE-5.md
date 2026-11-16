@@ -166,6 +166,16 @@ once started.
 The `elastichq` service, its profile, `ELASTICHQ_URL` and its dashboard link are
 removed.
 
+### Report ELK stack removed
+
+`docker-compose.report-elk.yml` (`report-elasticsearch`, `report-logstash`,
+`report-kibana`), `infra/docker/report-elk`, the `report-logstash` image and
+`ELK_VERSION` are removed. The report API still writes its `logs` table in the
+report database; read it there, or feed it to your own tooling. Drop
+`docker-compose.report-elk.yml` from any custom `COMPOSE_FILE`, stop and remove
+the three containers (`docker rm -f`), then the orphaned `report_elasticsearch`
+volume, and the `report-kibana.<domain>` DNS entry.
+
 ### Databox client is a Next.js server
 
 The Databox client is no longer static files served by nginx.
