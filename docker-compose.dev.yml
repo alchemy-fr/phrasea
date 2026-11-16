@@ -140,15 +140,15 @@ services:
 
   elasticsearch:
     ports:
-      - ${DEV_ELASTICSEARCH_PORT}:9200
+      - 127.0.0.1:${DEV_ELASTICSEARCH_PORT}:9200
 
   similarity-embedder:
     ports:
-      - ${DEV_SIMILARITY_EMBEDDER_PORT}:8000
+      - 127.0.0.1:${DEV_SIMILARITY_EMBEDDER_PORT}:8000
 
   face-recognition:
     ports:
-      - ${DEV_FACE_RECOGNITION_PORT}:8000
+      - 127.0.0.1:${DEV_FACE_RECOGNITION_PORT}:8000
 
   dev:
     build:
