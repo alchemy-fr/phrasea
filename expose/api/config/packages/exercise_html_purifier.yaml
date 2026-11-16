@@ -4,3 +4,17 @@ exercise_html_purifier:
         custom:
             config:
                 Core.Encoding: 'ISO-8859-1'
+
+when@dev:
+    exercise_html_purifier:
+        default_cache_serializer_path: null
+        html_profiles:
+            default:
+                config:
+                    # Disable the filesystem definition cache in dev: the base directory
+                    # only exists after a successful cache warmup, and HTMLPurifier never
+                    # creates it itself (triggers "Base directory ... does not exist").
+                    # HTMLPurifier also creates its subdirectories with its own permissions
+                    # (0755): once written by root, they can no longer be removed by `app`
+                    # and every later cache:clear fails.
+                    Cache.DefinitionImpl: null
