@@ -353,6 +353,7 @@ function TextField(props: FieldProps & {schema: ConfigSchema}) {
                 onChange={n => set(n === '' ? undefined : toReference(n))}
                 workspaceId={workspaceId}
                 secret={!!schema.secret}
+                defaultName={parseReference(schema.default)}
                 suggestedName={suggestSecretName(name)}
                 defaultOpen={pickerOpen}
                 invalid={!!error}

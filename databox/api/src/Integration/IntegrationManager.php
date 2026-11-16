@@ -154,31 +154,30 @@ readonly class IntegrationManager
         $processor = new Processor();
         $config = $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
 
+        $urlDefaults = $defaults = $secretKeys = [];
+        foreach ($node instanceof ArrayNode ? $node->getChildren() : [] as $name => $child) {
+            if ($child->hasDefaultValue()) {
+                $defaults[$name] = $child->getDefaultValue();
+            }
+            if (!$child instanceof BaseNode) {
+                continue;
+            }
+            if ($child->getAttribute(ConfigWidget::ATTR_URL)) {
+                $urlDefaults[$name] = $defaults[$name] ?? null;
+            }
+            if ($child->getAttribute(ConfigWidget::ATTR_SECRET)) {
+                $secretKeys[] = $name;
+            }
+        }
+
         return new IntegrationConfig(
             $config,
             $workspaceIntegration,
             $integration,
             $this->envResolver,
-            self::getUrlDefaults($node),
+            $urlDefaults,
+            $defaults,
+            $secretKeys,
         );
-    }
-
-    /**
-     * @return array<string, string|null> the default value of each first-level URL key (ConfigWidget::ATTR_URL)
-     */
-    private static function getUrlDefaults(NodeInterface $root): array
-    {
-        if (!$root instanceof ArrayNode) {
-            return [];
-        }
-
-        $defaults = [];
-        foreach ($root->getChildren() as $name => $child) {
-            if ($child instanceof BaseNode && $child->getAttribute(ConfigWidget::ATTR_URL)) {
-                $defaults[$name] = $child->hasDefaultValue() ? $child->getDefaultValue() : null;
-            }
-        }
-
-        return $defaults;
     }
 }

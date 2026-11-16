@@ -45,10 +45,15 @@ interface IntegrationInterface
 
     public function denormalizeConfiguration(array $config, ?Workspace $workspace): array;
 
+    /**
+     * Shown to the editors of the integration. Like resolveClientConfiguration(), it never
+     * holds a resolved reference (instance variables, secrets): a configuration value comes
+     * from IntegrationConfig::getClientValue().
+     */
     public function getConfigurationInfo(IntegrationConfig $config): array;
 
     /**
-     * @return array The exposed configuration through API
+     * @return array The exposed configuration through API, to every user of the integration
      */
     public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array;
 

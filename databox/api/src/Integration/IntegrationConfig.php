@@ -14,10 +14,16 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  * pass: a resolved value is never resolved again.
  *
  * In a workspace integration, the instance variables (`PWI_<NAME>`) are shared by every
- * workspace: they must never leave for a host chosen by a workspace editor. So a URL key
- * (ConfigWidget::ATTR_URL) set to another value than its default resolves no reference,
- * and the instance variables no longer resolve as soon as one of the URLs is not the
- * default, or depends on a secret or a variable of the workspace.
+ * workspace: they must never reach a workspace editor. So a URL key (ConfigWidget::ATTR_URL)
+ * set to another value than its default resolves no reference, and the instance variables
+ * no longer resolve as soon as one of the URLs is not the default, or depends on a secret or
+ * a variable of the workspace. Otherwise, they only resolve in the keys whose value never
+ * reaches the editor: a secret key (ConfigWidget::ATTR_SECRET, a credential) or a key left
+ * to its default (a value chosen by the integration). Any other value may end up in a
+ * message, an asset… read by the editor.
+ *
+ * A value shown to a client is the value as written (getClientValue()): the references
+ * only resolve server-side.
  */
 class IntegrationConfig implements \ArrayAccess
 {
@@ -28,6 +34,8 @@ class IntegrationConfig implements \ArrayAccess
 
     /**
      * @param array<string, string|null> $urlDefaults the default value of each URL key, null when it has none
+     * @param array<string, mixed>       $defaults    the default value of each key having one
+     * @param list<string>               $secretKeys
      */
     public function __construct(
         private readonly array $config,
@@ -35,6 +43,8 @@ class IntegrationConfig implements \ArrayAccess
         private readonly IntegrationInterface $integration,
         private readonly EnvResolver $envResolver,
         private readonly array $urlDefaults = [],
+        private readonly array $defaults = [],
+        private readonly array $secretKeys = [],
     ) {
     }
 
@@ -86,8 +96,7 @@ class IntegrationConfig implements \ArrayAccess
         $value = $this->config[$offset];
 
         if (is_string($value) && str_contains($value, '$') && !$this->isEditorUrl((string) $offset)) {
-            // A default URL is an endpoint of the instance
-            $allowInstance = array_key_exists($offset, $this->urlDefaults) || $this->isInstanceEnvAllowed();
+            $allowInstance = $this->isInstanceEnvAllowedIn((string) $offset);
             $value = preg_replace_callback(
                 self::REFERENCE_PATTERN,
                 fn (array $match): string => $this->envResolver->getEnv(
@@ -100,6 +109,15 @@ class IntegrationConfig implements \ArrayAccess
         }
 
         return $this->cache[$offset] = $value;
+    }
+
+    /**
+     * The value of a first-level key as written, to be shown to a client (an editor of the
+     * integration, its users): its references to secrets and variables are not resolved.
+     */
+    public function getClientValue(string $key): mixed
+    {
+        return $this->config[$key] ?? null;
     }
 
     /**
@@ -126,6 +144,18 @@ class IntegrationConfig implements \ArrayAccess
             && array_key_exists($key, $this->urlDefaults)
             && isset($this->config[$key])
             && $this->config[$key] !== $this->urlDefaults[$key];
+    }
+
+    private function isInstanceEnvAllowedIn(string $key): bool
+    {
+        // A default URL is an endpoint of the instance
+        if (null === $this->getWorkspaceId() || array_key_exists($key, $this->urlDefaults)) {
+            return true;
+        }
+
+        return $this->isInstanceEnvAllowed()
+            && (in_array($key, $this->secretKeys, true)
+                || (array_key_exists($key, $this->defaults) && $this->config[$key] === $this->defaults[$key]));
     }
 
     private function isInstanceEnvAllowed(): bool

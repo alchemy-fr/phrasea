@@ -89,7 +89,7 @@ class UploaderIntegration extends AbstractIntegration
             [
                 'label' => 'Security Key',
                 'description' => 'The security key to set in the Uploader Target configuration to authenticate requests.',
-                'value' => $config['securityKey'] ?? 'Not set',
+                'value' => $config->getClientValue('securityKey') ?? 'Not set',
             ],
         ];
     }

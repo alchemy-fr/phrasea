@@ -107,7 +107,7 @@ class AssetImportIntegration extends AbstractIntegration
             [
                 'label' => 'Security Key',
                 'description' => 'The key of the Authorization header.',
-                'value' => $config['securityKey'] ?? 'Not set',
+                'value' => $config->getClientValue('securityKey') ?? 'Not set',
             ],
             [
                 'label' => 'Formats',
