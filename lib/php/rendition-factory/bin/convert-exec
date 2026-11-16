@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__.'/remote-exec-autoload.php';
+
+exit(Alchemy\RenditionFactory\RemoteExec\ClientCommand::main($argv, getenv()));

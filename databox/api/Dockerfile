@@ -105,7 +105,65 @@ RUN apk add --no-cache \
     && docker-php-ext-install \
       pcntl
 
+# With CONVERTER_URL, LibreOffice, ffmpeg, ffprobe and exiftool run in databox-converter: the files
+# go through the volume shared with it (/var/convert, TMPDIR in /var/convert/worker), the
+# application runs the convert-exec wrapper of each tool (see doc/tech/Databox/converter.md)
+RUN mkdir -p /var/convert /usr/local/libexec/convert \
+    && install -d -o app -g app -m 0700 /var/convert/worker \
+    && install -d -o app -g app -m 0711 /var/convert/jobs \
+    && for tool in soffice ffmpeg ffprobe exiftool; do \
+        printf '#!/bin/sh\nexec /usr/local/bin/php /lib/php/rendition-factory/bin/convert-exec %s "$@"\n' "$tool" > /usr/local/libexec/convert/$tool; \
+        chmod 0755 /usr/local/libexec/convert/$tool; \
+    done \
+    && ln -s /lib/php/rendition-factory/bin/convert-exec /usr/local/bin/convert-exec
+
 CMD ["/usr/bin/supervisord", "-n"]
 
 HEALTHCHECK --start-interval=1s --start-period=90s --retries=100 --interval=60s --timeout=1s \
     CMD ash -c "[ -f /docker/worker-ready ]"
+
+
+# Runs the tools that read untrusted files (LibreOffice, ffmpeg, ffprobe, exiftool) for the workers,
+# each job with a uid of its own, without any secret nor access to the data services: no
+# application code, no .env (see doc/tech/Databox/converter.md)
+FROM php:8.5.12-cli-alpine3.24 AS converter
+
+RUN apk add --no-cache \
+        ffmpeg \
+        libreoffice \
+        fontconfig \
+        ttf-dejavu \
+        ttf-liberation \
+        font-carlito \
+        font-noto \
+        font-noto-cjk \
+        font-noto-emoji \
+        perl \
+        setpriv \
+    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+    && docker-php-ext-install pcntl \
+    && apk del .build-deps \
+    # The uids of the job slots (Server::FIRST_UID, Server::POOL_SIZE): no shell, no home
+    && for i in $(seq 1 32); do \
+        adduser -D -H -h /nonexistent -s /sbin/nologin -u $((2000 + i)) convert$i; \
+    done \
+    && mkdir -p /var/convert \
+    && install -d -o 1000 -g 1000 -m 0700 /var/convert/worker \
+    && install -d -o 1000 -g 1000 -m 0711 /var/convert/jobs
+
+# The exiftool of phpexiftool, whose version the tag classes of the application are generated from
+COPY --from=api-php --chown=root:root /srv/app/vendor/exiftool/exiftool/exiftool /opt/exiftool/exiftool
+COPY --from=api-php --chown=root:root /srv/app/vendor/exiftool/exiftool/lib /opt/exiftool/lib
+COPY --from=api-php --chown=root:root /srv/app/vendor/exiftool/exiftool/arg_files /opt/exiftool/arg_files
+COPY lib/php/rendition-factory/src/RemoteExec /opt/convert/src/RemoteExec
+COPY lib/php/rendition-factory/bin/convert-server lib/php/rendition-factory/bin/remote-exec-autoload.php /opt/convert/bin/
+
+ENV CONVERTER_MAX_JOBS=4 \
+    CONVERTER_MAX_TIMEOUT=3600
+
+WORKDIR /
+
+CMD ["php", "/opt/convert/bin/convert-server"]
+
+HEALTHCHECK --start-interval=1s --start-period=30s --retries=3 --interval=60s --timeout=3s \
+    CMD php -r 'exit(@fsockopen("127.0.0.1", 9000) ? 0 : 1);'

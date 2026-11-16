@@ -151,6 +151,7 @@ with:
 | `app`    | `internal` | the API nginx and their php-fpm (FastCGI), Matomo nginx and php                                  |
 | `data`   | `internal` | the databases, Redis, Elasticsearch, RabbitMQ, MinIO, Sockudo, the report API, the ML services, the consoles (pgAdmin, Mailpit…), and their clients: php, workers, Keycloak, the configurator, Traefik |
 | `egress` | bridge     | php, workers, schedulers, Matomo php, the configurator, `dev`, k6: Internet and the host          |
+| `convert` | `internal` | the databox workers and schedulers, and `databox-converter` (LibreOffice, ffmpeg, exiftool without any secret, see `doc/tech/Databox/converter.md`), which joins no other network |
 
 `internal` networks have no Internet access and no route to the host: a data service never joins
 `proxy`, a client never joins `data`. Traefik routes the services that are not on `proxy` through
