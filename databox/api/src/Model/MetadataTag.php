@@ -53,6 +53,7 @@ final readonly class MetadataTag
         public ?string $name = null,
         #[Groups(self::GROUP_READ)]
         public ?string $description = null,
+        /** Writable by exiftool and allowed by WritableMetadataPolicy */
         #[Groups(self::GROUP_READ)]
         public ?bool $writable = null,
         #[Groups(self::GROUP_READ)]
