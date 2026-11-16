@@ -11,6 +11,7 @@ use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Elasticsearch\Exception\MissingSearchIndexException;
 use App\Elasticsearch\NoWorkspaceAllowedException;
+use App\Elasticsearch\SearchDebugMeta;
 use App\Elasticsearch\SuggestionSearch;
 use Psr\Log\LoggerInterface;
 
@@ -22,6 +23,7 @@ class SearchSuggestionCollectionProvider implements ProviderInterface
     public function __construct(
         private readonly SuggestionSearch $suggestionSearch,
         private readonly LoggerInterface $logger,
+        private readonly SearchDebugMeta $searchDebugMeta,
     ) {
     }
 
@@ -42,10 +44,7 @@ class SearchSuggestionCollectionProvider implements ProviderInterface
         }
 
         $response = new ApiMetaWrapperOutput(new PagerFantaApiPlatformPaginator($result));
-        $response->setMeta('debug:es', [
-            'query' => $queryJson,
-            'time' => $searchTime,
-        ]);
+        $this->searchDebugMeta->apply($response, $queryJson, $searchTime);
 
         return $response;
     }
