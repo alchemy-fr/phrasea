@@ -6,11 +6,14 @@ namespace App\Tests\Functional\UploadLink;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use App\Controller\Admin\AssetCrudController;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Exception\UploadLinkQuotaExceededException;
 use App\Repository\UploadLinkRepository;
+use App\Storage\AssetManager;
 use App\Tests\Functional\TargetFormTest;
+use Doctrine\DBAL\Types\Types;
 
 class UploadLinkUploadTest extends AbstractUploadLinkTestCase
 {
@@ -192,6 +195,127 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
         $this->assertSame(0, $reloaded->getUsedSize());
 
         $this->assertSame(201, $this->uploadFile($link->getToken())->getStatusCode(), 'The quota was given back');
+
+        $response = $this->linkRequest($link->getToken(), 'DELETE', '/assets/'.$assetId);
+        $this->assertSame(404, $response->getStatusCode(), 'Already deleted');
+        $this->assertSame(1, $this->reloadLink($link)->getUsedAssets());
+    }
+
+    public function testTheQuotaIsReleasedOnceWhenTheSameFileIsDeletedTwice(): void
+    {
+        $link = $this->createLink($this->createTarget(), options: ['maxAssets' => 2]);
+        $assetId = $this->uploadFile($link->getToken())->toArray()['id'];
+        $this->assertSame(201, $this->uploadFile($link->getToken())->getStatusCode());
+
+        // Two instances of the same file, as read by two concurrent requests
+        $em = self::getEntityManager();
+        $em->clear();
+        $first = $em->find(Asset::class, $assetId);
+        $em->clear();
+        $second = $em->find(Asset::class, $assetId);
+        $this->assertNotSame($first, $second);
+
+        $assetManager = self::getService(AssetManager::class);
+        $this->assertTrue($assetManager->removeUncommitted($first));
+        $this->assertFalse($assetManager->removeUncommitted($second), 'Already deleted');
+
+        $reloaded = $this->reloadLink($link);
+        $this->assertSame(1, $reloaded->getUsedAssets());
+        $this->assertSame(self::FIXTURE_SIZE, $reloaded->getUsedSize());
+        $this->assertNull($em->find(Asset::class, $assetId));
+    }
+
+    public function testRemovingADeletedFileThroughTheOrmReleasesNothing(): void
+    {
+        $link = $this->createLink($this->createTarget(), options: ['maxAssets' => 2]);
+        $assetId = $this->uploadFile($link->getToken())->toArray()['id'];
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $stale = $em->find(Asset::class, $assetId);
+        $em->getConnection()->executeStatement('DELETE FROM asset WHERE id = :id', ['id' => $assetId]);
+
+        $em->remove($stale);
+        $em->flush();
+
+        $reloaded = $this->reloadLink($link);
+        $this->assertSame(1, $reloaded->getUsedAssets(), 'Released by the deletion that actually happened only');
+        $this->assertSame(self::FIXTURE_SIZE, $reloaded->getUsedSize());
+    }
+
+    public function testDeletingAFileCommittedMeanwhileReleasesNothing(): void
+    {
+        $target = $this->createTarget();
+        $link = $this->createLink($target, options: ['maxAssets' => 2]);
+        $assetId = $this->uploadFile($link->getToken())->toArray()['id'];
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $stale = $em->find(Asset::class, $assetId);
+        $this->assertFalse($stale->isCommitted());
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/commit', [
+            'files' => [$assetId],
+            'formData' => [],
+            'target' => '/targets/'.$target->getId(),
+        ]);
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+
+        $this->assertFalse(self::getService(AssetManager::class)->removeUncommitted($stale));
+
+        $reloaded = $this->reloadLink($link);
+        $this->assertSame(1, $reloaded->getUsedAssets());
+        $this->assertSame(self::FIXTURE_SIZE, $reloaded->getUsedSize());
+        $asset = self::getEntityManager()->find(Asset::class, $assetId);
+        $this->assertNotNull($asset);
+        $this->assertTrue($asset->isCommitted());
+    }
+
+    public function testTheAdminDeletesAFileNotCommittedOnce(): void
+    {
+        $link = $this->createLink($this->createTarget(), options: ['maxAssets' => 2]);
+        $assetId = $this->uploadFile($link->getToken())->toArray()['id'];
+        $this->assertSame(201, $this->uploadFile($link->getToken())->getStatusCode());
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $first = $em->find(Asset::class, $assetId);
+        $em->clear();
+        $second = $em->find(Asset::class, $assetId);
+
+        $controller = self::getService(AssetCrudController::class);
+        $controller->deleteEntity($em, $first);
+        $controller->deleteEntity($em, $second);
+
+        $reloaded = $this->reloadLink($link);
+        $this->assertSame(1, $reloaded->getUsedAssets());
+        $this->assertSame(self::FIXTURE_SIZE, $reloaded->getUsedSize());
+        $this->assertNull($em->find(Asset::class, $assetId));
+    }
+
+    public function testCleaningAnExpiredFileNotCommittedReleasesTheQuota(): void
+    {
+        $link = $this->createLink($this->createTarget(), options: ['maxAssets' => 2]);
+        $assetId = $this->uploadFile($link->getToken())->toArray()['id'];
+        $keptId = $this->uploadFile($link->getToken())->toArray()['id'];
+
+        self::getEntityManager()->getConnection()->executeStatement(
+            'UPDATE asset SET created_at = :createdAt WHERE id = :id',
+            ['createdAt' => new \DateTimeImmutable('-10 days'), 'id' => $assetId],
+            ['createdAt' => Types::DATETIME_IMMUTABLE],
+        );
+        self::getEntityManager()->clear();
+
+        self::getService(AssetManager::class)->cleanAssets(5);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertNull($em->find(Asset::class, $assetId));
+        $this->assertNotNull($em->find(Asset::class, $keptId));
+
+        $reloaded = $this->reloadLink($link);
+        $this->assertSame(1, $reloaded->getUsedAssets());
+        $this->assertSame(self::FIXTURE_SIZE, $reloaded->getUsedSize());
     }
 
     public function testTheFilesOfAnotherLinkCannotBeCommitted(): void
