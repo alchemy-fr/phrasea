@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
@@ -486,6 +487,25 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $asset = $this->createAsset(['workspace' => $this->workspace]);
         $this->assertNull(self::getService(FaceRecognitionAnalyzer::class)->analyze($asset, $config));
         $this->assertCount($calls, $client->getCalls(), 'The service is not called');
+    }
+
+    public function testAnalyzeActionRefusesAQuarantinedAsset(): void
+    {
+        $this->setUpScene();
+        $integration = $this->createIntegration();
+        $asset = $this->createImageAsset();
+        $asset->setStatus(AssetStatusEnum::Quarantined);
+        self::getEntityManager()->flush();
+
+        $response = static::createClient()->request('POST', '/integrations/'.$integration->getId().'/actions/'.FaceRecognitionIntegration::ACTION_ANALYZE, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => ['assetId' => $asset->getId()],
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('is quarantined', $response->toArray(false)['detail'] ?? '');
     }
 
     public function testConfigurationIsValidated(): void

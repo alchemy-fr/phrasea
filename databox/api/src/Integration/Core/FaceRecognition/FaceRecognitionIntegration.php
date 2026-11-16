@@ -26,6 +26,7 @@ use App\Integration\WorkflowIntegrationInterface;
 use App\Notification\EntityDisableNotifyableException;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\FileProcessingGuard;
 use App\Service\Storage\RenditionManager;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -64,6 +65,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         private readonly MessageBusInterface $bus,
         private readonly RenditionManager $renditionManager,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
+        private readonly FileProcessingGuard $processingGuard,
     ) {
     }
 
@@ -220,6 +222,10 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
             throw new BadRequestHttpException(sprintf('Asset "%s" does not belong to the integration workspace', $assetId));
         }
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $asset);
+
+        if (null !== $refusal = $this->processingGuard->getAssetRefusal($asset)) {
+            throw new BadRequestHttpException(sprintf('Asset cannot be analyzed: %s', $refusal));
+        }
 
         $this->bus->dispatch(new FaceRecognitionAnalyze($asset->getId(), $config->getIntegrationId()));
 

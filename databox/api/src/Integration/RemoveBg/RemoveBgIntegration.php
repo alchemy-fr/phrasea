@@ -70,7 +70,7 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
 
     public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
-        $file = $this->getFile($request);
+        $file = $this->getProcessableFile($request);
 
         match ($action) {
             self::ACTION_PROCESS => $this->bus->dispatch(new RemoveBgCall($file->getId(), $config->getIntegrationId())),

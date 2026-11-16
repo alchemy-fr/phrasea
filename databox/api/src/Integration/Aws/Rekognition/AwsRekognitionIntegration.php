@@ -254,7 +254,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
 
     public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
-        $file = $this->getFile($request);
+        $file = $this->getProcessableFile($request);
         match ($action) {
             self::ACTION_ANALYZE => $this->bus->dispatch(new RekognitionAnalyze(
                 $file->getId(),
