@@ -228,20 +228,19 @@ YAML;
         ]);
         $this->assertResponseStatusCodeSame(400);
 
-        // Definition of another workspace
+        // Definition of another workspace: answered as an unknown one
         $response = $this->jsonRequest('POST', '/renditions', self::EDITOR, [
             'assetId' => $asset->getId(),
             'definitionId' => $defaultsB->renditionDefinitions['main']->getId(),
             'sourceFile' => self::sourceFile(),
         ]);
-        $this->assertResponseStatusCodeSame(422);
-        $this->assertStringContainsString('same workspace', $response->toArray(false)['description']);
+        $this->assertResponseStatusCodeSame(400);
+        $error = $response->toArray(false);
+        $this->assertStringContainsString('not found', $error['detail'] ?? $error['description']);
     }
 
     public function testUploadWithAnUnknownDefinitionNameIsABadRequest(): void
     {
-        $this->markTestIncomplete('BUG: RenditionManager::getRenditionDefinitionByName() throws \InvalidArgumentException (src/Service/Storage/RenditionManager.php:268), unmapped: POST /renditions with an unknown "name" answers 500 instead of 400.');
-
         [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $asset = $this->createAsset(['workspace' => $ws, 'ownerId' => self::EDITOR]);
 

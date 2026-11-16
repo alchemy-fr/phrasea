@@ -878,6 +878,15 @@ Workflows and files:
 - Copying a file through `sourceFileId` requires READ on that file.
 - `GET /attachments` requires `assetId` and READ on the asset.
 - Creating an attachment requires READ on the asset.
+- On `POST /assets`, the `relationship` source asset, file and integration
+  must be readable and belong to the workspace of the new asset (an
+  instance-wide integration is accepted); otherwise 400.
+- A rendition definition (`definitionId`, `name`, nested `renditions` of
+  `POST /assets`, `targetRendition` of an upload) must belong to the workspace
+  of the asset; `POST /renditions` with a definition of another workspace
+  answers 400 (it used to answer 422), as for an unknown one.
+- The `ownerId` of `POST /assets` can only name another user for an admin or a
+  token without user (OAuth client): otherwise 403.
 
 Other reads:
 

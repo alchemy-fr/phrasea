@@ -14,7 +14,6 @@ use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
@@ -61,7 +60,7 @@ readonly class AcceptFileAction implements ActionInterface
             if (!$this->userContextSwitcher->runAs($userId, fn (): bool => $this->security->isGranted(AssetVoter::EDIT, $asset))) {
                 throw new \InvalidArgumentException(sprintf('User "%s" cannot edit the asset "%s"', $userId, $asset->getId()));
             }
-            $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
+            $renditionDefinition = $this->renditionManager->getRenditionDefinitionById($asset->getWorkspaceId(), $renditionDefId);
 
             $this->renditionManager->validateSubstitution(
                 $asset,

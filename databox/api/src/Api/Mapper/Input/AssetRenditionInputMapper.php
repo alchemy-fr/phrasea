@@ -44,16 +44,7 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
         if ($isNew) {
             $object = new AssetRendition();
             $asset = $context['asset'] ?? $this->getEntity(Asset::class, $data->assetId);
-            if ($data->definitionId) {
-                $definition = $this->getEntity(RenditionDefinition::class, $data->definitionId);
-            } elseif ($data->name) {
-                $definition = $this->renditionManager
-                    ->getRenditionDefinitionByName($asset->getWorkspaceId(), $data->name);
-            } else {
-                throw new BadRequestHttpException('Missing "definitionId" or "name"');
-            }
-
-            $object->setDefinition($definition);
+            $object->setDefinition($this->getDefinition($data, $asset));
             $object->setAsset($asset);
             $asset->getRenditions()->removeElement($object);
         }
@@ -84,6 +75,32 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
             $data->force ?? false,
             $file ? false : $object->getProjection()
         );
+    }
+
+    /**
+     * Only a definition of the asset workspace: one of another workspace is answered as an unknown one.
+     */
+    private function getDefinition(AssetRenditionInput $data, Asset $asset): RenditionDefinition
+    {
+        if ($data->definitionId) {
+            /** @var RenditionDefinition $definition */
+            $definition = $this->getEntity(RenditionDefinition::class, $data->definitionId);
+            if ($definition->getWorkspaceId() !== $asset->getWorkspaceId()) {
+                throw new BadRequestHttpException(sprintf('Rendition definition "%s" not found', $data->definitionId));
+            }
+
+            return $definition;
+        }
+
+        if ($data->name) {
+            try {
+                return $this->renditionManager->getRenditionDefinitionByName($asset->getWorkspaceId(), $data->name);
+            } catch (\InvalidArgumentException $e) {
+                throw new BadRequestHttpException($e->getMessage(), $e);
+            }
+        }
+
+        throw new BadRequestHttpException('Missing "definitionId" or "name"');
     }
 
     private function transformDynamicRendition(AssetRenditionInput $data, ?object $target, array $context): AssetRendition
