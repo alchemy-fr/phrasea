@@ -7,6 +7,7 @@ namespace App\Service\Storage;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Util\FileUtil;
+use App\Entity\Core\AssetImport;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
@@ -111,5 +112,41 @@ final readonly class FileManager
             $multipartUpload->getFilename(),
             $workspace
         );
+    }
+
+    /**
+     * Whether a file or an asset import still points to the storage object at $path:
+     * such an object must not be deleted.
+     *
+     * @param string|null $exceptFileId a file about to be dropped, not counted
+     */
+    public function isPathReferenced(string $path, ?string $exceptFileId = null): bool
+    {
+        $fileQuery = $this->em->createQueryBuilder()
+            ->select('f.id')
+            ->from(File::class, 'f')
+            ->andWhere('f.path = :path')
+            ->andWhere('f.storage = :storage')
+            ->setParameter('path', $path)
+            ->setParameter('storage', File::STORAGE_S3_MAIN)
+            ->setMaxResults(1);
+        if (null !== $exceptFileId) {
+            $fileQuery
+                ->andWhere('f.id != :exceptId')
+                ->setParameter('exceptId', $exceptFileId);
+        }
+
+        if ([] !== $fileQuery->getQuery()->getScalarResult()) {
+            return true;
+        }
+
+        return [] !== $this->em->createQueryBuilder()
+            ->select('i.id')
+            ->from(AssetImport::class, 'i')
+            ->andWhere('i.sourcePath = :path')
+            ->setParameter('path', $path)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getScalarResult();
     }
 }
