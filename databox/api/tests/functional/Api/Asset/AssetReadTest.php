@@ -298,6 +298,27 @@ final class AssetReadTest extends AbstractDataboxTestCase
         $this->assertSame(['Linked'], array_column($data['collections'], 'name'));
     }
 
+    public function testCollectionPathsOfTheAssetDoNotDiscloseUnreadableAncestors(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $this->addUserOnWorkspace(self::OTHER, $workspace->getId());
+        $secret = $this->createCollection(['ownerId' => self::OWNER, 'name' => 'Acquisition Foo']);
+        $shared = $this->createCollection(['ownerId' => self::OWNER, 'name' => 'Shared', 'parent' => $secret]);
+        $asset = $this->createAsset(['ownerId' => self::OWNER, 'collectionId' => $shared->getId()]);
+        $this->grantUserOnObject(self::OTHER, $shared, PermissionInterface::VIEW | PermissionInterface::CHILD_VIEW);
+
+        $response = $this->request('GET', '/assets/'.$asset->getId(), self::OTHER);
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+        foreach ([$data['referenceCollection'], $data['collections'][0]] as $collection) {
+            $this->assertSame('/'.$shared->getId(), $collection['absolutePath']);
+            $this->assertSame('Shared', $collection['absoluteName']);
+            $this->assertSame('Shared', $collection['absoluteDisplayName']);
+        }
+        $this->assertStringNotContainsString($secret->getId(), $response->getContent());
+        $this->assertStringNotContainsString('Acquisition Foo', $response->getContent());
+    }
+
     public function testCollectionsListedOnTheAssetAreFilteredByReadability(): void
     {
         $workspace = $this->createOwnedWorkspace();
