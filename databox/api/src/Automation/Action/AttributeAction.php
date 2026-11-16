@@ -99,8 +99,11 @@ final class AttributeAction extends AbstractAutomationAction
                     self::throwViolations(['replaceWith' => 'This value should be a string.']);
                 }
                 $regex = (bool) ($config['regex'] ?? false);
+                if ($regex && mb_strlen($from) > AttributeActionInput::REGEX_MAX_LENGTH) {
+                    self::throwViolations(['value' => sprintf('The regex pattern is too long (%d characters or less).', AttributeActionInput::REGEX_MAX_LENGTH)]);
+                }
                 $flags = $config['flags'] ?? null;
-                if (null !== $flags && (!is_string($flags) || !preg_match('#^[a-z]*$#', $flags))) {
+                if (null !== $flags && (!is_string($flags) || !preg_match(AttributeActionInput::REGEX_FLAGS_PATTERN, $flags))) {
                     self::throwViolations(['flags' => 'Invalid regex flags.']);
                 }
 

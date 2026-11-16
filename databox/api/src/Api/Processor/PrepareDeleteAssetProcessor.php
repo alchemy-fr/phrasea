@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
+use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
@@ -51,7 +52,8 @@ class PrepareDeleteAssetProcessor implements ProcessorInterface
             }
         }
 
-        $shareCount = $this->shareRepository->getShareCount($data->ids);
+        $assetIds = array_map(static fn (Asset $asset): string => $asset->getId(), $assets);
+        $shareCount = [] !== $assetIds ? $this->shareRepository->getShareCount($assetIds) : 0;
 
         return new PrepareDeleteAssetsOutput($canDelete, array_values($collections), $shareCount);
     }
