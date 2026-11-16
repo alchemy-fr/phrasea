@@ -38,6 +38,7 @@ use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Validator\AttributeDefinitionQuotaConstraint;
 use App\Validator\SameWorkspaceConstraint;
 use App\Validator\TwigConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -230,6 +231,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     fields: ['workspace', 'name'],
     errorPath: 'name',
 )]
+#[AttributeDefinitionQuotaConstraint]
 class AttributeDefinition extends AbstractUuidEntity implements AuditableInterface, \Stringable, ErrorDisableInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;

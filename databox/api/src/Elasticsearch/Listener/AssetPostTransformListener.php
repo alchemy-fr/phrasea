@@ -6,6 +6,7 @@ namespace App\Elasticsearch\Listener;
 
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\IndexableLocales;
 use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\AssetIndexPreloader;
 use App\Elasticsearch\AssetPermissionComputer;
@@ -117,8 +118,16 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
             $isMultiple = $definition->isMultiple();
             $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
             $fieldName = null;
+            $workspaceLocales = $definition->getWorkspace()->getEnabledLocales();
 
             foreach ($definitionIndex->getLocales() as $l => $a) {
+                // A value in a locale the workspace does not enable keeps its own locale
+                // (Attribute::getNearestWorkspaceLocale()): any such locale would add fields to
+                // the mapping shared by every workspace.
+                if (!$type->supportsTranslations() && !IndexableLocales::isIndexable((string) $l, $workspaceLocales)) {
+                    continue;
+                }
+
                 $v = null;
                 if ($isMultiple) {
                     if (!empty($a)) {
