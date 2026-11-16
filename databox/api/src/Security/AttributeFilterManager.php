@@ -52,4 +52,17 @@ readonly class AttributeFilterManager
 
         return $wsRules;
     }
+
+    /**
+     * The conditions of every rule of the workspace, whoever it targets.
+     *
+     * @return string[] AQL conditions
+     */
+    public function getWorkspaceConditions(string $workspaceId): array
+    {
+        return array_map(
+            static fn (AttributeFilterRule $rule): string => (string) $rule->getCondition(),
+            $this->repository->findBy(['workspace' => $workspaceId]),
+        );
+    }
 }

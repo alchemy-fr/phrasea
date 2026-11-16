@@ -207,6 +207,31 @@ class AttributeRepository extends ServiceEntityRepository
     }
 
     /**
+     * The detections of the value in the definition, most confident first, as plain rows: the
+     * faces of a person. Their assets are not checked here: the caller filters them in
+     * Elasticsearch (AssetSearch), where the asset rights apply.
+     *
+     * @return list<array{id: string, asset: string}>
+     */
+    public function findEmbeddingsByConfidence(string $definitionId, string $value): array
+    {
+        $rows = $this->createEmbeddingsQueryBuilder($definitionId)
+            ->select('a.id', 'IDENTITY(a.asset) AS assetId')
+            ->andWhere('a.value = :value')
+            ->setParameter('value', $value)
+            ->orderBy('a.confidence', 'DESC')
+            ->addOrderBy('a.createdAt', 'ASC')
+            ->addOrderBy('a.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map(static fn (array $row): array => [
+            'id' => (string) $row['id'],
+            'asset' => (string) $row['assetId'],
+        ], $rows);
+    }
+
+    /**
      * The values of the definitions that are not referenced by any attribute value any more.
      *
      * @param string[] $definitionIds

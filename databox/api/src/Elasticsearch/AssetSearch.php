@@ -21,6 +21,8 @@ use App\Elasticsearch\Geo\GeoClusterResult;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\SavedSearch\SavedSearchRepository;
@@ -248,6 +250,68 @@ class AssetSearch extends AbstractSearch
             static fn (Result $result): string => (string) $result->getId(),
             $this->index->search($query)->getResults(),
         );
+    }
+
+    /**
+     * Among the given assets of the workspace, the IDs of those every reader of the workspace sees,
+     * for a content shown to all of them alike whatever their own rights (e.g. the photo of a
+     * person of an entity list): see createEveryReaderFilterQueries().
+     *
+     * @param string[] $assetIds
+     *
+     * @return string[]
+     */
+    public function getIdsVisibleToEveryReader(Workspace $workspace, array $assetIds): array
+    {
+        $assetIds = array_values(array_unique($assetIds));
+        if (empty($assetIds)) {
+            return [];
+        }
+
+        $boolQuery = new Query\BoolQuery();
+        foreach ($this->createEveryReaderFilterQueries($workspace) as $filterQuery) {
+            $boolQuery->addFilter($filterQuery);
+        }
+        $boolQuery->addFilter(new Query\Terms('_id', $assetIds));
+
+        $query = new Query($boolQuery);
+        $query->setSource(false);
+        $query->setSize(count($assetIds));
+
+        return array_map(
+            static fn (Result $result): string => (string) $result->getId(),
+            $this->index->search($query)->getResults(),
+        );
+    }
+
+    /**
+     * The counterpart of createBaseFilterQueries() for every reader of the workspace at once,
+     * none of them in particular: the assets of the workspace that are accepted, not deleted,
+     * open to every reader of the workspace (to anyone, anonymous users included, when the
+     * workspace is public) and matched by every attribute filter rule of the workspace, whoever
+     * it targets.
+     *
+     * @return Query\AbstractQuery[]
+     */
+    private function createEveryReaderFilterQueries(Workspace $workspace): array
+    {
+        $options = ['userId' => null, 'groupIds' => []];
+
+        $filterQueries = [
+            new Query\Term(['workspaceId' => $workspace->getId()]),
+            new Query\Range('privacy', [
+                'gte' => $workspace->isPublic() ? WorkspaceItemPrivacyInterface::PUBLIC : WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
+            ]),
+            $this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options),
+            $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options),
+        ];
+
+        $conditions = $this->attributeFilterManager->getWorkspaceConditions($workspace->getId());
+        if (null !== $rulesQuery = $this->buildRuleSetQuery([$workspace->getId() => $conditions], $options)) {
+            $filterQueries[] = $rulesQuery;
+        }
+
+        return $filterQueries;
     }
 
     /**
@@ -549,7 +613,14 @@ class AssetSearch extends AbstractSearch
 
     private function buildAttributeFilterQuery(?string $userId, array $groupIds, array $options): ?Query\BoolQuery
     {
-        $ruleSet = $this->attributeFilterManager->getUserRules($userId, $groupIds);
+        return $this->buildRuleSetQuery($this->attributeFilterManager->getUserRules($userId, $groupIds), $options);
+    }
+
+    /**
+     * @param array<string, string[]> $ruleSet AQL conditions indexed by workspace ID
+     */
+    private function buildRuleSetQuery(array $ruleSet, array $options): ?Query\BoolQuery
+    {
         if (empty($ruleSet)) {
             return null;
         }
