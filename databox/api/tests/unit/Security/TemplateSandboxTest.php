@@ -36,6 +36,10 @@ class TemplateSandboxTest extends TestCase
             ['{{ ["a", "b"]|merge(["c"])|join(" ; ") }}', 'a ; b ; c'],
             ['{% if asset.ownerId is empty %}none{% else %}{{ asset.ownerId|lower }}{% endif %}', 'owner'],
             ['{{ [3, 1, 2]|filter(v => v > 1)|join(",") }}', '3,2'],
+            ['{% for i in 1..3 %}{{ i }}{% endfor %}', '123'],
+            ['{{ range(10, 0, 5)|join(",") }}', '10,5,0'],
+            ['{{ range("a", "c")|join }}', 'abc'],
+            ['{{ (1..10000)|length }}', '10000'],
         ];
     }
 
@@ -68,6 +72,9 @@ class TemplateSandboxTest extends TestCase
             'source' => ['{{ source("/etc/passwd") }}'],
             'constant' => ['{{ constant("PHP_VERSION") }}'],
             'macro' => ['{% macro x() %}{% endmacro %}'],
+            'huge range' => ['{{ range(1, 1000000000)|length }}'],
+            'huge range with a tiny step' => ['{{ range(0, 1, 0.00000001)|length }}'],
+            'huge range operator' => ['{% for i in 0..1000000000 %}{% endfor %}'],
         ];
     }
 

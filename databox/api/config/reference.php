@@ -2383,6 +2383,15 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type ArthemObjectReferenceConfig = array{
  *     mapping?: array<string, scalar|Param|null>,
  * }
+ * @psalm-type AlchemyRenditionFactoryConfig = array{
+ *     download?: array{ // Limits of each remote file downloaded by the renditions (download module, watermarks)
+ *         max_size?: int|Param, // In bytes // Default: 5368709120
+ *         max_duration?: float|Param, // In seconds, for the whole transfer // Default: 900.0
+ *     },
+ *     ffmpeg?: array{
+ *         max_timeout?: int|Param, // Highest "timeout" (in seconds) of an ffmpeg module, also its default // Default: 3600
+ *     },
+ * }
  * @psalm-type AlchemyConfiguratorConfig = array{
  *     database_url?: scalar|Param|null, // Default: "%env(CONFIGURATOR_DATABASE_URL)%"
  *     storage?: array{
@@ -2615,6 +2624,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     alchemy_es?: AlchemyEsConfig,
  *     sentry?: SentryConfig,
  *     arthem_object_reference?: ArthemObjectReferenceConfig,
+ *     alchemy_rendition_factory?: AlchemyRenditionFactoryConfig,
  *     alchemy_configurator?: AlchemyConfiguratorConfig,
  *     twig_component?: TwigComponentConfig,
  *     alchemy_notifier?: AlchemyNotifierConfig,
@@ -2654,6 +2664,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         alchemy_es?: AlchemyEsConfig,
  *         sentry?: SentryConfig,
  *         arthem_object_reference?: ArthemObjectReferenceConfig,
+ *         alchemy_rendition_factory?: AlchemyRenditionFactoryConfig,
  *         alchemy_configurator?: AlchemyConfiguratorConfig,
  *         twig_component?: TwigComponentConfig,
  *         alchemy_notifier?: AlchemyNotifierConfig,
@@ -2692,6 +2703,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         alchemy_es?: AlchemyEsConfig,
  *         sentry?: SentryConfig,
  *         arthem_object_reference?: ArthemObjectReferenceConfig,
+ *         alchemy_rendition_factory?: AlchemyRenditionFactoryConfig,
  *         alchemy_configurator?: AlchemyConfiguratorConfig,
  *         twig_component?: TwigComponentConfig,
  *         alchemy_notifier?: AlchemyNotifierConfig,
@@ -2732,6 +2744,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         alchemy_es?: AlchemyEsConfig,
  *         sentry?: SentryConfig,
  *         arthem_object_reference?: ArthemObjectReferenceConfig,
+ *         alchemy_rendition_factory?: AlchemyRenditionFactoryConfig,
  *         alchemy_configurator?: AlchemyConfiguratorConfig,
  *         twig_component?: TwigComponentConfig,
  *         alchemy_notifier?: AlchemyNotifierConfig,

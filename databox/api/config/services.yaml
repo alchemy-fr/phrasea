@@ -10,6 +10,8 @@ parameters:
     env(ASSET_IMPORT_JSON_MAX_SIZE): '52428800'
     # Days the audit log entries are kept, 0 to keep them forever
     env(AUDIT_LOG_RETENTION_DAYS): '365'
+    # Seconds a download from a URL may last (files to ingest, transcripts…)
+    app.download.max_duration: 900
     stof_doctrine_extensions.listener.softdeleteable.class: App\Doctrine\Listener\SoftDeleteableListener
 
 services:

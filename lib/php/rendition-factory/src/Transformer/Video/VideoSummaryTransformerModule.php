@@ -34,11 +34,18 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
     public const string NAME = 'video_summary';
+    public const int DEFAULT_MAX_CLIPS = 100;
+    public const int MAX_CLIPS_LIMIT = 1000;
+    /**
+     * Above it, the duration a file announces is taken as forged rather than real.
+     */
+    public const int MAX_INPUT_DURATION = 24 * 3600;
 
     public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private ImagineInterface $imagine,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
+        private int $ffmpegMaxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
     ) {
     }
 
@@ -94,6 +101,12 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                         ->info('Duration of each clip, in seconds or timecode')
                         ->example('0.25 ; "00:00:00.25"')
                    ->end()
+                    ->integerNode('max_clips')
+                        ->defaultValue(self::DEFAULT_MAX_CLIPS)
+                        ->min(1)
+                        ->max(self::MAX_CLIPS_LIMIT)
+                        ->info('Maximum number of clips: on a long video, the summary stops after them')
+                    ->end()
                    ->scalarNode('format')
                         ->isRequired()
                         ->info('output format')
@@ -108,9 +121,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                         ->defaultValue(2)
                         ->info('Change the number of ffmpeg passes')
                     ->end()
-                        ->scalarNode('timeout')
-                        ->info('Change the default timeout used by ffmpeg (defaults to symphony process timeout)')
-                    ->end()
+                    ->append(FFMpegHelper::createTimeoutNode($this->ffmpegMaxTimeout))
                     ->scalarNode('threads')
                         ->info('Change the default number of threads used by ffmpeg')
                     ->end()
@@ -132,7 +143,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver, $this->ffmpegMaxTimeout);
         $outputFormat = $commonArgs->getOutputFormat();
         $format = $outputFormat->getFormat();
 
@@ -164,7 +175,11 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
 
         $context->log(sprintf('  start=%s (%.02f), period=%s (%.02f), duration=%s (%.02f)', $startAsTimecode, $start, $periodAsTimecode, $period, $clipDurationAsTimecode, $clipDuration));
 
-        $inputDuration = $video->getFFProbe()->format($inputFile->getPath())->get('duration');
+        $inputDuration = self::resolveInputDuration(
+            $video->getFFProbe()->format($inputFile->getPath())->get('duration'),
+            $resolverContext['input']['duration'] ?? null,
+        );
+        $maxClips = self::resolveMaxClips($options['max_clips'] ?? null);
 
         if (FamilyEnum::Video === $outputFormat->getFamily()) {
             // The output formats are shared services: the settings below must not leak to the next renditions
@@ -194,7 +209,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                 $clipsFiles = [];
                 $gap = $period - $clipDuration;
                 $usableInputDuration = ($inputDuration - $start) + $gap;
-                $nClips = floor($usableInputDuration / $period);
+                $nClips = self::countClips($usableInputDuration, $period, $maxClips);
 
                 $context->log(sprintf('  Video duration=%.02f, extracting %d clips of %.02f seconds from %s', $inputDuration, $nClips, $clipDuration, $startAsTimecode));
                 $removeAudioFilter = new FFMpeg\Filters\Audio\SimpleFilter(['-an']);
@@ -230,7 +245,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             try {
                 $clipsFiles = [];
                 $usableInputDuration = ($inputDuration - $start);
-                $nClips = floor($usableInputDuration / $period);
+                $nClips = self::countClips($usableInputDuration, $period, $maxClips);
 
                 $context->log(sprintf('  Video duration=%.02f, extracting %d frames from %s', $inputDuration, $nClips, $startAsTimecode));
 
@@ -280,5 +295,50 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             $outputFormat->getFamily(),
             false,
         );
+    }
+
+    /**
+     * The container (format) and the video stream each announce a duration: both come from the
+     * file, so the shortest is kept, and an absurd one is refused rather than trusted.
+     */
+    public static function resolveInputDuration(mixed $formatDuration, mixed $videoStreamDuration): float
+    {
+        $durations = array_filter(
+            array_map(
+                static fn (mixed $duration): ?float => is_numeric($duration) ? (float) $duration : null,
+                [$formatDuration, $videoStreamDuration],
+            ),
+            static fn (?float $duration): bool => null !== $duration && $duration > 0,
+        );
+        if (empty($durations)) {
+            throw new \InvalidArgumentException(sprintf('Module "%s": unable to read the duration of the video', self::NAME));
+        }
+
+        $duration = min($durations);
+        if (!is_finite($duration) || $duration > self::MAX_INPUT_DURATION) {
+            throw new \InvalidArgumentException(sprintf('Module "%s": the video announces a duration of %s seconds, more than the maximum of %d', self::NAME, $duration, self::MAX_INPUT_DURATION));
+        }
+
+        return $duration;
+    }
+
+    public static function resolveMaxClips(mixed $maxClips): int
+    {
+        if (null === $maxClips) {
+            return self::DEFAULT_MAX_CLIPS;
+        }
+        if (is_string($maxClips) && ctype_digit($maxClips)) {
+            $maxClips = (int) $maxClips;
+        }
+        if (!is_int($maxClips) || $maxClips < 1 || $maxClips > self::MAX_CLIPS_LIMIT) {
+            throw new \InvalidArgumentException(sprintf('Invalid max_clips for module "%s": an integer between 1 and %d is expected, got %s', self::NAME, self::MAX_CLIPS_LIMIT, json_encode($maxClips)));
+        }
+
+        return $maxClips;
+    }
+
+    public static function countClips(float $usableInputDuration, float $period, int $maxClips): int
+    {
+        return (int) min($maxClips, max(0, floor($usableInputDuration / $period)));
     }
 }

@@ -1,0 +1,5 @@
+alchemy_rendition_factory:
+    download:
+        # A remote file larger than what the storage accepts could not become a rendition anyway
+        max_size: '%env(int:S3_MAX_OBJECT_SIZE)%'
+        max_duration: '%app.download.max_duration%'

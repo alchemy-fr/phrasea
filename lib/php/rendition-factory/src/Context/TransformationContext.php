@@ -2,6 +2,8 @@
 
 namespace Alchemy\RenditionFactory\Context;
 
+use Alchemy\CoreBundle\Exception\DownloadTooLargeException;
+use Alchemy\CoreBundle\Util\HttpDownloadUtil;
 use Alchemy\CoreBundle\Util\UrlUtil;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
@@ -22,6 +24,8 @@ final readonly class TransformationContext implements TransformationContextInter
         private ?MetadataContainerInterface $metadata = null,
         /** @var InputFileInterface[] */
         private array $inputFiles = [],
+        private int $maxDownloadSize = TransformationContextFactory::DEFAULT_MAX_DOWNLOAD_SIZE,
+        private float $maxDownloadDuration = TransformationContextFactory::DEFAULT_MAX_DOWNLOAD_DURATION,
     ) {
         $this->buildHashes = new BuildHashes();
     }
@@ -84,15 +88,16 @@ final readonly class TransformationContext implements TransformationContextInter
         return $path;
     }
 
+    /**
+     * @throws DownloadTooLargeException
+     */
     private function download(string $uri, string $dest): ?string
     {
-        $response = $this->client->request('GET', $uri);
+        $response = $this->client->request('GET', $uri, [
+            'max_duration' => $this->maxDownloadDuration,
+        ]);
 
-        $fileHandler = fopen($dest, 'w');
-        foreach ($this->client->stream($response) as $chunk) {
-            fwrite($fileHandler, $chunk->getContent());
-        }
-        fclose($fileHandler);
+        HttpDownloadUtil::streamToFile($this->client, $response, $dest, $this->maxDownloadSize);
 
         $contentType = $response->getHeaders()['content-type'] ?? null;
         if (empty($contentType)) {

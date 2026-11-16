@@ -6,17 +6,20 @@ use Alchemy\BinaryDriver\AbstractBinary;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\RestrictedProcessBuilderFactory;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
+use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
 
 class FFMpegHelper
 {
-    public static function createFFMpeg(array $options): FFMpeg\FFMpeg
+    public const int DEFAULT_MAX_TIMEOUT = 3600;
+
+    /**
+     * @param int $maxTimeout the highest timeout (seconds) the options may ask for, and the default one:
+     *                        the rendition definitions are written by editors, the workers are shared
+     */
+    public static function createFFMpeg(array $options, int $maxTimeout = self::DEFAULT_MAX_TIMEOUT): FFMpeg\FFMpeg
     {
         $ffmpegOptions = [];
-
-        if (!is_int($timeout = $options['timeout'] ?? 3600) || $timeout < 1) {
-            throw new \InvalidArgumentException('Invalid timeout');
-        }
-        $ffmpegOptions['timeout'] = $timeout;
+        $ffmpegOptions['timeout'] = self::resolveTimeout($options['timeout'] ?? null, $maxTimeout);
 
         if ($threads = $options['threads']) {
             if (!is_int($threads) || $threads < 1) {
@@ -26,6 +29,43 @@ class FFMpegHelper
         }
 
         return self::restrict(FFMpeg\FFMpeg::create($ffmpegOptions, $options['logger'] ?? null));
+    }
+
+    /**
+     * The "timeout" option of the modules running ffmpeg.
+     */
+    public static function createTimeoutNode(int $maxTimeout): ScalarNodeDefinition
+    {
+        $node = new ScalarNodeDefinition('timeout');
+        $node
+            ->info(sprintf('Timeout of each ffmpeg command, in seconds (at most and by default: %d)', $maxTimeout))
+            ->validate()
+                // A template is only known at build time
+                ->ifTrue(static fn (mixed $value): bool => !is_string($value) || !str_contains($value, '{'))
+                ->then(static function (mixed $value) use ($maxTimeout): mixed {
+                    self::resolveTimeout($value, $maxTimeout);
+
+                    return $value;
+                })
+            ->end()
+        ;
+
+        return $node;
+    }
+
+    public static function resolveTimeout(mixed $timeout, int $maxTimeout): int
+    {
+        if (null === $timeout) {
+            return $maxTimeout;
+        }
+        if (is_string($timeout) && ctype_digit($timeout)) {
+            $timeout = (int) $timeout;
+        }
+        if (!is_int($timeout) || $timeout < 1 || $timeout > $maxTimeout) {
+            throw new \InvalidArgumentException(sprintf('Invalid timeout: an integer between 1 and %d is expected, got %s', $maxTimeout, json_encode($timeout)));
+        }
+
+        return $timeout;
     }
 
     /**

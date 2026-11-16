@@ -60,7 +60,9 @@ Follow these steps in order. Each one is detailed in the sections below.
    and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
    replaced by `PATCH`), shared rendition links, the Databox theme, and the
    image formats ImageMagick still reads (SVG and EPS get no thumbnail any
-   more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)).
+   more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)),
+   and the rendition definitions asking ffmpeg for a `timeout` above 3600
+   seconds (see [Resource limits of the databox workers](#resource-limits-of-the-databox-workers)).
 
 ## Stack and deployment
 
@@ -365,6 +367,24 @@ resource variables are unchanged.
 
 See [Formats read by ImageMagick](doc/tech/Databox/Renditions.mdx#formats-read-by-imagemagick)
 to re-enable a format.
+
+### Resource limits of the databox workers
+
+Uploaded files, the URLs they come from and the rendition definitions are
+untrusted: the workers now bound what they spend on them.
+
+- ImageMagick: new `IMAGEMAGICK_POLICY_TIME` (120 seconds),
+  `IMAGEMAGICK_POLICY_LIST_LENGTH` (128 images per file: animation frames,
+  document pages) and `IMAGEMAGICK_POLICY_HEIGHT` (the width when unset)
+  variables. A longer animation or a slower conversion now fails: raise them if
+  needed.
+- Downloads from a URL (files to ingest, transcripts, remote files of the
+  renditions) last 900 seconds at most and are refused above `S3_MAX_OBJECT_SIZE`.
+- The `timeout` of the ffmpeg modules is 3600 seconds at most (and by
+  default); a definition asking for more is refused. The maximum is the
+  `alchemy_rendition_factory.ffmpeg.max_timeout` configuration.
+- `video_summary` extracts 100 clips at most (`max_clips` option, up to 1000),
+  and refuses a video announcing more than 24 hours.
 
 ### Indexer
 
@@ -680,7 +700,8 @@ run in a sandbox:
 - forbidden functions: `attribute`, `block`, `constant`, `dump`, `enum`,
   `enum_cases`, `include`, `parent`, `source`, `template_from_string`;
 - on entities, only `get*`, `is*`, `has*` methods and `__toString` can be
-  called.
+  called;
+- `range()` and the `..` operator produce 10,000 elements at most.
 
 The validation constraint also rejects such templates on save: audit your
 existing definitions.
