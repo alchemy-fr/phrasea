@@ -79,6 +79,13 @@ services:
       - ./expose/api:/srv/app
       - ./lib/php:/lib/php
 
+  expose-scheduler:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
+    volumes:
+      - ./expose/api:/srv/app
+      - ./lib/php:/lib/php
+
   uploader-api-php:
     environment:
       - XDEBUG_ENABLED

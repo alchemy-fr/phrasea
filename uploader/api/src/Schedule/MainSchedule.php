@@ -16,7 +16,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  * Every periodic task of the uploader, consumed by the single-replica
  * "uploader-scheduler" container through the "scheduler_main" transport.
  * No lock: the single replica is the guarantee, and the tasks are idempotent.
- * The hashed expression (#midnight) spreads the task between 00:00 and 02:59.
+ * The hashed expressions (#midnight) spread the tasks between 00:00 and 02:59.
  */
 #[AsSchedule('main')]
 final readonly class MainSchedule implements ScheduleProviderInterface
@@ -32,6 +32,7 @@ final readonly class MainSchedule implements ScheduleProviderInterface
         return new Schedule()
             ->add(
                 RecurringMessage::cron('#midnight', new RunCommandMessage('app:asset:clean-expired')),
+                RecurringMessage::cron('#midnight', new RunCommandMessage('alchemy:storage:prune-multipart-uploads')),
             )
             ->stateful($this->cache)
             ->processOnlyLastMissedRun(true);
