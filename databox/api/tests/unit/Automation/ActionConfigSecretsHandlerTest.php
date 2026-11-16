@@ -9,6 +9,7 @@ use App\Automation\ActionConfigSecretsHandler;
 use App\Automation\AutomationActionRegistry;
 use App\Automation\AutomationBatch;
 use App\Security\Secrets\EncryptionManager;
+use App\Security\Secrets\SecretKeyUnavailableException;
 use App\Security\Secrets\SecretsManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -107,6 +108,7 @@ final class ActionConfigSecretsHandlerTest extends TestCase
     {
         $stored = $this->createHandler()->encrypt(self::TYPE, ['password' => 's3cr3t']);
 
-        $this->assertSame('***', $this->createHandler(false)->decrypt(self::TYPE, $stored)['password']);
+        $this->expectException(SecretKeyUnavailableException::class);
+        $this->createHandler(false)->decrypt(self::TYPE, $stored);
     }
 }

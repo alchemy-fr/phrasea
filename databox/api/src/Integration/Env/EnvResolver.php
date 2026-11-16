@@ -6,6 +6,7 @@ namespace App\Integration\Env;
 
 use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceSecret;
+use App\Security\Secrets\SecretKeyUnavailableException;
 use App\Security\Secrets\SecretsManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -27,6 +28,8 @@ final readonly class EnvResolver
      *                            host they chose, shown in a message or an asset…): the
      *                            `PWI_<NAME>` variable of the instance then resolves to an
      *                            empty string
+     *
+     * @throws SecretKeyUnavailableException when the key names a secret and the process cannot decrypt it (the API)
      */
     public function getEnv(?string $workspaceId, string $key, bool $allowInstance = true): string
     {
@@ -40,6 +43,8 @@ final readonly class EnvResolver
         if ($secret instanceof WorkspaceSecret) {
             try {
                 return $this->secretsManager->decryptSecret($secret->getValue());
+            } catch (SecretKeyUnavailableException $e) {
+                throw new SecretKeyUnavailableException(sprintf('WorkspaceSecret "%s" (workspace: %s) cannot be resolved here: %s', $key, $workspaceId ?? 'NULL', $e->getMessage()), 0, $e);
             } catch (\Exception $e) {
                 throw new \RuntimeException(sprintf('Failed to decrypt WorkspaceSecret "%s" (workspace: %s): %s', $key, $workspaceId ?? 'NULL', $e->getMessage()), 0, $e);
             }
@@ -79,6 +84,17 @@ final readonly class EnvResolver
 
         return null !== $this->em->getRepository(WorkspaceSecret::class)->findOneBy($params)
             || null !== $this->em->getRepository(WorkspaceEnv::class)->findOneBy($params);
+    }
+
+    /**
+     * Whether a secret of the workspace (of the instance for a null workspace) has this name.
+     */
+    public function isSecretInWorkspace(?string $workspaceId, string $key): bool
+    {
+        return null !== $this->em->getRepository(WorkspaceSecret::class)->findOneBy([
+            'workspace' => $workspaceId,
+            'name' => $key,
+        ]);
     }
 
     /**

@@ -69,6 +69,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
                 ->cannotBeEmpty()
                 ->info(sprintf('The secret carried by the Webhook URL set in Phraseanet ("%s" method): events without it are refused', self::METHOD_ENQUEUE))
                 ->attribute(ConfigWidget::ATTR_SECRET, true)
+                ->attribute(ConfigWidget::ATTR_READ_BY_API, true)
             ->end()
         ;
     }
