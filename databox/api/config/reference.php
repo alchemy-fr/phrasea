@@ -1906,6 +1906,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     worker?: array{
  *         queues?: list<scalar|Param|null>,
+ *         inspect_limit?: int|Param, // Maximum number of pending messages read from each queue to summarize them // Default: 1000
  *         rabbitmq?: array{
  *             host?: scalar|Param|null, // Default: "%env(RABBITMQ_HOST)%"
  *             port?: scalar|Param|null, // Default: "%env(RABBITMQ_PORT)%"
