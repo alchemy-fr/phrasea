@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInAttribute;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use App\Attribute\Type\AssetStatusAttributeType;
 use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
@@ -136,11 +137,8 @@ final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute
         $boolQuery = new BoolQuery();
         $boolQuery->setMinimumShouldMatch(1);
         $boolQuery->addShould(new Query\Term(['ownerId' => $userId]));
-        $boolQuery->addShould(new Query\Term(['quarantineUsers' => $userId]));
-        $groups = $options['groupIds'] ?? null;
-        if (!empty($groups)) {
-            $boolQuery->addShould(new Query\Terms('quarantineGroups', $groups));
-        }
+        $boolQuery->addShould(new Query\Terms('quarantineUsers', [$userId, AccessControlEntryInterface::USER_WILDCARD]));
+        $boolQuery->addShould(new Query\Terms('quarantineGroups', [...($options['groupIds'] ?? []), AccessControlEntryInterface::USER_WILDCARD]));
 
         return $boolQuery;
     }

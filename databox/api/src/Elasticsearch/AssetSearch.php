@@ -567,7 +567,7 @@ class AssetSearch extends AbstractSearch
         $options['groupIds'] = $groupIds;
 
         $filterQueries = [];
-        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds)) {
+        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds, WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)) {
             $filterQueries[] = $aclBoolQuery;
         }
 

@@ -227,8 +227,8 @@ fixtures.
   the attribute filter rules come from `App\Fixture\Faker\AqlConditionFaker`.
 - A collection is at least as visible as its parent (its privacy and its permissions apply
   to its sub-collections), and an asset of privacy 2 or more is visible to every member of
-  the workspace: to hide a branch from the members, keep its ancestors and its assets at
-  privacy 0 or 1.
+  the workspace: to hide a branch from the members, keep its ancestors at privacy 0, 1 or 3
+  (a private collection lists its name, not its assets) and its assets at privacy 0 or 1.
 - An entity list has emojis or colours, never both (`withEmojis` or `withColors`).
 - The permissions (`AccessControlEntry`) use the masks of `alchemy/acl-bundle`
   (`PermissionInterface`); `objectType` is a string (`workspace`, `collection`,

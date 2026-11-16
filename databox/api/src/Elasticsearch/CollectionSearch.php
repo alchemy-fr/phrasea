@@ -11,6 +11,7 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\CollectionVoter;
@@ -194,7 +195,7 @@ class CollectionSearch extends AbstractSearch
         array $groupIds,
         array $options = [],
     ): array {
-        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
+        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds, WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE);
 
         $queryString = trim((string) ($options['query'] ?? ''));
         $parsed = $this->queryStringParser->parseQuery($queryString);

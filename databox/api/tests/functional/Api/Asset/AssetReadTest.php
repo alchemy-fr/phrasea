@@ -183,7 +183,8 @@ final class AssetReadTest extends AbstractDataboxTestCase
 
     /**
      * A non-public collection does not open its assets to anonymous users
-     * (whereas a public one does), but still opens them to authenticated users.
+     * (whereas a public one does), but still opens them to authenticated users,
+     * unless it is private: a private collection lists its name, not its assets.
      */
     #[DataProvider('nonPublicPrivacyProvider')]
     public function testAnonymousCannotReadTheAssetsOfANonPublicCollection(int $privacy): void
@@ -198,7 +199,11 @@ final class AssetReadTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(401);
 
         $this->request('GET', '/assets/'.$asset->getId(), self::OTHER);
-        $this->assertResponseIsSuccessful();
+        if (WorkspaceItemPrivacyInterface::PRIVATE === $privacy) {
+            $this->assertResponseStatusCodeSame(403);
+        } else {
+            $this->assertResponseIsSuccessful();
+        }
 
         $collection = self::getEntityManager()->find(Collection::class, $collection->getId());
         $collection->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\Exception\MissingSearchIndexException;
@@ -161,9 +162,16 @@ abstract class AbstractSearch
     }
 
     /**
+     * The documents the user may see, as far as their access rights go.
+     *
+     * In the workspaces readable by the user, the documents whose privacy is at least
+     * $memberMinPrivacy are open to them: the voter of the indexed items decides that threshold
+     * (a collection lists its name from PRIVATE_IN_WORKSPACE, an asset opens its content from
+     * PUBLIC_IN_WORKSPACE). Anonymous users only see the PUBLIC documents of the public workspaces.
+     *
      * @throws NoWorkspaceAllowedException
      */
-    protected function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
+    protected function createACLBoolQuery(?string $userId, array $groupIds, int $memberMinPrivacy): ?Query\BoolQuery
     {
         if ($this->isAdmin()) {
             return null;
@@ -175,42 +183,28 @@ abstract class AbstractSearch
             }
         }
 
-        $workspacesQuery = new Query\BoolQuery();
-
         $should = [];
-        $permittedWorkspaces = $publicWorkspaceIds = $this->workspaceRepository->getPublicWorkspaceIds($userId);
         if (null !== $userId) {
-            if (!empty($publicWorkspaceIds)) {
-                $publicWorkspaceBoolQuery = new Query\BoolQuery();
-                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
-                $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
-                    'gte' => WorkspaceItemPrivacyInterface::PRIVATE,
-                ]));
-                $should[] = $publicWorkspaceBoolQuery;
-            }
-
-            $allowedWorkspaceIds = $this->workspaceRepository->getReadableWorkspaceIds($userId, $groupIds, $this->isAdmin());
-            if (!empty($allowedWorkspaceIds)) {
-                $permittedWorkspaces = array_merge($permittedWorkspaces, $allowedWorkspaceIds);
+            // The readable workspaces include the public ones (whose terms the user signed)
+            $permittedWorkspaces = $this->workspaceRepository->getReadableWorkspaceIds($userId, $groupIds, false);
+            if (!empty($permittedWorkspaces)) {
                 $workspaceBoolQuery = new Query\BoolQuery();
-
-                $workspaceBoolQuery->addMust(new Query\Terms('workspaceId', $allowedWorkspaceIds));
+                $workspaceBoolQuery->addMust(new Query\Terms('workspaceId', $permittedWorkspaces));
                 $workspaceBoolQuery->addMust(new Query\Range('privacy', [
-                    'gte' => WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+                    'gte' => $memberMinPrivacy,
                 ]));
-
                 $should[] = $workspaceBoolQuery;
             }
 
             $should[] = new Query\Term(['ownerId' => $userId]);
-            $should[] = new Query\Term(['users' => $userId]);
-            if (!empty($groupIds)) {
-                $should[] = new Query\Terms('groups', $groupIds);
-            }
+            // An ACE given to all users is indexed under the wildcard: it applies to any authenticated user
+            $should[] = new Query\Terms('users', [$userId, AccessControlEntryInterface::USER_WILDCARD]);
+            $should[] = new Query\Terms('groups', [...$groupIds, AccessControlEntryInterface::USER_WILDCARD]);
         } else {
-            if (!empty($publicWorkspaceIds)) {
+            $permittedWorkspaces = $this->workspaceRepository->getPublicWorkspaceIds();
+            if (!empty($permittedWorkspaces)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
-                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
+                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $permittedWorkspaces));
                 $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
                     'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
                 ]));
@@ -218,20 +212,18 @@ abstract class AbstractSearch
             }
         }
 
-        $permittedWorkspaces = array_values(array_unique($permittedWorkspaces));
         if (empty($permittedWorkspaces)) {
             throw new NoWorkspaceAllowedException();
         }
 
-        $workspacesQuery->addMust(new Query\Terms('workspaceId', $permittedWorkspaces));
-
-        if (!empty($should)) {
-            $aclQuery = new Query\BoolQuery();
-            foreach ($should as $query) {
-                $aclQuery->addShould($query);
-            }
-            $workspacesQuery->addMust($aclQuery);
+        $aclQuery = new Query\BoolQuery();
+        foreach ($should as $query) {
+            $aclQuery->addShould($query);
         }
+
+        $workspacesQuery = new Query\BoolQuery();
+        $workspacesQuery->addMust(new Query\Terms('workspaceId', $permittedWorkspaces));
+        $workspacesQuery->addMust($aclQuery);
 
         return $workspacesQuery;
     }
