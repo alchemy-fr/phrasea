@@ -8,7 +8,6 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\Rendition\BuildDynamicRendition;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractSearchTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -200,10 +199,6 @@ YAML;
         yield 'content rejected' => [
             static fn (Asset $asset) => $asset->getSource()->rejectContent('Declared type "image/jpeg", content is "text/html"'),
             'its content was rejected',
-        ];
-        yield 'asset quarantined' => [
-            static fn (Asset $asset) => $asset->setStatus(AssetStatusEnum::Quarantined),
-            'is quarantined',
         ];
         yield 'analysis pending while required' => [
             static fn (Asset $asset) => $asset->getWorkspace()->setFileAnalysisRequired(true),

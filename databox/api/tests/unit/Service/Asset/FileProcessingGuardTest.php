@@ -8,7 +8,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Repository\Core\AssetRepository;
 use App\Service\Asset\Exception\FileNotProcessableException;
 use App\Service\Asset\FileProcessingGuard;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +18,7 @@ class FileProcessingGuardTest extends TestCase
     {
         $file = $this->createFile();
 
-        $this->createGuard()->assertProcessable($file, $this->createAsset($file));
+        $this->createGuard()->assertProcessable($file);
         $this->addToAssertionCount(1);
     }
 
@@ -30,32 +29,15 @@ class FileProcessingGuardTest extends TestCase
 
         $this->expectException(FileNotProcessableException::class);
         $this->expectExceptionMessage('its content was rejected');
-        $this->createGuard()->assertProcessable($file, $this->createAsset($file), allowPendingAnalysis: true);
+        $this->createGuard()->assertProcessable($file, allowPendingAnalysis: true);
     }
 
-    public function testQuarantinedAssetIsRefused(): void
+    public function testQuarantinedAssetWithAnAcceptedSourceIsProcessable(): void
     {
         $file = $this->createFile();
         $asset = $this->createAsset($file, AssetStatusEnum::Quarantined);
 
-        $this->assertStringContainsString('is quarantined', (string) $this->createGuard()->getRefusal($file, $asset, allowPendingAnalysis: true));
-    }
-
-    public function testQuarantinedSourceAssetIsFoundWhenNoAssetIsGiven(): void
-    {
-        $file = $this->createFile();
-        $asset = $this->createAsset($file, AssetStatusEnum::Quarantined);
-
-        $repository = $this->createMock(AssetRepository::class);
-        $repository->expects($this->once())
-            ->method('findBySourceFileIds')
-            ->with([$file->getId()])
-            ->willReturn([$asset]);
-
-        $this->assertSame(
-            sprintf('asset "%s" is quarantined', $asset->getId()),
-            new FileProcessingGuard($repository)->getRefusal($file),
-        );
+        $this->assertNull($this->createGuard()->getAssetRefusal($asset));
     }
 
     public function testFailedAnalysisIsRefused(): void
@@ -63,52 +45,45 @@ class FileProcessingGuardTest extends TestCase
         $file = $this->createFile();
         $file->setAnalysisResult(File::ANALYSIS_FAILED);
 
-        $this->assertSame('its analysis failed', $this->createGuard()->getRefusal($file, $this->createAsset($file), allowPendingAnalysis: true));
+        $this->assertSame('its analysis failed', $this->createGuard()->getRefusal($file, allowPendingAnalysis: true));
     }
 
     public function testPendingAnalysisIsRefusedWhenTheWorkspaceRequiresIt(): void
     {
         $file = $this->createFile(analysisRequired: true);
-        $asset = $this->createAsset($file, AssetStatusEnum::Pending);
         $guard = $this->createGuard();
 
-        $this->assertSame('its analysis is pending', $guard->getRefusal($file, $asset));
-        $this->assertNull($guard->getRefusal($file, $asset, allowPendingAnalysis: true));
+        $this->assertSame('its analysis is pending', $guard->getRefusal($file));
+        $this->assertNull($guard->getRefusal($file, allowPendingAnalysis: true));
 
         $file->setAnalysisResult(File::ANALYSIS_SUCCESS);
-        $this->assertNull($guard->getRefusal($file, $asset));
+        $this->assertNull($guard->getRefusal($file));
     }
 
     public function testPendingAnalysisIsAcceptedWhenTheWorkspaceDoesNotRequireIt(): void
     {
         $file = $this->createFile();
 
-        $this->assertNull($this->createGuard()->getRefusal($file, $this->createAsset($file)));
+        $this->assertNull($this->createGuard()->getRefusal($file));
     }
 
     public function testBypassMakesTheFileProcessable(): void
     {
         $file = $this->createFile(analysisRequired: true);
         $file->rejectContent('Declared type "image/jpeg", content is "text/html"');
-        $asset = $this->createAsset($file, AssetStatusEnum::Quarantined);
 
         // As BypassQuarantineProcessor does
         $file->bypassAnalysis();
-        $asset->setStatus(AssetStatusEnum::Accepted);
 
-        $this->assertNull($this->createGuard()->getRefusal($file, $asset));
+        $this->assertNull($this->createGuard()->getRefusal($file));
     }
 
     public function testAssetWithoutSource(): void
     {
-        $guard = $this->createGuard();
         $asset = new Asset();
-        $asset->setStatus(AssetStatusEnum::Accepted);
-
-        $this->assertNull($guard->getAssetRefusal($asset));
-
         $asset->setStatus(AssetStatusEnum::Quarantined);
-        $this->assertStringContainsString('is quarantined', (string) $guard->getAssetRefusal($asset));
+
+        $this->assertNull($this->createGuard()->getAssetRefusal($asset));
     }
 
     public function testAssetRefusalChecksItsSource(): void
@@ -121,10 +96,7 @@ class FileProcessingGuardTest extends TestCase
 
     private function createGuard(): FileProcessingGuard
     {
-        $repository = $this->createStub(AssetRepository::class);
-        $repository->method('findBySourceFileIds')->willReturn([]);
-
-        return new FileProcessingGuard($repository);
+        return new FileProcessingGuard();
     }
 
     private function createFile(bool $analysisRequired = false): File

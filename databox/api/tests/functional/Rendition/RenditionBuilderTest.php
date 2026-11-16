@@ -91,7 +91,7 @@ YAML;
         $this->assertSourceIsNotAnalyzed($asset);
     }
 
-    public function testRenditionOfAQuarantinedAssetIsNotBuilt(): void
+    public function testRenditionOfAQuarantinedAssetWithAnAcceptedSourceIsBuilt(): void
     {
         [$workspace] = $this->createWorkspaceWithDefaults('quarantined-build');
         $definition = $this->createVoidDefinition($workspace);
@@ -99,14 +99,10 @@ YAML;
         $asset->setStatus(AssetStatusEnum::Quarantined);
         self::getEntityManager()->flush();
 
-        try {
-            self::getService(RenditionBuilder::class)->buildRendition($definition, $asset);
-            $this->fail('The build must be refused');
-        } catch (FileNotProcessableException $e) {
-            $this->assertStringContainsString('is quarantined', $e->getMessage());
-        }
+        self::getService(RenditionBuilder::class)->buildRendition($definition, $asset);
 
-        $this->assertNull(self::getService(RenditionManager::class)->getAssetRenditionByDefinition($asset, $definition));
+        $rendition = self::getService(RenditionManager::class)->getAssetRenditionByDefinition($asset, $definition);
+        $this->assertSame($asset->getSource()->getId(), $rendition?->getFile()?->getId());
     }
 
     public function testDynamicRenditionOfARejectedSourceIsNotBuilt(): void

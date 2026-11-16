@@ -138,7 +138,7 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
 
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $rendition);
 
-        if (null !== $source && null !== $refusal = $this->processingGuard->getRefusal($source, $asset)) {
+        if (null !== $source && null !== $refusal = $this->processingGuard->getRefusal($source)) {
             throw new BadRequestHttpException(sprintf('Rendition cannot be built: %s', $refusal));
         }
 

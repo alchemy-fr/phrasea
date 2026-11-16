@@ -564,12 +564,12 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->assertSame($secretFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
     }
 
-    public function testAnalyzeActionRefusesAQuarantinedAsset(): void
+    public function testAnalyzeActionRefusesARejectedSource(): void
     {
         $this->setUpScene();
         $integration = $this->createIntegration();
         $asset = $this->createImageAsset();
-        $asset->setStatus(AssetStatusEnum::Quarantined);
+        $asset->getSource()->rejectContent('Declared type "image/jpeg", content is "text/html"');
         self::getEntityManager()->flush();
 
         $response = static::createClient()->request('POST', '/integrations/'.$integration->getId().'/actions/'.FaceRecognitionIntegration::ACTION_ANALYZE, [
@@ -580,7 +580,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertStringContainsString('is quarantined', $response->toArray(false)['detail'] ?? '');
+        $this->assertStringContainsString('its content was rejected', $response->toArray(false)['detail'] ?? '');
     }
 
     public function testConfigurationIsValidated(): void
