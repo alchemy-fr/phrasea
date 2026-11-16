@@ -217,7 +217,7 @@ Traefik exposes the technical consoles behind two middlewares, defined on the `t
 
 | Console                                                                                             | Middleware        |
 |-----------------------------------------------------------------------------------------------------|-------------------|
-| Traefik, MinIO console, pgAdmin, phpMyAdmin, Mailpit, Grafana, Kibana (report), Sockudo `/usage`, webhook endpoint | `admin-console`   |
+| Traefik, MinIO console, pgAdmin, phpMyAdmin, Mailpit, Grafana, Sockudo `/usage`, webhook endpoint | `admin-console`   |
 | RabbitMQ console (authenticates with HTTP Basic itself)                                             | `admin-allowlist` |
 | Keycloak `master` realm (`/admin/master/…`, `/realms/master/…`; the console sends its own Bearer token) | `admin-allowlist` |
 
@@ -257,15 +257,6 @@ The databox fixtures (three business workspaces, their users and rules) are desc
 * Start the whole stack:
 
 ```bash
-dc up -d
-```
-
-## Logs
-
-Install ELK stack to get report-api logs available in Kibana.
-
-```bash
-# set COMPOSE_FILE=docker-compose.yml:docker-compose.report-elk.yml
 dc up -d
 ```
 
