@@ -508,6 +508,8 @@ services:
       - expose-api-php
     environment:
       - UPLOAD_MAX_FILE_SIZE
+      # The origin the proxy cache keeps apart (without it, the requests of the client bypass the cache)
+      - EXPOSE_CLIENT_URL
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
