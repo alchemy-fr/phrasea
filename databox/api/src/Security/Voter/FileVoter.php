@@ -7,7 +7,10 @@ namespace App\Security\Voter;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\File;
+use App\Entity\Core\TermsVersion;
+use App\Entity\Core\Workspace;
 use App\Entity\Integration\IntegrationData;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -18,10 +21,15 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
  * - the source of an asset: the rights on the asset;
  * - a rendition: the rendition policy (READ on the rendition) on top of the rights on the asset;
  * - a previous source kept as a version (READ only): READ on the asset;
+ * - the image (or thumbnail) of an entity list value or of a workspace logo (READ only):
+ *   READ on the value or on the workspace;
+ * - a terms file of a workspace (READ only): READ on the workspace;
  * - an integration output (READ only): as its data on the input file, READ on the input file
  *   for the user's own output, EDIT for the others.
  *
- * Any other file (message attachment, workspace logo or terms…) is never granted here.
+ * Any other file is never granted here: a message attachment, or the source file of an asset
+ * relationship, which may be set without reading the file (granting it would let one read any
+ * file by linking it to an asset of one's own).
  */
 class FileVoter extends AbstractVoter
 {
@@ -91,20 +99,62 @@ class FileVoter extends AbstractVoter
             }
         }
 
+        foreach ($this->findIdsByImageFile(AttributeEntity::class, 'image', $file) as $id) {
+            if ($this->security->isGranted(self::READ, $this->em->find(AttributeEntity::class, $id))) {
+                return true;
+            }
+        }
+
+        foreach ($this->findIdsByImageFile(Workspace::class, 'logo', $file) as $id) {
+            if ($this->security->isGranted(self::READ, $this->em->find(Workspace::class, $id))) {
+                return true;
+            }
+        }
+
+        foreach ($this->findIdsByFile(TermsVersion::class, 'file', $file, 'IDENTITY(t.workspace)') as $id) {
+            if ($this->security->isGranted(self::READ, $this->em->find(Workspace::class, $id))) {
+                return true;
+            }
+        }
+
         return $this->isReadableIntegrationOutput($file, $token);
     }
 
     /**
      * @param class-string $entityClass
+     * @param string       $select      the ID to return, of the entity by default
      *
      * @return iterable<string>
      */
-    private function findIdsByFile(string $entityClass, string $field, File $file): iterable
+    private function findIdsByFile(string $entityClass, string $field, File $file, string $select = 't.id'): iterable
+    {
+        $rows = $this->em->createQueryBuilder()
+            ->select($select.' AS id')
+            ->from($entityClass, 't')
+            ->andWhere(sprintf('t.%s = :f', $field))
+            ->setParameter('f', $file->getId())
+            ->getQuery()
+            ->toIterable();
+
+        foreach ($rows as $row) {
+            yield (string) $row['id'];
+        }
+    }
+
+    /**
+     * Owners of an image set (AttributeEntity::$image, Workspace::$logo) holding the file.
+     *
+     * @param class-string $ownerClass
+     *
+     * @return iterable<string>
+     */
+    private function findIdsByImageFile(string $ownerClass, string $imageField, File $file): iterable
     {
         $rows = $this->em->createQueryBuilder()
             ->select('t.id')
-            ->from($entityClass, 't')
-            ->andWhere(sprintf('t.%s = :f', $field))
+            ->from($ownerClass, 't')
+            ->innerJoin(sprintf('t.%s', $imageField), 'i')
+            ->andWhere('i.imageFile = :f OR i.thumbnailFile = :f')
             ->setParameter('f', $file->getId())
             ->getQuery()
             ->toIterable();

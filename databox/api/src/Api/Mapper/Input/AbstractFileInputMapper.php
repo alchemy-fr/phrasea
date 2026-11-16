@@ -42,7 +42,7 @@ abstract class AbstractFileInputMapper extends AbstractInputMapper
         }
 
         // The user must be able to read the file where it is used (see FileVoter):
-        // a file used nowhere readable (message attachment, logo…) cannot be referenced.
+        // a file used nowhere readable (message attachment, asset relationship…) cannot be referenced.
         if (!$this->isGranted(AbstractVoter::READ, $file)) {
             throw new AccessDeniedHttpException(sprintf('Copy error: Cannot read file "%s"', $fileId));
         }
