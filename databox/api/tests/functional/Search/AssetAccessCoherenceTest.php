@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Elasticsearch\AssetSearch;
+use App\Elasticsearch\NoWorkspaceAllowedException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
@@ -17,6 +18,9 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\DataboxExtraPermissionInterface;
 use App\Tests\Functional\AbstractSearchTestCase;
+use Elastica\Index;
+use Elastica\Query;
+use Elastica\Result;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -73,7 +77,7 @@ final class AssetAccessCoherenceTest extends AbstractSearchTestCase
         $readable = [];
         foreach ($users as $label => [$userId, $groupIds]) {
             $this->authenticate($userId, $groupIds);
-            $found = self::getService(AssetSearch::class)->getVisibleIds($userId, $groupIds, array_values($this->assets));
+            $found = $this->findVisibleIds($userId, $groupIds, array_values($this->assets));
 
             foreach ($this->assets as $name => $id) {
                 $asset = self::getEntityManager()->find(Asset::class, $id);
@@ -224,6 +228,42 @@ final class AssetAccessCoherenceTest extends AbstractSearchTestCase
         $this->assets[$name] = $asset->getId();
 
         return $asset;
+    }
+
+    /**
+     * Among the given assets, the IDs of those the base filters of the search let the user find.
+     * Deleted and quarantined assets keep the scope of the AssetVoter.
+     *
+     * @param string[] $groupIds
+     * @param string[] $assetIds
+     *
+     * @return string[]
+     */
+    private function findVisibleIds(?string $userId, array $groupIds, array $assetIds): array
+    {
+        try {
+            $filterQueries = self::getService(AssetSearch::class)->createBaseFilterQueries($userId, $groupIds, filterDeleted: false, filterStatus: false);
+        } catch (NoWorkspaceAllowedException) {
+            return [];
+        }
+
+        $boolQuery = new Query\BoolQuery();
+        foreach ($filterQueries as $filterQuery) {
+            $boolQuery->addFilter($filterQuery);
+        }
+        $boolQuery->addFilter(new Query\Terms('_id', $assetIds));
+
+        $query = new Query($boolQuery);
+        $query->setSource(false);
+        $query->setSize(count($assetIds));
+
+        /** @var Index $index */
+        $index = self::getContainer()->get('fos_elastica.index.asset');
+
+        return array_map(
+            static fn (Result $result): string => (string) $result->getId(),
+            $index->search($query)->getResults(),
+        );
     }
 
     /**
