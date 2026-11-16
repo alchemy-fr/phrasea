@@ -19,6 +19,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
+use App\Entity\Core\Tag;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\AttributeDefinitionVoter;
@@ -27,6 +28,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -86,7 +88,62 @@ class BatchAttributeManager
             }
         }
 
+        $this->validateTagActions($workspaceId, $input->actions ?? []);
+
         $this->attributeValidator->validateAttributeInputs($workspaceId, array_filter($input->actions, fn (AbstractBaseAttributeInput $input): bool => in_array($input->action, [self::ACTION_ADD, self::ACTION_SET], true)), 'actions');
+    }
+
+    /**
+     * A tag action only targets existing tags of the workspace of the assets.
+     *
+     * @param AttributeActionInput[] $actions
+     */
+    private function validateTagActions(string $workspaceId, array $actions): void
+    {
+        $tagIds = [];
+        foreach ($actions as $i => $action) {
+            if (AttributeValidator::TAGS !== $action->definitionId) {
+                continue;
+            }
+
+            $ids = match ($action->action) {
+                self::ACTION_ADD => [$action->value],
+                self::ACTION_DELETE => $action->ids ?? [],
+                default => throw new BadRequestHttpException(sprintf('Unsupported action "%s" for tags in action #%d', $action->action, $i)),
+            };
+
+            foreach ($ids as $id) {
+                if (!is_string($id) || !Uuid::isValid($id)) {
+                    throw new BadRequestHttpException(sprintf('Invalid tag ID in action #%d', $i));
+                }
+                $tagIds[strtolower($id)][] = $i;
+            }
+        }
+
+        if (empty($tagIds)) {
+            return;
+        }
+
+        $found = $this->em->createQueryBuilder()
+            ->select('t.id')
+            ->from(Tag::class, 't')
+            ->andWhere('t.workspace = :ws')
+            ->andWhere('t.id IN (:ids)')
+            ->setParameter('ws', $workspaceId)
+            ->setParameter('ids', array_keys($tagIds))
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        $foundIndex = [];
+        foreach ($found as $id) {
+            $foundIndex[strtolower((string) $id)] = true;
+        }
+
+        foreach ($tagIds as $id => $actionIndexes) {
+            if (!isset($foundIndex[$id])) {
+                throw new BadRequestHttpException(sprintf('Tag "%s" not found in the workspace of the assets in action #%d', $id, $actionIndexes[0]));
+            }
+        }
     }
 
     public function handleBatch(
@@ -171,7 +228,7 @@ class BatchAttributeManager
                             if (!$definition) {
                                 throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
                             }
-                            $this->deleteAttributes($ids, $definition, $userOrClient, [
+                            $this->deleteAttributes($ids, $definition, [
                                 'id' => $action->id,
                                 'ids' => $action->ids,
                                 'origin' => $action->origin,
@@ -203,7 +260,7 @@ class BatchAttributeManager
                                         throw new BadRequestHttpException(sprintf('Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
                                     }
 
-                                    $this->deleteAttributes($ids, $definition, $userOrClient);
+                                    $this->deleteAttributes($ids, $definition);
                                     foreach ($action->value as $value) {
                                         $vAction = clone $action;
                                         $vAction->value = $value;
@@ -254,12 +311,7 @@ class BatchAttributeManager
                                     ->andWhere('ad.workspace = :ws')
                                     ->andWhere('ad.editable = true')
                                     ->setParameter('ws', $workspaceId);
-                                if ($userOrClient instanceof JwtUser) {
-                                    $sub->andWhere('(ap.public = true AND ap.editable = true) OR ace.id IS NOT NULL');
-                                    $this->joinUserAcl($sub, $userOrClient);
-                                } elseif (!$userOrClient instanceof JwtOauthClient || !$userOrClient->hasScope(AttributeDefinitionVoter::SCOPE_PREFIX.AttributeDefinitionVoter::READ)) {
-                                    $sub->andWhere('ap.public = true AND ap.editable = true');
-                                }
+                                $this->restrictToEditablePolicies($sub, $userOrClient);
 
                                 foreach ($sub->getParameters() as $param) {
                                     $qb->setParameter($param->getName(), $param->getValue());
@@ -411,31 +463,16 @@ class BatchAttributeManager
 
     private function deleteAttributes(
         array $assetsId,
-        ?AttributeDefinition $definition,
-        ?JwtInterface $userOrClient,
+        AttributeDefinition $definition,
         array $options = [],
     ): void {
         $qb = $this->em->createQueryBuilder()
             ->delete()
             ->from(Attribute::class, 'a')
             ->andWhere('a.asset IN (:assets)')
-            ->setParameter('assets', $assetsId);
-        if ($definition) {
-            $qb
-                ->andWhere('a.definition = :def')
-                ->setParameter('def', $definition->getId());
-        } else {
-            $qb
-                ->innerJoin('a.definition', 'ad')
-                ->innerJoin('ad.policy', 'ap')
-                ->andWhere('ad.editable = true');
-            if ($userOrClient instanceof JwtUser) {
-                $qb->andWhere('(ap.public = true AND ap.editable = true) OR ace.id IS NOT NULL');
-                $this->joinUserAcl($qb, $userOrClient);
-            } elseif (!$userOrClient instanceof JwtOauthClient || !$userOrClient->hasScope(AttributeDefinitionVoter::SCOPE_PREFIX.AttributeDefinitionVoter::EDIT)) {
-                $qb->andWhere('ap.public = true AND ap.editable = true');
-            }
-        }
+            ->setParameter('assets', $assetsId)
+            ->andWhere('a.definition = :def')
+            ->setParameter('def', $definition->getId());
         if ($options['id'] ?? null) {
             $qb
                 ->andWhere('a.id = :id')
@@ -462,6 +499,25 @@ class BatchAttributeManager
                 ->setParameter('ovc', $options['originVendorContext']);
         }
         $qb->getQuery()->execute();
+    }
+
+    /**
+     * Restricts the query to the definitions whose policy ("ap") the user or client may edit.
+     */
+    private function restrictToEditablePolicies(QueryBuilder $queryBuilder, ?JwtInterface $userOrClient): void
+    {
+        if ($userOrClient instanceof JwtUser) {
+            $queryBuilder->andWhere('(ap.public = true AND ap.editable = true) OR ace.id IS NOT NULL');
+            $this->joinUserAcl($queryBuilder, $userOrClient);
+
+            return;
+        }
+
+        if ($userOrClient instanceof JwtOauthClient && $userOrClient->hasScope(AttributeDefinitionVoter::SCOPE_PREFIX.AttributeDefinitionVoter::EDIT)) {
+            return;
+        }
+
+        $queryBuilder->andWhere('ap.public = true AND ap.editable = true');
     }
 
     private function joinUserAcl(QueryBuilder $queryBuilder, JwtUser $user): void
