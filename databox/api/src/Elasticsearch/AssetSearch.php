@@ -40,6 +40,7 @@ use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -145,7 +146,8 @@ class AssetSearch extends AbstractSearch
         array $groupIds,
         array $options = [],
     ): array {
-        [$query, $limit, $options] = $this->buildQuery($userId, $groupIds, $options);
+        [$query, $maxLimit, $options] = $this->buildQuery($userId, $groupIds, $options);
+        [$limit, $page] = self::resolvePagination($options, $maxLimit);
 
         $groupByKey = $options['group'][0] ?? null;
         if (null !== $groupByKey && (!is_string($groupByKey) || !$this->isGroupableField($groupByKey, $options))) {
@@ -175,10 +177,10 @@ class AssetSearch extends AbstractSearch
         $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(fn (Asset $asset,
         ): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
-        $result->setMaxPerPage((int) $limit);
-        if ($options['page'] ?? false) {
+        $result->setMaxPerPage($limit);
+        if ($page > 1) {
             $result->setAllowOutOfRangePages(true);
-            $result->setCurrentPage((int) $options['page']);
+            $result->setCurrentPage($page);
         }
         $start = microtime(true);
         // Force query to ensure adapter will run it just once.
@@ -398,7 +400,7 @@ class AssetSearch extends AbstractSearch
     /**
      * The filtered query shared by the asset searches: ACL, conditions and full-text query.
      *
-     * @return array{Query, int, array} the query, the page size and the resolved options
+     * @return array{Query, int, array} the query, the maximum page size and the resolved options
      */
     private function buildQuery(
         ?string $userId,
@@ -426,7 +428,7 @@ class AssetSearch extends AbstractSearch
         if (isset($options['collection'])) {
             // Exact membership: unlike "parents", this does not span the sub-tree.
             // collectionPaths is path-hierarchy analyzed, its "raw" sub-field holds the full paths.
-            $collection = DoctrineUtil::findStrictByRepo($this->collectionRepository, $options['collection'], throw404: true);
+            $collection = $this->findReadableCollection($options['collection']);
             $filterQueries[] = new Query\Term(['collectionPaths.raw' => $collection->getAbsolutePath()]);
         }
 
@@ -467,11 +469,6 @@ class AssetSearch extends AbstractSearch
                     $tagsBoolQuery->addMustNot(new Query\Term(['tags' => $tag]));
                 }
             }
-        }
-
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
         }
 
         $hasDeletedFilter = false;
@@ -546,7 +543,7 @@ class AssetSearch extends AbstractSearch
         $query->setTrackTotalHits();
         $query->setQuery($filterQuery);
 
-        return [$query, (int) $limit, $options];
+        return [$query, $maxLimit, $options];
     }
 
     /**
@@ -586,14 +583,31 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
+     * A collection filtering the search must be readable: it would otherwise reveal which of the
+     * readable assets belong to it. It is then answered like an unknown collection.
+     */
+    private function findReadableCollection(mixed $id): Collection
+    {
+        $collection = is_string($id) && Uuid::isValid($id) ? $this->collectionRepository->find($id) : null;
+        if (null === $collection || !$this->isGranted(AbstractVoter::READ, $collection)) {
+            throw new NotFoundHttpException(sprintf('%s %s not found', Collection::class, is_scalar($id) ? $id : get_debug_type($id)));
+        }
+
+        return $collection;
+    }
+
+    /**
      * @param string|string[] $collectionIds
      *
-     * @return string[] the absolute path of each requested collection
+     * @return string[] the absolute path of each requested collection the user can read
      */
     private function resolveCollectionPaths(array|string $collectionIds): array
     {
-        $collections = DoctrineUtil::getFromIds($this->collectionRepository, self::toIdList($collectionIds));
-        $paths = array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections);
+        $collections = array_filter(
+            DoctrineUtil::getFromIds($this->collectionRepository, self::toIdList($collectionIds)),
+            fn (Collection $collection): bool => $this->isGranted(AbstractVoter::READ, $collection),
+        );
+        $paths = array_values(array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections));
 
         if (empty($paths)) {
             throw new NotFoundHttpException('Collections not found');
