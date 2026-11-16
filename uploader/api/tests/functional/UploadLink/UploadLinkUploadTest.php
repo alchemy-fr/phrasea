@@ -6,6 +6,7 @@ namespace App\Tests\Functional\UploadLink;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Controller\Admin\AssetCrudController;
 use App\Entity\Asset;
 use App\Entity\Commit;
@@ -14,7 +15,9 @@ use App\Repository\UploadLinkRepository;
 use App\Storage\AssetManager;
 use App\Tests\Functional\TargetFormTest;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class UploadLinkUploadTest extends AbstractUploadLinkTestCase
 {
@@ -61,12 +64,12 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
         $this->assertCount(1, $commit->getAssets());
 
         $reloaded = $this->reloadLink($link);
-        $this->assertSame(['title' => 'My pictures'], $reloaded->getLastFormData(), 'What was entered only');
         $this->assertNotNull($reloaded->getLastCommitAt());
         $this->assertSame(1, $reloaded->getUsedAssets(), 'A committed file stays counted');
 
+        // Kept by the browser that entered it: the other holders of the link must not see it
         $response = $this->linkRequest($link->getToken(), 'GET', '/upload-links/current');
-        $this->assertSame(['title' => 'My pictures'], $response->toArray()['lastFormData']);
+        $this->assertArrayNotHasKey('lastFormData', $response->toArray());
     }
 
     public function testTheDataOfTheFileIsIgnored(): void
@@ -152,6 +155,71 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
         $this->assertSame(2, $reloaded->getUsedAssets());
         $this->assertSame(2 * self::FIXTURE_SIZE, $reloaded->getUsedSize());
         $this->assertSame(10 * self::FIXTURE_SIZE, $reloaded->getMaxTotalSize());
+    }
+
+    public function testALongFileNameIsShortenedBeforeTheReservation(): void
+    {
+        $link = $this->createLink($this->createTarget(), options: ['maxAssets' => 1]);
+
+        $response = $this->uploadFileNamed($link->getToken(), str_repeat('a', 300).'.jpg');
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $asset = $em->find(Asset::class, $response->toArray()['id']);
+        $this->assertSame(str_repeat('a', 251).'.jpg', $asset->getOriginalName());
+        $this->assertSame(1, $this->reloadLink($link)->getUsedAssets());
+    }
+
+    public function testAnAssetThatCannotBeCreatedGivesBackItsReservationAndItsFile(): void
+    {
+        $link = $this->createLink($this->createTarget(), options: ['maxAssets' => 1]);
+
+        $client = static::createClient();
+        $assetManager = $this->createMock(AssetManager::class);
+        $assetManager->expects($this->once())->method('createAsset')->willThrowException(new \RuntimeException('The asset cannot be inserted'));
+        static::getContainer()->set(AssetManager::class, $assetManager);
+        $stored = null;
+        $storage = $this->createMock(FileStorageManager::class);
+        $storage->expects($this->once())->method('storeStream')->willReturnCallback(function (string $path) use (&$stored): void {
+            $stored = $path;
+        });
+        $storage->expects($this->once())->method('delete')->willReturnCallback(function (string $path) use (&$stored): void {
+            $this->assertSame($stored, $path, 'The stored file is removed');
+        });
+        static::getContainer()->set(FileStorageManager::class, $storage);
+
+        $response = $client->request('POST', '/assets', [
+            'headers' => [
+                'Authorization' => 'UploadLink '.$link->getToken(),
+                'Content-Type' => 'multipart/form-data',
+            ],
+            'extra' => [
+                'files' => [
+                    'file' => new UploadedFile(self::FIXTURE, '32x32.jpg', 'image/jpeg'),
+                ],
+            ],
+        ]);
+        $this->assertSame(500, $response->getStatusCode());
+
+        $reloaded = $this->reloadLink($link);
+        $this->assertSame(0, $reloaded->getUsedAssets());
+        $this->assertSame(0, $reloaded->getUsedSize());
+    }
+
+    private function uploadFileNamed(string $token, string $name): ResponseInterface
+    {
+        return static::createClient()->request('POST', '/assets', [
+            'headers' => [
+                'Authorization' => 'UploadLink '.$token,
+                'Content-Type' => 'multipart/form-data',
+            ],
+            'extra' => [
+                'files' => [
+                    'file' => new UploadedFile(self::FIXTURE, $name, 'image/jpeg'),
+                ],
+            ],
+        ]);
     }
 
     public function testTheTotalSizeIsLimited(): void

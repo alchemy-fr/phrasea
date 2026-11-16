@@ -116,6 +116,4 @@ export type UploadLinkSession = {
     maxTotalSize: number | null;
     usedAssets: number;
     usedSize: number;
-    /** What was entered in the form of the last commit made with the link */
-    lastFormData: Record<string, unknown> | null;
 };

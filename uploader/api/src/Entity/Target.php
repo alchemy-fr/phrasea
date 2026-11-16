@@ -25,6 +25,7 @@ use App\DataProvider\TargetDataProvider;
 use App\Form\Builder\FormDefinition;
 use App\Form\Builder\InvalidFormDefinitionException;
 use App\Security\Voter\FormDataEditorVoter;
+use App\Validation\SecureTargetUrl;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -124,6 +125,7 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\Url]
+    #[SecureTargetUrl]
     #[Groups([self::GROUP_WRITE])]
     private ?string $targetUrl = null;
 

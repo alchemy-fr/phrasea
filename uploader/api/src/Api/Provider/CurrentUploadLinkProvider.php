@@ -14,8 +14,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * What the user of an upload link needs: its target, what is left of its limits and the form data of its
- * last commit. Neither its token nor its creator.
+ * What the user of an upload link needs: its target and what is left of its limits. Neither its token nor
+ * its creator, nor anything entered by the other holders of the link.
  */
 final readonly class CurrentUploadLinkProvider implements ProviderInterface
 {
@@ -48,7 +48,6 @@ final readonly class CurrentUploadLinkProvider implements ProviderInterface
             'maxTotalSize' => $link->getMaxTotalSize(),
             'usedAssets' => $link->getUsedAssets(),
             'usedSize' => $link->getUsedSize(),
-            'lastFormData' => $link->getLastFormData(),
         ]);
     }
 }

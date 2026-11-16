@@ -40,7 +40,7 @@ Along with the token, the page sends `X-Upload-Session`: a UUID drawn by the bro
 
 A link only opens the upload flow of its target (`UploadLinkRequestListener`): `GET /upload-links/current`, the target, its form and the options of its fields, `POST /form/validate`, the multipart uploads (`/uploads…`), `POST /assets`, `DELETE /assets/{id}` and `POST /commit`. Any other endpoint answers 403 (`/me`, the target list, `/downloads`, the target data, the Databox proxy, the management of the links…). The multipart uploads it starts belong to `upload-link:<id>:<session>` (`upload-link:<id>` without the header): another holder of the link cannot read, cancel or complete them. The files and the commits stay bound to the link, whichever session sent them: a commit can gather files sent from several sessions.
 
-`GET /upload-links/current` gives the page the name of the link, its target, its limits and counters and `lastFormData`, never the token nor the creator.
+`GET /upload-links/current` gives the page the name of the link, its target, its limits and counters, never the token nor the creator.
 
 The token never leaves the page for a third party: the link page is neither indexed nor sent as a referrer (`noindex`, `no-referrer`), and the URLs given to Matomo (page views) and Sentry (events, breadcrumbs) go through `src/lib/privacy/redactUrl.ts`, which turns `/l/<token>` into `/l/[token]` (`createUrlRedactor()` of `@alchemy/next-core/privacy/redactUrl`); the `Authorization` header is dropped from the Sentry events.
 
@@ -54,4 +54,4 @@ The `data` of a file sent through a link is ignored: it cannot aim at an existin
 
 ## Reusing the previous information
 
-The link remembers the data entered in the form of its last commit (`lastFormData`: what was entered, before the target data is merged and without the `__*` keys). On the form step of the next upload, "Reuse my previous information" fills the form with it; the fields removed from the form since are left out.
+The browser remembers the data entered in the form of the last commit made with the link: what was entered, without the `__*` keys, in its `localStorage` under a key per link (`upl.link_form.<link id>`). A link is shared: the API keeps nothing of it, so that its other holders never see what was entered. On the form step of the next upload, "Reuse my previous information" fills the form with it (the fields removed from the form since are left out) and "Forget my previous information" erases it.

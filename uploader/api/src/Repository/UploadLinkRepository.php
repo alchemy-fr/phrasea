@@ -56,7 +56,8 @@ class UploadLinkRepository extends ServiceEntityRepository
     /**
      * Gives back what a file not committed yet had reserved.
      *
-     * Only for a file whose deletion was just confirmed, see AssetManager::removeUncommitted().
+     * Only for a file whose deletion was just confirmed, see AssetManager::removeUncommitted(), or whose asset
+     * could not be inserted (CreateAssetProcessor).
      */
     public function release(string $id, int $size): void
     {
