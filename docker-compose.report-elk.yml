@@ -34,10 +34,10 @@ services:
         target: /usr/share/logstash/pipeline/logstash.conf
         read_only: true
     ports:
-      - "5044:5044"
-      - "5000:5000/tcp"
-      - "5000:5000/udp"
-      - "9600:9600"
+      - "127.0.0.1:5044:5044"
+      - "127.0.0.1:5000:5000/tcp"
+      - "127.0.0.1:5000:5000/udp"
+      - "127.0.0.1:9600:9600"
     environment:
       - ELASTICSEARCH_HOST=report-elasticsearch:9200
       - LS_JAVA_OPTS=-Xmx256m -Xms256m
