@@ -14,8 +14,10 @@ use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Repository\Core\AttributeDefinitionRepository;
 use App\Tests\Unit\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Elastica\Query;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -26,29 +28,7 @@ class AttributeSearchTest extends TestCase
     public function testAttributeClustering(array $definitions, array $expectedClusters): void
     {
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
-        $builtInAttributeRegistry = new BuiltInAttributeRegistry(new ServiceLocator([]));
-
-        $fieldNameResolver = new FieldNameResolver(
-            $attributeTypeRegistry,
-            $builtInAttributeRegistry
-        );
-
-        $aqlParser = new AQLParser();
-        $aqlToESQuery = new AQLToESQuery(
-            $builtInAttributeRegistry,
-            new AQLFunctionRegistry(),
-            $attributeTypeRegistry,
-            new DateNormalizer(),
-        );
-
-        $as = new AttributeSearch(
-            $fieldNameResolver,
-            $this->createStub(EntityManagerInterface::class),
-            $attributeTypeRegistry,
-            $aqlParser,
-            $aqlToESQuery,
-            new TemporaryCacheFactory(),
-        );
+        $as = $this->createAttributeSearch();
 
         $clusters = $as->createClustersFromDefinitions($definitions);
 
@@ -63,6 +43,101 @@ class AttributeSearchTest extends TestCase
         }
 
         $this->assertEquals($expectedClusters, $clusters);
+    }
+
+    public function testReadableWorkspacesOfAKey(): void
+    {
+        $as = $this->createAttributeSearch([
+            self::createRow(true, 'w1', 'salary'),
+            self::createRow(false, 'w2', 'salary', searchable: false),
+            self::createRow(true, 'w1', 'city'),
+            self::createRow(true, 'w2', 'city', searchable: false),
+            self::createRow(false, 'w1', 'secret'),
+            self::createRow(false, 'w2', 'secret'),
+        ]);
+
+        $this->assertSame(['w1'], $as->getReadableWorkspaceIds('u', [], 'salary_text_s'));
+        $this->assertTrue($as->isReadableAttributeKey('u', [], 'salary_text_s'));
+        $this->assertEquals(new Query\Terms('workspaceId', ['w1']), $as->createVisibilityQuery('u', [], 'salary_text_s'));
+
+        $this->assertNull($as->getReadableWorkspaceIds('u', [], 'city_text_s'));
+        $this->assertTrue($as->isReadableAttributeKey('u', [], 'city_text_s'));
+        $this->assertNull($as->createVisibilityQuery('u', [], 'city_text_s'));
+
+        $this->assertSame([], $as->getReadableWorkspaceIds('u', [], 'secret_text_s'));
+        $this->assertFalse($as->isReadableAttributeKey('u', [], 'secret_text_s'));
+        $this->assertEquals(new Query\MatchNone(), $as->createVisibilityQuery('u', [], 'secret_text_s'));
+
+        $this->assertSame([], $as->getReadableWorkspaceIds('u', [], 'ghost_text_s'));
+        $this->assertFalse($as->isReadableAttributeKey('u', [], 'ghost_text_s'));
+        $this->assertEquals(new Query\MatchNone(), $as->createVisibilityQuery('u', [], 'ghost_text_s'));
+    }
+
+    /**
+     * Every definition sharing a key writes into the same ES field, searchable or not.
+     */
+    public function testUnreadableNonSearchableDefinitionRestrictsTheSearchableOnes(): void
+    {
+        $as = $this->createAttributeSearch([
+            self::createRow(true, 'w1', 'salary'),
+            self::createRow(false, 'w2', 'salary', searchable: false),
+            self::createRow(true, 'w1', 'city'),
+            self::createRow(true, 'w2', 'city', searchable: false),
+            self::createRow(true, 'w1', 'notes', searchable: false),
+        ]);
+
+        $fieldsByWorkspaces = [];
+        foreach ($as->buildSearchableAttributeDefinitionsGroups('u', []) as $cluster) {
+            foreach (array_keys($cluster['fields']) as $field) {
+                $fieldsByWorkspaces[$field] = $cluster['w'];
+            }
+        }
+
+        $this->assertSame([
+            AttributeInterface::ATTRIBUTES_FIELD.'._.salary_text_s' => ['w1'],
+            AttributeInterface::ATTRIBUTES_FIELD.'._.city_text_s' => null,
+            'name' => null,
+        ], $fieldsByWorkspaces);
+    }
+
+    private function createAttributeSearch(array $rows = []): AttributeSearch
+    {
+        $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
+        $builtInAttributeRegistry = new BuiltInAttributeRegistry(new ServiceLocator([]));
+
+        $repository = $this->createStub(AttributeDefinitionRepository::class);
+        $repository->method('getAttributesWithPermission')->willReturn($rows);
+        $em = $this->createStub(EntityManagerInterface::class);
+        $em->method('getRepository')->willReturn($repository);
+
+        return new AttributeSearch(
+            new FieldNameResolver($attributeTypeRegistry, $builtInAttributeRegistry),
+            $em,
+            $attributeTypeRegistry,
+            new AQLParser(),
+            new AQLToESQuery(
+                $builtInAttributeRegistry,
+                new AQLFunctionRegistry(),
+                $attributeTypeRegistry,
+                new DateNormalizer(),
+            ),
+            new TemporaryCacheFactory(),
+        );
+    }
+
+    private static function createRow(bool $allowed, string $wsId, string $slug, bool $searchable = true): array
+    {
+        return [
+            'allowed' => $allowed,
+            'searchable' => $searchable,
+            'slug' => $slug,
+            'type' => TextAttributeType::NAME,
+            'multiple' => false,
+            'workspaceId' => $wsId,
+            'searchBoost' => null,
+            'translatable' => false,
+            'enabledLocales' => [],
+        ];
     }
 
     public static function getCases(): array
