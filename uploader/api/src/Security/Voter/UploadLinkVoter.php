@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Creating upload links needs the `upload_link` permission; their creator manages them, the admins manage
- * every link.
+ * every link. Their creator can always disable them, even without the permission any more.
  */
 class UploadLinkVoter extends Voter
 {
@@ -23,6 +23,7 @@ class UploadLinkVoter extends Voter
     final public const string READ = 'UPLOAD_LINK_READ';
     final public const string EDIT = 'UPLOAD_LINK_EDIT';
     final public const string DELETE = 'UPLOAD_LINK_DELETE';
+    final public const string DISABLE = 'UPLOAD_LINK_DISABLE';
 
     public function __construct(private readonly Security $security)
     {
@@ -34,7 +35,7 @@ class UploadLinkVoter extends Voter
             return null === $subject;
         }
 
-        return $subject instanceof UploadLink && in_array($attribute, [self::READ, self::EDIT, self::DELETE], true);
+        return $subject instanceof UploadLink && in_array($attribute, [self::READ, self::EDIT, self::DELETE, self::DISABLE], true);
     }
 
     /**
@@ -49,6 +50,10 @@ class UploadLinkVoter extends Voter
 
         if ($this->security->isGranted(JwtUser::ROLE_ADMIN)) {
             return true;
+        }
+
+        if (self::DISABLE === $attribute) {
+            return $subject->getOwnerId() === $user->getId();
         }
 
         $canCreate = $this->security->isGranted(PermissionInterface::EDIT, new UploadLinkAclObject());

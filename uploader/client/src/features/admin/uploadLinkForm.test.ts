@@ -3,6 +3,7 @@ import type {UploadLink} from '@/types/api';
 import {
     fromDateTimeLocal,
     initialFormValues,
+    maxExpiresAt,
     splitSize,
     toBytes,
     toDateTimeLocal,
@@ -21,11 +22,21 @@ describe('initialFormValues', () => {
         expect(values.maxAssets).toBe('');
     });
 
+    it('makes a new link expire within the maximum lifetime', () => {
+        const values = initialFormValues(
+            undefined,
+            new Date(2026, 0, 10, 9, 5),
+            3
+        );
+
+        expect(values.expiresAt).toBe('2026-01-13T09:05');
+    });
+
     it('starts from the link being edited', () => {
         const values = initialFormValues({
             target: {id: 't1', name: 'T'},
             name: 'John',
-            expiresAt: null,
+            expiresAt: new Date(2026, 1, 2, 10, 0).toISOString(),
             maxAssets: 3,
             maxTotalSize: 2 * 1024 ** 3,
         } as UploadLink);
@@ -33,7 +44,7 @@ describe('initialFormValues', () => {
         expect(values).toEqual({
             target: 't1',
             name: 'John',
-            expiresAt: '',
+            expiresAt: '2026-02-02T10:00',
             maxAssets: '3',
             maxTotalSize: '2',
             sizeUnit: 'GB',
@@ -56,6 +67,12 @@ describe('sizes', () => {
 });
 
 describe('dates', () => {
+    it('gives the latest expiration', () => {
+        expect(maxExpiresAt(90, new Date(2026, 0, 10, 9, 5))).toBe(
+            '2026-04-10T09:05'
+        );
+    });
+
     it('goes to and from a datetime-local value', () => {
         const date = new Date(2026, 4, 3, 14, 30);
 

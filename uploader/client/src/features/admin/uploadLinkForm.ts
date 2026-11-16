@@ -10,11 +10,14 @@ export const SIZE_UNITS: Record<SizeUnit, number> = {
 /** Days a new link stays valid by default */
 export const DEFAULT_VALIDITY_DAYS = 7;
 
+/** The maximum lifetime of a link when the API does not tell it, in days */
+export const DEFAULT_MAX_VALIDITY_DAYS = 90;
+
 /** What the dialog edits: the inputs as typed */
 export type UploadLinkFormValues = {
     target: string;
     name: string;
-    /** `datetime-local` value, empty for no expiration */
+    /** `datetime-local` value, required */
     expiresAt: string;
     maxAssets: string;
     maxTotalSize: string;
@@ -73,14 +76,28 @@ function toCount(value: string): number | null {
     return value.trim() === '' || Number.isNaN(n) ? null : n;
 }
 
-/** The values of the dialog: a new link expires in a week by default */
+/** The latest expiration a link can get, as a `datetime-local` value */
+export function maxExpiresAt(maxDays: number, now: Date = new Date()): string {
+    const date = new Date(now);
+    date.setDate(date.getDate() + maxDays);
+
+    return toDateTimeLocal(date);
+}
+
+/**
+ * The values of the dialog: a new link expires in a week by default, sooner
+ * when links cannot last that long
+ */
 export function initialFormValues(
     link?: UploadLink,
-    now: Date = new Date()
+    now: Date = new Date(),
+    maxDays: number = DEFAULT_MAX_VALIDITY_DAYS
 ): UploadLinkFormValues {
     if (!link) {
         const expiresAt = new Date(now);
-        expiresAt.setDate(expiresAt.getDate() + DEFAULT_VALIDITY_DAYS);
+        expiresAt.setDate(
+            expiresAt.getDate() + Math.min(DEFAULT_VALIDITY_DAYS, maxDays)
+        );
 
         return {
             target: '',
