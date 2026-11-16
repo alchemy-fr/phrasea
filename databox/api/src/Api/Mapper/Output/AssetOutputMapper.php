@@ -32,7 +32,6 @@ use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\StoryRenditionPreference;
-use App\Service\Asset\VisibleAssetResolver;
 use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -58,7 +57,6 @@ class AssetOutputMapper implements OutputMapperInterface
         private readonly string $ownerPropertyRequiredRole,
         private readonly ClientUrlHelper $clientUrlHelper,
         private readonly AssetPolicyManager $assetPolicyManager,
-        private readonly VisibleAssetResolver $visibleAssetResolver,
     ) {
     }
 
@@ -76,9 +74,7 @@ class AssetOutputMapper implements OutputMapperInterface
         $output->setId($data->getId());
 
         if ($this->hasGroup(BasketAsset::GROUP_LIST, $context)) {
-            // A basket item may hold an asset the user can no longer read, or that an
-            // attribute filter rule hides from their listings: only its ID is exposed.
-            if (!$this->visibleAssetResolver->isVisible($data)) {
+            if (!$this->isGranted(AbstractVoter::READ, $data)) {
                 return $output;
             }
         }
