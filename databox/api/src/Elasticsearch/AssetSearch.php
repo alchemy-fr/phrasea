@@ -244,43 +244,6 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
-     * Among the given assets, the IDs of those the base filters let the user see: ACL and
-     * attribute filter rules. Deleted and quarantined assets keep the scope of the AssetVoter.
-     *
-     * @param string[] $assetIds
-     *
-     * @return string[]
-     */
-    public function getVisibleIds(?string $userId, array $groupIds, array $assetIds): array
-    {
-        $assetIds = array_values(array_unique($assetIds));
-        if (empty($assetIds)) {
-            return [];
-        }
-
-        try {
-            $filterQueries = $this->createBaseFilterQueries($userId, $groupIds, filterDeleted: false, filterStatus: false);
-        } catch (NoWorkspaceAllowedException) {
-            return [];
-        }
-
-        $boolQuery = new Query\BoolQuery();
-        foreach ($filterQueries as $filterQuery) {
-            $boolQuery->addFilter($filterQuery);
-        }
-        $boolQuery->addFilter(new Query\Terms('_id', $assetIds));
-
-        $query = new Query($boolQuery);
-        $query->setSource(false);
-        $query->setSize(count($assetIds));
-
-        return array_map(
-            static fn (Result $result): string => (string) $result->getId(),
-            $this->index->search($query)->getResults(),
-        );
-    }
-
-    /**
      * Among the given assets of the workspace, the IDs of those every reader of the workspace sees,
      * for a content shown to all of them alike whatever their own rights (e.g. the photo of a
      * person of an entity list): see createEveryReaderFilterQueries().

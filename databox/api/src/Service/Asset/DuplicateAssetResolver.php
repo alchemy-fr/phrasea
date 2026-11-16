@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 namespace App\Service\Asset;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\FileDuplicateRepository;
+use App\Security\Voter\AbstractVoter;
 
 /**
  * Resolves the duplicate links of an analyzed file into the assets owning the
- * duplicate source files. Deleted assets and the assets the current user
- * may not see in a listing (voter and attribute filter rules, see
- * VisibleAssetResolver) are filtered out; the returned entities are serialized
- * through the standard asset normalization (like GET /assets/{id}).
+ * duplicate source files. Assets the current user cannot view are filtered
+ * out; the returned entities are serialized through the standard asset
+ * normalization (like GET /assets/{id}).
  */
 class DuplicateAssetResolver
 {
+    use SecurityAwareTrait;
+
     public function __construct(
         private readonly FileDuplicateRepository $fileDuplicateRepository,
         private readonly AssetRepository $assetRepository,
-        private readonly VisibleAssetResolver $visibleAssetResolver,
     ) {
     }
 
@@ -35,13 +37,15 @@ class DuplicateAssetResolver
             $fileIdAnalyzers[$link->getDuplicateFile()->getId()][] = $link->getAnalyzer();
         }
 
-        $candidates = array_filter(
-            $this->assetRepository->findBySourceFileIds(array_keys($fileIdAnalyzers)),
-            static fn (Asset $asset): bool => $asset->getId() !== $excludeAssetId && !$asset->isDeleted(),
-        );
-
         $duplicates = [];
-        foreach ($this->visibleAssetResolver->filterVisible(array_values($candidates)) as $duplicate) {
+        foreach ($this->assetRepository->findBySourceFileIds(array_keys($fileIdAnalyzers)) as $duplicate) {
+            if ($duplicate->getId() === $excludeAssetId
+                || $duplicate->isDeleted()
+                || !$this->isGranted(AbstractVoter::READ, $duplicate)
+            ) {
+                continue;
+            }
+
             $duplicates[] = [
                 'asset' => $duplicate,
                 'analyzers' => $fileIdAnalyzers[$duplicate->getSource()?->getId()] ?? [],
