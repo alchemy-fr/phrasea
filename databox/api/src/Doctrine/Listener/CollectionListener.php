@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
+use Alchemy\ESBundle\Indexer\Operation;
+use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\Mapper\Output\CollectionOutputMapper;
 use App\Consumer\Handler\Collection\DeleteCollection;
@@ -29,6 +31,7 @@ class CollectionListener
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
         private readonly TagAwareCacheInterface $collectionCache,
+        private readonly SearchIndexer $searchIndexer,
     ) {
     }
 
@@ -64,6 +67,17 @@ class CollectionListener
 
         $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
         $this->postFlushStack->addBusMessage(new IndexCollectionBranch($entity->getId(), true));
+
+        if ($this->hasChangedField(['parent'], $args->getObjectManager(), $entity)) {
+            // The "hasChildren" flag of the former and of the new parent
+            $parentIds = array_values(array_filter(array_map(
+                static fn (?Collection $parent): ?string => $parent?->getId(),
+                $this->getChangedSetFor('parent', $args->getObjectManager(), $entity),
+            )));
+            if ([] !== $parentIds) {
+                $this->postFlushStack->addCallback(fn () => $this->searchIndexer->scheduleObjectsIndex(Collection::class, $parentIds, Operation::Upsert));
+            }
+        }
     }
 
     public function onFlush(OnFlushEventArgs $args): void

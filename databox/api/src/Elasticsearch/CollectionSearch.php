@@ -126,7 +126,13 @@ class CollectionSearch extends AbstractSearch
             ]);
         }
 
-        $data = $this->finder->findPaginated($query);
+        // The voter has the last word: a stale document must not expose the collection, and
+        // a collection in the trash is only readable with the DELETE permission (the index
+        // has no field for it). As for the other indices, the total is the one of Elasticsearch.
+        $data = new Pagerfanta(new FilteredPager(
+            fn (Collection $collection): bool => $this->isGranted(AbstractVoter::READ, $collection),
+            $this->finder->findPaginated($query)->getAdapter(),
+        ));
         self::applyPagination($data, $options, $maxLimit);
         $this->executeSearch($data->getCurrentPageResults(...));
 

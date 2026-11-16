@@ -46,11 +46,17 @@ class CollectionRepository extends ServiceEntityRepository
     /**
      * Without loading the children (a collection can have thousands of them).
      */
+    /**
+     * Whether the collection has children outside the trash, whoever may read them: the flag
+     * reveals the existence of children the user cannot see.
+     */
     public function hasChildren(string $collectionId): bool
     {
         return [] !== $this->createQueryBuilder('t')
             ->select('t.id')
             ->andWhere('t.parent = :id')
+            ->andWhere('t.deletedAt IS NULL')
+            ->andWhere('t.storyAsset IS NULL')
             ->setParameter('id', $collectionId)
             ->setMaxResults(1)
             ->getQuery()

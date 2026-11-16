@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Aggregation\MultiTerms;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Repository\Core\CollectionRepository;
+use App\Security\Voter\AbstractVoter;
 use Elastica\Aggregation;
 use Elastica\Collapse;
 use Elastica\Multi;
@@ -27,7 +31,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Search-as-you-type suggestions: distinct attribute values first, then collection and asset names.
+ * Search-as-you-type suggestions: distinct attribute values first, then collection names.
  *
  * Attribute values come from the "suggestions" nested field of the asset documents
  * (see AssetPostTransformListener). A nested aggregation returns each (definition, value) pair once,
@@ -47,7 +51,7 @@ class SuggestionSearch extends AbstractSearch
     private const string SUGGEST_SUB_FIELD = 'suggest';
     private const int MAX_RESULTS = 15;
     /**
-     * Leaves room for the collection and asset names in the result list.
+     * Leaves room for the collection names in the result list.
      */
     private const int MAX_ATTRIBUTE_VALUES = 10;
     private const int MAX_SCOPED_VALUES = 15;
@@ -64,10 +68,8 @@ class SuggestionSearch extends AbstractSearch
         private readonly AssetSearch $assetSearch,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
-        private readonly string $kernelEnv,
+        private readonly CollectionRepository $collectionRepository,
         private readonly TranslatorInterface $translator,
-        #[Autowire(param: 'es_index_prefix')]
-        private readonly ?string $indexPrefix,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -106,7 +108,7 @@ class SuggestionSearch extends AbstractSearch
             : null;
 
         $multiSearch = new Multi\Search($this->assetIndex->getClient());
-        $multiSearch->addSearch($this->collectionIndex->createSearch($namesQuery)->addIndex($this->assetIndex), 'names');
+        $multiSearch->addSearch($this->collectionIndex->createSearch($namesQuery), 'names');
         if (null !== $valuesQuery) {
             $multiSearch->addSearch($this->assetIndex->createSearch($valuesQuery), 'values');
         }
@@ -228,7 +230,10 @@ class SuggestionSearch extends AbstractSearch
     }
 
     /**
-     * Collection and asset names: one hit per distinct name.
+     * Collection names: one hit per distinct name.
+     *
+     * Assets have no name of their own (their title is an attribute, suggested as an attribute
+     * value), so the asset index is not searched.
      */
     private function createNamesQuery(?string $userId, array $groupIds, array $options, string $queryString): Query
     {
@@ -239,6 +244,7 @@ class SuggestionSearch extends AbstractSearch
         if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
             $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
         }
+        $filterQuery->addFilter(new Query\Term(['deleted' => false]));
         $filterQuery->addMust(new Query\MatchQuery(self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD, $queryString));
 
         $query = new Query($filterQuery);
@@ -257,9 +263,6 @@ class SuggestionSearch extends AbstractSearch
         $collapse->setFieldname(self::SUGGEST_FIELD.'.raw');
         $query->setCollapse($collapse);
         $query->setSource(false);
-        $query->setIndicesBoost([
-            $this->assetIndex->getName() => 1.1,
-        ]);
 
         return $query;
     }
@@ -409,27 +412,38 @@ class SuggestionSearch extends AbstractSearch
         }, $buckets);
     }
 
+    /**
+     * The hits whose collection the user may read: a stale document (collection moved, trashed
+     * or purged since its indexing) must not leak its name.
+     */
     private function createNameItems(ResultSet $resultSet): array
     {
         $highlightField = self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD;
-        $indexNames = [
-            'asset_'.$this->kernelEnv => 'asset',
-            'collection_'.$this->kernelEnv => 'collection',
-        ];
+        $results = $resultSet->getResults();
+        $collections = DoctrineUtil::getIndexFromIds(
+            $this->collectionRepository,
+            array_map(static fn (Result $result): string => (string) $result->getId(), $results),
+        );
+        $typeName = $this->translator->trans('search.suggestion.type.collection');
 
-        return array_map(function (Result $result) use ($highlightField, $indexNames): array {
+        $items = [];
+        foreach ($results as $result) {
+            $collection = $collections[$result->getId()] ?? null;
+            if (!$collection instanceof Collection || !$this->isGranted(AbstractVoter::READ, $collection)) {
+                continue;
+            }
+
             $hl = $result->getHighlights()[$highlightField][0] ?? '';
-            $indexName = substr((string) preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex()), strlen($this->indexPrefix ?? ''));
-            $type = $indexNames[$indexName];
-
-            return [
+            $items[] = [
                 'id' => $result->getId(),
                 'name' => preg_replace('#\[/?hl]#', '', $hl),
                 'hl' => $hl,
-                't' => $type,
-                'tName' => $this->translator->trans(sprintf('search.suggestion.type.%s', $type)),
+                't' => 'collection',
+                'tName' => $typeName,
                 'tId' => $result->getId(),
             ];
-        }, $resultSet->getResults());
+        }
+
+        return $items;
     }
 }

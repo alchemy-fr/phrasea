@@ -11,6 +11,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface as Privacy;
 use App\Tests\Functional\AbstractSearchTestCase;
 use App\Util\NaturalSortKey;
+use Elastica\Document;
 
 /**
  * GET /collections (Elasticsearch for admins and for any parent/query filter,
@@ -114,9 +115,7 @@ final class CollectionListTest extends AbstractSearchTestCase
 
     public function testMovedCollectionIsEmbeddedInItsNewParent(): void
     {
-        $this->markTestIncomplete('BUG: moving a collection does not reindex its new parent (only the moved branch is, see CollectionListener::postUpdate, src/Doctrine/Listener/CollectionListener.php:67): the "hasChildren" flag of a former leaf stays false in ES, so its children are not embedded in the list (no expand arrow in the tree) until a full reindex');
-
-        [, $moved, $target] = $this->createMoveFixtures();
+        [$source, $moved, $target] = $this->createMoveFixtures();
 
         $this->request('PUT', '/collections/'.$moved->getId().'/move/'.$target->getId(), self::USER, [
             'json' => [],
@@ -127,6 +126,8 @@ final class CollectionListTest extends AbstractSearchTestCase
         $members = $this->list(self::ADMIN, []);
         $this->assertSame(['Source', 'Target'], array_column($members, 'name'));
         $this->assertSame(['Moved'], array_column($members[1]['children'], 'name'));
+        $this->assertFalse($this->getIndexedHasChildren($source));
+        $this->assertTrue($this->getIndexedHasChildren($target));
     }
 
     /**
@@ -491,6 +492,93 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->assertSame(['Kept', 'Trashed'], $this->listNames(self::ADMIN, []));
     }
 
+    /**
+     * A collection in the trash is only readable with the DELETE permission (see CollectionVoter).
+     */
+    public function testTrashOnlyListsTheCollectionsTheUserMayDelete(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
+        $readable = $this->createCollection(['workspace' => $workspace, 'name' => 'Readable']);
+        $this->setCollectionPrivacy($readable, Privacy::PUBLIC_IN_WORKSPACE);
+        $mine = $this->createCollection(['workspace' => $workspace, 'name' => 'Mine', 'ownerId' => self::USER]);
+        $this->reindex();
+
+        $this->assertSame(['Mine', 'Readable'], $this->listNames(self::USER, ['query' => 'in:all']));
+
+        $this->request('POST', '/collections/delete-multiple', self::ADMIN, [
+            'json' => ['ids' => [$readable->getId(), $mine->getId()]],
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+        self::waitForESIndex('collection');
+
+        $this->assertSame(['Mine'], $this->listNames(self::USER, ['query' => 'in:trash']));
+        $this->assertSame(['Mine'], $this->listNames(self::USER, ['query' => 'in:all']));
+        $this->assertSame(['Mine', 'Readable'], $this->listNames(self::ADMIN, ['query' => 'in:trash']));
+        $this->assertSame([], $this->listNames(self::OTHER, ['query' => 'in:trash']));
+    }
+
+    /**
+     * The voter has the last word over the index: a document granting more than the
+     * database (stale index) does not expose the collection.
+     */
+    public function testStaleDocumentDoesNotExposeTheCollection(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
+        $secret = $this->createCollection(['workspace' => $workspace, 'name' => 'Secret']);
+        $secretRoot = $this->createCollection(['workspace' => $workspace, 'name' => 'Secret root']);
+        $secretChild = $this->createCollection(['workspace' => $workspace, 'name' => 'Secret child', 'parent' => $secretRoot]);
+        $this->reindex();
+
+        $this->assertSame([], $this->listNames(self::USER, ['query' => 'secret']));
+
+        $index = self::$documentIndices['collection'];
+        foreach ([$secret, $secretChild] as $collection) {
+            $data = $index->getDocument($collection->getId())->getData();
+            $data['users'][] = self::USER;
+            $index->addDocument(new Document($collection->getId(), $data));
+        }
+        self::waitForESIndex('collection');
+
+        $response = $this->request('GET', '/collections', self::USER, [
+            'query' => ['query' => 'secret'],
+        ]);
+        $data = $response->toArray();
+        $this->assertSame([], $data['member']);
+        // The total remains the one of Elasticsearch
+        $this->assertSame(2, $data['totalItems']);
+
+        $this->assertSame([], $this->listNames(self::USER, ['parent' => $secretRoot->getId()]));
+        $this->assertSame(['Secret', 'Secret child', 'Secret root'], $this->listNames(self::ADMIN, ['query' => 'secret']));
+    }
+
+    /**
+     * The "hasChildren" flag of a document ignores the children in the trash.
+     */
+    public function testTrashedChildrenAreNotCountedAsChildren(): void
+    {
+        $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
+        $parent = $this->createCollection(['workspace' => $workspace, 'name' => 'Parent']);
+        $child = $this->createCollection(['workspace' => $workspace, 'name' => 'Child', 'parent' => $parent]);
+        $this->reindex();
+        $this->assertTrue($this->getIndexedHasChildren($parent));
+
+        $this->request('POST', '/collections/delete-multiple', self::USER, [
+            'json' => ['ids' => [$child->getId()]],
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+        self::waitForESIndex('collection');
+        $this->assertFalse($this->getIndexedHasChildren($parent));
+        $this->assertSame(['Parent'], $this->listNames(self::ADMIN, []));
+
+        $this->request('POST', '/collections/restore-multiple', self::USER, [
+            'json' => ['ids' => [$child->getId()]],
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+        self::waitForESIndex('collection');
+        $this->assertTrue($this->getIndexedHasChildren($parent));
+        $this->assertSame(['Child'], array_column($this->list(self::ADMIN, [])[0]['children'], 'name'));
+    }
+
     public function testAdminRootsAreInNaturalOrder(): void
     {
         $workspace = $this->createTestWorkspace();
@@ -768,6 +856,11 @@ final class CollectionListTest extends AbstractSearchTestCase
             array_column($this->sortLikeTheClient([...$roots, ...array_filter($members, static fn (array $m): bool => $m['id'] === $root->getId())]), 'id'),
             array_column($members, 'id'),
         );
+    }
+
+    private function getIndexedHasChildren(Collection $collection): bool
+    {
+        return self::$documentIndices['collection']->getDocument($collection->getId())->getData()['hasChildren'];
     }
 
     private function reindex(): void
