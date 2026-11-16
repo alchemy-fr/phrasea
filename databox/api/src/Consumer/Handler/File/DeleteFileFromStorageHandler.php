@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Service\Storage\FileManager;
 use League\Flysystem\CorruptedPathDetected;
 use League\Flysystem\UnableToDeleteFile;
 use Psr\Log\LoggerInterface;
@@ -15,6 +16,7 @@ readonly class DeleteFileFromStorageHandler
 {
     public function __construct(
         private FileStorageManager $storageManager,
+        private FileManager $fileManager,
         private LoggerInterface $logger,
     ) {
     }
@@ -24,6 +26,15 @@ readonly class DeleteFileFromStorageHandler
         foreach ($message->getPaths() as $path) {
             $path = trim($path);
             if ('' === $path) {
+                continue;
+            }
+
+            // Checked once the removal is committed: another file or import may share the object.
+            if ($this->fileManager->isPathReferenced($path)) {
+                $this->logger->warning('Storage object kept: still referenced', [
+                    'path' => $path,
+                ]);
+
                 continue;
             }
 

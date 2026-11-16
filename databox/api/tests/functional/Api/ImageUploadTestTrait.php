@@ -17,38 +17,7 @@ use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
  */
 trait ImageUploadTestTrait
 {
-    /**
-     * Simulates a finished S3 multipart upload of $ownerId (see WorkspaceTermsTest).
-     */
-    private function createUpload(string $content, string $name, string $type, ?int $size = null, string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
-    {
-        $em = self::getEntityManager();
-
-        $upload = new MultipartUpload();
-        $upload->setOwnerId($ownerId);
-        $upload->setFilename($name);
-        $upload->setType($type);
-        $upload->setSize($size ?? strlen($content));
-        $upload->setPath(sprintf('test-uploads/%s.%s', uniqid(), pathinfo($name, PATHINFO_EXTENSION)));
-        $upload->setUploadId('test-'.uniqid());
-        $upload->setComplete(true);
-        $em->persist($upload);
-        $em->flush();
-
-        self::getService(FileStorageManager::class)->store($upload->getPath(), $content);
-
-        return $upload;
-    }
-
-    private static function multipartPayload(MultipartUpload $upload): array
-    {
-        return [
-            'uploadId' => $upload->getId(),
-            'parts' => [
-                ['ETag' => 'test-etag', 'PartNumber' => 1],
-            ],
-        ];
-    }
+    use MultipartUploadTestTrait;
 
     private function createPngUpload(int $width = 1, int $height = 1, string $name = 'image.png', string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
     {

@@ -9,6 +9,7 @@ use Alchemy\StorageBundle\Api\Dto\PartInput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -159,6 +160,9 @@ final readonly class UploadManager
      * object has the declared size: the parts are sent straight to S3, so
      * their real size is only known here.
      *
+     * An upload is used once: it is claimed before anything is done on S3,
+     * and released if S3 refuses the completion so that the client can retry.
+     *
      * @param string $ownerId user identifier of the token completing the upload
      */
     public function handleMultipartUpload(MultipartUploadInput $multipart, string $ownerId): MultipartUpload
@@ -168,17 +172,19 @@ final readonly class UploadManager
             throw new NotFoundHttpException(sprintf('Multipart upload with id "%s" not found', $multipart->uploadId));
         }
 
-        self::denyUnlessOwner($multipartUpload, $ownerId);
+        $this->claim($multipartUpload, $ownerId);
 
-        if ($multipartUpload->isComplete()) {
-            throw new BadRequestHttpException(sprintf('Multipart upload "%s" is already complete', $multipartUpload->getId()));
+        try {
+            $this->markComplete(
+                $multipartUpload->getUploadId(),
+                $multipartUpload->getPath(),
+                $multipart->parts
+            );
+        } catch (\Throwable $e) {
+            $this->release($multipartUpload);
+
+            throw $e;
         }
-
-        $this->markComplete(
-            $multipartUpload->getUploadId(),
-            $multipartUpload->getPath(),
-            $multipart->parts
-        );
 
         $this->assertUploadedSize($multipartUpload);
 
@@ -186,6 +192,58 @@ final readonly class UploadManager
         $this->em->persist($multipartUpload);
 
         return $multipartUpload;
+    }
+
+    /**
+     * Reserves the upload for the current request. The conditional update is
+     * executed right away, outside the unit of work: among concurrent
+     * requests, only the one which flips "consumed_at" gets the upload.
+     *
+     * @param string $ownerId user identifier of the token using the upload
+     */
+    public function claim(MultipartUpload $multipartUpload, string $ownerId): void
+    {
+        self::denyUnlessOwner($multipartUpload, $ownerId);
+
+        if ($multipartUpload->isComplete() || $multipartUpload->isConsumed()) {
+            throw self::createAlreadyUsedException($multipartUpload);
+        }
+
+        $now = new \DateTimeImmutable();
+        $claimed = $this->em->createQueryBuilder()
+            ->update(MultipartUpload::class, 'u')
+            ->set('u.consumedAt', ':now')
+            ->andWhere('u.id = :id')
+            ->andWhere('u.consumedAt IS NULL')
+            ->andWhere('u.complete = false')
+            ->setParameter('now', $now, Types::DATETIME_IMMUTABLE)
+            ->setParameter('id', $multipartUpload->getId())
+            ->getQuery()
+            ->execute();
+
+        if (1 !== $claimed) {
+            throw self::createAlreadyUsedException($multipartUpload);
+        }
+
+        $multipartUpload->setConsumedAt($now);
+    }
+
+    private function release(MultipartUpload $multipartUpload): void
+    {
+        $this->em->createQueryBuilder()
+            ->update(MultipartUpload::class, 'u')
+            ->set('u.consumedAt', 'NULL')
+            ->andWhere('u.id = :id')
+            ->setParameter('id', $multipartUpload->getId())
+            ->getQuery()
+            ->execute();
+
+        $multipartUpload->setConsumedAt(null);
+    }
+
+    private static function createAlreadyUsedException(MultipartUpload $multipartUpload): BadRequestHttpException
+    {
+        return new BadRequestHttpException(sprintf('Multipart upload "%s" was already used', $multipartUpload->getId()));
     }
 
     public static function denyUnlessOwner(MultipartUpload $multipartUpload, string $ownerId): void

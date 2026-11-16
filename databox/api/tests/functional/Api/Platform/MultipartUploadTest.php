@@ -12,7 +12,9 @@ use ApiPlatform\Test\Client;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use Aws\CommandInterface;
 use Aws\Result;
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
+use Doctrine\DBAL\Types\Types;
 use GuzzleHttp\Promise\Create;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -42,6 +44,11 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
      */
     private int $s3ObjectSize = 0;
 
+    /**
+     * S3 refuses CompleteMultipartUpload (e.g. a wrong part ETag).
+     */
+    private bool $s3CompletionFails = false;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -56,6 +63,12 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
                 'name' => $command->getName(),
                 'args' => $command->toArray(),
             ];
+
+            if ($this->s3CompletionFails && 'CompleteMultipartUpload' === $command->getName()) {
+                return Create::rejectionFor(new S3Exception('One or more of the specified parts could not be found', $command, [
+                    'code' => 'InvalidPart',
+                ]));
+            }
 
             return Create::promiseFor(new Result(match ($command->getName()) {
                 'CreateMultipartUpload' => ['UploadId' => self::S3_UPLOAD_ID],
@@ -424,7 +437,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $s3Client->getHandlerList()->setHandler(function (CommandInterface $command) {
             $this->s3Commands[] = ['name' => $command->getName(), 'args' => $command->toArray()];
 
-            return Create::rejectionFor(new \Aws\S3\Exception\S3Exception('The upload does not exist', $command, [
+            return Create::rejectionFor(new S3Exception('The upload does not exist', $command, [
                 'code' => 'NoSuchUpload',
             ]));
         });
@@ -593,17 +606,77 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $this->assertFalse($this->findUpload($upload->getId())->isComplete());
     }
 
-    public function testAnUploadIsCompletedOnce(): void
+    public function testAnUploadIsUsedOnce(): void
+    {
+        $upload = $this->persistUpload(size: 1000);
+        $this->s3ObjectSize = 1000;
+        $this->complete($upload);
+        $this->assertNotNull($this->findUpload($upload->getId())->getConsumedAt());
+        $this->s3Commands = [];
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('already used');
+        try {
+            $this->complete($this->findUpload($upload->getId()));
+        } finally {
+            $this->assertSame([], $this->s3Commands);
+        }
+    }
+
+    public function testAnUploadCompletedBeforeBeingConsumedIsNotUsedAgain(): void
     {
         $upload = $this->persistUpload(complete: true, size: 1000);
 
         $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('already complete');
+        $this->expectExceptionMessage('already used');
         try {
             $this->complete($upload);
         } finally {
             $this->assertSame([], $this->s3Commands);
         }
+    }
+
+    public function testOnlyOneOfConcurrentRequestsGetsTheUpload(): void
+    {
+        $upload = $this->persistUpload(size: 1000);
+        $this->s3ObjectSize = 1000;
+        // Another request claims the upload after this one loaded it
+        self::getEntityManager()->getConnection()->executeStatement(
+            'UPDATE multipart_upload SET consumed_at = :now WHERE id = :id',
+            ['now' => new \DateTimeImmutable(), 'id' => $upload->getId()],
+            ['now' => Types::DATETIME_IMMUTABLE],
+        );
+        $this->assertNull($upload->getConsumedAt());
+
+        try {
+            $this->complete($upload);
+            $this->fail('The upload must not be used twice');
+        } catch (BadRequestHttpException $e) {
+            $this->assertStringContainsString('already used', $e->getMessage());
+        }
+
+        $this->assertSame([], $this->s3Commands);
+        $this->assertFalse($this->findUpload($upload->getId())->isComplete());
+    }
+
+    public function testAFailedCompletionReleasesTheUpload(): void
+    {
+        $upload = $this->persistUpload(size: 1000);
+        $this->s3ObjectSize = 1000;
+
+        $this->s3CompletionFails = true;
+
+        try {
+            $this->complete($upload);
+            $this->fail('The completion must fail');
+        } catch (S3Exception) {
+        }
+        $this->assertNull($this->findUpload($upload->getId())->getConsumedAt());
+
+        // The client can retry
+        $this->s3CompletionFails = false;
+        $this->complete($this->findUpload($upload->getId()));
+        $this->assertTrue($this->findUpload($upload->getId())->isComplete());
     }
 
     public static function getWrongSizes(): iterable

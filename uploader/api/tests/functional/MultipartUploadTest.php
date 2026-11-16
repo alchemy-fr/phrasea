@@ -197,7 +197,7 @@ class MultipartUploadTest extends AbstractUploaderTestCase
         $this->assertSame(400, $response->getStatusCode());
     }
 
-    public function testAnUploadIsCompletedOnce(): void
+    public function testAnUploadIsUsedOnce(): void
     {
         $content = 'Hello, multipart!';
         $upload = $this->createUpload(strlen($content));
@@ -209,7 +209,7 @@ class MultipartUploadTest extends AbstractUploaderTestCase
 
         $response = $this->completeAsAsset($multipart);
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertStringContainsString('already complete', $response->toArray(false)['detail']);
+        $this->assertStringContainsString('already used', $response->toArray(false)['detail']);
 
         // No more part URL for a completed upload
         $response = self::createClient()->request('POST', '/uploads/'.$upload['id'].'/part', [

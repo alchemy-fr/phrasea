@@ -193,6 +193,14 @@ class MultipartUpload
     #[Groups(['upload:read'])]
     private bool $complete = false;
 
+    /**
+     * When the upload was reserved by the request using it (UploadManager::claim()):
+     * an upload backs a single resource, the S3 object is never shared.
+     */
+    #[ApiProperty(writable: false)]
+    #[ORM\Column(name: 'consumed_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $consumedAt = null;
+
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['upload:read'])]
@@ -282,6 +290,21 @@ class MultipartUpload
     public function setComplete(bool $complete): void
     {
         $this->complete = $complete;
+    }
+
+    public function getConsumedAt(): ?\DateTimeImmutable
+    {
+        return $this->consumedAt;
+    }
+
+    public function setConsumedAt(?\DateTimeImmutable $consumedAt): void
+    {
+        $this->consumedAt = $consumedAt;
+    }
+
+    public function isConsumed(): bool
+    {
+        return null !== $this->consumedAt;
     }
 
     #[Groups('upload:read')]

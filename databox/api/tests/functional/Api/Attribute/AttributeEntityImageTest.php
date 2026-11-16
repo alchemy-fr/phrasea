@@ -326,7 +326,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(400);
 
         // Too big
-        $upload = $this->createUpload(self::createImage(1, 1, 'jpeg'), 'alice.jpg', 'image/jpeg', 20 * 1024 * 1024 + 1);
+        $upload = $this->createUpload(str_repeat('x', 20 * 1024 * 1024 + 1), 'alice.jpg', 'image/jpeg');
         $this->uploadImage(self::USER, self::multipartPayload($upload));
         $this->assertResponseStatusCodeSame(400);
         $this->assertFalse(self::isStored($upload->getPath()), 'the rejected upload is deleted');
