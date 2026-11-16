@@ -247,7 +247,8 @@ class PhraseanetIntegrationController extends AbstractController
         return new JsonResponse([
             'id' => $asset->getId(),
             'originalName' => sprintf('%s%s_%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $workflowId, $asset->getSource()->getExtension()),
-            'url' => $fileUrlResolver->resolveUrl($asset->getSource()),
+            'url' => $fileUrlResolver->resolveUrl($asset->getSource())
+                ?? throw new NotFoundHttpException(sprintf('Asset "%s" source has no HTTP(S) URL', $assetId)),
             'formData' => [
                 AcceptFileAction::COLLECTION_DESTINATION => $options['collectionId'],
             ],

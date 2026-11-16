@@ -11,6 +11,7 @@ use Alchemy\StorageBundle\Storage\UrlSigner;
 use Alchemy\StorageBundle\Upload\ContentTypeDetector;
 use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
+use App\Border\Exception\UnsupportedUriException;
 use App\Border\UriDownloader;
 use App\Entity\Core\File;
 use App\Service\Asset\Exception\RefusedFileContentException;
@@ -217,6 +218,16 @@ class FileFetcherTest extends TestCase
         $this->assertSame('image/png', $file->getDetectedType());
 
         return $file;
+    }
+
+    public function testRemoteFileWithAnotherSchemeIsNotFetched(): void
+    {
+        $fetcher = $this->createFetcher(new MockHttpClient(function (): never {
+            $this->fail('No request expected');
+        }));
+
+        $this->expectException(UnsupportedUriException::class);
+        $fetcher->getFile($this->createRemoteFile('javascript:alert(1)'));
     }
 
     private function createFetcher(?MockHttpClient $httpClient = null): FileFetcher

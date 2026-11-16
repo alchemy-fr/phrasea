@@ -7,6 +7,7 @@ namespace App\Service\Asset;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\Core\File;
+use App\Util\UrlPattern;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -40,11 +41,15 @@ final class FileUrlResolver
         $this->requestCache = $cacheFactory->createCache();
     }
 
-    public function resolveUrl(File $file): string
+    /**
+     * Null for a URL-stored file whose URL is not http(s): such URLs may run
+     * code when opened (e.g. "javascript:") and are never handed out.
+     */
+    public function resolveUrl(File $file): ?string
     {
         return match ($file->getStorage()) {
             File::STORAGE_S3_MAIN => $this->getSignedUrl($file->getPath(), $file->getType()),
-            File::STORAGE_URL => $file->getPath(),
+            File::STORAGE_URL => UrlPattern::isHttpUrl($file->getPath()) ? $file->getPath() : null,
             default => throw new \RuntimeException(sprintf('Unsupported storage "%s"', $file->getStorage())),
         };
     }

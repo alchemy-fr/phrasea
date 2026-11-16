@@ -13,6 +13,7 @@ use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Anonymous access through a share link: `GET /shares/{id}/public`,
@@ -28,10 +29,11 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
 
     private const string USER = KeycloakClientTestMock::USER_UID;
     private const string OTHER = KeycloakClientTestMock::OTHER_USER_UID;
-    private const string PREVIEW_URL = 'https://cdn.phrasea.test/preview.jpg';
-    private const string ORIGINAL_URL = 'https://cdn.phrasea.test/original.tif';
+    private const string PREVIEW_PATH = 'shares/preview.jpg';
+    private const string ORIGINAL_PATH = 'shares/original.tif';
     private const string ATTACHMENT_ORIGINAL_URL = 'https://cdn.phrasea.test/contract.pdf';
-    private const string ATTACHMENT_PREVIEW_URL = 'https://cdn.phrasea.test/contract-preview.jpg';
+    private const string ATTACHMENT_PREVIEW_PATH = 'shares/contract-preview.jpg';
+    private const string EXTERNAL_URL = 'https://evil.phrasea.test/phish';
 
     private Workspace $workspace;
     private Asset $asset;
@@ -174,7 +176,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         // The viewer cannot read the asset: the share token alone exposes its public renditions
         $data = $client->request('GET', self::publicUri($share, $share->getToken()))->toArray();
 
-        $this->assertSame(self::PREVIEW_URL, $data['assets'][0]['preview']['file']['url'] ?? null);
+        $this->assertStringContainsString(self::PREVIEW_PATH, $data['assets'][0]['preview']['file']['url'] ?? '');
         $this->assertArrayNotHasKey('thumbnail', $data['assets'][0], 'A rendition of a non-public policy is not shared');
     }
 
@@ -185,8 +187,27 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $definition = $this->createPublicRendition();
         $share = $this->createShare(self::USER, [$this->asset]);
 
+        $response = $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $this->asset->getId(), $definition->getId(), $share->getToken()));
+        $this->assertRedirectsToStoredFile($response, self::PREVIEW_PATH);
+    }
+
+    /**
+     * A share link only redirects to the storage: an external URL would turn
+     * the public link of the API into an open redirect.
+     */
+    public function testRenditionStoredAsAnExternalUrlIsNeitherListedNorRedirected(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $definition = $this->createRenditionDefinition($this->workspace, 'web', true);
+        $this->createRendition($this->asset, $definition, $this->createUrlFile($this->workspace, self::EXTERNAL_URL));
+        $share = $this->createShare(self::USER, [$this->asset]);
+
+        $data = $client->request('GET', self::publicUri($share, $share->getToken()))->toArray();
+        $this->assertSame([], $data['alternateUrls']);
+
         $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $this->asset->getId(), $definition->getId(), $share->getToken()));
-        $this->assertResponseRedirects(self::PREVIEW_URL);
+        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testRenditionOfMultiAssetShareTargetsTheRequestedAsset(): void
@@ -198,11 +219,11 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
             'workspace' => $this->workspace,
             'ownerId' => self::USER,
         ]);
-        $this->createRendition($second, $definition, $this->createUrlFile($this->workspace, 'https://cdn.phrasea.test/second.jpg'));
+        $this->createRendition($second, $definition, $this->createStorageFile($this->workspace, 'shares/second.jpg'));
         $share = $this->createShare(self::USER, [$this->asset, $second]);
 
-        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $second->getId(), $definition->getId(), $share->getToken()));
-        $this->assertResponseRedirects('https://cdn.phrasea.test/second.jpg');
+        $response = $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $second->getId(), $definition->getId(), $share->getToken()));
+        $this->assertRedirectsToStoredFile($response, 'shares/second.jpg');
     }
 
     public function testRenditionIsNotFoundWithoutAValidToken(): void
@@ -231,7 +252,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
             'workspace' => $this->workspace,
             'ownerId' => self::USER,
         ]);
-        $this->createRendition($outside, $definition, $this->createUrlFile($this->workspace, 'https://cdn.phrasea.test/outside.jpg'));
+        $this->createRendition($outside, $definition, $this->createStorageFile($this->workspace, 'shares/outside.jpg'));
         $share = $this->createShare(self::USER, [$this->asset]);
 
         $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $outside->getId(), $definition->getId(), $share->getToken()));
@@ -283,8 +304,8 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $this->assertSame('image/jpeg', $item['type']);
         $this->assertStringContainsString(sprintf('/s/%s/a/%s', $share->getId(), $attachment->getId()), $item['url']);
 
-        $client->request('GET', sprintf('/s/%s/a/%s?token=%s', $share->getId(), $attachment->getId(), $share->getToken()));
-        $this->assertResponseRedirects(self::ATTACHMENT_PREVIEW_URL);
+        $response = $client->request('GET', sprintf('/s/%s/a/%s?token=%s', $share->getId(), $attachment->getId(), $share->getToken()));
+        $this->assertRedirectsToStoredFile($response, self::ATTACHMENT_PREVIEW_PATH);
     }
 
     /**
@@ -296,6 +317,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         yield 'quarantined' => ['quarantined'];
         yield 'not readable by the owner of the share' => ['unreadable'];
         yield 'without a rendition of a public policy' => ['no_public_rendition'];
+        yield 'with a rendition stored as an external URL' => ['external_url'];
     }
 
     /**
@@ -316,7 +338,12 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
             case 'no_public_rendition':
                 $attachment = $this->createAttachmentWithFile($this->asset, 'Contract', self::ATTACHMENT_ORIGINAL_URL);
                 $restricted = $this->createRenditionDefinition($this->workspace, 'attachment-hd', false);
-                $this->createRendition($attachment->getAttachment(), $restricted, $this->createUrlFile($this->workspace, self::ORIGINAL_URL, 'image/tiff'));
+                $this->createRendition($attachment->getAttachment(), $restricted, $this->createStorageFile($this->workspace, self::ORIGINAL_PATH, 'image/tiff'));
+                break;
+            case 'external_url':
+                $attachment = $this->createAttachmentWithFile($this->asset, 'Contract', self::ATTACHMENT_ORIGINAL_URL);
+                $definition = $this->createRenditionDefinition($this->workspace, 'attachment-preview', true);
+                $this->createRendition($attachment->getAttachment(), $definition, $this->createUrlFile($this->workspace, self::EXTERNAL_URL));
                 break;
             default:
                 $attachment = $this->createSharedAttachment($this->asset, 'Contract');
@@ -373,7 +400,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
     private function createPublicRendition(): RenditionDefinition
     {
         $definition = $this->createRenditionDefinition($this->workspace, 'web', true);
-        $this->createRendition($this->asset, $definition, $this->createUrlFile($this->workspace, self::PREVIEW_URL));
+        $this->createRendition($this->asset, $definition, $this->createStorageFile($this->workspace, self::PREVIEW_PATH));
 
         return $definition;
     }
@@ -381,7 +408,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
     private function createRestrictedRendition(): RenditionDefinition
     {
         $definition = $this->createRenditionDefinition($this->workspace, 'hd', false);
-        $this->createRendition($this->asset, $definition, $this->createUrlFile($this->workspace, self::ORIGINAL_URL, 'image/tiff'));
+        $this->createRendition($this->asset, $definition, $this->createStorageFile($this->workspace, self::ORIGINAL_PATH, 'image/tiff'));
 
         return $definition;
     }
@@ -408,8 +435,14 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $workspace ??= $this->workspace;
         $attachment = $this->createAttachmentWithFile($asset, $name, self::ATTACHMENT_ORIGINAL_URL, $workspace, $ownerId);
         $definition = $this->createRenditionDefinition($workspace, 'attachment-preview', true);
-        $this->createRendition($attachment->getAttachment(), $definition, $this->createUrlFile($workspace, self::ATTACHMENT_PREVIEW_URL));
+        $this->createRendition($attachment->getAttachment(), $definition, $this->createStorageFile($workspace, self::ATTACHMENT_PREVIEW_PATH));
 
         return $attachment;
+    }
+
+    private function assertRedirectsToStoredFile(ResponseInterface $response, string $path): void
+    {
+        $this->assertResponseStatusCodeSame(302);
+        $this->assertStringContainsString($path, $response->getHeaders(false)['location'][0] ?? '');
     }
 }

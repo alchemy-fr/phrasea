@@ -391,4 +391,29 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $data = $response->toArray();
         $this->assertArrayNotHasKey('text', $data['terms'] ?? []);
     }
+
+    public function testTermsPdfIsServedWithSafeHeaders(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
+
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
+            'json' => [
+                'terms' => 'Some terms.',
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        $response = $client->request('GET', $iri.'/terms.pdf', [
+            'headers' => $this->adminHeaders(),
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+        $this->assertResponseHeaderSame('content-type', 'application/pdf');
+        $this->assertResponseHeaderSame('content-disposition', 'inline; filename=terms-test-workspace-v1.pdf');
+        $this->assertResponseHeaderSame('x-content-type-options', 'nosniff');
+        $this->assertResponseHeaderSame('content-security-policy', 'sandbox');
+    }
 }

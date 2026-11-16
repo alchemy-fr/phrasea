@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
+use App\Util\UrlPattern;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AlternateUrlInput
@@ -17,7 +18,7 @@ class AlternateUrlInput
      */
     #[Assert\NotBlank]
     #[Assert\Regex(
-        pattern: '/^(?!(?:javascript|vbscript|data):)[a-z][a-z0-9+.\-]*:\S/i',
+        pattern: UrlPattern::NON_EXECUTABLE_URI,
         message: 'This value is not a valid URL.',
     )]
     public ?string $url = null;

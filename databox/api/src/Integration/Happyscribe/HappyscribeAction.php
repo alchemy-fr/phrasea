@@ -75,7 +75,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $file = !empty($config['rendition']) ? $this->getRenditionFile($asset->getId(), $config['rendition']) : $asset->getSource();
 
-        $responseUpload = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/uploads/new?filename='.$fileName, [
+        $responseUpload = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/uploads/new?'.http_build_query(['filename' => $fileName]), [
             'headers' => [
                 'Authorization' => 'Bearer '.$config['apiKey'],
             ],

@@ -101,6 +101,27 @@ class FileUrlResolverTest extends TestCase
         $this->assertSame('https://example.com/foo.svg', $this->createResolver()->resolveUrl($file));
     }
 
+    #[DataProvider('getUnsafeExternalUrls')]
+    public function testExternalUrlWithAnotherSchemeIsNeverResolved(string $url): void
+    {
+        $file = $this->createFile($url, 'image/jpeg');
+        $file->setStorage(File::STORAGE_URL);
+
+        $this->assertNull($this->createResolver()->resolveUrl($file));
+    }
+
+    public static function getUnsafeExternalUrls(): array
+    {
+        return [
+            'javascript' => ['javascript:alert(1)'],
+            'javascript, mixed case' => ['JavaScript://example.com/%0Aalert(1)'],
+            'data' => ['data:text/html,<script>alert(1)</script>'],
+            'leading space' => [' https://example.com/foo.jpg'],
+            'other scheme' => ['indexer:///foo.jpg'],
+            'relative' => ['/foo.jpg'],
+        ];
+    }
+
     private function createResolver(
         ?ArrayAdapter $cache = null,
         int $signatureTtl = 3600,
