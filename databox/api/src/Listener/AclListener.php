@@ -163,7 +163,11 @@ readonly class AclListener
                     $assetsHandled = true;
                 }
 
-                if ($this->shouldStillReindexAssets($assetsHandled, $event, $newPermissions, $newMetadata)) {
+                if ($this->shouldStillReindexAssets($assetsHandled, $event, $newPermissions, $newMetadata, [
+                    PermissionInterface::CHILD_DELETE,
+                    PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
+                ])) {
                     $assetsHandled = false;
                 }
 
@@ -191,21 +195,27 @@ readonly class AclListener
                 ];
 
                 if (!$this->hasOneOfPermissions($previousPermissions, $assetDiscriminantPerms)) {
+                    $assetsHandled = true;
                     if ($this->hasOneOfPermissions($newPermissions, $assetDiscriminantPerms)) {
                         $collectionId = $event->getObjectId();
                         if (null === $collectionId) {
-                            $this->bus->dispatch(new AclAddUserToWorkspaceAssets(null, $event->getUserType(), $event->getUserId()));
+                            // An ACE on every collection only reaches the assets linked to one of them, and
+                            // not those in the trash: they are reindexed (see AssetPermissionComputer)
+                            $assetsHandled = false;
                         } else {
                             $this->bus->dispatch(new AclAddUserToCollectionAssets($collectionId, $event->getUserType(), $event->getUserId()));
                         }
                     }
-
-                    $assetsHandled = true;
                 } elseif ($this->hasOneOfPermissions($newPermissions, $assetDiscriminantPerms)) {
                     $assetsHandled = true;
                 }
 
-                if ($this->shouldStillReindexAssets($assetsHandled, $event, $newPermissions, $newMetadata)) {
+                if ($this->shouldStillReindexAssets($assetsHandled, $event, $newPermissions, $newMetadata, [
+                    PermissionInterface::DELETE,
+                    PermissionInterface::CHILD_DELETE,
+                    PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
+                ])) {
                     $assetsHandled = false;
                 }
 
@@ -235,15 +245,20 @@ readonly class AclListener
         $this->indexObject($event->getObjectType(), $event->getObjectId(), $assetsHandled, $collectionsHandled, $computeCollectionBranch);
     }
 
-    private function shouldStillReindexAssets(bool $assetHandled, AclEvent $event, int $newPermissions, array $newMetadata): bool
+    /**
+     * Whether the deletion or quarantine rights indexed on the assets change: the incremental update
+     * of the assets only adds readers.
+     *
+     * @param int[] $deletePerms the permissions granting the deletion of the assets of the object
+     */
+    private function shouldStillReindexAssets(bool $assetHandled, AclEvent $event, int $newPermissions, array $newMetadata, array $deletePerms): bool
     {
         if (!$assetHandled) {
             return false;
         }
 
-        $assetDiscriminantPerms = [PermissionInterface::CHILD_DELETE];
         $previousPermissions = $event->getPreviousPermissions() ?? 0;
-        foreach ($assetDiscriminantPerms as $perm) {
+        foreach ($deletePerms as $perm) {
             if (!$this->hasPermission($previousPermissions, $perm)) {
                 if ($this->hasPermission($newPermissions, $perm)) {
                     return true;

@@ -12,6 +12,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final readonly class AssetDataTemplatePostTransformListener implements EventSubscriberInterface
 {
+    /**
+     * Indexed in "users" when an ACE grants the template to all users.
+     */
+    public const string ALL_USERS = '*';
+
     public function __construct(private PermissionManager $permissionManager)
     {
     }
@@ -30,7 +35,7 @@ final readonly class AssetDataTemplatePostTransformListener implements EventSubs
         if (!$assetDataTemplate->isPublic()) {
             $users = $this->permissionManager->getAllowedUsers($assetDataTemplate, PermissionInterface::VIEW);
             if (in_array(null, $users, true)) {
-                $users = ['*'];
+                $users = [self::ALL_USERS];
             } else {
                 $groups = $this->permissionManager->getAllowedGroups($assetDataTemplate, PermissionInterface::VIEW);
             }

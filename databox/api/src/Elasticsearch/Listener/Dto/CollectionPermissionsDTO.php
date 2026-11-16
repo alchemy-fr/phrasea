@@ -7,7 +7,7 @@ namespace App\Elasticsearch\Listener\Dto;
 final readonly class CollectionPermissionsDTO
 {
     public function __construct(
-        public int $bestPrivacy,
+        public int $assetPrivacy,
         public string $absolutePath,
         public PermissionsDTO $permissions,
         public bool $deleted = false,

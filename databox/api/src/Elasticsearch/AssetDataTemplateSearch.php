@@ -7,6 +7,7 @@ namespace App\Elasticsearch;
 use ApiPlatform\Metadata\Operation;
 use App\Api\EntityIriConverter;
 use App\Elasticsearch\Filter\SearchQuery;
+use App\Elasticsearch\Listener\AssetDataTemplatePostTransformListener;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
@@ -149,7 +150,7 @@ final class AssetDataTemplateSearch extends AbstractSearch
         $shoulds[] = new Query\Term(['public' => true]);
         if (null !== $userId) {
             $shoulds[] = new Query\Term(['ownerId' => $userId]);
-            $shoulds[] = new Query\Term(['users' => $userId]);
+            $shoulds[] = new Query\Terms('users', [$userId, AssetDataTemplatePostTransformListener::ALL_USERS]);
             $shoulds[] = new Query\Terms('groups', $groupIds);
         }
 

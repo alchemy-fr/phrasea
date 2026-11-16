@@ -13,6 +13,7 @@ use App\Elasticsearch\Aggregation\MultiTerms;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
@@ -251,7 +252,7 @@ class SuggestionSearch extends AbstractSearch
     private function createNamesQuery(?string $userId, array $groupIds, array $options, string $queryString): Query
     {
         $filterQuery = new Query\BoolQuery();
-        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds)) {
+        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds, WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)) {
             $filterQuery->addFilter($aclBoolQuery);
         }
         if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
