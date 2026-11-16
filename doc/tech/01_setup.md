@@ -265,7 +265,7 @@ dc up -d
 Install ELK stack to get report-api logs available in Kibana.
 
 ```bash
-# set COMPOSE_FILE=docker-compose.yml:docker-compose.elk.yml
+# set COMPOSE_FILE=docker-compose.yml:docker-compose.report-elk.yml
 dc up -d
 ```
 

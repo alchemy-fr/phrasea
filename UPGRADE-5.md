@@ -427,7 +427,8 @@ To upgrade a running stack:
     dc up -d
     ```
 
-  or `docker network rm <project>_internal` once its containers are stopped;
+    or `docker network rm <project>_internal` once its containers are stopped;
+
 - services added to the stack by an override file must be given the networks
   they need instead of `internal`, and a routed service that is not on `proxy`
   the label `traefik.docker.network=${COMPOSE_PROJECT_NAME}_data`. A service
@@ -448,8 +449,9 @@ To upgrade a running stack:
 
 ### Helm
 
-This repository has no Helm chart for the stack (`infra/helm/report-elk` is
-unchanged). Apply the same changes in `alchemy-fr/phrasea-helm-charts`: in
+This repository no longer has any Helm chart: the unmaintained
+`infra/helm/report-elk` chart (archived elastic/helm-charts 7.11.2 charts) is
+removed. Apply the same changes in `alchemy-fr/phrasea-helm-charts`: in
 particular, replace the databox `CronJob`s with `databox-scheduler` and
 `uploader-scheduler` Deployments (worker image, `WORKER_PRIORITIES` as above,
 `replicas: 1`, `Recreate` strategy so that two pods never overlap), and swap
