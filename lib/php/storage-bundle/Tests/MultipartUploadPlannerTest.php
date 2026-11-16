@@ -83,4 +83,47 @@ class MultipartUploadPlannerTest extends TestCase
 
         new MultipartUploadPlanner(minChunkSize: 10, maxChunkSize: 5, maxPartNumber: 10, maxObjectSize: 100);
     }
+
+    public function testTheApplicationLimitAppliesWithinTheStorageOne(): void
+    {
+        $planner = new MultipartUploadPlanner(
+            minChunkSize: 20 * self::MB,
+            maxChunkSize: 100 * self::MB,
+            maxPartNumber: 10,
+            maxObjectSize: 1000 * self::MB,
+            maxFileSize: 300 * self::MB,
+        );
+
+        $this->assertSame(300 * self::MB, $planner->getMaxFileSize());
+        $this->assertSame(1000 * self::MB, $planner->getMaxObjectSize());
+        $this->assertSame(30 * self::MB, $planner->resolveChunkSize(300 * self::MB));
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessageMatches('/exceeds the maximum allowed size of 314572800 bytes/');
+
+        $planner->resolveChunkSize(300 * self::MB + 1);
+    }
+
+    public static function storageLimitProvider(): array
+    {
+        return [
+            'none' => [null],
+            'not positive' => [0],
+            'above the storage limit' => [2000 * self::MB],
+        ];
+    }
+
+    #[DataProvider('storageLimitProvider')]
+    public function testTheStorageLimitAppliesWithoutAnApplicationOneBelowIt(?int $maxFileSize): void
+    {
+        $planner = new MultipartUploadPlanner(
+            minChunkSize: 20 * self::MB,
+            maxChunkSize: 100 * self::MB,
+            maxPartNumber: 10,
+            maxObjectSize: 1000 * self::MB,
+            maxFileSize: $maxFileSize,
+        );
+
+        $this->assertSame(1000 * self::MB, $planner->getMaxFileSize());
+    }
 }

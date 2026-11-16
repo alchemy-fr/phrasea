@@ -1011,6 +1011,29 @@ renews the URLs from part `n` (expired URLs, resumed uploads).
 `POST /uploads/{id}/part` still works for clients of the previous version but is
 deprecated and will be removed.
 
+### Upload limits
+
+The limits are applied when the upload is created, before anything is opened
+on the storage (see "Upload limits" in `doc/tech/Storage/01_s3.md`):
+
+- `POST /uploads` and `POST /uploads/{id}/parts` answer at most 1 000 part URLs:
+  a client asks `/parts` with `from` for the following ones.
+- A maximum file size per application, within `S3_MAX_OBJECT_SIZE`: new
+  `DATABOX_MAX_UPLOAD_FILE_SIZE` and `EXPOSE_MAX_UPLOAD_FILE_SIZE` (100 GiB by
+  default), the stack configuration `uploader.max_upload_file_size` for the
+  uploader. Raise them before the upgrade if larger files are sent.
+- The default of `S3_MAX_OBJECT_SIZE` is now 5 TiB, the largest object of S3
+  (it was 48 TiB, which no storage accepts).
+- New `MULTIPART_UPLOAD_RATE_LIMIT` (60 upload requests per minute and per
+  user, 429 with `Retry-After` beyond) and `MULTIPART_UPLOAD_MAX_PENDING` (20
+  uploads in progress per user, 429 beyond) variables. A script creating many
+  uploads at once has to wait for `Retry-After` and to complete or cancel its
+  uploads.
+- Through an upload link, an exhausted link or a file larger than what remains
+  of its total size is refused at creation (400 `upload_link_quota_exceeded`).
+  The `AssetToken` of a commit can no longer use `/uploads` (403).
+- New index on `multipart_upload` (migration of databox, expose and uploader).
+
 ## Collections and stories are ordered
 
 This change shipped in 4.5.0: it is only relevant when upgrading from 4.4 or

@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use Alchemy\StorageBundle\Security\UploadQuotaSubjectInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Someone uploading through an upload link: no account, only the target of the link.
  */
-final readonly class UploadLinkUser implements UserInterface
+final readonly class UploadLinkUser implements UserInterface, UploadQuotaSubjectInterface
 {
     final public const string ROLE = 'ROLE_UPLOAD_LINK';
 
@@ -40,6 +41,14 @@ final readonly class UploadLinkUser implements UserInterface
     public function getUserIdentifier(): string
     {
         return self::IDENTIFIER_PREFIX.$this->linkId.(null !== $this->sessionId ? ':'.$this->sessionId : '');
+    }
+
+    /**
+     * The holders of a link share its limits of multipart uploads, whatever their browser session.
+     */
+    public function getUploadQuotaKey(): string
+    {
+        return self::IDENTIFIER_PREFIX.$this->linkId;
     }
 
     public function getLinkId(): string

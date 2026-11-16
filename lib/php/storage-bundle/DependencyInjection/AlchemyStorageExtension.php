@@ -2,6 +2,8 @@
 
 namespace Alchemy\StorageBundle\DependencyInjection;
 
+use Alchemy\StorageBundle\Upload\MultipartUploadGuard;
+use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -25,6 +27,8 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
         $loader->load('cdn.yaml');
 
         $container->setParameter('alchemy_storage.upload.allowed_types', $config['upload']['allowed_types']);
+        $container->getDefinition(MultipartUploadPlanner::class)
+            ->setArgument('$maxFileSize', $config['upload']['max_file_size']);
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -52,7 +56,25 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
             ],
         ]);
 
+        // Defaults of the multipart upload limits (see doc/tech/Storage/01_s3.md), known before the framework configuration is processed
+        foreach ([
+            'env(MULTIPART_UPLOAD_RATE_LIMIT)' => '60',
+            'env(MULTIPART_UPLOAD_MAX_PENDING)' => '20',
+        ] as $name => $default) {
+            if (!$container->hasParameter($name)) {
+                $container->setParameter($name, $default);
+            }
+        }
+
         $container->prependExtensionConfig('framework', [
+            'rate_limiter' => [
+                // By user (see MultipartUploadGuard); an application may set its own "cache_pool" (shared between its replicas)
+                MultipartUploadGuard::RATE_LIMITER => [
+                    'policy' => 'sliding_window',
+                    'limit' => '%env(int:MULTIPART_UPLOAD_RATE_LIMIT)%',
+                    'interval' => '1 minute',
+                ],
+            ],
             'validation' => [
                 'enabled' => true,
                 'mapping' => [

@@ -1,12 +1,13 @@
 import {
     multipartUpload as runMultipartUpload,
+    parseRetryAfter,
     type MultipartUpload,
     type MultipartUploadInit,
     type MultipartUploadPlan,
     type MultipartUploadTransport,
     type UploadPart,
 } from '@alchemy/api';
-import {api} from './http';
+import {api, isApiError} from './http';
 import {getConfig} from '@/lib/config/ConfigProvider';
 import {getMimeTypeFromFile} from '@alchemy/next-ui/utils/mime';
 
@@ -92,6 +93,10 @@ const transport: MultipartUploadTransport = {
     putPart: (url, blob, {signal, onProgress}) =>
         putBlob(url, blob, onProgress, signal),
     isExpiredUrlError: e => e instanceof PartUploadError && e.status === 403,
+    getRetryDelay: e =>
+        isApiError(e, 429)
+            ? parseRetryAfter(e.response?.headers.get('Retry-After'))
+            : undefined,
 };
 
 export async function multipartUpload(

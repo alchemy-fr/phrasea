@@ -206,9 +206,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
      */
     private function assertFits(UploadLink $link, int $size): void
     {
-        if (!$link->isUsable(new \DateTimeImmutable())
-            || (null !== $link->getMaxAssets() && $link->getUsedAssets() + 1 > $link->getMaxAssets())
-            || (null !== $link->getMaxTotalSize() && $link->getUsedSize() + $size > $link->getMaxTotalSize())) {
+        if (!$link->canFit($size, new \DateTimeImmutable())) {
             throw new UploadLinkQuotaExceededException();
         }
     }
