@@ -7,6 +7,26 @@ namespace Alchemy\CoreBundle\Util;
 final class ZipUtil
 {
     /**
+     * Turns an untrusted file name (uploaded, taken from a URL…) into the name of a
+     * top-level archive entry: unzippers treat both "/" and "\" as separators (Windows
+     * ones would extract "..\..\x" outside of the target directory), and Windows drops
+     * trailing dots and spaces ("..." would name the target directory itself).
+     */
+    public static function sanitizeEntryName(string $name, string $default = 'file'): string
+    {
+        $name = str_replace('\\', '/', $name);
+        $name = (string) preg_replace('/[\x00-\x1F\x7F]/', '', $name);
+        $name = rtrim($name, '/');
+        $slash = strrpos($name, '/');
+        if (false !== $slash) {
+            $name = substr($name, $slash + 1);
+        }
+        $name = rtrim(trim($name), '. ');
+
+        return '' !== $name ? $name : $default;
+    }
+
+    /**
      * Archives the whole content of $sourceDir into $archivePath (overwritten if it exists).
      * Entries are stored relative to $sourceDir, under $rootDir when given.
      */

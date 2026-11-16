@@ -6,6 +6,7 @@ namespace Alchemy\CoreBundle\Tests\Util;
 
 use Alchemy\CoreBundle\Util\FilesystemUtils;
 use Alchemy\CoreBundle\Util\ZipUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ZipUtilTest extends TestCase
@@ -87,6 +88,39 @@ class ZipUtilTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
         ZipUtil::zipDirectory($this->workDir.'/missing', $this->workDir.'/out.zip');
+    }
+
+    #[DataProvider('getEntryNames')]
+    public function testSanitizeEntryName(string $name, string $expected): void
+    {
+        $this->assertSame($expected, ZipUtil::sanitizeEntryName($name));
+    }
+
+    public static function getEntryNames(): array
+    {
+        return [
+            'plain' => ['photo.jpg', 'photo.jpg'],
+            'unicode' => ['Été à Paris.jpg', 'Été à Paris.jpg'],
+            'unix path' => ['a/b/photo.jpg', 'photo.jpg'],
+            'unix traversal' => ['../../etc/passwd', 'passwd'],
+            'windows traversal' => ['..\\..\\Startup\\evil.exe', 'evil.exe'],
+            'mixed separators' => ['..\\a/..\\evil.exe', 'evil.exe'],
+            'drive' => ['C:\\Windows\\evil.dll', 'evil.dll'],
+            'trailing separator' => ['dir\\', 'dir'],
+            'control characters' => ["ev\x00il\r\n.exe\x7F", 'evil.exe'],
+            'trailing dots and spaces' => ['photo.jpg. . ', 'photo.jpg'],
+            'dot' => ['.', 'file'],
+            'dot dot' => ['..', 'file'],
+            'dots' => ['...', 'file'],
+            'windows dot dot' => ['a\\..', 'file'],
+            'empty' => ['', 'file'],
+            'hidden file' => ['.htaccess', '.htaccess'],
+        ];
+    }
+
+    public function testSanitizeEntryNameDefault(): void
+    {
+        $this->assertSame('terms', ZipUtil::sanitizeEntryName('/', 'terms'));
     }
 
     /**

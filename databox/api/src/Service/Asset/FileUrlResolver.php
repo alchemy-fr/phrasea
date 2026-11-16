@@ -15,11 +15,18 @@ use Symfony\Contracts\Cache\ItemInterface;
 final class FileUrlResolver
 {
     /**
-     * Signed URLs are shared between requests for half of their validity,
-     * so a URL served from the cache stays valid for at least ttl/2.
+     * Signed URLs are shared between requests (of every user) for half of their
+     * validity at most, so a URL served from the cache stays valid for at least ttl/2.
      */
     private const int CACHE_TTL_DIVIDER = 2;
     private const int MIN_CACHEABLE_TTL = 120;
+
+    /**
+     * Default of $maxSharedTtl (seconds): a signed URL is handed to the other
+     * users reading the same file for this long at most, whatever its validity.
+     * 0 disables the sharing.
+     */
+    public const int DEFAULT_MAX_SHARED_TTL = 300;
 
     private readonly CacheInterface $requestCache;
 
@@ -28,6 +35,7 @@ final class FileUrlResolver
         #[Autowire(service: 'signed_url.cache')]
         private readonly AdapterInterface $signedUrlCache,
         TemporaryCacheFactory $cacheFactory,
+        private readonly int $maxSharedTtl = self::DEFAULT_MAX_SHARED_TTL,
     ) {
         $this->requestCache = $cacheFactory->createCache();
     }
@@ -124,7 +132,9 @@ final class FileUrlResolver
             return null;
         }
 
-        return intdiv($ttl, self::CACHE_TTL_DIVIDER);
+        $cacheTtl = min(intdiv($ttl, self::CACHE_TTL_DIVIDER), $this->maxSharedTtl);
+
+        return $cacheTtl > 0 ? $cacheTtl : null;
     }
 
     private function getCacheKey(string $path, ?string $type): string
