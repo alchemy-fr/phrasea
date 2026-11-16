@@ -53,6 +53,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: FileRepository::class)]
 #[ORM\Index(columns: ['workspace_id', 'checksum'])]
 #[ORM\Index(columns: ['workspace_id', 'doc_unique_id'])]
+#[ORM\Index(name: 'file_path_idx', columns: ['path'], options: ['where' => '(length(path) < '.self::INDEXED_PATH_MAX_LENGTH.')'])]
 class File extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
@@ -65,6 +66,13 @@ class File extends AbstractUuidEntity implements \Stringable
     final public const string GROUP_WRITE = 'file:w';
     final public const string STORAGE_S3_MAIN = 's3_main';
     final public const string STORAGE_URL = 'url';
+
+    /**
+     * Only paths shorter than this are indexed: URL files carry external URLs of arbitrary length,
+     * which a PostgreSQL btree entry cannot hold. A query must repeat the condition literally
+     * for the planner to pick the partial index.
+     */
+    final public const int INDEXED_PATH_MAX_LENGTH = 512;
 
     final public const string ANALYSIS_SUCCESS = 'success';
     final public const string ANALYSIS_FAILED = 'failed';
