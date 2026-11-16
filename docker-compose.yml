@@ -19,8 +19,9 @@ services:
     logging: *default-logging
     image: ${TRAEFIK_IMAGE}
     networks:
-      - internal
-      - docker-socket
+      internal:
+        ipv4_address: ${PS_TRAEFIK_IP}
+      docker-socket: {}
     depends_on:
       - docker-socket-proxy
     ports:
