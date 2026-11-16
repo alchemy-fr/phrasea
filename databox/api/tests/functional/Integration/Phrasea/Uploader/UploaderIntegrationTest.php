@@ -22,6 +22,7 @@ use App\Integration\Phrasea\Uploader\UploaderIntegration;
 use App\Model\AssetTypeEnum;
 use App\Repository\Core\AssetRepository;
 use App\Service\Asset\Attribute\AssetNameResolver;
+use App\Service\Workspace\WorkspaceCreator;
 use App\Tests\Functional\FileUploadTrait;
 use App\Tests\Functional\WithoutSecretKeyTrait;
 use Doctrine\ORM\EntityManagerInterface;
@@ -121,20 +122,7 @@ class UploaderIntegrationTest extends ApiTestCase
         $em = $this->getService(EntityManagerInterface::class);
         $workspace = $integration->getWorkspace();
 
-        $policy = new RenditionPolicy();
-        $policy->setWorkspace($workspace);
-        $policy->setName('Substitution');
-        $policy->setPublic(true);
-        $policy->setEditable(true);
-        $em->persist($policy);
-        $definition = new RenditionDefinition();
-        $definition->setWorkspace($workspace);
-        $definition->setPolicy($policy);
-        $definition->setName('substitutable');
-        $definition->setTarget(AssetTypeEnum::Both);
-        $definition->setBuildMode(RenditionDefinition::BUILD_MODE_PICK_SOURCE);
-        $definition->setSubstitutable(true);
-        $em->persist($definition);
+        $definition = $this->createSubstitutableDefinition($workspace);
         $target = new Asset();
         $target->setWorkspace($workspace);
         $target->setOwnerId(KeycloakClientTestMock::ADMIN_UID);
@@ -167,6 +155,44 @@ class UploaderIntegrationTest extends ApiTestCase
     {
         yield 'by the uploading user' => [false, true];
         yield 'through an upload link' => [true, false];
+    }
+
+    public function testRenditionDefinitionOfAnotherWorkspaceIsNotSubstituted(): void
+    {
+        self::enableFixtures();
+        $apiClient = static::createClient();
+        $integration = $this->createIntegration();
+        $em = $this->getService(EntityManagerInterface::class);
+
+        $otherWorkspace = new Workspace();
+        $otherWorkspace->setName('Other');
+        $otherWorkspace->setSlug('other-workspace');
+        $otherWorkspace->setOwnerId(KeycloakClientTestMock::ADMIN_UID);
+        $otherWorkspace->setEnabledLocales(['en']);
+        $this->getService(WorkspaceCreator::class)->createWorkspace($otherWorkspace);
+        $foreignDefinition = $this->createSubstitutableDefinition($otherWorkspace);
+        $target = new Asset();
+        $target->setWorkspace($integration->getWorkspace());
+        $target->setOwnerId(KeycloakClientTestMock::ADMIN_UID);
+        $em->persist($target);
+        $em->flush();
+
+        /** @var UploaderClientMock $uploadClient */
+        $uploadClient = $this->getService(UploaderClient::class);
+        $uploadClient->assetData = [
+            'data' => [
+                'targetAsset' => $target->getId(),
+                'targetRendition' => $foreignDefinition->getId(),
+            ],
+        ];
+
+        $this->postCommit($apiClient, $integration, self::SECURITY_KEY);
+
+        $em->clear();
+        $this->assertCount(0, $uploadClient->getAcknowledgedAssets());
+        $this->assertCount(0, $em->getRepository(AssetRendition::class)->findBy([
+            'asset' => $target->getId(),
+        ]));
     }
 
     public function testDisabledIntegrationIsNotFound(): void
@@ -217,6 +243,28 @@ class UploaderIntegrationTest extends ApiTestCase
         $em->flush();
 
         return $integration;
+    }
+
+    private function createSubstitutableDefinition(Workspace $workspace): RenditionDefinition
+    {
+        $em = self::getService(EntityManagerInterface::class);
+
+        $policy = new RenditionPolicy();
+        $policy->setWorkspace($workspace);
+        $policy->setName('Substitution');
+        $policy->setPublic(true);
+        $policy->setEditable(true);
+        $em->persist($policy);
+        $definition = new RenditionDefinition();
+        $definition->setWorkspace($workspace);
+        $definition->setPolicy($policy);
+        $definition->setName('substitutable');
+        $definition->setTarget(AssetTypeEnum::Both);
+        $definition->setBuildMode(RenditionDefinition::BUILD_MODE_PICK_SOURCE);
+        $definition->setSubstitutable(true);
+        $em->persist($definition);
+
+        return $definition;
     }
 
     private function postCommit(Client $apiClient, WorkspaceIntegration $integration, string $token): ResponseInterface
