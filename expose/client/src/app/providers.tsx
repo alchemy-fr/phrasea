@@ -42,9 +42,11 @@ function createQueryClient(): QueryClient {
 type Props = PropsWithChildren<{
     config: AppConfig;
     language: LanguageCode;
+    /** Of the Content Security Policy, for the inline scripts */
+    nonce?: string;
 }>;
 
-export function Providers({config, language, children}: Props) {
+export function Providers({config, language, nonce, children}: Props) {
     const [queryClient] = useState(createQueryClient);
 
     return (
@@ -60,8 +62,9 @@ export function Providers({config, language, children}: Props) {
                     defaultTheme="system"
                     enableSystem
                     disableTransitionOnChange
+                    nonce={nonce}
                 >
-                    <ThemeManager meta={config.theme} />
+                    <ThemeManager meta={config.theme} nonce={nonce} />
                     <QueryClientProvider client={queryClient}>
                         <Suspense fallback={<FullPageLoader />}>
                             <AuthProvider>

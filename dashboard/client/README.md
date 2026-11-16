@@ -48,6 +48,7 @@ visitor with the page.
 | `DEV_MODE` | "Developer mode" banner |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_DISABLE_COOKIES` | Page views sent to Matomo |
 | `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
+| `CSP_REPORT_ONLY`, `CSP_EXTRA_SOURCES` | Content Security Policy (see below) |
 | `VERIFY_SSL` | Certificate check of the API probes and of the stack configuration |
 | `STATUS_TTL` | Seconds an API status is kept before probing again (15) |
 | `GIT_LOG_SRC` | Commit history file (`build-info/git-log.tsv`) |
@@ -68,6 +69,26 @@ signed-in user. The SDK posts its envelopes to the same origin route
 `SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
 `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
 code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel*`).
+
+## Content Security Policy
+
+`src/proxy.ts` sets the Content Security Policy of the pages at request time,
+with a new nonce for every response (`@alchemy/next-core/security/*`): a
+script only runs if it bears the nonce or was loaded by one that does
+(`'strict-dynamic'`). Next puts it on its own scripts; the inline scripts of
+the layout (theme pre-paint, framed detection) read it from the `x-nonce` request
+header. The other sources come from the environment
+(`src/lib/security/csp.ts`): the APIs, Keycloak, the buckets
+(`CONFIGURATOR_S3_ENDPOINT`, `CLOUD_FRONT_URL`), Matomo and
+`CSP_EXTRA_SOURCES` (space separated, for any other host serving files to the
+pages). Styles stay allowed inline.
+
+The policy is only reported (`Content-Security-Policy-Report-Only`) unless
+`CSP_REPORT_ONLY` is false: `frame-src` and `frame-ancestors` (the clients of the stack, `ALLOWED_FRAME_ANCESTORS`) stay enforced meanwhile. The violations show in the browser
+console and, when `SENTRY_DSN` is set, are relayed to its project by the same
+origin route `/api/relay/csp` (same rate limits as `/api/relay`; the DSN
+never reaches the browser). `/silent-check-sso.html` has no policy: a static
+page whose inline script cannot bear the nonce.
 
 ## Routes
 

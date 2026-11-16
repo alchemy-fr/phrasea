@@ -87,7 +87,7 @@ function error(
  * Reads at most `maxBytes` of the body, undefined beyond: the
  * `content-length` header may be missing or lie.
  */
-async function readBody(
+export async function readBody(
     request: Request,
     maxBytes: number
 ): Promise<Uint8Array<ArrayBuffer> | undefined> {

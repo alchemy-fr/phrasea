@@ -200,6 +200,13 @@ The Databox client is no longer static files served by nginx.
   `/api/relay`, which relays them to the project of the DSN behind a rate limit
   per client process (`SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, 30 per minute and per
   IP; `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL`, 300 per minute).
+- The clients send a Content Security Policy restricting the scripts to those
+  bearing the nonce of the response, only reported
+  (`Content-Security-Policy-Report-Only`) while `CSP_REPORT_ONLY` is true, the
+  default; violations reach Sentry through `/api/relay/csp` when
+  `CLIENT_SENTRY_DSN` is set. List any host serving files to the pages that is
+  not part of the stack (CDN other than `*_CLOUD_FRONT_URL`, external logo…) in
+  `CSP_EXTRA_SOURCES` before enforcing it (`CSP_REPORT_ONLY=false`).
 - Theme: the global `theme` entry (MUI theme options) no longer applies to
   Databox, which reads `databox.theme` (JSON, edited from the admin "Customize
   theme" screen or `PUT /client-theme`). The global `logo` is still honoured.
