@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Action;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Core\Asset;
@@ -35,7 +36,10 @@ trait FileUserActionsTrait
     protected function getFile(Request $request): File
     {
         $fileId = $request->request->get('fileId');
-        $file = DoctrineUtil::findStrict($this->em, File::class, $fileId);
+        if (null === $fileId || '' === $fileId) {
+            throw new BadRequestHttpException('Missing "fileId"');
+        }
+        $file = DoctrineUtil::findStrict($this->em, File::class, UuidUtil::assertValid($fileId, 'fileId'), throw404: true);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $file);
 
         return $file;
@@ -61,7 +65,7 @@ trait FileUserActionsTrait
             throw new BadRequestHttpException('Missing assetId');
         }
         $asset = $this->em->getRepository(Asset::class)
-            ->find($assetId);
+            ->find(UuidUtil::assertValid($assetId, 'assetId'));
         if (!$asset instanceof Asset) {
             throw new BadRequestHttpException(sprintf('Asset "%s" not found', $assetId));
         }

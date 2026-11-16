@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
@@ -135,7 +136,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         }
 
         if (!empty($targetId = $request->request->get('targetId'))) {
-            $target = $this->em->find(Target::class, $targetId);
+            $target = $this->em->find(Target::class, UuidUtil::assertValid($targetId, 'targetId'));
 
             if (!$target instanceof Target) {
                 throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));

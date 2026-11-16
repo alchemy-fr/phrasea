@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Asset;
@@ -29,6 +30,9 @@ final readonly class SortAssetsProcessor implements ProcessorInterface
         $order = $request->request->all('order');
         if (empty($order)) {
             throw new BadRequestHttpException('Missing order');
+        }
+        foreach ($order as $assetId) {
+            UuidUtil::assertValid($assetId, 'order');
         }
 
         $this->em->beginTransaction();

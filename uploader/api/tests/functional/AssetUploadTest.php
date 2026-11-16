@@ -90,6 +90,27 @@ class AssetUploadTest extends AbstractUploaderTestCase
         $this->assertFalse($asset->isFromUploadLink());
     }
 
+    public function testUploadAssetWithMalformedTargetIdGenerates400(): void
+    {
+        $this->getOrCreateDefaultTarget();
+        $response = self::createClient()->request('POST', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                'Content-Type' => 'multipart/form-data',
+            ],
+            'extra' => [
+                'files' => [
+                    'file' => new UploadedFile(__DIR__.'/../fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
+                ],
+                'parameters' => [
+                    'targetId' => 'not-a-uuid',
+                ],
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertStringContainsString('Invalid "targetId"', $response->toArray(false)['detail']);
+    }
+
     public function testUploadAssetWithAnonymousUser(): void
     {
         $client = self::createClient();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Core\FaceRecognition;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Attribute\Type\EntityAttributeType;
@@ -217,7 +218,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
             throw new BadRequestHttpException('Missing assetId');
         }
 
-        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
+        $asset = DoctrineUtil::findStrict($this->em, Asset::class, UuidUtil::assertValid($assetId, 'assetId'), throw404: true);
         if ($asset->getWorkspaceId() !== $config->getWorkspaceId()) {
             throw new BadRequestHttpException(sprintf('Asset "%s" does not belong to the integration workspace', $assetId));
         }

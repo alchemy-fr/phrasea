@@ -12,6 +12,7 @@ use App\Repository\Integration\IntegrationDataRepository;
 use App\Security\Voter\AbstractVoter;
 use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class IntegrationDataManager
 {
@@ -129,7 +130,7 @@ class IntegrationDataManager
             ->findOneBy($criteria);
 
         if (null === $data) {
-            throw new \InvalidArgumentException(sprintf('%s "%s" not found', IntegrationData::class, $id));
+            throw new NotFoundHttpException(sprintf('%s "%s" not found', IntegrationData::class, $id));
         }
 
         return $data;

@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\BackwardCompatibleFilterDescriptionTrait;
@@ -66,7 +67,7 @@ final class PublicationFilter implements FilterInterface, OpenApiParameterFilter
                 if (!empty($value)) {
                     $queryBuilder
                         ->andWhere('o.parent = :parentId')
-                        ->setParameter('parentId', $value);
+                        ->setParameter('parentId', UuidUtil::assertValid($value, $key));
                 }
                 break;
             case 'flatten':
@@ -80,7 +81,7 @@ final class PublicationFilter implements FilterInterface, OpenApiParameterFilter
                 if (!empty($value)) {
                     $queryBuilder
                         ->andWhere('o.profile = :profileId')
-                        ->setParameter('profileId', $value);
+                        ->setParameter('profileId', UuidUtil::assertValid($value, $key));
                 }
                 break;
             case 'expired':

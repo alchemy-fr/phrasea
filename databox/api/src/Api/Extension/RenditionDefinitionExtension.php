@@ -7,6 +7,7 @@ namespace App\Api\Extension;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
@@ -18,8 +19,6 @@ use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\RenditionDefinitionVoter;
 use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Doctrine\ORM\QueryBuilder;
-use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class RenditionDefinitionExtension implements QueryCollectionExtensionInterface
@@ -64,12 +63,8 @@ final class RenditionDefinitionExtension implements QueryCollectionExtensionInte
 
         $assetId = null !== $operation ? self::getParameterValue($operation, 'assetId') : null;
         if (null !== $assetId && '' !== $assetId) {
-            if (!\is_string($assetId) || !Uuid::isValid($assetId)) {
-                throw new BadRequestHttpException('Invalid "assetId"');
-            }
-
             // An unknown asset and an unreadable one answer the same, so that the response tells nothing about its existence
-            $asset = $this->assetRepository->find($assetId);
+            $asset = $this->assetRepository->find(UuidUtil::assertValid($assetId, 'assetId'));
             if (null === $asset || !$this->isGranted(AbstractVoter::READ, $asset)) {
                 throw new NotFoundHttpException('Asset not found');
             }

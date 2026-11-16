@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
@@ -63,7 +64,7 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
         if (\is_string($collectionId) && '' !== $collectionId) {
             $queryBuilder
                 ->andWhere(sprintf('%1$s.collection = :colId OR %1$s.collection IS NULL', $rootAlias))
-                ->setParameter('colId', basename($collectionId))
+                ->setParameter('colId', UuidUtil::assertValid(basename($collectionId), 'collection'))
             ;
         } else {
             $queryBuilder->andWhere(sprintf('%1$s.collection IS NULL', $rootAlias));
