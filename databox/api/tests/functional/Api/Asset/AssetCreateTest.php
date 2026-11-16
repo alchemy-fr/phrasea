@@ -121,10 +121,13 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         $this->assertArrayNotHasKey('url', $data['source']);
     }
 
-    public function testCreateAssetFromAnExistingFileOfTheWorkspace(): void
+    public function testCreateAssetFromTheSourceOfAnotherAsset(): void
     {
         $workspace = $this->createOwnedWorkspace();
         $file = $this->createFile($workspace);
+        $asset = $this->createAsset(['ownerId' => self::OWNER, 'no_flush' => true]);
+        $asset->setSource($file);
+        self::getEntityManager()->flush();
 
         $data = $this->request('POST', '/assets', self::OWNER, [
             'workspace' => '/workspaces/'.$workspace->getId(),
@@ -133,6 +136,19 @@ final class AssetCreateTest extends AbstractDataboxTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame($file->getId(), $data['source']['id']);
+    }
+
+    public function testCreateAssetFromAFileUsedNowhereIsRejected(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $file = $this->createFile($workspace);
+
+        $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'sourceFileId' => $file->getId(),
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testCreateAssetFromAFileOfAnotherWorkspaceIsRejected(): void
