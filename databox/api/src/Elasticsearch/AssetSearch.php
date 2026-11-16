@@ -454,23 +454,6 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = new Query\Terms('workspaceId', $workspaceIds);
         }
 
-        if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
-            $tagsBoolQuery = new Query\BoolQuery();
-            $filterQueries[] = $tagsBoolQuery;
-
-            if (isset($options['tags_must'])) {
-                foreach ($options['tags_must'] as $tag) {
-                    $tagsBoolQuery->addMust(new Query\Term(['tags' => $tag]));
-                }
-            }
-
-            if (isset($options['tags_must_not'])) {
-                foreach ($options['tags_must_not'] as $tag) {
-                    $tagsBoolQuery->addMustNot(new Query\Term(['tags' => $tag]));
-                }
-            }
-        }
-
         $hasDeletedFilter = false;
         $hasStatusFilter = false;
         $mustQueries = [];
@@ -547,7 +530,7 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
-     * Filters shared by every search on the asset index: ACL, tag filter rules and, unless the
+     * Filters shared by every search on the asset index: ACL, attribute filter rules and, unless the
      * caller filters on them itself, "not deleted" and "accepted" status.
      * When the caller does filter on them, the deleted and quarantined assets stay restricted
      * to the users the AssetVoter lets read them: the caller's conditions cannot widen that.

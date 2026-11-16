@@ -49,7 +49,7 @@ final class AssetDataTemplateListTest extends AbstractSearchTestCase
 
         self::forceNewEntitiesToBeIndexed();
         self::waitForESIndex('asset_data_template');
-        // Templates must be re-hydrated by the request (tags are only initialized by Doctrine)
+        // Templates must be re-hydrated by the request (collections are only initialized by Doctrine)
         self::getEntityManager()->clear();
     }
 

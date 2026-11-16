@@ -51,7 +51,7 @@ final class AssetImportPipelineTest extends AbstractDataboxTestCase
             ],
             '',
             ['key' => 'ext-2', 'name' => 'Only a name'],
-            ['key' => 'ext-3', 'tags' => []],
+            ['key' => 'ext-3'],
         ]), ['originalName' => 'export.ndjson']);
 
         $this->assertResponseStatusCodeSame(201);
@@ -210,7 +210,7 @@ final class AssetImportPipelineTest extends AbstractDataboxTestCase
             $messages[$error->getLine()] = $error->getMessage();
         }
         $this->assertSame([1, 2, 3, 4, 6], array_keys($messages));
-        $this->assertStringContainsString('Tag "Unknown tag" not found', $messages[1]);
+        $this->assertStringContainsString('"tags" is no longer supported', $messages[1]);
         $this->assertStringContainsString('Rendition definition "unknown" not found', $messages[2]);
         $this->assertStringContainsString('not found in the workspace', $messages[3]);
         $this->assertStringContainsString('Invalid privacy', $messages[4]);

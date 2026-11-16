@@ -62,8 +62,22 @@ App\Entity\Core\EntityList:
     ht_el_people:
         workspace: '@w_hollowtone'
         name: People
+    ht_el_tags:
+        workspace: '@w_hollowtone'
+        name: Tags
+        withTranslations: true
+        withColors: true
 
 App\Entity\Core\AttributeEntity:
+    ht_tpl_tag (template):
+        list: '@ht_el_tags'
+        workspace: '@w_hollowtone'
+    ht_tag_roughmix (extends ht_tpl_tag): { value: Rough mix, color: '#FDD835', translations: { fr: Mix provisoire } }
+    ht_tag_finalmix (extends ht_tpl_tag): { value: Final mix, color: '#1E88E5', translations: { fr: Mix final } }
+    ht_tag_mastered (extends ht_tpl_tag): { value: Mastered, color: '#8E24AA', translations: { fr: Masterisé } }
+    ht_tag_approved (extends ht_tpl_tag): { value: Approved by client, color: '#43A047', translations: { fr: Validé par le client } }
+    ht_tag_donotdistribute (extends ht_tpl_tag): { value: Do not distribute, color: '#E53935', translations: { fr: Ne pas diffuser } }
+
     ht_tpl_genre (template):
         list: '@ht_el_genre'
         workspace: '@w_hollowtone'
@@ -221,30 +235,15 @@ App\Entity\Core\AttributeDefinition:
         annotationsEnabled: true
         position: 18
         translations: { name: { fr: Personnes } }
-
-App\Entity\Core\Tag:
-    ht_tpl_tag (template):
-        workspace: '@w_hollowtone'
-    ht_tag_roughmix (extends ht_tpl_tag):
-        name: Rough mix
-        color: '#FDD835'
-        translations: { name: { fr: Mix provisoire } }
-    ht_tag_finalmix (extends ht_tpl_tag):
-        name: Final mix
-        color: '#1E88E5'
-        translations: { name: { fr: Mix final } }
-    ht_tag_mastered (extends ht_tpl_tag):
-        name: Mastered
-        color: '#8E24AA'
-        translations: { name: { fr: Masterisé } }
-    ht_tag_approved (extends ht_tpl_tag):
-        name: Approved by client
-        color: '#43A047'
-        translations: { name: { fr: Validé par le client } }
-    ht_tag_donotdistribute (extends ht_tpl_tag):
-        name: Do not distribute
-        color: '#E53935'
-        translations: { name: { fr: Ne pas diffuser } }
+    ht_ad_tags (extends ht_tpl_ad):
+        name: Tags
+        type: entity
+        entityList: '@ht_el_tags'
+        multiple: true
+        facetEnabled: true
+        target: '<(App\Model\AssetTypeEnum::Both)>'
+        position: 19
+        translations: { name: { fr: Étiquettes } }
 
 # Collections (privacy):
 # Productions (1)
@@ -318,15 +317,6 @@ App\Entity\Core\Asset:
         ownerId: <keycloakUser("bob")>
         privacy: 1
 
-    # Recordings (audio and video), at a step of their production
-    ht_tpl_rec (template, extends ht_tpl_a):
-        __calls:
-            - addTag (30%?): ['@ht_tag_roughmix']
-            - addTag (30%?): ['@ht_tag_finalmix']
-            - addTag (25%?): ['@ht_tag_mastered']
-            - addTag (20%?): ['@ht_tag_approved']
-            - addTag (10%?): ['@ht_tag_donotdistribute']
-
     # Album covers, also in the press kit
     ht_a_i_cover{1..4} (extends ht_tpl_a):
         source: '@ht_f_m<current()>'
@@ -346,65 +336,63 @@ App\Entity\Core\Asset:
         __calls:
             - addToCollection: ['@ht_c_sessions_2025', true, true]
             - addToCollection (20%?): ['@ht_c_press', true]
-            - addTag (10%?): ['@ht_tag_donotdistribute']
     ht_a_i_session{17..24} (extends ht_tpl_a):
         source: '@ht_f_m<current()>'
         __calls:
             - addToCollection: ['@ht_c_sessions_2026', true, true]
             - addToCollection (20%?): ['@ht_c_press', true]
-            - addTag (10%?): ['@ht_tag_donotdistribute']
 
     # Four tracks on each album
-    ht_a_a_track{1..4} (extends ht_tpl_rec):
+    ht_a_a_track{1..4} (extends ht_tpl_a):
         source: '@ht_f_track<current()>'
         __calls:
             - addToCollection: ['@ht_c_albums', true, true]
             - addToCollection: ['@ht_sc1', true]
-    ht_a_a_track{5..8} (extends ht_tpl_rec):
+    ht_a_a_track{5..8} (extends ht_tpl_a):
         source: '@ht_f_track<current()>'
         __calls:
             - addToCollection: ['@ht_c_albums', true, true]
             - addToCollection: ['@ht_sc2', true]
-    ht_a_a_track{9..12} (extends ht_tpl_rec):
+    ht_a_a_track{9..12} (extends ht_tpl_a):
         source: '@ht_f_track<current()>'
         __calls:
             - addToCollection: ['@ht_c_albums', true, true]
             - addToCollection: ['@ht_sc3', true]
-    ht_a_a_track{13..16} (extends ht_tpl_rec):
+    ht_a_a_track{13..16} (extends ht_tpl_a):
         source: '@ht_f_track<current()>'
         __calls:
             - addToCollection: ['@ht_c_albums', true, true]
             - addToCollection: ['@ht_sc4', true]
     # Isolated takes of an instrument or a voice, two in each "Session" story
-    ht_a_a_take{1..4} (extends ht_tpl_rec):
+    ht_a_a_take{1..4} (extends ht_tpl_a):
         source: '@ht_f_take<current()>'
         __calls:
             - addToCollection: ['@ht_c_sessions_2026', true, true]
             - addToCollection: ['@ht_sc<($current + 4)>', true]
-    ht_a_a_take{5..8} (extends ht_tpl_rec):
+    ht_a_a_take{5..8} (extends ht_tpl_a):
         source: '@ht_f_take<current()>'
         __calls:
             - addToCollection: ['@ht_c_sessions_2026', true, true]
             - addToCollection: ['@ht_sc<current()>', true]
     # Voice-overs and jingles for the clients
-    ht_a_a_voiceover{1..6} (extends ht_tpl_rec):
+    ht_a_a_voiceover{1..6} (extends ht_tpl_a):
         source: '@ht_f_voiceover<current()>'
         ownerId: <keycloakUser("alice")>
         __calls:
             - addToCollection: ['@ht_c_voiceovers', true, true]
 
-    ht_a_v_clip{1..6} (extends ht_tpl_rec):
+    ht_a_v_clip{1..6} (extends ht_tpl_a):
         source: '@ht_f_clip<current()>'
         ownerId: <keycloakUser("alice")>
         __calls:
             - addToCollection: ['@ht_c_musicvideos', true, true]
     # Session footage: 1-4 are in the "Session" stories
-    ht_a_v_footage{1..4} (extends ht_tpl_rec):
+    ht_a_v_footage{1..4} (extends ht_tpl_a):
         source: '@ht_f_footage<current()>'
         __calls:
             - addToCollection: ['@ht_c_sessions_2026', true, true]
             - addToCollection: ['@ht_sc<($current + 4)>', true]
-    ht_a_v_footage{5..8} (extends ht_tpl_rec):
+    ht_a_v_footage{5..8} (extends ht_tpl_a):
         source: '@ht_f_footage<current()>'
         __calls:
             - addToCollection: ['@ht_c_sessions_2025', true, true]
@@ -461,6 +449,21 @@ App\Entity\Core\File:
 App\Entity\Core\Attribute:
     ht_tpl_at (template):
         origin: 0
+
+    # Tags: the step of production of the recordings, and what must not be distributed
+    ht_at_tag_mastered_track{1..8} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_a_track<current()>', value: '@ht_tag_mastered->id' }
+    ht_at_tag_finalmix_track{9..12} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_a_track<current()>', value: '@ht_tag_finalmix->id' }
+    ht_at_tag_finalmix_clip{1..4} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_v_clip<current()>', value: '@ht_tag_finalmix->id' }
+    ht_at_tag_roughmix_track{13..16} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_a_track<current()>', value: '@ht_tag_roughmix->id' }
+    ht_at_tag_roughmix_take{1..8} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_a_take<current()>', value: '@ht_tag_roughmix->id' }
+    ht_at_tag_roughmix_footage{1..4} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_v_footage<current()>', value: '@ht_tag_roughmix->id' }
+    ht_at_tag_approved_track{1..6} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_a_track<current()>', value: '@ht_tag_approved->id' }
+    ht_at_tag_approved_vo{1..4} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_a_voiceover<current()>', value: '@ht_tag_approved->id' }
+    ht_at_tag_approved_clip{1..3} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_v_clip<current()>', value: '@ht_tag_approved->id' }
+    ht_at_tag_donotdistribute_track{15..16} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_a_track<current()>', value: '@ht_tag_donotdistribute->id' }
+    ht_at_tag_donotdistribute_vo{5..6} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_a_voiceover<current()>', value: '@ht_tag_donotdistribute->id' }
+    ht_at_tag_donotdistribute_photo{9..10} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_i_session<current()>', value: '@ht_tag_donotdistribute->id' }
+    ht_at_tag_donotdistribute_photo{17..18} (extends ht_tpl_at): { definition: '@ht_ad_tags', asset: '@ht_a_i_session<current()>', value: '@ht_tag_donotdistribute->id' }
 
     # Titles. The titles of the albums, tracks, sessions, clips and voice-overs follow the
     # number of the fixture (see ThematicFaker::studioTitle()).
@@ -642,7 +645,7 @@ Alchemy\AclBundle\Entity\AccessControlEntry:
 App\Entity\Core\AttributeFilterRule:
     ht_afr_donotdistribute:
         workspace: '@w_hollowtone'
-        condition: '<aqlTagIsNot(@ht_tag_donotdistribute->id)>'
+        condition: '<aqlAttributeIsNot("tags", @ht_tag_donotdistribute->id)>'
         __calls:
             - addTarget: [0, '<keycloakUser("carol")>']
 

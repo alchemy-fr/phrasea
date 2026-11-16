@@ -65,7 +65,6 @@ import {
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {
     AttributeEntitySelect,
-    TagSelect,
     UserSelect,
     WorkspaceSelect,
 } from '@/components/form/selects';
@@ -720,12 +719,6 @@ function pickerFor(
             return <FileFamilyValueSelect value={literal} onChange={setId} />;
         case AttributeType.Workspace:
             return <WorkspaceValueSelect value={literal} onChange={setId} />;
-        case AttributeType.Tag:
-            return (
-                <div className="w-52">
-                    <TagSelect value={literal || undefined} onChange={setId} />
-                </div>
-            );
         case AttributeType.User:
             return (
                 <div className="w-52">

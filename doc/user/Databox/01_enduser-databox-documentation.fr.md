@@ -52,7 +52,7 @@ Il permet d’effectuer de nombreuses actions sur les assets:
 A droite du menu des actions, sur la même ligne, se trouvent les **Préférences d’affichage utilisateur.** Elles regroupent les options suivantes: 
 
 * Mode d’affichage des résultats  
-* Préférences d’affichage des vues des assets: affichage ou non des titres, des collections, des tags, de l’aperçu au survol  
+* Préférences d’affichage des vues des assets: affichage ou non des titres, des collections, de l’aperçu au survol  
 * Choix de la taille des vignettes,   
 * Choix de la taille globale d’affichage et ratio entre l’aperçu et les attributs,   
 * Création et gestion des listes personnelles d’attributs
@@ -75,11 +75,11 @@ Nous vous invitons également à aller consulter la page “Vocabulaire Phrasea�
 
 **Workspace**  
 L’espace de travail est un Ensemble qui contient des collections.   
-Il permet de paramétrer les langues, les attributs, les renditions, les tags, les permissions. 
+Il permet de paramétrer les langues, les attributs, les listes d’entités, les renditions, les permissions. 
 
 **Collection**  
 Une collection regroupe des assets. Les collections peuvent être hiérarchisées.   
-Elles disposent d’un ensemble de paramètres (permissions et règles de tags).
+Elles disposent d’un ensemble de paramètres (permissions).
 
 ### **Organiser ses assets**
 
@@ -165,7 +165,7 @@ Les utilisateurs créent ainsi des modèles adaptés à différents usages, qui 
 
 #### Création d’un modèle
 
-* Remplir les attributs, les tags, etc. sur des assets sélectionnés pour l’import, puis  cocher la case dans le formulaire d’import: **“Enregistrer les valeurs comme modèle pour réutilisation”**.   
+* Remplir les attributs, etc. sur des assets sélectionnés pour l’import, puis  cocher la case dans le formulaire d’import: **“Enregistrer les valeurs comme modèle pour réutilisation”**.   
 * Donner un nom au modèle.   
 * Remplir les options disponibles au sein d’un modèle:  
   * Remplacer ou non un modèle qui a été appliqué  
@@ -173,7 +173,6 @@ Les utilisateurs créent ainsi des modèles adaptés à différents usages, qui 
   * Inclure ou non les sous-collections  
   * Inclure ou non les attributs  
   * Inclure ou non la confidentialité  
-  * Inclure ou non les tags  
   * Rendre le modèle Public ou bien seulement disponible à l’usage de l’utilisateur qui l’a créé.  
 * Cliquez sur le bouton **“Ajouter”** pour transférer les assets.
 
@@ -231,9 +230,9 @@ Chaque facette représente un chemin potentiel à explorer pour affiner et orien
 Le cumul ou l’exclusion de facettes permet d’élargir ou de réduire la portée de la recherche.   
 Cela vous garantit d’atteindre l’information exacte plus efficacement.
 
-Après avoir sélectionné une valeur d’une facette (par exemple: le tag “Nouveau”), cliquez sur le menu ( **. . .**)  de la valeur. Plusieurs choix vous sont proposés:
+Après avoir sélectionné une valeur d’une facette (par exemple: la valeur “Nouveau” de l’attribut “Tags”), cliquez sur le menu ( **. . .**)  de la valeur. Plusieurs choix vous sont proposés:
 
-* **Désactiver:** pour exclure cette valeur de la recherche. Tous les assets avec les tags sauf le tag “Nouveau” seront affichés.   
+* **Désactiver:** pour exclure cette valeur de la recherche. Tous les assets sauf ceux ayant la valeur “Nouveau” seront affichés.   
 * **Activer:** lorsque vous avez exclu une valeur de la recherche. La facette sera alors réactivée.   
 * **Modifier:** pour modifier une condition (voir “recherche avancée” plus bas).  
 * **Retirer:** pour retirer cette facette de votre recherche
@@ -253,7 +252,7 @@ La recherche avancée vous permet de retrouver rapidement des assets en combinan
 Cliquez sur: **“Ajouter une condition”**:
 
 * Sélection d’un champ dans lequel effectuer la recherche:   
-  * Soit un champ dit technique (collection, dates, taille ou type de fichier, tags, etc)  
+  * Soit un champ dit technique (collection, dates, taille ou type de fichier, etc)  
   * Soit parmi vos attributs (champ crédit, titre, légende, pays, ville, mots clés, etc.)
 
 
@@ -269,7 +268,7 @@ Vous pouvez ensuite lancer la recherche en cliquant sur le bouton **“Ajouter�
 
 ### **Les tris**
 
-Vous pouvez trier et grouper les résultats de vos recherches: Tri par date de création, date de modification, par tags ou encore attributs.  
+Vous pouvez trier et grouper les résultats de vos recherches: Tri par date de création, date de modification ou encore attributs.  
 En regroupant les résultats par grandes sections, vous obtenez un affichage adapté à vos besoins.
 
 Exemple: Un tri sur l’attribut “Pays” placé en 1ère position, puis on ajoute la ville. Décocher les attributs non souhaités et remonter ces deux éléments en premier, par glisser-déposer.
@@ -297,7 +296,7 @@ L'affichage vous montre seulement ce que vous souhaitez voir. Pour cela, rendez-
 Vous pouvez:
 
 * Choisir la taille de vos vignettes  
-* Choisir d'afficher (ou non) le titre, les tags, les collections (ainsi que le nombre), l'aperçu de l'image au survol  
+* Choisir d'afficher (ou non) le titre, les collections (ainsi que le nombre), l'aperçu de l'image au survol  
 * Choisir les préférences de l'aperçu: lecture automatique pour les vidéos, choisir d'afficher uniquement l'image, uniquement les attributs, ou bien les deux.  
 * Choisir la taille globale de l'aperçu, ainsi que la taille consacrée à l'affichage des attributs.
 
@@ -340,7 +339,7 @@ Ajustez la taille des vignettes d’aperçu dans les **préférences d’afficha
 
 #### Saisie des informations
 
-La zone de saisie vous permet de prévisualiser les documents et d’afficher les champs et les tags à modifier.
+La zone de saisie vous permet de prévisualiser les documents et d’afficher les champs à modifier.
 
 * Entrez les informations dans les champs. 
 
@@ -361,8 +360,6 @@ Si vous ne souhaitez modifier qu’un seul asset, suivez ces étapes:
 L’onglet **“Attributes”** s’ouvre et présente les champs à remplir.
 
 * Entrer les informations dans les différents champs. 
-
-Les tags, quant à eux, doivent être entrés à partir de l’onglet **“Editer”**.
 
 * Cliquer sur **“Enregistrer”**.
 
@@ -547,7 +544,7 @@ Cliquez sur le panier comme vu précédemment pour en afficher son contenu, puis
 
 Les boutons d’action sont grisés. Sélectionnez des assets pour les activer. Si ceux-ci restent grisés, cela signifie que vous ne disposez pas de droits suffisants.
 
-A l'instar de la zone d'affichage des résultats, l'utilisateur peut choisir ses préférences d'affichage (ajuster la taille des vignettes, des attributs, choisir d'afficher ou non les titres, tags, collections, l'aperçu au survol, passer en mode vignette ou liste, etc.).
+A l'instar de la zone d'affichage des résultats, l'utilisateur peut choisir ses préférences d'affichage (ajuster la taille des vignettes, des attributs, choisir d'afficher ou non les titres, collections, l'aperçu au survol, passer en mode vignette ou liste, etc.).
 
 ### **Partage des paniers**
 

@@ -21,7 +21,7 @@ Elle offre tout ce qu’on attend d’un DAM: import avec ou sans pré-indexatio
 * Interface moderne, responsive et multilingue.  
 * Import massif, rapide et fiable.  
 * Recherche puissante avec le moteur Elastic: Recherche à l’aide des facettes, filtres avancés sur tous types de métadonnées, suggestions, tris.  
-* Indexation en lot manuelle ou automatique, tags.  
+* Indexation en lot manuelle ou automatique, listes d’entités (vocabulaires contrôlés).  
 * Outils de collaboration (annotation, chat intégré) et partage des assets.  
 * Nombreuses intégrations disponibles pour les assets (retouche simple, remove background, détection de texte,…).  
 * Versioning des assets, génération de renditions.  

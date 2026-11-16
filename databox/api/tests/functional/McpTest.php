@@ -77,7 +77,6 @@ class McpTest extends AbstractDataboxTestCase
             'list_asset_renditions',
             'create_attribute_definition',
             'list_attribute_policies',
-            'list_tags',
             'list_entity_lists',
             'list_integrations',
             'create_collection',

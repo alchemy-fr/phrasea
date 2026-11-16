@@ -54,9 +54,6 @@ class CopyAssetProcessor implements ProcessorInterface
         if ($data->withAttributes) {
             $options[AssetCopier::OPT_WITH_ATTRIBUTES] = true;
         }
-        if ($data->withTags) {
-            $options[AssetCopier::OPT_WITH_TAGS] = true;
-        }
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);

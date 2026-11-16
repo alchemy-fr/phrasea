@@ -122,8 +122,8 @@ const NEW = 'new';
 const MANAGE = 'manage';
 
 /**
- * Generic master / detail manager used for workspace definitions (tags,
- * attribute definitions, rendition definitions, policies, integrations...):
+ * Generic master / detail manager used for workspace definitions (attribute
+ * definitions, rendition definitions, policies, integrations...):
  * filterable, sortable list, and the form of the selected item on its right.
  * With nothing selected, the list takes the whole width.
  *

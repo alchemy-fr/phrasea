@@ -49,7 +49,9 @@ Follow these steps in order. Each one is detailed in the sections below.
     bin/console app:collection:recompute-access
     ```
 
-7. Rebuild every Elasticsearch index, in `databox-api-php`:
+7. Rebuild every Elasticsearch index, in `databox-api-php`, then delete the
+   former `tag` index (the tags became entity lists, see
+   [Tags replaced by entity lists](#tags-replaced-by-entity-lists)):
 
     ```bash
     bin/console fos:elastica:populate
@@ -657,7 +659,8 @@ ramsey/uuid-doctrine 1 to 2. No action is needed.
 ## Elasticsearch 9 and index rebuild
 
 All the databox indexes (`asset`, `collection`, `asset_data_template`, `basket`,
-`attribute_entity`, `tag`, `message`) must be repopulated on the new cluster.
+`attribute_entity`, `message`) must be repopulated on the new cluster. The former
+`tag` index is gone (see [Tags replaced by entity lists](#tags-replaced-by-entity-lists)).
 `bin/migrate.sh` does not do it. In `databox-api-php`:
 
 ```bash
@@ -705,7 +708,7 @@ Item `PUT` operations are removed from every resource. Send `PATCH` with
   `/attributes`, `/attribute-definitions`, `/attribute-entities`,
   `/attribute-filter-rules`, `/attribute-policies`, `/collections`,
   `/entity-lists`, `/rendition-definitions`, `/rendition-policies`, `/shares`,
-  `/tags`, `/workspaces`, `/integrations`, `/integration-data`, `/pages`,
+  `/workspaces`, `/integrations`, `/integration-data`, `/pages`,
   `/profiles`, `/saved-searches`, `/asset-data-templates`,
   `/template-attributes`, `/baskets`, `/messages`;
 - expose: `/assets`, `/publications`, `/publication_profiles`,
@@ -895,7 +898,6 @@ Other reads:
 - READ on rendition definitions follows the collection ACL.
 - Listing asset policies requires EDIT on the workspace.
 - Attribute filter rules are listed for editable workspaces only.
-- `GET /tags/{id}` requires READ on the workspace.
 - Profiles and profile items require READ.
 - Pages require READ, and their `ownerId` is not writable.
 - Asset data templates require READ on the workspace, both to read and to
@@ -906,6 +908,85 @@ Anonymous users:
 - Only PUBLIC assets and collections are visible, even in a public workspace.
 - `POST /assets/entities` no longer resolves users.
 - `/uploads*` requires an authenticated user (in the three APIs).
+
+## Tags replaced by entity lists
+
+Databox tags are removed: entity lists do the same (colours, translations,
+facets, AQL, list permissions) and more. A migration converts them.
+
+What the migration does, for each workspace having tags or an attribute
+filter rule on `@tag` (nothing is created in the other workspaces):
+
+- creates an attribute policy "Tags" (public and editable: whoever reads the
+  asset reads its tags, `EDIT_ATTRIBUTES` edits them, as before), an entity
+  list "Tags" (colours and translations enabled, readable by the readers of
+  the workspace) and a multi-valued attribute definition of type `entity`
+  "Tags", slug `tags`, facet enabled, for the assets and the stories;
+- turns each tag into an entity of the list **with the same UUID** (name →
+  value, colour → colour, name translations → translations; the tag locale is
+  dropped), each asset tag into a value of the attribute, each tag of an asset
+  data template into a template attribute value;
+- replaces `@tag` in the AQL conditions: with the slug of the workspace
+  definition in the attribute filter rules, with `tags` in the saved searches
+  and in the default queries of the pinned filters. The tag UUIDs being kept,
+  `@tag = "<uuid>"` becomes `tags = "<uuid>"` and still matches;
+- replaces each `@tag` profile item (grid, facets, filters, attributes) by one
+  item per migrated definition: a profile is not bound to a workspace and
+  resolves its items by definition ID;
+- converts the automation actions `tags` into `attribute` actions on the
+  "Tags" definition of the workspace of each tag: one `add` per added tag, one
+  `delete` of the removed tags (`value`: their IDs). Unknown tags are left out;
+  an automation left without action is disabled;
+- removes the `tag:*` events from the webhook subscriptions;
+- drops the `tag`, `asset_tag` and `asset_data_template_tag` tables and the
+  `asset.tags_edited_at` column. Its `down()` recreates them empty and removes
+  what `up()` created, without converting anything back.
+
+Fallback slug: when a workspace already has an attribute definition named
+"Tags" or with the slug `tags`, the migrated one is named "Tags (migrated)",
+slug `tagsmigrated` (and the list or the policy "Tags (migrated)" when the name
+is taken). The filter rules of that workspace use `tagsmigrated`, but saved
+searches, which may cover several workspaces, use `tags`: review the saved
+searches and pinned filters on such workspaces.
+
+After the migration, **repopulate** the `asset` and `attribute_entity` indexes,
+then delete the former `tag` index (`<prefix>tag_<env>` and its aliases), which
+nothing uses any more:
+
+```bash
+bin/console fos:elastica:populate --index=asset
+bin/console fos:elastica:populate --index=attribute_entity
+```
+
+API changes and their replacement:
+
+- `/tags` (and the MCP tool `list_tags`) → the entities of the "Tags" list:
+  `/attribute-entities?list=<list id>`;
+- `tags` of `POST`/`PATCH /assets`, of the stories and of the asset data
+  templates, and `tags` of the asset output → the values of the "Tags"
+  attribute (`attributes`, or `POST /assets/{id}/attributes`);
+- `tags_must` / `tags_must_not` of `GET /assets` (and `tagsMust` /
+  `tagsMustNot` of the MCP tool `search_assets`) → AQL conditions:
+  `tags HAS ALL OF ("<id>", …)`, `tags IS NONE OF ("<id>", …)`;
+- `withTags` of `POST /assets/copy` → `withAttributes`;
+- the `@tag` AQL field and the `tags` facet → the `tags` attribute and its
+  facet;
+- the attribute batch action on the pseudo definition `tags` → the `add` and
+  `delete` actions on the "Tags" definition. The `delete` action now takes an
+  optional `value` (a value or a list): only these values are removed (without
+  it, every value of the definition still is), and `add` keeps a single copy
+  of a value the asset already has;
+- the `tags` field of an import entry is refused: use
+  `"attributes": {"tags": ["<entity id>"]}`;
+- an imported workspace template ignores a former `Tag` section, and refuses an
+  attribute filter rule whose condition still uses `@tag`.
+
+The Uploader forms using the built-in `databox_tags` field are converted to an
+attribute field by a separate migration of the Uploader, to deploy together
+(Databox no longer reads `databox_tags`). The Phraseanet indexer
+(`databox/indexer`) must write the status bits as values of an entity list
+instead of tags. The Rust indexer (`alchemy-fr/databox-indexer`), which calls `/tags`, must be
+upgraded separately.
 
 ## Expose API
 

@@ -27,7 +27,6 @@ trait SearchTestTrait
             'collection',
             'asset_data_template',
             'basket',
-            'tag',
             'attribute_entity',
         ];
         self::$documentIndices = [];

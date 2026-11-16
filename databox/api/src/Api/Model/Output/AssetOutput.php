@@ -90,9 +90,6 @@ class AssetOutput extends AbstractUuidOutput
     public ?Collection $storyCollection = null;
 
     #[Groups([Asset::GROUP_LIST])]
-    private array $tags;
-
-    #[Groups([Asset::GROUP_LIST])]
     public ?UserOutput $owner = null;
 
     #[Groups([Asset::GROUP_LIST])]
@@ -231,19 +228,6 @@ class AssetOutput extends AbstractUuidOutput
     public function setPrivacy(int $privacy): void
     {
         $this->privacy = $privacy;
-    }
-
-    /**
-     * @return TagOutput[]
-     */
-    public function getTags(): array
-    {
-        return $this->tags;
-    }
-
-    public function setTags(array $tags): void
-    {
-        $this->tags = $tags;
     }
 
     public function getCollections(): array

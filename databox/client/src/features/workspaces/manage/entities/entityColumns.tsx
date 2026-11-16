@@ -271,7 +271,7 @@ export function buildEntityColumns(
         columns.push({
             id: 'color',
             accessorFn: e => e.color ?? '',
-            header: () => t('tag.color', 'Color'),
+            header: () => t('entity.color', 'Color'),
             size: 90,
             enableSorting: false,
             meta: {editor: 'color', editable: notDraft},

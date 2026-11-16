@@ -19,7 +19,6 @@ import type {
     AssetDataTemplate,
     CollectionPrivacyInfo,
     Privacy,
-    Tag,
 } from '@/types/api';
 import {AssetTypeFilter, EntityName} from '@/types/api';
 import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
@@ -43,7 +42,6 @@ import {
     TreeSelection,
 } from '@/components/form/CollectionTreePicker';
 import {PrivacyField} from '@/components/form/PrivacyField';
-import {TagSelect} from '@/components/form/selects';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {toDropzoneAccept} from '@alchemy/next-ui/utils/mime';
 import {formatFileSize} from '@/lib/utils/format';
@@ -123,11 +121,9 @@ export function UploadDialog({
                   : undefined
     );
     const [privacy, setPrivacy] = useState<Privacy | undefined>(undefined);
-    const [tags, setTags] = useState<string[]>([]);
     const [quiet, setQuiet] = useState(false);
     const [isStory, setIsStory] = useState(false);
     const [storyTitle, setStoryTitle] = useState('');
-    const [storyTags, setStoryTags] = useState<string[]>([]);
     const [coverFile, setCoverFile] = useState<File>();
     const [coverUrl, setCoverUrl] = useState<string>();
     const [templateIds, setTemplateIds] = useState<string[]>([]);
@@ -243,13 +239,11 @@ export function UploadDialog({
         );
         const baseAsset = {
             privacy,
-            tags: tags.map(id => iri(EntityName.Tag, id)),
             attributes: attributes.length > 0 ? attributes : undefined,
         };
         const story = isStory
             ? {
                   name: storyTitle.trim(),
-                  tags: storyTags.map(id => iri(EntityName.Tag, id)),
                   attributes:
                       storyAttributes.length > 0 ? storyAttributes : undefined,
               }
@@ -627,16 +621,6 @@ export function UploadDialog({
                                 ) {
                                     setPrivacy(tpl.privacy);
                                 }
-                                if (tpl.tags) {
-                                    setTags(prev => [
-                                        ...new Set([
-                                            ...prev,
-                                            ...(tpl.tags as Tag[]).map(
-                                                tg => tg.id
-                                            ),
-                                        ]),
-                                    ]);
-                                }
                                 if (tpl.attributes) {
                                     assetEditor.setAttributes(prev => {
                                         const next = {...prev};
@@ -687,15 +671,6 @@ export function UploadDialog({
                                 : false
                         }
                     />
-                    <FormRow label={t('common.tags', 'Tags')}>
-                        <TagSelect
-                            multiple
-                            workspaceId={workspaceId}
-                            value={tags}
-                            onChange={setTags}
-                            disabled={!workspaceId}
-                        />
-                    </FormRow>
                     <LabeledControl
                         label={
                             source === 'none'
@@ -763,17 +738,6 @@ export function UploadDialog({
                                     />
                                 </FormRow>
                             ) : null}
-                            <FormRow
-                                label={t('upload.story_tags', 'Story tags')}
-                            >
-                                <TagSelect
-                                    multiple
-                                    workspaceId={workspaceId}
-                                    value={storyTags}
-                                    onChange={setStoryTags}
-                                    disabled={!workspaceId}
-                                />
-                            </FormRow>
                             {workspaceId ? (
                                 <AttributesEditor
                                     attributes={storyEditor.attributes}
@@ -783,7 +747,6 @@ export function UploadDialog({
                                     definitions={storyEditor.definitions}
                                     onChange={storyEditor.onChange}
                                     target={AssetTypeFilter.Story}
-                                    workspaceId={workspaceId}
                                     workspaceLocales={workspace?.enabledLocales}
                                 />
                             ) : null}
@@ -808,7 +771,6 @@ export function UploadDialog({
                                         definitions={assetEditor.definitions}
                                         onChange={assetEditor.onChange}
                                         target={AssetTypeFilter.Asset}
-                                        workspaceId={workspaceId}
                                         workspaceLocales={
                                             workspace?.enabledLocales
                                         }
@@ -836,7 +798,6 @@ export function UploadDialog({
                                         workspaceId={workspaceId}
                                         collectionId={destination?.collectionId}
                                         privacy={privacy}
-                                        tags={tags}
                                         attributes={indexToCreateActions(
                                             assetEditor.attributes,
                                             assetEditor.definitions

@@ -23,7 +23,7 @@ import {assetKey} from '../SelectionProvider';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {Highlight} from '@/components/ui/highlight';
 import {AttributeList} from '@/features/attributes/AttributeList';
-import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
+import {CollectionChip, PrivacyIcon} from '@/components/chips';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
 import {AssetStatus} from '@/types/api';
 import {cn} from '@alchemy/next-ui/utils/cn';
@@ -246,11 +246,8 @@ const ListItem = memo(function ListItem({
                             />
                         ) : null}
                     </div>
-                    {asset.tags?.length || asset.collections?.length ? (
+                    {asset.collections?.length ? (
                         <div className="mb-2 flex flex-wrap gap-1">
-                            {asset.tags?.map(tag => (
-                                <TagChip key={tag.id} tag={tag} />
-                            ))}
                             {asset.collections?.slice(0, 3).map(c => (
                                 <CollectionChip key={c.id} collection={c} />
                             ))}

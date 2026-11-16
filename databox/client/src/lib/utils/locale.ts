@@ -1,7 +1,7 @@
 /**
- * Locale negotiation helpers shared by translatable fields (tags, collection
- * names, attribute values...). `preferred` is the ordered list of languages to
- * try (UI language first, then browser languages).
+ * Locale negotiation helpers shared by translatable fields (entities,
+ * collection names, attribute values...). `preferred` is the ordered list of
+ * languages to try (UI language first, then browser languages).
  */
 
 let preferredLanguages: string[] = ['en'];

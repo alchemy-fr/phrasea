@@ -26,7 +26,6 @@ class MultipleAssetInputMapper extends AbstractFileInputMapper
             $storyAssetInput = new AssetInput();
             $storyAssetInput->name = $data->story?->name ?? $data->assets[0]->name ?? 'Story';
             $storyAssetInput->isStory = true;
-            $storyAssetInput->tags = $data->story?->tags;
             $storyAssetInput->attributes = $data->story?->attributes;
             $storyAssetInput->workspace = $ref->workspace;
             $storyAssetInput->collection = $ref->collection;

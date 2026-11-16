@@ -215,12 +215,6 @@ class Workspace extends AbstractUuidEntity implements AuditableInterface, SoftDe
     protected ?DoctrineCollection $collections = null;
 
     /**
-     * @var DoctrineCollection<Tag>
-     */
-    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: Tag::class)]
-    protected ?DoctrineCollection $tags = null;
-
-    /**
      * @var DoctrineCollection<RenditionPolicy>
      */
     #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: RenditionPolicy::class)]
@@ -252,7 +246,6 @@ class Workspace extends AbstractUuidEntity implements AuditableInterface, SoftDe
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
-        $this->tags = new ArrayCollection();
         $this->renditionPolicies = new ArrayCollection();
         $this->renditionDefinitions = new ArrayCollection();
         $this->attributeDefinitions = new ArrayCollection();

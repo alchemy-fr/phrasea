@@ -10,18 +10,15 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Model\AuditLogActionEnum;
 use App\Service\Log\AuditLogManager;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Logs the attribute (and tag) changes of a batch that writes through DQL/SQL, which the
+ * Logs the attribute changes of a batch that writes through DQL/SQL, which the
  * UnitOfWork does not see: the values of the assets are read before and after the batch,
  * one AssetAttributeChanged entry is written per changed asset.
  */
 final readonly class AttributeChangeAuditor
 {
-    public const string TAGS = 'tags';
-
     private const int CHUNK = 500;
 
     public function __construct(
@@ -92,7 +89,7 @@ final readonly class AttributeChangeAuditor
         $assets = $this->em->getRepository(Asset::class)->findByIds(array_keys($changesByAsset));
         foreach ($assets as $asset) {
             $changes = array_map(static function (array $change) use ($names): array {
-                $change['definitionName'] = self::TAGS === $change['definitionId'] ? 'Tags' : ($names[$change['definitionId']] ?? null);
+                $change['definitionName'] = $names[$change['definitionId']] ?? null;
 
                 return $change;
             }, $changesByAsset[$asset->getId()]);
@@ -141,35 +138,9 @@ final readonly class AttributeChangeAuditor
                 $snapshot[$row['assetId']][$key]['locale'] = $row['locale'];
                 $snapshot[$row['assetId']][$key]['values'][] = $row['value'];
             }
-
-            foreach ($this->getTags($chunk) as $row) {
-                $key = self::TAGS.'|';
-                $snapshot[$row['asset_id']][$key]['definitionId'] = self::TAGS;
-                $snapshot[$row['asset_id']][$key]['locale'] = null;
-                $snapshot[$row['asset_id']][$key]['values'][] = $row['tag_id'];
-            }
         }
 
         return $snapshot;
-    }
-
-    /**
-     * @return array<array{asset_id: string, tag_id: string}>
-     */
-    private function getTags(array $assetIds): array
-    {
-        $joinTable = $this->em->getClassMetadata(Asset::class)->getAssociationMapping('tags')['joinTable'];
-
-        return $this->em->getConnection()->fetchAllAssociative(sprintf(
-            'SELECT %2$s AS asset_id, %3$s AS tag_id FROM %1$s WHERE %2$s IN (:ids)',
-            $joinTable['name'],
-            $joinTable['joinColumns'][0]['name'],
-            $joinTable['inverseJoinColumns'][0]['name'],
-        ), [
-            'ids' => $assetIds,
-        ], [
-            'ids' => ArrayParameterType::STRING,
-        ]);
     }
 
     /**
@@ -177,7 +148,6 @@ final readonly class AttributeChangeAuditor
      */
     private function getDefinitionNames(array $definitionIds): array
     {
-        $definitionIds = array_values(array_filter($definitionIds, static fn (string $id): bool => self::TAGS !== $id));
         if (empty($definitionIds)) {
             return [];
         }

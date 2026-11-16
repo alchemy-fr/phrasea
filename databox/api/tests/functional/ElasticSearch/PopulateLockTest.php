@@ -38,7 +38,7 @@ class PopulateLockTest extends KernelTestCase
     use ApiTestTrait;
     use AliasedIndexTestTrait;
 
-    private const INDEX = 'tag';
+    private const INDEX = 'attribute_entity';
 
     private EntityManagerInterface $em;
 
@@ -191,7 +191,7 @@ class PopulateLockTest extends KernelTestCase
 
     public function testPopulateProgressIsRecordedPageByPage(): void
     {
-        $this->createTags(3);
+        $this->createEntities(3);
 
         $progress = [];
         $listener = function (PostInsertObjectsEvent $event) use (&$progress): void {
@@ -213,7 +213,7 @@ class PopulateLockTest extends KernelTestCase
 
     public function testDeletingThePassCancelsTheRunningPopulate(): void
     {
-        $this->createTags(3);
+        $this->createEntities(3);
 
         $listener = function (): void {
             $this->deletePasses();
@@ -304,7 +304,7 @@ class PopulateLockTest extends KernelTestCase
     public function testTheOwnerIsRecordedWhileThePopulateRuns(): void
     {
         $this->withAlias();
-        $this->createTags(2);
+        $this->createEntities(2);
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
 
@@ -368,7 +368,7 @@ class PopulateLockTest extends KernelTestCase
     public function testAPopulateWhoseLockIsReleasedStops(): void
     {
         $this->withAlias();
-        $this->createTags(3);
+        $this->createEntities(3);
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
         $aliasedBefore = $this->getAliasedIndex(self::INDEX);
@@ -425,7 +425,7 @@ class PopulateLockTest extends KernelTestCase
     public function testAnIndexDeletedWhileBeingPopulatedIsNotRecreated(): void
     {
         $this->withAlias();
-        $this->createTags(3);
+        $this->createEntities(3);
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
         $aliasedBefore = $this->getAliasedIndex(self::INDEX);
@@ -456,7 +456,7 @@ class PopulateLockTest extends KernelTestCase
     public function testTheAliasIsNotSwitchedToAnIndexRecreatedWithADynamicMapping(): void
     {
         $this->withAlias();
-        $this->createTags(1);
+        $this->createEntities(1);
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
         $aliasedBefore = $this->getAliasedIndex(self::INDEX);
@@ -549,11 +549,11 @@ class PopulateLockTest extends KernelTestCase
         }
     }
 
-    private function createTags(int $count): void
+    private function createEntities(int $count): void
     {
         $workspace = $this->getOrCreateDefaultWorkspace();
         for ($i = 1; $i <= $count; ++$i) {
-            $this->findOrCreateTagByName('Tag '.$i, $workspace);
+            $this->findOrCreateTagEntity('Entity '.$i, $workspace);
         }
         $this->em->clear();
     }

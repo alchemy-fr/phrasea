@@ -143,7 +143,6 @@ class AssetOutputMapper implements OutputMapperInterface
 
         if ($fullOutput) {
             $output->setPrivacy($data->getPrivacy());
-            $output->setTags($data->getTags()->getValues());
             $output->setWorkspace($data->getWorkspace());
 
             $renditions = $this->em

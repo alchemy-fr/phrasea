@@ -23,7 +23,6 @@ use App\Api\Provider\AssetDataTemplateCollectionProvider;
 use App\Audit\AuditableInterface;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Entity\Core\Collection;
-use App\Entity\Core\Tag;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\WithOwnerIdInterface;
@@ -104,7 +103,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: AssetDataTemplateCollectionProvider::class,
 )]
 #[SameWorkspaceConstraint(
-    properties: ['workspace', 'tags.workspace', 'collection.workspace', 'attributes.workspace']
+    properties: ['workspace', 'collection.workspace', 'attributes.workspace']
 )]
 class AssetDataTemplate extends AbstractUuidEntity implements AuditableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
@@ -131,10 +130,6 @@ class AssetDataTemplate extends AbstractUuidEntity implements AuditableInterface
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?string $assetName = null;
-
-    #[ORM\ManyToMany(targetEntity: Tag::class)]
-    #[Groups([AssetDataTemplate::GROUP_READ])]
-    private ?DoctrineCollection $tags = null;
 
     /**
      * @var DoctrineCollection<TemplateAttribute>|null
@@ -180,16 +175,6 @@ class AssetDataTemplate extends AbstractUuidEntity implements AuditableInterface
     public function setAssetName(?string $assetName): void
     {
         $this->assetName = $assetName;
-    }
-
-    public function getTags(): ?DoctrineCollection
-    {
-        return $this->tags;
-    }
-
-    public function setTags(?DoctrineCollection $tags): void
-    {
-        $this->tags = $tags;
     }
 
     public function getAttributes(): ?DoctrineCollection

@@ -128,7 +128,7 @@ export function workspacePermissions(t: TFunction): PermissionDefinition[] {
             t('acl.workspace.edit', 'Manage'),
             t(
                 'acl.workspace.edit_desc',
-                'Manage the workspace settings (title, locales, tags, entities, renditions, attributes).'
+                'Manage the workspace settings (title, locales, entities, renditions, attributes).'
             )
         ),
         mask(AclPermission.DELETE, t('acl.workspace.delete', 'Delete')),

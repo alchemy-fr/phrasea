@@ -76,7 +76,8 @@ News agency: editorial flow, geolocated, under embargo, multilingual.
   taken, Published at, Desk and Usage rights (entity lists), Embargo until, Word count, File
   size, Breaking, Watermark, Blurhash, People (faces). **Newsroom only** policy: Editor notes.
 - **Rendition policy** `Print` (restricted): `Print hi-res`.
-- **Tags**: Breaking, Exclusive, Embargo, Online, Offline.
+- **Tags**: the "Tags" entity list (colours, translated in fr) and its multiple "Tags"
+  attribute (facet): Breaking, Exclusive, Embargo, Online, Offline.
 - **Integrations**: ToastUI photo editor, Blurhash, watermark (Watermark attribute on the
   thumbnail), visual similarity, face recognition (into People).
 
@@ -87,7 +88,8 @@ News agency: editorial flow, geolocated, under embargo, multilingual.
 | carol   | freelancer       | `Sports` only (plus `Wire Feed`, public in the workspace)                |
 | dave    | archivist        | view and edit `Archives`; Print                                          |
 
-- Attribute filter rule: carol does not see the assets tagged `Embargo`.
+- Attribute filter rule: carol does not see the assets tagged `Embargo`
+  (`tags IS NOT "<Embargo entity ID>"`).
 - Asset policy "Embargo masking": for carol and dave, the assets of `Embargoed` (also filed
   in `Archives/2026`) hide their `Print hi-res` rendition and their Editor notes.
 
@@ -107,7 +109,9 @@ press kit.
   release signed, Photographer, Marketing copy (HTML, translatable), Models (faces).
   **Commercial** policy: Retail price, Wholesale price.
 - **Rendition policy** `Studio` (restricted): `E-commerce zoom`.
-- **Tags**: New in, Bestseller, Sale, Sustainable, Do not publish (all the FW26 assets).
+- **Tags**: the "Tags" entity list (colours, translated in fr and it) and its multiple
+  "Tags" attribute (facet): New in, Bestseller, Sale, Sustainable, Do not publish (the FW26
+  packshots and campaign photos).
 - **Integrations**: ToastUI photo editor, Blurhash, visual similarity, face recognition (into
   Models), remove.bg (disabled), webhook to the PIM (disabled).
 
@@ -143,7 +147,8 @@ collections owned by alice and bob, assets at every level of the tree.
 - **Rendition policy** `Archive` (restricted): `Archival master`.
 - **Terms**: the workspace attaches its terms ("Fernhollow image licence terms", en/fr) to
   the exports.
-- **Tags**: On display, In storage, On loan, Needs digitisation, Fragile.
+- **Tags**: the "Tags" entity list (colours, translated in fr) and its multiple "Tags"
+  attribute (facet): On display, In storage, On loan, Needs digitisation, Fragile.
 - **Integrations**: Blurhash, watermark (Credit line on the preview), visual similarity, face
   recognition (into People), AWS Rekognition (disabled, labels into Keywords, dummy AWS
   secrets).
@@ -186,7 +191,8 @@ fixtures.
   album, 2 labels for the albums, an advertising agency and a radio for the voice-overs),
   People (faces).
 - **Rendition policy** `Masters` (restricted): `Master` (Pick source).
-- **Tags**: Rough mix, Final mix, Mastered, Approved by client, Do not distribute.
+- **Tags**: the "Tags" entity list (colours, translated in fr) and its multiple "Tags"
+  attribute (facet): Rough mix, Final mix, Mastered, Approved by client, Do not distribute.
 - **Integrations**: Blurhash, visual similarity, face recognition (into People), AWS
   Transcribe (disabled, transcript into WebVTT transcript, dummy AWS secrets).
 
@@ -224,7 +230,11 @@ fixtures.
 - The business values come from `App\Fixture\Faker\ThematicFaker`, which keeps the values
   of an asset consistent (`productName()` must come before the prices and the marketing
   copy, `specimenScientificName()` before `specimenCommonName()`); the AQL conditions of
-  the attribute filter rules come from `App\Fixture\Faker\AqlConditionFaker`.
+  the attribute filter rules come from `App\Fixture\Faker\AqlConditionFaker`
+  (`aqlAttributeIsNot("tags", @nb_tag_embargo->id)`: an entity attribute compares the
+  entity IDs).
+- The tags of the assets are values of the "Tags" entity attribute, written one by one
+  (`nb_at_tag_*`), so that they are the same at every load.
 - A collection is at least as visible as its parent (its privacy and its permissions apply
   to its sub-collections), and an asset of privacy 2 or more is visible to every member of
   the workspace: to hide a branch from the members, keep its ancestors at privacy 0, 1 or 3

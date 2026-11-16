@@ -6,7 +6,6 @@ namespace App\Api\Model\Input;
 
 use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 use App\Entity\Core\Collection;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 
 class CollectionInput extends AbstractOwnerIdInput
@@ -20,11 +19,6 @@ class CollectionInput extends AbstractOwnerIdInput
     public ?string $privacyLabel = null;
 
     public ?string $key = null;
-
-    /**
-     * @var Tag[]
-     */
-    public ?array $tags = null;
 
     /**
      * @var Workspace

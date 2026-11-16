@@ -16,7 +16,6 @@ use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\ImageSet;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -550,16 +549,20 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->updateAsset($secretAsset, fn (Asset $a) => $a->setStatus(AssetStatusEnum::Accepted));
 
         // 6. Nor an asset that an attribute filter rule hides from some user
-        $em = self::getEntityManager();
-        $tag = new Tag();
-        $tag->setName('Visible to all');
-        $tag->setWorkspace($this->workspace());
-        $em->persist($tag);
-        $em->flush();
-        self::getAttributeFilterManager()->saveRule($this->workspace(), ['some_user'], [], sprintf('@tag = "%s"', $tag->getId()));
+        $tag = $this->findOrCreateTagEntity('Visible to all', $this->workspace());
+        $tagsDefinitionId = $this->getOrCreateTagsDefinition($this->workspace())->getId();
+        self::getAttributeFilterManager()->saveRule($this->workspace(), ['some_user'], [], sprintf('tags = "%s"', $tag->getId()));
         $photo();
         $this->assertNull($this->photoOf($person));
-        $this->updateAsset($secretAsset, fn (Asset $a) => $a->addTag(self::getEntityManager()->find(Tag::class, $tag->getId())));
+        $this->updateAsset($secretAsset, function (Asset $a) use ($tag, $tagsDefinitionId): void {
+            $em = self::getEntityManager();
+            $attribute = new Attribute();
+            $attribute->setAsset($a);
+            $attribute->setDefinition($em->find(AttributeDefinition::class, $tagsDefinitionId));
+            $attribute->setOrigin(Attribute::ORIGIN_HUMAN);
+            $attribute->setValue($tag->getId());
+            $em->persist($attribute);
+        });
         $photo();
         $this->assertSame($secretFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
     }
@@ -819,7 +822,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $managed = $em->find(Asset::class, $asset->getId());
         $change($managed);
         $em->flush();
-        // A change of its tags alone does not schedule the asset for indexing
+        // A change of its attributes alone does not schedule the asset for indexing
         self::getService(DeferredIndexListener::class)->scheduleForUpdate($managed);
         self::indexAssets();
     }

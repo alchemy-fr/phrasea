@@ -68,9 +68,6 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('workspace')
             ->autocomplete();
         yield $this->privacyField->create('privacy');
-        yield AssociationField::new('tags')
-            ->autocomplete()
-            ->hideOnIndex();
         yield $this->userChoiceField->create('ownerId', 'Owner')
             ->hideOnIndex();
         yield DateTimeField::new('createdAt')

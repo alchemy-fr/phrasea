@@ -13,7 +13,7 @@ const nav = vi.hoisted(() => ({
     push: vi.fn(),
     // Stable, like Next's own
     router: {} as {push: unknown},
-    renders: {info: 0, tags: 0} as Record<string, number>,
+    renders: {info: 0, entities: 0} as Record<string, number>,
 }));
 
 vi.mock('next/navigation', () => ({
@@ -38,7 +38,7 @@ function tabComponent(id: string) {
 
 const tabs: DialogTab<Props>[] = [
     {id: 'info', title: 'Info', component: tabComponent('info')},
-    {id: 'tags', title: 'Tags', component: tabComponent('tags')},
+    {id: 'entities', title: 'Entities', component: tabComponent('entities')},
     {
         id: 'hidden',
         title: 'Hidden',
@@ -58,14 +58,14 @@ function DirtyTab() {
 
 const dirtyTabs: DialogTab<Props>[] = [
     {id: 'info', title: 'Info', component: DirtyTab},
-    {id: 'tags', title: 'Tags', component: tabComponent('tags')},
+    {id: 'entities', title: 'Entities', component: tabComponent('entities')},
 ];
 
 function PathTab() {
     const {segments, navigate} = useRoutePath();
 
     return (
-        <button type="button" onClick={() => navigate(['t 2', 'manage'])}>
+        <button type="button" onClick={() => navigate(['l 2', 'manage'])}>
             path: {segments.join('|') || '-'}
         </button>
     );
@@ -73,7 +73,7 @@ function PathTab() {
 
 const pathTabs: DialogTab<Props>[] = [
     {id: 'info', title: 'Info', component: tabComponent('info')},
-    {id: 'tags', title: 'Tags', component: PathTab},
+    {id: 'entities', title: 'Entities', component: PathTab},
 ];
 
 function Shell({tabList = tabs}: {tabList?: DialogTab<Props>[]}) {
@@ -112,12 +112,12 @@ describe('TabbedRouteDialogShell', () => {
             act(() => rerender(<Shell />));
         };
 
-        go('tags');
+        go('entities');
         go('info');
-        go('tags');
+        go('entities');
 
         // Each tab rendered once, when first shown
-        expect(nav.renders).toEqual({info: 1, tags: 1});
+        expect(nav.renders).toEqual({info: 1, entities: 1});
     });
 
     it('switches tabs with a history entry, without navigating', () => {
@@ -128,24 +128,26 @@ describe('TabbedRouteDialogShell', () => {
             render(<Shell />);
         });
 
-        selectTab('Tags');
+        selectTab('Entities');
 
         expect(pushState).toHaveBeenCalledOnce();
         // `null`: Next ignores (does not sync) states carrying its own markers
         expect(pushState.mock.calls[0][0]).toBeNull();
-        expect(pushState.mock.calls[0][2]).toBe('/workspaces/1/manage/tags');
+        expect(pushState.mock.calls[0][2]).toBe(
+            '/workspaces/1/manage/entities'
+        );
         expect(nav.push).not.toHaveBeenCalled();
     });
 
     it('shows the tab of the URL and keeps visited tabs mounted', () => {
         const {rerender} = render(<Shell />);
         expect(screen.getByTestId('dialog-tab-info').hidden).toBe(false);
-        expect(screen.queryByTestId('dialog-tab-tags')).toBeNull();
+        expect(screen.queryByTestId('dialog-tab-entities')).toBeNull();
 
         // Next syncs usePathname with the pushed URL
-        nav.pathname = '/workspaces/1/manage/tags';
+        nav.pathname = '/workspaces/1/manage/entities';
         act(() => rerender(<Shell />));
-        expect(screen.getByTestId('dialog-tab-tags').hidden).toBe(false);
+        expect(screen.getByTestId('dialog-tab-entities').hidden).toBe(false);
         expect(screen.getByTestId('dialog-tab-info').hidden).toBe(true);
 
         // Back to info: shown again, not remounted
@@ -170,7 +172,7 @@ describe('TabbedRouteDialogShell', () => {
             .mockImplementation(() => {});
         const {rerender} = render(<Shell tabList={dirtyTabs} />);
 
-        selectTab('Tags');
+        selectTab('Entities');
         const {pending} = useUnsavedChangesStore.getState();
         expect(pending).not.toBeNull();
 
@@ -178,15 +180,17 @@ describe('TabbedRouteDialogShell', () => {
         await act(async () => pending!.resolve(false));
         expect(pushState).not.toHaveBeenCalled();
 
-        selectTab('Tags');
+        selectTab('Entities');
         await act(async () =>
             useUnsavedChangesStore.getState().pending!.resolve(true)
         );
         expect(pushState).toHaveBeenCalledOnce();
-        expect(pushState.mock.calls[0][2]).toBe('/workspaces/1/manage/tags');
+        expect(pushState.mock.calls[0][2]).toBe(
+            '/workspaces/1/manage/entities'
+        );
 
         // Discarded: the tab is dropped, and its changes with it
-        nav.pathname = '/workspaces/1/manage/tags';
+        nav.pathname = '/workspaces/1/manage/entities';
         act(() => rerender(<Shell tabList={dirtyTabs} />));
         expect(screen.queryByTestId('dialog-tab-info')).toBeNull();
         expect(useUnsavedChangesStore.getState().dirty).toEqual({});
@@ -196,28 +200,28 @@ describe('TabbedRouteDialogShell', () => {
         const pushState = vi
             .spyOn(window.history, 'pushState')
             .mockImplementation(() => {});
-        nav.pathname = '/workspaces/1/manage/tags/t1';
+        nav.pathname = '/workspaces/1/manage/entities/l1';
         const {rerender} = render(<Shell tabList={pathTabs} />);
-        expect(screen.getByText('path: t1')).toBeTruthy();
+        expect(screen.getByText('path: l1')).toBeTruthy();
 
         // The tab changes its own path (encoded)
-        act(() => fireEvent.click(screen.getByText('path: t1')));
+        act(() => fireEvent.click(screen.getByText('path: l1')));
         expect(pushState.mock.calls[0][2]).toBe(
-            '/workspaces/1/manage/tags/t%202/manage'
+            '/workspaces/1/manage/entities/l%202/manage'
         );
-        nav.pathname = '/workspaces/1/manage/tags/t%202/manage';
+        nav.pathname = '/workspaces/1/manage/entities/l%202/manage';
         act(() => rerender(<Shell tabList={pathTabs} />));
-        expect(screen.getByText('path: t 2|manage')).toBeTruthy();
+        expect(screen.getByText('path: l 2|manage')).toBeTruthy();
 
         // Another tab: the hidden one keeps its path…
         nav.pathname = '/workspaces/1/manage/info';
         act(() => rerender(<Shell tabList={pathTabs} />));
-        expect(screen.getByText('path: t 2|manage')).toBeTruthy();
+        expect(screen.getByText('path: l 2|manage')).toBeTruthy();
 
         // …and gets it back in the URL when selected again
-        selectTab('Tags');
+        selectTab('Entities');
         expect(pushState.mock.calls[1][2]).toBe(
-            '/workspaces/1/manage/tags/t%202/manage'
+            '/workspaces/1/manage/entities/l%202/manage'
         );
     });
 });

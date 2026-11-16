@@ -226,10 +226,10 @@ Implemented:
 - Files & quarantine: analysis chips, quarantine banner, duplicate merge,
   file manage dialog.
 - Upload: dropzone, URL import, templates, stories, pending uploads, toasts.
-- Workspaces admin: info/edit/permissions, tags, entity lists (values,
+- Workspaces admin: info/edit/permissions, entity lists (values,
   import/export, merge, moderation), attribute definitions & policies,
-  rendition definitions & policies, asset policies, integrations, tag filter
-  rules (the API has no attribute filter rule resource).
+  rendition definitions & policies, asset policies, integrations, attribute
+  filter rules.
 - Collections tree (CRUD, move, notifications, permissions, trash),
   baskets (panel, switcher with per-basket actions, view with the same
   display options as the results, manage, integrations), share links & embed,

@@ -5,12 +5,12 @@ AQL expresses the search conditions of databox: the `conditions[]` parameter of
 both clients all use it.
 
 ```
-title STARTS WITH "Report" AND (@tag HAS ALL OF ("a", "b") OR description IS EMPTY)
+title STARTS WITH "Report" AND (keywords HAS ALL OF ("a", "b") OR description IS EMPTY)
 ```
 
 A condition is `field operator [value]`. Conditions are combined with `AND`, `OR`,
 `NOT` and parentheses. A field is an attribute slug (`title`) or a built-in attribute
-(`@tag`, `@collection`, `@createdAt`…). Values are quoted strings, numbers (`-74.006`), `true`,
+(`@collection`, `@createdAt`…). Values are quoted strings, numbers (`-74.006`), `true`,
 `false`, `null`, other fields, function calls (`NOW()`, `DATE_SUB(NOW(), "P7D")`…) or
 arithmetic expressions.
 
@@ -50,6 +50,9 @@ Notes:
   matches "The car is red". It does not support `CASE SENSITIVE`.
 - On dates, `IS` / `IS NOT` match a prefix of the date: `@createdAt IS "2024-03"`
   matches the whole month.
+- On an attribute of type `entity` (an entity list), the values are the entity IDs:
+  `tags IS "<entity ID>"`, `tags IN ("<ID>", "<ID>")`, `tags HAS ALL OF (…)`,
+  `tags IS NOT "<entity ID>"`.
 - After `IS`, the words `EMPTY`, `MISSING`, `ANY`, `NONE` and `NOT` are keywords and
   cannot be used as field names.
 - The radius of `WITHIN CIRCLE` is a number of meters or an Elasticsearch distance

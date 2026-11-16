@@ -181,9 +181,6 @@ fos_elastica:
                 quarantineGroups:
                     property_path: false
                     type: keyword
-                tags:
-                    property_path: tagIds
-                    type: keyword
                 hasSourceFile:
                     type: boolean
                 fileSize:
@@ -430,45 +427,6 @@ fos_elastica:
             persistence:
                 driver: orm
                 model: App\Entity\Core\AttributeEntity
-                listener: { enabled: false }
-                provider:
-                    query_builder_method: getESQueryBuilder
-
-        tag:
-            settings:
-                index:
-                    auto_expand_replicas: "0-2"
-                    analysis:
-                        analyzer:
-                            text: *text_analyzer
-                        filter:
-                            worddelimiter: *worddelimiter_filter
-            use_alias: '%elastica.use_alias%'
-            index_name: "%es_index_prefix%tag_%kernel.environment%"
-            properties:
-                name:
-                    type: text
-                    analyzer: text
-                    fields:
-                        suggest:
-                            type: search_as_you_type
-                            doc_values: false
-                            max_shingle_size: 3
-                        raw:
-                            type: keyword
-                translatedNames:
-                    type: text
-                    analyzer: text
-                    fields:
-                        suggest:
-                            type: search_as_you_type
-                            doc_values: false
-                            max_shingle_size: 3
-                workspaceId:
-                    type: keyword
-            persistence:
-                driver: orm
-                model: App\Entity\Core\Tag
                 listener: { enabled: false }
                 provider:
                     query_builder_method: getESQueryBuilder

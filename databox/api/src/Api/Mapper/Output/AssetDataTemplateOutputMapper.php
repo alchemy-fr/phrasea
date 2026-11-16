@@ -28,7 +28,6 @@ class AssetDataTemplateOutputMapper implements OutputMapperInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
         $output->privacy = $data->getPrivacy();
-        $output->tags = $data->getTags()->getValues();
         $output->public = $data->isPublic();
         $output->assetName = $data->getAssetName();
         $output->ownerId = $data->getOwnerId();

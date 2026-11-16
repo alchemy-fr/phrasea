@@ -75,7 +75,7 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
             $workspace,
             [KeycloakClientTestMock::USER_UID],
             [],
-            sprintf('@tag = "%s"', $this->findOrCreateTagByName('shown', $workspace)->getId()),
+            sprintf('tags = "%s"', $this->findOrCreateTagEntity('shown', $workspace)->getId()),
         );
         self::forceNewEntitiesToBeIndexed();
         self::waitForESIndex('asset');

@@ -227,32 +227,42 @@ final class AssetCreateTest extends AbstractDataboxTestCase
     public function testCreateAssetWithTags(): void
     {
         $workspace = $this->createOwnedWorkspace();
-        $foo = $this->findOrCreateTagByName('foo', $workspace);
-        $bar = $this->findOrCreateTagByName('bar', $workspace);
+        $definition = $this->getOrCreateTagsDefinition($workspace);
+        $foo = $this->findOrCreateTagEntity('foo', $workspace);
+        $bar = $this->findOrCreateTagEntity('bar', $workspace);
 
         $data = $this->request('POST', '/assets', self::OWNER, [
             'workspace' => '/workspaces/'.$workspace->getId(),
-            'tags' => ['/tags/'.$foo->getId(), '/tags/'.$bar->getId()],
+            'attributes' => [
+                ['definitionId' => $definition->getId(), 'value' => $foo->getId()],
+                ['definitionId' => $definition->getId(), 'value' => $bar->getId()],
+            ],
         ])->toArray();
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertEqualsCanonicalizing(['foo', 'bar'], array_column($data['tags'], 'name'));
+        $values = array_map(
+            fn (Attribute $attribute): string => $attribute->getValue(),
+            self::getEntityManager()->getRepository(Attribute::class)->findBy(['asset' => $data['id'], 'definition' => $definition->getId()]),
+        );
+        $this->assertEqualsCanonicalizing([$foo->getId(), $bar->getId()], $values);
     }
 
     public function testCreateAssetWithATagOfAnotherWorkspaceIsRejected(): void
     {
-        $this->markTestIncomplete('BUG: a tag of another workspace makes Asset::addTag() throw a \\InvalidArgumentException, answered as a 500 instead of a 4xx (AssetInputTransformer.php:141 -> Asset.php:602).');
-
         $workspace = $this->createOwnedWorkspace();
         $otherWorkspace = $this->createAnotherWorkspace('other-ws');
-        $tag = $this->findOrCreateTagByName('foreign', $otherWorkspace);
+        $definition = $this->getOrCreateTagsDefinition($workspace);
+        $tag = $this->findOrCreateTagEntity('foreign', $otherWorkspace);
 
         $this->request('POST', '/assets', self::OWNER, [
             'workspace' => '/workspaces/'.$workspace->getId(),
-            'tags' => ['/tags/'.$tag->getId()],
+            'attributes' => [
+                ['definitionId' => $definition->getId(), 'value' => $tag->getId()],
+            ],
         ]);
 
         $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(0, self::getEntityManager()->getRepository(Attribute::class)->count(['value' => $tag->getId()]));
     }
 
     public function testCreateAssetInACollection(): void

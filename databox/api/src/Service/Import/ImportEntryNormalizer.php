@@ -8,8 +8,9 @@ use App\Service\Import\Exception\InvalidImportEntryException;
 
 /**
  * Checks the structure of an entry and keeps its known fields only (unknown ones are ignored,
- * for compatibility with future formats). The references (collection, tags, attribute and
+ * for compatibility with future formats). The references (collection, attribute and
  * rendition definitions) are resolved when the entry is imported.
+ * A "tags" field is refused rather than ignored: tags are the values of an entity list attribute.
  */
 final class ImportEntryNormalizer
 {
@@ -41,7 +42,6 @@ final class ImportEntryNormalizer
      *     sourceUrl?: string,
      *     previewUrl?: string,
      *     thumbnailUrl?: string,
-     *     tags?: string[],
      *     privacy?: int|string,
      *     attributes?: array<string, scalar|list<scalar>>,
      *     renditions?: array<string, string>,
@@ -79,16 +79,8 @@ final class ImportEntryNormalizer
             $normalized['path'] = $segments;
         }
 
-        if (null !== $tags = $entry['tags'] ?? null) {
-            if (!is_array($tags) || !array_is_list($tags)) {
-                throw new InvalidImportEntryException('"tags" must be a list');
-            }
-            foreach ($tags as $tag) {
-                if (!is_string($tag) || '' === trim($tag)) {
-                    throw new InvalidImportEntryException('"tags" must be a list of tag IDs or names');
-                }
-            }
-            $normalized['tags'] = array_values(array_unique(array_map(trim(...), $tags)));
+        if (array_key_exists('tags', $entry)) {
+            throw new InvalidImportEntryException('"tags" is no longer supported: use the attribute of the entity list (e.g. "attributes": {"tags": ["…"]})');
         }
 
         if (null !== $privacy = $entry['privacy'] ?? null) {

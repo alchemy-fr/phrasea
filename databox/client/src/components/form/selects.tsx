@@ -14,8 +14,6 @@ import {
     loadAttributeEntity,
     getEntityList,
     getEntityLists,
-    getTag,
-    getTags,
     postAttributeEntity,
 } from '@/lib/api/metadata';
 import {
@@ -25,7 +23,6 @@ import {
     getUsers,
 } from '@/lib/api/misc';
 import {
-    EntityName,
     type AssetType,
     type AttributeDefinition,
     type AttributeEntity,
@@ -33,13 +30,12 @@ import {
     type Group,
     type Page,
     type RenditionDefinition,
-    type Tag,
     type User,
     type Workspace,
 } from '@/types/api';
-import {TagChip, EntityChip} from '@/components/chips';
+import {EntityChip} from '@/components/chips';
 import {entityLabel} from '@/features/attributes/types/registry';
-import {iri, idFromIri} from '@/lib/utils/iri';
+import {idFromIri} from '@/lib/utils/iri';
 import {
     normalizeDefinition,
     useDefinitionsStore,
@@ -98,92 +94,6 @@ async function resolveByIds<T>(
     }
 
     return (await Promise.all(chunks.map(get))).flat().map(toOption);
-}
-
-function tagOption(tag: Tag, useIri: boolean): ComboOption<Tag> {
-    return {
-        value: useIri ? tag['@id'] : tag.id,
-        label: tag.displayName ?? tag.name,
-        render: <TagChip tag={tag} size="xs" />,
-        item: tag,
-    };
-}
-
-type TagSelectProps = {
-    workspaceId?: string;
-    /** store IRIs instead of ids */
-    useIri?: boolean;
-    disabled?: boolean;
-    id?: string;
-} & (
-    | {
-          multiple: true;
-          value: string[];
-          onChange: (value: string[], tags: Tag[]) => void;
-      }
-    | {
-          multiple?: false;
-          value: string | undefined;
-          onChange: (value: string | undefined, tag?: Tag) => void;
-      }
-);
-
-export function TagSelect(props: TagSelectProps) {
-    const {t} = useTranslation();
-    const {workspaceId, useIri = false, disabled, id} = props;
-    const load = useCallback(
-        async (query: string, signal: AbortSignal, cursor?: string) =>
-            comboPage(
-                await getTags(
-                    {
-                        workspace: workspaceId
-                            ? iri(EntityName.Workspace, workspaceId)
-                            : undefined,
-                        query: query || undefined,
-                        url: cursor,
-                    },
-                    signal
-                ),
-                tg => tagOption(tg, useIri)
-            ),
-        [workspaceId, useIri]
-    );
-    const resolve = useCallback(
-        async (value: string) =>
-            tagOption(await getTag(idFromIri(value)), useIri),
-        [useIri]
-    );
-
-    if (props.multiple) {
-        return (
-            <AsyncCombobox<Tag>
-                id={id}
-                multiple
-                disabled={disabled}
-                queryKey={['tags', workspaceId, useIri]}
-                loadPage={load}
-                resolveValue={resolve}
-                value={props.value}
-                onChange={(v, opts) =>
-                    props.onChange(v, opts.map(o => o.item!).filter(Boolean))
-                }
-                placeholder={t('form.tags.placeholder', 'Select tags…')}
-            />
-        );
-    }
-
-    return (
-        <AsyncCombobox<Tag>
-            id={id}
-            disabled={disabled}
-            queryKey={['tags', workspaceId, useIri]}
-            loadPage={load}
-            resolveValue={resolve}
-            value={props.value}
-            onChange={(v, opt) => props.onChange(v, opt?.item)}
-            placeholder={t('form.tags.placeholder_single', 'Select a tag…')}
-        />
-    );
 }
 
 function userOption(user: User): ComboOption<User> {
@@ -358,22 +268,31 @@ function entityOption(e: AttributeEntity): ComboOption<AttributeEntity> {
     };
 }
 
-export function AttributeEntitySelect({
-    listId,
-    allowNewValues,
-    value,
-    onChange,
-    disabled,
-    id,
-}: {
+type AttributeEntitySelectProps = {
     listId: string | undefined;
     allowNewValues?: boolean;
-    value: string | undefined;
-    onChange: (value: string | undefined, entity?: AttributeEntity) => void;
     disabled?: boolean;
     id?: string;
-}) {
+    placeholder?: string;
+} & (
+    | {
+          multiple: true;
+          value: string[];
+          onChange: (value: string[], entities: AttributeEntity[]) => void;
+      }
+    | {
+          multiple?: false;
+          value: string | undefined;
+          onChange: (
+              value: string | undefined,
+              entity?: AttributeEntity
+          ) => void;
+      }
+);
+
+export function AttributeEntitySelect(props: AttributeEntitySelectProps) {
     const {t} = useTranslation();
+    const {listId, allowNewValues, disabled, id} = props;
     const load = useCallback(
         async (query: string, _signal: AbortSignal, cursor?: string) =>
             comboPage(
@@ -390,24 +309,46 @@ export function AttributeEntitySelect({
         async (value: string) => entityOption(await loadAttributeEntity(value)),
         []
     );
+    const common = {
+        id,
+        disabled: disabled || !listId,
+        queryKey: ['attribute-entities', listId],
+        loadPage: load,
+        resolveValue: resolve,
+        onCreate:
+            allowNewValues && listId
+                ? async (query: string) =>
+                      entityOption(
+                          await postAttributeEntity(listId, {value: query})
+                      )
+                : undefined,
+    };
+
+    if (props.multiple) {
+        return (
+            <AsyncCombobox<AttributeEntity>
+                {...common}
+                multiple
+                value={props.value}
+                onChange={(v, opts) =>
+                    props.onChange(v, opts.map(o => o.item!).filter(Boolean))
+                }
+                placeholder={
+                    props.placeholder ??
+                    t('form.entity.placeholder_multiple', 'Select values…')
+                }
+            />
+        );
+    }
 
     return (
         <AsyncCombobox<AttributeEntity>
-            id={id}
-            disabled={disabled || !listId}
-            queryKey={['attribute-entities', listId]}
-            loadPage={load}
-            resolveValue={resolve}
-            value={value}
-            onChange={(v, opt) => onChange(v, opt?.item)}
-            placeholder={t('form.entity.placeholder', 'Select a value…')}
-            onCreate={
-                allowNewValues && listId
-                    ? async query =>
-                          entityOption(
-                              await postAttributeEntity(listId, {value: query})
-                          )
-                    : undefined
+            {...common}
+            value={props.value}
+            onChange={(v, opt) => props.onChange(v, opt?.item)}
+            placeholder={
+                props.placeholder ??
+                t('form.entity.placeholder', 'Select a value…')
             }
         />
     );

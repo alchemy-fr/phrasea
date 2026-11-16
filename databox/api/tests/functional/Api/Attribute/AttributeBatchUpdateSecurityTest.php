@@ -113,41 +113,92 @@ class AttributeBatchUpdateSecurityTest extends AbstractDataboxTestCase
         $this->assertSame('No rights reserved', $this->getAttributeOf($asset)->getValue());
     }
 
-    public function testTagOfAnotherWorkspaceIsRefused(): void
+    public function testEntityOfAnotherWorkspaceIsRefused(): void
     {
         $client = static::createClient();
         $workspace = $this->createMemberWorkspace();
         $otherWorkspace = $this->createWorkspace(['ownerId' => self::ADMIN, 'slug' => 'other-workspace']);
-        $tag = $this->findOrCreateTagByName('Approved', $workspace);
-        $foreignTag = $this->findOrCreateTagByName('Secret', $otherWorkspace);
+        $definitionId = $this->getOrCreateTagsDefinition($workspace)->getId();
+        $tag = $this->findOrCreateTagEntity('Approved', $workspace);
+        $foreignTag = $this->findOrCreateTagEntity('Secret', $otherWorkspace);
         $asset = $this->createAsset(['ownerId' => self::USER]);
         $uri = '/assets/'.$asset->getId().'/attributes';
 
         $refusedActions = [
-            ['action' => 'add', 'definitionId' => 'tags', 'value' => $foreignTag->getId()],
-            ['action' => 'add', 'definitionId' => 'tags', 'value' => '6f1c2f0e-5b3a-4c1e-9d6a-0b8e2a7c4d11'],
-            ['action' => 'add', 'definitionId' => 'tags', 'value' => 'not-a-uuid'],
-            ['action' => 'add', 'definitionId' => 'tags', 'value' => [$tag->getId()]],
-            ['action' => 'delete', 'definitionId' => 'tags', 'ids' => [$foreignTag->getId()]],
-            ['action' => 'set', 'definitionId' => 'tags', 'value' => $tag->getId()],
+            ['action' => 'add', 'definitionId' => $definitionId, 'value' => $foreignTag->getId()],
+            ['action' => 'add', 'definitionId' => $definitionId, 'value' => '6f1c2f0e-5b3a-4c1e-9d6a-0b8e2a7c4d11'],
+            ['action' => 'add', 'definitionId' => $definitionId, 'value' => 'not-a-uuid'],
+            ['action' => 'add', 'definitionId' => $this->getOrCreateTagsDefinition($otherWorkspace)->getId(), 'value' => $foreignTag->getId()],
         ];
         foreach ($refusedActions as $action) {
             $this->send($client, 'POST', $uri, self::USER, ['actions' => [$action]]);
-            $this->assertResponseStatusCodeSame(400, json_encode($action, JSON_THROW_ON_ERROR));
+            $this->assertGreaterThanOrEqual(400, $client->getResponse()->getStatusCode(), json_encode($action, JSON_THROW_ON_ERROR));
+            $this->assertLessThan(500, $client->getResponse()->getStatusCode(), json_encode($action, JSON_THROW_ON_ERROR));
         }
 
         self::getEntityManager()->clear();
-        $this->assertCount(0, $this->findAsset($asset->getId())->getTags());
+        $this->assertSame([], $this->getTagValues($asset));
 
         $this->send($client, 'POST', $uri, self::USER, [
-            'actions' => [['action' => 'add', 'definitionId' => 'tags', 'value' => $tag->getId()]],
+            'actions' => [['action' => 'add', 'definitionId' => $definitionId, 'value' => $tag->getId()]],
         ]);
         $this->assertResponseIsSuccessful();
 
         self::getEntityManager()->clear();
-        $tags = $this->findAsset($asset->getId())->getTags();
-        $this->assertCount(1, $tags);
-        $this->assertSame($tag->getId(), $tags->first()->getId());
+        $this->assertSame([$tag->getId()], $this->getTagValues($asset));
+    }
+
+    public function testDeleteRemovesTheGivenValuesOnly(): void
+    {
+        $client = static::createClient();
+        $workspace = $this->createMemberWorkspace();
+        $definitionId = $this->getOrCreateTagsDefinition()->getId();
+        $keep = $this->findOrCreateTagEntity('Keep');
+        $remove = $this->findOrCreateTagEntity('Remove');
+        $asset = $this->createAsset(['ownerId' => self::USER, 'tags' => ['Keep', 'Remove']]);
+        $other = $this->createAsset(['ownerId' => self::USER, 'tags' => ['Remove']]);
+
+        // No value to remove: nothing is removed
+        $this->send($client, 'POST', '/attributes/batch-update', self::USER, [
+            'workspaceId' => $workspace->getId(),
+            'assets' => [$asset->getId(), $other->getId()],
+            'actions' => [['action' => 'delete', 'definitionId' => $definitionId, 'value' => []]],
+        ]);
+        $this->assertResponseIsSuccessful();
+        self::getEntityManager()->clear();
+        $this->assertEqualsCanonicalizing([$keep->getId(), $remove->getId()], $this->getTagValues($asset));
+
+        $this->send($client, 'POST', '/attributes/batch-update', self::USER, [
+            'workspaceId' => $workspace->getId(),
+            'assets' => [$asset->getId(), $other->getId()],
+            'actions' => [['action' => 'delete', 'definitionId' => $definitionId, 'value' => [$remove->getId(), 'unknown']]],
+        ]);
+        $this->assertResponseIsSuccessful();
+        self::getEntityManager()->clear();
+        $this->assertSame([$keep->getId()], $this->getTagValues($asset));
+        $this->assertSame([], $this->getTagValues($other));
+
+        // A single value
+        $this->send($client, 'POST', '/assets/'.$asset->getId().'/attributes', self::USER, [
+            'actions' => [['action' => 'delete', 'definitionId' => $definitionId, 'value' => $keep->getId()]],
+        ]);
+        $this->assertResponseIsSuccessful();
+        self::getEntityManager()->clear();
+        $this->assertSame([], $this->getTagValues($asset));
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getTagValues(Asset $asset): array
+    {
+        return array_map(
+            static fn (Attribute $attribute): string => $attribute->getValue(),
+            self::getEntityManager()->getRepository(Attribute::class)->findBy([
+                'asset' => $asset->getId(),
+                'definition' => $this->getOrCreateTagsDefinition($asset->getWorkspace())->getId(),
+            ]),
+        );
     }
 
     /**
