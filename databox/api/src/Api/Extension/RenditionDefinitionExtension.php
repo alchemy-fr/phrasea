@@ -7,10 +7,10 @@ namespace App\Api\Extension;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\RenditionDefinition;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\RenditionDefinitionRepository;
@@ -18,10 +18,13 @@ use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\RenditionDefinitionVoter;
 use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class RenditionDefinitionExtension implements QueryCollectionExtensionInterface
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     public function __construct(
@@ -29,7 +32,6 @@ final class RenditionDefinitionExtension implements QueryCollectionExtensionInte
         private readonly RenditionDefinitionRepository $renditionDefinitionRepository,
         private readonly AssetPolicyManager $assetPolicyManager,
         private readonly AssetRepository $assetRepository,
-        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -40,10 +42,10 @@ final class RenditionDefinitionExtension implements QueryCollectionExtensionInte
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        $this->addWhere($queryBuilder, $resourceClass);
+        $this->addWhere($queryBuilder, $resourceClass, $operation);
     }
 
-    private function addWhere(QueryBuilder $queryBuilder, string $resourceClass): void
+    private function addWhere(QueryBuilder $queryBuilder, string $resourceClass, ?Operation $operation): void
     {
         if (RenditionDefinition::class !== $resourceClass) {
             return;
@@ -60,12 +62,18 @@ final class RenditionDefinitionExtension implements QueryCollectionExtensionInte
             $this->renditionDefinitionRepository->addAclConditions($queryBuilder, $userId, $groupIds);
         }
 
-        $request = $this->requestStack->getCurrentRequest();
-        if ($assetId = $request?->query->get('assetId')) {
-            $asset = DoctrineUtil::findStrictByRepo(
-                $this->assetRepository,
-                $assetId,
-            );
+        $assetId = null !== $operation ? self::getParameterValue($operation, 'assetId') : null;
+        if (null !== $assetId && '' !== $assetId) {
+            if (!\is_string($assetId) || !Uuid::isValid($assetId)) {
+                throw new BadRequestHttpException('Invalid "assetId"');
+            }
+
+            // An unknown asset and an unreadable one answer the same, so that the response tells nothing about its existence
+            $asset = $this->assetRepository->find($assetId);
+            if (null === $asset || !$this->isGranted(AbstractVoter::READ, $asset)) {
+                throw new NotFoundHttpException('Asset not found');
+            }
+
             $assetPolicyFilter = $this->assetPolicyManager->getPolicyApplicationFilter($asset);
 
             if (!empty($assetPolicyFilter->getFilteredRenditions())) {

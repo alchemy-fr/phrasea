@@ -102,6 +102,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                     filter: AssetTypeTargetFilter::class,
                     property: 'target',
                 ),
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Hides the definitions an asset policy hides for this asset (READ required on the asset)',
+                    castToArray: false,
+                    hydra: false,
+                ),
             ],
         ),
         new Post(
