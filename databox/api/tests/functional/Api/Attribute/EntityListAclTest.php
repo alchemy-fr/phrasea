@@ -174,6 +174,22 @@ final class EntityListAclTest extends AbstractSearchTestCase
         $this->assertWorkspaceEditorOnlyOperationsAreDenied(self::OTHER);
     }
 
+    public function testAListEditorFilteringOnHisListOnlySeesItsPendingValues(): void
+    {
+        $this->setUpScene(PermissionInterface::EDIT);
+        $shapes = $this->createEntityList(['name' => 'Shapes']);
+        $pendingShape = $this->createEntity($shapes, 'Hexagon', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => 'someone']);
+        $pendingColor = $this->createEntity($this->list, 'Mauve', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => 'someone']);
+
+        foreach ([['x' => $this->iri()], [$this->iri()]] as $list) {
+            $response = $this->api('GET', '/attribute-entities', self::OTHER, options: ['query' => ['list' => $list]]);
+            $this->assertResponseStatusCodeSame(200);
+            $ids = array_column($response->toArray()['member'], 'id');
+            $this->assertContains($pendingColor->getId(), $ids, json_encode($list));
+            $this->assertNotContains($pendingShape->getId(), $ids, json_encode($list));
+        }
+    }
+
     public function testListRightsRequireTheWorkspaceMembership(): void
     {
         $this->setUpScene(PermissionInterface::OPERATOR | PermissionInterface::EDIT, member: false);

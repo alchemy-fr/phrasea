@@ -18,7 +18,7 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * Every workflow run is listed to admins; the other users only get the runs of
- * an asset they can edit, and must filter on it (`?asset=`).
+ * the assets they can edit, and must filter on them (`?asset=`).
  */
 class WorkflowStateExtension implements QueryCollectionExtensionInterface
 {
@@ -43,46 +43,58 @@ class WorkflowStateExtension implements QueryCollectionExtensionInterface
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        if (!$this->isAdmin() && !$this->canEditFilteredAssets(null !== $operation ? self::getParameterValue($operation, 'asset') : null)) {
-            $queryBuilder->andWhere('1 = 0');
+        if (!$this->isAdmin()) {
+            $assetIds = $this->getEditableAssetIds(null !== $operation ? self::getParameterValue($operation, 'asset') : null);
+            if (null === $assetIds) {
+                $queryBuilder->andWhere('1 = 0');
+            } else {
+                // Restricted on the checked IDs themselves: the "asset" filter skips the values with a non-integer key (`?asset[x]=`)
+                $parameterName = $queryNameGenerator->generateParameterName('editableAssets');
+                $queryBuilder
+                    ->andWhere(sprintf('%s.asset IN (:%s)', $rootAlias, $parameterName))
+                    ->setParameter($parameterName, $assetIds);
+            }
         }
 
         $queryBuilder->addOrderBy($rootAlias.'.startedAt', 'DESC');
     }
 
     /**
-     * The "asset" parameter: an ID or IRI, or a list of them (every asset must be editable).
+     * The "asset" parameter: an ID or IRI, or a list of them, whatever their keys.
+     *
+     * @return string[]|null the IDs of the assets, null unless every one of them is editable
      */
-    private function canEditFilteredAssets(mixed $filter): bool
+    private function getEditableAssetIds(mixed $filter): ?array
     {
-        if (\is_array($filter)) {
-            if ([] === $filter) {
-                return false;
-            }
-            foreach ($filter as $value) {
-                if (!$this->canEditFilteredAsset($value)) {
-                    return false;
-                }
-            }
-
-            return true;
+        $values = \is_array($filter) ? array_values($filter) : [$filter];
+        if ([] === $values) {
+            return null;
         }
 
-        return $this->canEditFilteredAsset($filter);
+        $assetIds = [];
+        foreach ($values as $value) {
+            $assetId = $this->getEditableAssetId($value);
+            if (null === $assetId) {
+                return null;
+            }
+            $assetIds[] = $assetId;
+        }
+
+        return array_values(array_unique($assetIds));
     }
 
-    private function canEditFilteredAsset(mixed $filter): bool
+    private function getEditableAssetId(mixed $filter): ?string
     {
-        if (!is_string($filter) || '' === $filter) {
-            return false;
+        if (!\is_string($filter) || '' === $filter) {
+            return null;
         }
 
         $assetId = basename($filter);
         if (!Uuid::isValid($assetId)) {
-            return false;
+            return null;
         }
         $asset = $this->em->find(Asset::class, $assetId);
 
-        return $asset instanceof Asset && $this->isGranted(AbstractVoter::EDIT, $asset);
+        return $asset instanceof Asset && $this->isGranted(AbstractVoter::EDIT, $asset) ? $asset->getId() : null;
     }
 }

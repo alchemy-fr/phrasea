@@ -39,20 +39,19 @@ class AttributeEntityExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        // The editors of the requested list(s) also see the pending values
-        $listIds = null !== $operation ? (array) self::getParameterValue($operation, 'list', []) : [];
-        if (!empty($listIds)) {
-            $editsEveryList = true;
-            foreach ($listIds as $listId) {
-                $list = DoctrineUtil::findStrict($this->em, EntityList::class, basename((string) $listId), throw404: true);
-                $editsEveryList = $editsEveryList && $this->isGranted(EntityListVoter::EDIT_VALUES, $list);
-            }
-            if ($editsEveryList) {
-                return;
-            }
-        }
-
         $rootAlias = $queryBuilder->getRootAliases()[0];
+
+        // The editors of the requested list(s) also see the pending values
+        $editableListIds = $this->getEditableListIds(null !== $operation ? self::getParameterValue($operation, 'list') : null);
+        if (null !== $editableListIds) {
+            // Restricted on the checked IDs themselves: the "list" filter skips the values with a non-integer key (`?list[x]=`)
+            $parameterName = $queryNameGenerator->generateParameterName('editableLists');
+            $queryBuilder
+                ->andWhere(sprintf('%s.list IN (:%s)', $rootAlias, $parameterName))
+                ->setParameter($parameterName, $editableListIds);
+
+            return;
+        }
 
         $userIdentifier = $this->getUserOrOAuthClient()?->getUserIdentifier();
 
@@ -85,5 +84,33 @@ class AttributeEntityExtension implements QueryCollectionExtensionInterface
                 ->setParameter('approved', AttributeEntity::STATUS_APPROVED)
             ;
         }
+    }
+
+    /**
+     * The "list" parameter: an ID or IRI, or a list of them, whatever their keys.
+     *
+     * @return string[]|null the IDs of the lists, null unless every one of them is given as a string and has editable values
+     */
+    private function getEditableListIds(mixed $filter): ?array
+    {
+        $values = \is_array($filter) ? array_values($filter) : [$filter];
+        if ([] === $values) {
+            return null;
+        }
+        foreach ($values as $value) {
+            if (!\is_string($value) || '' === $value) {
+                return null;
+            }
+        }
+
+        $listIds = [];
+        $editsEveryList = true;
+        foreach ($values as $value) {
+            $list = DoctrineUtil::findStrict($this->em, EntityList::class, basename($value), throw404: true);
+            $editsEveryList = $editsEveryList && $this->isGranted(EntityListVoter::EDIT_VALUES, $list);
+            $listIds[] = $list->getId();
+        }
+
+        return $editsEveryList ? array_values(array_unique($listIds)) : null;
     }
 }
