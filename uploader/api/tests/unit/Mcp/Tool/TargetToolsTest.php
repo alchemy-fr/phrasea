@@ -21,18 +21,18 @@ class TargetToolsTest extends AbstractToolTestCase
     {
         $this->kernel->willRespond(['member' => [['id' => 't1']], 'totalItems' => 1]);
 
-        $this->assertSame(['items' => [['id' => 't1']], 'page' => 1], $this->tools->list());
+        $this->assertSame(['items' => [['id' => 't1']], 'totalItems' => 1], $this->tools->list());
 
-        $this->assertLastRequest('GET', '/targets', ['page' => '1']);
+        $this->assertLastRequest('GET', '/targets', []);
     }
 
     public function testListSearchesByName(): void
     {
         $this->kernel->willRespond(self::emptyCollection());
 
-        $this->tools->list('prod', 2);
+        $this->tools->list('prod');
 
-        $this->assertLastRequest('GET', '/targets', ['query' => 'prod', 'page' => '2']);
+        $this->assertLastRequest('GET', '/targets', ['query' => 'prod']);
     }
 
     public function testGet(): void
