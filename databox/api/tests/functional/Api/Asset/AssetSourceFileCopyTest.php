@@ -27,8 +27,8 @@ use App\Tests\Functional\AbstractDataboxTestCase;
 /**
  * A new asset may copy an existing file ("sourceFileId") only when the user
  * can read that file where it is used: the source or a previous source of a
- * readable asset, a rendition the rendition policy lets the user read, or an
- * integration output of a readable file. Any other file is refused.
+ * readable asset, a rendition the rendition policy lets the user read, an
+ * integration output of a readable file… (see FileVoter). Any other file is refused.
  */
 class AssetSourceFileCopyTest extends AbstractDataboxTestCase
 {
