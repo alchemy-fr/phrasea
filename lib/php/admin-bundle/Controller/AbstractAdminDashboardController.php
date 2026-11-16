@@ -39,6 +39,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
             ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ->overrideTemplate('crud/detail', '@AlchemyAdmin/detail.html.twig')
+            ->overrideTemplate('flash_messages', '@AlchemyAdmin/flash_messages.html.twig')
         ;
     }
 

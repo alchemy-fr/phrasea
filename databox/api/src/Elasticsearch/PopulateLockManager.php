@@ -8,6 +8,7 @@ use App\Entity\Admin\PopulatePass;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Inspects and force-releases the per-index populate locks taken by PopulatePassListener.
@@ -24,17 +25,26 @@ final class PopulateLockManager
     public function __construct(
         private readonly string $redisDsn,
         private readonly EntityManagerInterface $em,
+        /**
+         * The ES index prefix of this deployment: two stacks sharing a Redis server
+         * must not lock (nor release) each other's populates.
+         */
+        #[Autowire('%es_index_prefix%')]
+        private readonly string $indexPrefix = '',
     ) {
     }
 
-    public static function getLockName(string $indexName): string
+    /**
+     * @param string $indexName logical index name
+     */
+    public function getLockName(string $indexName): string
     {
-        return self::LOCK_PREFIX.$indexName;
+        return self::LOCK_PREFIX.$this->indexPrefix.$indexName;
     }
 
     public function isLocked(string $indexName): bool
     {
-        return (bool) $this->redis()->exists(self::getLockName($indexName));
+        return (bool) $this->redis()->exists($this->getLockName($indexName));
     }
 
     /**
@@ -113,7 +123,7 @@ final class PopulateLockManager
 
     private function deleteLock(string $indexName): bool
     {
-        return ((int) $this->redis()->del(self::getLockName($indexName))) > 0;
+        return ((int) $this->redis()->del($this->getLockName($indexName))) > 0;
     }
 
     private function redis(): \Redis|\Predis\ClientInterface

@@ -28,7 +28,7 @@ class DeleteElasticSearchIndexCommand extends Command
             ->addOption('index', 'i', InputOption::VALUE_REQUIRED, 'Logical index name (e.g. "asset"); defaults to every configured index')
             ->addOption('remove-olds', null, InputOption::VALUE_NONE, 'Also remove the dated indices left behind by previous populates')
             ->addOption('olds-only', null, InputOption::VALUE_NONE, 'Only remove the dated indices; keep the ones currently aliased')
-            ->addOption('force-prefix', null, InputOption::VALUE_NONE, 'Remove every physical index whose name starts with "<index>_", whatever its alias')
+            ->addOption('force-prefix', null, InputOption::VALUE_NONE, 'Remove every physical index of the logical index ("<configured name>" or "<configured name>_<date>"), whatever its alias')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation')
             ->setDescription('Remove index and its aliases')
             ->setHelp(<<<'HELP'
@@ -56,7 +56,7 @@ HELP
         ));
 
         $scope = match (true) {
-            $forcePrefix => 'every physical index prefixed by the logical index name',
+            $forcePrefix => 'every physical index of the logical index (configured name, dated or not), whatever its alias',
             $oldsOnly => 'only the old dated indices (currently aliased indices are kept)',
             $removeOlds => 'the currently aliased index and the old dated indices',
             default => 'the currently aliased index only',

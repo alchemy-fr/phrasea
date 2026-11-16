@@ -1,0 +1,33 @@
+{#
+    Same as @EasyAdmin/flash_messages.html.twig, but the messages are escaped: they often
+    carry user input (names from the URL, exception messages…), which must never be rendered
+    as HTML in the admin session.
+#}
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContext #}
+{% set ea = ea() %}
+{% trans_default_domain null != ea ? ea.i18n.translationDomain : (translation_domain is defined ? translation_domain ?? 'messages') %}
+
+{% set flash_messages = app.flashes %}
+
+{% if flash_messages|length > 0 %}
+    <div id="flash-messages">
+        {% for label, messages in flash_messages %}
+            {% for message in messages %}
+                {# flash messages can be plain strings or arrays with 'message', 'title' and 'icon' keys;
+                   they are translated outside of the Twig component, which ignores trans_default_domain #}
+                {% if message is iterable %}
+                    {% set flash_icon = message.icon ?? null %}
+                    {% set flash_title = message.title is defined ? message.title|trans : null %}
+                    {% set flash_message = (message.message ?? '')|trans %}
+                {% else %}
+                    {% set flash_icon = null %}
+                    {% set flash_title = null %}
+                    {% set flash_message = message|trans %}
+                {% endif %}
+                <twig:ea:Alert variant="{{ label }}" :icon="flash_icon" :title="flash_title" withDismissButton>
+                    {{ flash_message }}
+                </twig:ea:Alert>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endif %}

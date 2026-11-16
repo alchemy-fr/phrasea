@@ -14,6 +14,11 @@ final readonly class IndexRemover
     public const string REASON_ALIASED = 'aliased';
     public const string REASON_OLD = 'old';
 
+    /**
+     * Suffix FOS Elastica appends to the configured name when it creates an aliased index.
+     */
+    private const string DATE_SUFFIX_PATTERN = '\d{4}-\d{2}-\d{2}-\d{6}';
+
     public function __construct(
         private IndexManager $indexManager,
         private Client $client,
@@ -47,10 +52,14 @@ final readonly class IndexRemover
         $plan = [];
         foreach ($indices as $i) {
             $plan[$i] = [];
+            // Configured name, prefix and environment included (e.g. "<prefix>asset_prod")
             $indexName = $this->indexManager->getIndex($i)->getName();
+            $quotedName = preg_quote($indexName, '#');
 
             foreach ($aliasesData as $indexKey => $c) {
-                if ($forcePrefix && str_starts_with($indexKey, $i.'_')) {
+                // The physical indices of this logical index only: never "asset_data_template_*"
+                // for "asset", nor the indices of another deployment or environment.
+                if ($forcePrefix && 1 === preg_match('#^'.$quotedName.'(_'.self::DATE_SUFFIX_PATTERN.')?$#D', $indexKey)) {
                     $plan[$i][$indexKey] = self::REASON_PREFIXED;
 
                     continue;
@@ -64,7 +73,7 @@ final readonly class IndexRemover
                     continue;
                 }
 
-                if ($removeOlds && 1 === preg_match('#^'.preg_quote($indexName).'_\d{4}-\d{2}-\d{2}-\d{6}$#', $indexKey)) {
+                if ($removeOlds && 1 === preg_match('#^'.$quotedName.'_'.self::DATE_SUFFIX_PATTERN.'$#D', $indexKey)) {
                     $plan[$i][$indexKey] = self::REASON_OLD;
                 }
             }
