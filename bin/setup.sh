@@ -83,6 +83,8 @@ fail() {
 
 docker compose up -d "${infra_services[@]}"
 
+setup_elasticsearch_users || fail
+
 setup_container configurator "bin/setup.sh $@"
 wait_all || fail
 

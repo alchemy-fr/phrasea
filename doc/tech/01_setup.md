@@ -190,6 +190,21 @@ move the Docker pools out of `172.16.0.0/12` in `/etc/docker/daemon.json`, then 
 Only set `TRUSTED_PROXIES` when another proxy (e.g. a load balancer) sits in front of Traefik: list
 its address together with `PS_TRAEFIK_IP` (comma-separated) so that the client IP it forwards is kept.
 
+### Elasticsearch authentication
+
+The bundled Elasticsearch (profile `elasticsearch`) requires authentication, since the asset rights
+are applied inside its documents. The `elastic` superuser gets `ELASTIC_PASSWORD`; the applications
+use their own user, `ELASTICSEARCH_USERNAME` / `ELASTICSEARCH_PASSWORD` (both passwords are
+`@change-me`). The `elasticsearch-setup` service creates or updates that user at every `dc up`, with a
+role of the same name: every privilege on the indices starting with `ELASTICSEARCH_INDEX_PREFIX` (every
+index when the prefix is empty, the default), `monitor` on the cluster. `bin/setup.sh`, `bin/migrate.sh`
+and `bin/test.sh standard` run it in the foreground (`dc run --rm elasticsearch-setup`) before using
+Elasticsearch. HTTP is not encrypted: Elasticsearch is only reachable from the internal `data` network.
+
+With an external cluster, leave the `elasticsearch` profile out and set `ELASTICSEARCH_URL`,
+`ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD` (both empty for a cluster without
+authentication).
+
 ### Administration consoles
 
 Traefik exposes the technical consoles behind two middlewares, defined on the `traefik` service:
