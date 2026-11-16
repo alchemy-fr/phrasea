@@ -17,18 +17,13 @@ export type FieldType =
     | 'boolean'
     | 'color'
     | 'choice'
-    | 'entity'
-    | 'tag';
+    | 'entity';
 
 export type FieldWidget =
     'autocomplete' | 'select' | 'checkboxes' | 'radios' | 'switch' | 'checkbox';
 
 export type BuiltinKey =
-    | 'databox_name'
-    | 'databox_tags'
-    | 'databox_is_story'
-    | 'databox_story_name'
-    | '__notify';
+    'databox_name' | 'databox_is_story' | 'databox_story_name' | '__notify';
 
 /** The Databox attribute a field fills, as it was when added to the form */
 export type AttributeSnapshot = {
@@ -94,7 +89,7 @@ export type FormValues = Record<string, unknown>;
 /** Field key (`''` for the whole form) => messages */
 export type FormFieldErrors = Record<string, string[]>;
 
-/** A value of an entity or tag field, as the API lists them */
+/** A value of an entity field, as the API lists them */
 export type FieldOption = {
     value: string;
     label: string;
@@ -113,7 +108,7 @@ export type FieldOptionsQuery = {
     page?: number;
 };
 
-/** Lists the values an entity or tag field offers */
+/** Lists the values an entity field offers */
 export type FieldOptionsLoader = (
     field: InputField,
     query: FieldOptionsQuery

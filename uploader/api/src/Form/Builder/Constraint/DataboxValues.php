@@ -7,7 +7,7 @@ namespace App\Form\Builder\Constraint;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * The value(s) must be entities of the list, or tags of the workspace, in Databox.
+ * The value(s) must be entities of the list in Databox.
  */
 final class DataboxValues extends Constraint
 {
@@ -15,8 +15,7 @@ final class DataboxValues extends Constraint
     public string $unavailableMessage = 'The values could not be checked against Databox.';
 
     public function __construct(
-        public ?string $entityListId = null,
-        public ?string $workspaceId = null,
+        public string $entityListId,
         ?array $groups = null,
         mixed $payload = null,
     ) {

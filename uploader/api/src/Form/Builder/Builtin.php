@@ -11,7 +11,6 @@ namespace App\Form\Builder;
 enum Builtin: string
 {
     case Name = 'databox_name';
-    case Tags = 'databox_tags';
     case IsStory = 'databox_is_story';
     case StoryName = 'databox_story_name';
     case Notify = '__notify';
@@ -20,13 +19,7 @@ enum Builtin: string
     {
         return match ($this) {
             self::Name, self::StoryName => FieldType::Text,
-            self::Tags => FieldType::Tag,
             self::IsStory, self::Notify => FieldType::Boolean,
         };
-    }
-
-    public function isMultiple(): bool
-    {
-        return self::Tags === $this;
     }
 }

@@ -135,62 +135,11 @@ final readonly class DataboxCatalog
     /**
      * @param string[] $ids
      *
-     * @return array{member: list<array{value: string, label: string, color: ?string, emoji: ?string}>, hasMore: bool}
-     */
-    public function getTagOptions(string $workspaceId, ?string $query, array $ids, int $page): array
-    {
-        if ([] !== $ids) {
-            $tags = [];
-            foreach (array_unique($ids) as $id) {
-                try {
-                    $tag = $this->client->get('/tags/'.rawurlencode((string) $id));
-                } catch (DataboxException $e) {
-                    if (404 === $e->statusCode) {
-                        continue;
-                    }
-                    throw $e;
-                }
-                $tagWorkspaceId = self::relationId($tag['workspace'] ?? null);
-                if (null === $tagWorkspaceId || $tagWorkspaceId === $workspaceId) {
-                    $tags[] = $tag;
-                }
-            }
-
-            return ['member' => array_map(self::mapTag(...), $tags), 'hasMore' => false];
-        }
-
-        $params = ['workspace' => $workspaceId, 'limit' => self::PAGE_SIZE, 'page' => max(1, $page)];
-        if (null !== $query && '' !== trim($query)) {
-            $params['query'] = $query;
-        }
-        $data = $this->client->get('/tags', $params);
-
-        return [
-            'member' => array_map(self::mapTag(...), self::members($data)),
-            'hasMore' => self::hasNext($data),
-        ];
-    }
-
-    /**
-     * @param string[] $ids
-     *
      * @return string[] the ids that are not values of the list
      */
     public function findMissingEntities(string $listId, array $ids): array
     {
         $found = array_column($this->getEntityOptions($listId, null, $ids, 1, null)['member'], 'value');
-
-        return array_values(array_diff($ids, $found));
-    }
-
-    /**
-     * @param string[] $ids
-     *
-     * @return string[] the ids that are not tags of the workspace
-     */
-    public function findMissingTags(string $workspaceId, array $ids): array
-    {
-        $found = array_column($this->getTagOptions($workspaceId, null, $ids, 1)['member'], 'value');
 
         return array_values(array_diff($ids, $found));
     }
@@ -219,31 +168,12 @@ final readonly class DataboxCatalog
         return isset($data['view']['next']) || isset($data['hydra:view']['hydra:next']);
     }
 
-    private static function relationId(mixed $relation): ?string
-    {
-        return match (true) {
-            is_array($relation) => isset($relation['id']) ? (string) $relation['id'] : null,
-            is_string($relation) => basename($relation),
-            default => null,
-        };
-    }
-
     private static function mapWorkspace(array $workspace): array
     {
         return [
             'id' => (string) $workspace['id'],
             'name' => (string) ($workspace['displayName'] ?? $workspace['name'] ?? $workspace['id']),
             'enabledLocales' => array_values(array_filter($workspace['enabledLocales'] ?? [], is_string(...))),
-        ];
-    }
-
-    private static function mapTag(array $tag): array
-    {
-        return [
-            'value' => (string) $tag['id'],
-            'label' => (string) ($tag['displayName'] ?? $tag['name'] ?? $tag['id']),
-            'color' => $tag['color'] ?? null,
-            'emoji' => null,
         ];
     }
 }

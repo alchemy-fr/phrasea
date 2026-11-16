@@ -71,7 +71,7 @@ type Props = {
     disabled?: boolean;
 };
 
-/** A field picking among values: custom choices, Databox entities or tags */
+/** A field picking among values: custom choices or Databox entities */
 export function OptionsField(props: Props) {
     const {i18n} = useTranslation();
     const {field} = props;

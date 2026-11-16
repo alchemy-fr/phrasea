@@ -983,7 +983,8 @@ API changes and their replacement:
 
 The Uploader forms using the built-in `databox_tags` field are converted to an
 attribute field by a separate migration of the Uploader, to deploy together
-(Databox no longer reads `databox_tags`). The Phraseanet indexer
+(Databox no longer reads `databox_tags`): see
+[Tags field of the forms](#tags-field-of-the-forms). The Phraseanet indexer
 (`databox/indexer`) must write the status bits as values of an entity list
 instead of tags. The Rust indexer (`alchemy-fr/databox-indexer`), which calls `/tags`, must be
 upgraded separately.
@@ -1073,6 +1074,33 @@ unchanged. Only `PUT` → `PATCH`, the `hydra:` prefix and filter typing change:
   to it. `http` is accepted for a host of the stack, without dot
   (`http://databox-api/…`), and in the dev and test environments. The existing
   targets are not checked until they are edited.
+
+### Tags field of the forms
+
+Databox has no tags any more (see
+[Tags replaced by entity lists](#tags-replaced-by-entity-lists)): the built-in
+form field `databox_tags`, the field type `tag` and
+`GET /databox/workspaces/{id}/tags` are removed. The tags are the values of
+the `tags` entity attribute, added to a form like any other attribute. A
+migration of the Uploader, to run with the one of Databox:
+
+- turns the `databox_tags` field of each form into a field of the `tags`
+  attribute of the form's workspace (multiple, labels, default values and
+  widget kept: the tag UUIDs are the entity UUIDs). The attribute and list IDs
+  are the deterministic ones the Databox migration gives them. A form that
+  already has a `tags` field gets the key `tagsmigrated` instead (with a
+  warning); a form without workspace loses the field (with a warning);
+- renames the `databox_tags` key of the target data and of the commits not
+  yet acknowledged to the key of that field, merging their values.
+
+It cannot be reverted. To review afterwards, in the form builder:
+
+- the forms of a workspace where Databox took the fallback slug
+  `tagsmigrated` while the form had no `tags` field: their field keeps the key
+  `tags`, which now names the other attribute. Replace it by the
+  "Tags (migrated)" attribute;
+- the forms of a workspace that had no tag: Databox created no "Tags" list,
+  the field has no value to offer. Remove it.
 
 ## Allowed file types and file serving
 
