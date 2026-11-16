@@ -42,7 +42,7 @@ final class ESPopulateHandlerTest extends KernelTestCase
     protected function tearDown(): void
     {
         $this->deletePasses();
-        static::getContainer()->get(PopulateLockManager::class)->forceRelease(self::INDEX);
+        static::getContainer()->get(PopulateLockManager::class)->forceRelease(self::INDEX, evenIfAlive: true);
         $this->defaultWorkspace = null;
         $this->defaultAttributePolicy = null;
         parent::tearDown();
@@ -64,6 +64,8 @@ final class ESPopulateHandlerTest extends KernelTestCase
         $this->assertNotNull($passes[0]->getEndedAt());
         $this->assertNull($passes[0]->getError());
         $this->assertSame(3, $passes[0]->getProgress());
+        $this->assertNotNull($passes[0]->getRunId(), 'the child records the run id given by the handler');
+        $this->assertNotSame(static::getContainer()->get(PopulateLockManager::class)->getRunId(), $passes[0]->getRunId());
         $this->assertFalse(static::getContainer()->get(PopulateLockManager::class)->isLocked(self::INDEX));
     }
 

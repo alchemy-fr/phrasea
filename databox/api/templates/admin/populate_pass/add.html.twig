@@ -14,12 +14,20 @@
             <p>A populate is currently running for: <strong>{{ running|join(', ') }}</strong>.
             These indices cannot be populated again until it finishes.</p>
             <p class="mb-2">If the worker died mid-populate, force-release the lock (this also closes the open pass).
-            <strong>Do not do this while the populate is actually running</strong>: it would lose its index.</p>
+            The release is refused while the populate still gives signs of life (its heartbeat is renewed while it indexes).
+            <strong>Do not force it while the populate is actually running</strong>: two populates would build the index at once.</p>
             {% for index in running %}
-                <form method="post" action="{{ path('easyadmin_populate_pass_unlock', {index: index}) }}" class="d-inline"
+                <form method="post" action="{{ path('easyadmin_populate_pass_unlock', {index: index}) }}" class="mb-2"
                       onsubmit="return confirm('Release the populate lock of {{ index }}? Only do this if its worker is dead.');">
                     <input type="hidden" name="token" value="{{ csrf_token(constant('App\\Controller\\Admin\\PopulatePassCrudController::CSRF_TOKEN_ID')) }}">
                     <button type="submit" class="btn btn-sm btn-outline-danger es-unlock" data-index="{{ index }}"><i class="fa fa-lock-open"></i> Release lock of {{ index }}</button>
+                    <span class="form-check form-check-inline ms-2">
+                        <input class="form-check-input" type="checkbox" name="force" value="1" id="populate-unlock-force-{{ index }}">
+                        <label class="form-check-label small" for="populate-unlock-force-{{ index }}">even if alive</label>
+                    </span>
+                    {% if owners[index] is defined %}
+                        <div class="small {{ owners[index].alive ? 'text-danger' : 'text-muted' }}">{{ owners[index].alive ? 'Alive' : 'No sign of life' }}: {{ owners[index].description }}</div>
+                    {% endif %}
                 </form>
             {% endfor %}
         </div>
