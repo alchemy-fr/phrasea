@@ -99,7 +99,8 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             $queryBuilder->andWhere('t.workspace IS NULL');
         } else {
             $queryBuilder
-                ->leftJoin('t.workspace', 'w');
+                ->leftJoin('t.workspace', 'w')
+                ->andWhere('t.workspace IS NULL OR w.deletedAt IS NULL');
 
             $user = $this->security->getUser();
             if ($user instanceof JwtUser) {
