@@ -208,6 +208,24 @@ Operational notes:
 - Backfill existing assets with `bin/console app:face-recognition:index` (add `--sync` to run in the foreground).
 - Give the existing persons their photo with `bin/console app:face-recognition:photos` (`--workspace` to limit it to a workspace): it queues the persons that have no photo or an automatic one, in the integrations having `autoPhoto` enabled.
 
+## Phraseanet Renditions integration (phraseanet.renditions)
+
+Display name: Phraseanet Renditions
+
+This workflow integration has the renditions of incoming assets built by a Phraseanet instance (`baseUrl`, API key `token`).
+
+Main behavior:
+
+- `api` method: the source file is submitted to the subdefinition service of the Phraseanet API (`databoxId`), and each rendition comes back on `POST /integrations/phraseanet/{integrationId}/renditions/incoming/{assetId}`, authenticated by a token signed for the asset.
+- `enqueue` method: Phraseanet fetches the asset (`collectionId`) with a token signed for the asset, then notifies each generated sub definition (`record.subdef.created` event) on the **Webhook URL** shown in the integration information. The rendition is then downloaded from the permalink of the event.
+- The Webhook URL carries the `webhookSecret` of the integration in its `token` query parameter: `POST /integrations/phraseanet/{integrationId}/events?token=<webhookSecret>`. The secret is generated when the integration is created, and a new one when it is duplicated.
+
+Operational notes:
+
+- Set the Webhook URL as is in Phraseanet, and keep it private: whoever holds it can replace the renditions of the assets being processed.
+- 401 without the `token` or with a wrong one, and for an integration without `webhookSecret` (add one to its configuration, e.g. `openssl rand -hex 32`, then copy the new Webhook URL into Phraseanet); 404 for an unknown integration.
+- Only permalinks on the host and port of `baseUrl` are downloaded. The type and size given by the event are ignored: they come from the downloaded file, whose content is checked like any imported file.
+
 ## Configuration form & schema
 
 The workspace administration (`/workspaces/:id/manage/integrations`) configures an integration with a **form generated from its configuration tree**, the YAML editor remaining available as an advanced mode (the two are converted into each other on the client, and both `config` and `configYaml` are accepted by the API).

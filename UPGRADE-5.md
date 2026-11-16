@@ -722,6 +722,14 @@ Integrations:
 - Publishing a basket to Expose requires READ on the basket.
 - The AWS Transcribe SNS endpoint only accepts
   `https://sns.<region>.amazonaws.com` URLs.
+- The Phraseanet `events` webhook (`phraseanet.renditions` integration,
+  `enqueue` method) requires the `webhookSecret` of the integration in its
+  `token` query parameter, and answers 401 otherwise. New integrations get a
+  generated secret; an existing one refuses the Phraseanet events, and its
+  renditions stay pending, until a `webhookSecret` is added to its
+  configuration (e.g. `openssl rand -hex 32`) and the new Webhook URL shown in
+  its information is copied into Phraseanet. The type and size sent by the
+  event are ignored: they are taken from the downloaded rendition.
 
 Workflows and files:
 

@@ -64,7 +64,31 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
                 ->info('The Phraseanet API key')
                 ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end()
+            ->scalarNode('webhookSecret')
+                ->cannotBeEmpty()
+                ->info(sprintf('The secret carried by the Webhook URL set in Phraseanet ("%s" method): events without it are refused', self::METHOD_ENQUEUE))
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
+            ->end()
         ;
+    }
+
+    #[\Override]
+    public function generateConfigurationDefaults(array $userConfig): array
+    {
+        $userConfig['webhookSecret'] ??= bin2hex(random_bytes(32));
+
+        return $userConfig;
+    }
+
+    /**
+     * A webhook secret must not be shared by two integrations.
+     */
+    #[\Override]
+    public function prepareDuplicateConfiguration(array $config): array
+    {
+        unset($config['webhookSecret']);
+
+        return $this->generateConfigurationDefaults($config);
     }
 
     public function validateConfiguration(IntegrationConfig $config): void
@@ -88,11 +112,15 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         $info = [];
 
         if (self::METHOD_ENQUEUE === $config['method']) {
+            $secret = $config['webhookSecret'] ?? null;
             $info[] = [
                 'label' => 'Webhook URL',
-                'description' => 'The URL to which Phraseanet will send incoming renditions.',
-                'value' => $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
+                'description' => empty($secret)
+                    ? 'Phraseanet events are refused until a "webhookSecret" is set in the configuration.'
+                    : 'The URL to which Phraseanet will send incoming renditions. It carries the webhook secret: keep it private.',
+                'value' => empty($secret) ? 'Not set' : $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
                     'integrationId' => $config->getIntegrationId(),
+                    'token' => $secret,
                 ], UrlGeneratorInterface::ABSOLUTE_URL),
             ];
         }

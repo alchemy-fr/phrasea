@@ -52,8 +52,8 @@ readonly class PhraseanetDownloadSubdefHandler
             $renditionDefinition,
             File::STORAGE_URL,
             $permalink,
-            $message->getType(),
-            $message->getSize(),
+            null,
+            null,
             basename($urlPart),
             null,
             null
