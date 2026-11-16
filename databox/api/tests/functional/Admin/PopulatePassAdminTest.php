@@ -186,6 +186,37 @@ class PopulatePassAdminTest extends AbstractDataboxAdminTestCase
         }
     }
 
+    public function testTheLockOfALivePopulateIsOnlyReleasedWhenForced(): void
+    {
+        /** @var LockFactory $lockFactory */
+        $lockFactory = static::getContainer()->get(LockFactory::class);
+        /** @var PopulateLockManager $manager */
+        $manager = static::getContainer()->get(PopulateLockManager::class);
+        $worker = $lockFactory->createLock($manager->getLockName('tag'), 600);
+        $this->assertTrue($worker->acquire());
+        $manager->writeOwner('tag', ['runId' => 'run', 'passId' => null, 'host' => 'worker-1', 'pid' => 42, 'index' => null], 600);
+
+        try {
+            $crawler = $this->loadAddPage();
+            $this->assertStringContainsString('Alive: host worker-1, pid 42', $crawler->filter('.alert-warning')->text());
+            $unlockForm = $crawler->filter('button.es-unlock[data-index="tag"]')->form();
+            $token = $unlockForm->get('token')->getValue();
+
+            $this->client->request('POST', $unlockForm->getUri(), ['token' => $token]);
+            $this->assertResponseRedirects();
+            $this->assertTrue($manager->isLocked('tag'), 'the lock of a live populate is kept');
+            $crawler = $this->client->followRedirect();
+            $this->assertStringContainsString('still alive', $crawler->filter('#flash-messages')->text());
+
+            $this->client->request('POST', $unlockForm->getUri(), ['token' => $token, 'force' => '1']);
+            $this->assertResponseRedirects();
+            $this->assertFalse($manager->isLocked('tag'));
+        } finally {
+            $worker->release();
+            $manager->forceRelease('tag', evenIfAlive: true);
+        }
+    }
+
     public function testInvalidCsrfTokenIsRejected(): void
     {
         $crawler = $this->loadAddPage();

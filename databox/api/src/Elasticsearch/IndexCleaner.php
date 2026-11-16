@@ -11,13 +11,14 @@ readonly class IndexCleaner
     public function __construct(
         private Index $assetIndex,
         private Index $collectionIndex,
+        private PopulateWriteJournal $populateWriteJournal,
     ) {
     }
 
     public function removeWorkspaceFromIndex(string $workspaceId): void
     {
-        foreach ([$this->assetIndex, $this->collectionIndex] as $index) {
-            $this->deleteByQuery($index, [
+        foreach (['asset' => $this->assetIndex, 'collection' => $this->collectionIndex] as $indexName => $index) {
+            $this->deleteByQuery($indexName, $index, [
                 'term' => [
                     'workspaceId' => $workspaceId,
                 ],
@@ -27,7 +28,7 @@ readonly class IndexCleaner
 
     public function removeCollectionFromIndex(string $collectionId): void
     {
-        $this->deleteByQuery($this->assetIndex, [
+        $this->deleteByQuery('asset', $this->assetIndex, [
             'term' => [
                 'referenceCollectionId' => $collectionId,
             ],
@@ -45,8 +46,10 @@ readonly class IndexCleaner
      * already dropped) and `conflicts=proceed` covers documents concurrently
      * reindexed — neither should abort a deletion.
      */
-    private function deleteByQuery(Index $index, array $query): void
+    private function deleteByQuery(string $indexName, Index $index, array $query): void
     {
+        $this->populateWriteJournal->recordQuery($indexName, PopulateWriteJournal::QUERY_DELETE, ['query' => $query]);
+
         $index->deleteByQuery(['query' => $query], [
             'conflicts' => 'proceed',
             'ignore_unavailable' => true,
