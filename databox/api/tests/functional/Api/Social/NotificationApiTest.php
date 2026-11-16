@@ -355,6 +355,11 @@ final class NotificationApiTest extends AbstractDataboxTestCase
         yield 'no items' => [['foo' => 'bar']];
         yield 'missing enabled' => [['items' => [['topic' => 'asset:update', 'channel' => 'email']]]];
         yield 'unknown channel' => [['topic' => 'asset:update', 'channel' => 'pigeon', 'enabled' => true]];
+        yield 'unknown topic' => [['topic' => 'nope:nope', 'channel' => 'email', 'enabled' => false]];
+        yield 'too long topic' => [['topic' => str_repeat('a', 300), 'channel' => 'email', 'enabled' => false]];
+        yield 'channel not delivered' => [['topic' => 'asset:update', 'channel' => 'sms', 'enabled' => false]];
+        yield 'enabled as string' => [['topic' => 'asset:update', 'channel' => 'email', 'enabled' => 'false']];
+        yield 'too many items' => [['items' => array_fill(0, 101, ['topic' => 'asset:update', 'channel' => 'email', 'enabled' => false])]];
     }
 
     #[DataProvider('invalidPreferencesProvider')]
@@ -365,6 +370,25 @@ final class NotificationApiTest extends AbstractDataboxTestCase
         $client->request('PUT', '/notification-preferences', self::auth(self::USER, ['json' => $payload]));
         $this->assertResponseStatusCodeSame(400);
         $this->assertSame(0, self::getEntityManager()->getRepository(NotificationPreference::class)->count([]));
+    }
+
+    public function testDuplicateEntriesAreMerged(): void
+    {
+        $client = static::createClient();
+
+        $items = $client->request('PUT', '/notification-preferences', self::auth(self::USER, [
+            'json' => ['items' => [
+                ['topic' => 'asset:update', 'channel' => 'email', 'enabled' => false],
+                ['topic' => 'asset:update', 'channel' => 'email', 'enabled' => true],
+            ]],
+        ]))->toArray()['items'];
+        $this->assertResponseIsSuccessful();
+        $this->assertContains(['topic' => 'asset:update', 'channel' => 'email', 'enabled' => true], $items);
+
+        $preferences = self::getEntityManager()->getRepository(NotificationPreference::class)->findAll();
+        $this->assertCount(1, $preferences);
+        $this->assertSame('asset:update', $preferences[0]->getTopic());
+        $this->assertTrue($preferences[0]->isEnabled());
     }
 
     public function testMalformedPreferencesBodyIsABadRequest(): void
