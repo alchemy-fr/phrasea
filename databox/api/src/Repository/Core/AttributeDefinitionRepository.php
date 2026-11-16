@@ -369,6 +369,17 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function countWorkspaceDefinitions(string $workspaceId): int
+    {
+        return (int) $this
+            ->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->andWhere('d.workspace = :workspace')
+            ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     /**
      * @return AttributeDefinition[]
      */

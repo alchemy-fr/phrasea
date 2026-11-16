@@ -30,6 +30,11 @@ final readonly class ESIndexAdmin
     public const string ROLE_UNMANAGED = 'unmanaged'; // not related to any logical index of this app
 
     /**
+     * Elasticsearch default of index.mapping.total_fields.limit.
+     */
+    public const int DEFAULT_TOTAL_FIELDS_LIMIT = 1000;
+
+    /**
      * A single concrete index or alias name: no list (","), wildcard ("*", "?"), date math ("<"),
      * exclusion ("-" first), "_all" or hidden (".") name, which would make Elasticsearch act on
      * other indices than the one named.
@@ -203,20 +208,57 @@ final readonly class ESIndexAdmin
     }
 
     /**
-     * @return array{settings: array, mappings: array, aliases: array, stats: array}
+     * @return array{
+     *     settings: array,
+     *     mappings: array,
+     *     aliases: array,
+     *     stats: array,
+     *     fields: array{count: int, limit: int, ignoreDynamicBeyondLimit: bool},
+     * }
      */
     public function getIndexDetails(string $indexName): array
     {
         $this->assertManaged($indexName);
         $info = $this->client->indices()->get(['index' => $indexName])->asArray()[$indexName] ?? [];
         $stats = $this->client->indices()->stats(['index' => $indexName])->asArray();
+        $settings = $info['settings'] ?? [];
+        $totalFields = $settings['index']['mapping']['total_fields'] ?? [];
 
         return [
-            'settings' => $info['settings'] ?? [],
+            'settings' => $settings,
             'mappings' => $info['mappings'] ?? [],
             'aliases' => array_keys($info['aliases'] ?? []),
             'stats' => $stats['indices'][$indexName]['total'] ?? [],
+            'fields' => [
+                'count' => self::countMappedFields($info['mappings'] ?? []),
+                'limit' => (int) ($totalFields['limit'] ?? self::DEFAULT_TOTAL_FIELDS_LIMIT),
+                'ignoreDynamicBeyondLimit' => \in_array($totalFields['ignore_dynamic_beyond_limit'] ?? false, [true, 'true'], true),
+            ],
         ];
+    }
+
+    /**
+     * The fields counted against index.mapping.total_fields.limit, the way Elasticsearch counts
+     * them: every field and object of the mapping, their multi-fields and the runtime fields
+     * (metadata fields aside).
+     */
+    public static function countMappedFields(array $mappings): int
+    {
+        return self::countProperties($mappings['properties'] ?? []) + \count($mappings['runtime'] ?? []);
+    }
+
+    private static function countProperties(array $properties): int
+    {
+        $count = 0;
+        foreach ($properties as $field) {
+            ++$count;
+            if (\is_array($field)) {
+                $count += self::countProperties($field['properties'] ?? []);
+                $count += self::countProperties($field['fields'] ?? []);
+            }
+        }
+
+        return $count;
     }
 
     public function indexExists(string $indexName): bool

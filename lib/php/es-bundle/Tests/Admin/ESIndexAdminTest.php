@@ -388,7 +388,37 @@ class ESIndexAdminTest extends TestCase
             'mappings' => ['properties' => []],
             'aliases' => ['al'],
             'stats' => ['docs' => ['count' => 3]],
+            'fields' => ['count' => 0, 'limit' => ESIndexAdmin::DEFAULT_TOTAL_FIELDS_LIMIT, 'ignoreDynamicBeyondLimit' => false],
         ], $admin->getIndexDetails('x'));
+    }
+
+    public function testIndexDetailsReportTheMappedFieldsAgainstTheLimit(): void
+    {
+        $admin = $this->createAdmin();
+        $this->indices->method('get')->with(['index' => 'x'])->willReturn($this->createResponse([
+            'x' => [
+                'settings' => ['index' => ['mapping' => ['total_fields' => ['limit' => '5000', 'ignore_dynamic_beyond_limit' => 'true']]]],
+                'mappings' => [
+                    'properties' => [
+                        'title' => ['type' => 'text', 'fields' => ['raw' => ['type' => 'keyword']]],
+                        'attributes' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'en' => ['properties' => ['a_text_s' => ['type' => 'text']]],
+                            ],
+                        ],
+                    ],
+                    'runtime' => ['day' => ['type' => 'keyword']],
+                ],
+            ],
+        ]));
+        $this->indices->method('stats')->willReturn($this->createResponse(['indices' => []]));
+
+        // title, title.raw, attributes, attributes.en, attributes.en.a_text_s and the runtime field
+        $this->assertSame(
+            ['count' => 6, 'limit' => 5000, 'ignoreDynamicBeyondLimit' => true],
+            $admin->getIndexDetails('x')['fields'],
+        );
     }
 
     public function testResetLogicalIndexDelegatesToTheResetter(): void

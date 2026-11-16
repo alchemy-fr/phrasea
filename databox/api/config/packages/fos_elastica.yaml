@@ -20,6 +20,17 @@ fos_elastica:
                     # instead of a static number_of_replicas, to avoid keeping it in sync
                     # manually with the Elasticsearch Helm chart node count.
                     auto_expand_replicas: "0-2"
+                    # The attribute fields are mapped dynamically (attributes.<locale>.<slug>_<type>_<s|m>)
+                    # in this index shared by every workspace. Beyond the limit, the new fields of a
+                    # document are left unindexed (listed in its "_ignored" field) but the document itself
+                    # is still indexed: its permissions and other fields stay up to date. Without
+                    # ignore_dynamic_beyond_limit, the whole document would be rejected.
+                    # They are applied when the index is created: an existing index gets them from a
+                    # reset and populate (or a PUT _settings, both settings being dynamic).
+                    mapping:
+                        total_fields:
+                            limit: 5000
+                            ignore_dynamic_beyond_limit: true
                     analysis:
                         analyzer:
                             collection_path:
