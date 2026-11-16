@@ -151,8 +151,7 @@ class PhraseanetIntegrationController extends AbstractController
         }
 
         $config = $integrationManager->getIntegrationConfiguration($integration);
-        $secret = (string) ($config['webhookSecret'] ?? '');
-        if ('' === $secret || !hash_equals($secret, $token)) {
+        if (!$config->matches('webhookSecret', $token)) {
             throw new UnauthorizedHttpException('Token', 'Invalid webhook token');
         }
 

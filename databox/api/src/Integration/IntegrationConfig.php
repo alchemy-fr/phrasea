@@ -6,6 +6,7 @@ namespace App\Integration;
 
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
+use App\Security\Secrets\SecretKeyUnavailableException;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
@@ -24,6 +25,11 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  *
  * A value shown to a client is the value as written (getClientValue()): the references
  * only resolve server-side.
+ *
+ * A secret only resolves in the workers, holding the secret key: in the API, resolving it
+ * throws SecretKeyUnavailableException. So a key the API reads itself
+ * (ConfigWidget::ATTR_READ_BY_API, e.g. the key a webhook compares to its requests) cannot
+ * refer to a secret.
  */
 class IntegrationConfig implements \ArrayAccess
 {
@@ -36,6 +42,7 @@ class IntegrationConfig implements \ArrayAccess
      * @param array<string, string|null> $urlDefaults the default value of each URL key, null when it has none
      * @param array<string, mixed>       $defaults    the default value of each key having one
      * @param list<string>               $secretKeys
+     * @param list<string>               $apiReadKeys
      */
     public function __construct(
         private readonly array $config,
@@ -45,6 +52,7 @@ class IntegrationConfig implements \ArrayAccess
         private readonly array $urlDefaults = [],
         private readonly array $defaults = [],
         private readonly array $secretKeys = [],
+        private readonly array $apiReadKeys = [],
     ) {
     }
 
@@ -112,6 +120,22 @@ class IntegrationConfig implements \ArrayAccess
     }
 
     /**
+     * Whether a key the API reads (ConfigWidget::ATTR_READ_BY_API) equals a value received by
+     * a request, in constant time: never when the key is empty, or refers to a secret the
+     * process cannot decrypt.
+     */
+    public function matches(string $key, string $value): bool
+    {
+        try {
+            $expected = (string) ($this->offsetGet($key) ?? '');
+        } catch (SecretKeyUnavailableException) {
+            return false;
+        }
+
+        return '' !== $expected && hash_equals($expected, $value);
+    }
+
+    /**
      * The value of a first-level key as written, to be shown to a client (an editor of the
      * integration, its users): its references to secrets and variables are not resolved.
      */
@@ -121,18 +145,37 @@ class IntegrationConfig implements \ArrayAccess
     }
 
     /**
-     * @throws InvalidConfigurationException when a URL set by a workspace editor holds a reference
+     * @throws InvalidConfigurationException when a URL set by a workspace editor holds a reference,
+     *                                       or a key read by the API refers to a secret
      */
-    public function validateUrls(): void
+    public function validateReferences(): void
     {
         foreach (array_keys($this->urlDefaults) as $key) {
             if ($this->isEditorUrl($key) && str_contains((string) $this->config[$key], '$')) {
-                $e = new InvalidConfigurationException(sprintf('"%s" is a URL: it cannot refer to a secret or a variable ("$"), write it in full', $key));
-                $e->setPath('root.'.$key);
-
-                throw $e;
+                throw self::createInvalidKeyException($key, sprintf('"%s" is a URL: it cannot refer to a secret or a variable ("$"), write it in full', $key));
             }
         }
+
+        foreach ($this->apiReadKeys as $key) {
+            if (!is_string($this->config[$key] ?? null)) {
+                continue;
+            }
+            preg_match_all(self::REFERENCE_PATTERN, $this->config[$key], $matches, PREG_SET_ORDER);
+            foreach ($matches as $match) {
+                $name = self::getReferenceName($match);
+                if ($this->envResolver->isSecretInWorkspace($this->getWorkspaceId(), $name)) {
+                    throw self::createInvalidKeyException($key, sprintf('"%s" is checked by the API, which cannot decrypt the secrets: it cannot refer to the secret "%s", write the value in full', $key, $name));
+                }
+            }
+        }
+    }
+
+    private static function createInvalidKeyException(string $key, string $message): InvalidConfigurationException
+    {
+        $e = new InvalidConfigurationException($message);
+        $e->setPath('root.'.$key);
+
+        return $e;
     }
 
     /**

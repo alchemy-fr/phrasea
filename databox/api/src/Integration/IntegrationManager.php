@@ -102,7 +102,7 @@ readonly class IntegrationManager
             $integration
         );
 
-        $config->validateUrls();
+        $config->validateReferences();
         $integration->validateConfiguration($config);
     }
 
@@ -154,7 +154,7 @@ readonly class IntegrationManager
         $processor = new Processor();
         $config = $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
 
-        $urlDefaults = $defaults = $secretKeys = [];
+        $urlDefaults = $defaults = $secretKeys = $apiReadKeys = [];
         foreach ($node instanceof ArrayNode ? $node->getChildren() : [] as $name => $child) {
             if ($child->hasDefaultValue()) {
                 $defaults[$name] = $child->getDefaultValue();
@@ -168,6 +168,9 @@ readonly class IntegrationManager
             if ($child->getAttribute(ConfigWidget::ATTR_SECRET)) {
                 $secretKeys[] = $name;
             }
+            if ($child->getAttribute(ConfigWidget::ATTR_READ_BY_API)) {
+                $apiReadKeys[] = $name;
+            }
         }
 
         return new IntegrationConfig(
@@ -178,6 +181,7 @@ readonly class IntegrationManager
             $urlDefaults,
             $defaults,
             $secretKeys,
+            $apiReadKeys,
         );
     }
 }

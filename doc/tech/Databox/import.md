@@ -117,6 +117,8 @@ Create an **Asset import** integration (`core.asset_import`) on the workspace. I
 configuration:
 
 - `securityKey`: generated at creation (and renewed when the integration is duplicated);
+  checked by the API itself, it cannot refer to a secret (see
+  [Keys read by the API](integration/01_integrations.md#keys-read-by-the-api));
 - `collectionId`: the default destination (the workspace root otherwise);
 - `privacy`: the default privacy of the entries.
 

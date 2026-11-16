@@ -23,6 +23,7 @@ use App\Model\AssetTypeEnum;
 use App\Repository\Core\AssetRepository;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Tests\Functional\FileUploadTrait;
+use App\Tests\Functional\WithoutSecretKeyTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -33,6 +34,7 @@ class UploaderIntegrationTest extends ApiTestCase
     use FixturesTrait;
     use FileUploadTrait;
     use TestServicesTrait;
+    use WithoutSecretKeyTrait;
 
     private const string SECURITY_KEY = 'test-token';
 
@@ -65,6 +67,28 @@ class UploaderIntegrationTest extends ApiTestCase
         /** @var UploaderClientMock $uploadClient */
         $uploadClient = $this->getService(UploaderClient::class);
         $this->assertCount(1, $uploadClient->getAcknowledgedAssets());
+    }
+
+    /**
+     * The API cannot decrypt a secret: a security key referring to one matches no token,
+     * neither the secret nor a placeholder.
+     */
+    public function testASecurityKeyReferringToASecretMatchesNoToken(): void
+    {
+        self::enableFixtures();
+        self::removeSecretKey();
+        $apiClient = static::createClient();
+        $integration = $this->createIntegration(securityKey: '${UPLOADER_KEY}');
+        self::createWorkspaceSecret($integration->getWorkspace(), 'UPLOADER_KEY', self::SECURITY_KEY);
+
+        foreach (['***', self::SECURITY_KEY, '${UPLOADER_KEY}'] as $token) {
+            $response = $this->postCommit($apiClient, $integration, $token);
+            $this->assertEquals(403, $response->getStatusCode(), $token);
+        }
+
+        /** @var UploaderClientMock $uploadClient */
+        $uploadClient = $this->getService(UploaderClient::class);
+        $this->assertCount(0, $uploadClient->getAcknowledgedAssets());
     }
 
     public function testUploadingUserMustBeAllowedToCreateAssets(): void
@@ -169,7 +193,7 @@ class UploaderIntegrationTest extends ApiTestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    private function createIntegration(bool $enabled = true, string $type = UploaderIntegration::NAME): WorkspaceIntegration
+    private function createIntegration(bool $enabled = true, string $type = UploaderIntegration::NAME, string $securityKey = self::SECURITY_KEY): WorkspaceIntegration
     {
         $em = self::getService(EntityManagerInterface::class);
 
@@ -185,7 +209,7 @@ class UploaderIntegrationTest extends ApiTestCase
         $integration->setIntegration($type);
         $integration->setConfig([
             'baseUrl' => 'https://foo.bar',
-            'securityKey' => self::SECURITY_KEY,
+            'securityKey' => $securityKey,
         ]);
         $integration->setEnabled($enabled);
         $integration->setOwnerId('custom_owner');

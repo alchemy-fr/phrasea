@@ -38,6 +38,7 @@ class AssetImportIntegration extends AbstractIntegration
                 ->cannotBeEmpty()
                 ->info('The key to send in the "Authorization: ApiKey <key>" header of the webhook requests')
                 ->attribute(ConfigWidget::ATTR_SECRET, true)
+                ->attribute(ConfigWidget::ATTR_READ_BY_API, true)
             ->end()
             ->scalarNode('collectionId')
                 ->info('The collection receiving the imported assets (the workspace root otherwise)')

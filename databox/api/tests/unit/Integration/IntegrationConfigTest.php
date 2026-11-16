@@ -12,6 +12,7 @@ use App\Integration\Env\EnvResolver;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationInterface;
 use App\Security\Secrets\EncryptionManager;
+use App\Security\Secrets\SecretKeyUnavailableException;
 use App\Security\Secrets\SecretsManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
@@ -37,12 +38,19 @@ final class IntegrationConfigTest extends TestCase
         'clientId' => '${UT_CFG_CLIENT}',
     ];
 
-    private const array SECRET_KEYS = ['apiKey'];
+    private const array SECRET_KEYS = ['apiKey', 'webhookKey'];
+
+    private const array API_READ_KEYS = ['webhookKey'];
 
     /**
      * @var array<string, string> the variables of the workspace
      */
     private array $workspaceEnvs = [];
+
+    /**
+     * @var list<string> the names of the secrets of the workspace
+     */
+    private array $workspaceSecrets = [];
 
     /**
      * @var list<string>
@@ -55,6 +63,7 @@ final class IntegrationConfigTest extends TestCase
             putenv($name.'='.$value);
         }
         $this->workspaceEnvs = [];
+        $this->workspaceSecrets = [];
         $this->warnings = [];
     }
 
@@ -74,7 +83,7 @@ final class IntegrationConfigTest extends TestCase
 
         $this->assertSame('https://service.instance.test', $config['baseUrl']);
         $this->assertSame('instance-key', $config['apiKey']);
-        $config->validateUrls();
+        $config->validateReferences();
         $this->assertSame([], $this->warnings);
     }
 
@@ -117,7 +126,7 @@ final class IntegrationConfigTest extends TestCase
         $this->assertSame('https://${UT_CFG_HOST}/?k=$UT_CFG_KEY', $config['baseUrl']);
 
         try {
-            $config->validateUrls();
+            $config->validateReferences();
             $this->fail('A reference in a URL must be refused');
         } catch (InvalidConfigurationException $e) {
             $this->assertSame('root.baseUrl', $e->getPath());
@@ -134,7 +143,7 @@ final class IntegrationConfigTest extends TestCase
 
         $this->assertSame('https://attacker.test', $config['baseUrl']);
         $this->assertSame('', $config['apiKey']);
-        $config->validateUrls();
+        $config->validateReferences();
     }
 
     public function testAResolvedValueIsNotResolvedAgain(): void
@@ -159,7 +168,7 @@ final class IntegrationConfigTest extends TestCase
         $this->assertSame('https://service.instance.test', $config['baseUrl']);
         $this->assertSame('instance-key', $config['apiKey']);
         $this->assertSame('instance-key', $config['label']);
-        $config->validateUrls();
+        $config->validateReferences();
         $this->assertSame([], $this->warnings);
     }
 
@@ -199,6 +208,38 @@ final class IntegrationConfigTest extends TestCase
         $this->assertNull($config->getClientValue('missing'));
     }
 
+    public function testASecretCannotBeResolvedWithoutTheSecretKey(): void
+    {
+        $this->workspaceSecrets[] = 'UT_CFG_SECRET';
+        $config = $this->createConfig([
+            'apiKey' => '${UT_CFG_SECRET}',
+            'label' => 'plain',
+        ]);
+
+        $this->assertSame('plain', $config['label']);
+        $this->expectException(SecretKeyUnavailableException::class);
+        $config->offsetGet('apiKey');
+    }
+
+    public function testAKeyReadByTheApiCannotReferToASecret(): void
+    {
+        $this->workspaceSecrets[] = 'UT_CFG_SECRET';
+        $this->workspaceEnvs['UT_CFG_OWN'] = 'own-value';
+
+        $this->createConfig(['webhookKey' => '${UT_CFG_OWN}'])->validateReferences();
+        $this->createConfig(['webhookKey' => 'plain', 'apiKey' => '${UT_CFG_SECRET}'])->validateReferences();
+
+        foreach (['${UT_CFG_SECRET}', 'k-$UT_CFG_SECRET'] as $value) {
+            try {
+                $this->createConfig(['webhookKey' => $value])->validateReferences();
+                $this->fail('A reference to a secret in a key read by the API must be refused');
+            } catch (InvalidConfigurationException $e) {
+                $this->assertSame('root.webhookKey', $e->getPath());
+                $this->assertStringContainsString('UT_CFG_SECRET', $e->getMessage());
+            }
+        }
+    }
+
     private function createConfig(array $values, bool $workspace = true): IntegrationConfig
     {
         $workspaceIntegration = new WorkspaceIntegration();
@@ -214,13 +255,24 @@ final class IntegrationConfigTest extends TestCase
             self::URL_DEFAULTS,
             self::DEFAULTS,
             self::SECRET_KEYS,
+            self::API_READ_KEYS,
         );
     }
 
     private function createEnvResolver(): EnvResolver
     {
         $secrets = $this->createStub(EntityRepository::class);
-        $secrets->method('findOneBy')->willReturn(null);
+        $secrets->method('findOneBy')->willReturnCallback(function (array $criteria): ?WorkspaceSecret {
+            if (!in_array($criteria['name'], $this->workspaceSecrets, true)) {
+                return null;
+            }
+
+            $secret = new WorkspaceSecret();
+            $secret->setName($criteria['name']);
+            $secret->setValue('encrypted');
+
+            return $secret;
+        });
 
         $envs = $this->createStub(EntityRepository::class);
         $envs->method('findOneBy')->willReturnCallback(function (array $criteria): ?WorkspaceEnv {

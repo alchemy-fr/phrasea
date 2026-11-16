@@ -40,6 +40,7 @@ class UploaderIntegration extends AbstractIntegration
                 ->cannotBeEmpty()
                 ->info('The security key to authenticate Uploader requests')
                 ->attribute(ConfigWidget::ATTR_SECRET, true)
+                ->attribute(ConfigWidget::ATTR_READ_BY_API, true)
             ->end()
         ;
     }

@@ -19,6 +19,7 @@ use App\Integration\Phraseanet\PhraseanetApiClientFactory;
 use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Service\Workflow\Action\AcceptFileAction;
 use App\Tests\Functional\FileUploadTrait;
+use App\Tests\Functional\WithoutSecretKeyTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -28,6 +29,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
     use FixturesTrait;
     use FileUploadTrait;
     use TestServicesTrait;
+    use WithoutSecretKeyTrait;
 
     protected static ?bool $alwaysBootKernel = true;
 
@@ -285,6 +287,53 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
                 'json' => ['event' => 'record.subdef.created', 'data' => []],
             ]);
             $this->assertResponseStatusCodeSame(401);
+        }
+    }
+
+    /**
+     * The API cannot decrypt a secret: a webhook secret referring to one matches no token,
+     * neither the secret nor a placeholder.
+     */
+    public function testWebhookSecretReferringToASecretMatchesNoToken(): void
+    {
+        self::enableFixtures();
+        self::removeSecretKey();
+        $apiClient = static::createClient();
+        $em = self::getService(EntityManagerInterface::class);
+
+        /** @var Workspace $workspace */
+        $workspace = $em->getRepository(Workspace::class)->findOneBy([
+            'slug' => 'test-workspace',
+        ]);
+        self::createWorkspaceSecret($workspace, 'PHRASEANET_WEBHOOK', 'webhook-secret');
+
+        $integration = new WorkspaceIntegration();
+        $integration->setPublic(true);
+        $integration->setWorkspace($workspace);
+        $integration->setName('Renditions');
+        $integration->setIntegration(PhraseanetRenditionIntegration::getName());
+        $integration->setConfig([
+            'baseUrl' => 'https://foo.bar',
+            'token' => 'baz',
+            'collectionId' => 42,
+            'method' => PhraseanetRenditionIntegration::METHOD_ENQUEUE,
+            'renditions' => [
+                'thumbnail',
+            ],
+            'webhookSecret' => '${PHRASEANET_WEBHOOK}',
+        ]);
+        $integration->setOwnerId('custom_owner');
+        $em->persist($integration);
+        $em->flush();
+
+        self::assertSame(sprintf('/integrations/phraseanet/%s/events?token=${PHRASEANET_WEBHOOK}', $integration->getId()), $this->getWebhookUrl($integration));
+
+        foreach (['***', 'webhook-secret', '${PHRASEANET_WEBHOOK}'] as $token) {
+            $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
+                'query' => ['token' => $token],
+                'json' => ['event' => 'record.subdef.created', 'data' => []],
+            ]);
+            $this->assertResponseStatusCodeSame(401, $token);
         }
     }
 

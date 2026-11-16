@@ -143,9 +143,10 @@ when@test:
                 $filesystem: '@test.storage.local_filesystem'
 
         # The API container only receives the public key, but tests encrypt and
-        # decrypt in the same process: use a test-only key pair.
+        # decrypt in the same process: use a test-only key pair. A test runs as the
+        # API container by emptying TEST_SECRETS_SECRET_KEY (WithoutSecretKeyTrait).
         App\Security\Secrets\SecretsManager:
             autowire: true
             arguments:
                 $publicKey: 'Tj67E7MRejEITBQBsU5nV42RoZeQV4z1LcsdG11InEs='
-                $secretKey: 'JXeTGRSzXJNwKx6TCxSo/3f38CwuVN08hnHPxD8VSpQ='
+                $secretKey: '%env(TEST_SECRETS_SECRET_KEY)%'

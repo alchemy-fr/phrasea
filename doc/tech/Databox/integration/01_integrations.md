@@ -103,7 +103,7 @@ Operational notes:
 
 - Requires a valid base URL for the uploader API.
 - Uses an ApiKey authorization scheme.
-- Security key must match on both Phrasea and uploader configurations.
+- Security key must match on both Phrasea and uploader configurations. The API checks it itself: it is written in full (or refers to a variable), never to a secret (see [Keys read by the API](#keys-read-by-the-api)).
 - The target endpoint answers 404 when the integration is disabled.
 - Only the Uploader of the instance (`UPLOADER_API_URL`) and its storage (`S3_ENDPOINT`) may be reached on the private network: any other base URL, and the file URLs it answers, must be public.
 - The user sent with a commit (the uploading user) becomes the owner of the assets, and must be allowed to create assets in the destination collection or workspace (and to edit the asset for a rendition substitution); otherwise the ingestion fails.
@@ -126,6 +126,7 @@ Operational notes:
 
 - Requires a workspace; the `collectionId` must belong to it.
 - 401 without the ApiKey header, 403 on a wrong key, 404 for an unknown or disabled integration, 415 on an unsupported Content-Type.
+- The API checks the `securityKey` itself: it is written in full (or refers to a variable), never to a secret (see [Keys read by the API](#keys-read-by-the-api)).
 
 ## Toast UI Photo Editor integration (tui.photo-editor)
 
@@ -224,6 +225,7 @@ Operational notes:
 
 - Set the Webhook URL as is in Phraseanet, and keep it private: whoever holds it can replace the renditions of the assets being processed.
 - 401 without the `token` or with a wrong one, and for an integration without `webhookSecret` (add one to its configuration, e.g. `openssl rand -hex 32`, then copy the new Webhook URL into Phraseanet); 404 for an unknown integration.
+- The API checks the `webhookSecret` itself: it is written in full (or refers to a variable), never to a secret (see [Keys read by the API](#keys-read-by-the-api)).
 - Only permalinks on the host and port of `baseUrl` are downloaded. The type and size given by the event are ignored: they come from the downloaded file, whose content is checked like any imported file.
 
 ## Configuration form & schema
@@ -253,8 +255,9 @@ ConfigWidget::apply($builder->scalarNode('attribute'), ConfigWidget::Attribute, 
 ```
 
 - `widget` (`ConfigWidget`): `attribute` (slug of an attribute definition of the workspace, with `widgetOptions` restricting its `type`, `multiple` and `entityList`; the picker offers to **create** the attribute, and the entity list it needs, right from the form), `rendition` (name of a rendition definition), `collection` (collection ID), `email`, `language`, `oauth_client` (client ID of a Keycloak OAuth client, public with the standard flow: the text field gets "Choose…" and "Create…" buttons when the Keycloak account of the user can list or create the clients, see the Expose integration). On a prototype (`scalarPrototype()`), the widget applies to the items of the list (multiple picker, chips).
-- `secret`: the form masks a value typed in clear (with a "show" button) and offers to **save it as a secret** (see [Secrets & variables](#secrets--variables)). The API does not redact a value stored in clear: `configYaml` and `configValues` are only given to who may edit the integration. Prefer a reference to a secret.
+- `secret`: the form masks a value typed in clear (with a "show" button) and offers to **save it as a secret** (see [Secrets & variables](#secrets--variables)). The API does not redact a value stored in clear: `configYaml` and `configValues` are only given to who may edit the integration. Prefer a reference to a secret, except in a key read by the API.
 - `url` (`ConfigWidget::ATTR_URL`, first-level keys only, not shown to the form): the value is a URL the integration calls or gives to the users (`baseUrl` of `phrasea.uploader`, `phraseanet.renditions` and `phrasea.expose`, `clientUrl` of `phrasea.expose`, `url` of `core.webhook`). In a workspace integration, it keeps the instance variables away from a host chosen by an editor (see [Secrets & variables](#secrets--variables)).
+- `readByApi` (`ConfigWidget::ATTR_READ_BY_API`, first-level keys only, not shown to the form): the API reads the value itself, e.g. the key a webhook compares to its requests (`securityKey` of `phrasea.uploader` and `core.asset_import`, `webhookSecret` of `phraseanet.renditions`). It cannot refer to a secret (see [Keys read by the API](#keys-read-by-the-api)).
 - An integration whose tree does not tell the whole story implements `ConfigSchemaCustomizerInterface::customizeConfigSchema(array $schema): array`: `core.file_analyzer` replaces the items of `analyzers` by `{type: object, discriminator: name, variants: {<analyzer>: …}}`, one variant per registered analyzer.
 
 `GET /integrations/{id}` returns the stored configuration twice to its editors: `configYaml` and `configValues` (the same values, structured), so that an integration written in YAML reopens in the form with its values. A configuration refused by the tree (or by `validateConfiguration()` when it sets the path of its `InvalidConfigurationException`, e.g. `root.attribute`) answers a 422 whose violation `propertyPath` points to the option (`config.minConfidence`, `config.analyzers.0.name`), reported under the matching field.
@@ -278,7 +281,7 @@ The `PWI_<NAME>` variables are shared by every workspace (instance keys of AWS, 
 
 Any other key may end up where the editor reads it (a validation message, an error of the integration, a value written to an asset…). So, even with the URLs of the instance, the `PWI_<NAME>` variables only resolve in a `secret` key (a credential, e.g. `token` of `phraseanet.renditions`, `apiKey` of `remove.bg`) or in a key left to its default (e.g. `accessKeyId: ${AWS_ACCESS_KEY_ID}` of the AWS integrations, `clientId` of `phrasea.expose`); elsewhere they give an empty string, with a `warning` log. A workspace needing such a value in another key saves it as a variable of the workspace.
 
-The API never returns a resolved reference: what it shows of the configuration (`configInfo`, the client configuration `config`, the validation messages) holds the values as written, e.g. the "Security Key" of `phrasea.uploader` reads `${UPLOADER_KEY}` when it refers to a secret; the references only resolve server-side, where the integration runs (`IntegrationConfig::getClientValue()` gives a value as written). The client configuration of `core.face_recognition` gives the slug of the attribute definition it found (`attribute`), null when there is none.
+The API never returns a resolved reference: what it shows of the configuration (`configInfo`, the client configuration `config`, the validation messages) holds the values as written, e.g. the "Security Key" of `phrasea.uploader` reads `${UPLOADER_KEY}` when it refers to a variable; the references only resolve server-side, where the integration runs (`IntegrationConfig::getClientValue()` gives a value as written). The client configuration of `core.face_recognition` gives the slug of the attribute definition it found (`attribute`), null when there is none.
 
 The instance-wide integrations (no workspace, administrators only) are not restricted.
 
@@ -305,6 +308,15 @@ In the configuration form, every plain text field switches between **Value** and
 - in Value mode, a `secret` field offers **Save as secret**: the typed value becomes a secret (named after the key, `apiKey` → `API_KEY`), and the field its reference.
 
 The secrets and variables are managed in the **Secrets & variables** tab of the workspace (`/workspaces/:id/manage/secrets`: names, the integrations referring to them, value of a secret replaced but never shown, value of a variable edited in clear, deletion), and in the **Instance secrets & variables** tab of the instance integrations screen for the administrators. The admin still manages both, every workspace included.
+
+### Keys read by the API
+
+Without the secret key, `SecretsManager::decryptSecret()` throws `SecretKeyUnavailableException` (never a placeholder, which a request could send back), and so does a reference to a secret resolved in the API. A key the API reads itself, such as the key a webhook compares to its requests (`readByApi` attribute), therefore cannot refer to a secret:
+
+- saving such a key with a reference to a secret of the workspace (`${NAME}` or `$NAME`, alone or within a text) is refused: 422 on `config.<key>`, "write the value in full". A reference to a variable is accepted;
+- a reference that only becomes a secret afterwards (a secret created later under that name) matches no request: the webhook answers as for a wrong key (`IntegrationConfig::matches()`, which also refuses an empty key). A webhook comparing a value without `matches()` fails on the exception, never on a placeholder.
+
+The dev stack gives the secret key to the API container (`docker-compose.dev.yml`): the refusal on save does not depend on it. The tests run with a test key pair; `WithoutSecretKeyTrait` runs a test as the API container.
 
 ## Exhaustive integration list
 

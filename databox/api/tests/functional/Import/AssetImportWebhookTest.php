@@ -13,6 +13,7 @@ use App\Integration\Core\AssetImport\AssetImportIntegration;
 use App\Integration\Phrasea\Uploader\UploaderIntegration;
 use App\Model\AssetImportStatusEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use App\Tests\Functional\WithoutSecretKeyTrait;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
@@ -22,6 +23,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 final class AssetImportWebhookTest extends AbstractDataboxTestCase
 {
     use AssetImportTestTrait;
+    use WithoutSecretKeyTrait;
 
     private const string KEY = 'the-security-key';
 
@@ -123,6 +125,51 @@ final class AssetImportWebhookTest extends AbstractDataboxTestCase
         $this->assertSame([], $this->getQueuedMessages($this->taskQueue, DispatchAssetImport::class));
     }
 
+    /**
+     * The API cannot decrypt a secret: a security key referring to one matches no key,
+     * neither the secret nor a placeholder.
+     */
+    public function testASecurityKeyReferringToASecretMatchesNoKey(): void
+    {
+        self::removeSecretKey();
+        [$workspace] = $this->createWorkspaceWithDefaults('ws-import', self::OWNER);
+        self::createWorkspaceSecret($workspace, 'IMPORT_KEY', self::KEY);
+        $integration = $this->createImportIntegration($workspace, ['securityKey' => '${IMPORT_KEY}']);
+        $body = self::ndjson([['name' => 'A']]);
+
+        foreach (['***', self::KEY, '${IMPORT_KEY}'] as $key) {
+            $this->callWebhook($integration->getId(), $body, 'ApiKey '.$key);
+            $this->assertResponseStatusCodeSame(403, $key);
+        }
+    }
+
+    public function testTheSecurityKeyCannotReferToASecret(): void
+    {
+        [$workspace] = $this->createWorkspaceWithDefaults('ws-import', self::OWNER);
+        self::createWorkspaceSecret($workspace, 'IMPORT_KEY', self::KEY);
+        $integration = [
+            'integration' => AssetImportIntegration::NAME,
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'public' => false,
+        ];
+
+        $response = $this->apiRequest('POST', '/integrations', self::OWNER, $integration + [
+            'config' => ['securityKey' => '${IMPORT_KEY}'],
+        ]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['config.securityKey'], array_column($response->toArray(false)['violations'], 'propertyPath'));
+
+        $id = $this->apiRequest('POST', '/integrations', self::OWNER, $integration + [
+            'config' => ['securityKey' => 'plain-key'],
+        ])->toArray()['id'];
+        $this->assertResponseStatusCodeSame(201);
+
+        $this->apiRequest('PATCH', '/integrations/'.$id, self::OWNER, [
+            'config' => ['securityKey' => 'prefix-$IMPORT_KEY'],
+        ], ['headers' => ['Content-Type' => 'application/merge-patch+json']]);
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testTheSecurityKeyIsGeneratedAtCreationAndRenewedByDuplication(): void
     {
         [$workspace] = $this->createWorkspaceWithDefaults('ws-import', self::OWNER);
@@ -177,7 +224,7 @@ final class AssetImportWebhookTest extends AbstractDataboxTestCase
 
     private function createImportIntegration(Workspace $workspace, array $config = [], bool $enabled = true): WorkspaceIntegration
     {
-        $integration = $this->createIntegration($workspace, AssetImportIntegration::NAME, ['securityKey' => self::KEY] + $config);
+        $integration = $this->createIntegration($workspace, AssetImportIntegration::NAME, $config + ['securityKey' => self::KEY]);
         $integration->setEnabled($enabled);
         self::getEntityManager()->flush();
 
