@@ -26,7 +26,6 @@ import {
     EntityChip,
     PrivacyChip,
     PrivacyIcon,
-    TagChip,
     UserChip,
     WorkspaceChip,
 } from '@/components/chips';
@@ -392,33 +391,6 @@ const entityType: AttributeTypeDef = {
         value && typeof value === 'object' ? (value as EntityValue).id : value,
 };
 
-const tagType: AttributeTypeDef = {
-    rich: true,
-    entity: EntityName.Tag,
-    formats: () => [],
-    format: value => {
-        if (!value) {
-            return null;
-        }
-        if (typeof value === 'string') {
-            return value;
-        }
-
-        return <TagChip tag={value as any} />;
-    },
-    formatString: value => {
-        if (!value) {
-            return '';
-        }
-
-        return typeof value === 'string'
-            ? value
-            : ((value as any).displayName ?? (value as any).name ?? '');
-    },
-    normalize: value =>
-        value && typeof value === 'object' ? (value as any).id : value,
-};
-
 const userType: AttributeTypeDef = {
     rich: true,
     entity: EntityName.User,
@@ -721,7 +693,6 @@ const registry: Record<AttributeType, AttributeTypeDef> = {
     [AttributeType.Color]: colorType,
     [AttributeType.GeoPoint]: geoPointType,
     [AttributeType.Entity]: entityType,
-    [AttributeType.Tag]: tagType,
     [AttributeType.User]: userType,
     [AttributeType.Workspace]: workspaceType,
     [AttributeType.CollectionPath]: collectionType,

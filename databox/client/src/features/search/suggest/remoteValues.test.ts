@@ -9,7 +9,6 @@ import {fetchRemoteValues, hasRemoteValues} from './remoteValues';
 const api = vi.hoisted(() => ({
     getSearchSuggestions: vi.fn(),
     getCollections: vi.fn(),
-    getTags: vi.fn(),
     getAttributeEntities: vi.fn(),
 }));
 vi.mock('@/lib/api/assets', () => ({
@@ -17,7 +16,6 @@ vi.mock('@/lib/api/assets', () => ({
 }));
 vi.mock('@/lib/api/collections', () => ({getCollections: api.getCollections}));
 vi.mock('@/lib/api/metadata', () => ({
-    getTags: api.getTags,
     getAttributeEntities: api.getAttributeEntities,
 }));
 
@@ -43,7 +41,6 @@ describe('hasRemoteValues', () => {
         expect(hasRemoteValues(builtIn(AttributeType.CollectionPath))).toBe(
             true
         );
-        expect(hasRemoteValues(builtIn(AttributeType.Tag))).toBe(true);
         expect(hasRemoteValues(builtIn(AttributeType.Boolean))).toBe(false);
         expect(hasRemoteValues(builtIn(AttributeType.Workspace))).toBe(false);
         expect(hasRemoteValues(attribute(AttributeType.Text))).toBe(true);

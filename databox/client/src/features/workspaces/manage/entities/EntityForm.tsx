@@ -184,7 +184,7 @@ export function EntityForm({
                 </FormRow>
             ) : null}
             {list.withColors ? (
-                <FormRow label={t('tag.color', 'Color')}>
+                <FormRow label={t('entity.color', 'Color')}>
                     <ColorInput value={color} onChange={setColor} />
                 </FormRow>
             ) : null}

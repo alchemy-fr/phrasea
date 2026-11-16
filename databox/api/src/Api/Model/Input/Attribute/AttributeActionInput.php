@@ -44,7 +44,8 @@ class AttributeActionInput extends AbstractExtendedAttributeInput
      * Available actions:
      *  - "set"
      *  - "add"
-     *  - "delete"
+     *  - "delete": every value of the definition, the attributes given by "id" or "ids",
+     *    or the values given by "value" (a value or a list of values)
      *  - "replace".
      *
      * Default is "set"

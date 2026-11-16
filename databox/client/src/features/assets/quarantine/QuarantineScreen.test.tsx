@@ -57,7 +57,6 @@ function quarantined(i: number): Asset {
         'createdAt': `2026-01-0${i}T10:00:00+00:00`,
         'capabilities': {},
         'attributes': [],
-        'tags': [],
         'collections': [],
         'workspace': {id: 'ws', name: 'Workspace'},
         'source': {

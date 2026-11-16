@@ -17,7 +17,6 @@ import {
     Locale,
     MetadataTag,
     Page,
-    Tag,
 } from '@/types/api';
 import {toIris} from '@/lib/utils/iri';
 import {multipartUpload} from './upload';
@@ -151,50 +150,6 @@ export function postAttributePolicy(
 
 export function deleteAttributePolicy(id: string): Promise<void> {
     return api.delete(`/${EntityName.AttributePolicy}/${id}`);
-}
-
-// Tags ---------------------------------------------------------------------
-
-export async function getTags(
-    options: {
-        workspace?: string;
-        query?: string;
-        limit?: number;
-        url?: string;
-    } = {},
-    signal?: AbortSignal
-): Promise<Page<Tag>> {
-    return toPage(
-        await api.get<HydraCollection<Tag>>(
-            options.url ?? `/${EntityName.Tag}`,
-            {
-                params: options.url
-                    ? undefined
-                    : {
-                          workspace: options.workspace,
-                          query: options.query,
-                          limit: options.limit,
-                      },
-                signal,
-            }
-        )
-    );
-}
-
-export function getTag(id: string): Promise<Tag> {
-    return api.get<Tag>(`/${EntityName.Tag}/${id}`);
-}
-
-export function postTag(data: Partial<Tag>): Promise<Tag> {
-    return api.post<Tag>(`/${EntityName.Tag}`, toIris(data));
-}
-
-export function putTag(id: string, data: Partial<Tag>): Promise<Tag> {
-    return api.patch<Tag>(`/${EntityName.Tag}/${id}`, toIris(data));
-}
-
-export function deleteTag(id: string): Promise<void> {
-    return api.delete(`/${EntityName.Tag}/${id}`);
 }
 
 // Entity lists & attribute entities ---------------------------------------

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Automation;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use App\Automation\Action\TagsAction;
+use App\Automation\Action\TrashAction;
 use App\Automation\Schedule\AutomationScheduler;
 use App\Consumer\Handler\Automation\RunAutomation;
 use App\Entity\Automation\AutomationRun;
@@ -20,7 +20,7 @@ final class DispatchDueAutomationsTest extends AbstractDataboxTestCase
     public function testOnlyDueEnabledAutomationsAreTriggered(): void
     {
         $savedSearch = $this->createSavedSearchWith(KeycloakClientTestMock::USER_UID, ['query' => 'cats']);
-        $actions = [['type' => TagsAction::TYPE, 'config' => ['add' => [], 'remove' => []]]];
+        $actions = [['type' => TrashAction::TYPE, 'config' => []]];
         $now = new \DateTimeImmutable('2026-03-10 12:00:00');
         $past = $now->modify('-1 minute');
 

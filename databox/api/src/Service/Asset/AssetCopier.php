@@ -18,7 +18,6 @@ use Doctrine\ORM\EntityManagerInterface;
 class AssetCopier
 {
     final public const string OPT_WITH_ATTRIBUTES = 'withAttributes';
-    final public const string OPT_WITH_TAGS = 'withTags';
 
     private array $fileCopies = [];
 
@@ -116,13 +115,6 @@ class AssetCopier
 
                 foreach ($attributes as $attr) {
                     $this->copyAttribute($attr, $copy);
-                }
-            }
-
-            if ($options[self::OPT_WITH_TAGS] ?? false) {
-                $tags = $asset->getTags();
-                foreach ($tags as $tag) {
-                    $copy->addTag($tag);
                 }
             }
         }

@@ -392,7 +392,6 @@ export type SourceFileInput = {
 export type AssetInput = {
     name?: string;
     privacy?: number;
-    tags?: string[];
     collection?: string;
     workspace?: string;
     isStory?: boolean;
@@ -485,7 +484,6 @@ export async function importAssetsFromUrls(
     options: CreateOptions & {
         story?: {
             name?: string;
-            tags?: string[];
             attributes?: AttributeBatchAction[];
         };
     } = {}
@@ -519,7 +517,7 @@ export function copyAssets(
     ids: string[],
     destination: string,
     byReference: boolean,
-    options: {withAttributes?: boolean; withTags?: boolean} = {}
+    options: {withAttributes?: boolean} = {}
 ): Promise<void> {
     return api.post(`/${EntityName.Asset}/copy`, {
         ids,

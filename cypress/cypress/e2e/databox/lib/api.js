@@ -222,11 +222,11 @@ export function createCollection(workspaceId, data = {}) {
     });
 }
 
-export function createTag(workspaceId, name, color) {
+export function createEntityList(workspaceId, data = {}) {
     return apiRequest({
         method: 'POST',
-        path: '/tags',
-        body: {workspace: iri('workspaces', workspaceId), name, color},
+        path: '/entity-lists',
+        body: {workspace: iri('workspaces', workspaceId), ...data},
     });
 }
 
@@ -449,9 +449,10 @@ export function waitForAsset(id, predicate, message = 'asset state') {
 
 /**
  * Seeds a complete workspace: attribute policy + a "Description" text
- * attribute + a "Keywords" multi-valued facetable attribute, two tags, a
- * collection tree and a few assets. Returns a plain object usable across
- * tests of a spec.
+ * attribute + a "Keywords" multi-valued facetable attribute + a "Tags"
+ * multi-valued entity attribute (its "Tags" list holding the colored values
+ * "online" and "offline"), a collection tree and a few assets. Returns a plain
+ * object usable across tests of a spec.
  */
 export function seedWorkspace({assets = 3, name} = {}) {
     const ctx = {};
@@ -499,15 +500,31 @@ export function seedWorkspace({assets = 3, name} = {}) {
         .then(def => {
             ctx.keywords = def;
 
-            return createTag(ctx.workspace.id, 'online', '#7EF284');
+            return createEntityList(ctx.workspace.id, {name: 'Tags', withColors: true});
         })
-        .then(tag => {
-            ctx.tagOnline = tag;
+        .then(list => {
+            ctx.tagList = list;
 
-            return createTag(ctx.workspace.id, 'offline', '#FF0000');
+            return createAttributeEntity(list.id, {value: 'online', color: '#7EF284'});
         })
-        .then(tag => {
-            ctx.tagOffline = tag;
+        .then(entity => {
+            ctx.tagOnline = entity;
+
+            return createAttributeEntity(ctx.tagList.id, {value: 'offline', color: '#FF0000'});
+        })
+        .then(entity => {
+            ctx.tagOffline = entity;
+
+            return createAttributeDefinition(ctx.workspace.id, ctx.policy.id, {
+                name: 'Tags',
+                type: 'entity',
+                entityList: iri('entity-lists', ctx.tagList.id),
+                multiple: true,
+                facetEnabled: true,
+            });
+        })
+        .then(def => {
+            ctx.tags = def;
 
             return createCollection(ctx.workspace.id, {name: 'Sport'});
         })
@@ -530,10 +547,10 @@ export function seedWorkspace({assets = 3, name} = {}) {
                     createAsset(ctx.workspace.id, {
                         name: ASSET_NAMES[i - 1],
                         collection: iri('collections', i % 2 === 0 ? ctx.football.id : ctx.sport.id),
-                        tags: [iri('tags', i % 2 === 0 ? ctx.tagOnline.id : ctx.tagOffline.id)],
                         attributes: [
                             {definitionId: ctx.description.id, value: `${ASSET_NAMES[i - 1]} description`},
                             {definitionId: ctx.keywords.id, value: i % 2 === 0 ? 'even' : 'odd'},
+                            {definitionId: ctx.tags.id, value: i % 2 === 0 ? ctx.tagOnline.id : ctx.tagOffline.id},
                         ],
                     }).then(a => {
                         ctx.assets.push(a);

@@ -6,13 +6,11 @@ namespace App\Service\Workspace\Template\Section;
 
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Service\Workspace\Template\TemplateImportContext;
 use App\Service\Workspace\Template\WorkspaceTemplateOptions;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -44,9 +42,6 @@ final class AssetDataTemplateSection extends AbstractTemplateSection
                 'collection' => $item->getCollectionId(),
                 'includeCollectionChildren' => $item->isIncludeCollectionChildren(),
                 'data' => $item->getData(),
-                'tags' => $item->getTags()
-                    ->map(fn (Tag $tag): string => $tag->getId())
-                    ->getValues(),
                 'attributes' => $item->getAttributes()
                     ->map(fn (TemplateAttribute $attribute): array => [
                         'definition' => $attribute->getDefinition()->getId(),
@@ -85,10 +80,6 @@ final class AssetDataTemplateSection extends AbstractTemplateSection
             $o->setCollection($this->resolveCollection($item, $context));
             $o->setIncludeCollectionChildren($item['includeCollectionChildren'] ?? false);
             $o->setData($context->remapIds($item['data'] ?? []));
-            $o->setTags(new ArrayCollection(array_values(array_filter(array_map(
-                fn (string $tagId): ?Tag => $context->get(TagSection::getKey(), $tagId, Tag::class),
-                $item['tags'] ?? [],
-            )))));
 
             foreach ($o->getAttributes()->toArray() as $attribute) {
                 $o->removeAttribute($attribute);

@@ -25,7 +25,7 @@ final class ESPopulateHandlerTest extends KernelTestCase
     use DataboxTestTrait;
     use ApiTestTrait;
 
-    private const string INDEX = 'tag';
+    private const string INDEX = 'attribute_entity';
 
     #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
@@ -52,7 +52,7 @@ final class ESPopulateHandlerTest extends KernelTestCase
     {
         $workspace = $this->getOrCreateDefaultWorkspace();
         foreach (['Red', 'Green', 'Blue'] as $name) {
-            $this->findOrCreateTagByName($name, $workspace);
+            $this->findOrCreateTagEntity($name, $workspace);
         }
 
         $this->getHandler()(new ESPopulate(self::INDEX));

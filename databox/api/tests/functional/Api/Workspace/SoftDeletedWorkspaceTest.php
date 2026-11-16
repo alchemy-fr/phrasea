@@ -26,7 +26,7 @@ final class SoftDeletedWorkspaceTest extends AbstractDataboxTestCase
         $em = self::getEntityManager();
         $workspace = $this->createWorkspace($options);
 
-        $tag = $this->findOrCreateTagByName('Soft deleted tag', $workspace);
+        $tag = $this->findOrCreateTagEntity('Soft deleted entity', $workspace);
 
         $list = new EntityList();
         $list->setName('Soft deleted list');
@@ -96,8 +96,8 @@ final class SoftDeletedWorkspaceTest extends AbstractDataboxTestCase
         $ids = $this->createPopulatedWorkspace(['ownerId' => self::USER, 'slug' => 'soft-deleted-ws']);
         $ws = $ids['workspace'];
 
-        $this->assertSame([200, [$ids['tag']]], self::fetchIds('/tags', self::USER, ['workspace' => $ws]));
-        $this->assertContains($ids['tag'], self::fetchIds('/tags', self::USER)[1]);
+        $this->assertSame([200, [$ids['tag']]], self::fetchIds('/attribute-entities', self::USER, ['workspace' => $ws]));
+        $this->assertContains($ids['tag'], self::fetchIds('/attribute-entities', self::USER)[1]);
         $this->assertContains($ids['list'], self::fetchIds('/entity-lists', self::USER)[1]);
         $this->assertContains($ids['policy'], self::fetchIds('/attribute-policies', self::USER, ['workspaceId' => $ws])[1]);
         $this->assertContains($ids['definition'], self::fetchIds('/attribute-definitions', self::USER, ['workspaceId' => $ws])[1]);
@@ -105,8 +105,8 @@ final class SoftDeletedWorkspaceTest extends AbstractDataboxTestCase
 
         $this->softDelete($ws);
 
-        $this->assertSame(403, self::fetchIds('/tags', self::USER, ['workspace' => $ws])[0]);
-        $this->assertNotContains($ids['tag'], self::fetchIds('/tags', self::USER)[1]);
+        $this->assertSame(403, self::fetchIds('/attribute-entities', self::USER, ['workspace' => $ws])[0]);
+        $this->assertNotContains($ids['tag'], self::fetchIds('/attribute-entities', self::USER)[1]);
         $this->assertNotContains($ids['list'], self::fetchIds('/entity-lists', self::USER)[1]);
         $this->assertSame([200, []], self::fetchIds('/attribute-policies', self::USER, ['workspaceId' => $ws]));
         $this->assertSame([200, []], self::fetchIds('/attribute-definitions', self::USER, ['workspaceId' => $ws]));
@@ -119,11 +119,11 @@ final class SoftDeletedWorkspaceTest extends AbstractDataboxTestCase
         $ids = $this->createPopulatedWorkspace(['public' => true, 'slug' => 'soft-deleted-public-ws']);
         $ws = $ids['workspace'];
 
-        $this->assertSame([200, [$ids['tag']]], self::fetchIds('/tags', null, ['workspace' => $ws]));
+        $this->assertSame([200, [$ids['tag']]], self::fetchIds('/attribute-entities', null, ['workspace' => $ws]));
 
         $this->softDelete($ws);
 
-        $this->assertContains(self::fetchIds('/tags', null, ['workspace' => $ws])[0], [401, 403]);
-        $this->assertNotContains($ids['tag'], self::fetchIds('/tags', null)[1]);
+        $this->assertContains(self::fetchIds('/attribute-entities', null, ['workspace' => $ws])[0], [401, 403]);
+        $this->assertNotContains($ids['tag'], self::fetchIds('/attribute-entities', null)[1]);
     }
 }

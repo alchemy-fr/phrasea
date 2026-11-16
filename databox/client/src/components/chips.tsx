@@ -14,7 +14,6 @@ import type {
     AssetStatus,
     Collection,
     Privacy,
-    Tag,
     User,
     Workspace,
 } from '@/types/api';
@@ -29,27 +28,6 @@ import {pickTranslation} from '@/lib/utils/locale';
 import {AssetStatus as AssetStatusEnum} from '@/types/api';
 
 type Size = 'xs' | 'sm' | 'md';
-
-export function TagChip({
-    tag,
-    size = 'xs',
-    onClick,
-}: {
-    tag: Tag;
-    size?: Size;
-    onClick?: () => void;
-}) {
-    return (
-        <Chip
-            color={tag.color ?? undefined}
-            size={size}
-            onClick={onClick}
-            title={tag.displayName ?? tag.name}
-        >
-            {tag.displayName ?? tag.name}
-        </Chip>
-    );
-}
 
 export function ColorSwatch({
     color,

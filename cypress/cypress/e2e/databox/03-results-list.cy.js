@@ -139,9 +139,9 @@ describe('Results list', () => {
         cy.getBySel('results-count').should('contain', '2 / 5');
     });
 
-    it('displays tags and collections on the cards', () => {
-        assetItem('Bravo').should('contain', 'online');
-        assetItem('Alpha').should('contain', 'offline');
+    it('displays the collections on the cards', () => {
+        assetItem('Bravo').should('contain', 'Football');
+        assetItem('Alpha').should('contain', 'Sport');
     });
 
     it('groups results into sections when sorting with grouping enabled', () => {

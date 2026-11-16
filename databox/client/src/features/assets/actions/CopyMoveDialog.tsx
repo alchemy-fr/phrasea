@@ -34,7 +34,6 @@ export function CopyMoveDialog({
     const [destination, setDestination] = useState<TreeSelection>();
     const [byReference, setByReference] = useState(true);
     const [withAttributes, setWithAttributes] = useState(true);
-    const [withTags, setWithTags] = useState(true);
 
     const ids = assets.map(a => a.id);
     const sourceWorkspaces = new Set(assets.map(a => a.workspace.id));
@@ -62,7 +61,7 @@ export function CopyMoveDialog({
                 ids,
                 destination!.iri,
                 byReference && !crossWorkspace,
-                {withAttributes, withTags}
+                {withAttributes}
             );
             track(EventCategory.Asset, AssetEvent.Copy, {
                 name:
@@ -170,16 +169,6 @@ export function CopyMoveDialog({
                                     checked={withAttributes}
                                     onCheckedChange={v =>
                                         setWithAttributes(v === true)
-                                    }
-                                />
-                            </LabeledControl>
-                            <LabeledControl
-                                label={t('asset.copy.with_tags', 'Copy tags')}
-                            >
-                                <Checkbox
-                                    checked={withTags}
-                                    onCheckedChange={v =>
-                                        setWithTags(v === true)
                                     }
                                 />
                             </LabeledControl>

@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtInterface;
 use Alchemy\AuthBundle\Security\JwtOauthClient;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
@@ -19,16 +20,12 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
-use App\Entity\Core\Tag;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\AttributeDefinitionVoter;
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -49,6 +46,7 @@ class BatchAttributeManager
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributeValidator $attributeValidator,
         private readonly AttributeChangeAuditor $attributeChangeAuditor,
+        private readonly AttributeTypeRegistry $attributeTypeRegistry,
     ) {
     }
 
@@ -88,62 +86,7 @@ class BatchAttributeManager
             }
         }
 
-        $this->validateTagActions($workspaceId, $input->actions ?? []);
-
         $this->attributeValidator->validateAttributeInputs($workspaceId, array_filter($input->actions, fn (AbstractBaseAttributeInput $input): bool => in_array($input->action, [self::ACTION_ADD, self::ACTION_SET], true)), 'actions');
-    }
-
-    /**
-     * A tag action only targets existing tags of the workspace of the assets.
-     *
-     * @param AttributeActionInput[] $actions
-     */
-    private function validateTagActions(string $workspaceId, array $actions): void
-    {
-        $tagIds = [];
-        foreach ($actions as $i => $action) {
-            if (AttributeValidator::TAGS !== $action->definitionId) {
-                continue;
-            }
-
-            $ids = match ($action->action) {
-                self::ACTION_ADD => [$action->value],
-                self::ACTION_DELETE => $action->ids ?? [],
-                default => throw new BadRequestHttpException(sprintf('Unsupported action "%s" for tags in action #%d', $action->action, $i)),
-            };
-
-            foreach ($ids as $id) {
-                if (!is_string($id) || !Uuid::isValid($id)) {
-                    throw new BadRequestHttpException(sprintf('Invalid tag ID in action #%d', $i));
-                }
-                $tagIds[strtolower($id)][] = $i;
-            }
-        }
-
-        if (empty($tagIds)) {
-            return;
-        }
-
-        $found = $this->em->createQueryBuilder()
-            ->select('t.id')
-            ->from(Tag::class, 't')
-            ->andWhere('t.workspace = :ws')
-            ->andWhere('t.id IN (:ids)')
-            ->setParameter('ws', $workspaceId)
-            ->setParameter('ids', array_keys($tagIds))
-            ->getQuery()
-            ->getSingleColumnResult();
-
-        $foundIndex = [];
-        foreach ($found as $id) {
-            $foundIndex[strtolower((string) $id)] = true;
-        }
-
-        foreach ($tagIds as $id => $actionIndexes) {
-            if (!isset($foundIndex[$id])) {
-                throw new BadRequestHttpException(sprintf('Tag "%s" not found in the workspace of the assets in action #%d', $id, $actionIndexes[0]));
-            }
-        }
     }
 
     public function handleBatch(
@@ -187,11 +130,6 @@ class BatchAttributeManager
                     }
 
                     if ($action->definitionId) {
-                        if (AttributeValidator::TAGS === $action->definitionId) {
-                            $this->handleTagAction($action, $ids);
-
-                            continue;
-                        }
                         $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
                     } elseif ($action->name) {
                         $definition = $this->getAttributeDefinitionBySlug($workspaceId, $action->name);
@@ -222,7 +160,7 @@ class BatchAttributeManager
                                 throw new BadRequestHttpException(sprintf('Attribute "%s" is not multi-valued in action #%d', $definition->getName(), $i));
                             }
 
-                            $this->upsertOrRemoveAttribute(null, $ids, $definition, $action);
+                            $this->upsertOrRemoveAttribute(null, $this->getAssetsWithoutValue($ids, $definition, $action), $definition, $action);
                             break;
                         case self::ACTION_DELETE:
                             if (!$definition) {
@@ -231,6 +169,7 @@ class BatchAttributeManager
                             $this->deleteAttributes($ids, $definition, [
                                 'id' => $action->id,
                                 'ids' => $action->ids,
+                                'values' => null !== $action->value ? $this->normalizeDeletedValues($definition, $action->value) : null,
                                 'origin' => $action->origin,
                                 'originVendor' => $action->originVendor,
                                 'originVendorContext' => $action->originVendorContext,
@@ -363,49 +302,6 @@ class BatchAttributeManager
         }
     }
 
-    private function handleTagAction(AttributeActionInput $action, array $assetIds): void
-    {
-        $assetMeta = $this->em->getClassMetadata(Asset::class);
-        $tagMapping = $assetMeta->getAssociationMapping('tags');
-        $joinTable = $tagMapping['joinTable'];
-        $assetTable = $assetMeta->getTableName();
-        $tagAssociationTable = $joinTable['name'];
-        $assetIdCol = $joinTable['joinColumns'][0]['name'];
-        $tagIdCol = $joinTable['inverseJoinColumns'][0]['name'];
-
-        switch ($action->action) {
-            case self::ACTION_ADD:
-                $query = sprintf(
-                    'INSERT INTO %1$s (%2$s, %3$s) SELECT :tag, a.id FROM %4$s a WHERE a.id IN (:ids) ON CONFLICT DO NOTHING',
-                    $tagAssociationTable,
-                    $tagIdCol,
-                    $assetIdCol,
-                    $assetTable,
-                );
-                $this->em->getConnection()->executeQuery($query, [
-                    'tag' => $action->value,
-                    'ids' => $assetIds,
-                ], [
-                    'tag' => ParameterType::STRING,
-                    'ids' => ArrayParameterType::STRING,
-                ]);
-                break;
-            case self::ACTION_DELETE:
-                $this->em->getConnection()->executeQuery(sprintf(
-                    'DELETE FROM %1$s WHERE %3$s IN (:ids) AND %2$s IN (:tags)',
-                    $tagAssociationTable,
-                    $tagIdCol,
-                    $assetIdCol,
-                ), [
-                    'tags' => $action->ids,
-                    'ids' => $assetIds,
-                ], [
-                    'tags' => ArrayParameterType::STRING,
-                    'ids' => ArrayParameterType::STRING,
-                ]);
-        }
-    }
-
     private function upsertOrRemoveAttribute(
         ?Attribute $attribute,
         array $assetsId,
@@ -483,6 +379,14 @@ class BatchAttributeManager
                 ->andWhere('a.id IN (:ids)')
                 ->setParameter('ids', $options['ids']);
         }
+        if (null !== ($options['values'] ?? null)) {
+            if (empty($options['values'])) {
+                return;
+            }
+            $qb
+                ->andWhere('a.value IN (:values)')
+                ->setParameter('values', $options['values']);
+        }
         if ($options['origin'] ?? null) {
             $qb
                 ->andWhere('a.origin = :origin')
@@ -499,6 +403,67 @@ class BatchAttributeManager
                 ->setParameter('ovc', $options['originVendorContext']);
         }
         $qb->getQuery()->execute();
+    }
+
+    /**
+     * Adding a value an asset already has keeps a single one.
+     *
+     * @param string[] $assetIds
+     *
+     * @return string[]
+     */
+    private function getAssetsWithoutValue(array $assetIds, AttributeDefinition $definition, AttributeActionInput $action): array
+    {
+        if (empty($assetIds) || !is_scalar($action->value)) {
+            return $assetIds;
+        }
+        $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
+        $normalized = $type->normalizeValue($action->value);
+        $value = null !== $normalized ? $type->convertToDbValue($normalized) : null;
+        if (null === $value) {
+            return $assetIds;
+        }
+
+        $qb = $this->em->createQueryBuilder()
+            ->select('IDENTITY(a.asset)')
+            ->from(Attribute::class, 'a')
+            ->andWhere('a.asset IN (:assets)')
+            ->andWhere('a.definition = :def')
+            ->andWhere('a.value = :value')
+            ->setParameter('assets', $assetIds)
+            ->setParameter('def', $definition->getId())
+            ->setParameter('value', $value);
+        if ($action->locale) {
+            $qb
+                ->andWhere('a.locale = :locale')
+                ->setParameter('locale', LocaleUtil::normalizeLocale($action->locale));
+        } else {
+            $qb->andWhere('a.locale IS NULL');
+        }
+
+        $existing = array_map(strval(...), $qb->getQuery()->getSingleColumnResult());
+
+        return array_values(array_diff($assetIds, $existing));
+    }
+
+    /**
+     * The values to remove, stored as the attribute assigner stores them.
+     *
+     * @return string[]
+     */
+    private function normalizeDeletedValues(AttributeDefinition $definition, mixed $value): array
+    {
+        $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
+        $values = [];
+        foreach (is_array($value) ? $value : [$value] as $v) {
+            $normalized = $type->normalizeValue($v);
+            $dbValue = null !== $normalized ? $type->convertToDbValue($normalized) : null;
+            if (null !== $dbValue) {
+                $values[] = $dbValue;
+            }
+        }
+
+        return array_values(array_unique($values));
     }
 
     /**

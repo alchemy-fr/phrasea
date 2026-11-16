@@ -354,14 +354,6 @@ use Symfony\Component\Validator\Constraints as Assert;
                     schema: ['type' => 'array<string>'],
                     description: 'Attribute slug or @built-in to group the sorted results by',
                 ),
-                'tags_must' => new QueryParameter(
-                    schema: ['type' => 'array<string>'],
-                    description: 'Tags ID the assets must have',
-                ),
-                'tags_must_not' => new QueryParameter(
-                    schema: ['type' => 'array<string>'],
-                    description: 'Tags ID the assets must not have',
-                ),
                 'context' => new QueryParameter(
                     schema: ['type' => 'object', 'properties' => ['position' => ['type' => 'string']]],
                     description: 'Search context: context[position]=<collection or story ID> for the @position sort',
@@ -550,9 +542,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
     #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $collections = null;
 
-    #[ORM\ManyToMany(targetEntity: Tag::class)]
-    private ?DoctrineCollection $tags = null;
-
     #[ORM\OneToOne(targetEntity: Collection::class)]
     private ?Collection $storyCollection = null;
 
@@ -593,13 +582,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected ?\DateTimeImmutable $attributesEditedAt = null;
 
-    /**
-     * Last update time of tags.
-     */
-    #[Groups(['dates'])]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    protected ?\DateTimeImmutable $tagsEditedAt = null;
-
     #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: AssetStatusEnum::class)]
     private ?AssetStatusEnum $status = null;
 
@@ -621,7 +603,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         parent::__construct();
         $this->collections = new ArrayCollection();
         $this->renditions = new ArrayCollection();
-        $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
         $this->attachments = new ArrayCollection();
         $this->fileVersions = new ArrayCollection();
@@ -634,7 +615,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         $this->microseconds = ($now * 1_000_000) % 1_000_000;
 
         $this->attributesEditedAt = $createdAt;
-        $this->tagsEditedAt = $createdAt;
 
         if (null !== $sequence) {
             $this->sequence = $sequence;
@@ -741,30 +721,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         $collection->getAssets()->add($assetCollection);
 
         return $assetCollection;
-    }
-
-    /**
-     * @return Tag[]
-     */
-    public function getTags(): DoctrineCollection
-    {
-        return $this->tags;
-    }
-
-    public function addTag(Tag $tag): void
-    {
-        if ($tag->getWorkspace() !== $this->workspace) {
-            throw new \LogicException('Cannot add a tag that comes from a different workspace');
-        }
-
-        if (!$this->tags->contains($tag)) {
-            $this->tags->add($tag);
-        }
-    }
-
-    public function getTagIds(): array
-    {
-        return $this->tags->map(fn (Tag $tag): string => $tag->getId())->getValues();
     }
 
     /**
@@ -875,7 +831,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
     {
         $date = max(
             $this->attributesEditedAt,
-            $this->tagsEditedAt,
             $this->updatedAt,
         );
 
@@ -884,16 +839,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         }
 
         return $date;
-    }
-
-    public function getTagsEditedAt(): ?\DateTimeImmutable
-    {
-        return $this->tagsEditedAt;
-    }
-
-    public function setTagsEditedAt(?\DateTimeImmutable $tagsEditedAt): void
-    {
-        $this->tagsEditedAt = $tagsEditedAt;
     }
 
     public function getAttributesEditedAt(): ?\DateTimeImmutable

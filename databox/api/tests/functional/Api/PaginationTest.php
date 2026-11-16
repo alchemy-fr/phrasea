@@ -29,7 +29,6 @@ final class PaginationTest extends AbstractDataboxTestCase
             'rendition definitions' => ['/rendition-definitions'],
             'workspaces' => ['/workspaces'],
             'entity lists' => ['/entity-lists'],
-            'tags' => ['/tags'],
             'attribute entities' => ['/attribute-entities'],
             'attribute filter rules' => ['/attribute-filter-rules'],
         ];
@@ -75,10 +74,10 @@ final class PaginationTest extends AbstractDataboxTestCase
     {
         $workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
         foreach (['Alpha', 'Bravo', 'Charlie'] as $name) {
-            $this->findOrCreateTagByName($name, $workspace);
+            $this->createEntityList(['name' => $name]);
         }
 
-        $first = $this->api('GET', '/tags', self::USER, options: ['query' => ['workspace' => $workspace->getId(), 'limit' => 2]])->toArray();
+        $first = $this->api('GET', '/entity-lists', self::USER, options: ['query' => ['workspace' => $workspace->getId(), 'limit' => 2]])->toArray();
         $this->assertSame(['Alpha', 'Bravo'], array_column($first['member'], 'name'));
         $this->assertSame(3, $first['totalItems']);
         $this->assertStringContainsString('page=2', $first['view']['next']);
@@ -135,12 +134,6 @@ final class PaginationTest extends AbstractDataboxTestCase
                 }
 
                 return ['workspace' => $workspace->getId()];
-            case '/tags':
-                foreach (['Alpha', 'Bravo', 'Charlie'] as $name) {
-                    $this->findOrCreateTagByName($name, $workspace);
-                }
-
-                return ['workspace' => $workspace->getId()];
             case '/attribute-entities':
                 $list = $this->createEntityList(['name' => 'Colors']);
                 foreach (['Blue', 'Green', 'Red'] as $value) {
@@ -149,9 +142,9 @@ final class PaginationTest extends AbstractDataboxTestCase
 
                 return ['list' => $list->getId()];
             case '/attribute-filter-rules':
-                $tag = $this->findOrCreateTagByName('Secret', $workspace);
+                $tag = $this->findOrCreateTagEntity('Secret', $workspace);
                 foreach ([['a'], ['b'], ['c']] as $userIds) {
-                    self::getAttributeFilterManager()->saveRule($workspace, $userIds, [], sprintf('@tag = "%s"', $tag->getId()));
+                    self::getAttributeFilterManager()->saveRule($workspace, $userIds, [], sprintf('tags = "%s"', $tag->getId()));
                 }
 
                 return ['workspaceId' => $workspace->getId()];

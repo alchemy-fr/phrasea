@@ -39,7 +39,6 @@ function fakeAsset(i: number): Asset {
     return {
         id: `asset-${i}`,
         name: `Asset ${i}`,
-        tags: [],
         capabilities: {},
         workspace: {id: 'ws'},
     } as unknown as Asset;

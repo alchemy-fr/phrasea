@@ -19,7 +19,7 @@ const RoutePathContext = createContext<RoutePath | null>(null);
 /**
  * Part of the URL owned by the screen below, to mirror what it shows (the item
  * edited in a list, a nested panel...) so that a refresh or a shared link
- * lands on it: `/workspaces/:id/manage/tags/:tagId`.
+ * lands on it: `/workspaces/:id/manage/entities/:listId`.
  *
  * Provided by `TabbedRouteDialogShell` for each tab, or by a page with
  * `UrlPathProvider`. Without a provider, the path is local state: the screen

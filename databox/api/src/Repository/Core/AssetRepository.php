@@ -128,10 +128,9 @@ class AssetRepository extends ServiceEntityRepository
     {
         return $this
             ->createQueryBuilder($alias)
-            ->select($alias.', f, w, tg, ca, cac, rc, sc')
+            ->select($alias.', f, w, ca, cac, rc, sc')
             ->leftJoin($alias.'.source', 'f')
             ->leftJoin($alias.'.workspace', 'w')
-            ->leftJoin($alias.'.tags', 'tg')
             ->leftJoin($alias.'.collections', 'ca')
             ->leftJoin('ca.collection', 'cac')
             ->leftJoin($alias.'.referenceCollection', 'rc')

@@ -186,30 +186,6 @@
             "missing_count": 2,
             "sum_other_doc_count": 0
         },
-        "@tag": {
-            "buckets": [
-                {
-                    "doc_count": 1,
-                    "key": {
-                        "item": {
-                            "color": null,
-                            "displayName": "Nature",
-                            "name": "Nature"
-                        },
-                        "label": "Nature",
-                        "value": "<tag>"
-                    }
-                }
-            ],
-            "doc_count_error_upper_bound": 0,
-            "meta": {
-                "displayName": "Tags",
-                "sortable": true,
-                "type": "keyword"
-            },
-            "missing_count": 1,
-            "sum_other_doc_count": 0
-        },
         "@type": {
             "buckets": [
                 {
@@ -329,7 +305,6 @@
             "resolvedName": "Other",
             "resolvedTrackingId": "<other>",
             "status": 0,
-            "tags": [],
             "threadKey": "asset:<other>",
             "updatedAt": "<date>",
             "webUrl": "<client-url>/assets/<other>/_",
@@ -517,15 +492,6 @@
                 "url": "https://example.com/photo.jpg"
             },
             "status": 0,
-            "tags": [
-                {
-                    "@id": "/tags/<tag>",
-                    "@type": "tag",
-                    "displayName": "Nature",
-                    "id": "<tag>",
-                    "name": "Nature"
-                }
-            ],
             "threadKey": "asset:<asset>",
             "updatedAt": "<date>",
             "webUrl": "<client-url>/assets/<asset>/_",

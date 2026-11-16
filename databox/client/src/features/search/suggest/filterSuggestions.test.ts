@@ -71,7 +71,7 @@ const story = builtIn('@story', 'Stories', AttributeType.Story);
 const isStory = builtIn('@isStory', 'Is story', AttributeType.Boolean);
 const privacy = builtIn('@privacy', 'Privacy', AttributeType.Privacy);
 const size = builtIn('@size', 'File size', AttributeType.FileSize);
-const tag = builtIn('@tag', 'Tags', AttributeType.Tag);
+const owner = builtIn('@owner', 'Owner', AttributeType.User);
 const id = builtIn('@id', 'ID', AttributeType.Id);
 const title = attribute('title', 'Title', AttributeType.Text);
 const history = attribute('history', 'History', AttributeType.Text);
@@ -91,7 +91,7 @@ const definitions: AttributeDefinitionOrBuiltIn[] = [
     isStory,
     privacy,
     size,
-    tag,
+    owner,
     place,
     shot,
     notes,
@@ -170,12 +170,12 @@ describe('suggestFields', () => {
         expect(suggestFields('@', definitions).map(i => i.key)).toEqual([
             '@size',
             '@isStory',
+            '@owner',
             '@privacy',
             '@story',
-            '@tag',
         ]);
-        expect(suggestFields('@t', definitions).map(i => i.key)).toEqual([
-            '@tag',
+        expect(suggestFields('@o', definitions).map(i => i.key)).toEqual([
+            '@owner',
         ]);
     });
 
@@ -251,9 +251,9 @@ describe('clientValueSuggestions', () => {
 
     it('suggests the facet buckets, entities by id', () => {
         const facets: Facets = {
-            '@tag': {
+            place_entity_s: {
                 meta: {
-                    displayName: 'Tags',
+                    displayName: 'Place',
                     sortable: false,
                     widget: FacetType.Entity,
                 },
@@ -262,7 +262,7 @@ describe('clientValueSuggestions', () => {
                     {key: {value: 't2', label: 'Urban'}, doc_count: 1},
                 ],
             },
-            'title_text_s_fr': {
+            title_text_s_fr: {
                 meta: {
                     displayName: 'Title',
                     sortable: false,
@@ -274,14 +274,14 @@ describe('clientValueSuggestions', () => {
         // Prefix matches first, then substrings
         expect(
             clientValueSuggestions({
-                definition: tag,
+                definition: place,
                 prefix: 'ur',
                 facets,
                 t,
             }).map(s => [s.value, s.label, s.query])
         ).toEqual([
-            ['t2', 'Urban', '@tag IS "t2"'],
-            ['t1', 'Nature', '@tag IS "t1"'],
+            ['t2', 'Urban', 'place IS "t2"'],
+            ['t1', 'Nature', 'place IS "t1"'],
         ]);
         expect(
             clientValueSuggestions({
@@ -292,7 +292,12 @@ describe('clientValueSuggestions', () => {
             }).map(s => s.query)
         ).toEqual(['title IS "Chat"']);
         expect(
-            clientValueSuggestions({definition: tag, prefix: 'zzz', facets, t})
+            clientValueSuggestions({
+                definition: place,
+                prefix: 'zzz',
+                facets,
+                t,
+            })
         ).toEqual([]);
     });
 });
@@ -391,7 +396,7 @@ describe('rawSuggestionFor', () => {
     it('refuses empty, unfit or already suggested values', () => {
         expect(rawSuggestionFor(title, '  ', [])).toBeNull();
         expect(rawSuggestionFor(isStory, 'true', [])).toBeNull();
-        expect(rawSuggestionFor(tag, 'nature', [])).toBeNull();
+        expect(rawSuggestionFor(owner, 'nature', [])).toBeNull();
         expect(rawSuggestionFor(size, 'abc', [])).toBeNull();
         expect(rawSuggestionFor(shot, 'yesterday?', [])).toBeNull();
         const values = clientValueSuggestions({

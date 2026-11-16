@@ -37,7 +37,6 @@ type Props = {
     onChange: OnAttributeChange;
     disabled?: boolean;
     target: AssetTypeFilter;
-    workspaceId?: string;
     workspaceLocales?: string[];
     /** More definitions to load, at the end of the form */
     hasMore?: boolean;
@@ -55,7 +54,6 @@ export function AttributesEditor({
     onChange,
     disabled,
     target,
-    workspaceId,
     workspaceLocales,
     hasMore = false,
     onLoadMore,
@@ -237,7 +235,6 @@ export function AttributesEditor({
                             value={attributes[def.id]?.[locale]}
                             onChange={v => onChange(def.id, locale, v)}
                             disabled={disabled || !def.canEdit}
-                            workspaceId={workspaceId}
                         />
                     </div>
                 );
@@ -253,14 +250,12 @@ export function AttributeField({
     value,
     onChange,
     disabled,
-    workspaceId,
 }: {
     definition: AttributeDefinition;
     locale: string;
     value: AttrValue | AttrValue[] | undefined;
     onChange: (v: AttrValue | AttrValue[] | undefined) => void;
     disabled?: boolean;
-    workspaceId?: string;
 }) {
     const {t} = useTranslation();
     const rtl = isRtl(locale === NO_LOCALE ? undefined : locale);
@@ -324,7 +319,6 @@ export function AttributeField({
                                     }
                                     disabled={disabled}
                                     rtl={rtl}
-                                    workspaceId={workspaceId}
                                     autoFocus={
                                         item.id.startsWith('new-') &&
                                         i === list.length - 1
@@ -413,7 +407,6 @@ export function AttributeField({
                     }
                     disabled={disabled}
                     rtl={rtl}
-                    workspaceId={workspaceId}
                 />
             </InvalidWrapper>
         </div>

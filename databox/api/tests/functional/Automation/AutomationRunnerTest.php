@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Automation;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Automation\Action\AttributeAction;
 use App\Automation\Action\ExposePublishAction;
 use App\Automation\Action\MoveToCollectionAction;
-use App\Automation\Action\TagsAction;
 use App\Automation\AutomationCursor;
 use App\Automation\AutomationRunner;
 use App\Entity\Automation\SavedSearchAutomation;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\Collection;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\AutomationRunStatusEnum;
@@ -35,7 +36,7 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
 
     private Workspace $workspace;
     private Collection $source;
-    private Tag $tag;
+    private AttributeEntity $tag;
 
     /**
      * @var array<string, string> asset IDs by name
@@ -50,7 +51,7 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
             'ownerId' => self::OWNER,
             'name' => 'Source',
         ]);
-        $this->tag = $this->findOrCreateTagByName('Processed', $this->workspace);
+        $this->tag = $this->findOrCreateTagEntity('Processed', $this->workspace);
         for ($i = 1; $i <= $assetCount; ++$i) {
             $this->createSourceAsset('Asset '.$i);
         }
@@ -84,7 +85,11 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
 
     private function tagAction(): array
     {
-        return ['type' => TagsAction::TYPE, 'config' => ['add' => [$this->tag->getId()], 'remove' => []]];
+        return ['type' => AttributeAction::TYPE, 'config' => [
+            'definitionId' => $this->getOrCreateTagsDefinition($this->workspace)->getId(),
+            'action' => 'add',
+            'value' => $this->tag->getId(),
+        ]];
     }
 
     /**
@@ -95,12 +100,9 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
         $em = self::getEntityManager();
         $em->clear();
         $names = [];
-        foreach ($em->getRepository(Asset::class)->findBy(['workspace' => $this->workspace->getId()]) as $asset) {
-            foreach ($asset->getTags() as $tag) {
-                if ($tag->getId() === $this->tag->getId()) {
-                    $names[] = $this->assetIds[$asset->getId()] ?? $asset->getId();
-                }
-            }
+        foreach ($em->getRepository(Attribute::class)->findBy(['value' => $this->tag->getId()]) as $attribute) {
+            $assetId = $attribute->getAsset()->getId();
+            $names[] = $this->assetIds[$assetId] ?? $assetId;
         }
         sort($names);
 
@@ -129,7 +131,7 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
         $this->assertNotNull($run->getStartedAt());
         $this->assertNotNull($run->getEndedAt());
         $this->assertSame([[
-            'type' => TagsAction::TYPE,
+            'type' => AttributeAction::TYPE,
             'status' => 'success',
             'processed' => 2,
             'failed' => 0,
@@ -364,7 +366,7 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
     public function testUnavailableOwnerFailsAndDisables(): void
     {
         $savedSearch = $this->createSavedSearchWith(KeycloakClientTestMock::DISABLED_USER_UID, ['query' => 'whatever']);
-        $id = $this->createAutomationEntity($savedSearch, [['type' => TagsAction::TYPE, 'config' => ['add' => [], 'remove' => []]]], options: [
+        $id = $this->createAutomationEntity($savedSearch, [['type' => AttributeAction::TYPE, 'config' => ['definitionId' => '00000000-0000-4000-8000-000000000000', 'action' => 'add', 'value' => 'x']]], options: [
             'schedule' => '0 * * * *',
             'nextRunAt' => new \DateTimeImmutable('+1 hour'),
         ])->getId();
@@ -412,7 +414,7 @@ final class AutomationRunnerTest extends AbstractSearchTestCase
     public function testConcurrentRunIsSkipped(): void
     {
         $savedSearch = $this->createSavedSearchWith(self::OWNER, ['query' => 'whatever']);
-        $id = $this->createAutomationEntity($savedSearch, [['type' => TagsAction::TYPE, 'config' => ['add' => [], 'remove' => []]]])->getId();
+        $id = $this->createAutomationEntity($savedSearch, [['type' => AttributeAction::TYPE, 'config' => ['definitionId' => '00000000-0000-4000-8000-000000000000', 'action' => 'add', 'value' => 'x']]])->getId();
 
         $lock = self::getService(LockFactory::class)->createLock(AutomationRunner::getLockKey($id));
         $this->assertTrue($lock->acquire());

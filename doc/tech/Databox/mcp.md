@@ -50,7 +50,7 @@ file).
 
 An invalid build configuration is refused with the message of the API (`422`, on `definition`).
 
-### Attributes, tags, entity lists
+### Attributes, entity lists
 
 | Tool                          | Description                                   |
 |-------------------------------|-----------------------------------------------|
@@ -64,11 +64,6 @@ An invalid build configuration is refused with the message of the API (`422`, on
 | `create_attribute_policy`     | Create an attribute policy                    |
 | `update_attribute_policy`     | Update an attribute policy                    |
 | `delete_attribute_policy`     | Delete an attribute policy                    |
-| `list_tags`                   | List/search the tags                          |
-| `get_tag`                     | Get a tag                                     |
-| `create_tag`                  | Create a tag                                  |
-| `update_tag`                  | Update a tag                                  |
-| `delete_tag`                  | Delete a tag                                  |
 | `list_entity_lists`           | List the entity lists                         |
 | `get_entity_list`             | Get an entity list                            |
 | `create_entity_list`          | Create an entity list                         |
@@ -106,7 +101,7 @@ An invalid build configuration is refused with the message of the API (`422`, on
 | `search_assets`                | Search the assets: full-text query, [AQL](./aql.md) conditions, facets |
 | `get_asset`                    | Get an asset                                                        |
 | `create_asset_from_url`        | Create an asset from the URL of its file, or a story                |
-| `update_asset`                 | Update the privacy or the tags of an asset                          |
+| `update_asset`                 | Update the privacy of an asset                                      |
 | `set_asset_attributes`         | Set, add or delete attribute values (`machine` origin)              |
 | `move_assets`                  | Move assets into a collection or to the workspace root              |
 | `copy_assets`                  | Copy assets into a collection or a workspace                        |

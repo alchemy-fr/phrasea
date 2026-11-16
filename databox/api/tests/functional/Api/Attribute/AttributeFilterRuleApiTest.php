@@ -27,7 +27,7 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
     {
         $this->workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
         $this->addUserOnWorkspace(self::OTHER, $this->workspace->getId());
-        $this->condition = sprintf('@tag = "%s"', $this->findOrCreateTagByName('foo', $this->workspace)->getId());
+        $this->condition = sprintf('tags = "%s"', $this->findOrCreateTagEntity('foo', $this->workspace)->getId());
     }
 
     private function createRule(?Workspace $workspace = null, array $userIds = [self::OTHER], array $groupIds = []): AttributeFilterRule
@@ -192,7 +192,7 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
         $this->setUpScene();
         $rule = $this->createRule(null, [self::OTHER]);
         $iri = '/attribute-filter-rules/'.$rule->getId();
-        $newCondition = sprintf('@tag != "%s"', $this->findOrCreateTagByName('foo', $this->workspace)->getId());
+        $newCondition = sprintf('tags != "%s"', $this->findOrCreateTagEntity('foo', $this->workspace)->getId());
 
         // Omitted targets are kept
         $this->api('PATCH', $iri, self::USER, ['condition' => $newCondition]);

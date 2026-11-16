@@ -42,9 +42,6 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
     #[Groups([AssetDataTemplate::GROUP_READ])]
     public ?string $ownerId = null;
 
-    #[Groups([AssetDataTemplate::GROUP_READ])]
-    public ?array $tags = null;
-
     #[Groups([AssetDataTemplate::GROUP_LIST])]
     public $collection;
 

@@ -52,7 +52,7 @@ class WorkspaceTermsSearchTest extends AbstractSearchTestCase
 
         $this->assertSame(['Open collection'], array_column($this->getAsUser('/collections')['member'], 'name'));
         $this->assertSame([], $this->getAsUser('/collections?query=Gated')['member']);
-        $this->assertSame(['OpenTag'], array_column($this->getAsUser('/tags')['member'], 'name'));
+        $this->assertSame(['OpenTag'], array_column($this->getAsUser('/attribute-entities')['member'], 'value'));
 
         /** @var TermsManager $termsManager */
         $termsManager = self::getService(TermsManager::class);
@@ -68,7 +68,7 @@ class WorkspaceTermsSearchTest extends AbstractSearchTestCase
         sort($collections);
         $this->assertSame(['Gated collection', 'Open collection'], $collections);
         $this->assertSame(['Gated collection'], array_column($this->getAsUser('/collections?query=Gated')['member'], 'name'));
-        $tags = array_column($this->getAsUser('/tags')['member'], 'name');
+        $tags = array_column($this->getAsUser('/attribute-entities')['member'], 'value');
         sort($tags);
         $this->assertSame(['GatedTag', 'OpenTag'], $tags);
     }

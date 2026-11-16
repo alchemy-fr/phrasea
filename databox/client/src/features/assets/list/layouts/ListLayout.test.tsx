@@ -87,7 +87,6 @@ function fakeAsset(i: number): Asset {
     return {
         id: `asset-${i}`,
         name: `Asset ${i}`,
-        tags: [],
         attributes: [],
         capabilities: {},
         workspace: {id: 'ws'},

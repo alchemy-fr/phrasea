@@ -366,9 +366,9 @@ The build settings will be generated from the phraseanet to match the subdef.
 
 ## `importStatusBits`
 
-Controls whether to import Phraseanet status bits as tags in the Phrasea workspace.
+Controls whether to import Phraseanet status bits in the Phrasea workspace, as the values of an entity list attribute.
 
-By default, all status bits from the Phraseanet databox are imported as tags (unless `importStatusBits` is set to `false`).
+By default, all status bits from the Phraseanet databox are imported (unless `importStatusBits` is set to `false`).
 Status bits with empty `label_on` and `label_off` are automatically skipped to prevent errors.
 
 To **completely disable** the import of status bits for a databox mapping, set:

@@ -161,15 +161,6 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
 
         $this->renditionManager->deleteScheduledRenditions();
 
-        if (isset($data->tags)) {
-            $object->getTags()->clear();
-            foreach ($data->tags as $tag) {
-                $object->addTag($tag);
-            }
-
-            $object->setTagsEditedAt(new \DateTimeImmutable());
-        }
-
         $object = $this->processOwnerId($object);
 
         if ($isNew && $data->isStory) {

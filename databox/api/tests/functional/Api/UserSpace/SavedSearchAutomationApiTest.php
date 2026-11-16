@@ -6,14 +6,14 @@ namespace App\Tests\Functional\Api\UserSpace;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\MessengerBundle\Transport\TestTransport;
+use App\Automation\Action\AttributeAction;
 use App\Automation\Action\ShareExportAction;
-use App\Automation\Action\TagsAction;
 use App\Consumer\Handler\Automation\ResetAutomationCursor;
 use App\Consumer\Handler\Automation\RunAutomation;
 use App\Entity\Automation\AutomationRun;
 use App\Entity\Automation\SavedSearchAutomation;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\RenditionDefinition;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\AutomationScopeEnum;
@@ -40,14 +40,23 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
         return $search;
     }
 
-    private function createTag(): Tag
+    private function createTag(): AttributeEntity
     {
         $workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
 
-        return $this->findOrCreateTagByName('Done', $workspace);
+        return $this->findOrCreateTagEntity('Done', $workspace);
     }
 
-    private function payload(SavedSearch $savedSearch, Tag $tag, array $overrides = []): array
+    private function tagAction(AttributeEntity $tag): array
+    {
+        return ['type' => AttributeAction::TYPE, 'config' => [
+            'definitionId' => $this->getOrCreateTagsDefinition($tag->getWorkspace())->getId(),
+            'action' => 'add',
+            'value' => $tag->getId(),
+        ]];
+    }
+
+    private function payload(SavedSearch $savedSearch, AttributeEntity $tag, array $overrides = []): array
     {
         return array_merge([
             'savedSearch' => $savedSearch->getId(),
@@ -56,12 +65,12 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
             'timezone' => 'Europe/Paris',
             'scope' => 'new',
             'actions' => [
-                ['type' => TagsAction::TYPE, 'config' => ['add' => [$tag->getId()]]],
+                $this->tagAction($tag),
             ],
         ], $overrides);
     }
 
-    private function createAutomation(SavedSearch $savedSearch, Tag $tag, array $overrides = []): array
+    private function createAutomation(SavedSearch $savedSearch, AttributeEntity $tag, array $overrides = []): array
     {
         return $this->apiJson('POST', '/saved-search-automations', self::USER, $this->payload($savedSearch, $tag, $overrides));
     }
@@ -82,7 +91,12 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
         $this->assertSame('new', $data['scope']);
         $this->assertSame(1000, $data['maxAssetsPerRun']);
         $this->assertSame([
-            ['type' => TagsAction::TYPE, 'config' => ['add' => [$tag->getId()], 'remove' => []]],
+            ['type' => AttributeAction::TYPE, 'config' => [
+                'definitionId' => $this->getOrCreateTagsDefinition($tag->getWorkspace())->getId(),
+                'action' => 'add',
+                'locale' => null,
+                'value' => $tag->getId(),
+            ]],
         ], $data['actions']);
         $this->assertSame(['edit' => true, 'delete' => true, 'run' => true], $data['capabilities']);
         $this->assertSame(self::USER, $data['createdBy']['id']);
@@ -153,11 +167,11 @@ final class SavedSearchAutomationApiTest extends AbstractDataboxTestCase
             'no action' => [['actions' => []], 'actions'],
             'zero max assets' => [['maxAssetsPerRun' => 0], 'maxAssetsPerRun'],
             'unknown action' => [['actions' => [['type' => 'teleport', 'config' => []]]], 'actions[0].type'],
-            'invalid action config' => [['actions' => [['type' => TagsAction::TYPE, 'config' => ['add' => []]]]], 'actions[0].config.add'],
-            'unknown tag' => [['actions' => [['type' => TagsAction::TYPE, 'config' => ['add' => ['00000000-0000-4000-8000-000000000000']]]]], 'actions[0].config.add'],
+            'invalid action config' => [['actions' => [['type' => AttributeAction::TYPE, 'config' => []]]], 'actions[0].config.definitionId'],
+            'unknown definition' => [['actions' => [['type' => AttributeAction::TYPE, 'config' => ['definitionId' => '00000000-0000-4000-8000-000000000000']]]], 'actions[0].config.definitionId'],
             'two share exports' => [['actions' => [
                 ['type' => ShareExportAction::TYPE, 'config' => []],
-                ['type' => TagsAction::TYPE, 'config' => ['add' => []]],
+                ['type' => AttributeAction::TYPE, 'config' => []],
                 ['type' => ShareExportAction::TYPE, 'config' => []],
             ]], 'actions[2].type'],
         ];
