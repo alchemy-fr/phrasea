@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\AQL\Function;
 
+use App\Elasticsearch\AQL\InvalidAQLException;
+
 final readonly class NowFunction implements AQLFunctionInterface
 {
     public function resolve(array $arguments): mixed
@@ -23,6 +25,6 @@ final readonly class NowFunction implements AQLFunctionInterface
 
     public function getScript(array $arguments): string
     {
-        throw new \InvalidArgumentException(sprintf('Script generation is not supported for %s yet', self::getName()));
+        throw new InvalidAQLException(sprintf('Function "%s" is not supported in script conditions', self::getName()));
     }
 }

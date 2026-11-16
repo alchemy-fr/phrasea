@@ -7,6 +7,12 @@ namespace App\Elasticsearch\AQL;
 final class ClusterGroup
 {
     /**
+     * The locale of the translatable field read by a script, null when it reads none: the fields of
+     * an expression are read in the same locale.
+     */
+    private ?string $fieldLocale = null;
+
+    /**
      * @param list<array{w: string, p: string[]}> $hiddenScopes the assets on which asset policies hide the field (see HiddenAttributeScope)
      */
     public function __construct(
@@ -29,6 +35,19 @@ final class ClusterGroup
     public function getItem(): mixed
     {
         return $this->item;
+    }
+
+    public function withFieldLocale(?string $fieldLocale): self
+    {
+        $new = clone $this;
+        $new->fieldLocale = $fieldLocale;
+
+        return $new;
+    }
+
+    public function getFieldLocale(): ?string
+    {
+        return $this->fieldLocale;
     }
 
     public function getWorkspaceIds(): array
@@ -67,6 +86,9 @@ final class ClusterGroup
 
         foreach ($left as $l) {
             foreach ($right as $r) {
+                if (null !== $l->fieldLocale && null !== $r->fieldLocale && $l->fieldLocale !== $r->fieldLocale) {
+                    continue;
+                }
                 if (
                     $l->isConstant
                     || $r->isConstant
@@ -78,6 +100,7 @@ final class ClusterGroup
                     $group = $ref->convert($merge($l->getItem(), $r->getItem()));
                     // An expression reading two fields must ignore the assets where either is hidden
                     $group->hiddenScopes = array_values(array_unique([...$l->hiddenScopes, ...$r->hiddenScopes], SORT_REGULAR));
+                    $group->fieldLocale = $l->fieldLocale ?? $r->fieldLocale;
                     $groups[] = $group;
                 }
             }

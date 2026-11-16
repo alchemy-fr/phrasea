@@ -7,6 +7,7 @@ namespace App\Elasticsearch\BuiltInAttribute;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\Type\CollectionPathAttributeType;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
@@ -137,7 +138,7 @@ abstract class AbstractCollectionBuiltInAttribute extends AbstractBuiltInAttribu
     }
 
     #[\Override]
-    public function normalizeValueForSearch(mixed $value): mixed
+    public function normalizeValueForSearch(mixed $value, array $options = []): mixed
     {
         if (!$value || !is_string($value)) {
             return null;
@@ -148,7 +149,12 @@ abstract class AbstractCollectionBuiltInAttribute extends AbstractBuiltInAttribu
         }
 
         $collection = $this->em->find(Collection::class, $value);
-        if (!$collection) {
+        // A collection the user cannot read is answered like an unknown one: it would otherwise reveal
+        // which of the readable assets belong to it. Attribute filter rules are written by an
+        // administrator and apply whatever the collections their users can read.
+        if (!$collection
+            || (true !== ($options[AQLToESQuery::OPT_TRUSTED_CONDITIONS] ?? false) && !$this->security->isGranted(AbstractVoter::READ, $collection))
+        ) {
             throw new NotFoundHttpException('Collection not found');
         }
 

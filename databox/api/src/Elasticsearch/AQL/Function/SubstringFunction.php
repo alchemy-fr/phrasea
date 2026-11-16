@@ -20,8 +20,8 @@ final readonly class SubstringFunction implements AQLFunctionInterface
     {
         return [
             new Argument('string', TypeEnum::STRING, 'The string to extract the substring from.'),
-            new Argument('start', TypeEnum::NUMBER, 'The starting position of the substring.'),
-            new Argument('length', TypeEnum::NUMBER, 'The length of the substring.', required: false),
+            new Argument('start', TypeEnum::INTEGER, 'The starting position of the substring.'),
+            new Argument('length', TypeEnum::INTEGER, 'The length of the substring.', required: false),
         ];
     }
 
@@ -30,9 +30,9 @@ final readonly class SubstringFunction implements AQLFunctionInterface
         $argCount = count($arguments);
 
         if ($argCount > 2) {
-            return sprintf('%s.Substring(%d, %d)', $arguments[0], $arguments[1], $arguments[2]);
+            return sprintf('%s.Substring(%s, %s)', $arguments[0], $arguments[1], $arguments[2]);
         }
 
-        return sprintf('%s.Substring(%d)', $arguments[0], $arguments[1]);
+        return sprintf('%s.Substring(%s)', $arguments[0], $arguments[1]);
     }
 }

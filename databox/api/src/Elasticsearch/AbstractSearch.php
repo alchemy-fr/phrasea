@@ -13,12 +13,18 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Repository\Core\WorkspaceRepository;
 use Elastica\Query;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractSearch
 {
     use SecurityAwareTrait;
     final public const string NO_AUTH = '__no_auth__';
+
+    /**
+     * The index.max_result_window of Elasticsearch: a page cannot end beyond it.
+     */
+    final public const int MAX_RESULT_WINDOW = 10000;
 
     protected WorkspaceRepository $workspaceRepository;
     protected ElasticsearchParameterApplier $parameterApplier;
@@ -54,8 +60,52 @@ abstract class AbstractSearch
 
         $page = (int) ($options['page'] ?? 1);
         if ($page > 1) {
+            self::assertWithinResultWindow($page, $limit);
             $pager->setAllowOutOfRangePages(true);
             $pager->setCurrentPage($page);
+        }
+    }
+
+    /**
+     * Validates the `limit` and `page` options: a page size above the maximum is capped.
+     *
+     * @param array<string, mixed> $options
+     *
+     * @return array{int, int} the page size and the page number
+     *
+     * @throws BadRequestHttpException
+     */
+    protected static function resolvePagination(array $options, int $maxLimit): array
+    {
+        $limit = $maxLimit;
+        if (null !== ($options['limit'] ?? null)) {
+            $limit = filter_var($options['limit'], FILTER_VALIDATE_INT);
+            if (false === $limit || $limit < 1) {
+                throw new BadRequestHttpException('"limit" must be a positive integer');
+            }
+            $limit = min($limit, $maxLimit);
+        }
+
+        $page = 1;
+        if (null !== ($options['page'] ?? null)) {
+            $page = filter_var($options['page'], FILTER_VALIDATE_INT);
+            if (false === $page || $page < 1) {
+                throw new BadRequestHttpException('"page" must be a positive integer');
+            }
+        }
+
+        self::assertWithinResultWindow($page, $limit);
+
+        return [$limit, $page];
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     */
+    private static function assertWithinResultWindow(int $page, int $limit): void
+    {
+        if ($page > intdiv(self::MAX_RESULT_WINDOW, $limit)) {
+            throw new BadRequestHttpException(sprintf('Only the first %d results can be paginated: narrow the search to reach the next ones', self::MAX_RESULT_WINDOW));
         }
     }
 

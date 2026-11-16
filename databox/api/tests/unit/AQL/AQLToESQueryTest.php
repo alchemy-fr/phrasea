@@ -52,9 +52,15 @@ class AQLToESQueryTest extends TestCase
      */
     private const string COLL_B = '2b2c8b1e-0000-4000-8000-00000000000b';
 
+    /**
+     * A collection the user cannot read.
+     */
+    private const string COLL_SECRET = '2b2c8b1e-0000-4000-8000-00000000000c';
+
     private const array COLLECTION_PATHS = [
         self::COLL_A => '/'.self::COLL_A,
         self::COLL_B => '/'.self::COLL_A.'/'.self::COLL_B,
+        self::COLL_SECRET => '/'.self::COLL_SECRET,
     ];
 
     #[DataProvider('getCases')]
@@ -115,6 +121,125 @@ class AQLToESQueryTest extends TestCase
         );
     }
 
+    /**
+     * A collection the user cannot read is answered exactly like an unknown one.
+     */
+    #[DataProvider('getUnreadableCollectionCases')]
+    public function testUnreadableCollectionIsAnsweredLikeAnUnknownOne(string $attribute): void
+    {
+        $messages = [];
+        foreach ([self::COLL_SECRET, '2b2c8b1e-0000-4000-8000-0000000000ff'] as $id) {
+            try {
+                $this->convert(sprintf('%s = "%s"', $attribute, $id));
+                $this->fail('The condition must be refused');
+            } catch (BadRequestHttpException $e) {
+                $messages[] = $e->getMessage();
+            }
+        }
+
+        $this->assertStringEndsWith(': Collection not found', $messages[0]);
+        $this->assertSame($messages[0], $messages[1]);
+    }
+
+    public static function getUnreadableCollectionCases(): iterable
+    {
+        yield 'recursive' => ['@collection'];
+        yield 'direct' => ['@directCollection'];
+    }
+
+    /**
+     * Attribute filter rules are written by an administrator: they apply whatever the user can read.
+     */
+    public function testUnreadableCollectionAppliesInTrustedConditions(): void
+    {
+        $this->assertSame(
+            ['term' => ['collectionPaths' => '/'.self::COLL_SECRET]],
+            $this->convert(sprintf('@collection = "%s"', self::COLL_SECRET), options: [AQLToESQuery::OPT_TRUSTED_CONDITIONS => true]),
+        );
+    }
+
+    /**
+     * The errors due to the condition itself are user errors (400), whose message does not dump the AST.
+     */
+    #[DataProvider('getInvalidConditionCases')]
+    public function testInvalidConditionIsABadRequest(string $expression, string $expectedMessage, ?string $locale = null): void
+    {
+        try {
+            $this->convert($expression, $locale);
+            $this->fail('The condition must be refused');
+        } catch (BadRequestHttpException $e) {
+            $this->assertSame($expectedMessage, $e->getMessage());
+        }
+    }
+
+    public static function getInvalidConditionCases(): iterable
+    {
+        yield 'division by zero' => ['@createdAt > 1 / 0', 'Division by zero'];
+        yield 'division by a zero expression' => ['@createdAt > 2 / (1 - 1)', 'Division by zero'];
+        yield 'division by zero in a script' => ['number > othernumber / 0', 'Division by zero'];
+        yield 'non-numeric operand' => ['@createdAt > "a" + 1', 'Operator "+" expects numbers, got "a"'];
+        yield 'boolean operand' => ['@createdAt > true * 2', 'Operator "*" expects numbers, got bool'];
+        yield 'malformed interval' => ['@createdAt > DATE_ADD(NOW(), "1 hour")', 'Function "date_add" expects an ISO 8601 interval (e.g. "PT1H"), got "1 hour"'];
+        yield 'numeric interval' => ['@createdAt > DATE_SUB(NOW(), 3600)', 'Function "date_sub" expects an ISO 8601 interval (e.g. "PT1H"), got "3600"'];
+        yield 'invalid date' => ['@createdAt > DATE_ADD("garbage", "PT1H")', 'Function "date_add" expects a date, got "garbage"'];
+        yield 'string substring start' => ['foo = SUBSTRING("hello", "1", 2)', 'Argument "start" of function "SUBSTRING" must be an integer, got "1"'];
+        yield 'float substring length' => ['foo = SUBSTRING("hello", 1, 2.5)', 'Argument "length" of function "SUBSTRING" must be an integer, got float'];
+        yield 'string substring start in a script' => ['foo = SUBSTRING(foo, "x")', 'Argument "start" of function "SUBSTRING" must be an integer, got "x"', 'fr'];
+        yield 'missing argument in a script' => ['foo = SUBSTRING(foo)', 'Function "SUBSTRING" requires at least 2 argument(s)', 'fr'];
+        yield 'function without script' => ['number > DATE_ADD(othernumber, "PT1H")', 'Function "date_add" is not supported in script conditions'];
+        yield 'contains too long' => ['field CONTAINS "'.str_repeat('a', AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH + 1).'"', sprintf('The value of operator "CONTAINS" is limited to %d characters', AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH)];
+        yield 'ends with too long' => ['field DOES NOT END WITH "'.str_repeat('a', AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH + 1).'"', sprintf('The value of operator "NOT_ENDS_WITH" is limited to %d characters', AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH)];
+    }
+
+    public function testWildcardValueUpToTheLimitIsAccepted(): void
+    {
+        $value = str_repeat('é', AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH);
+
+        $this->assertSame(
+            ['wildcard' => ['attrs.fr.field_text_s.raw' => ['value' => '*'.$value.'*', 'boost' => 1.0, 'case_insensitive' => true]]],
+            $this->convert(sprintf('field CONTAINS "%s"', $value), 'fr'),
+        );
+    }
+
+    /**
+     * The values of a script are parameters: the conditions of the same shape share their source,
+     * hence a single compilation by Elasticsearch.
+     */
+    public function testScriptValuesArePassedAsParameters(): void
+    {
+        $first = $this->convert('number > othernumber * 2 + 1');
+        $second = $this->convert('number > othernumber * 7 + 30');
+
+        $source = '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > (((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * params.v0) + params.v1)';
+        $this->assertSame(['script' => ['script' => ['source' => $source, 'params' => ['v0' => 2, 'v1' => 1]]]], $first);
+        $this->assertSame(['script' => ['script' => ['source' => $source, 'params' => ['v0' => 7, 'v1' => 30]]]], $second);
+    }
+
+    public function testScriptStringLiteralIsAParameter(): void
+    {
+        $this->assertSame(['script' => ['script' => [
+            'source' => '(!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null) = (!doc["attrs.fr.field_text_s"].empty ? doc["attrs.fr.field_text_s"].value : null).Concat(params.v0)',
+            'params' => ['v0' => "x'); doc.clear(); ('"],
+        ]]], $this->convert('foo = CONCAT(field, "x\'); doc.clear(); (\'")', 'fr'));
+    }
+
+    /**
+     * Without a search locale, a script reads a translatable field in each locale of its workspaces
+     * and untranslated, the fields of an expression in the same locale.
+     */
+    public function testScriptReadsTranslatableFieldsInEachLocale(): void
+    {
+        $script = static fn (string $l): array => ['script' => ['script' => [
+            'source' => sprintf('(!doc["attrs.%1$s.foo_text_s"].empty ? doc["attrs.%1$s.foo_text_s"].value : null) = (!doc["attrs.%1$s.field_text_s"].empty ? doc["attrs.%1$s.field_text_s"].value : null).Substring(params.v0)', $l),
+            'params' => ['v0' => 1],
+        ]]];
+
+        $this->assertSame(['bool' => [
+            'minimum_should_match' => 1,
+            'should' => [$script('it'), $script('de'), $script('_')],
+        ]], $this->convert('foo = SUBSTRING(field, 1)'));
+    }
+
     private function convert(string $expression, ?string $locale = null, array $options = []): array
     {
         $parser = new AQLParser();
@@ -124,13 +249,17 @@ class AQLToESQueryTest extends TestCase
         $em->method('find')->willReturnCallback(fn (string $class, mixed $id): ?Collection => $this->createCollectionStub($class, $id));
         $translator = $this->createStub(TranslatorInterface::class);
         $security = $this->createStub(Security::class);
+        $collectionSecurity = $this->createStub(Security::class);
+        $collectionSecurity->method('isGranted')->willReturnCallback(
+            static fn (mixed $attribute, mixed $subject = null): bool => $subject instanceof Collection && self::COLL_SECRET !== $subject->getId(),
+        );
 
         $functionRegistry = new AQLFunctionRegistry();
         $functionRegistry->register(new MockNowFunction());
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $security), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $security), FileFamilyBuiltInAttribute::getKey() => fn () => new FileFamilyBuiltInAttribute($translator), SimilarBuiltInAttribute::getKey() => fn () => $this->createSimilarBuiltInAttribute(), OwnerBuiltInAttribute::getKey() => fn () => $this->createDisabledOwnerBuiltInAttribute($security)]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $collectionSecurity), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $collectionSecurity), FileFamilyBuiltInAttribute::getKey() => fn () => new FileFamilyBuiltInAttribute($translator), SimilarBuiltInAttribute::getKey() => fn () => $this->createSimilarBuiltInAttribute(), OwnerBuiltInAttribute::getKey() => fn () => $this->createDisabledOwnerBuiltInAttribute($security)]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInAttributeRegistry = new BuiltInAttributeRegistry($container);
@@ -236,6 +365,7 @@ class AQLToESQueryTest extends TestCase
         }
 
         $collection = $this->createMock(Collection::class);
+        $collection->method('getId')->willReturn($id);
         $collection->method('getAbsolutePath')->willReturn(self::COLLECTION_PATHS[$id]);
 
         return $collection;
@@ -646,14 +776,16 @@ class AQLToESQueryTest extends TestCase
             ['number > othernumber * 2', [
                 'script' => [
                     'script' => [
-                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > ((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * 2)',
+                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > ((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * params.v0)',
+                        'params' => ['v0' => 2],
                     ],
                 ],
             ]],
             ['number > othernumber * (2 + 1)', [
                 'script' => [
                     'script' => [
-                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > ((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * 3)',
+                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > ((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * params.v0)',
+                        'params' => ['v0' => 3],
                     ],
                 ],
             ]],
@@ -695,15 +827,15 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['foo = SUBSTRING(foo, 1, 2)', [
                 'script' => [
-                    'script' => ['source' => '(!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null) = (!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null).Substring(1, 2)'],
+                    'script' => ['source' => '(!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null) = (!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
                 ],
-            ]],
+            ], 'fr'],
             ['www = SUBSTRING(foo, 1, 2)', [
                 'bool' => [
                     'must' => [
                         [
                             'script' => [
-                                'script' => ['source' => '(!doc["attrs.{l}.www_text_s"].empty ? doc["attrs.{l}.www_text_s"].value : null) = (!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null).Substring(1, 2)'],
+                                'script' => ['source' => '(!doc["attrs.fr.www_text_s"].empty ? doc["attrs.fr.www_text_s"].value : null) = (!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
                             ],
                         ],
                         [
@@ -713,7 +845,7 @@ class AQLToESQueryTest extends TestCase
                         ],
                     ],
                 ],
-            ]],
+            ], 'fr'],
             ['www = SUBSTRING(hybrid, 1, 2)', [
                 'bool' => [
                     'minimum_should_match' => 1,
@@ -723,7 +855,7 @@ class AQLToESQueryTest extends TestCase
                                 'must' => [
                                     [
                                         'script' => [
-                                            'script' => ['source' => '(!doc["attrs.{l}.www_text_s"].empty ? doc["attrs.{l}.www_text_s"].value : null) = (!doc["attrs.{l}.hybrid_text_s"].empty ? doc["attrs.{l}.hybrid_text_s"].value : null).Substring(1, 2)'],
+                                            'script' => ['source' => '(!doc["attrs.fr.www_text_s"].empty ? doc["attrs.fr.www_text_s"].value : null) = (!doc["attrs.fr.hybrid_text_s"].empty ? doc["attrs.fr.hybrid_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
                                         ],
                                     ],
                                     [
@@ -739,7 +871,7 @@ class AQLToESQueryTest extends TestCase
                                 'must' => [
                                     [
                                         'script' => [
-                                            'script' => ['source' => '(!doc["attrs.{l}.www_text_s"].empty ? doc["attrs.{l}.www_text_s"].value : null) = (!doc["attrs.{l}.hybrid_number_s"].empty ? doc["attrs.{l}.hybrid_number_s"].value : null).Substring(1, 2)'],
+                                            'script' => ['source' => '(!doc["attrs.fr.www_text_s"].empty ? doc["attrs.fr.www_text_s"].value : null) = (!doc["attrs.fr.hybrid_number_s"].empty ? doc["attrs.fr.hybrid_number_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
                                         ],
                                     ],
                                     [
@@ -752,14 +884,14 @@ class AQLToESQueryTest extends TestCase
                         ],
                     ],
                 ],
-            ]],
+            ], 'fr'],
             ['foo = SUBSTRING(hybrid, 1, 2)', [
                 'bool' => [
                     'minimum_should_match' => 1,
                     'should' => [
                         [
                             'script' => [
-                                'script' => ['source' => '(!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null) = (!doc["attrs.{l}.hybrid_text_s"].empty ? doc["attrs.{l}.hybrid_text_s"].value : null).Substring(1, 2)'],
+                                'script' => ['source' => '(!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null) = (!doc["attrs.fr.hybrid_text_s"].empty ? doc["attrs.fr.hybrid_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
                             ],
                         ],
                         [
@@ -767,7 +899,7 @@ class AQLToESQueryTest extends TestCase
                                 'must' => [
                                     [
                                         'script' => [
-                                            'script' => ['source' => '(!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null) = (!doc["attrs.{l}.hybrid_number_s"].empty ? doc["attrs.{l}.hybrid_number_s"].value : null).Substring(1, 2)'],
+                                            'script' => ['source' => '(!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null) = (!doc["attrs.fr.hybrid_number_s"].empty ? doc["attrs.fr.hybrid_number_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
                                         ],
                                     ],
                                     [
@@ -780,14 +912,14 @@ class AQLToESQueryTest extends TestCase
                         ],
                     ],
                 ],
-            ]],
+            ], 'fr'],
             ['hybrid = SUBSTRING(foo, 1, 2)', [
                 'bool' => [
                     'minimum_should_match' => 1,
                     'should' => [
                         [
                             'script' => [
-                                'script' => ['source' => '(!doc["attrs.{l}.hybrid_text_s"].empty ? doc["attrs.{l}.hybrid_text_s"].value : null) = (!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null).Substring(1, 2)'],
+                                'script' => ['source' => '(!doc["attrs.fr.hybrid_text_s"].empty ? doc["attrs.fr.hybrid_text_s"].value : null) = (!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
                             ],
                         ],
                         [
@@ -795,7 +927,7 @@ class AQLToESQueryTest extends TestCase
                                 'must' => [
                                     [
                                         'script' => [
-                                            'script' => ['source' => '(!doc["attrs.{l}.hybrid_number_s"].empty ? doc["attrs.{l}.hybrid_number_s"].value : null) = (!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null).Substring(1, 2)'],
+                                            'script' => ['source' => '(!doc["attrs.fr.hybrid_number_s"].empty ? doc["attrs.fr.hybrid_number_s"].value : null) = (!doc["attrs.fr.foo_text_s"].empty ? doc["attrs.fr.foo_text_s"].value : null).Substring(params.v0, params.v1)', 'params' => ['v0' => 1, 'v1' => 2]],
                                         ],
                                     ],
                                     [
@@ -808,7 +940,7 @@ class AQLToESQueryTest extends TestCase
                         ],
                     ],
                 ],
-            ]],
+            ], 'fr'],
             [
                 'location WITHIN CIRCLE (48.8, 2.32, "10km")',
                 [

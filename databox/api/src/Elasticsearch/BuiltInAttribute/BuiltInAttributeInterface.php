@@ -44,7 +44,10 @@ interface BuiltInAttributeInterface
 
     public function includesMissing(): bool;
 
-    public function normalizeValueForSearch(mixed $value): mixed;
+    /**
+     * @param array $options the search options (see AQLToESQuery::OPT_TRUSTED_CONDITIONS)
+     */
+    public function normalizeValueForSearch(mixed $value, array $options = []): mixed;
 
     public function isEnabled(): bool;
 }

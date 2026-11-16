@@ -148,7 +148,7 @@ abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
 
     abstract protected function getAggregationTranslationKey(): string;
 
-    public function normalizeValueForSearch(mixed $value): mixed
+    public function normalizeValueForSearch(mixed $value, array $options = []): mixed
     {
         return $value;
     }
