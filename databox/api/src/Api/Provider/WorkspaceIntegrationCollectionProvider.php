@@ -70,7 +70,8 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
                 't',
                 PermissionInterface::VIEW,
                 false,
-                aceAlias: 'iace'
+                aceAlias: 'iace',
+                paramPrefix: 'i',
             );
             $queryBuilder->andWhere('iace.id IS NOT NULL OR t.public = true OR t.ownerId = :uid')
                 ->setParameter('uid', $user->getId());
@@ -111,9 +112,11 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
                     'w',
                     PermissionInterface::VIEW,
                     false,
-                    aceAlias: 'wace'
+                    aceAlias: 'wace',
+                    paramPrefix: 'w',
                 );
-                $queryBuilder->andWhere(sprintf('wace.id IS NOT NULL OR %1$s.ownerId = :uid OR %1$s.public = true OR t.workspace IS NULL', 'w'));
+                $queryBuilder->andWhere(sprintf('wace.id IS NOT NULL OR %1$s.ownerId = :uid OR %1$s.public = true OR t.workspace IS NULL', 'w'))
+                    ->setParameter('uid', $user->getId());
             } else {
                 $queryBuilder->andWhere('t.workspace IS NULL');
             }

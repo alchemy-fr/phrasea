@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Integration\IntegrationData;
@@ -116,6 +117,54 @@ class WorkspaceIntegrationTest extends AbstractDataboxTestCase
 
         $this->assertContains($global['id'], $ids);
         $this->assertNotContains($scoped['id'], $ids);
+    }
+
+    private function listIntegrationIds(string $userId): array
+    {
+        self::getEntityManager()->clear();
+        $response = static::createClient()->request('GET', '/integrations', [
+            'headers' => $this->getAuthHeaders($userId),
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        return array_column($response->toArray()['member'], 'id');
+    }
+
+    public function testIntegrationAceGivesVisibility(): void
+    {
+        $integration = $this->createIntegration(null, 'phrasea.expose', self::EXPOSE_CONFIG, ownerId: KeycloakClientTestMock::ADMIN_UID);
+
+        $this->assertNotContains($integration->getId(), $this->listIntegrationIds(KeycloakClientTestMock::USER_UID));
+
+        $this->grantUserOnObject(KeycloakClientTestMock::USER_UID, $integration, PermissionInterface::VIEW);
+
+        $this->assertContains($integration->getId(), $this->listIntegrationIds(KeycloakClientTestMock::USER_UID));
+    }
+
+    public function testGlobalWorkspaceAceDoesNotListInstanceIntegrations(): void
+    {
+        $integration = $this->createIntegration(null, 'phrasea.expose', self::EXPOSE_CONFIG, ownerId: KeycloakClientTestMock::ADMIN_UID);
+        // An ACE without object id applies to every workspace, not to the integrations
+        self::getPermissionManager()->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_USER_VALUE,
+            KeycloakClientTestMock::USER_UID,
+            'workspace',
+            null,
+            PermissionInterface::VIEW,
+        );
+
+        $this->assertNotContains($integration->getId(), $this->listIntegrationIds(KeycloakClientTestMock::USER_UID));
+    }
+
+    public function testAdminListsTheIntegrationsOfTheWorkspacesHeOwns(): void
+    {
+        $instance = $this->createIntegration(null, 'phrasea.expose', self::EXPOSE_CONFIG, ownerId: 'someone-else');
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::ADMIN_UID, 'no_acl' => true]);
+        $scoped = $this->createIntegration($workspace, 'phrasea.expose', self::EXPOSE_CONFIG, ownerId: 'someone-else');
+
+        $ids = $this->listIntegrationIds(KeycloakClientTestMock::ADMIN_UID);
+        $this->assertContains($instance->getId(), $ids);
+        $this->assertContains($scoped->getId(), $ids);
     }
 
     public function testIntegrationTypesDescribeTheCatalog(): void
