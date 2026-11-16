@@ -9,8 +9,11 @@ export type FakeDataboxClient = DataboxClient & {
     createCollection: ReturnType<typeof vi.fn>;
     createCollectionTreeBranch: ReturnType<typeof vi.fn>;
     createAttributeDefinition: ReturnType<typeof vi.fn>;
-    createTag: ReturnType<typeof vi.fn>;
-    getTags: ReturnType<typeof vi.fn>;
+    getAttributeDefinitions: ReturnType<typeof vi.fn>;
+    createEntityList: ReturnType<typeof vi.fn>;
+    getEntityLists: ReturnType<typeof vi.fn>;
+    createAttributeEntity: ReturnType<typeof vi.fn>;
+    getAttributeEntities: ReturnType<typeof vi.fn>;
     createAttributePolicy: ReturnType<typeof vi.fn>;
     createRenditionPolicy: ReturnType<typeof vi.fn>;
     getRenditionPolicies: ReturnType<typeof vi.fn>;
@@ -41,8 +44,11 @@ export function createFakeDataboxClient(
         createCollection: vi.fn(async () => 'coll-1'),
         createCollectionTreeBranch: vi.fn(async () => 'coll-1'),
         createAttributeDefinition: vi.fn(async () => ({id: 'attr-def-1'})),
-        createTag: vi.fn(async () => ({id: 'tag-1'})),
-        getTags: vi.fn(async () => []),
+        getAttributeDefinitions: vi.fn(async () => []),
+        createEntityList: vi.fn(async () => ({id: 'list-1', name: 'Tags'})),
+        getEntityLists: vi.fn(async () => []),
+        createAttributeEntity: vi.fn(async () => ({id: 'entity-1'})),
+        getAttributeEntities: vi.fn(async () => []),
         createAttributePolicy: vi.fn(async () => ({id: 'attr-policy-1'})),
         createRenditionPolicy: vi.fn(async () => 'rendition-policy-1'),
         getRenditionPolicies: vi.fn(async () => []),

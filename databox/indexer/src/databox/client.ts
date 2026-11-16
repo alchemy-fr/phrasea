@@ -6,9 +6,10 @@ import {
     StoryAssetOutput,
     AttributePolicy,
     AttributeDefinition,
+    AttributeEntity,
     CollectionInput,
+    EntityList,
     RenditionPolicy,
-    Tag,
     CreateWorkspaceInput,
 } from './types';
 import {lockPromise} from '../lib/promise';
@@ -68,6 +69,9 @@ type ClientParameters = {
 };
 
 const maxNameLength = 255;
+
+// Maximum page size of the API
+const entityPageSize = 100;
 
 const collectionKeyMap: Record<string, string> = {};
 
@@ -222,20 +226,76 @@ export class DataboxClient {
         });
     }
 
-    async createTag(key: string, data: Partial<Tag>): Promise<Tag> {
-        return await lockPromise(`tag-${key}`, async () => {
-            return (await this.client.post(`/tags`, data)).data;
-        });
-    }
-
-    async getTags(workspaceId: string): Promise<Tag[]> {
-        const res = await this.client.get(`/tags`, {
+    async getAttributeDefinitions(
+        params: Record<string, string | number | boolean | string[]>
+    ): Promise<AttributeDefinition[]> {
+        const res = await this.client.get(`/attribute-definitions`, {
             params: {
-                workspaceId,
+                limit: 1000,
+                ...params,
             },
         });
 
         return res.data.member;
+    }
+
+    async createEntityList(
+        key: string,
+        data: Partial<EntityList>
+    ): Promise<EntityList> {
+        return await lockPromise(`entity-list-${key}`, async () => {
+            return (await this.client.post(`/entity-lists`, data)).data;
+        });
+    }
+
+    /**
+     * The lists of the workspace whose name contains `name`.
+     */
+    async getEntityLists(
+        workspaceId: string,
+        name?: string
+    ): Promise<EntityList[]> {
+        const res = await this.client.get(`/entity-lists`, {
+            params: {
+                workspace: workspaceId,
+                ...(name !== undefined ? {name} : {}),
+                limit: entityPageSize,
+            },
+        });
+
+        return res.data.member;
+    }
+
+    async createAttributeEntity(
+        key: string,
+        data: Partial<AttributeEntity>
+    ): Promise<AttributeEntity> {
+        return await lockPromise(`attr-entity-${key}`, async () => {
+            return (await this.client.post(`/attribute-entities`, data)).data;
+        });
+    }
+
+    /**
+     * Every value of the list, page after page.
+     */
+    async getAttributeEntities(listId: string): Promise<AttributeEntity[]> {
+        const entities: AttributeEntity[] = [];
+        for (let page = 1; ; ++page) {
+            const res = await this.client.get(`/attribute-entities`, {
+                params: {
+                    'list': listId,
+                    'order[createdAt]': 'asc',
+                    'limit': entityPageSize,
+                    page,
+                },
+            });
+            const member: AttributeEntity[] = res.data.member ?? [];
+            entities.push(...member);
+
+            if (member.length < entityPageSize) {
+                return entities;
+            }
+        }
     }
 
     async createAttributePolicy(
