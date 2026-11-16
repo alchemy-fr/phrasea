@@ -6,11 +6,15 @@ namespace App\Elasticsearch\AQL;
 
 final class ClusterGroup
 {
+    /**
+     * @param list<array{w: string, p: string[]}> $hiddenScopes the assets on which asset policies hide the field (see HiddenAttributeScope)
+     */
     public function __construct(
         private mixed $item,
         private readonly bool $isConstant = false,
         private readonly array $workspaceIds = [],
         private readonly ?array $locales = null,
+        private array $hiddenScopes = [],
     ) {
     }
 
@@ -30,6 +34,14 @@ final class ClusterGroup
     public function getWorkspaceIds(): array
     {
         return $this->workspaceIds;
+    }
+
+    /**
+     * @return list<array{w: string, p: string[]}>
+     */
+    public function getHiddenScopes(): array
+    {
+        return $this->hiddenScopes;
     }
 
     public function hasSameWorkspaceIds(self $other): bool
@@ -63,7 +75,10 @@ final class ClusterGroup
                     || $l->hasSameWorkspaceIds($r)
                 ) {
                     $ref = $l->isConstant ? $r : (!empty($l->getWorkspaceIds()) ? $l : $r);
-                    $groups[] = $ref->convert($merge($l->getItem(), $r->getItem()));
+                    $group = $ref->convert($merge($l->getItem(), $r->getItem()));
+                    // An expression reading two fields must ignore the assets where either is hidden
+                    $group->hiddenScopes = array_values(array_unique([...$l->hiddenScopes, ...$r->hiddenScopes], SORT_REGULAR));
+                    $groups[] = $group;
                 }
             }
         }

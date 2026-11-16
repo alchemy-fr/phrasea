@@ -14,7 +14,13 @@ use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Entity\Core\AssetPolicy\AssetPolicy;
+use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
+use App\Repository\Core\AssetPolicyRepository;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Repository\Core\CollectionRepository;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Tests\Unit\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
@@ -100,7 +106,79 @@ class AttributeSearchTest extends TestCase
         ], $fieldsByWorkspaces);
     }
 
-    private function createAttributeSearch(array $rows = []): AttributeSearch
+    /**
+     * Asset policies hide a definition like an unreadable one: in the whole workspace without
+     * condition, otherwise on the assets under the collections of their conditions only.
+     */
+    public function testAssetPoliciesHideDefinitions(): void
+    {
+        $w1 = new Workspace();
+        $w2 = new Workspace();
+        $parent = new Collection();
+        $child = new Collection();
+        $child->setParent($parent);
+        $unknownCollectionId = 'f1b4b4a8-0000-4000-8000-000000000000';
+
+        $as = $this->createAttributeSearch([
+            self::createRow(true, $w1->getId(), 'secret', id: 'secret-1'),
+            self::createRow(true, $w2->getId(), 'secret', id: 'secret-2'),
+            self::createRow(true, $w1->getId(), 'title', id: 'title-1'),
+            self::createRow(true, $w2->getId(), 'title', id: 'title-2'),
+            self::createRow(true, $w1->getId(), 'city', id: 'city-1'),
+            self::createRow(true, $w1->getId(), 'notes', id: 'notes-1'),
+        ], [
+            self::createPolicy($w1, ['secret-1']),
+            self::createPolicy($w1, ['title-1', 'city-1'], [
+                ['field' => 'collection', 'operator' => '=', 'value' => $parent->getId()],
+                ['field' => 'collection', 'operator' => '=', 'value' => $child->getId()],
+            ]),
+            // A policy only applies to the definitions of its workspace
+            self::createPolicy($w2, ['notes-1']),
+            // No asset is in a collection that does not exist
+            self::createPolicy($w1, ['notes-1'], [['field' => 'collection', 'operator' => '=', 'value' => $unknownCollectionId]]),
+        ], [$parent, $child]);
+
+        $this->assertSame([$w2->getId()], $as->getReadableWorkspaceIds('u', [], 'secret_text_s'));
+        $this->assertSame([], $as->getHiddenScopes('u', [], 'secret_text_s'));
+        $this->assertEquals(new Query\Terms('workspaceId', [$w2->getId()]), $as->createVisibilityQuery('u', [], 'secret_text_s'));
+
+        $titleScope = ['w' => $w1->getId(), 'p' => [$parent->getAbsolutePath(), $child->getAbsolutePath()]];
+        $this->assertNull($as->getReadableWorkspaceIds('u', [], 'title_text_s'));
+        $this->assertSame([$titleScope], $as->getHiddenScopes('u', [], 'title_text_s'));
+        $this->assertSame([
+            'bool' => [
+                'must_not' => [
+                    ['bool' => ['filter' => [
+                        ['term' => ['workspaceId' => $w1->getId()]],
+                        ['term' => ['referenceCollectionPath' => $parent->getAbsolutePath()]],
+                        ['term' => ['referenceCollectionPath' => $child->getAbsolutePath()]],
+                    ]]],
+                ],
+            ],
+        ], $as->createVisibilityQuery('u', [], 'title_text_s')?->toArray());
+
+        $this->assertNull($as->getReadableWorkspaceIds('u', [], 'notes_text_s'));
+        $this->assertSame([], $as->getHiddenScopes('u', [], 'notes_text_s'));
+        $this->assertNull($as->createVisibilityQuery('u', [], 'notes_text_s'));
+
+        $clusters = [];
+        foreach ($as->buildSearchableAttributeDefinitionsGroups('u', []) as $cluster) {
+            foreach (array_keys($cluster['fields']) as $field) {
+                $clusters[$field] = ['w' => $cluster['w'], 'x' => $cluster['x'] ?? []];
+            }
+        }
+        $bothWorkspaces = [$w1->getId(), $w2->getId()];
+        sort($bothWorkspaces);
+        $this->assertEquals([
+            AttributeInterface::ATTRIBUTES_FIELD.'._.secret_text_s' => ['w' => [$w2->getId()], 'x' => []],
+            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => ['w' => $bothWorkspaces, 'x' => [$titleScope]],
+            AttributeInterface::ATTRIBUTES_FIELD.'._.city_text_s' => ['w' => [$w1->getId()], 'x' => [$titleScope]],
+            AttributeInterface::ATTRIBUTES_FIELD.'._.notes_text_s' => ['w' => null, 'x' => []],
+            'name' => ['w' => null, 'x' => []],
+        ], $clusters);
+    }
+
+    private function createAttributeSearch(array $rows = [], array $policies = [], array $collections = []): AttributeSearch
     {
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
         $builtInAttributeRegistry = new BuiltInAttributeRegistry(new ServiceLocator([]));
@@ -109,6 +187,15 @@ class AttributeSearchTest extends TestCase
         $repository->method('getAttributesWithPermission')->willReturn($rows);
         $em = $this->createStub(EntityManagerInterface::class);
         $em->method('getRepository')->willReturn($repository);
+
+        $policyRepository = $this->createStub(AssetPolicyRepository::class);
+        $policyRepository->method('getAssetPolicies')->willReturn($policies);
+        $collectionsById = [];
+        foreach ($collections as $collection) {
+            $collectionsById[$collection->getId()] = $collection;
+        }
+        $collectionRepository = $this->createStub(CollectionRepository::class);
+        $collectionRepository->method('find')->willReturnCallback(static fn (string $id): ?Collection => $collectionsById[$id] ?? null);
 
         return new AttributeSearch(
             new FieldNameResolver($attributeTypeRegistry, $builtInAttributeRegistry),
@@ -121,13 +208,31 @@ class AttributeSearchTest extends TestCase
                 $attributeTypeRegistry,
                 new DateNormalizer(),
             ),
+            new AssetPolicyManager($policyRepository, $collectionRepository, new TemporaryCacheFactory()),
             new TemporaryCacheFactory(),
         );
     }
 
-    private static function createRow(bool $allowed, string $wsId, string $slug, bool $searchable = true): array
+    /**
+     * @param string[] $hiddenDefinitionIds
+     */
+    private static function createPolicy(Workspace $workspace, array $hiddenDefinitionIds, array $conditions = []): AssetPolicy
+    {
+        $policy = new AssetPolicy();
+        $policy->setWorkspace($workspace);
+        $policy->setConditions($conditions);
+        $policy->setActions(array_map(static fn (string $id): array => [
+            'action' => AssetPolicyManager::ACTION_HIDE_ATTRIBUTE,
+            'definitionId' => $id,
+        ], $hiddenDefinitionIds));
+
+        return $policy;
+    }
+
+    private static function createRow(bool $allowed, string $wsId, string $slug, bool $searchable = true, ?string $id = null): array
     {
         return [
+            'id' => $id ?? $wsId.'-'.$slug,
             'allowed' => $allowed,
             'searchable' => $searchable,
             'slug' => $slug,

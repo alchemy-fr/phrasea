@@ -18,21 +18,29 @@ class AssetPolicyRepository extends ServiceEntityRepository
     }
 
     /**
+     * The enabled policies targeting the user or one of their groups, in one workspace or in all of them.
+     *
      * @return AssetPolicy[]
      */
-    public function getAssetPolicies(string $workspaceId, ?string $userId, array $groups): array
+    public function getAssetPolicies(?string $workspaceId, ?string $userId, array $groups): array
     {
-        return $this
+        $queryBuilder = $this
             ->createQueryBuilder('t')
             ->innerJoin('t.users', 'u')
             ->andWhere('(u.userId = :userId AND u.userType = :userType) OR (u.userId IN (:groupIds) AND u.userType = :groupType)')
-            ->andWhere('t.workspace = :wid')
             ->andWhere('t.enabled = true')
             ->setParameter('userId', $userId)
             ->setParameter('groupIds', $groups)
-            ->setParameter('wid', $workspaceId)
             ->setParameter('userType', AssetPolicyUser::TYPE_USER)
-            ->setParameter('groupType', AssetPolicyUser::TYPE_GROUP)
+            ->setParameter('groupType', AssetPolicyUser::TYPE_GROUP);
+
+        if (null !== $workspaceId) {
+            $queryBuilder
+                ->andWhere('t.workspace = :wid')
+                ->setParameter('wid', $workspaceId);
+        }
+
+        return $queryBuilder
             ->getQuery()
             ->getResult();
     }
