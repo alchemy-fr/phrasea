@@ -25,6 +25,8 @@ Follow these steps in order. Each one is detailed in the sections below.
    With Docker Compose, run `dc down` (volumes kept) before starting the new
    stack: the containers move to new networks (see
    [Docker networks split](#docker-networks-split)).
+   Give the configurator a bucket of its own and review `*_CLOUD_FRONT_TTL` (see
+   [Static bucket and signed URLs](#static-bucket-and-signed-urls)).
 4. Start Elasticsearch 9 and create the user of the applications:
 
     ```bash
@@ -358,7 +360,7 @@ published ones.
 
 ### ImageMagick restricted to an allow list of formats
 
-The databox API and worker images now start with a deny-by-default
+The databox and expose API and worker images now start with a deny-by-default
 ImageMagick policy (`databox/api/docker/entrypoint.d/01-imagick.sh`): a crafted
 upload could otherwise read local files (container environment included) or
 reach the network through ImageMagick coders and Ghostscript. Only JPEG, PNG,
@@ -374,6 +376,9 @@ resource variables are unchanged.
 
 See [Formats read by ImageMagick](doc/tech/Databox/Renditions.mdx#formats-read-by-imagemagick)
 to re-enable a format.
+
+Expose only uses ImageMagick to load its fixtures: the policy changes nothing
+for its users.
 
 ### Resource limits of the databox workers
 
@@ -542,6 +547,23 @@ existing install:
 `bin/setup.sh`, `bin/migrate.sh` and `bin/test.sh standard` run step 2 as well
 (idempotent: run it again after changing a secret key). The configurator and
 `dev` keep the root user.
+
+### Static bucket and signed URLs
+
+- The configurator makes the whole `CONFIGURATOR_S3_BUCKET_NAME` bucket public:
+  it now refuses to run (`setup`, `s3` step) when this bucket is also the one of
+  an application (`DATABOX_S3_BUCKET_NAME`, `EXPOSE_S3_BUCKET_NAME`,
+  `UPLOADER_S3_BUCKET_NAME`, `INDEXER_BUCKET_NAME`), whose files would all be
+  readable without signature. Move the configuration to a bucket of its own if
+  so (and remove the public policy left on the shared bucket).
+- `DATABOX_CLOUD_FRONT_TTL` and `EXPOSE_CLOUD_FRONT_TTL` (and the
+  `CLOUD_FRONT_TTL` default of `alchemy/storage-bundle`) go from 86400 to 3600
+  seconds, like the S3 signatures: a signed URL stays valid for its whole TTL,
+  even once its user has lost access to the file (removed from a workspace,
+  share or publication password revoked). Keep a value set in `.env.local` or
+  the deployment values only if you accept that delay.
+- Databox hands the same signed URL to every user reading a file for 5 minutes
+  at most (half of the signature TTL before).
 
 ### Helm
 
@@ -876,6 +898,9 @@ Anonymous users:
   `POST /logs/publication-view/{id}` and `/logs/asset-view/{id}` answer `403`
   unless the publication, or the asset, can be read (`X-Passwords` included).
 - CORS no longer allows credentials, and `/admin` sends no CORS header.
+- In publication archives, the entries are named after the last segment of the
+  original file name, `\` counting as a separator, without control characters
+  nor trailing dots and spaces (`..\..\evil.exe` becomes `evil.exe`).
 
 ## Uploader API
 

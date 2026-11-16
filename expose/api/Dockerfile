@@ -2,7 +2,10 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
-ENV IMAGICK_VERSION=3.8.1
+# Imagick only serves the fixtures (alchemy/core-bundle ImageUrlFaker); the
+# deny-by-default policy of databox applies all the same.
+ENV IMAGICK_VERSION=3.8.1 \
+    IMAGEMAGICK_POLICY_VERSION=7
 
 RUN apk add --no-cache \
     	imagemagick \
@@ -41,6 +44,8 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache \
     && bin/console alchemy:core:documentation:dump /srv/app/doc
+
+COPY ./databox/api/docker/entrypoint.d/01-imagick.sh /docker/entrypoint.d/
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}

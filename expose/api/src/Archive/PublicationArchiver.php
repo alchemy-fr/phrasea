@@ -181,15 +181,15 @@ final readonly class PublicationArchiver
         try {
             $usedNames = [];
             foreach ($publication->getAssets() as $asset) {
-                $destination = $workDir.'/'.$this->getUniqueName(basename($asset->getOriginalName()), $usedNames);
+                $destination = $workDir.'/'.$this->getUniqueName(ZipUtil::sanitizeEntryName($asset->getOriginalName()), $usedNames);
                 $this->copyStream($this->storageManager->getStream($asset->getPath()), $destination);
                 $lock->refresh();
             }
 
             if ($publication->isIncludeDownloadTermsInArchive()
                 && null !== $termsUrl = $publication->getDownloadTerms()->getUrl()) {
-                $termsName = basename((string) parse_url($termsUrl, PHP_URL_PATH));
-                $this->downloadTerms($termsUrl, $workDir.'/'.$this->getUniqueName($termsName ?: 'terms', $usedNames));
+                $termsName = ZipUtil::sanitizeEntryName((string) parse_url($termsUrl, PHP_URL_PATH), 'terms');
+                $this->downloadTerms($termsUrl, $workDir.'/'.$this->getUniqueName($termsName, $usedNames));
             }
 
             ZipUtil::zipDirectory($workDir, $zipFile);
@@ -273,10 +273,6 @@ final readonly class PublicationArchiver
      */
     private function getUniqueName(string $name, array &$usedNames): string
     {
-        if ('' === $name || '.' === $name || '..' === $name) {
-            $name = 'file';
-        }
-
         $extension = pathinfo($name, PATHINFO_EXTENSION);
         $baseName = '' !== $extension ? substr($name, 0, -strlen($extension) - 1) : $name;
 
