@@ -389,20 +389,43 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
         $this->assertSame(1, $reloaded->getUsedAssets());
         $this->assertSame(strlen($content), $reloaded->getUsedSize());
 
-        // Over the total size: refused before completing it
+        // Over the total size: refused before anything is opened on the storage
         $response = $this->linkRequest($link->getToken(), 'POST', '/uploads', [
             'filename' => 'file.jpg',
             'type' => 'image/jpeg',
             'size' => 1,
         ]);
-        $upload = $response->toArray();
-        $headers = self::getStorageClient()->request('PUT', $upload['urls'][1], ['body' => 'x'])->getHeaders();
-        $response = $this->linkRequest($link->getToken(), 'POST', '/assets', [
-            'multipart' => [
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertStringEndsWith(UploadLinkQuotaExceededException::CODE, $response->toArray(false)['type']);
+        $this->assertSame(1, $this->reloadLink($link)->getUsedAssets());
+    }
+
+    public function testAMultipartUploadStartedWithinTheQuotaIsRefusedOnCompletionOnceOver(): void
+    {
+        $content = 'Hello, multipart!';
+        $link = $this->createLink($this->createTarget(), options: ['maxTotalSize' => strlen($content)]);
+
+        $uploads = [];
+        foreach ([$content, 'x'] as $body) {
+            $response = $this->linkRequest($link->getToken(), 'POST', '/uploads', [
+                'filename' => 'file.jpg',
+                'type' => 'image/jpeg',
+                'size' => strlen($body),
+            ]);
+            $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+            $upload = $response->toArray();
+            $headers = self::getStorageClient()->request('PUT', $upload['urls'][1], ['body' => $body])->getHeaders();
+            $uploads[] = [
                 'uploadId' => $upload['id'],
                 'parts' => [['ETag' => $headers['etag'][0], 'PartNumber' => 1]],
-            ],
-        ]);
+            ];
+        }
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/assets', ['multipart' => $uploads[0]]);
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+
+        // Both fitted when they were started, not together: the reservation on completion decides
+        $response = $this->linkRequest($link->getToken(), 'POST', '/assets', ['multipart' => $uploads[1]]);
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame(1, $this->reloadLink($link)->getUsedAssets());
     }

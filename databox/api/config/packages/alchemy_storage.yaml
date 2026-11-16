@@ -1,0 +1,7 @@
+parameters:
+    env(DATABOX_MAX_UPLOAD_FILE_SIZE): '107374182400'
+
+alchemy_storage:
+    upload:
+        # Checked when a multipart upload is created and when it is completed, within S3_MAX_OBJECT_SIZE
+        max_file_size: '%env(int:DATABOX_MAX_UPLOAD_FILE_SIZE)%'

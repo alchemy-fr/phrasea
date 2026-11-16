@@ -6,6 +6,7 @@ namespace App\Tests\Functional\Api\Platform;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
+use Alchemy\StorageBundle\Doctrine\MultipartUploadListener;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Test\Client;
@@ -210,6 +211,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         yield 'blank type' => [['filename' => 'a.jpg', 'type' => '', 'size' => 10], 422];
         yield 'negative size' => [['filename' => 'a.jpg', 'type' => 'image/jpeg', 'size' => -1], 400];
         yield 'size above the maximum object size' => [['filename' => 'a.jpg', 'type' => 'image/jpeg', 'size' => 52_776_558_133_249], 400];
+        yield 'size above the maximum file size of databox' => [['filename' => 'a.jpg', 'type' => 'image/jpeg', 'size' => 107_374_182_401], 400];
     }
 
     #[DataProvider('getInvalidUploads')]
@@ -701,5 +703,74 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $this->assertSame(['CompleteMultipartUpload', 'HeadObject', 'DeleteObject'], $this->getS3CommandNames());
         $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[2]['args']['Key']);
         $this->assertNull($this->findUpload($upload->getId()));
+    }
+
+    public function testTheUrlsAreHandedOutByPages(): void
+    {
+        $partCount = MultipartUploadListener::MAX_SIGNED_URLS + 2;
+        $data = $this->createUpload(size: $partCount * 5_242_880);
+        $this->assertSame(5_242_880, $data['chunkSize'], 'The fixture assumes parts of 5 MiB');
+        $this->assertSame(range(1, MultipartUploadListener::MAX_SIGNED_URLS), array_map('intval', array_keys($data['urls'])));
+
+        $response = $this->client->request('POST', '/uploads/'.$data['id'].'/parts', [
+            'headers' => $this->headers(),
+            'json' => ['from' => 2],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $plan = $response->toArray();
+        $this->assertSame($partCount, $plan['partCount']);
+        $this->assertSame(range(2, MultipartUploadListener::MAX_SIGNED_URLS + 1), array_map('intval', array_keys($plan['urls'])));
+
+        $response = $this->client->request('POST', '/uploads/'.$data['id'].'/parts', [
+            'headers' => $this->headers(),
+            'json' => ['from' => MultipartUploadListener::MAX_SIGNED_URLS + 1],
+        ]);
+        $this->assertSame([MultipartUploadListener::MAX_SIGNED_URLS + 1, $partCount], array_map('intval', array_keys($response->toArray()['urls'])));
+    }
+
+    public function testTheUploadsInProgressOfAUserAreLimited(): void
+    {
+        for ($i = 0; $i < 19; ++$i) {
+            $this->persistUpload();
+        }
+        // Not in progress: completed, being completed, abandoned, or of another user
+        $this->persistUpload(complete: true);
+        $consumed = $this->persistUpload();
+        $old = $this->persistUpload();
+        $this->persistUpload(ownerId: KeycloakClientTestMock::ADMIN_UID);
+        self::getEntityManager()->createQueryBuilder()
+            ->update(MultipartUpload::class, 'u')
+            ->set('u.consumedAt', ':now')
+            ->andWhere('u.id = :id')
+            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
+            ->setParameter('id', $consumed->getId())
+            ->getQuery()
+            ->execute();
+        self::getEntityManager()->createQueryBuilder()
+            ->update(MultipartUpload::class, 'u')
+            ->set('u.createdAt', ':old')
+            ->andWhere('u.id = :id')
+            ->setParameter('old', new \DateTimeImmutable('-25 hours'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('id', $old->getId())
+            ->getQuery()
+            ->execute();
+
+        // The 20th
+        $this->createUpload();
+        $this->assertSame(['CreateMultipartUpload'], $this->getS3CommandNames());
+
+        $response = $this->client->request('POST', '/uploads', [
+            'headers' => $this->headers(),
+            'json' => [
+                'filename' => 'photo.jpg',
+                'type' => 'image/jpeg',
+                'size' => 1000,
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(429);
+        $this->assertStringContainsString('Too many uploads in progress', $response->toArray(false)['detail']);
+        $this->assertSame(['CreateMultipartUpload'], $this->getS3CommandNames(), 'Nothing opened on S3');
+
+        $this->createUpload(userId: KeycloakClientTestMock::ADMIN_UID);
     }
 }

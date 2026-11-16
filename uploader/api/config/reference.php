@@ -649,7 +649,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     rate_limiter?: bool|array{ // Rate limiter configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         limiters?: array<string, array{ // Default: []
  *             lock_factory?: scalar|Param|null, // The service ID of the lock factory used by this limiter (or null to disable locking). // Default: "auto"
  *             cache_pool?: scalar|Param|null, // The cache pool to use for storing the current limiter state. // Default: "cache.rate_limiter"
@@ -1859,6 +1859,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type AlchemyStorageConfig = array{
  *     upload?: array{
  *         allowed_types?: scalar|Param|null, // comma separated values of MIME types, optionally including their extensions // Default: "%env(ALLOWED_FILE_TYPES)%"
+ *         max_file_size?: mixed, // maximum size of an uploaded file in bytes, within S3_MAX_OBJECT_SIZE (null or below 1: S3_MAX_OBJECT_SIZE only); checked when the multipart upload is created and when it is completed // Default: null
  *     },
  * }
  * @psalm-type StofDoctrineExtensionsConfig = array{

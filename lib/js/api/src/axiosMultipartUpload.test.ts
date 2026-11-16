@@ -3,6 +3,7 @@ import axios, {AxiosError} from 'axios';
 import {
     getPendingPartNumbers,
     getResumeFrom,
+    parseRetryAfter,
     UploadPart,
 } from './multiPartUpload';
 import {axiosMultipartUpload as multipartUpload} from './axiosMultipartUpload';
@@ -16,9 +17,13 @@ function createFile(size: number): File {
     });
 }
 
-function urlsFrom(from: number, partCount: number): Record<string, string> {
+function urlsFrom(
+    from: number,
+    partCount: number,
+    pageSize: number = Infinity
+): Record<string, string> {
     const urls: Record<string, string> = {};
-    for (let n = from; n <= partCount; n++) {
+    for (let n = from; n <= Math.min(partCount, from + pageSize - 1); n++) {
         urls[n] = `https://s3/part-${n}?sig=${Math.random()}`;
     }
 
@@ -35,20 +40,30 @@ function createClient(
     size: number,
     {
         failPut,
+        failPost,
+        pageSize,
     }: {
         failPut?: (url: string, callIndex: number) => Error | undefined;
+        failPost?: (path: string, callIndex: number) => Error | undefined;
+        /** URLs signed per answer */
+        pageSize?: number;
     } = {}
 ): FakeClient {
     const partCount = Math.max(1, Math.ceil(size / CHUNK));
     let putCalls = 0;
+    let postCalls = 0;
 
     const post = vi.fn(async (path: string, body: any) => {
+        const error = failPost?.(path, postCalls++);
+        if (error) {
+            throw error;
+        }
         if (path === '/uploads') {
             return {
                 data: {
                     id: 'upload-1',
                     chunkSize: CHUNK,
-                    urls: urlsFrom(1, partCount),
+                    urls: urlsFrom(1, partCount, pageSize),
                 },
             };
         }
@@ -57,7 +72,7 @@ function createClient(
                 data: {
                     chunkSize: CHUNK,
                     partCount,
-                    urls: urlsFrom(body.from, partCount),
+                    urls: urlsFrom(body.from, partCount, pageSize),
                 },
             };
         }
@@ -89,6 +104,35 @@ function forbidden(): AxiosError {
         } as any
     );
 }
+
+function tooManyRequests(retryAfter?: string): AxiosError {
+    return new AxiosError(
+        'Too Many Requests',
+        'ERR_BAD_REQUEST',
+        undefined,
+        undefined,
+        {
+            status: 429,
+            headers:
+                retryAfter !== undefined ? {'retry-after': retryAfter} : {},
+        } as any
+    );
+}
+
+describe('parseRetryAfter', () => {
+    it('reads seconds or an HTTP date, capped to a minute', () => {
+        const now = Date.parse('2026-11-16T12:00:00Z');
+        expect(parseRetryAfter('3', now)).toBe(3000);
+        expect(parseRetryAfter('0', now)).toBe(0);
+        expect(parseRetryAfter('3600', now)).toBe(60_000);
+        expect(parseRetryAfter('Mon, 16 Nov 2026 12:00:10 GMT', now)).toBe(
+            10_000
+        );
+        expect(parseRetryAfter('Mon, 16 Nov 2026 11:00:00 GMT', now)).toBe(0);
+        expect(parseRetryAfter(undefined, now)).toBeUndefined();
+        expect(parseRetryAfter('soon', now)).toBeUndefined();
+    });
+});
 
 describe('getResumeFrom / getPendingPartNumbers', () => {
     it('resumes after the contiguous run of uploaded parts', () => {
@@ -218,6 +262,70 @@ describe('multipartUpload', () => {
         expect(refresh?.[1]).toEqual({from: 1});
         // The retried PUT used the fresh URL
         expect(put.mock.calls[0][0]).not.toBe(put.mock.calls[1][0]);
+    });
+
+    it('asks the following URLs when the API signs only the first ones', async () => {
+        const size = 95;
+        const {client, post, put} = createClient(size, {pageSize: 4});
+
+        const result = await multipartUpload(client, createFile(size), {
+            concurrency: 2,
+        });
+
+        expect(result.parts.map(p => p.PartNumber)).toEqual([
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+        ]);
+        expect(put).toHaveBeenCalledTimes(10);
+        const refreshes = post.mock.calls
+            .filter(([path]) => path === '/uploads/upload-1/parts')
+            .map(([, body]) => body.from);
+        expect(refreshes.length).toBeGreaterThanOrEqual(2);
+        expect(refreshes.every(from => from > 1)).toBe(true);
+    });
+
+    it('sends a creation refused by the rate limit again after the delay', async () => {
+        const size = 20;
+        const {client, post, put} = createClient(size, {
+            failPost: (_path, callIndex) =>
+                callIndex === 0 ? tooManyRequests('0') : undefined,
+        });
+
+        const result = await multipartUpload(client, createFile(size));
+
+        expect(result.parts.map(p => p.PartNumber)).toEqual([1, 2]);
+        expect(post).toHaveBeenCalledTimes(2);
+        expect(post.mock.calls.every(([path]) => path === '/uploads')).toBe(
+            true
+        );
+        expect(put).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not retry a refusal without delay (too many uploads in progress)', async () => {
+        const size = 20;
+        const {client, post} = createClient(size, {
+            failPost: () => tooManyRequests(),
+        });
+
+        const error = await multipartUpload(client, createFile(size)).catch(
+            e => e
+        );
+
+        expect(axios.isAxiosError(error) && error.response?.status).toBe(429);
+        expect(post).toHaveBeenCalledTimes(1);
+    });
+
+    it('gives up after a few refusals of the rate limit', async () => {
+        const size = 20;
+        const {client, post} = createClient(size, {
+            failPost: () => tooManyRequests('0'),
+        });
+
+        const error = await multipartUpload(client, createFile(size)).catch(
+            e => e
+        );
+
+        expect(axios.isAxiosError(error) && error.response?.status).toBe(429);
+        expect(post).toHaveBeenCalledTimes(6);
     });
 
     it('fails the whole upload and aborts on a non-recoverable part error', async () => {

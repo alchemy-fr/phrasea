@@ -261,7 +261,8 @@ final readonly class UploadManager
             'Key' => $key,
         ])->get('ContentLength');
 
-        if ($size === $multipartUpload->getSize() && $size <= $this->planner->getMaxObjectSize()) {
+        $maxFileSize = $this->planner->getMaxFileSize();
+        if ($size === $multipartUpload->getSize() && $size <= $maxFileSize) {
             return;
         }
 
@@ -276,6 +277,10 @@ final readonly class UploadManager
             ->setParameter('id', $multipartUpload->getId())
             ->getQuery()
             ->execute();
+
+        if ($size > $maxFileSize) {
+            throw new BadRequestHttpException(sprintf('Uploaded file size %d exceeds the maximum allowed size of %d bytes', $size, $maxFileSize));
+        }
 
         throw new BadRequestHttpException(sprintf('Uploaded file size %d does not match the declared size %d', $size, $multipartUpload->getSize()));
     }

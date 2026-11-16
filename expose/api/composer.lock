@@ -599,7 +599,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
-                "reference": "9cc8270278bc7a265464a569f9b96ef21668d2a0"
+                "reference": "54ea39cf5cf4c6c7c89314baf6683fe57bff764d"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -608,7 +608,8 @@
                 "php": "^8.5",
                 "ramsey/uuid": "^4.2.3",
                 "symfony/framework-bundle": "^7.4 || ^8.0",
-                "symfony/mime": "^7.4 || ^8.0"
+                "symfony/mime": "^7.4 || ^8.0",
+                "symfony/rate-limiter": "^7.4 || ^8.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",

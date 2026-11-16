@@ -3,7 +3,8 @@ nelmio_cors:
         allow_origin: ['%env(origin:UPLOADER_CLIENT_URL)%']
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
         allow_headers: ['Content-Type', 'Authorization', 'X-Upload-Session']
-        expose_headers: ['Link']
+        # Retry-After: when to send again an upload request refused by the rate limit (429)
+        expose_headers: ['Link', 'Retry-After']
         max_age: 3600
     paths:
         '^/': null

@@ -403,6 +403,17 @@ class UploadLink extends AbstractUuidEntity
     }
 
     /**
+     * Whether one more file of this size still fits in the limits of the link. An early check, before
+     * anything is stored: the reservation (UploadLinkRepository::reserve()) is what enforces them.
+     */
+    public function canFit(int $size, \DateTimeImmutable $now): bool
+    {
+        return $this->isUsable($now)
+            && (null === $this->maxAssets || $this->usedAssets + 1 <= $this->maxAssets)
+            && (null === $this->maxTotalSize || $this->usedSize + $size <= $this->maxTotalSize);
+    }
+
+    /**
      * Whether it still authenticates: an exhausted link does, so that its user sees why nothing more can be sent.
      */
     public function isUsable(\DateTimeImmutable $now): bool

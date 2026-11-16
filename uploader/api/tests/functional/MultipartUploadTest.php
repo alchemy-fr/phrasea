@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\StorageBundle\Doctrine\MultipartUploadListener;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Entity\Commit;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -244,5 +246,75 @@ class MultipartUploadTest extends AbstractUploaderTestCase
         $em->clear();
         $this->assertNull($em->find(MultipartUpload::class, $upload['id']));
         $this->assertFalse(self::getService(FileStorageManager::class)->has($path));
+    }
+
+    public function testTheUrlsAreHandedOutByPages(): void
+    {
+        $partCount = MultipartUploadListener::MAX_SIGNED_URLS + 2;
+        $upload = $this->createUpload($partCount * 5 * 1024 * 1024);
+        $this->assertSame(5 * 1024 * 1024, $upload['chunkSize'], 'The fixture assumes parts of 5MB');
+
+        $this->assertSame(range(1, MultipartUploadListener::MAX_SIGNED_URLS), array_map('intval', array_keys($upload['urls'])));
+
+        $client = self::createClient();
+        $response = $client->request('POST', '/uploads/'.$upload['id'].'/parts', [
+            'headers' => $this->authHeaders(),
+            'json' => ['from' => 2],
+        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $plan = $response->toArray();
+        $this->assertSame($partCount, $plan['partCount']);
+        $this->assertSame(range(2, MultipartUploadListener::MAX_SIGNED_URLS + 1), array_map('intval', array_keys($plan['urls'])));
+
+        $response = $client->request('POST', '/uploads/'.$upload['id'].'/parts', [
+            'headers' => $this->authHeaders(),
+            'json' => ['from' => MultipartUploadListener::MAX_SIGNED_URLS + 1],
+        ]);
+        $this->assertSame([MultipartUploadListener::MAX_SIGNED_URLS + 1, $partCount], array_map('intval', array_keys($response->toArray()['urls'])));
+    }
+
+    public function testAFileAboveTheMaximumSizeIsRefusedBeforeCreatingTheUpload(): void
+    {
+        $response = self::createClient()->request('POST', '/uploads', [
+            'headers' => $this->authHeaders(),
+            'json' => [
+                'filename' => 'huge.jpg',
+                'type' => 'image/jpeg',
+                'size' => PHP_INT_MAX,
+            ],
+        ]);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertStringContainsString('exceeds the maximum allowed size', $response->toArray(false)['detail']);
+        $this->assertSame(0, self::getEntityManager()->getRepository(MultipartUpload::class)->count([]));
+    }
+
+    public function testTheTokenOfACommitCannotUseTheUploads(): void
+    {
+        $upload = $this->createUpload(self::SIZE);
+
+        $commit = new Commit();
+        $commit->setTarget($this->getOrCreateDefaultTarget());
+        $commit->setToken('commit_token');
+        $commit->setUserId('a_user_id');
+        $commit->setFormData([]);
+        $commit->setTotalSize(42);
+        $em = self::getEntityManager();
+        $em->persist($commit);
+        $em->flush();
+
+        foreach ([
+            ['POST', '/uploads', ['filename' => 'file.jpg', 'type' => 'image/jpeg', 'size' => 1]],
+            ['GET', '/uploads/'.$upload['id'], null],
+            ['POST', '/uploads/'.$upload['id'].'/parts', []],
+            ['DELETE', '/uploads/'.$upload['id'], null],
+        ] as [$method, $url, $payload]) {
+            $response = self::createClient()->request($method, $url, [
+                'headers' => ['Authorization' => 'AssetToken commit_token'],
+            ] + (null !== $payload ? ['json' => $payload] : []));
+
+            // Authenticated (401 otherwise), but denied
+            $this->assertSame(403, $response->getStatusCode(), $method.' '.$url);
+        }
     }
 }

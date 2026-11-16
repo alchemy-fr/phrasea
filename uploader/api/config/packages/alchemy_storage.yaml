@@ -1,0 +1,5 @@
+alchemy_storage:
+    upload:
+        # Stack configuration "uploader.max_upload_file_size", within S3_MAX_OBJECT_SIZE: checked when a multipart
+        # upload is created and when it is completed
+        max_file_size: '%app.upload.max_file_size%'
