@@ -144,6 +144,37 @@ PS_TRAEFIK_IP=172.31.255.254
 Only set `TRUSTED_PROXIES` when another proxy (e.g. a load balancer) sits in front of Traefik: list
 its address together with `PS_TRAEFIK_IP` (comma-separated) so that the client IP it forwards is kept.
 
+### Administration consoles
+
+Traefik exposes the technical consoles behind two middlewares, defined on the `traefik` service:
+
+- `admin-allowlist`: only the IP ranges of `ADMIN_ALLOWED_SOURCE_RANGES` (CIDR, comma-separated) get
+  through, the others get a 403;
+- `admin-console`: `admin-allowlist` followed by the basic auth `admin-secured`
+  (`ADMIN_BASIC_AUTH_USER`, generated with `htpasswd -nb admin 'my-secret-password'`).
+
+| Console                                                                                             | Middleware        |
+|-----------------------------------------------------------------------------------------------------|-------------------|
+| Traefik, MinIO console, pgAdmin, phpMyAdmin, Mailpit, Grafana, Kibana (report), Sockudo `/usage`, webhook endpoint | `admin-console`   |
+| RabbitMQ console (authenticates with HTTP Basic itself)                                             | `admin-allowlist` |
+| Keycloak `master` realm (`/admin/master/…`, `/realms/master/…`; the console sends its own Bearer token) | `admin-allowlist` |
+
+`ADMIN_ALLOWED_SOURCE_RANGES` defaults to `0.0.0.0/0,::/0` (everybody): restrict it in production to
+your VPN or office ranges, then run `dc up -d` to apply it:
+
+```dotenv
+ADMIN_ALLOWED_SOURCE_RANGES=203.0.113.0/24,10.8.0.0/16
+```
+
+The login of the users (`phrasea` realm), the S3 endpoint (`minio`), Matomo and the applications are
+not restricted. Traefik checks the address of the client connected to it: when a load balancer sits
+in front of Traefik, set the `ipStrategy.depth` of `admin-allowlist` and the `forwardedHeaders.trustedIPs`
+of the entrypoint, otherwise the load balancer's address is checked.
+
+The configurator reaches the RabbitMQ management API at `RABBITMQ_MANAGEMENT_URL`
+(`http://rabbitmq:15672`, inside the Docker network) rather than through Traefik, and falls back to
+`RABBITMQ_CONSOLE_URL` when it is empty (e.g. a managed RabbitMQ only reachable by its public URL).
+
 ### Using fixtures
 
 You may want to populate databases with a set of fixtures:

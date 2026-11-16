@@ -38,9 +38,11 @@ services:
       - "traefik.http.routers.traefik-console.service=api@internal"
       - "traefik.http.middlewares.admin-secured.basicauth.realm=Secured"
       - "traefik.http.middlewares.admin-secured.basicauth.users=${ADMIN_BASIC_AUTH_USER}"
+      - "traefik.http.middlewares.admin-allowlist.ipallowlist.sourcerange=${ADMIN_ALLOWED_SOURCE_RANGES}"
+      - "traefik.http.middlewares.admin-console.chain.middlewares=admin-allowlist@docker,admin-secured@docker"
       - "traefik.http.middlewares.traefik-console-root.redirectregex.regex=^https?://([^/]+)/?$$"
       - "traefik.http.middlewares.traefik-console-root.redirectregex.replacement=https://$${1}/dashboard/"
-      - "traefik.http.routers.traefik-console.middlewares=traefik-console-root@docker,admin-secured@docker"
+      - "traefik.http.routers.traefik-console.middlewares=traefik-console-root@docker,admin-console@docker"
     environment:
       - TRAEFIK_API=true
       - TRAEFIK_API_INSECURE=false
@@ -522,6 +524,8 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.rabbitmq-console.rule=Host(`rabbitmq-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.rabbitmq-console.loadbalancer.server.port=15672"
+      # RabbitMQ authenticates with HTTP Basic itself: no basic auth layer here.
+      - "traefik.http.routers.rabbitmq-console.middlewares=admin-allowlist@docker"
 
   dockerize:
     logging: *default-logging
@@ -576,6 +580,7 @@ services:
       - "traefik.http.services.minio.loadbalancer.server.port=9000"
       - "traefik.http.routers.minio-console.rule=Host(`minio-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.routers.minio-console.middlewares=admin-console@docker"
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
 
   matomo-php:
@@ -673,6 +678,7 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.pgadmin.middlewares=admin-console@docker"
 
   phpmyadmin:
     logging: *default-logging
@@ -687,7 +693,7 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.phpmyadmin.middlewares=admin-secured@docker"
+      - "traefik.http.routers.phpmyadmin.middlewares=admin-console@docker"
 
   mailpit:
     logging: *default-logging
@@ -704,7 +710,7 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.mailpit.rule=Host(`mailpit.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
-      - "traefik.http.routers.mailpit.middlewares=admin-secured@docker"
+      - "traefik.http.routers.mailpit.middlewares=admin-console@docker"
 
   dashboard-client:
     logging: *default-logging
@@ -1032,7 +1038,7 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.grafana.middlewares=admin-secured@docker"
+      - "traefik.http.routers.grafana.middlewares=admin-console@docker"
 
   webhook-endpoint:
     logging: *default-logging
@@ -1045,6 +1051,7 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.webhook-endpoint.middlewares=admin-console@docker"
 
   keycloak:
     logging: *default-logging
@@ -1077,6 +1084,12 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.keycloak.service=keycloak"
+      # Super-admin console: its JavaScript sends its own Bearer token, so no basic auth layer.
+      - "traefik.http.routers.keycloak-master.rule=Host(`keycloak.${PHRASEA_DOMAIN}`) && (PathPrefix(`/admin/master`) || PathPrefix(`/realms/master`))"
+      - "traefik.http.routers.keycloak-master.priority=1000"
+      - "traefik.http.routers.keycloak-master.service=keycloak"
+      - "traefik.http.routers.keycloak-master.middlewares=admin-allowlist@docker"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
 
   keycloak2:
@@ -1202,6 +1215,7 @@ services:
       - KC_REALM_ADMIN_EVENT_EXPIRATION
       - KEYCLOAK_ADMIN_PASSWORD_IS_DEFINITIVE
       - RABBITMQ_CONSOLE_URL
+      - RABBITMQ_MANAGEMENT_URL
       - RABBITMQ_HOST
       - RABBITMQ_USER
       - RABBITMQ_PORT
@@ -1236,8 +1250,6 @@ services:
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - rabbitmq-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - minio-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   cypress:
     logging: *default-logging
@@ -1324,6 +1336,7 @@ services:
       - "traefik.http.routers.sockudo.service=sockudo"
       - "traefik.http.routers.sockudo-usage.rule=Host(`ws-usage.${PHRASEA_DOMAIN}`) && Path(`/usage`)"
       - "traefik.http.routers.sockudo-usage.service=sockudo"
+      - "traefik.http.routers.sockudo-usage.middlewares=admin-console@docker"
       - "traefik.http.services.sockudo.loadbalancer.server.port=6001"
 
 volumes:
