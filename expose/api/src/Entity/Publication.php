@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiProperty;
@@ -107,6 +108,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         new GetCollection(
             uriTemplate: '/publications/slug-availability/{slug}',
             uriVariables: [],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             output: false,
             provider: PublicationSlugAvailabilityProvider::class,
             openapi: new OpenApiOperation(
@@ -120,7 +122,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     ),
                 ],
                 summary: 'Check whether a slug is available or not.',
-                description: 'Check whether a slug is available or not.',
+                description: 'Check whether a slug is available or not. Requires the right to create publications.',
                 parameters: [
                     new OpenApiParameter(
                         name: 'slug',

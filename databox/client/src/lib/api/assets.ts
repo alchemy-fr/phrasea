@@ -224,7 +224,7 @@ export async function getSearchSuggestions(
     return {...toPage(res), debug: res['debug:es']?.query};
 }
 
-/** A resolved entity, or `{notAllowed: true}` when the user cannot read it */
+/** A resolved entity, or `{notAllowed: true}` when the user may not read users */
 export type ResolvedEntityValue = Record<string, unknown> & {
     notAllowed?: boolean;
 };

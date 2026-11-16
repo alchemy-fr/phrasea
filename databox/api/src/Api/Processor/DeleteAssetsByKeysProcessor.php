@@ -14,6 +14,7 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class DeleteAssetsByKeysProcessor implements ProcessorInterface
 {
@@ -44,10 +45,17 @@ final class DeleteAssetsByKeysProcessor implements ProcessorInterface
 
             $ids = [];
             foreach ($assets as $asset) {
-                $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
-                $ids[] = $asset->getId();
+                // An asset the user may not read is left out as if it did not exist:
+                // refusing it would tell whether the key is used.
+                if ($this->isGranted(AbstractVoter::DELETE, $asset)) {
+                    $ids[] = $asset->getId();
+                } elseif ($this->isGranted(AbstractVoter::READ, $asset)) {
+                    throw new AccessDeniedException(sprintf('Cannot delete asset "%s"', $asset->getId()));
+                }
             }
-            $this->bus->dispatch(new AssetsDelete($ids));
+            if (!empty($ids)) {
+                $this->bus->dispatch(new AssetsDelete($ids));
+            }
 
             $this->em->clear();
         }
