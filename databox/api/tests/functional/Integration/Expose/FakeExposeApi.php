@@ -10,7 +10,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * An in-memory Expose API, to plug into a MockHttpClient: the publications, their assets
- * and sub-definitions, and the uploads (presigned PUTs included).
+ * and sub-definitions, and the multipart uploads.
  */
 final class FakeExposeApi
 {
@@ -28,7 +28,7 @@ final class FakeExposeApi
     public array $assets = [];
 
     /**
-     * @var array<string, array{id: string, assetId: string, name: string, clientAnnotations: ?string}>
+     * @var array<string, array{id: string, assetId: string, name: string, clientAnnotations: ?string, uploaded: bool}>
      */
     public array $subDefinitions = [];
 
@@ -317,9 +317,10 @@ final class FakeExposeApi
             'assetId' => $assetId,
             'name' => (string) ($body['name'] ?? ''),
             'clientAnnotations' => $body['clientAnnotations'] ?? null,
+            'uploaded' => isset($body['multipart']['uploadId']),
         ];
 
-        return self::json(['id' => $id, 'uploadURL' => self::STORAGE_URL.'/sub-definitions/'.$id], 201);
+        return self::json(['id' => $id], 201);
     }
 
     private function deleteSubDefinition(string $id): MockResponse

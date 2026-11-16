@@ -165,6 +165,10 @@ class ContentTypeDetectorTest extends TestCase
             ['flac', 'audio/flac', 'audio/flac'],
             ['indd', 'application/x-indesign', 'application/octet-stream'],
             ['zip', 'application/zip', 'application/zip'],
+            ['json', 'application/json', 'application/json'],
+            ['json longer than the head', 'application/json', 'text/plain'],
+            ['ndjson', 'application/x-ndjson', 'application/x-ndjson'],
+            ['dng', 'image/x-adobe-dng', 'image/tiff'],
         ];
     }
 
@@ -280,6 +284,10 @@ class ContentTypeDetectorTest extends TestCase
             'container' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
             'nothing known' => [null, 'application/octet-stream', 'application/octet-stream'],
             'csv seen as text' => ['text/csv', 'text/plain', 'text/csv'],
+            'json cut by the head' => ['application/json', 'text/plain', 'application/json'],
+            'ndjson cut by the head' => ['application/x-ndjson', 'text/plain', 'application/x-ndjson'],
+            'camera raw seen as its tiff container' => ['image/x-adobe-dng', 'image/tiff', 'image/x-adobe-dng'],
+            'tiff declared as a jpeg' => ['image/jpeg', 'image/tiff', 'image/tiff'],
         ];
     }
 

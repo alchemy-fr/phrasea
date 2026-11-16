@@ -101,9 +101,19 @@ final readonly class ContentTypeDetector
         '#^(text/(csv|x-csv|x-comma-separated-values)|application/csv)$#' => [
             'text/plain',
         ],
+        // libmagic sees NDJSON and +json documents as plain JSON, and only recognizes JSON
+        // when the head holds a whole document (or line)
+        '#^application/(json|x-ndjson|[\w.-]+\+json)$#' => [
+            'text/plain',
+            'application/json',
+        ],
         // Illustrator files are PDF files
         '#^(application/(illustrator|postscript)|image/pdf)$#' => [
             'application/pdf',
+        ],
+        // Camera raw formats built on TIFF: the raw type selects the embedded preview extraction
+        '#^image/x-(adobe-dng|canon-cr2|nikon-nef|nikon-nrw|sony-arw|sony-sr2|sony-srf|olympus-orf|panasonic-rw2|pentax-pef|samsung-srw)$#' => [
+            'image/tiff',
         ],
     ];
 

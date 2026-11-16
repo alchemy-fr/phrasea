@@ -299,7 +299,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
     public function testLogoSizeIsLimitedTo5MB(): void
     {
         $ws = $this->createWs('ws', ['ownerId' => self::USER]);
-        $upload = $this->createUpload(str_repeat('x', 5 * 1024 * 1024 + 1), 'big.png', 'image/png');
+        $upload = $this->createUpload(str_pad(self::createImage(1, 1, 'png'), 5 * 1024 * 1024 + 1, "\0"), 'big.png', 'image/png');
 
         $this->uploadLogo($ws, self::USER, self::multipartPayload($upload));
 

@@ -153,6 +153,10 @@ class MultipartUpload
     #[Assert\Length(max: 255)]
     private ?string $filename = null;
 
+    /**
+     * Declared by the client, then replaced by the type of the content when
+     * the upload is completed (UploadManager::handleMultipartUpload()).
+     */
     #[ORM\Column(type: Types::STRING, length: 150)]
     #[Groups(['upload:read', 'upload:write'])]
     #[Assert\NotBlank]

@@ -7,6 +7,7 @@ namespace Alchemy\StorageBundle\Upload;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Api\Dto\PartInput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\StorageBundle\Storage\InlineContentTypePolicy;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Doctrine\DBAL\Types\Types;
@@ -35,6 +36,12 @@ final readonly class UploadManager
      */
     public const int PRUNE_MIN_AGE_LIMIT = 3 * 3600;
 
+    /**
+     * Lifetime, in seconds, of the URL of a single PUT (createPutObjectSignedURL()):
+     * the object it points to can change until then.
+     */
+    public const int PUT_URL_TTL = 1800;
+
     public function __construct(
         private S3Client $client,
         private string $uploadBucket,
@@ -53,7 +60,9 @@ final readonly class UploadManager
         return $this->client->createMultipartUpload([
             'Bucket' => $this->uploadBucket,
             'Key' => $this->pathPrefix.$path,
-            'ContentType' => $contentType,
+            // Never the declared type, which nothing checked yet: the signed URLs force the
+            // served type (InlineContentTypePolicy), a CDN dropping "response-content-type" falls back to this one.
+            'ContentType' => InlineContentTypePolicy::ATTACHMENT_CONTENT_TYPE,
         ]);
     }
 
@@ -131,6 +140,11 @@ final readonly class UploadManager
         $this->client->completeMultipartUpload($params);
     }
 
+    /**
+     * A presigned PUT binds neither the size nor the type of the object (the SDK
+     * does not sign the Content-Type): once the URL expired (PUT_URL_TTL), the
+     * caller checks the stored object (getStoredSize(), validateStoredContent()).
+     */
     public function createPutObjectSignedURL(string $path, string $contentType): string
     {
         $this->fileValidator->validateFile($path, $contentType);
@@ -138,11 +152,61 @@ final readonly class UploadManager
         $command = $this->client->getCommand('PutObject', [
             'Bucket' => $this->uploadBucket,
             'Key' => $this->pathPrefix.$path,
-            'ContentType' => $contentType,
         ]);
-        $request = $this->client->createPresignedRequest($command, '+30 minutes');
+        $request = $this->client->createPresignedRequest($command, sprintf('+%d seconds', self::PUT_URL_TTL));
 
         return (string) $request->getUri();
+    }
+
+    /**
+     * Size of the stored object.
+     *
+     * @throws S3Exception "NotFound" when there is no object at $path
+     */
+    public function getStoredSize(string $path): int
+    {
+        return (int) $this->client->headObject([
+            'Bucket' => $this->uploadBucket,
+            'Key' => $this->pathPrefix.$path,
+        ])->get('ContentLength');
+    }
+
+    /**
+     * Checks the content of the stored object, read from its first bytes, as
+     * FileValidator::validateFileContent() does for a local file.
+     *
+     * @param int $size the size of the stored object (getStoredSize())
+     *
+     * @return string the type of the content, to use instead of the declared one
+     *
+     * @throws BadRequestHttpException
+     */
+    public function validateStoredContent(string $path, string $filename, ?string $declaredType, int $size): string
+    {
+        // A range request on an empty object is refused by S3
+        $head = 0 === $size ? '' : (string) $this->client->getObject([
+            'Bucket' => $this->uploadBucket,
+            'Key' => $this->pathPrefix.$path,
+            'Range' => sprintf('bytes=0-%d', ContentTypeDetector::HEAD_SIZE - 1),
+        ])->get('Body');
+
+        $detector = new ContentTypeDetector();
+        $type = $detector->resolveType($declaredType, $detector->checkBuffer($head, $declaredType));
+
+        // The declared type was checked against the allowed types when the upload was prepared
+        if ($type !== InlineContentTypePolicy::normalize($declaredType)) {
+            $this->fileValidator->validateFile($filename, $type);
+        }
+
+        return $type;
+    }
+
+    public function deleteStoredObject(string $path): void
+    {
+        $this->client->deleteObject([
+            'Bucket' => $this->uploadBucket,
+            'Key' => $this->pathPrefix.$path,
+        ]);
     }
 
     /**
@@ -233,8 +297,11 @@ final readonly class UploadManager
 
     /**
      * Completes the upload on S3 for its owner, then checks that the stored
-     * object has the declared size: the parts are sent straight to S3, so
-     * their real size is only known here.
+     * object has the declared size and a content consistent with the declared
+     * type: the parts are sent straight to S3, so their content is only known
+     * here. A refused object is deleted with the upload.
+     *
+     * The type of the returned upload is then the one of the content.
      *
      * An upload is used once: it is claimed before anything is done on S3,
      * and released if S3 refuses the completion so that the client can retry.
@@ -262,8 +329,22 @@ final readonly class UploadManager
             throw $e;
         }
 
-        $this->assertUploadedSize($multipartUpload);
+        $size = $this->assertUploadedSize($multipartUpload);
 
+        try {
+            $type = $this->validateStoredContent(
+                $multipartUpload->getPath(),
+                (string) $multipartUpload->getFilename(),
+                $multipartUpload->getType(),
+                $size,
+            );
+        } catch (BadRequestHttpException $e) {
+            $this->discard($multipartUpload);
+
+            throw $e;
+        }
+
+        $multipartUpload->setType($type);
         $multipartUpload->setComplete(true);
         $this->em->persist($multipartUpload);
 
@@ -329,23 +410,33 @@ final readonly class UploadManager
         }
     }
 
-    private function assertUploadedSize(MultipartUpload $multipartUpload): void
+    /**
+     * @return int the size of the stored object
+     */
+    private function assertUploadedSize(MultipartUpload $multipartUpload): int
     {
-        $key = $this->pathPrefix.$multipartUpload->getPath();
-        $size = (int) $this->client->headObject([
-            'Bucket' => $this->uploadBucket,
-            'Key' => $key,
-        ])->get('ContentLength');
+        $size = $this->getStoredSize($multipartUpload->getPath());
 
         $maxFileSize = $this->planner->getMaxFileSize();
         if ($size === $multipartUpload->getSize() && $size <= $maxFileSize) {
-            return;
+            return $size;
         }
 
-        $this->client->deleteObject([
-            'Bucket' => $this->uploadBucket,
-            'Key' => $key,
-        ]);
+        $this->discard($multipartUpload);
+
+        if ($size > $maxFileSize) {
+            throw new BadRequestHttpException(sprintf('Uploaded file size %d exceeds the maximum allowed size of %d bytes', $size, $maxFileSize));
+        }
+
+        throw new BadRequestHttpException(sprintf('Uploaded file size %d does not match the declared size %d', $size, $multipartUpload->getSize()));
+    }
+
+    /**
+     * Deletes a completed upload refused afterwards, and its object.
+     */
+    private function discard(MultipartUpload $multipartUpload): void
+    {
+        $this->deleteStoredObject($multipartUpload->getPath());
         // A DQL delete skips the listeners: the S3 upload is already completed, there is nothing to abort.
         $this->em->createQueryBuilder()
             ->delete(MultipartUpload::class, 'u')
@@ -353,11 +444,5 @@ final readonly class UploadManager
             ->setParameter('id', $multipartUpload->getId())
             ->getQuery()
             ->execute();
-
-        if ($size > $maxFileSize) {
-            throw new BadRequestHttpException(sprintf('Uploaded file size %d exceeds the maximum allowed size of %d bytes', $size, $maxFileSize));
-        }
-
-        throw new BadRequestHttpException(sprintf('Uploaded file size %d does not match the declared size %d', $size, $multipartUpload->getSize()));
     }
 }

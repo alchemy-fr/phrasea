@@ -41,7 +41,6 @@ trait ExposeTestTrait
 
         return new ExposeClient(
             new PhraseaClientFactory($http, self::getService(IntegrationTokenManager::class)),
-            $http,
             self::createFileFetcher(),
             self::getService(AssetNameResolver::class),
             self::getService(AttributesResolver::class),

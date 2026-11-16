@@ -32,7 +32,6 @@ final readonly class ExposeClient
 {
     public function __construct(
         private PhraseaClientFactory $clientFactory,
-        private HttpClientInterface $uploadClient,
         private FileFetcher $fileFetcher,
         private AssetNameResolver $assetNameResolver,
         private AttributesResolver $attributesResolver,
@@ -373,7 +372,14 @@ final readonly class ExposeClient
         $subDefFetchedFile = $this->fileFetcher->getFile($file);
         try {
             $clipped = $this->mediaClipper->apply($subDefFetchedFile, $file->getType(), $clip);
-            $size = $clipped->transformed ? filesize($clipped->path) : $file->getSize();
+
+            // A multipart upload rather than a presigned PUT: Expose checks the file when the upload is completed
+            $multipart = $this->multipartUploader->upload(
+                $this->create($config, $integrationToken),
+                $clipped->path,
+                $clipped->renameFile(self::uploadFilename($file)),
+                $clipped->mimeType,
+            );
 
             $subDefResponse = $this->create($config, $integrationToken)
                 ->request('POST', '/sub-definitions', [
@@ -383,23 +389,11 @@ final readonly class ExposeClient
                         'use_as_preview' => 'preview' === $renditionName,
                         'use_as_thumbnail' => 'thumbnail' === $renditionName,
                         'use_as_poster' => 'poster' === $renditionName,
-                        'upload' => [
-                            'type' => $clipped->mimeType,
-                            'size' => $size,
-                            'name' => $clipped->renameFile(self::uploadFilename($file)),
-                        ],
+                        'multipart' => $multipart,
                         ...$extraData,
                     ],
                 ])
                 ->toArray();
-
-            $this->uploadClient->request('PUT', $subDefResponse['uploadURL'], [
-                'headers' => [
-                    'Content-Type' => $clipped->mimeType,
-                    'Content-Length' => filesize($clipped->path),
-                ],
-                'body' => fopen($clipped->path, 'r'),
-            ]);
         } finally {
             @unlink($subDefFetchedFile);
             $this->mediaClipper->cleanUp();

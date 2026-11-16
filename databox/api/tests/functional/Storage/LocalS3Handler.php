@@ -10,6 +10,7 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Psr7\Utils;
 use League\Flysystem\FilesystemOperator;
 
 /**
@@ -17,7 +18,7 @@ use League\Flysystem\FilesystemOperator;
  * reachable, the files are kept in the local test storage (see the "when@test" services).
  *
  * A multipart upload is expected to be sent already: completing it leaves the local file
- * as is, and HeadObject answers its real size.
+ * as is, HeadObject answers its real size and GetObject its content (range included).
  */
 final readonly class LocalS3Handler
 {
@@ -43,10 +44,25 @@ final readonly class LocalS3Handler
             'HeadObject' => null !== $path && $this->storage->fileExists($path)
                 ? Create::promiseFor(new Result(['ContentLength' => $this->storage->fileSize($path)]))
                 : Create::rejectionFor(new S3Exception('Not Found', $command, ['code' => 'NotFound'])),
+            'GetObject' => null !== $path && $this->storage->fileExists($path)
+                ? Create::promiseFor(new Result(['Body' => Utils::streamFor(self::readRange($this->storage->read($path), $command['Range'] ?? null))]))
+                : Create::rejectionFor(new S3Exception('Not Found', $command, ['code' => 'NoSuchKey'])),
             'DeleteObject' => $this->delete($path),
             'ListMultipartUploads' => Create::promiseFor(new Result(['Uploads' => []])),
             default => Create::promiseFor(new Result([])),
         };
+    }
+
+    private static function readRange(string $content, ?string $range): string
+    {
+        if (null === $range || 1 !== preg_match('#^bytes=(\d+)-(\d*)$#', $range, $matches)) {
+            return $content;
+        }
+
+        $start = (int) $matches[1];
+        $length = '' === $matches[2] ? null : (int) $matches[2] - $start + 1;
+
+        return substr($content, $start, $length);
     }
 
     private function delete(?string $path): PromiseInterface

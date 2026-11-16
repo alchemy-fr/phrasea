@@ -22,6 +22,11 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
     protected static ?bool $alwaysBootKernel = true;
 
     /**
+     * The head of a JPEG file: enough for the content check of the completed uploads.
+     */
+    protected const string JPEG = "\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb\x00C\x00";
+
+    /**
      * Answers the Databox calls of the requests when set.
      */
     protected ?DataboxClientInterface $databox = null;
