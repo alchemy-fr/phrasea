@@ -38,7 +38,10 @@ run (`unit` + `functional`, with the SQLite and Elasticsearch reset of
 `pre-phpunit`). Then the libs as in quick.
 
 Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
-`bin/setup.sh test` and loads the expose fixtures first.
+`bin/setup.sh test` and loads the expose fixtures first. The CI stack runs with
+`APP_ENV=prod` and the default secrets of `.env`: `ci.yaml` and
+`bin/dev/run-tests-in-ci-conditions.sh` set `PHRASEA_ALLOW_DEFAULT_SECRETS=1`,
+otherwise `bin/setup.sh` refuses them (`check_default_secrets` in `bin/functions.sh`).
 
 ### Keycloak and report-api in CI
 

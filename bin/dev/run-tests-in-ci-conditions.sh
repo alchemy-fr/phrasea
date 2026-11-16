@@ -35,6 +35,8 @@ export HTTPS_PORT_PREFIX=':4442'
 export VERIFY_SSL=false
 export COMPOSE_PROFILES=databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,sockudo
 export FIXTURES_GENERATE_IMAGES=true
+# The CI stack runs with APP_ENV=prod and the public default secrets of .env
+export PHRASEA_ALLOW_DEFAULT_SECRETS=1
 # The S3 minimum part size, so that the e2e uploads span several parts
 export S3_MULTIPART_MIN_CHUNK_SIZE=5242880
 
