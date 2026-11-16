@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Controller;
 
+use Alchemy\AdminBundle\Utils\PendingMessagesSummary;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPSSLConnection;
@@ -13,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,6 +26,8 @@ class QueuesListController extends AbstractController
         private array $queues,
         private array $rabbitmqConfig,
         private KernelInterface $kernel,
+        #[Autowire(param: 'alchemy_admin.worker_inspect_limit')]
+        private int $inspectLimit,
     ) {
     }
 
@@ -67,15 +71,21 @@ class QueuesListController extends AbstractController
                 $status = $this->getQueueStatus($connection, $channel, $queueName);
             }
 
+            if (null !== $status) {
+                $status['pendingMessages'] = $status['messageCount'] > 0 ? $this->inspectQueue($connection, $queueName) : null;
+            }
+
             $queuesStatus[$queueName] = $status ?? [
                 'queueName' => $queueName,
                 'messageCount' => null,
                 'consumerCount' => null,
+                'pendingMessages' => null,
             ];
         }
 
         return $this->render('@AlchemyAdmin/queues_list.html.twig', [
             'queuesStatus' => $queuesStatus,
+            'inspectLimit' => $this->inspectLimit,
         ]);
     }
 
@@ -98,6 +108,43 @@ class QueuesListController extends AbstractController
             'messageCount' => $messageCount,
             'consumerCount' => $consumerCount,
         ];
+    }
+
+    /**
+     * Reads the first pending messages without acknowledging them, then requeues them all.
+     * While being read, these messages are invisible to the consumers, and they come back flagged as redelivered.
+     */
+    private function inspectQueue(AbstractConnection $connection, string $queueName): PendingMessagesSummary
+    {
+        $summary = new PendingMessagesSummary();
+        $channel = $connection->channel();
+        $lastDeliveryTag = null;
+
+        try {
+            while ($summary->getCount() < $this->inspectLimit) {
+                $message = $channel->basic_get($queueName, false);
+                if (null === $message) {
+                    break;
+                }
+
+                $lastDeliveryTag = $message->getDeliveryTag();
+                $type = $message->has('application_headers')
+                    ? ($message->get('application_headers')->getNativeData()['type'] ?? null)
+                    : null;
+
+                $summary->add(is_string($type) ? $type : null, $message->getBody());
+            }
+        } finally {
+            try {
+                if (null !== $lastDeliveryTag) {
+                    $channel->basic_nack($lastDeliveryTag, true, true);
+                }
+            } finally {
+                $channel->close();
+            }
+        }
+
+        return $summary;
     }
 
     private function setupTransports(): void

@@ -29,4 +29,35 @@
         {% endfor %}
         </tbody>
     </table>
+
+    {% for qs in queuesStatus %}
+        {% set summary = qs.pendingMessages %}
+        {% if summary is not null and summary.count > 0 %}
+            <h2 class="mt-4">Pending messages in {{ qs.queueName }}</h2>
+            {% if qs.messageCount > summary.count %}
+                <p class="text-muted">
+                    Sample of the first {{ summary.count }} messages out of {{ qs.messageCount }}
+                    (inspection limit: {{ inspectLimit }})
+                </p>
+            {% endif %}
+            <table class="table datagrid">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Detail</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for group in summary.groups %}
+                    <tr>
+                        <td title="{{ group.type ?? 'No type header' }}">{{ group.shortType }}</td>
+                        <td>{{ group.detail }}</td>
+                        <td>{{ group.count }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endfor %}
 {% endblock %}
