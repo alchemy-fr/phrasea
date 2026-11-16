@@ -445,7 +445,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
     {
         $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
 
-        $response = $this->request('POST', '/collections', self::USER, [
+        $response = $this->request('POST', '/collections', self::ADMIN, [
             'json' => [
                 'name' => 'For other',
                 'workspace' => '/workspaces/'.$workspace->getId(),
