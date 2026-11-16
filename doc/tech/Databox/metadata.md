@@ -153,9 +153,22 @@ Access file properties:
 {{ file.filename }} (size={{ file.size }})
 ```
 
-Available `file` accessors: `filename`, `originalName`, `extension`, `extensionWithDot`,
-`type`, `size`, `checksum`, `docUniqueId`, `path`, `pathPublic`, `storage`, `analysis`,
-`metadataValues`.
+Available `file` accessors: `id`, `filename`, `originalName`, `extension`, `extensionWithDot`,
+`type`, `size`, `checksum`, `docUniqueId`, `createdAt`, `metadataValues`,
+`getMetadata('Group:Tag')`.
+
+Available `asset` accessors: `id`, `name`, `ownerId`, `workspaceId`, `locale`, `externalId`,
+`createdAt`, `updatedAt`, `editedAt`, `story`, `source` (the source file, same accessors as
+`file`), `sourceFileName`, `sourceFileSize`, `sourceFileType`, `sourceFileExtension`,
+`sourceFileFamily`, `sourceChecksum`, `sourceDocUniqueId`. Dates can be formatted with the
+`date` filter or `.format('Y-m-d')`.
+
+These templates are written by workspace editors and their output can leave the platform
+(a rendition stamp text, a watermark URL…): they run in a Twig sandbox
+(`App\Twig\Sandbox\TemplateSecurityPolicy`) that only lets them read the accessors listed
+above. Anything else (storage path, workspace, collections, integrations, other related
+entities…) fails the rendering with a "not allowed" error. Rendition options use the same
+sandbox, with `asset`, `file` (the source file) and `attr` (attribute values by slug).
 
 Combine metadata and asset properties:
 ```
