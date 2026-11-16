@@ -48,7 +48,7 @@ The token never leaves the page for a third party: the link page is neither inde
 
 What is sent through a link belongs to its creator: the files and the commit get the `userId` of the creator (the publisher Databox receives) and keep a reference to the link. Nobody is behind the link to be notified: the `__notify` field is hidden on the link page and the commit is never flagged for a notification. The report logs record the commits with the username `upload-link:<name or id>`.
 
-The entity and tag fields of a form read their values from Databox with the token of a user: they cannot be filled through a link.
+The entity fields of a form read their values from Databox with the token of a user: they cannot be filled through a link.
 
 The `data` of a file sent through a link is ignored: it cannot aim at an existing asset of the creator (`targetAsset`/`targetRendition`, which replace a rendition in Databox). Other uploads keep only these two keys. The asset read by Databox carries `fromUploadLink`, and Databox refuses a substitution coming from a link.
 

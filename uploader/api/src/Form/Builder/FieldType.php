@@ -15,7 +15,6 @@ enum FieldType: string
     case Color = 'color';
     case Choice = 'choice';
     case Entity = 'entity';
-    case Tag = 'tag';
 
     /**
      * The type an attribute of this Databox type is entered with; null when the uploader cannot fill it.
@@ -37,6 +36,6 @@ enum FieldType: string
 
     public function hasOptions(): bool
     {
-        return in_array($this, [self::Choice, self::Entity, self::Tag], true);
+        return in_array($this, [self::Choice, self::Entity], true);
     }
 }

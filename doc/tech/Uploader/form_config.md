@@ -14,11 +14,11 @@ A target without form accepts no value but the keys handled by the uploader itse
 The builder lists, for the chosen Databox workspace:
 
 - **Databox attributes**: the enabled attributes an uploader can fill. A field keeps the attribute slug as key; the label is initialized from the attribute translations.
-- **Databox values**: `databox_name`, `databox_tags`, `databox_is_story`, `databox_story_name`, and `__notify`.
+- **Databox values**: `databox_name`, `databox_is_story`, `databox_story_name`, and `__notify`. The tags of the assets are the values of the `tags` entity attribute: add it from the Databox attributes.
 - **Custom fields**: free keys (text, long text, number, date, date and time, checkbox, color, choice list), e.g. for a Phraseanet target.
 - **Layout**: section titles and texts.
 
-Fields are dragged into the form and reordered. Each one has translated labels, help and placeholders, and can be required, hidden (its default value is always sent) or bounded (lengths, min/max). Entity and tag fields render as a searchable list, or as checkboxes / radio buttons.
+Fields are dragged into the form and reordered. Each one has translated labels, help and placeholders, and can be required, hidden (its default value is always sent) or bounded (lengths, min/max). Entity fields render as a searchable list, or as checkboxes / radio buttons.
 
 ### Stored definition
 
@@ -39,7 +39,7 @@ Fields are dragged into the form and reordered. Each one has translated labels, 
             "label": {"_": "Keywords", "fr": "Mots-clés"},
             "attribute": {"id": "<attribute definition id>", "slug": "keywords", "databoxType": "entity", "entityListId": "<entity list id>"}
         },
-        {"id": "f_3", "source": "builtin", "key": "databox_tags", "type": "tag", "multiple": true, "label": {"_": "Tags"}},
+        {"id": "f_3", "source": "builtin", "key": "databox_name", "type": "text", "label": {"_": "Name", "fr": "Nom"}},
         {
             "id": "f_4",
             "source": "custom",
@@ -56,7 +56,7 @@ Fields are dragged into the form and reordered. Each one has translated labels, 
 
 The texts are maps by locale; `_` is the text of every other language.
 
-The API validates the definition when the form is saved (`App\Form\Builder\FormDefinition`), then the submitted data against it (`App\Form\Builder\BuilderFormHandler`). Only the keys of the form are stored with the commit, and hidden fields always get their default value: a user cannot write an attribute the form does not offer. Entity and tag values must exist in Databox.
+The API validates the definition when the form is saved (`App\Form\Builder\FormDefinition`), then the submitted data against it (`App\Form\Builder\BuilderFormHandler`). Only the keys of the form are stored with the commit, and hidden fields always get their default value: a user cannot write an attribute the form does not offer. Entity values must exist in the entity list of their attribute in Databox.
 
 ### Endpoints
 
@@ -78,11 +78,11 @@ The uploader API reads Databox on behalf of the user (with their access token), 
 |---|---|
 | `GET /databox/workspaces`, `GET /databox/workspaces/{id}` | the builder (form editors only) |
 | `GET /databox/workspaces/{id}/fields` | the builder: the attributes an uploader can fill |
-| `GET /databox/workspaces/{id}/tags`, `GET /databox/entity-lists/{id}/values` | the builder: default values, preview |
+| `GET /databox/entity-lists/{id}/values` | the builder: default values, preview |
 | `GET /databox/targets/{id}/destination` | the builder: the workspace of the target's default destination |
-| `GET /targets/{id}/form-fields/{key}/options?query=&ids[]=&page=` | the upload form: the values of an entity or tag field of the target's form |
+| `GET /targets/{id}/form-fields/{key}/options?query=&ids[]=&page=` | the upload form: the values of an entity field of the target's form |
 
-Users therefore need access to Databox (the `databox` role, and to the workspace) to fill entity and tag fields.
+Users therefore need access to Databox (the `databox` role, and to the workspace) to fill entity fields.
 
 ## Reserved keys
 
@@ -92,7 +92,6 @@ Users therefore need access to Databox (the `databox` role, and to the workspace
 ### Databox reserved keys
 
 - `databox_name`: the name of the asset (`databox_story_name` for the story).
-- `databox_tags`: the tags of the asset (array of tag UUIDs).
 - `databox_is_story`: whether the files are grouped in a story (boolean).
 
 ## Target data
@@ -120,8 +119,23 @@ Before version 5, a target could have several form schemas (one per locale, with
 - the target params become `Target.data`;
 - the schemas of a target are merged into one form. The base schema is the builder one if any, else the one for every locale, else the most recent one: its texts become the texts for every language (`_`). The labels, help texts, placeholders and choice labels of the other schemas are added as translations under their locale (matched by field key, and by value for the choices), without replacing a text already there;
 - a LiForm schema is converted to the builder format without Databox, so without workspace: the reserved keys (`databox_name`, `databox_story_name`, `databox_is_story`, `__notify`) become built-in fields, every other key a custom field with the same key — the data sent to Databox does not change. To benefit from the Databox attribute fields (entity lists, translations, checks), pick the workspace in the form builder and replace the custom fields by the matching attributes;
-- what the builder cannot express is left out, with a warning of the migration naming the target and the key: `databox_tags` (tags need a workspace: add the field again in the builder), `oneOf`, nested objects, arrays of objects or of booleans, keys that are not attribute slugs, choice lists without any value (the choices without value are dropped);
+- what the builder cannot express is left out, with a warning of the migration naming the target and the key: `databox_tags` (tags need a workspace: add the `tags` attribute in the builder), `oneOf`, nested objects, arrays of objects or of booleans, keys that are not attribute slugs, choice lists without any value (the choices without value are dropped);
 - the `localeMode` is gone: the form locale of a commit is always the language of the user;
 - the ACEs set on one schema or one params record are deleted, the global ones (`form_schema`, `target_params`) are kept.
+
+The conversion cannot be reverted.
+
+## Migration of the tags field
+
+Databox replaced its tags with an entity list "Tags" per workspace and a multi-valued entity attribute of slug `tags` (the entities keep the tag UUIDs). The migration `Version20261116213000` follows:
+
+- the built-in field `databox_tags` of a form becomes a field of the `tags` attribute of the form's workspace (`source: attribute`, `type: entity`, multiple), its labels, default values and widget kept. The IDs of the attribute definition and of its list are the ones Databox gave them (computed from the workspace ID). When the form already has a field `tags`, the field gets the key `tagsmigrated`, the slug Databox falls back to when the workspace already had an attribute `tags`, with a warning;
+- a form without workspace loses the field, with a warning;
+- the `databox_tags` key of the target data and of the commits Databox has not acknowledged yet becomes the key of that field (`tags` by default), merged with its values.
+
+To check after the migration:
+
+- a workspace where Databox took the fallback slug `tagsmigrated` (see the Databox upgrade notes) while the form has no `tags` field: the field keeps the key `tags`, which is the other attribute. Replace it in the form builder by the "Tags (migrated)" attribute;
+- a workspace that had no tag: Databox created no list, the field has no values. Remove it from the form.
 
 The conversion cannot be reverted.

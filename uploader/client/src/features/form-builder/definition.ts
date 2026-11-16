@@ -61,19 +61,12 @@ export function fieldLabel(field: BuilderField, lang: string): string {
 type BuiltinDef = {
     key: BuiltinKey;
     type: FieldType;
-    multiple?: boolean;
     label: Localized;
 };
 
 /** Mirrors `App\Form\Builder\Builtin` of the API */
 export const BUILTINS: BuiltinDef[] = [
     {key: 'databox_name', type: 'text', label: {en: 'Name', fr: 'Nom'}},
-    {
-        key: 'databox_tags',
-        type: 'tag',
-        multiple: true,
-        label: {en: 'Tags', fr: 'Tags'},
-    },
     {
         key: 'databox_is_story',
         type: 'boolean',
@@ -101,7 +94,7 @@ export function getBuiltin(key: string): BuiltinDef | undefined {
     return BUILTINS.find(b => b.key === key);
 }
 
-/** The types a custom field can have: entities and tags come from Databox */
+/** The types a custom field can have: entities come from Databox */
 export const CUSTOM_TYPES: FieldType[] = [
     'text',
     'textarea',
@@ -154,9 +147,7 @@ export function fieldFromBuiltin(key: BuiltinKey): InputField {
         source: 'builtin',
         key,
         type: builtin.type,
-        multiple: builtin.multiple,
         label: {...builtin.label},
-        widget: builtin.type === 'tag' ? 'autocomplete' : undefined,
     };
 }
 
@@ -272,11 +263,7 @@ export function isFieldCustomized(
 }
 
 export function hasOptions(field: InputField): boolean {
-    return (
-        field.type === 'choice' ||
-        field.type === 'entity' ||
-        field.type === 'tag'
-    );
+    return field.type === 'choice' || field.type === 'entity';
 }
 
 /** The widgets a field can be rendered with, its default one first */

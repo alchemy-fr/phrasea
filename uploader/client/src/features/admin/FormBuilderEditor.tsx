@@ -96,7 +96,7 @@ export function FormBuilderEditor({
     const workspaceId = definition.workspaceId ?? null;
     const workspace = workspaces.data?.find(w => w.id === workspaceId);
     const databoxFields = useDataboxFields(workspaceId);
-    const loadOptions = useDataboxOptionsLoader(workspaceId);
+    const loadOptions = useDataboxOptionsLoader();
 
     const locales = useMemo(() => {
         const list = workspace?.enabledLocales.length

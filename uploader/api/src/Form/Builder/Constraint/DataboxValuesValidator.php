@@ -36,9 +36,7 @@ final class DataboxValuesValidator extends ConstraintValidator
         }
 
         try {
-            $missing = null !== $constraint->entityListId
-                ? $this->catalog->findMissingEntities($constraint->entityListId, $ids)
-                : $this->catalog->findMissingTags((string) $constraint->workspaceId, $ids);
+            $missing = $this->catalog->findMissingEntities($constraint->entityListId, $ids);
         } catch (DataboxException $e) {
             $this->logger->warning('Form values could not be checked against Databox: '.$e->getMessage());
             $this->context->buildViolation($constraint->unavailableMessage)->addViolation();

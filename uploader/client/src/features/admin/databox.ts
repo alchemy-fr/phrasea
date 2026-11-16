@@ -5,7 +5,6 @@ import {useQuery} from '@tanstack/react-query';
 import {
     getDataboxEntityValues,
     getDataboxFields,
-    getDataboxTags,
     getDataboxWorkspaces,
     getTargetDestination,
 } from '@/lib/api/uploader';
@@ -42,24 +41,13 @@ export function useTargetWorkspace(targetId: string | undefined) {
     });
 }
 
-/** The values of the entity and tag fields, read from Databox directly */
-export function useDataboxOptionsLoader(
-    workspaceId: string | null | undefined
-): FieldOptionsLoader {
-    return useCallback(
-        async (field, query) => {
-            if (field.type === 'tag' && workspaceId) {
-                return getDataboxTags(workspaceId, query);
-            }
-            if (field.type === 'entity' && field.attribute?.entityListId) {
-                return getDataboxEntityValues(
-                    field.attribute.entityListId,
-                    query
-                );
-            }
+/** The values of the entity fields, read from Databox directly */
+export function useDataboxOptionsLoader(): FieldOptionsLoader {
+    return useCallback(async (field, query) => {
+        if (field.type === 'entity' && field.attribute?.entityListId) {
+            return getDataboxEntityValues(field.attribute.entityListId, query);
+        }
 
-            return {member: [], hasMore: false};
-        },
-        [workspaceId]
-    );
+        return {member: [], hasMore: false};
+    }, []);
 }

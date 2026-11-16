@@ -15,7 +15,7 @@ final class FieldConstraintFactory
     /**
      * @return Constraint[]
      */
-    public static function create(FieldDefinition $field, ?string $workspaceId): array
+    public static function create(FieldDefinition $field): array
     {
         $constraints = [];
         if ($field->required && !$field->hidden) {
@@ -35,8 +35,6 @@ final class FieldConstraintFactory
 
         if (FieldType::Entity === $field->type && null !== $field->entityListId) {
             $constraints[] = new DataboxValues(entityListId: $field->entityListId);
-        } elseif (FieldType::Tag === $field->type && null !== $workspaceId) {
-            $constraints[] = new DataboxValues(workspaceId: $workspaceId);
         }
 
         return $constraints;
@@ -55,7 +53,7 @@ final class FieldConstraintFactory
             FieldType::Boolean => [new Assert\Type('bool')],
             FieldType::Color => [new Assert\CssColor([Assert\CssColor::HEX_LONG, Assert\CssColor::HEX_SHORT])],
             FieldType::Choice => [new Assert\Choice(choices: $field->choices)],
-            FieldType::Entity, FieldType::Tag => [new Assert\Uuid(strict: false)],
+            FieldType::Entity => [new Assert\Uuid(strict: false)],
             null => [],
         };
 
