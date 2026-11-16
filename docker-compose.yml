@@ -765,6 +765,8 @@ services:
       - EXPOSE_API_URL
       - EXPOSE_ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - EXPOSE_ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
+      # The only Uploader allowed on the private network, with its S3 storage (S3_ENDPOINT)
+      - UPLOADER_API_URL
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_USERNAME
       - ELASTICSEARCH_PASSWORD

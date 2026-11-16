@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Border;
 
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -13,12 +14,17 @@ class UploaderClientMock extends UploaderClient
 {
     private array $acknowledgedAssets = [];
 
+    /**
+     * The uploading user sent with the commits: the owner of the test workspace by default.
+     */
+    public string $userId = KeycloakClientTestMock::ADMIN_UID;
+
     #[\Override]
     public function getCommit(string $baseUrl, string $id, string $token): array
     {
         return [
             'id' => $id,
-            'userId' => 'test_user',
+            'userId' => $this->userId,
             'assets' => [
                 '42',
             ],

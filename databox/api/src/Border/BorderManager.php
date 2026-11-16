@@ -21,6 +21,7 @@ final readonly class BorderManager
         private FileStorageManager $storageManager,
         private FilePathGenerator $pathGenerator,
         private FileValidator $fileValidator,
+        private UploaderOrigins $uploaderOrigins,
     ) {
     }
 
@@ -83,7 +84,11 @@ final readonly class BorderManager
 
     private function importFile(InputFile $file): string
     {
-        // A presigned URL from the uploader API, whose storage may live on the private network
-        return $this->fileDownloader->download($file->getUrl(), allowPrivateNetwork: true);
+        // The storage of the Uploader of this instance may live on the private network,
+        // but the URL is answered by the Uploader of the integration, which may be any server.
+        return $this->fileDownloader->download(
+            $file->getUrl(),
+            allowPrivateNetwork: $this->uploaderOrigins->isUploaderFile($file->getUrl()),
+        );
     }
 }

@@ -104,6 +104,9 @@ Operational notes:
 - Requires a valid base URL for the uploader API.
 - Uses an ApiKey authorization scheme.
 - Security key must match on both Phrasea and uploader configurations.
+- The target endpoint answers 404 when the integration is disabled.
+- Only the Uploader of the instance (`UPLOADER_API_URL`) and its storage (`S3_ENDPOINT`) may be reached on the private network: any other base URL, and the file URLs it answers, must be public.
+- The user sent with a commit (the uploading user) becomes the owner of the assets, and must be allowed to create assets in the destination collection or workspace (and to edit the asset for a rendition substitution); otherwise the ingestion fails.
 
 ## Asset import integration (core.asset_import)
 
