@@ -60,6 +60,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 ->defaultValue('${EXPOSE_API_URL}')
                 ->cannotBeEmpty()
                 ->info('The Expose API base URL')
+                ->attribute(ConfigWidget::ATTR_URL, true)
             ->end();
         ConfigWidget::apply($builder->scalarNode('clientId'), ConfigWidget::OAuthClient)
                 ->isRequired()
@@ -70,6 +71,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 ->defaultValue('${EXPOSE_CLIENT_URL}')
                 ->cannotBeEmpty()
                 ->info('The Expose Client base URL')
+                ->attribute(ConfigWidget::ATTR_URL, true)
             ->end()
         ;
     }

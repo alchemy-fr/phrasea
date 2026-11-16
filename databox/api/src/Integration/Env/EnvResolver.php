@@ -8,6 +8,7 @@ use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Security\Secrets\SecretsManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 final readonly class EnvResolver
 {
@@ -17,10 +18,16 @@ final readonly class EnvResolver
     public function __construct(
         private SecretsManager $secretsManager,
         private EntityManagerInterface $em,
+        private LoggerInterface $logger,
     ) {
     }
 
-    public function getEnv(?string $workspaceId, string $key): string
+    /**
+     * @param bool $allowInstance false when the value may be sent to a host chosen by a
+     *                            workspace editor: the `PWI_<NAME>` variable of the instance
+     *                            then resolves to an empty string
+     */
+    public function getEnv(?string $workspaceId, string $key, bool $allowInstance = true): string
     {
         $params = [
             'workspace' => $workspaceId,
@@ -43,7 +50,34 @@ final readonly class EnvResolver
             return $env->getValue();
         }
 
-        return getenv(self::ENV_PREFIX.$key) ?: '';
+        $value = getenv(self::ENV_PREFIX.$key) ?: '';
+        if ('' !== $value && !$allowInstance) {
+            $this->logger->warning(sprintf(
+                'Instance variable "%s%s" not resolved for an integration of workspace "%s": it calls a URL set by its editor',
+                self::ENV_PREFIX,
+                $key,
+                $workspaceId ?? 'NULL',
+            ));
+
+            return '';
+        }
+
+        return $value;
+    }
+
+    /**
+     * Whether a secret or a variable of the workspace (of the instance for a null
+     * workspace) has this name, without decrypting it.
+     */
+    public function isDefinedInWorkspace(?string $workspaceId, string $key): bool
+    {
+        $params = [
+            'workspace' => $workspaceId,
+            'name' => $key,
+        ];
+
+        return null !== $this->em->getRepository(WorkspaceSecret::class)->findOneBy($params)
+            || null !== $this->em->getRepository(WorkspaceEnv::class)->findOneBy($params);
     }
 
     /**

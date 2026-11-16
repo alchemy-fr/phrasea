@@ -137,6 +137,8 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         yield 'missing workspace resource' => ['core.face_recognition', ['attribute' => 'faces'], 'config.attribute'];
         yield 'missing required option' => ['core.webhook', [], 'config'];
         yield 'missing rendition' => ['core.similarity', [], 'config'];
+        yield 'URL referring to a variable' => ['phrasea.uploader', ['baseUrl' => 'https://${UPLOADER_HOST}/api'], 'config.baseUrl'];
+        yield 'URL referring to a variable, former syntax' => ['core.webhook', ['url' => 'https://hook.test/?key=$AWS_ACCESS_KEY_SECRET'], 'config.url'];
     }
 
     #[DataProvider('getInvalidConfigurations')]

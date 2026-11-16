@@ -254,6 +254,7 @@ ConfigWidget::apply($builder->scalarNode('attribute'), ConfigWidget::Attribute, 
 
 - `widget` (`ConfigWidget`): `attribute` (slug of an attribute definition of the workspace, with `widgetOptions` restricting its `type`, `multiple` and `entityList`; the picker offers to **create** the attribute, and the entity list it needs, right from the form), `rendition` (name of a rendition definition), `collection` (collection ID), `email`, `language`, `oauth_client` (client ID of a Keycloak OAuth client, public with the standard flow: the text field gets "Choose…" and "Create…" buttons when the Keycloak account of the user can list or create the clients, see the Expose integration). On a prototype (`scalarPrototype()`), the widget applies to the items of the list (multiple picker, chips).
 - `secret`: the form masks a value typed in clear (with a "show" button) and offers to **save it as a secret** (see [Secrets & variables](#secrets--variables)). The API does not redact a value stored in clear: `configYaml` and `configValues` are only given to who may edit the integration. Prefer a reference to a secret.
+- `url` (`ConfigWidget::ATTR_URL`, first-level keys only, not shown to the form): the value is a URL the integration calls or gives to the users (`baseUrl` of `phrasea.uploader`, `phraseanet.renditions` and `phrasea.expose`, `clientUrl` of `phrasea.expose`, `url` of `core.webhook`). In a workspace integration, it keeps the instance variables away from a host chosen by an editor (see [Secrets & variables](#secrets--variables)).
 - An integration whose tree does not tell the whole story implements `ConfigSchemaCustomizerInterface::customizeConfigSchema(array $schema): array`: `core.file_analyzer` replaces the items of `analyzers` by `{type: object, discriminator: name, variants: {<analyzer>: …}}`, one variant per registered analyzer.
 
 `GET /integrations/{id}` returns the stored configuration twice to its editors: `configYaml` and `configValues` (the same values, structured), so that an integration written in YAML reopens in the form with its values. A configuration refused by the tree (or by `validateConfiguration()` when it sets the path of its `InvalidConfigurationException`, e.g. `root.attribute`) answers a 422 whose violation `propertyPath` points to the option (`config.minConfidence`, `config.analyzers.0.name`), reported under the matching field.
@@ -266,6 +267,16 @@ A string value of the configuration can refer to a named value instead of holdin
 2. a **variable** (`WorkspaceEnv`) of that name;
 3. the environment variable `PWI_<NAME>` of the instance;
 4. an empty string otherwise.
+
+The references are resolved in a single pass: a resolved value holding `$` is kept as is.
+
+The `PWI_<NAME>` variables are shared by every workspace (instance keys of AWS, Phraseanet…): in a **workspace** integration, they never leave for a host chosen by an editor of the workspace. So, for the URL keys (`url` attribute, see [Configuration form & schema](#configuration-form--schema)):
+
+- a URL set to another value than its default refers to nothing: it is used as written, and saving a value holding `$` is refused (422 on `config.<key>`, "write it in full");
+- a URL left to its default (e.g. `${UPLOADER_API_URL}`) still resolves its references, from the three sources;
+- as soon as one URL is not its default, or its default refers to a secret or a variable of the workspace (which would redirect it), the other keys no longer resolve the `PWI_<NAME>` variables: such a reference gives an empty string, with a `warning` log. The secrets and variables of the workspace still resolve: an integration calling its own endpoint uses its own keys, saved as secrets of the workspace.
+
+The instance-wide integrations (no workspace, administrators only) are not restricted.
 
 A secret is encrypted with a libsodium sealed box: the API only has the public key (it encrypts, never decrypts, and never returns the value), the workers hold the secret key and decrypt it when they run the integration. A variable is stored in clear and returned with its value to the same users: it never holds a sensitive value.
 
