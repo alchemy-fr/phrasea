@@ -13,6 +13,10 @@ on:
         required: false
         default: false
         type: boolean
+      withConverter:
+        required: false
+        default: false
+        type: boolean
 
 env:
   COMPOSE_PROJECT_NAME: build
@@ -89,3 +93,20 @@ jobs:
             SENTRY_RELEASE=${{ github.sha }}
           tags: |
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-worker:${{ env.DOCKER_TAG }}
+
+      - name: Build and Push Converter
+        if: ${{ inputs.withConverter }}
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ inputs.withLibs && './' || inputs.context }}
+          file: ${{ inputs.context }}/Dockerfile
+          target: converter
+          provenance: false
+          push: true
+          cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-converter:build-cache-${{ env.BUILD_CACHE_VERSION }}
+          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-converter:build-cache-${{ env.BUILD_CACHE_VERSION }}
+          build-args: |
+            BASE_TAG=${{ env.DOCKER_TAG }}
+            REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
+          tags: |
+            ${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-converter:${{ env.DOCKER_TAG }}
