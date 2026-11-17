@@ -134,13 +134,20 @@ class AttributeRepository extends ServiceEntityRepository
 
     /**
      * The attribute values carrying an embedding in the definition (the faces of the workspace),
-     * oldest first, as plain rows: these scans go through every face of the workspace.
+     * oldest first, as plain rows: without $ids, these scans go through every face of the workspace.
+     * The faces of the trashed assets are included: they still show their person.
+     *
+     * @param string[]|null $ids only these faces (e.g. the nearest ones found by FaceIndex)
      *
      * @return iterable<array{id: string, asset: string, value: string, origin: int, confidence: float, vector: float[]}>
      */
-    public function iterateEmbeddings(string $definitionId, ?string $excludeAssetId = null): iterable
+    public function iterateEmbeddings(string $definitionId, ?string $excludeAssetId = null, ?array $ids = null): iterable
     {
-        $qb = $this->createEmbeddingsQueryBuilder($definitionId, $excludeAssetId)
+        if ([] === $ids) {
+            return;
+        }
+
+        $qb = $this->createEmbeddingsQueryBuilder($definitionId, $excludeAssetId, $ids, withTrashed: true)
             ->select('a.id', 'IDENTITY(a.asset) AS assetId', 'a.value', 'a.origin', 'a.confidence', 'a.embedding');
 
         foreach ($qb->getQuery()->toIterable([], AbstractQuery::HYDRATE_ARRAY) as $row) {
@@ -157,13 +164,20 @@ class AttributeRepository extends ServiceEntityRepository
 
     /**
      * The attribute values carrying an embedding in the definition that were not set by a user,
-     * i.e. the candidates for a recognition change (hydrated, detach the ones left untouched).
+     * i.e. the candidates for a recognition change (hydrated, detach the ones left untouched),
+     * the faces of the trashed assets included.
+     *
+     * @param string[]|null $ids only these faces (e.g. the similar ones found by FaceIndex)
      *
      * @return iterable<Attribute>
      */
-    public function iterateMachineEmbeddings(string $definitionId, ?string $excludeAssetId = null): iterable
+    public function iterateMachineEmbeddings(string $definitionId, ?string $excludeAssetId = null, ?array $ids = null): iterable
     {
-        return $this->createEmbeddingsQueryBuilder($definitionId, $excludeAssetId)
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->createEmbeddingsQueryBuilder($definitionId, $excludeAssetId, $ids, withTrashed: true)
             ->select('a')
             ->andWhere('a.origin != :human')
             ->setParameter('human', Attribute::ORIGIN_HUMAN)
@@ -261,22 +275,48 @@ class AttributeRepository extends ServiceEntityRepository
         return array_values(array_diff($values, $used));
     }
 
-    private function createEmbeddingsQueryBuilder(string $definitionId, ?string $excludeAssetId = null): QueryBuilder
+    /**
+     * Every face (attribute value carrying an embedding): the documents of the "face" index,
+     * populated (and counted by PopulatePassListener) from this query.
+     */
+    public function getESQueryBuilder(string $alias = 't'): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder($alias)
+            ->andWhere($alias.'.embedding IS NOT NULL')
+            ->addOrderBy($alias.'.id', 'ASC');
+    }
+
+    /**
+     * @param string[]|null $ids
+     * @param bool          $withTrashed the faces of the trashed assets too, which a reference or
+     *                                   a photo of a person must not come from
+     */
+    private function createEmbeddingsQueryBuilder(string $definitionId, ?string $excludeAssetId = null, ?array $ids = null, bool $withTrashed = false): QueryBuilder
     {
         $qb = $this->createQueryBuilder('a')
-            ->innerJoin('a.asset', 'ast')
             ->andWhere('a.definition = :def')
             ->andWhere('a.embedding IS NOT NULL')
-            ->andWhere('ast.deletedAt IS NULL')
             ->setParameter('def', $definitionId)
             ->orderBy('a.createdAt', 'ASC')
             ->addOrderBy('a.position', 'ASC')
             ->addOrderBy('a.id', 'ASC');
 
+        if (!$withTrashed) {
+            $qb
+                ->innerJoin('a.asset', 'ast')
+                ->andWhere('ast.deletedAt IS NULL');
+        }
+
         if (null !== $excludeAssetId) {
             $qb
                 ->andWhere('a.asset != :excludedAsset')
                 ->setParameter('excludedAsset', $excludeAssetId);
+        }
+        if (null !== $ids) {
+            $qb
+                ->andWhere('a.id IN (:ids)')
+                ->setParameter('ids', $ids);
         }
 
         return $qb;

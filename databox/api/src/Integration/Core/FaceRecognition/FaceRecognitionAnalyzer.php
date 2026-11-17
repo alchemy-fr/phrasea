@@ -53,6 +53,7 @@ final class FaceRecognitionAnalyzer
         private readonly FaceManager $faceManager,
         private readonly FaceRecognitionConfigResolver $configResolver,
         private readonly BatchAttributeManager $batchAttributeManager,
+        private readonly FaceIndex $faceIndex,
     ) {
     }
 
@@ -83,8 +84,8 @@ final class FaceRecognitionAnalyzer
         $minConfidence = (float) $config['minConfidence'];
         $threshold = (float) $config['matchThreshold'];
         $previousFaces = $this->attributeRepository->findEmbeddingsOfAsset($definition->getId(), $asset->getId());
+        // The faces of this asset, the others are searched in the face index
         $known = [];
-        $loaded = false;
 
         $faces = [];
         $previousValues = [];
@@ -132,11 +133,7 @@ final class FaceRecognitionAnalyzer
                 $add->confidence = $same->getConfidence();
                 $known[] = ['value' => (string) $same->getValue(), 'origin' => $same->getOrigin(), 'vector' => $vector];
             } else {
-                if (!$loaded) {
-                    $known = [...$known, ...iterator_to_array($this->attributeRepository->iterateEmbeddings($definition->getId(), $asset->getId()), false)];
-                    $loaded = true;
-                }
-                $match = $this->faceManager->findPerson($vector, $known, $threshold);
+                $match = $this->faceManager->recognize($definition->getId(), $asset->getId(), $vector, $known, $threshold);
                 if (null === $match) {
                     // The first face of a person nobody named: as sure as its detection
                     $person = $this->faceManager->createUnknownPerson($config);
@@ -163,6 +160,7 @@ final class FaceRecognitionAnalyzer
         ], direct: true);
 
         $written = $this->attributeRepository->findEmbeddingsOfAsset($definition->getId(), $asset->getId());
+        $this->faceIndex->update($written, array_map(fn (Attribute $face): string => $face->getId(), $previousFaces));
 
         // The faces are flushed: the persons may get their photo from them, and the previous
         // persons of the asset may have lost the face their photo was cropped from

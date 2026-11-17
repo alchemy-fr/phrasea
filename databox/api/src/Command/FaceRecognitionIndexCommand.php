@@ -81,8 +81,8 @@ class FaceRecognitionIndexCommand extends Command
                 if ($input->getOption('sync')) {
                     $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
                     $asset = $this->em->find(Asset::class, $assetId);
-                    $summary = $this->analyzer->analyze($asset, $config);
-                    $io->writeln(sprintf('%s %s', $assetId, null !== $summary ? sprintf('<info>%d face(s)</info>', count($summary['faces'])) : '<comment>skipped</comment>'));
+                    $faces = $this->analyzer->analyze($asset, $config);
+                    $io->writeln(sprintf('%s %s', $assetId, null !== $faces ? sprintf('<info>%d face(s)</info>', count($faces)) : '<comment>skipped</comment>'));
                     $this->em->clear();
                     $workspaceIntegration = $this->em->find(WorkspaceIntegration::class, $workspaceIntegration->getId());
                 } else {
