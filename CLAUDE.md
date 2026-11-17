@@ -100,11 +100,11 @@ dc run --rm dev pnpm --filter databox-client test -- -t "test name"         # si
 Each API defines Composer scripts. `composer test` runs var-dump-check + PHPStan + PHPUnit.
 
 ```bash
-dc run --rm databox-api-php composer test       # full check
-dc run --rm databox-api-php composer phpstan     # static analysis only
-dc run --rm databox-api-php composer cs          # php-cs-fixer
-dc run --rm databox-api-php composer phpunit     # resets test DB + elastica, then PHPUnit
-dc run --rm databox-api-php composer phpunit:compact   # same, agent-friendly output (PREFER THIS)
+dc run --rm databox-api-php su app -c "composer test"       # full check
+dc run --rm databox-api-php su app -c "composer phpstan"     # static analysis only
+dc run --rm databox-api-php su app -c "composer cs"          # php-cs-fixer
+dc run --rm databox-api-php su app -c "composer phpunit"     # resets test DB + elastica, then PHPUnit
+dc run --rm databox-api-php su app -c "composer phpunit:compact"   # same, agent-friendly output (PREFER THIS)
 ```
 
 **Prefer `composer phpunit:compact`** (databox, expose, uploader): same run as
@@ -131,10 +131,12 @@ inside the API containers.
 Single PHP test (PHPUnit filter):
 
 ```bash
-dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/functional/Path/SomeTest.php
+dc run --rm -e APP_ENV=test databox-api-php su app -c "php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/functional/Path/SomeTest.php"
 ```
 
-Symfony console: `dc run --rm databox-api-php bin/console <cmd>`.
+Symfony console: `dc run --rm databox-api-php su app -c "bin/console <cmd>"`.
+
+The API images run as root: a `bin/console` or `composer` without `su app` writes root-owned files into the bind-mounted `var/cache/dev` (HTMLPurifier, Twig…), which the `app` user then fails to remove (`cache:clear` → "Permission denied").
 
 ### Whole-repo / CI test flow
 
