@@ -1,6 +1,4 @@
 alchemy_rendition_factory:
-    # LibreOffice, ffmpeg, ffprobe and exiftool run in the conversion container (databox-converter) when set
-    converter_url: '%env(CONVERTER_URL)%'
     download:
         # A remote file larger than what the storage accepts could not become a rendition anyway
         max_size: '%env(int:S3_MAX_OBJECT_SIZE)%'

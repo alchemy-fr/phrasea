@@ -1,7 +1,6 @@
 # A data service (database, queue, storage, internal service) never joins
-# `proxy`: `app`, `data` and `convert` are internal (no Internet, no route to the
-# host), and a container only reaches the services of the networks it shares with
-# them. `databox-converter` (untrusted files, no secret) only joins `convert`.
+# `proxy`: `app` and `data` are internal (no Internet, no route to the host),
+# and a container only reaches the services of the networks it shares with them.
 networks:
   # Traefik and the services it routes from the front; Internet and the host
   # (extra_hosts -> PS_GATEWAY_IP) for them.
@@ -22,11 +21,6 @@ networks:
   # Internet and the host for the containers that are not on `proxy`.
   egress:
     driver: bridge
-  # The databox workers and databox-converter, which runs the tools reading untrusted files
-  # (LibreOffice, ffmpeg, exiftool) without any secret: nothing else is reachable from it.
-  convert:
-    driver: bridge
-    internal: true
   docker-socket:
     driver: bridge
     internal: true
@@ -955,16 +949,9 @@ services:
         limits:
           cpus: ${DATABOX_WORKER_CPU_LIMIT}
           memory: ${DATABOX_WORKER_MEMORY_LIMIT}
-    networks:
-      - convert
-    volumes:
-      - convert:/var/convert
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
       - WORKER_PRIORITIES=p1 p2 task
-      - CONVERTER_URL
-      # On the volume shared with databox-converter: the files handed to the tools are linked, not copied
-      - TMPDIR=/var/convert/worker
       - IMAGICK_VERSION
       - IMAGEMAGICK_POLICY_MEMORY
       - IMAGEMAGICK_POLICY_VERSION
@@ -990,55 +977,6 @@ services:
     environment:
       - WORKER_PRIORITIES=scheduler_main
       - SCHEDULER_OFFSET
-
-  # Runs LibreOffice, ffmpeg, ffprobe and exiftool for the databox workers (CONVERTER_URL): no
-  # secret, no network but `convert`, a uid per job (doc/tech/Databox/converter.md). Not built on
-  # databox-api-php, whose environment it would inherit.
-  databox-converter:
-    logging: *default-logging
-    profiles:
-      - databox
-    image: ${REGISTRY_NAMESPACE}databox-converter:${DOCKER_TAG}
-    build:
-      context: ./
-      dockerfile: ./databox/api/Dockerfile
-      target: converter
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-      network: host
-      entitlements:
-        - network.host
-    networks:
-      - convert
-    volumes:
-      - convert:/var/convert
-    environment:
-      - CONVERTER_MAX_JOBS
-      - CONVERTER_MAX_TIMEOUT
-    init: true
-    read_only: true
-    tmpfs:
-      - /tmp
-    cap_drop:
-      - ALL
-    # Root without the rest of its powers: hand the job directories over, switch to the uid of
-    # each job, kill whatever it leaves behind
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - FOWNER
-      - SETUID
-      - SETGID
-      - KILL
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: ${DATABOX_CONVERTER_CPU_LIMIT}
-          memory: ${DATABOX_CONVERTER_MEMORY_LIMIT}
-          pids: ${DATABOX_CONVERTER_PIDS_LIMIT}
 
   databox-api-nginx:
     logging: *default-logging
@@ -1582,8 +1520,6 @@ services:
 volumes:
   db:
   redis:
-  # databox workers <-> databox-converter: on disk (videos), never a tmpfs
-  convert:
   uploader: # rw-many
   s3:
   matomo:

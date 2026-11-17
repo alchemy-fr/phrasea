@@ -28,7 +28,5 @@ class AlchemyMetadataManipulatorExtension extends Extension
         $def = $container->getDefinition(MetadataManipulator::class);
         $def->setArgument('$classesDirectory', $config['classes_directory']);
         $def->setArgument('$debug', $config['debug']);
-        $def->setArgument('$converterUrl', $config['converter_url']);
-        $def->setArgument('$converterExiftool', $config['converter_exiftool']);
     }
 }

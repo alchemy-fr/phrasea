@@ -3,7 +3,6 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\BinaryDriver\AbstractBinary;
-use Alchemy\RenditionFactory\RemoteExec\ConverterTools;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\RestrictedProcessBuilderFactory;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
@@ -14,13 +13,12 @@ class FFMpegHelper
     public const int DEFAULT_MAX_TIMEOUT = 3600;
 
     /**
-     * @param int                 $maxTimeout     the highest timeout (seconds) the options may ask for, and the default one:
-     *                                            the rendition definitions are written by editors, the workers are shared
-     * @param ConverterTools|null $converterTools runs ffmpeg and ffprobe in the conversion container, when it has a URL
+     * @param int $maxTimeout the highest timeout (seconds) the options may ask for, and the default one:
+     *                        the rendition definitions are written by editors, the workers are shared
      */
-    public static function createFFMpeg(array $options, int $maxTimeout = self::DEFAULT_MAX_TIMEOUT, ?ConverterTools $converterTools = null): FFMpeg\FFMpeg
+    public static function createFFMpeg(array $options, int $maxTimeout = self::DEFAULT_MAX_TIMEOUT): FFMpeg\FFMpeg
     {
-        $ffmpegOptions = $converterTools?->getFFMpegConfiguration() ?? [];
+        $ffmpegOptions = [];
         $ffmpegOptions['timeout'] = self::resolveTimeout($options['timeout'] ?? null, $maxTimeout);
 
         if ($threads = $options['threads']) {

@@ -14,11 +14,6 @@ services:
             $maxDownloadSize: '%alchemy_rendition_factory.download.max_size%'
             $maxDownloadDuration: '%alchemy_rendition_factory.download.max_duration%'
 
-    # Binaries of the tools run in the conversion container, when it has a URL
-    Alchemy\RenditionFactory\RemoteExec\ConverterTools:
-        arguments:
-            $converterUrl: '%alchemy_rendition_factory.converter_url%'
-
     Alchemy\RenditionFactory\FileFamilyGuesser: ~
     Alchemy\RenditionFactory\RenditionCreator: ~
     Alchemy\RenditionFactory\Config\YamlLoader: ~

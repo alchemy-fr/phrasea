@@ -4,7 +4,6 @@ namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
-use Alchemy\RenditionFactory\RemoteExec\ConverterTools;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use FFMpeg;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -22,7 +21,6 @@ class ModuleCommonArgs
         TransformationContextInterface $context,
         ModuleOptionsResolver $optionsResolver,
         int $ffmpegMaxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
-        ?ConverterTools $converterTools = null,
     ) {
         $resolverContext = $context->getTemplatingContext();
 
@@ -50,7 +48,7 @@ class ModuleCommonArgs
             'timeout' => $optionsResolver->resolveOption($options['timeout'] ?? null, $resolverContext),
             'threads' => $optionsResolver->resolveOption($options['threads'] ?? null, $resolverContext),
         ];
-        $this->ffmpeg = FFMpegHelper::createFFMpeg($ffmpegOptions, $ffmpegMaxTimeout, $converterTools);
+        $this->ffmpeg = FFMpegHelper::createFFMpeg($ffmpegOptions, $ffmpegMaxTimeout);
     }
 
     public function getOutputFormat(): FormatInterface
