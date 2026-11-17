@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Attribute\Type\EntityAttributeType;
+use App\Doctrine\Delete\AssetDelete;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Attribute;
@@ -20,6 +21,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Traits\AssetAnnotationsInterface;
+use App\Integration\Core\FaceRecognition\FaceIndex;
 use App\Integration\Core\FaceRecognition\FaceManager;
 use App\Integration\Core\FaceRecognition\FacePhotoCropper;
 use App\Integration\Core\FaceRecognition\FaceRecognitionAnalyzer;
@@ -98,7 +100,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->assertSame(self::BOX_RIGHT, self::boxOf($rightFace));
         $this->assertSame(Attribute::ORIGIN_MACHINE, $leftFace->getOrigin());
         $this->assertSame(FaceRecognitionIntegration::getName(), $leftFace->getOriginVendor());
-        $this->assertSame(self::ALICE, $leftFace->getEmbedding()['v']);
+        $this->assertSame(self::vector(self::ALICE), $leftFace->getEmbedding()['v']);
         $unknownAlice = $this->person($leftFace);
         $unknownBob = $this->person($rightFace);
         $this->assertNotSame($unknownAlice->getId(), $unknownBob->getId(), 'Different persons');
@@ -162,8 +164,10 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         // 6. Alice gets a second look-alike recognized from her reference: propagation moves a
         //    face of a pending person, never a face a user named
         $strangerFace = $em->find(Attribute::class, $strangerFace->getId());
-        $strangerFace->setEmbedding(['m' => 'mock', 'v' => self::ALICE_LOOKALIKE]);
+        $strangerFace->setEmbedding(['m' => 'mock', 'v' => self::vector(self::ALICE_LOOKALIKE)]);
         $em->flush();
+        // An embedding never changes otherwise: nothing else sends it to the face index again
+        self::getService(FaceIndex::class)->update([$strangerFace]);
         $leftFace = $em->find(Attribute::class, $leftFace->getId());
         $this->assertSame(1, $faceManager->propagate($leftFace, $config));
         $em->clear();
@@ -406,6 +410,32 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         );
     }
 
+    public function testIndexCommandDetectsTheFacesSynchronously(): void
+    {
+        $this->setUpScene();
+        $this->createIntegration();
+        $group = $this->createImageAsset();
+        $portrait = $this->createImageAsset();
+        $noImage = $this->createAsset(['workspace' => $this->workspace]);
+
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE), self::face(self::BOX_RIGHT, self::BOB)]);
+
+        $tester = new CommandTester((new Application(self::$kernel))->find('app:face-recognition:index'));
+        $tester->execute(['--sync' => true, '--workspace' => $this->workspace->getId()]);
+        $tester->assertCommandIsSuccessful();
+
+        $display = $tester->getDisplay();
+        $this->assertStringContainsString($group->getId().' 2 face(s)', $display);
+        $this->assertStringContainsString($portrait->getId().' 2 face(s)', $display);
+        $this->assertStringContainsString($noImage->getId().' skipped', $display);
+        $this->assertStringContainsString('3 asset(s) processed', $display);
+        $this->assertCount(2, $this->getFaces($group));
+        $this->assertCount(2, $this->getFaces($portrait));
+        $this->assertCount(0, $this->getFaces($noImage));
+    }
+
     public function testApprovingAnUnknownPersonMakesItsBestFaceAReference(): void
     {
         $em = self::getEntityManager();
@@ -474,6 +504,80 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $faces = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config);
         $this->assertCount(2, $faces);
         $this->assertNotSame($faces[0]->getValue(), $faces[1]->getValue());
+    }
+
+    public function testAFaceTheDatabaseNoLongerHasIsNotRecognized(): void
+    {
+        $em = self::getEntityManager();
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+
+        $analyzer = self::getService(FaceRecognitionAnalyzer::class);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        [$aliceFace] = $analyzer->analyze($this->createImageAsset(), $config);
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE_LOOKALIKE)]);
+        [$recognized] = $analyzer->analyze($this->createImageAsset(), $config);
+        $this->assertSame($aliceFace->getValue(), $recognized->getValue(), 'Recognized through the face index');
+
+        // Deleted by a DQL query: the face index still holds both faces
+        $em->createQueryBuilder()
+            ->delete(Attribute::class, 'a')
+            ->andWhere('a.id IN (:ids)')
+            ->setParameter('ids', [$aliceFace->getId(), $recognized->getId()])
+            ->getQuery()
+            ->execute();
+        $em->clear();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        [$face] = $analyzer->analyze($this->createImageAsset(), $config);
+        $this->assertNotSame($aliceFace->getValue(), $face->getValue(), 'A new unknown person');
+    }
+
+    public function testAFaceOfATrashedAssetStillRecognizesItsPersonButIsNeverItsReference(): void
+    {
+        $em = self::getEntityManager();
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+
+        $analyzer = self::getService(FaceRecognitionAnalyzer::class);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE, 1.0)]);
+        $trashed = $this->createImageAsset();
+        [$trashedFace] = $analyzer->analyze($trashed, $config);
+        $em->find(Asset::class, $trashed->getId())->setDeletedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE_LOOKALIKE)]);
+        [$recognized] = $analyzer->analyze($this->createImageAsset(), $config);
+        $this->assertSame($trashedFace->getValue(), $recognized->getValue(), 'Recognized from the trashed asset');
+
+        $reference = self::getService(FaceManager::class)->markReference($this->person($recognized), $config, KeycloakClientTestMock::USER_UID);
+        $this->assertSame($recognized->getId(), $reference?->getId(), 'The most confident face is in the trash');
+    }
+
+    public function testTheFacesOfADeletedAssetLeaveTheFaceIndex(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $asset = $this->createImageAsset();
+        [$face] = self::getService(FaceRecognitionAnalyzer::class)->analyze($asset, $config);
+        $definitionId = $face->getDefinition()->getId();
+
+        $faceIndex = self::getService(FaceIndex::class);
+        $this->assertSame([$face->getId()], $faceIndex->findNearest($definitionId, self::vector(self::ALICE), 0.6));
+
+        self::getEntityManager()->clear();
+        self::getService(AssetDelete::class)->deleteAssets([$asset->getId()]);
+        $this->assertSame([], $faceIndex->findNearest($definitionId, self::vector(self::ALICE), 0.6));
     }
 
     public function testAssetWithoutImageIsSkipped(): void
@@ -681,10 +785,22 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         return [
             'box' => $box,
             'confidence' => $confidence,
-            'embedding' => $embedding,
+            'embedding' => self::vector($embedding),
             'age' => 30,
             'gender' => 'F',
         ];
+    }
+
+    /**
+     * The embedding of the face index (512 dimensions) from its first dimensions.
+     *
+     * @param float[] $dimensions
+     *
+     * @return float[]
+     */
+    private static function vector(array $dimensions): array
+    {
+        return array_pad($dimensions, 512, 0.0);
     }
 
     private static function boxOf(Attribute $face): array

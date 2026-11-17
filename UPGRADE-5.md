@@ -71,12 +71,12 @@ Follow these steps in order. Each one is detailed in the sections below.
     ```
 
 10. Audit what this release may break: Twig templates in attribute definitions
-   and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
-   replaced by `PATCH`), shared rendition links, the Databox theme, and the
-   image formats ImageMagick still reads (SVG and EPS get no thumbnail any
-   more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)),
-   and the rendition definitions asking ffmpeg for a `timeout` above 3600
-   seconds (see [Resource limits of the databox workers](#resource-limits-of-the-databox-workers)).
+    and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
+    replaced by `PATCH`), shared rendition links, the Databox theme, and the
+    image formats ImageMagick still reads (SVG and EPS get no thumbnail any
+    more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)),
+    and the rendition definitions asking ffmpeg for a `timeout` above 3600
+    seconds (see [Resource limits of the databox workers](#resource-limits-of-the-databox-workers)).
 
 ## Stack and deployment
 

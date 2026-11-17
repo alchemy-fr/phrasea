@@ -431,6 +431,38 @@ fos_elastica:
                 provider:
                     query_builder_method: getESQueryBuilder
 
+        # The faces (attribute values carrying an embedding) of the face recognition, searched by
+        # similarity (FaceIndex). Internal to the recognition: never searched on behalf of a user.
+        face:
+            settings:
+                index:
+                    auto_expand_replicas: "0-2"
+            use_alias: '%elastica.use_alias%'
+            index_name: "%es_index_prefix%face_%kernel.environment%"
+            properties:
+                definitionId:
+                    type: keyword
+                assetId:
+                    type: keyword
+                    property_path: asset.id
+                origin:
+                    type: byte
+                embedding:
+                    type: dense_vector
+                    property_path: 'embedding[v]'
+                    dims: 512
+                    index: true
+                    similarity: cosine
+                    # Full precision: the similarity is compared to a threshold
+                    index_options:
+                        type: hnsw
+            persistence:
+                driver: orm
+                model: App\Entity\Core\Attribute
+                listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
+
         message:
             settings:
                 index:
