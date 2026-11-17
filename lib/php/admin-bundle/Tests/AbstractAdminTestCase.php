@@ -74,6 +74,36 @@ abstract class AbstractAdminTestCase extends WebTestCase
         $this->assertStringContainsString('Disabled', (string) $this->client->getResponse()->getContent());
     }
 
+    protected function doTestQueuesPage(): void
+    {
+        $container = static::getContainer();
+        $router = $container->get('router');
+        $queue = $container->getParameter('alchemy_admin.worker_queues')[0];
+        $inspectPath = $router->generate('alchemy_admin_queues_inspect', ['queue' => $queue]);
+
+        $this->client->loginUser($this->getAuthAdminUser(), 'admin');
+        $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->client->loginUser(new JwtUser(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), KeycloakClientTestMock::ADMIN_UID, 'admin', [
+            JwtUser::ROLE_ADMIN,
+            JwtUser::ROLE_TECH,
+        ]), 'admin');
+
+        $crawler = $this->client->request('GET', $router->generate('alchemy_admin_queues_list'));
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString($queue, $crawler->filter('table.datagrid')->text());
+
+        $this->client->request('POST', $router->generate('alchemy_admin_queues_inspect', ['queue' => 'not-a-worker-queue']), ['token' => 'invalid']);
+        $this->assertResponseStatusCodeSame(404);
+
+        $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
+        $this->assertResponseRedirects($router->generate('alchemy_admin_queues_list'));
+
+        $this->client->request('GET', $inspectPath);
+        $this->assertResponseStatusCodeSame(405);
+    }
+
     private function explore(string $path): void
     {
         $crawler = $this->loadPage($path);
