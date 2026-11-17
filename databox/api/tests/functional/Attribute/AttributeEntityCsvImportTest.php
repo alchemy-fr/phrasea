@@ -17,6 +17,7 @@ class AttributeEntityCsvImportTest extends AbstractSearchTestCase
         $em = self::getEntityManager();
 
         $workspace = $this->getOrCreateDefaultWorkspace(['no_flush' => true]);
+        $workspace->setEnabledLocales(['en', 'fr_FR']);
         $em->persist($workspace);
 
         $list = new EntityList();
