@@ -16,6 +16,7 @@
                     <th>Name</th>
                     <th>Message count</th>
                     <th>Consumer count</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -23,23 +24,39 @@
                 <tr>
                     <td>{{ qs.queueName }}</td>
                     {% if qs.messageCount is null %}
-                        <td colspan="2"><span class="text-danger">Not declared</span></td>
+                        <td colspan="3"><span class="text-danger">Not declared</span></td>
                     {% else %}
                         <td>{{ qs.messageCount }}</td>
                         <td>{{ qs.consumerCount }}</td>
+                        <td class="text-end">
+                            {% if qs.messageCount > 0 %}
+                                <form method="post" action="{{ path('alchemy_admin_queues_inspect', {queue: qs.queueName}) }}" class="d-inline">
+                                    <input type="hidden" name="token" value="{{ csrf_token(csrfTokenId) }}">
+                                    <button type="submit" class="btn btn-sm btn-secondary">Inspect</button>
+                                </form>
+                            {% endif %}
+                        </td>
                     {% endif %}
                 </tr>
             {% endfor %}
             </tbody>
         </table>
+        <p class="text-muted">
+            Inspecting a queue reads its first {{ inspectLimit }} pending messages and publishes them again at its end:
+            they are not lost nor retried, but they lose their position in the queue.
+        </p>
 
-        {% for qs in queuesStatus %}
-            {% set summary = qs.pendingMessages %}
-            {% if summary is not null and summary.count > 0 %}
-                <h2 class="mt-4">Pending messages in {{ qs.queueName }}</h2>
-                {% if qs.messageCount > summary.count %}
+        {% if inspectedQueue is not null %}
+            <h2 class="mt-4">Pending messages in {{ inspectedQueue }}</h2>
+            {% if inspectError is not null %}
+                <div class="alert alert-danger">Inspection failed: {{ inspectError }}</div>
+            {% elseif pendingMessages is null or pendingMessages.count == 0 %}
+                <p class="text-muted">No pending message.</p>
+            {% else %}
+                {% set messageCount = queuesStatus[inspectedQueue].messageCount %}
+                {% if messageCount > pendingMessages.count %}
                     <p class="text-muted">
-                        Sample of the first {{ summary.count }} messages out of {{ qs.messageCount }}
+                        Sample of the first {{ pendingMessages.count }} messages out of {{ messageCount }}
                         (inspection limit: {{ inspectLimit }})
                     </p>
                 {% endif %}
@@ -52,7 +69,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for group in summary.groups %}
+                    {% for group in pendingMessages.groups %}
                         <tr>
                             <td title="{{ group.type ?? 'No type header' }}">{{ group.shortType }}</td>
                             <td>{{ group.detail }}</td>
@@ -62,6 +79,6 @@
                     </tbody>
                 </table>
             {% endif %}
-        {% endfor %}
+        {% endif %}
     {% endif %}
 {% endblock %}

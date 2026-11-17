@@ -74,6 +74,32 @@ abstract class AbstractAdminTestCase extends WebTestCase
         $this->assertStringContainsString('Disabled', (string) $this->client->getResponse()->getContent());
     }
 
+    protected function doTestQueuesPage(): void
+    {
+        $router = static::getContainer()->get('router');
+        // The test environment has no AMQP transport: no queue is listed nor can be inspected
+        $inspectPath = $router->generate('alchemy_admin_queues_inspect', ['queue' => 'p1']);
+
+        $this->client->loginUser($this->getAuthAdminUser(), 'admin');
+        $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->client->loginUser(new JwtUser(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), KeycloakClientTestMock::ADMIN_UID, 'admin', [
+            JwtUser::ROLE_ADMIN,
+            JwtUser::ROLE_TECH,
+        ]), 'admin');
+
+        $this->client->request('GET', $router->generate('alchemy_admin_queues_list'));
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString('No RabbitMQ transport is configured', (string) $this->client->getResponse()->getContent());
+
+        $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
+        $this->assertResponseStatusCodeSame(404);
+
+        $this->client->request('GET', $inspectPath);
+        $this->assertResponseStatusCodeSame(405);
+    }
+
     private function explore(string $path): void
     {
         $crawler = $this->loadPage($path);

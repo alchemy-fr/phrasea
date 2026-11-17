@@ -17,4 +17,9 @@ class AdminTest extends AbstractAdminTestCase
     {
         $this->doTestRealtimePage();
     }
+
+    public function testQueuesPage(): void
+    {
+        $this->doTestQueuesPage();
+    }
 }
