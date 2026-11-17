@@ -1179,8 +1179,9 @@ on the storage (see "Upload limits" in `doc/tech/Storage/01_s3.md`):
 - `POST /uploads` and `POST /uploads/{id}/parts` answer at most 1 000 part URLs:
   a client asks `/parts` with `from` for the following ones.
 - A maximum file size per application, within `S3_MAX_OBJECT_SIZE`: new
-  `DATABOX_MAX_UPLOAD_FILE_SIZE` and `EXPOSE_MAX_UPLOAD_FILE_SIZE` (100 GiB by
-  default), the stack configuration `uploader.max_upload_file_size` for the
+  `MAX_UPLOAD_FILE_SIZE` variable of Databox and Expose (100 GiB by default, set
+  by `DATABOX_MAX_UPLOAD_FILE_SIZE` and `EXPOSE_MAX_UPLOAD_FILE_SIZE` with Docker
+  Compose), the stack configuration `uploader.max_upload_file_size` for the
   uploader. Raise them before the upgrade if larger files are sent.
 - The default of `S3_MAX_OBJECT_SIZE` is now 5 TiB, the largest object of S3
   (it was 48 TiB, which no storage accepts).
