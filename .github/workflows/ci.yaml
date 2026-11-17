@@ -139,7 +139,6 @@ jobs:
       prefix: databox
       context: ./databox/api
       withLibs: true
-      withConverter: true
     secrets: inherit
     needs:
       - build_php-fpm-base
