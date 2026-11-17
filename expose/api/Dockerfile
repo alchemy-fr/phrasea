@@ -59,6 +59,8 @@ COPY --from=api-php /srv/app/public /srv/app/public
 COPY ./expose/api/docker/nginx/entrypoint.sh /entrypoint.sh
 COPY ./expose/api/docker/nginx/tpl /etc/nginx/tpl
 
+ENV FPM_HOSTNAME=expose-api-php
+
 EXPOSE 80
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
