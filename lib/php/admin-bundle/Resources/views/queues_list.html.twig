@@ -26,19 +26,23 @@
                     <td>{{ qs.messageCount }}</td>
                     <td>{{ qs.consumerCount }}</td>
                     <td class="text-end">
-                        {% if qs.messageCount > 0 %}
-                            <form method="post" action="{{ path(inspectRoute, {queue: qs.queueName}) }}" class="d-inline">
-                                <input type="hidden" name="token" value="{{ csrf_token(csrfTokenId) }}">
+                        <form method="post" action="{{ path(inspectRoute, {queue: qs.queueName}) }}" class="d-inline">
+                            <input type="hidden" name="token" value="{{ csrf_token(csrfTokenId) }}">
+                            {% if qs.messageCount > 0 %}
                                 <button type="submit" class="btn btn-sm btn-secondary">Inspect</button>
-                            </form>
-                        {% endif %}
+                            {% else %}
+                                <span class="d-inline-block" title="Queue is empty">
+                                    <button type="submit" class="btn btn-sm btn-secondary" disabled>Inspect</button>
+                                </span>
+                            {% endif %}
+                        </form>
                     </td>
                 {% endif %}
             </tr>
         {% endfor %}
         </tbody>
     </table>
-    <p class="text-muted">
+    <p class="text-muted mt-3">
         Inspecting a queue reads its first {{ inspectLimit }} pending messages and publishes them again at its end:
         they are not lost nor retried, but they lose their position in the queue.
     </p>
