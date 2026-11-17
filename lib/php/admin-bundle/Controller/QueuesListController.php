@@ -7,6 +7,7 @@ namespace Alchemy\AdminBundle\Controller;
 use Alchemy\AdminBundle\Utils\PendingMessagesSummary;
 use Alchemy\AdminBundle\Utils\WorkerQueues;
 use Alchemy\AuthBundle\Security\JwtUser;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPSSLConnection;
@@ -22,13 +23,15 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route(name: 'alchemy_admin_')]
+#[AdminRoute('/queues', name: 'queues')]
 #[IsGranted(JwtUser::ROLE_TECH)]
 class QueuesListController extends AbstractController
 {
+    public const string ROUTE_LIST = 'easyadmin_queues_list';
+    public const string ROUTE_INSPECT = 'easyadmin_queues_inspect';
+
     public const string CSRF_TOKEN_ID = 'alchemy_admin_queues';
 
     private const int CONFIRM_TIMEOUT = 30;
@@ -42,13 +45,13 @@ class QueuesListController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/admin/queues/list', name: 'queues_list')]
-    public function __invoke(): Response
+    #[AdminRoute('/list', name: 'list')]
+    public function list(): Response
     {
         return $this->renderQueues();
     }
 
-    #[Route(path: '/admin/queues/{queue}/inspect', name: 'queues_inspect', methods: ['POST'])]
+    #[AdminRoute('/{queue}/inspect', name: 'inspect', options: ['methods' => ['POST']])]
     public function inspect(Request $request, string $queue): Response
     {
         if (!in_array($queue, $this->workerQueues->getNames(), true)) {
@@ -58,7 +61,7 @@ class QueuesListController extends AbstractController
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ID, (string) $request->request->get('token'))) {
             $this->addFlash('danger', 'Invalid CSRF token, the queue was not inspected. Please retry.');
 
-            return $this->redirectToRoute('alchemy_admin_queues_list');
+            return $this->redirectToRoute(self::ROUTE_LIST);
         }
 
         return $this->renderQueues($queue);
@@ -75,6 +78,7 @@ class QueuesListController extends AbstractController
                 'pendingMessages' => null,
                 'inspectError' => null,
                 'csrfTokenId' => self::CSRF_TOKEN_ID,
+                'inspectRoute' => self::ROUTE_INSPECT,
             ]);
         }
 
@@ -118,6 +122,7 @@ class QueuesListController extends AbstractController
             'pendingMessages' => $pendingMessages,
             'inspectError' => $inspectError,
             'csrfTokenId' => self::CSRF_TOKEN_ID,
+            'inspectRoute' => self::ROUTE_INSPECT,
         ]);
     }
 

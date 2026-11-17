@@ -30,7 +30,7 @@
                         <td>{{ qs.consumerCount }}</td>
                         <td class="text-end">
                             {% if qs.messageCount > 0 %}
-                                <form method="post" action="{{ path('alchemy_admin_queues_inspect', {queue: qs.queueName}) }}" class="d-inline">
+                                <form method="post" action="{{ path(inspectRoute, {queue: qs.queueName}) }}" class="d-inline">
                                     <input type="hidden" name="token" value="{{ csrf_token(csrfTokenId) }}">
                                     <button type="submit" class="btn btn-sm btn-secondary">Inspect</button>
                                 </form>

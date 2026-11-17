@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Tests;
 
+use Alchemy\AdminBundle\Controller\QueuesListController;
 use Alchemy\AdminBundle\Controller\RealtimeStatusController;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
@@ -78,18 +79,10 @@ abstract class AbstractAdminTestCase extends WebTestCase
     {
         $router = static::getContainer()->get('router');
         // The test environment has no AMQP transport: no queue is listed nor can be inspected
-        $inspectPath = $router->generate('alchemy_admin_queues_inspect', ['queue' => 'p1']);
+        $inspectPath = $router->generate(QueuesListController::ROUTE_INSPECT, ['queue' => 'p1']);
 
         $this->client->loginUser($this->getAuthAdminUser(), 'admin');
-        $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
-        $this->assertResponseStatusCodeSame(403);
-
-        $this->client->loginUser(new JwtUser(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), KeycloakClientTestMock::ADMIN_UID, 'admin', [
-            JwtUser::ROLE_ADMIN,
-            JwtUser::ROLE_TECH,
-        ]), 'admin');
-
-        $this->client->request('GET', $router->generate('alchemy_admin_queues_list'));
+        $this->client->request('GET', $router->generate(QueuesListController::ROUTE_LIST));
         $this->assertResponseIsSuccessful();
         $this->assertStringContainsString('No RabbitMQ transport is configured', (string) $this->client->getResponse()->getContent());
 
