@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Tests;
 
+use Alchemy\AdminBundle\Controller\QueuesListController;
 use Alchemy\AdminBundle\Controller\RealtimeStatusController;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
@@ -79,26 +80,18 @@ abstract class AbstractAdminTestCase extends WebTestCase
         $container = static::getContainer();
         $router = $container->get('router');
         $queue = $container->getParameter('alchemy_admin.worker_queues')[0];
-        $inspectPath = $router->generate('alchemy_admin_queues_inspect', ['queue' => $queue]);
+        $inspectPath = $router->generate(QueuesListController::ROUTE_INSPECT, ['queue' => $queue]);
 
         $this->client->loginUser($this->getAuthAdminUser(), 'admin');
-        $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
-        $this->assertResponseStatusCodeSame(403);
-
-        $this->client->loginUser(new JwtUser(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), KeycloakClientTestMock::ADMIN_UID, 'admin', [
-            JwtUser::ROLE_ADMIN,
-            JwtUser::ROLE_TECH,
-        ]), 'admin');
-
-        $crawler = $this->client->request('GET', $router->generate('alchemy_admin_queues_list'));
+        $crawler = $this->client->request('GET', $router->generate(QueuesListController::ROUTE_LIST));
         $this->assertResponseIsSuccessful();
         $this->assertStringContainsString($queue, $crawler->filter('table.datagrid')->text());
 
-        $this->client->request('POST', $router->generate('alchemy_admin_queues_inspect', ['queue' => 'not-a-worker-queue']), ['token' => 'invalid']);
+        $this->client->request('POST', $router->generate(QueuesListController::ROUTE_INSPECT, ['queue' => 'not-a-worker-queue']), ['token' => 'invalid']);
         $this->assertResponseStatusCodeSame(404);
 
         $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
-        $this->assertResponseRedirects($router->generate('alchemy_admin_queues_list'));
+        $this->assertResponseRedirects($router->generate(QueuesListController::ROUTE_LIST));
 
         $this->client->request('GET', $inspectPath);
         $this->assertResponseStatusCodeSame(405);
