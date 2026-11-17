@@ -8,7 +8,6 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\RemoteExec\ConverterTools;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
@@ -35,7 +34,6 @@ final readonly class AlbumArtworkTransformerModule implements TransformerModuleI
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
         private int $ffmpegMaxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
-        private ?ConverterTools $converterTools = null,
     ) {
     }
 
@@ -97,7 +95,7 @@ final readonly class AlbumArtworkTransformerModule implements TransformerModuleI
             throw new \InvalidArgumentException('Invalid input file family, should be audio');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver, $this->ffmpegMaxTimeout, $this->converterTools);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver, $this->ffmpegMaxTimeout);
         $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var Audio $audio */

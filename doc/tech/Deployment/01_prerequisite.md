@@ -68,7 +68,6 @@ It is strongly recommended to delegate **primary datastores**—such as **Postgr
 * **Databox Service**  
   - [Databox PHP API](https://hub.docker.com/r/alchemyfr/ps-databox-api-php/tags)  
   - [Databox Worker](https://hub.docker.com/r/alchemyfr/ps-databox-worker/tags)  
-  - [Databox Converter](https://hub.docker.com/r/alchemyfr/ps-databox-converter/tags)  
   - [Databox Client](https://hub.docker.com/r/alchemyfr/ps-databox-client/tags)  
   - [Databox Nginx API](https://hub.docker.com/r/alchemyfr/ps-databox-api-nginx/tags)
   - Databox indexer (local build only)

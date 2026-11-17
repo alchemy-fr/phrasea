@@ -68,7 +68,6 @@ Il est fortement recommandé de déléguer les **datastores principaux**—tels 
 * **Service Databox**  
   - [API PHP Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-php/tags)  
   - [Worker Databox](https://hub.docker.com/r/alchemyfr/ps-databox-worker/tags)  
-  - [Convertisseur Databox](https://hub.docker.com/r/alchemyfr/ps-databox-converter/tags)  
   - [Client Databox](https://hub.docker.com/r/alchemyfr/ps-databox-client/tags)  
   - [API Nginx Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-nginx/tags)
   - Indexeur Databox (build local uniquement)

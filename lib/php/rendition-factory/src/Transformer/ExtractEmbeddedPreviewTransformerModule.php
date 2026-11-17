@@ -7,8 +7,6 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\RemoteExec\ConverterTools;
-use Alchemy\RenditionFactory\RemoteExec\Tool;
 use PHPExiftool\Exiftool;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -21,7 +19,6 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
 
     public function __construct(
         private readonly LoggerInterface $logger,
-        private readonly ?ConverterTools $converterTools = null,
     ) {
     }
 
@@ -71,7 +68,7 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
             return $inputFile->createOutputFile();
         }
 
-        $exiftool = new Exiftool($this->logger, $this->converterTools?->getBinary(Tool::Exiftool));
+        $exiftool = new Exiftool($this->logger);
         $pathFile = $inputFile->getPath();
         $outputDir = $context->getWorkingDirectory().'/'.uniqid('extracted-preview');
 

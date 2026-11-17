@@ -8,7 +8,6 @@ use Alchemy\CoreBundle\Util\FilesystemUtils;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\FileFamilyGuesser;
-use Alchemy\RenditionFactory\RemoteExec\ConverterTools;
 use Alchemy\RenditionFactory\RenditionCreator;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpegHelper;
 use App\Model\MediaClip;
@@ -36,7 +35,6 @@ final class MediaClipper
         private readonly RenditionCreator $renditionCreator,
         private readonly FileFamilyGuesser $fileFamilyGuesser,
         private readonly ClipBuildConfigFactory $buildConfigFactory,
-        private readonly ConverterTools $converterTools,
     ) {
     }
 
@@ -149,7 +147,7 @@ final class MediaClipper
         $outputPath = $dir.'/clip'.('' !== $extension ? '.'.$extension : '');
 
         // The parts share their codecs and settings: their streams are copied as is
-        FFMpegHelper::restrict(FFMpeg::create(['timeout' => self::FFMPEG_TIMEOUT] + $this->converterTools->getFFMpegConfiguration(), null, $this->getFFProbe()))
+        FFMpegHelper::restrict(FFMpeg::create(['timeout' => self::FFMPEG_TIMEOUT], null, $this->getFFProbe()))
             ->open($parts[0])
             ->concat($parts)
             ->saveFromSameCodecs($outputPath, true);
@@ -163,7 +161,7 @@ final class MediaClipper
 
     private function getFFProbe(): FFProbe
     {
-        return $this->ffprobe ??= FFMpegHelper::restrictProbe(FFProbe::create($this->converterTools->getFFMpegConfiguration()));
+        return $this->ffprobe ??= FFMpegHelper::restrictProbe(FFProbe::create());
     }
 
     private function probeDuration(string $path): ?float

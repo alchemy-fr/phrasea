@@ -91,12 +91,11 @@ Each conversion is isolated within the worker process:
 - a timeout (`timeout` option), after which the whole process group is killed,
   `soffice.bin` included.
 
-With `CONVERTER_URL` (the default of the stack), LibreOffice, like ffmpeg,
-ffprobe and exiftool, runs in the [conversion container](./converter.md):
-without any secret nor access to the data services, with a uid of its own per
-job. Without it, LibreOffice runs with the user, the filesystem and the network
-namespace of the worker, and a vulnerability in one of its import filters would
-give access to them. ImageMagick and Ghostscript always run in the worker.
+Not done: there is no kernel sandbox. LibreOffice runs with the user, the
+filesystem and the network namespace of the worker; a vulnerability in one of
+its import filters would give access to them. Moving the conversion to a
+dedicated container without network nor secrets is left as an infrastructure
+option.
 
 ## Story contact sheet (`generate:`)
 

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\RenditionFactory\Transformer\Document\Libreoffice;
 
-use Alchemy\RenditionFactory\RemoteExec\ConverterTools;
-use Alchemy\RenditionFactory\RemoteExec\Tool;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ExecutableFinder;
@@ -19,10 +17,6 @@ use Symfony\Component\Process\Process;
  * - an empty environment (none of the worker secrets), a working directory of its own;
  * - the import filter forced, so that LibreOffice never guesses the format from the content;
  * - a timeout, after which the whole process group is killed (soffice.bin is a grandchild).
- *
- * With a converter URL (ConverterTools), LibreOffice runs in the conversion container, without
- * any secret nor network: the binary is the convert-exec wrapper, which only gets CONVERTER_URL
- * on top of this environment.
  */
 final class PdfConverter
 {
@@ -39,7 +33,6 @@ final class PdfConverter
 
     public function __construct(
         private ?string $binaryPath = null,
-        private ?ConverterTools $converterTools = null,
     ) {
     }
 
@@ -114,9 +107,6 @@ final class PdfConverter
             'no_proxy=',
             'NO_PROXY=',
         ];
-        foreach ($this->converterTools?->getEnvironment() ?? [] as $name => $value) {
-            $command[] = $name.'='.$value;
-        }
         if (null !== $setsid) {
             $command[] = $setsid;
         }
@@ -179,7 +169,6 @@ final class PdfConverter
 
     private function getBinaryPath(): string
     {
-        $this->binaryPath ??= $this->converterTools?->getBinary(Tool::Soffice);
         if (null === $this->binaryPath) {
             $finder = new ExecutableFinder();
             $this->binaryPath = $finder->find('libreoffice') ?? $finder->find('soffice')
