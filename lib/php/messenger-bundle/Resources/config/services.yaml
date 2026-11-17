@@ -15,3 +15,5 @@ services:
 
     Alchemy\MessengerBundle\Transport\TestTransportFactory:
         tags: [messenger.transport_factory]
+
+    Alchemy\MessengerBundle\Transport\KeepaliveAmqpTransportFactory: ~
