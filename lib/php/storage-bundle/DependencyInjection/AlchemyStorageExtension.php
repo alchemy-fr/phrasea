@@ -60,6 +60,7 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
         foreach ([
             'env(MULTIPART_UPLOAD_RATE_LIMIT)' => '60',
             'env(MULTIPART_UPLOAD_MAX_PENDING)' => '20',
+            'env(MAX_UPLOAD_FILE_SIZE)' => '107374182400',
         ] as $name => $default) {
             if (!$container->hasParameter($name)) {
                 $container->setParameter($name, $default);
