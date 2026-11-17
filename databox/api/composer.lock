@@ -425,10 +425,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
-                "reference": "8089108ea1a4813509b488e29b37fb5a5d9f168d"
+                "reference": "7e88ddc5826236bda24ab43bcdf1334518b10710"
             },
             "require": {
+                "ext-amqp": "*",
                 "php": "^8.5",
+                "symfony/amqp-messenger": "^7.4 || ^8.0",
                 "symfony/doctrine-messenger": "^7.4 || ^8.0",
                 "symfony/framework-bundle": "^7.4 || ^8.0",
                 "symfony/messenger": "^7.4 || ^8.0",
@@ -791,7 +793,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
-                "reference": "54ea39cf5cf4c6c7c89314baf6683fe57bff764d"
+                "reference": "32e93bc947377806b20cb0b1a902595fd32d5a92"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -804,6 +806,7 @@
                 "symfony/rate-limiter": "^7.4 || ^8.0"
             },
             "require-dev": {
+                "doctrine/orm": "^3.3",
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^11.5"
