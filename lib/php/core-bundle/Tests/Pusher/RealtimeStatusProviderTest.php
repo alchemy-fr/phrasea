@@ -13,10 +13,10 @@ use Pusher\PusherException;
 
 class RealtimeStatusProviderTest extends TestCase
 {
-    private function createPusher(): Pusher&MockObject
+    private function createPusher(string $host = 'sockudo'): Pusher&MockObject
     {
         $pusher = $this->createMock(Pusher::class);
-        $pusher->method('getSettings')->willReturn(['app_id' => 'phrasea']);
+        $pusher->method('getSettings')->willReturn(['app_id' => 'phrasea', 'host' => $host]);
 
         return $pusher;
     }
@@ -43,6 +43,17 @@ class RealtimeStatusProviderTest extends TestCase
         $this->assertSame('phrasea', $status->appId);
         $this->assertSame([], $status->users);
         $this->assertSame([], $status->channelsByType);
+    }
+
+    public function testNoHostDoesNotCallTheServer(): void
+    {
+        $pusher = $this->createPusher('');
+        $pusher->expects($this->never())->method('getChannels');
+
+        $status = new RealtimeStatusProvider($pusher)->getStatus();
+
+        $this->assertFalse($status->enabled);
+        $this->assertFalse($status->reachable);
     }
 
     public function testChannelsAreGroupedByTypeAndUsersExtracted(): void
