@@ -11,6 +11,10 @@ import {
 import {fetchAllPages} from '@/lib/api/hydra';
 import {compareCollections, insertSorted} from './collectionOrder';
 
+function errorMessage(e: unknown): string {
+    return e instanceof Error ? e.message : String(e);
+}
+
 export type CollectionNode = Collection & {
     workspaceId: string;
     parentId?: string;
@@ -22,6 +26,8 @@ export type Pager = {
     next?: string;
     loading: boolean;
     loaded: boolean;
+    /** Why the last load failed, cleared by the next one */
+    error?: string;
 };
 
 type State = {
@@ -36,6 +42,8 @@ type State = {
     workspacesResolved: Record<string, true>;
     workspacesLoaded: boolean;
     workspacesLoading: boolean;
+    /** Why the last load of the workspaces failed, cleared by the next one */
+    workspacesError?: string;
     collections: Record<string, CollectionNode>;
     /** Children pagers keyed by parent collection id, or by workspace id for roots */
     pagers: Record<string, Pager>;
@@ -161,7 +169,7 @@ export const useCollectionStore = create<State>((set, get) => ({
         if ((get().workspacesLoaded && !force) || get().workspacesLoading) {
             return;
         }
-        set({workspacesLoading: true});
+        set({workspacesLoading: true, workspacesError: undefined});
         try {
             const page = await getWorkspaces({limit: WORKSPACE_PAGE_SIZE});
             set(s => ({
@@ -171,6 +179,9 @@ export const useCollectionStore = create<State>((set, get) => ({
                 workspacesTotal: page.total,
                 workspacesLoaded: true,
             }));
+        } catch (e: unknown) {
+            // Called fire-and-forget from effects: the panel shows the failure
+            set({workspacesError: errorMessage(e)});
         } finally {
             set({workspacesLoading: false});
         }
@@ -284,7 +295,11 @@ export const useCollectionStore = create<State>((set, get) => ({
         set(s => ({
             pagers: {
                 ...s.pagers,
-                [key]: {...(pager ?? {ids: [], loaded: false}), loading: true},
+                [key]: {
+                    ...(pager ?? {ids: [], loaded: false}),
+                    loading: true,
+                    error: undefined,
+                },
             },
         }));
         try {
@@ -325,10 +340,10 @@ export const useCollectionStore = create<State>((set, get) => ({
                     [key]: {
                         ...(s.pagers[key] ?? {ids: [], loaded: false}),
                         loading: false,
+                        error: errorMessage(e),
                     },
                 },
             }));
-            throw e;
         }
     },
 

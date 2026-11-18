@@ -79,6 +79,7 @@ export function CollectionsPanel() {
     const workspaces = useCollectionStore(s => s.workspaces);
     const workspacesLoaded = useCollectionStore(s => s.workspacesLoaded);
     const workspacesLoading = useCollectionStore(s => s.workspacesLoading);
+    const workspacesError = useCollectionStore(s => s.workspacesError);
     const workspacesNext = useCollectionStore(s => s.workspacesNext);
     const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
     const loadMoreWorkspaces = useCollectionStore(s => s.loadMoreWorkspaces);
@@ -184,7 +185,20 @@ export function CollectionsPanel() {
                 </ul>
             ) : (
                 <div className="pb-2">
-                    {!workspacesLoaded ? (
+                    {workspacesError ? (
+                        <div className="flex flex-col items-center gap-1 px-3 py-4 text-center text-xs">
+                            <p className="text-destructive">
+                                {workspacesError}
+                            </p>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => void loadWorkspaces(true)}
+                            >
+                                {t('common.retry', 'Retry')}
+                            </Button>
+                        </div>
+                    ) : !workspacesLoaded ? (
                         <div className="space-y-2 px-3 py-2">
                             {[...Array(3)].map((_, i) => (
                                 <Skeleton key={i} className="h-6" />
@@ -471,6 +485,11 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                             <Skeleton className="h-5 w-2/3" />
                             <Skeleton className="h-5 w-1/2" />
                         </div>
+                    ) : null}
+                    {pager?.error ? (
+                        <p className="px-3 py-1 text-xs text-destructive">
+                            {pager.error}
+                        </p>
                     ) : null}
                     {pager?.ids.map(
                         id =>
@@ -761,6 +780,14 @@ function CollectionItem({
                             className="my-1 h-5 w-1/2"
                             style={{marginLeft: (depth + 1) * 12 + 28}}
                         />
+                    ) : null}
+                    {pager?.error ? (
+                        <p
+                            className="my-1 text-xs text-destructive"
+                            style={{marginLeft: (depth + 1) * 12 + 28}}
+                        >
+                            {pager.error}
+                        </p>
                     ) : null}
                     {pager?.ids.map(
                         id =>
