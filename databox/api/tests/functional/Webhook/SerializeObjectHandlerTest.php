@@ -11,7 +11,9 @@ use Alchemy\WebhookBundle\Consumer\WebhookTriggerMessage;
 use Alchemy\WebhookBundle\Doctrine\EntitySerializer;
 use Alchemy\WebhookBundle\Doctrine\Listener\EntityListener;
 use Alchemy\WebhookBundle\Entity\Webhook;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Model\AssetTypeEnum;
@@ -81,5 +83,25 @@ class SerializeObjectHandlerTest extends AbstractDataboxTestCase
         $payload = $messages[0]->getPayload()['data'];
         $this->assertSame($rendition->getId(), $payload['id']);
         $this->assertStringContainsString($asset->getId(), json_encode($payload['asset']));
+    }
+
+    public function testEnumFieldsAreSerializedAsTheirBackingValue(): void
+    {
+        self::bootKernel();
+        /** @var EntitySerializer $entitySerializer */
+        $entitySerializer = self::getContainer()->get(EntitySerializer::class);
+
+        $this->assertSame(
+            ['status' => AssetStatusEnum::Quarantined->value],
+            $entitySerializer->convertToDatabaseValue(Asset::class, ['status' => AssetStatusEnum::Quarantined]),
+        );
+        $this->assertSame(
+            ['status' => [AssetStatusEnum::Accepted->value, AssetStatusEnum::Quarantined->value]],
+            $entitySerializer->convertChangeSetToDatabaseValue(Asset::class, ['status' => [AssetStatusEnum::Accepted, AssetStatusEnum::Quarantined]]),
+        );
+        $this->assertSame(
+            ['status' => AssetStatusEnum::Quarantined->value],
+            $entitySerializer->convertToPhpValue(Asset::class, ['status' => AssetStatusEnum::Quarantined->value]),
+        );
     }
 }
