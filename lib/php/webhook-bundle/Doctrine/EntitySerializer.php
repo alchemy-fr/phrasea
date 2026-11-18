@@ -81,6 +81,9 @@ class EntitySerializer
             case ClassMetadata::ONE_TO_MANY:
                 return null;
             case null:
+                if ($value instanceof \BackedEnum) {
+                    $value = $value->value;
+                }
                 $type = Type::getType($meta->getTypeOfField($field));
 
                 return $type->convertToDatabaseValue($value, $this->em->getConnection()->getDatabasePlatform());
