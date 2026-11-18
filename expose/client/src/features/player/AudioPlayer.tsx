@@ -120,7 +120,9 @@ export function AudioPlayer({
         const observer = new IntersectionObserver(entries => {
             entries.forEach(e => {
                 if (e.isIntersecting) {
-                    void wavesurfer.play();
+                    // Rejected when the browser blocks autoplay before any
+                    // interaction, or when pause() interrupts it
+                    wavesurfer.play().catch(() => undefined);
                 } else if (wavesurfer.isPlaying()) {
                     wavesurfer.pause();
                 }
