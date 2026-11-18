@@ -68,6 +68,13 @@ readonly class UriDownloader
             ],
             'max_duration' => $this->maxDuration,
         ]);
+        if (416 === $response->getStatusCode()) {
+            // A range starting at 0 is only refused for an empty resource, or by a server mishandling ranges
+            $response->cancel();
+            $response = $client->request('GET', $uri, [
+                'max_duration' => $this->maxDuration,
+            ]);
+        }
 
         $head = '';
         foreach ($client->stream($response) as $chunk) {
