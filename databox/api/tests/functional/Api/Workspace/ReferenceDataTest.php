@@ -104,8 +104,6 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
 
     public function testGetFieldTypeItem(): void
     {
-        $this->markTestIncomplete('BUG: GET /field-types/{name} answers 500 "Call to a member function getRepository() on null": FieldTypeProvider inherits AbstractCollectionProvider::provide() which delegates item operations to the Doctrine item provider, whereas FieldType is an in-memory model (BuiltInAttributeProvider overrides provide() for the same reason)');
-
         $client = static::createClient();
         $response = $client->request('GET', '/field-types/text');
         $this->assertResponseIsSuccessful();
