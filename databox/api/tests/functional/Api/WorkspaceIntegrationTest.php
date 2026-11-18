@@ -82,6 +82,21 @@ class WorkspaceIntegrationTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(422);
     }
 
+    public function testAnUnknownRenditionIsAViolation(): void
+    {
+        $response = static::createClient()->request('POST', '/integrations', [
+            'headers' => $this->getAuthHeaders(KeycloakClientTestMock::ADMIN_UID),
+            'json' => [
+                'integration' => 'blurhash',
+                'workspace' => '/workspaces/'.$this->getOrCreateDefaultWorkspace()->getId(),
+                'config' => ['rendition' => 'missing'],
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertStringContainsString('missing', $response->getContent(false));
+    }
+
     public function testUserCannotCreateAnInstanceIntegration(): void
     {
         static::createClient()->request('POST', '/integrations', [
