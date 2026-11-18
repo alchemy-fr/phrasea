@@ -82,6 +82,22 @@ class UriDownloaderTest extends TestCase
         $this->assertFileDoesNotExist($path);
     }
 
+    public function testARefusedRangeIsRequestedAgainWithoutRange(): void
+    {
+        $requests = [];
+        $client = new MockHttpClient(static function (string $method, string $url, array $options) use (&$requests): MockResponse {
+            $requests[] = $options['normalized_headers']['range'] ?? null;
+
+            return 1 === \count($requests)
+                ? new MockResponse('', ['http_code' => 416])
+                : new MockResponse('abcdef');
+        });
+        $downloader = new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024), 900);
+
+        $this->assertSame('abc', $downloader->downloadHead('http://10.0.0.1/file.jpg', 3, allowPrivateNetwork: true));
+        $this->assertSame([['Range: bytes=0-2'], null], $requests);
+    }
+
     private function createDownloader(MockResponse $response, int $maxSize = 1024 * 1024): UriDownloader
     {
         return new UriDownloader(
