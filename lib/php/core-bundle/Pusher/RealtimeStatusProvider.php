@@ -30,7 +30,7 @@ final readonly class RealtimeStatusProvider
         $appId = (string) ($this->pusher->getSettings()['app_id'] ?? '');
         $appId = '' !== $appId ? $appId : null;
 
-        if ($this->disabled) {
+        if ($this->disabled || !PusherManager::isConfigured($this->pusher)) {
             return new RealtimeStatus(enabled: false, reachable: false, appId: $appId);
         }
 
