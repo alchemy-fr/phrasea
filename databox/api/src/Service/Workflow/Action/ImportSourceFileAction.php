@@ -11,6 +11,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Integration\IfActionInterface;
 use App\Service\Asset\Exception\FileImportRefusedException;
+use App\Service\Asset\Exception\RemoteFileNotFoundException;
 use App\Service\Asset\FileImporter;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -55,6 +56,10 @@ readonly class ImportSourceFileAction implements IfActionInterface
             $this->em->persist($asset);
             $this->em->flush();
             $context->setOutput('refusal', $e->getMessage());
+            $context->setEndStatus(JobState::STATUS_FAILURE);
+        } catch (RemoteFileNotFoundException $e) {
+            // Nothing to analyze: the integrations depending on this job never run
+            $context->setOutput('error', $e->getMessage());
             $context->setEndStatus(JobState::STATUS_FAILURE);
         }
     }
