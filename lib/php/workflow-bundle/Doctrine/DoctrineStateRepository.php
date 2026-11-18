@@ -14,6 +14,7 @@ use Alchemy\WorkflowBundle\Entity\JobState as JobStateEntity;
 use Alchemy\WorkflowBundle\Entity\WorkflowState as WorkflowStateEntity;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -227,9 +228,20 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface, Tran
 
     public function acquireWorkflowLock(string $workflowId): void
     {
+        // find() returns an already managed entity even when its row was deleted meanwhile
+        // (cascade from the asset): the query reaches the database and refreshes the locked state.
         $entity = $this->em
             ->getRepository($this->workflowStateEntity)
-            ->find($workflowId, LockMode::PESSIMISTIC_WRITE);
+            ->createQueryBuilder('w')
+            ->andWhere('w.id = :id')
+            ->setParameter('id', $workflowId)
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->setHint(Query::HINT_REFRESH, true)
+            ->getOneOrNullResult();
+        if (null === $entity) {
+            throw new WorkflowStateNotFoundException($workflowId);
+        }
 
         $this->cacheWorkflowState($workflowId, $entity);
     }
