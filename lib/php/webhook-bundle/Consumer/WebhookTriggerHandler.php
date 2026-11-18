@@ -56,11 +56,11 @@ final readonly class WebhookTriggerHandler
                 $log->setResponse($e->getMessage());
             } else {
                 $res = '';
-                foreach ($response->getHeaders() as $h => $v) {
+                foreach ($response->getHeaders(false) as $h => $v) {
                     $res .= $h.': '.implode(',', $v)."\n";
                 }
                 $res .= "\n\n";
-                $res .= $response->getContent();
+                $res .= $response->getContent(false);
                 $log->setResponse($res);
             }
 
