@@ -138,10 +138,16 @@ class AuditLogActionsTest extends AbstractDataboxTestCase
 
         $this->purgeLogs();
         $input->actions = [self::action(BatchAttributeManager::ACTION_DELETE, $title->getId(), null)];
-        $manager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input, null);
+        set_error_handler(static fn (int $errno, string $errstr): never => throw new \ErrorException($errstr, 0, $errno));
+        try {
+            $manager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input, null);
+        } finally {
+            restore_error_handler();
+        }
 
         $change = $this->findLog(AuditLogActionEnum::AssetAttributeChanged, $asset->getId())->getData()['changes'][0];
         $this->assertSame(['delete', ['After'], []], [$change['op'], $change['old'], $change['new']]);
+        $this->assertNull($change['locale']);
     }
 
     public function testPermissionsGrantedChangedAndRevoked(): void
