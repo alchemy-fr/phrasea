@@ -280,7 +280,7 @@ class AttributeDefinition extends AbstractUuidEntity implements AuditableInterfa
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
-    #[Gedmo\Slug(fields: ['name'], updatable: false, style: 'lower', unique: false, separator: '')]
+    #[Gedmo\Slug(fields: ['name'], updatable: false, style: 'lower', unique: true, unique_base: 'workspace', separator: '')]
     private ?string $slug = null;
 
     /**
