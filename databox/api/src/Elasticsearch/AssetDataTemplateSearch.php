@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\CoreBundle\Util\UuidUtil;
+use ApiPlatform\Metadata\Exception\ItemNotFoundException;
 use ApiPlatform\Metadata\Operation;
 use App\Api\EntityIriConverter;
 use App\Elasticsearch\Filter\SearchQuery;
@@ -38,7 +40,7 @@ final class AssetDataTemplateSearch extends AbstractSearch
 
         $collection = self::firstScalar($filters['collection'] ?? null);
         if (null !== $collection) {
-            $collection = $this->iriConverter->getItemFromIri(Collection::class, $collection);
+            $collection = $this->getItem(Collection::class, $collection, 'collection');
         }
 
         $aclBoolQuery = $this->createTemplateACLBoolQuery($filters, $userId, $groupIds, $collection);
@@ -117,6 +119,23 @@ final class AssetDataTemplateSearch extends AbstractSearch
         return \is_scalar($value) && '' !== (string) $value ? (string) $value : null;
     }
 
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    private function getItem(string $class, string $id, string $parameter): object
+    {
+        UuidUtil::assertValid(basename($id), $parameter);
+        try {
+            return $this->iriConverter->getItemFromIri($class, $id);
+        } catch (ItemNotFoundException $e) {
+            throw new BadRequestHttpException(sprintf('%s "%s" not found', ucfirst($parameter), $id), $e);
+        }
+    }
+
     private function createTemplateACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): Query\BoolQuery
     {
         $workspaceId = self::firstScalar($filters['workspace'] ?? null) ?? $collection?->getWorkspaceId();
@@ -124,8 +143,7 @@ final class AssetDataTemplateSearch extends AbstractSearch
         if (empty($workspaceId)) {
             throw new BadRequestHttpException('"workspace" filter is mandatory');
         }
-        /** @var Workspace $workspace */
-        $workspace = $this->iriConverter->getItemFromIri(Workspace::class, $workspaceId);
+        $workspace = $this->getItem(Workspace::class, $workspaceId, 'workspace');
 
         if (null !== $collection && $collection->getWorkspaceId() !== $workspace->getId()) {
             throw new BadRequestHttpException('Collection is not in the same workspace');

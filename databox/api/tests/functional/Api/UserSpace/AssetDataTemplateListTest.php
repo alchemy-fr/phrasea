@@ -10,6 +10,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
 use App\Tests\Functional\AbstractSearchTestCase;
+use Ramsey\Uuid\Uuid;
 
 /**
  * GET /asset-data-templates (served by Elasticsearch).
@@ -56,6 +57,11 @@ final class AssetDataTemplateListTest extends AbstractSearchTestCase
     public function testWorkspaceFilterIsMandatory(): void
     {
         $this->assertStatus(400, 'GET', '/asset-data-templates', self::USER);
+    }
+
+    public function testUnknownWorkspaceIsABadRequest(): void
+    {
+        $this->assertStatus(400, 'GET', '/asset-data-templates?workspace='.Uuid::uuid4()->toString(), self::USER);
     }
 
     public function testWorkspaceLevelTemplates(): void
