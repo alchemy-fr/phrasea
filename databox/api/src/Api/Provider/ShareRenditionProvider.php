@@ -80,8 +80,8 @@ final class ShareRenditionProvider implements ProviderInterface
             return $this->createNotFoundResponse();
         }
 
-        // Tracking is optional: without MATOMO_URL the tracker falls back to
-        // localhost and its failure must never break the share itself.
+        // Tracking is optional (no MATOMO_URL on a stack without Matomo) and
+        // its failure must never break the share itself.
         if ('' !== trim($this->matomoUrl)) {
             $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
             $trackingId = $asset->getResolvedTrackingId();
