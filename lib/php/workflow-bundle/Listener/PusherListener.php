@@ -44,6 +44,11 @@ final readonly class PusherListener
 
     private function trigger(string $workflowId, string $event, array $payload): void
     {
+        // A stack deployed without a real-time server has no Sockudo host
+        if ('' === ($this->pusher->getSettings()['host'] ?? '')) {
+            return;
+        }
+
         try {
             $this->pusher->trigger($this->channelPrefix.$workflowId, $event, $payload);
         } catch (ApiErrorException|GuzzleException $e) {
