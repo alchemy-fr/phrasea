@@ -8,6 +8,7 @@ use Alchemy\StorageBundle\Upload\FileValidator;
 use App\Border\Exception\UnsupportedUriException;
 use App\Entity\Core\File;
 use App\Service\Asset\Exception\FileImportRefusedException;
+use App\Service\Asset\Exception\RemoteFileNotFoundException;
 use App\Service\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Header;
@@ -33,7 +34,8 @@ readonly class FileImporter
      * Errors that retrying never fixes are logged and leave the file untouched
      * (still referenced by URL); transient ones are thrown.
      *
-     * @throws FileImportRefusedException when the content is refused: the file is rejected
+     * @throws FileImportRefusedException  when the content is refused: the file is rejected
+     * @throws RemoteFileNotFoundException when the URL no longer serves the file
      */
     public function importFile(File $file): void
     {
@@ -56,10 +58,8 @@ readonly class FileImporter
         try {
             $src = $this->fileFetcher->downloadFile($file, $headers);
         } catch (ClientException $e) {
-            if (404 === $e->getResponse()->getStatusCode()) {
-                $this->logger->error($e->getMessage());
-
-                return;
+            if (\in_array($e->getResponse()->getStatusCode(), [404, 410], true)) {
+                throw new RemoteFileNotFoundException($file, $e);
             }
 
             throw $e;

@@ -21,6 +21,7 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Workflow\WorkflowState;
 use App\Integration\Core\FileAnalyzer\FileAnalyzerIntegration;
 use App\Integration\Core\ReadMetadata\ReadMetadataIntegration;
+use App\Service\Asset\Exception\RemoteFileNotFoundException;
 use App\Service\Asset\FileImporter;
 use App\Service\Asset\WorkspaceAssetIngester;
 use App\Service\Workflow\Action\ImportSourceFileAction;
@@ -198,6 +199,26 @@ final class FileImportTest extends AbstractDataboxTestCase
         $runContext = $this->createMock(RunContext::class);
         $runContext->method('getInputs')->willReturn($inputs($pendingAsset));
         $action->handle($runContext);
+    }
+
+    public function testASourceRemovedAtItsUrlFailsTheImportJob(): void
+    {
+        [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $em = self::getEntityManager();
+        $source = $this->createUrlFile($ws);
+        $source->setImportPending(true);
+        $asset = $this->createAsset(['workspace' => $ws, 'no_flush' => true]);
+        $asset->setSource($source);
+        $em->flush();
+
+        $importer = $this->createMock(FileImporter::class);
+        $importer->method('importFile')
+            ->willThrowException(new RemoteFileNotFoundException($source, new \RuntimeException('HTTP/2 404')));
+        $runContext = $this->createMock(RunContext::class);
+        $runContext->method('getInputs')->willReturn(new Inputs(['assetId' => $asset->getId()]));
+        $runContext->expects($this->once())->method('setEndStatus')->with(JobState::STATUS_FAILURE);
+
+        new ImportSourceFileAction($importer, $em)->handle($runContext);
     }
 
     private function createAnalyzerIntegration(Workspace $workspace): WorkspaceIntegration
