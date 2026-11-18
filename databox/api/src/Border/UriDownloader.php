@@ -75,6 +75,9 @@ readonly class UriDownloader
                 'max_duration' => $this->maxDuration,
             ]);
         }
+        // Reading the status code consumed the first chunk, whose arrival is where stream() checks the status:
+        // without this check, an error page would pass for the head of the content.
+        $response->getHeaders();
 
         $head = '';
         foreach ($client->stream($response) as $chunk) {
