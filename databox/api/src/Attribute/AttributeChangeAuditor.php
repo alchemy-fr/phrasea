@@ -66,14 +66,15 @@ final readonly class AttributeChangeAuditor
                     continue;
                 }
 
-                $definitionId = $old[$key]['definitionId'] ?? $new[$key]['definitionId'];
+                $entry = $old[$key] ?? $new[$key];
+                $definitionId = $entry['definitionId'];
                 $definitionIds[$definitionId] = true;
                 $op = empty($newValues) ? BatchAttributeManager::ACTION_DELETE : self::getOperation($operations, $assetId, $definitionId);
 
                 $changesByAsset[$assetId][] = [
                     'definitionId' => $definitionId,
                     'definitionName' => null,
-                    'locale' => $old[$key]['locale'] ?? $new[$key]['locale'],
+                    'locale' => $entry['locale'],
                     'op' => $op,
                     'old' => $old[$key]['values'] ?? [],
                     'new' => $new[$key]['values'] ?? [],
