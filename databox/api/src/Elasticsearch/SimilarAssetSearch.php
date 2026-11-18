@@ -74,6 +74,9 @@ class SimilarAssetSearch
         $filter->addMustNot(new Query\Terms('_id', [$asset->getId()]));
 
         $knn = new Knn('embedding', $vector, $numCandidates);
+        // Without k, Elasticsearch takes the size of the search: none for an aggregation-only
+        // search (rejected), and only the current page for the hits, their total and the facets.
+        $knn->setK($numCandidates);
         $knn->setFilter($filter);
 
         return $knn;
