@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Exception\DownloadTooLargeException;
 use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Border\UriDownloader;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -96,6 +97,14 @@ class UriDownloaderTest extends TestCase
 
         $this->assertSame('abc', $downloader->downloadHead('http://10.0.0.1/file.jpg', 3, allowPrivateNetwork: true));
         $this->assertSame([['Range: bytes=0-2'], null], $requests);
+    }
+
+    public function testAnErrorPageIsNotTakenForTheHead(): void
+    {
+        $downloader = $this->createDownloader(new MockResponse('<!doctype html>Not found', ['http_code' => 404]));
+
+        $this->expectException(ClientException::class);
+        $downloader->downloadHead('http://10.0.0.1/file.png', 3, allowPrivateNetwork: true);
     }
 
     private function createDownloader(MockResponse $response, int $maxSize = 1024 * 1024): UriDownloader
