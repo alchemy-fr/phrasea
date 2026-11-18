@@ -33,6 +33,8 @@ final class InvalidIdentifierTest extends AbstractDataboxTestCase
         yield 'attribute entities, workspace list' => ['GET', '/attribute-entities?workspace[]='.self::INVALID, null];
         yield 'attribute entities, list' => ['GET', '/attribute-entities?list='.self::INVALID, null];
         yield 'rendition definitions, assetId' => ['GET', '/rendition-definitions?assetId='.self::INVALID, null];
+        yield 'asset data templates, workspace' => ['GET', '/asset-data-templates?workspace='.self::INVALID, null];
+        yield 'asset data templates, collection' => ['GET', '/asset-data-templates?collection='.self::INVALID, null];
         yield 'sort attribute definitions' => ['POST', '/attribute-definitions/sort', [self::INVALID]];
         yield 'delete assets by keys, workspaceId' => ['DELETE', '/assets-by-keys', ['keys' => ['k'], 'workspaceId' => self::INVALID]];
     }
