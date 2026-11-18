@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
@@ -18,11 +19,36 @@ class FieldTypeProvider extends AbstractCollectionProvider
     ) {
     }
 
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    {
+        if (!$operation instanceof CollectionOperationInterface) {
+            $name = $uriVariables['name'] ?? null;
+
+            foreach ($this->getFieldTypes() as $fieldType) {
+                if ($fieldType->getName() === $name) {
+                    return $fieldType;
+                }
+            }
+
+            return null;
+        }
+
+        return parent::provide($operation, $uriVariables, $context);
+    }
+
     protected function provideCollection(
         Operation $operation,
         array $uriVariables = [],
         array $context = [],
     ): array|object {
+        return $this->getFieldTypes();
+    }
+
+    /**
+     * @return FieldType[]
+     */
+    private function getFieldTypes(): array
+    {
         $results = array_map(function (AttributeTypeInterface $type): FieldType {
             $t = new FieldType();
             $name = $type::getName();
