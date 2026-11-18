@@ -414,6 +414,19 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(201);
     }
 
+    public function testNamesWithTheSameSlugGetDistinctSlugs(): void
+    {
+        $this->setUpScene();
+
+        $first = $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload(['name' => 'Catégorie']));
+        $this->assertResponseStatusCodeSame(201);
+        $second = $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload(['name' => 'categorie']));
+        $this->assertResponseStatusCodeSame(201);
+
+        $this->assertSame('categorie', $first->toArray()['slug']);
+        $this->assertNotSame('categorie', $second->toArray()['slug']);
+    }
+
     public function testAnEntityDefinitionRequiresAnEntityList(): void
     {
         $this->setUpScene();
