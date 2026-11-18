@@ -1,6 +1,6 @@
 ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
-FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
+FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS app
 
 # Imagick only serves the fixtures (alchemy/core-bundle ImageUrlFaker); the
 # deny-by-default policy of databox applies all the same.
@@ -47,15 +47,20 @@ RUN mkdir -p var/cache var/logs var/sessions \
 
 COPY ./databox/api/docker/entrypoint.d/01-imagick.sh /docker/entrypoint.d/
 
+USER root
+
+
+# SENTRY_RELEASE changes on every commit: it is set last in each final stage,
+# so that the cached steps above stay valid.
+FROM app AS api-php
+
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
-
-USER root
 
 
 FROM ${REGISTRY_NAMESPACE}nginx-cache-purge:${BASE_TAG} AS api-nginx
 
-COPY --from=api-php /srv/app/public /srv/app/public
+COPY --from=app /srv/app/public /srv/app/public
 COPY ./expose/api/docker/nginx/entrypoint.sh /entrypoint.sh
 COPY ./expose/api/docker/nginx/tpl /etc/nginx/tpl
 
@@ -66,7 +71,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 
 
-FROM api-php AS worker
+FROM app AS worker
 
 ENV PHP_MEMORY_LIMIT=1G \
     WORKER_PRIORITIES=p1 \
@@ -86,3 +91,6 @@ CMD ["/usr/bin/supervisord", "-n"]
 
 HEALTHCHECK --start-interval=1s --start-period=90s --retries=100 --interval=60s --timeout=1s \
     CMD ash -c "[ -f /docker/worker-ready ]"
+
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
