@@ -52,7 +52,7 @@ export function WorkspaceTermsGate() {
         await refreshWorkspaces([workspaceId]);
         // The content denied so far is now readable: refresh what was loaded
         if (useCollectionStore.getState().pagers[pagerKey(workspaceId)]) {
-            void loadChildren(workspaceId, undefined, true).catch(() => {});
+            void loadChildren(workspaceId, undefined, true);
         }
         void queryClient.invalidateQueries();
         search?.reload();

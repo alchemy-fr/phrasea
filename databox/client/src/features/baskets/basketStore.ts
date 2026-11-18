@@ -15,6 +15,8 @@ type State = {
     current: Basket | undefined;
     loaded: boolean;
     loading: boolean;
+    /** Why the last load failed, cleared by the next one */
+    error?: string;
     next?: string;
     includeArchived: boolean;
     query: string;
@@ -44,7 +46,7 @@ export const useBasketStore = create<State>((set, get) => ({
         if ((get().loaded && !force) || get().loading) {
             return;
         }
-        set({loading: true});
+        set({loading: true, error: undefined});
         try {
             const {query, includeArchived} = get();
             const page = await getBaskets({
@@ -65,6 +67,9 @@ export const useBasketStore = create<State>((set, get) => ({
                     page.items.find(b => b.id === storedId) ??
                     (editable.length === 1 ? editable[0] : undefined),
             }));
+        } catch (e: unknown) {
+            // Called fire-and-forget from effects: the panel shows the failure
+            set({error: e instanceof Error ? e.message : String(e)});
         } finally {
             set({loading: false});
         }
