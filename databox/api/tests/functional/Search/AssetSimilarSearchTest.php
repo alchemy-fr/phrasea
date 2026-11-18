@@ -9,6 +9,7 @@ use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use App\Attribute\Type\GeoPointAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetEmbedding;
 use App\Entity\Core\AssetRendition;
@@ -56,6 +57,38 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
 
         $this->assertNull($this->searchScores(sprintf('NOT (@similar = "%s")', $reference->getId())));
         $this->assertNull($this->searchScores('@workspace = "'.$workspace->getId().'"'));
+    }
+
+    public function testSimilarConditionOnAnAggregationOnlySearch(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $location = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Location',
+            'slug' => 'location',
+            'type' => GeoPointAttributeType::NAME,
+            'no_flush' => true,
+        ]);
+        $create = fn (string $name, array $vector): Asset => $this->createEmbeddedAsset($workspace, $name, $vector, [
+            'attributes' => [['definition' => $location, 'value' => '48.8566,2.3522']],
+        ]);
+        $reference = $create('Reference', self::vector([0 => 1.0]));
+        $create('Close', self::vector([0 => 1.0, 1 => 0.2]));
+        $create('Far', self::vector([1 => 1.0]));
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $response = self::createClient()->request('GET', '/assets/geo-clusters', [
+            'query' => [
+                'field' => 'location_geo-point_s',
+                'conditions' => [sprintf('@similar = "%s"', $reference->getId())],
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(2, $response->toArray()['geolocated']);
     }
 
     /**
