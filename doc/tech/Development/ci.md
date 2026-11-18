@@ -51,6 +51,25 @@ creates and drops the scratch databases. Likewise, the `*_S3_ACCESS_KEY`/
 restricted to their bucket (see [MinIO users](../01_setup.md#minio-users)),
 created by `minio-setup` in `bin/setup.sh` and `bin/test.sh standard`.
 
+### Image builds
+
+`ci.yaml` builds the images with `docker buildx bake` and
+[`docker-bake.hcl`](../../../docker-bake.hcl), one runner per group (`php`:
+configurator and the three APIs; `node`: the Next.js clients and
+`databox/indexer`). The base images (`infra/docker/*`) are bake targets passed
+to the application Dockerfiles as named build contexts: they are built in the
+same BuildKit session, never pushed nor pulled back. Each image is pushed to
+GHCR tagged with the commit sha, next to its registry cache
+(`:build-cache-1`).
+
+Always pass `-f docker-bake.hcl`: without it, bake also reads
+`docker-compose.yml`, whose services share some target names.
+
+```bash
+docker buildx bake -f docker-bake.hcl --print          # resolved configuration
+docker buildx bake -f docker-bake.hcl php --load       # build the PHP images locally
+```
+
 ### Keycloak and report-api in CI
 
 The Keycloak and report-api images are built outside this repository and are
