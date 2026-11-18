@@ -40,6 +40,25 @@ run (`unit` + `functional`, with the SQLite and Elasticsearch reset of
 Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
 `bin/setup.sh test` and loads the expose fixtures first.
 
+### Image builds
+
+`ci.yaml` builds the images with `docker buildx bake` and
+[`docker-bake.hcl`](../../../docker-bake.hcl), one runner per group (`php`:
+configurator and the three APIs; `node`: the Next.js clients and
+`databox/indexer`). The base images (`infra/docker/*`) are bake targets passed
+to the application Dockerfiles as named build contexts: they are built in the
+same BuildKit session, never pushed nor pulled back. Each image is pushed to
+GHCR tagged with the commit sha, next to its registry cache
+(`:build-cache-1`).
+
+Always pass `-f docker-bake.hcl`: without it, bake also reads
+`docker-compose.yml`, whose services share some target names.
+
+```bash
+docker buildx bake -f docker-bake.hcl --print          # resolved configuration
+docker buildx bake -f docker-bake.hcl php --load       # build the PHP images locally
+```
+
 ### Keycloak and report-api in CI
 
 The Keycloak and report-api images are built outside this repository and are
