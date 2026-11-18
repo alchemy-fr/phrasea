@@ -6,7 +6,6 @@ namespace Alchemy\AdminBundle\Filter;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\Query\Expr\Orx;
 use Doctrine\ORM\QueryBuilder;
@@ -62,18 +61,15 @@ final class ChildPropertyEntityFilter implements FilterInterface
         $isMultiple = $filterDataDto->getFormTypeOption('value_type_options.multiple');
 
         $childPropertyName = $this->subPropertyName;
-        $doctrineMetadata = $entityDto->getPropertyMetadata($property);
-        $entityManager = $queryBuilder->getEntityManager();
-        $propertyEntityFqcn = $doctrineMetadata->get('targetEntity');
-        /** @var ClassMetadata $entityMetadata */
-        $propertyEntityMetadata = $entityManager->getClassMetadata($propertyEntityFqcn);
-        $propertyEntityDto = new EntityDto($propertyEntityFqcn, $propertyEntityMetadata);
+        $entityMetadata = $entityDto->getClassMetadata();
+        $propertyEntityMetadata = $queryBuilder->getEntityManager()
+            ->getClassMetadata($entityMetadata->getAssociationTargetClass($property));
 
         $queryBuilder->leftJoin(sprintf('%s.%s', $alias, $property), $assocAlias);
         // do the clause where with the childProperty not with the property like in EntityFilter
         $queryBuilder->leftJoin(sprintf('%s.%s', $assocAlias, $childPropertyName), $childAssocAlias);
 
-        if ($entityDto->isToManyAssociation($property) && $propertyEntityDto->isToManyAssociation($childPropertyName)) {
+        if ($entityMetadata->isCollectionValuedAssociation($property) && $propertyEntityMetadata->isCollectionValuedAssociation($childPropertyName)) {
             if (0 === \count($value)) {
                 $queryBuilder->andWhere(sprintf('%s %s', $childAssocAlias, $comparison));
             } else {
