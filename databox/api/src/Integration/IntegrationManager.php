@@ -104,6 +104,9 @@ readonly class IntegrationManager
 
         $config->validateReferences();
         $integration->validateConfiguration($config);
+
+        // Resolves the rendition names the configuration refers to: an unknown one is invalid
+        $integration->normalizeConfiguration($workspaceIntegration->getConfig(), $workspaceIntegration->getWorkspace());
     }
 
     public function getIntegrationConfigInfo(WorkspaceIntegration $workspaceIntegration): array
