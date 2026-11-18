@@ -9,13 +9,21 @@ use Alchemy\Workflow\Listener\WorkflowUpdateEvent;
 use Alchemy\Workflow\State\WorkflowState;
 use App\Realtime\RealtimeChannel;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Log\LoggerInterface;
+use Pusher\ApiErrorException;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
+/**
+ * Pushes synchronously, possibly from within the request ending the workflow:
+ * an unreachable Pusher host is only logged so that it never fails the request.
+ */
 #[AsEventListener(event: WorkflowUpdateEvent::class, method: 'onWorkflowUpdate')]
 final readonly class AssetIngestWorkflowListener
 {
     public function __construct(
         private PusherManager $pusherManager,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -27,7 +35,15 @@ final readonly class AssetIngestWorkflowListener
             WorkflowState::STATUS_FAILURE,
         ])) {
             $assetId = $state->getEvent()->getInputs()['assetId'];
-            $this->pusherManager->trigger(RealtimeChannel::asset($assetId), 'asset_ingested', [], direct: true);
+            try {
+                $this->pusherManager->trigger(RealtimeChannel::asset($assetId), 'asset_ingested', [], direct: true);
+            } catch (ApiErrorException|GuzzleException $e) {
+                $this->logger->error('Failed to push asset_ingested: {error}', [
+                    'error' => $e->getMessage(),
+                    'assetId' => $assetId,
+                    'exception' => $e,
+                ]);
+            }
         }
     }
 }
