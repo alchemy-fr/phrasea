@@ -45,18 +45,21 @@ Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
 `ci.yaml` builds the images with `docker buildx bake` and
 [`docker-bake.hcl`](../../../docker-bake.hcl), one runner per group (`php`:
 configurator and the three APIs; `node`: the Next.js clients and
-`databox/indexer`). The base images (`infra/docker/*`) are bake targets passed
-to the application Dockerfiles as named build contexts: they are built in the
-same BuildKit session, never pushed nor pulled back. Each image is pushed to
-GHCR tagged with the commit sha, next to its registry cache
-(`:build-cache-1`).
+`databox/indexer`). Each job first builds and pushes the base images of its
+group (`php-base`, `node-base`: `infra/docker/*`), then the images built FROM
+them, on the same builder. Each image is pushed to GHCR tagged with the commit
+sha, next to its registry cache (`:build-cache-1`).
+
+The bases are not passed as `target:` named contexts: a base inlined that way
+gets a new cache key in every BuildKit session from its first step reading its
+local context (`COPY entrypoint.sh`), so every image built on it would be
+rebuilt on each run.
 
 Always pass `-f docker-bake.hcl`: without it, bake also reads
 `docker-compose.yml`, whose services share some target names.
 
 ```bash
 docker buildx bake -f docker-bake.hcl --print          # resolved configuration
-docker buildx bake -f docker-bake.hcl php --load       # build the PHP images locally
 ```
 
 ### Keycloak and report-api in CI

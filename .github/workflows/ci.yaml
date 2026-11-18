@@ -53,9 +53,9 @@ env:
   CYPRESS_MEMORY_LIMIT: '16G'
 
 jobs:
-  # docker-bake.hcl: the base images are built in the same BuildKit session as
-  # the images that use them. Two groups on two runners, so that the four
-  # Next.js builds do not share their runner with Composer.
+  # docker-bake.hcl: each group builds and pushes its base images, then the
+  # images built FROM them, on the same builder. Two groups on two runners, so
+  # that the four Next.js builds do not share their runner with Composer.
   build:
     name: 'Build ${{ matrix.group }} images'
     runs-on: ubuntu-latest
@@ -82,6 +82,16 @@ jobs:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push the base images
+        uses: docker/bake-action@v7
+        env:
+          CACHE_TAG: build-cache-1
+        with:
+          source: .
+          files: docker-bake.hcl
+          targets: ${{ matrix.group }}-base
+          push: true
 
       - name: Build and push
         uses: docker/bake-action@v7
