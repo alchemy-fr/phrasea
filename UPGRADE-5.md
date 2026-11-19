@@ -124,8 +124,8 @@ The Databox client is no longer static files served by nginx.
   runtime.
 - The headers formerly set by nginx (`Content-Security-Policy: frame-ancestors`,
   HSTS, `X-Robots-Tag`, `X-Content-Type-Options`) and `robots.txt` are no longer
-  emitted: set them on your reverse proxy. `phrasea-manifest.json` is no longer
-  served.
+  emitted: set them on your reverse proxy. `phrasea-manifest.json` is still
+  served, by a route of the Next.js server.
 - Sentry (`CLIENT_SENTRY_DSN`) only reports the browser errors: no tracing, no
   replay, no source maps uploaded. The SDK sends them to the same origin route
   `/api/relay`, which relays them to the project of the DSN behind a rate limit
