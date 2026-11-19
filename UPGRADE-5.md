@@ -751,6 +751,24 @@ bin/console fos:elastica:populate --index=asset
 (exact membership) or `story`: `parent`, which spans the sub-collections, is
 rejected.
 
+## Story members are no longer assets of the story's collections
+
+The members of a story used to be indexed under the collections of the story
+asset: browsing a collection, or filtering on it (`parent`, `parents`,
+`collection`, `directCollections`, `@collection`, `@directCollection`), also
+returned the members of the stories it contains. They now only belong to the
+collections they are directly attached to; use `story` / `@story` to list the
+members of a story. The permissions granted on a collection still reach the
+members of its stories.
+
+Re-populate the `asset` index: until then the members keep their former
+collections, and the new `storyCollectionPaths` field, which propagates the
+permissions granted on a collection to the members of its stories, is missing.
+
+```bash
+bin/console fos:elastica:populate --index=asset
+```
+
 ## Notification emails
 
 Every email body is now wrapped in a branded layout (logo, subject, card, a

@@ -121,6 +121,7 @@ final class AssetPermissionComputer
         }
 
         $collectionsPaths = [];
+        $storyCollectionsPaths = [];
         $stories = [];
 
         $workspaceInfo = $this->getWorkspaceHierarchyInfo($asset->getWorkspace());
@@ -162,7 +163,12 @@ final class AssetPermissionComputer
 
                 $permissions->mergeWith($storyPermissions->permissions, !$isReferenceCollection)->unique();
 
-                $collectionsPaths = array_merge($collectionsPaths, $storyPermissions->collectionPaths);
+                // Members are not assets of the story's collections: these paths only serve the collection ACL propagation
+                $storyCollectionsPaths = array_merge(
+                    $storyCollectionsPaths,
+                    $storyPermissions->collectionPaths,
+                    $storyPermissions->storyCollectionPaths,
+                );
             } else {
                 $collectionsPaths[] = $collectionInfo->absolutePath;
             }
@@ -172,6 +178,7 @@ final class AssetPermissionComputer
             $bestPrivacy,
             $permissions->unique(),
             array_values(array_unique($collectionsPaths)),
+            array_values(array_unique($storyCollectionsPaths)),
             array_values(array_unique($stories)),
         );
     }

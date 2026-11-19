@@ -59,7 +59,11 @@ none of the requested collections exists. An unusable value passed to
 
 - Both forms are applied on top of the regular ACL filtering: an asset the caller
   cannot read is never returned, whatever the requested collections.
-- Assets attached to a **story** collection are indexed under the collections of the
-  story asset itself, not under the story collection. Consequently, neither
-  `@collection` nor `@directCollection` matches a story collection ID; use the
-  `@story` attribute for that.
+- Story collections are not indexed as collections: the members of a story are only
+  indexed under the collections they are directly attached to, neither under the
+  story collection nor under the collections of the story asset. Consequently,
+  neither `@collection` nor `@directCollection` matches a story collection ID, nor
+  returns the members of a story stored in the requested collection; use the
+  `@story` attribute for that. The collections of the story asset are kept in a
+  separate `storyCollectionPaths` field, only used to propagate the permissions
+  granted on a collection to the members of its stories.

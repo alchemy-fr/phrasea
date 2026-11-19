@@ -123,6 +123,12 @@ fos_elastica:
                     fields:
                         raw:
                             type: keyword
+                # Collections of the stories the asset belongs to: only used to propagate collection ACL
+                storyCollectionPaths:
+                    property_path: false
+                    type: text
+                    analyzer: collection_path
+                    search_analyzer: keyword
                 privacy:
                     property_path: false
                     type: byte
