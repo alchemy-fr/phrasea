@@ -357,9 +357,10 @@ export function Progress({
         >
             <ProgressPrimitive.Indicator
                 className={cn(
-                    'h-full bg-primary transition-transform',
-                    indeterminate &&
-                        'w-1/3 animate-[indeterminate_1.2s_ease-in-out_infinite]'
+                    'h-full bg-primary',
+                    indeterminate
+                        ? 'w-1/3 animate-indeterminate'
+                        : 'transition-transform'
                 )}
                 style={
                     indeterminate

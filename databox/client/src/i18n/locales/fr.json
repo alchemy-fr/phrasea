@@ -969,6 +969,7 @@
     "export.dialog.title_other": "Exporter {{count}} assets",
     "export.toast.download": "Télécharger",
     "export.toast.failed": "Échec de l'export",
+    "export.toast.preparing": "Préparation de l'export…",
     "export.toast.progress": "Préparation de l'export… {{progress}} %",
     "export.toast.ready": "Export prêt !",
     "faces.confirm": "Confirmer la personne",
