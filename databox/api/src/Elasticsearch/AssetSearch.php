@@ -29,7 +29,6 @@ use App\Repository\Core\CollectionRepository;
 use App\Repository\SavedSearch\SavedSearchRepository;
 use App\Security\AttributeFilterManager;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetVoter;
 use App\Service\Asset\AssetSortGroupMapper;
 use App\Service\Vector\AssetSimilarityScorer;
 use Elastica\Aggregation;
@@ -881,8 +880,8 @@ class AssetSearch extends AbstractSearch
         ];
     }
 
-    protected function getAdminScope(): ?string
+    protected function createListedSubject(): Asset
     {
-        return AssetVoter::SCOPE_PREFIX.AbstractVoter::LIST;
+        return new Asset();
     }
 }

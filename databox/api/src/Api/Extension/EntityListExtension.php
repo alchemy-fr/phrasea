@@ -11,7 +11,6 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\EntityList;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\EntityListVoter;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -37,7 +36,7 @@ final class EntityListExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        if ($this->isAdmin() || $this->hasScope(AbstractVoter::LIST, EntityListVoter::SCOPE_PREFIX)) {
+        if ($this->isGranted(AbstractVoter::LIST, new EntityList())) {
             return;
         }
 

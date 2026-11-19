@@ -16,7 +16,6 @@ use App\Entity\Core\RenditionDefinition;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\RenditionDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\RenditionDefinitionVoter;
 use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -50,10 +49,7 @@ final class RenditionDefinitionExtension implements QueryCollectionExtensionInte
             return;
         }
 
-        if (
-            !$this->hasScope(AbstractVoter::LIST, RenditionDefinitionVoter::SCOPE_PREFIX)
-            && !$this->isAdmin()
-        ) {
+        if (!$this->isGranted(AbstractVoter::LIST, new RenditionDefinition())) {
             $user = $this->security->getUser();
             $userId = $user instanceof JwtUser ? $user->getId() : null;
             $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];

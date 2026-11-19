@@ -14,7 +14,6 @@ use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\CollectionVoter;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
@@ -282,8 +281,8 @@ class CollectionSearch extends AbstractSearch
         return $match;
     }
 
-    protected function getAdminScope(): ?string
+    protected function createListedSubject(): Collection
     {
-        return CollectionVoter::SCOPE_PREFIX.AbstractVoter::LIST;
+        return new Collection();
     }
 }

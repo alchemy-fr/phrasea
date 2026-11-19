@@ -14,7 +14,6 @@ use App\Entity\Core\Collection;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\CollectionVoter;
 use App\Service\Collection\CollectionSorter;
 
 class CollectionProvider extends AbstractCollectionProvider
@@ -41,8 +40,7 @@ class CollectionProvider extends AbstractCollectionProvider
             empty($filters['parent'])
             && empty($filters['parents'])
             && empty($filters['query'])
-            && !$this->hasScope(AbstractVoter::LIST, CollectionVoter::SCOPE_PREFIX)
-            && !$this->isAdmin()
+            && !$this->isGranted(AbstractVoter::LIST, new Collection())
         ) {
             if ($context['userId']) {
                 $allowedWorkspaces = $this->workspaceRepository->getReadableWorkspaceIds($context['userId'], $context['groupIds'], $this->isAdmin());

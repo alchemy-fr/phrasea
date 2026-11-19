@@ -14,7 +14,6 @@ use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\QueryBuilder;
 
 final class WorkspaceExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
@@ -64,9 +63,7 @@ final class WorkspaceExtension implements QueryCollectionExtensionInterface, Que
 
         $this->excludeSoftDeleted($queryBuilder);
 
-        if (
-            $this->isAdmin()
-            || $this->hasScope(AbstractVoter::LIST, WorkspaceVoter::SCOPE_PREFIX)) {
+        if ($this->isGranted(AbstractVoter::LIST, new Workspace())) {
             return;
         }
 

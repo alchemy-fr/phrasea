@@ -15,7 +15,6 @@ use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Template\AssetDataTemplate;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetDataTemplateVoter;
 use Doctrine\ORM\QueryBuilder;
 
 class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
@@ -41,7 +40,7 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        if (!$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::SCOPE_PREFIX)) {
+        if (!$this->isGranted(AbstractVoter::LIST, new AssetDataTemplate())) {
             $user = $this->security->getUser();
             if ($user instanceof JwtUser) {
                 $queryBuilder->addGroupBy($rootAlias.'.id');

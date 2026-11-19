@@ -33,6 +33,7 @@ class RenditionDefinitionVoter extends AbstractVoter
         $isWorkspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
 
         return match ($attribute) {
+            self::LIST => $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
             self::CREATE, self::DELETE, self::EDIT => $isWorkspaceEditor() || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
             self::READ_ADMIN => $isWorkspaceEditor()
                 || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
