@@ -6,11 +6,11 @@ namespace App\File;
 
 use App\Entity\Core\File;
 use App\Entity\Core\FileDuplicate;
-use App\Entity\Discussion\Message;
 use App\Entity\Integration\IntegrationData;
 use App\Security\Voter\FileVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\ManyToManyOwningSideMapping;
 
 final class OrphanFileRemover
 {
@@ -62,12 +62,12 @@ final class OrphanFileRemover
     }
 
     /**
-     * References without a foreign key: message attachments, which hold the file
-     * ID in their JSON, and integration outputs, which hold it as the data value.
+     * References without a foreign key: integration outputs, which hold the file ID
+     * as the data value.
      */
     private function isReferencedByValue(string $fileId): bool
     {
-        $integrationOutput = $this->em->createQueryBuilder()
+        return null !== $this->em->createQueryBuilder()
             ->select('d.id')
             ->from(IntegrationData::class, 'd')
             ->andWhere('d.name = :name')
@@ -78,21 +78,6 @@ final class OrphanFileRemover
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
-        if (null !== $integrationOutput) {
-            return true;
-        }
-
-        $cnx = $this->em->getConnection();
-        $metadata = $this->em->getClassMetadata(Message::class);
-
-        return false !== $cnx->createQueryBuilder()
-            ->select('1')
-            ->from($cnx->quoteIdentifier($metadata->getTableName()))
-            ->andWhere(sprintf('CAST(%s AS TEXT) LIKE :pattern', $cnx->quoteIdentifier($metadata->getColumnName('attachments'))))
-            ->setParameter('pattern', '%'.$fileId.'%')
-            ->setMaxResults(1)
-            ->executeQuery()
-            ->fetchOne();
     }
 
     private function getColumns(): array
@@ -110,14 +95,22 @@ final class OrphanFileRemover
                 }
 
                 foreach ($metadata->getAssociationMappings() as $mapping) {
-                    if ($metadata->isSingleValuedAssociation($mapping['fieldName'])
-                        && !$metadata->isAssociationInverseSide($mapping['fieldName'])) {
-                        if (File::class === $mapping['targetEntity']) {
-                            $tableName = $metadata->getTableName();
-                            $this->columns[$tableName] ??= [];
-                            $this->columns[$tableName][] = $metadata->getSingleAssociationJoinColumnName($mapping['fieldName']);
-                        }
+                    if (File::class !== $mapping['targetEntity'] || $metadata->isAssociationInverseSide($mapping['fieldName'])) {
+                        continue;
                     }
+
+                    if ($metadata->isSingleValuedAssociation($mapping['fieldName'])) {
+                        $tableName = $metadata->getTableName();
+                        $column = $metadata->getSingleAssociationJoinColumnName($mapping['fieldName']);
+                    } elseif ($mapping instanceof ManyToManyOwningSideMapping) {
+                        $tableName = $mapping->joinTable->name;
+                        $column = $mapping->joinTable->inverseJoinColumns[0]->name;
+                    } else {
+                        continue;
+                    }
+
+                    $this->columns[$tableName] ??= [];
+                    $this->columns[$tableName][] = $column;
                 }
             }
         }

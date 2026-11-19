@@ -7,20 +7,25 @@ namespace App\Tests\Functional\Api;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use ApiPlatform\Test\Client;
 use App\Entity\Core\Asset;
+use App\Entity\Core\File;
+use App\Entity\Discussion\Message;
+use App\File\OrphanFileRemover;
 use App\Tests\Functional\AbstractSearchTestCase;
 
 /**
  * Removing attachments when editing a message (`PUT /messages/{id}`). The
- * attachments are annotations: a file one needs a completed upload, its
- * removal (the `File` deleted with it) goes through the same partition.
+ * attachments are annotations, or a file from a completed upload: linked to
+ * its message while attached, deleted with its removal.
  */
 class MessageAttachmentRemovalTest extends AbstractSearchTestCase
 {
+    use MultipartUploadTestTrait;
+
     public function testRemoveAttachmentsById(): void
     {
         self::enableFixtures();
         $client = static::createClient();
-        $id = $this->postMessage($client, 'Look at this', ['an1', 'an2']);
+        $id = $this->postMessage($client, 'Look at this', ['an1', 'an2'])['id'];
 
         $data = $this->putMessage($client, $id, ['removeAttachments' => ['an1']]);
         $this->assertResponseIsSuccessful();
@@ -33,11 +38,45 @@ class MessageAttachmentRemovalTest extends AbstractSearchTestCase
         $this->assertSame([], $this->getAttachmentIds($data));
     }
 
+    public function testAnAttachedFileIsLinkedToItsMessageUntilRemoved(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        [$id, $fileId] = $this->postFileMessage($client);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertSame([$fileId], $this->getFileIds($em->find(Message::class, $id)));
+        $this->assertFalse(self::getService(OrphanFileRemover::class)->removeIfOrphan($fileId));
+
+        $this->putMessage($client, $id, ['removeAttachments' => [$fileId]]);
+        $this->assertResponseIsSuccessful();
+
+        $em->clear();
+        $this->assertSame([], $this->getFileIds($em->find(Message::class, $id)));
+        $this->assertNull($em->find(File::class, $fileId));
+    }
+
+    public function testDeletingAMessageRemovesItsFiles(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        [$id, $fileId] = $this->postFileMessage($client);
+
+        $client->request('DELETE', '/messages/'.$id, [
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID)],
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+
+        self::getEntityManager()->clear();
+        $this->assertNull(self::getEntityManager()->find(File::class, $fileId));
+    }
+
     public function testEditContentKeepsAttachments(): void
     {
         self::enableFixtures();
         $client = static::createClient();
-        $id = $this->postMessage($client, 'Before', ['an1']);
+        $id = $this->postMessage($client, 'Before', ['an1'])['id'];
 
         $data = $this->putMessage($client, $id, ['content' => 'After']);
         $this->assertResponseIsSuccessful();
@@ -49,7 +88,7 @@ class MessageAttachmentRemovalTest extends AbstractSearchTestCase
     {
         self::enableFixtures();
         $client = static::createClient();
-        $id = $this->postMessage($client, '', ['an1']);
+        $id = $this->postMessage($client, '', ['an1'])['id'];
 
         $this->putMessage($client, $id, ['removeAttachments' => ['an1']]);
         $this->assertResponseStatusCodeSame(400);
@@ -59,7 +98,7 @@ class MessageAttachmentRemovalTest extends AbstractSearchTestCase
     {
         self::enableFixtures();
         $client = static::createClient();
-        $id = $this->postMessage($client, 'Mine', ['an1']);
+        $id = $this->postMessage($client, 'Mine', ['an1'])['id'];
 
         $this->putMessage($client, $id, ['removeAttachments' => ['an1']], KeycloakClientTestMock::USER_UID);
         $this->assertResponseStatusCodeSame(403);
@@ -68,7 +107,7 @@ class MessageAttachmentRemovalTest extends AbstractSearchTestCase
     /**
      * @param string[] $annotationIds
      */
-    private function postMessage(Client $client, string $content, array $annotationIds): string
+    private function postMessage(Client $client, string $content, array $annotationIds, array $attachments = []): array
     {
         $asset = self::getEntityManager()->getRepository(Asset::class)->findOneBy(['key' => 'foo']);
 
@@ -79,15 +118,31 @@ class MessageAttachmentRemovalTest extends AbstractSearchTestCase
             'json' => [
                 'threadKey' => 'asset:'.$asset->getId(),
                 'content' => $content,
-                'attachments' => array_map(fn (string $id): array => [
-                    'type' => 'annotation',
-                    'content' => json_encode(['id' => $id, 'type' => 'point'], JSON_THROW_ON_ERROR),
-                ], $annotationIds),
+                'attachments' => [
+                    ...array_map(fn (string $id): array => [
+                        'type' => 'annotation',
+                        'content' => json_encode(['id' => $id, 'type' => 'point'], JSON_THROW_ON_ERROR),
+                    ], $annotationIds),
+                    ...$attachments,
+                ],
             ],
         ]);
         $this->assertResponseStatusCodeSame(201);
 
-        return $response->toArray()['id'];
+        return $response->toArray();
+    }
+
+    /**
+     * @return array{0: string, 1: string} the message and file IDs
+     */
+    private function postFileMessage(Client $client): array
+    {
+        $upload = $this->createUpload('hello', 'note.txt', 'text/plain', KeycloakClientTestMock::ADMIN_UID);
+        $data = $this->postMessage($client, 'See attached', [], [
+            ['type' => 'file', 'multipart' => self::multipartPayload($upload)],
+        ]);
+
+        return [$data['id'], $this->getAttachmentIds($data)[0]];
     }
 
     private function putMessage(Client $client, string $id, array $data, string $userId = KeycloakClientTestMock::ADMIN_UID): array
@@ -98,6 +153,14 @@ class MessageAttachmentRemovalTest extends AbstractSearchTestCase
             ],
             'json' => $data,
         ])->toArray(false);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getFileIds(Message $message): array
+    {
+        return $message->getFiles()->map(fn (File $file): string => $file->getId())->getValues();
     }
 
     /**

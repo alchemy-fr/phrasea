@@ -22,10 +22,14 @@ use App\Api\Model\Output\ThreadMessageOutput;
 use App\Api\Processor\PostMessageProcessor;
 use App\Api\Processor\PutMessageProcessor;
 use App\Api\Provider\ThreadMessagesProvider;
+use App\Entity\Core\File;
 use App\Repository\Discussion\MessageRepository;
 use App\Security\Voter\AbstractVoter;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 #[ApiResource(
     shortName: 'message',
@@ -110,6 +114,24 @@ class Message extends AbstractUuidEntity
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $attachments = null;
 
+    /**
+     * The files of the file $attachments, which only hold their ID in their JSON
+     * content: this relation is what keeps them from being removed as orphans.
+     *
+     * @var DoctrineCollection<int, File>
+     */
+    #[ORM\ManyToMany(targetEntity: File::class)]
+    #[ORM\JoinTable(name: 'message_attachment_file')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(onDelete: 'CASCADE')]
+    private DoctrineCollection $files;
+
+    public function __construct(UuidInterface|string|null $id = null)
+    {
+        parent::__construct($id);
+        $this->files = new ArrayCollection();
+    }
+
     public function getThread(): ?Thread
     {
         return $this->thread;
@@ -148,5 +170,25 @@ class Message extends AbstractUuidEntity
     public function setAttachments(?array $attachments): void
     {
         $this->attachments = $attachments;
+    }
+
+    /**
+     * @return DoctrineCollection<int, File>
+     */
+    public function getFiles(): DoctrineCollection
+    {
+        return $this->files;
+    }
+
+    public function addFile(File $file): void
+    {
+        if (!$this->files->contains($file)) {
+            $this->files->add($file);
+        }
+    }
+
+    public function removeFile(File $file): void
+    {
+        $this->files->removeElement($file);
     }
 }
