@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\Utils\PendingMessagesSummary;
+use Alchemy\AdminBundle\Utils\WorkerQueues;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPSSLConnection;
@@ -23,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class QueuesListController extends AbstractController
 {
     public function __construct(
-        private array $queues,
+        private WorkerQueues $workerQueues,
         private array $rabbitmqConfig,
         private KernelInterface $kernel,
         #[Autowire(param: 'alchemy_admin.worker_inspect_limit')]
@@ -34,6 +35,14 @@ class QueuesListController extends AbstractController
     #[Route(path: '/admin/queues/list', name: 'queues_list')]
     public function __invoke(): Response
     {
+        $queueNames = $this->workerQueues->getNames();
+        if ([] === $queueNames) {
+            return $this->render('@AlchemyAdmin/queues_list.html.twig', [
+                'queuesStatus' => [],
+                'inspectLimit' => $this->inspectLimit,
+            ]);
+        }
+
         $isSsl = in_array(strtolower(getenv('RABBITMQ_SSL') ?: ''), [
             '1', 'y', 'true', 'on',
         ], true);
@@ -60,7 +69,7 @@ class QueuesListController extends AbstractController
         $queuesStatus = [];
         $transportsSetUp = false;
 
-        foreach ($this->queues as $queueName) {
+        foreach ($queueNames as $queueName) {
             $status = $this->getQueueStatus($connection, $channel, $queueName);
             if (null === $status && !$transportsSetUp) {
                 $this->setupTransports();

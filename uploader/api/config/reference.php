@@ -1652,7 +1652,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         name?: scalar|Param|null, // The name of the service hosting the admin (in order to access the config node)
  *     },
  *     worker?: array{
- *         queues?: list<scalar|Param|null>,
  *         inspect_limit?: int|Param, // Maximum number of pending messages read from each queue to summarize them // Default: 1000
  *         rabbitmq?: array{
  *             host?: scalar|Param|null, // Default: "%env(RABBITMQ_HOST)%"

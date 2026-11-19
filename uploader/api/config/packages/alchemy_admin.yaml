@@ -3,7 +3,6 @@ alchemy_admin:
     title: Uploader
     name: uploader
   worker:
-    queues: [p1, p2, p3]
     rabbitmq:
       host: '%env(RABBITMQ_HOST)%'
       port: '%env(RABBITMQ_PORT)%'

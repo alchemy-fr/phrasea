@@ -7,57 +7,61 @@
 {% endblock %}
 
 {% block main %}
-     <table class="table datagrid">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Message count</th>
-                <th>Consumer count</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for qs in queuesStatus %}
-            <tr>
-                <td>{{ qs.queueName }}</td>
-                {% if qs.messageCount is null %}
-                    <td colspan="2"><span class="text-danger">Not declared</span></td>
-                {% else %}
-                    <td>{{ qs.messageCount }}</td>
-                    <td>{{ qs.consumerCount }}</td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% if queuesStatus is empty %}
+        <p class="text-muted">No RabbitMQ transport is configured in this environment.</p>
+    {% else %}
+        <table class="table datagrid">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Message count</th>
+                    <th>Consumer count</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for qs in queuesStatus %}
+                <tr>
+                    <td>{{ qs.queueName }}</td>
+                    {% if qs.messageCount is null %}
+                        <td colspan="2"><span class="text-danger">Not declared</span></td>
+                    {% else %}
+                        <td>{{ qs.messageCount }}</td>
+                        <td>{{ qs.consumerCount }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
-    {% for qs in queuesStatus %}
-        {% set summary = qs.pendingMessages %}
-        {% if summary is not null and summary.count > 0 %}
-            <h2 class="mt-4">Pending messages in {{ qs.queueName }}</h2>
-            {% if qs.messageCount > summary.count %}
-                <p class="text-muted">
-                    Sample of the first {{ summary.count }} messages out of {{ qs.messageCount }}
-                    (inspection limit: {{ inspectLimit }})
-                </p>
+        {% for qs in queuesStatus %}
+            {% set summary = qs.pendingMessages %}
+            {% if summary is not null and summary.count > 0 %}
+                <h2 class="mt-4">Pending messages in {{ qs.queueName }}</h2>
+                {% if qs.messageCount > summary.count %}
+                    <p class="text-muted">
+                        Sample of the first {{ summary.count }} messages out of {{ qs.messageCount }}
+                        (inspection limit: {{ inspectLimit }})
+                    </p>
+                {% endif %}
+                <table class="table datagrid">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Detail</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for group in summary.groups %}
+                        <tr>
+                            <td title="{{ group.type ?? 'No type header' }}">{{ group.shortType }}</td>
+                            <td>{{ group.detail }}</td>
+                            <td>{{ group.count }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
-            <table class="table datagrid">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Detail</th>
-                        <th>Count</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for group in summary.groups %}
-                    <tr>
-                        <td title="{{ group.type ?? 'No type header' }}">{{ group.shortType }}</td>
-                        <td>{{ group.detail }}</td>
-                        <td>{{ group.count }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-    {% endfor %}
+        {% endfor %}
+    {% endif %}
 {% endblock %}
