@@ -38,6 +38,7 @@ export function TagManagerTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<Tag>
+            fill
             items={tags.items}
             loading={tags.loading}
             error={tags.error}

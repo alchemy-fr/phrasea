@@ -55,6 +55,7 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<RenditionDefinition>
+            fill
             items={definitions.items}
             loading={definitions.loading}
             error={definitions.error}

@@ -74,6 +74,7 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<AttributeDefinition>
+            fill
             items={definitions.items}
             loading={definitions.loading}
             error={definitions.error}

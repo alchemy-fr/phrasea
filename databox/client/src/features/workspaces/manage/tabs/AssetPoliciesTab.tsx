@@ -74,6 +74,7 @@ export function AssetPoliciesTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<AssetPolicy>
+            fill
             items={policies.data?.items}
             loading={policies.isLoading}
             error={policies.error}

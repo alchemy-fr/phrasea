@@ -26,6 +26,7 @@ export function AttributePoliciesTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<AttributePolicy>
+            fill
             items={policies.data?.items}
             loading={policies.isLoading}
             error={policies.error}

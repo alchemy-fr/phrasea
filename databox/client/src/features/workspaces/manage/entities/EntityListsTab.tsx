@@ -34,6 +34,7 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<EntityList>
+            fill
             items={lists.items}
             loading={lists.loading}
             error={lists.error}

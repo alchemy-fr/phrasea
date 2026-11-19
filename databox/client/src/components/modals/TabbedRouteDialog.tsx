@@ -223,12 +223,14 @@ function DialogTabs<P extends object>({
                 {tabs
                     .filter(tab => visited.includes(tab.id))
                     .map(tab => (
-                        // Full height: a tab may lay out its own scrolling panes
+                        // Full-height flex column: a tab may lay out its own
+                        // scrolling panes, a `min-h-0 flex-1` child takes the
+                        // remaining height
                         <div
                             key={tab.id}
                             hidden={tab.id !== active}
                             data-testid={`dialog-tab-${tab.id}`}
-                            className="h-full"
+                            className="flex h-full flex-col"
                         >
                             <UnsavedChangesScope.Provider
                                 value={tabScope(tab.id)}

@@ -26,6 +26,7 @@ export function RenditionPoliciesTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<RenditionPolicy>
+            fill
             items={policies.data?.items}
             loading={policies.isLoading}
             error={policies.error}
