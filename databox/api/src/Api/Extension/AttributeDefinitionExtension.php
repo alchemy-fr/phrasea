@@ -12,7 +12,6 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AttributeDefinitionVoter;
 use Doctrine\ORM\QueryBuilder;
 
 final class AttributeDefinitionExtension implements QueryCollectionExtensionInterface
@@ -40,10 +39,7 @@ final class AttributeDefinitionExtension implements QueryCollectionExtensionInte
             return;
         }
 
-        if (
-            !$this->hasScope(AbstractVoter::LIST, AttributeDefinitionVoter::SCOPE_PREFIX)
-            && !$this->isAdmin()
-        ) {
+        if (!$this->isGranted(AbstractVoter::LIST, new AttributeDefinition())) {
             $user = $this->security->getUser();
             $userId = $user instanceof JwtUser ? $user->getId() : null;
             $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];

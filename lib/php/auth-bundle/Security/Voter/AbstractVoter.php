@@ -21,6 +21,10 @@ abstract class AbstractVoter extends Voter
     use SecurityAwareTrait;
 
     final public const string CREATE = 'CREATE';
+    /**
+     * Listing objects of a kind: voted on a new object of that kind, carrying the parent
+     * (workspace…) the listing is restricted to, if any.
+     */
     final public const string LIST = 'LIST';
     final public const string READ = 'READ';
     final public const string EDIT = 'EDIT';

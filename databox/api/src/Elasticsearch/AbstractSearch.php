@@ -12,6 +12,7 @@ use App\Elasticsearch\Filter\ElasticsearchParameterApplier;
 use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Repository\Core\WorkspaceRepository;
+use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -177,8 +178,8 @@ abstract class AbstractSearch
             return null;
         }
 
-        if (null !== $adminScope = $this->getAdminScope()) {
-            if ($this->hasScope($adminScope, null, false)) {
+        if (null !== $listedSubject = $this->createListedSubject()) {
+            if ($this->isGranted(AbstractVoter::LIST, $listedSubject)) {
                 return null;
             }
         }
@@ -228,7 +229,10 @@ abstract class AbstractSearch
         return $workspacesQuery;
     }
 
-    protected function getAdminScope(): ?string
+    /**
+     * A new document of the searched kind, on which LIST is voted to skip the ACL filtering.
+     */
+    protected function createListedSubject(): ?object
     {
         return null;
     }
