@@ -43,11 +43,7 @@ class PutMessageProcessor implements ProcessorInterface
             $message->setContent($data->content);
         }
         if (!empty($data->removeAttachments)) {
-            $message->setAttachments($this->attachmentManager->removeAttachments(
-                $message->getThread(),
-                $message->getAttachments(),
-                $data->removeAttachments,
-            ));
+            $this->attachmentManager->removeAttachments($message, $data->removeAttachments);
         }
         if ('' === trim((string) $message->getContent()) && empty($message->getAttachments())) {
             throw new BadRequestHttpException('A message cannot be empty, delete it instead');

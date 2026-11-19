@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service\Discussion;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
+use App\Consumer\Handler\File\DeleteFilesIfOrphan;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
+use App\Entity\Discussion\Message;
 use App\Entity\Discussion\Thread;
 use App\Service\Asset\FileUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,17 +36,22 @@ final readonly class MessageAttachmentManager
         private UploadManager $uploadManager,
         private DiscussionManager $discussionManager,
         private FileUrlResolver $fileUrlResolver,
+        private PostFlushStack $postFlushStack,
     ) {
     }
 
     /**
      * @param string $ownerId user identifier of the author, who must own the uploads
      */
-    public function handleNewAttachments(Thread $thread, ?array $attachments, string $ownerId): ?array
+    public function handleNewAttachments(Message $message, ?array $attachments, string $ownerId): void
     {
         if (empty($attachments)) {
-            return null;
+            $message->setAttachments(null);
+
+            return;
         }
+
+        $thread = $message->getThread() ?? throw new \LogicException('The message has no thread');
 
         $workspace = null;
         $result = [];
@@ -76,6 +84,7 @@ final readonly class MessageAttachmentManager
             $file->setOriginalName($upload->getFilename());
             $file->setPath($upload->getPath());
             $this->em->persist($file);
+            $message->addFile($file);
 
             $result[] = [
                 'type' => self::TYPE_FILE,
@@ -88,42 +97,36 @@ final readonly class MessageAttachmentManager
             ];
         }
 
-        return $result;
+        $message->setAttachments($result);
     }
 
     /**
-     * Removes the attachments whose content `id` is listed. The files they
-     * stored go with them: an attached file belongs to its message only.
+     * Removes the attachments whose content `id` is listed. Their files, unlinked
+     * from the message, are removed unless something else uses them.
      */
-    public function removeAttachments(Thread $thread, ?array $attachments, array $ids): ?array
+    public function removeAttachments(Message $message, array $ids): void
     {
-        [$kept, $removed] = self::partitionAttachments($attachments ?? [], $ids);
+        [$kept, $removed] = self::partitionAttachments($message->getAttachments() ?? [], $ids);
 
-        $workspaceId = false;
+        $removedFileIds = [];
         foreach ($removed as $attachment) {
-            if (self::TYPE_FILE !== ($attachment['type'] ?? null)) {
-                continue;
-            }
-
-            $file = $this->em->find(File::class, self::getAttachmentId($attachment));
-            if (!$file instanceof File) {
-                continue;
-            }
-
-            if (false === $workspaceId) {
-                try {
-                    $workspaceId = $this->getThreadWorkspace($thread)->getId();
-                } catch (\Throwable) {
-                    $workspaceId = null;
-                }
-            }
-            // A file of another workspace was not uploaded for this message
-            if (null !== $workspaceId && $file->getWorkspaceId() === $workspaceId) {
-                $this->em->remove($file);
+            if (self::TYPE_FILE === ($attachment['type'] ?? null)) {
+                $removedFileIds[] = self::getAttachmentId($attachment);
             }
         }
 
-        return empty($kept) ? null : $kept;
+        $unlinkedIds = [];
+        foreach ($message->getFiles()->toArray() as $file) {
+            if (in_array($file->getId(), $removedFileIds, true)) {
+                $message->removeFile($file);
+                $unlinkedIds[] = $file->getId();
+            }
+        }
+        if ([] !== $unlinkedIds) {
+            $this->postFlushStack->addBusMessage(new DeleteFilesIfOrphan($unlinkedIds));
+        }
+
+        $message->setAttachments(empty($kept) ? null : $kept);
     }
 
     /**

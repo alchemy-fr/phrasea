@@ -128,6 +128,7 @@ class AssetSourceFileCopyTest extends AbstractDataboxTestCase
             'type' => MessageAttachmentManager::TYPE_FILE,
             'content' => json_encode(['id' => $file->getId(), 'name' => 'secret.jpg'], JSON_THROW_ON_ERROR),
         ]]);
+        $message->addFile($file);
         $em->persist($message);
         $em->flush();
 
