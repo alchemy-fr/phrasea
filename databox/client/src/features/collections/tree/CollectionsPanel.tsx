@@ -34,6 +34,7 @@ import {
 import {useDropTarget} from '@/features/dnd/useDropTarget';
 import {useCollectionDrag} from '@/features/dnd/useCollectionDrag';
 import {useHoverExpand} from '@/features/dnd/useHoverExpand';
+import {isOnlyChildPager, mayHaveChildren, useAutoExpand} from './autoExpand';
 import {mergeRefs} from '@alchemy/next-ui/utils/refs';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {BuiltInAttribute, quoteAQL} from '@/features/search/searchState';
@@ -479,6 +480,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                                     key={id}
                                     collection={collections[id]}
                                     depth={1}
+                                    onlyChild={isOnlyChildPager(pager)}
                                 />
                             )
                     )}
@@ -502,9 +504,11 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
 function CollectionItem({
     collection,
     depth,
+    onlyChild,
 }: {
     collection: CollectionNode;
     depth: number;
+    onlyChild: boolean;
 }) {
     const {t} = useTranslation();
     const router = useRouter();
@@ -521,11 +525,8 @@ function CollectionItem({
     const drag = useCollectionDrag(collection);
     const expand = useCallback(() => setExpanded(true), []);
     useHoverExpand(drop.isOver, expanded, expand);
-    // The list endpoint ships the first children along with each collection,
-    // so an empty `children` means a leaf. Without that hint (search results,
-    // ascendants…) we can't tell, and the chevron stays.
-    const childrenKnown = !!pager?.loaded || Array.isArray(collection.children);
-    const hasChildren = childrenKnown ? (pager?.ids.length ?? 0) > 0 : true;
+    const hasChildren = mayHaveChildren(collection, pager);
+    useAutoExpand(onlyChild && hasChildren, expand);
 
     useEffect(() => {
         if (expanded) {
@@ -769,6 +770,7 @@ function CollectionItem({
                                     key={id}
                                     collection={collections[id]}
                                     depth={depth + 1}
+                                    onlyChild={isOnlyChildPager(pager)}
                                 />
                             )
                     )}
