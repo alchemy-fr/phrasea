@@ -195,12 +195,17 @@ export const TARGETS = {
     link: {slug: 'e2e-link', name: 'E2E Link', description: 'Files sent through an upload link'},
 };
 
-/** Creates an upload link of the logged in user on `targetId` */
+/** Creates an upload link of the logged in user on `targetId`, expiring in a week by default */
 export function createUploadLink(targetId, data = {}) {
     return apiRequest({
         method: 'POST',
         path: '/upload-links',
-        body: {target: iri('targets', targetId), name: uniqueValue('e2e-link'), ...data},
+        body: {
+            target: iri('targets', targetId),
+            name: uniqueValue('e2e-link'),
+            expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+            ...data,
+        },
     });
 }
 

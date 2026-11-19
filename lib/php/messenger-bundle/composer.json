@@ -9,6 +9,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
+        "ext-amqp": "*",
+        "symfony/amqp-messenger": "^7.4 || ^8.0",
         "symfony/framework-bundle": "^7.4 || ^8.0",
         "symfony/serializer": "^7.4 || ^8.0",
         "symfony/messenger": "^7.4 || ^8.0",

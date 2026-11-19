@@ -45,7 +45,7 @@ final readonly class FileMetadataEmbedder
             return null;
         }
 
-        // denormalize() drops the System namespace, the non-writable and the unknown tags
+        // denormalize() drops the unknown, the non-writable and the not allowed tags
         $bag = $this->metadataNormalizer->denormalize($overridden);
 
         return count($bag) > 0 ? $bag : null;

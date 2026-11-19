@@ -31,7 +31,9 @@ readonly class IndexCollectionBranchHandler
 
     private function handleChildren(Collection $collection, bool $indexAssets): void
     {
-        $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], Operation::Upsert);
+        if ($collection->isObjectIndexable()) {
+            $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], Operation::Upsert);
+        }
         if ($indexAssets) {
             $this->bus->dispatch(new IndexCollectionAssets($collection->getId()));
         }

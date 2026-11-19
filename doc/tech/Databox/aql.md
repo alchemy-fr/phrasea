@@ -5,12 +5,12 @@ AQL expresses the search conditions of databox: the `conditions[]` parameter of
 both clients all use it.
 
 ```
-title STARTS WITH "Report" AND (@tag HAS ALL OF ("a", "b") OR description IS EMPTY)
+title STARTS WITH "Report" AND (keywords HAS ALL OF ("a", "b") OR description IS EMPTY)
 ```
 
 A condition is `field operator [value]`. Conditions are combined with `AND`, `OR`,
 `NOT` and parentheses. A field is an attribute slug (`title`) or a built-in attribute
-(`@tag`, `@collection`, `@createdAt`…). Values are quoted strings, numbers (`-74.006`), `true`,
+(`@collection`, `@createdAt`…). Values are quoted strings, numbers (`-74.006`), `true`,
 `false`, `null`, other fields, function calls (`NOW()`, `DATE_SUB(NOW(), "P7D")`…) or
 arithmetic expressions.
 
@@ -50,11 +50,42 @@ Notes:
   matches "The car is red". It does not support `CASE SENSITIVE`.
 - On dates, `IS` / `IS NOT` match a prefix of the date: `@createdAt IS "2024-03"`
   matches the whole month.
+- On an attribute of type `entity` (an entity list), the values are the entity IDs:
+  `tags IS "<entity ID>"`, `tags IN ("<ID>", "<ID>")`, `tags HAS ALL OF (…)`,
+  `tags IS NOT "<entity ID>"`.
 - After `IS`, the words `EMPTY`, `MISSING`, `ANY`, `NONE` and `NOT` are keywords and
   cannot be used as field names.
 - The radius of `WITHIN CIRCLE` is a number of meters or an Elasticsearch distance
   string: `location WITHIN CIRCLE (48.85, 2.35, "1500m")`. `WITHIN RECTANGLE` takes the
   top-left then the bottom-right corner.
+
+## Comparing fields (script conditions)
+
+When the value of a condition depends on the asset (another field, or an expression or
+function reading one), the condition becomes a Painless `script` query:
+
+```
+n >= m * 2
+label = CONCAT(SUBSTRING(code, 0, 3), "!")
+```
+
+- The left operand is always a field. The operators are `=`, `!=`, `<`, `<=`, `>` and `>=`.
+- Arithmetic: `+`, `-`, `*`, `/`. A division gives a decimal number, as between constants:
+  `n / m` is `2.5` for `10 / 4`.
+- `SUBSTRING(s, start[, length])` follows PHP `substr`: `start` is 0-based, `length` is a
+  length (not an end position), a negative `start` or `length` counts from the end, and out of
+  range bounds give a shorter or empty string rather than an error.
+- `CONCAT(a, b)` joins the text of both values, numbers included.
+- An asset missing a value read by the condition never matches it, whatever the operator,
+  `!=` included: `n != m` does not retain the assets without `m` (unlike `n != 3`, which retains
+  the assets without `n`). `NOT (n = m)` does retain them, as any `NOT`.
+- A text field is compared on its raw value, indexed up to its first 256 characters: a longer
+  value counts as missing. Only the first value of a multi-valued field is read.
+- Dates are not supported: neither comparing date fields (`@createdAt > @editedAt`) nor
+  `NOW()`, `DATE_ADD()` or `DATE_SUB()` in a condition that reads another field.
+
+The constant values are passed as script parameters, so that conditions of the same shape share
+a single script compilation.
 
 ## Builder labels
 

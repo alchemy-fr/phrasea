@@ -15,9 +15,11 @@ use App\Entity\Core\EntityList;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\EntityListVoter;
 use App\Service\Asset\Attribute\AttributeEntity\Exporter\AttributeEntityExporterInterface;
+use App\Util\ContentDispositionUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -61,7 +63,7 @@ class ExportEntitiesProcessor implements ProcessorInterface
 
         return new StreamedResponse($exporter->export($list, $data), Response::HTTP_OK, [
             'Content-Type' => $exporter->getMimeType($data),
-            'Content-Disposition' => sprintf('attachment; filename="%s"', $exporter->getFilename($list, $data)),
+            'Content-Disposition' => ContentDispositionUtil::make(HeaderUtils::DISPOSITION_ATTACHMENT, $exporter->getFilename($list, $data)),
         ]);
     }
 }

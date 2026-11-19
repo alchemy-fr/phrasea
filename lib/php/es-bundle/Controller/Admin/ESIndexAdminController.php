@@ -71,8 +71,13 @@ final class ESIndexAdminController extends AbstractController
     #[AdminRoute('/index/{name}', name: self::ROUTE_INDEX_DETAIL)]
     public function detail(string $name): Response
     {
-        if (!$this->admin->isManaged($name)) {
-            $this->addFlash('danger', $this->outOfScopeMessage($name));
+        if (!ESIndexAdmin::isValidName($name)) {
+            throw $this->createNotFoundException('Invalid index name.');
+        }
+        try {
+            $this->admin->assertManaged($name);
+        } catch (\InvalidArgumentException $e) {
+            $this->addFlash('danger', $e->getMessage());
 
             return $this->redirectToIndex();
         }
@@ -100,7 +105,6 @@ final class ESIndexAdminController extends AbstractController
     public function delete(Request $request, string $name): Response
     {
         return $this->mutate($request, function () use ($name): string {
-            $this->assertManaged($name);
             $this->admin->deleteIndex($name);
 
             return \sprintf('Index "%s" has been deleted.', $name);
@@ -111,7 +115,6 @@ final class ESIndexAdminController extends AbstractController
     public function open(Request $request, string $name): Response
     {
         return $this->mutate($request, function () use ($name): string {
-            $this->assertManaged($name);
             $this->admin->openIndex($name);
 
             return \sprintf('Index "%s" has been opened.', $name);
@@ -122,7 +125,6 @@ final class ESIndexAdminController extends AbstractController
     public function close(Request $request, string $name): Response
     {
         return $this->mutate($request, function () use ($name): string {
-            $this->assertManaged($name);
             $this->admin->closeIndex($name);
 
             return \sprintf('Index "%s" has been closed.', $name);
@@ -133,7 +135,6 @@ final class ESIndexAdminController extends AbstractController
     public function refresh(Request $request, string $name): Response
     {
         return $this->mutate($request, function () use ($name): string {
-            $this->assertManaged($name);
             $this->admin->refreshIndex($name);
 
             return \sprintf('Index "%s" has been refreshed.', $name);
@@ -211,25 +212,8 @@ final class ESIndexAdminController extends AbstractController
         if ($index === $alias) {
             throw new \InvalidArgumentException('An alias cannot have the same name as its index.');
         }
-        $this->assertManaged($index);
-        $this->assertManaged($alias);
 
         return [$index, $alias];
-    }
-
-    /**
-     * Refuses to act on an index or alias outside the configured prefix, even by crafted URL/form.
-     */
-    private function assertManaged(string $name): void
-    {
-        if (!$this->admin->isManaged($name)) {
-            throw new \InvalidArgumentException($this->outOfScopeMessage($name));
-        }
-    }
-
-    private function outOfScopeMessage(string $name): string
-    {
-        return \sprintf('"%s" is outside the managed scope: only indices and aliases prefixed with "%s" can be managed here.', $name, $this->admin->getIndexPrefix());
     }
 
     /**

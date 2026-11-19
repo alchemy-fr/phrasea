@@ -85,8 +85,22 @@ App\Entity\Core\EntityList:
     fh_el_people:
         workspace: '@w_fernhollow'
         name: People
+    fh_el_tags:
+        workspace: '@w_fernhollow'
+        name: Tags
+        withTranslations: true
+        withColors: true
 
 App\Entity\Core\AttributeEntity:
+    fh_tpl_tag (template):
+        list: '@fh_el_tags'
+        workspace: '@w_fernhollow'
+    fh_tag_ondisplay (extends fh_tpl_tag): { value: On display, color: '#43A047', translations: { fr: Exposé } }
+    fh_tag_instorage (extends fh_tpl_tag): { value: In storage, color: '#757575', translations: { fr: En réserve } }
+    fh_tag_onloan (extends fh_tpl_tag): { value: On loan, color: '#1E88E5', translations: { fr: En prêt } }
+    fh_tag_digitise (extends fh_tpl_tag): { value: Needs digitisation, color: '#FDD835', translations: { fr: À numériser } }
+    fh_tag_fragile (extends fh_tpl_tag): { value: Fragile, color: '#E53935' }
+
     fh_fam_{aspleniaceae, hymenophyllaceae, orchidaceae, droseraceae, nymphalidae, lucanidae, strigidae}:
         list: '@fh_el_family'
         workspace: '@w_fernhollow'
@@ -260,29 +274,15 @@ App\Entity\Core\AttributeDefinition:
         annotationsEnabled: true
         position: 19
         translations: { name: { fr: Personnes } }
-
-App\Entity\Core\Tag:
-    fh_tpl_tag (template):
-        workspace: '@w_fernhollow'
-    fh_tag_ondisplay (extends fh_tpl_tag):
-        name: On display
-        color: '#43A047'
-        translations: { name: { fr: Exposé } }
-    fh_tag_instorage (extends fh_tpl_tag):
-        name: In storage
-        color: '#757575'
-        translations: { name: { fr: En réserve } }
-    fh_tag_onloan (extends fh_tpl_tag):
-        name: On loan
-        color: '#1E88E5'
-        translations: { name: { fr: En prêt } }
-    fh_tag_digitise (extends fh_tpl_tag):
-        name: Needs digitisation
-        color: '#FDD835'
-        translations: { name: { fr: À numériser } }
-    fh_tag_fragile (extends fh_tpl_tag):
-        name: Fragile
-        color: '#E53935'
+    fh_ad_tags (extends fh_tpl_ad):
+        name: Tags
+        type: entity
+        entityList: '@fh_el_tags'
+        multiple: true
+        facetEnabled: true
+        target: '<(App\Model\AssetTypeEnum::Both)>'
+        position: 20
+        translations: { name: { fr: Étiquettes } }
 
 # Collections (privacy). A collection is at least as visible as its parent: the branches that
 # hide their assets from the members (0 and 1) are under parents of privacy 0 or 1.
@@ -403,10 +403,6 @@ App\Entity\Core\Asset:
         ownerId: <keycloakUser("alice")>
         # Secret or private in the workspace: the collections decide who sees them
         privacy: '<numberBetween(0, 1)>'
-        __calls:
-            - addTag (50%?): ['@fh_tag_instorage']
-            - addTag (15%?): ['@fh_tag_digitise']
-            - addTag (15%?): ['@fh_tag_fragile']
 
     # Specimens, from the top of the tree down to Rare Ferns, then the side collections
     fh_a_v_s{1..3} (extends fh_tpl_a):
@@ -423,7 +419,6 @@ App\Entity\Core\Asset:
         privacy: 5
         __calls:
             - addToCollection: ['@fh_c_open', true, true]
-            - addTag: ['@fh_tag_ondisplay']
     fh_a_v_s{12..17} (extends fh_tpl_a):
         source: '@fh_f_m<current()>'
         __calls:
@@ -435,7 +430,6 @@ App\Entity\Core\Asset:
         privacy: 0
         __calls:
             - addToCollection: ['@fh_c_rareferns', true, true]
-            - addTag: ['@fh_tag_fragile']
     fh_a_v_s{22..27} (extends fh_tpl_a):
         source: '@fh_f_m<current()>'
         ownerId: <keycloakUser("bob")>
@@ -462,7 +456,6 @@ App\Entity\Core\Asset:
         privacy: 1
         __calls:
             - addToCollection: ['@fh_c_loans', true, true]
-            - addTag: ['@fh_tag_onloan']
     fh_a_v_s{43..46} (extends fh_tpl_a):
         source: '@fh_f_m<current()>'
         ownerId: <keycloakUser("bob")>
@@ -529,6 +522,16 @@ App\Entity\Core\File:
 App\Entity\Core\Attribute:
     fh_tpl_at (template):
         origin: 0
+
+    # Tags: where the specimens are and what to take care of
+    fh_at_tag_ondisplay_s{9..11} (extends fh_tpl_at): { definition: '@fh_ad_tags', asset: '@fh_a_v_s<current()>', value: '@fh_tag_ondisplay->id' }
+    fh_at_tag_onloan_s{40..42} (extends fh_tpl_at): { definition: '@fh_ad_tags', asset: '@fh_a_v_s<current()>', value: '@fh_tag_onloan->id' }
+    fh_at_tag_instorage_s{1..8} (extends fh_tpl_at): { definition: '@fh_ad_tags', asset: '@fh_a_v_s<current()>', value: '@fh_tag_instorage->id' }
+    fh_at_tag_instorage_s{22..34} (extends fh_tpl_at): { definition: '@fh_ad_tags', asset: '@fh_a_v_s<current()>', value: '@fh_tag_instorage->id' }
+    fh_at_tag_digitise_s{12..17} (extends fh_tpl_at): { definition: '@fh_ad_tags', asset: '@fh_a_v_s<current()>', value: '@fh_tag_digitise->id' }
+    fh_at_tag_digitise_accession{1..3} (extends fh_tpl_at): { definition: '@fh_ad_tags', asset: '@fh_a_d_accession<current()>', value: '@fh_tag_digitise->id' }
+    fh_at_tag_fragile_s{18..21} (extends fh_tpl_at): { definition: '@fh_ad_tags', asset: '@fh_a_v_s<current()>', value: '@fh_tag_fragile->id' }
+    fh_at_tag_fragile_s{28..30} (extends fh_tpl_at): { definition: '@fh_ad_tags', asset: '@fh_a_v_s<current()>', value: '@fh_tag_fragile->id' }
 
     # Species of each group of specimens. specimenScientificName() picks the species of the
     # asset, so it must come before specimenCommonName().

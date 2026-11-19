@@ -241,6 +241,9 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
     public function testAnEditorCreatesApprovedValues(): void
     {
         $this->setUpScene();
+        // A regional locale is accepted once the workspace enables it
+        $this->workspace->setEnabledLocales(['fr', 'en', 'de', 'fr_FR']);
+        self::getEntityManager()->flush();
 
         $data = $this->postEntity(self::USER, [
             'value' => 'Red',
@@ -336,6 +339,27 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
 
         $this->postEntity(self::USER, ['value' => 'Blue', 'synonyms' => ['en' => [str_repeat('a', 101)]]]);
         $this->assertResponseStatusCodeSame(422);
+
+        // The translation and synonym keys become fields of the asset index mapping: only the
+        // known locales and those of the workspace (fr, en, de) are accepted
+        $data = $this->postEntity(self::USER, ['value' => 'Blue', 'translations' => ['zz' => 'Bleu']]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('translations', $data['violations'][0]['propertyPath']);
+
+        $this->postEntity(self::USER, ['value' => 'Blue', 'translations' => ['fr_CA' => 'Bleu']]);
+        $this->assertResponseStatusCodeSame(422);
+
+        $this->postEntity(self::USER, ['value' => 'Blue', 'translations' => ['_' => 'Bleu']]);
+        $this->assertResponseStatusCodeSame(422);
+
+        $data = $this->postEntity(self::USER, ['value' => 'Blue', 'synonyms' => ['fake-locale' => ['Azure']]]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('synonyms', $data['violations'][0]['propertyPath']);
+
+        // "_" holds the synonyms gathered by a merge; "it" is a known locale the workspace does not enable
+        $data = $this->postEntity(self::USER, ['value' => 'Blue', 'translations' => ['it' => 'Blu'], 'synonyms' => ['_' => ['Azure'], 'EN' => ['Navy']]]);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame(['_' => ['Azure'], 'en' => ['Navy']], $data['synonyms'], 'synonym locales are normalized');
 
         // The same value is accepted in another list
         $this->api('POST', '/attribute-entities', self::USER, [

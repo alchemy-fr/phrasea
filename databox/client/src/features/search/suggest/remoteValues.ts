@@ -1,22 +1,21 @@
 import {AttributeDefinitionOrBuiltIn, AttributeType} from '@/types/api';
 import {getSearchSuggestions} from '@/lib/api/assets';
 import {getCollections} from '@/lib/api/collections';
-import {getAttributeEntities, getTags} from '@/lib/api/metadata';
+import {getAttributeEntities} from '@/lib/api/metadata';
 import {idFromIri} from '@/lib/utils/iri';
 import {Candidate, isApiSuggestable} from './filterSuggestions';
 
 const LIMIT = 10;
 
 /**
- * Values of a field fetched from the API while typing: collections, tags,
- * the entities of an entity list, or the indexed values of an attribute.
+ * Values of a field fetched from the API while typing: collections, the
+ * entities of an entity list, or the indexed values of an attribute.
  */
 export function hasRemoteValues(
     definition: AttributeDefinitionOrBuiltIn
 ): boolean {
     switch (definition.type) {
         case AttributeType.CollectionPath:
-        case AttributeType.Tag:
             return true;
         case AttributeType.Entity:
             return !!entityListId(definition);
@@ -61,14 +60,6 @@ export async function fetchRemoteValues({
                     c.absoluteName ??
                     c.displayName ??
                     c.name,
-            }));
-        }
-        case AttributeType.Tag: {
-            const page = await getTags({query});
-
-            return page.items.slice(0, LIMIT).map(tag => ({
-                value: tag.id,
-                label: tag.displayName ?? tag.name,
             }));
         }
         case AttributeType.Entity: {

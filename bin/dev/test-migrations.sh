@@ -32,6 +32,8 @@ expose
 uploader
 "
 
+superuser_env=(-e POSTGRES_USER="${POSTGRES_USER}" -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}")
+
 status=0
 
 for app in ${APPS}; do
@@ -42,7 +44,9 @@ for app in ${APPS}; do
 
   # DB_NAME is what config/packages/doctrine.yaml resolves DATABASE_URL from.
   # app:database:configure only exists in databox (ltree extension).
-  if docker compose run --rm -T -e DB_NAME="${db_name}" "${service}" su app -c "
+  # The superuser creates and drops the scratch database: the role of the API
+  # (<APP>_POSTGRES_USER), when there is one, may not.
+  if docker compose run --rm -T -e DB_NAME="${db_name}" "${superuser_env[@]}" "${service}" su app -c "
       set -e
       bin/console doctrine:database:drop --force --if-exists
       bin/console doctrine:database:create --if-not-exists
@@ -60,7 +64,7 @@ for app in ${APPS}; do
   fi
 
   if [ "${KEEP}" != "1" ]; then
-    docker compose run --rm -T -e DB_NAME="${db_name}" "${service}" su app -c \
+    docker compose run --rm -T -e DB_NAME="${db_name}" "${superuser_env[@]}" "${service}" su app -c \
       "bin/console doctrine:database:drop --force --if-exists" >/dev/null 2>&1 || true
   fi
 done

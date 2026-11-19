@@ -11,6 +11,7 @@ use FOS\ElasticaBundle\Configuration\ConfigManager;
 use FOS\ElasticaBundle\Configuration\IndexConfig;
 use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Index\Resetter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -68,13 +69,101 @@ class ESIndexAdminTest extends TestCase
         );
     }
 
-    public function testWithoutPrefixEverythingIsManaged(): void
+    public function testWithoutPrefixEveryValidNameIsManaged(): void
     {
         $admin = $this->createAdmin();
 
         $this->assertSame('', $admin->getIndexPrefix());
         $this->assertTrue($admin->isManaged('anything'));
-        $this->assertTrue($admin->isManaged('.kibana'));
+        $this->assertFalse($admin->isManaged('.kibana'), 'hidden indices are listed, not managed');
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidNames(): iterable
+    {
+        yield 'list' => ['asset_dev,other_app'];
+        yield 'wildcard' => ['asset_*'];
+        yield 'single char wildcard' => ['asset_de?'];
+        yield 'all' => ['_all'];
+        yield 'bare wildcard' => ['*'];
+        yield 'exclusion' => ['-asset_dev'];
+        yield 'date math' => ['<asset-{now/d}>'];
+        yield 'hidden' => ['.kibana'];
+        yield 'uppercase' => ['Asset'];
+        yield 'html' => ['x<img src=x>'];
+        yield 'trailing newline' => ["asset_dev\n"];
+        yield 'empty' => [''];
+    }
+
+    #[DataProvider('invalidNames')]
+    public function testInvalidNamesAreRefused(string $name): void
+    {
+        $admin = $this->createAdmin();
+        foreach (['delete', 'open', 'close', 'refresh', 'exists', 'get', 'stats', 'updateAliases'] as $method) {
+            $this->indices->expects($this->never())->method($method);
+        }
+
+        $this->assertFalse(ESIndexAdmin::isValidName($name));
+        $this->assertFalse($admin->isManaged($name));
+
+        $calls = [
+            fn () => $admin->deleteIndex($name),
+            fn () => $admin->openIndex($name),
+            fn () => $admin->closeIndex($name),
+            fn () => $admin->refreshIndex($name),
+            fn () => $admin->indexExists($name),
+            fn () => $admin->getIndexDetails($name),
+            fn () => $admin->addAlias($name, 'al'),
+            fn () => $admin->addAlias('idx', $name),
+            fn () => $admin->removeAlias($name, 'al'),
+            fn () => $admin->removeAlias('idx', $name),
+            fn () => $admin->switchAlias($name, 'idx'),
+            fn () => $admin->switchAlias('al', $name),
+        ];
+        foreach ($calls as $i => $call) {
+            try {
+                $call();
+                $this->fail(\sprintf('call #%d accepted "%s"', $i, $name));
+            } catch (\InvalidArgumentException $e) {
+                $this->assertStringContainsString('is not a valid index or alias name', $e->getMessage());
+            }
+        }
+    }
+
+    public function testValidNameOutsideThePrefixIsRefused(): void
+    {
+        $admin = $this->createAdmin(prefix: 'asset_');
+        $this->indices->expects($this->never())->method('delete');
+        $this->indices->expects($this->never())->method('updateAliases');
+
+        $this->assertTrue(ESIndexAdmin::isValidName('tag_dev'));
+        $this->assertFalse($admin->isManaged('tag_dev'));
+
+        foreach ([
+            fn () => $admin->deleteIndex('tag_dev'),
+            fn () => $admin->addAlias('asset_dev_2026-01-01-000000', 'other_alias'),
+            fn () => $admin->switchAlias('asset_snapshot', 'other_app'),
+        ] as $call) {
+            try {
+                $call();
+                $this->fail('a name outside the prefix is accepted');
+            } catch (\InvalidArgumentException $e) {
+                $this->assertStringContainsString('outside the managed scope', $e->getMessage());
+            }
+        }
+    }
+
+    public function testValidPrefixedNameIsAccepted(): void
+    {
+        $admin = $this->createAdmin(prefix: 'asset_');
+        $this->indices->expects($this->once())->method('delete')
+            ->with(['index' => 'asset_dev_2025-12-01-000000'])
+            ->willReturn($this->createResponse([]));
+
+        $this->assertTrue($admin->isManaged('asset_dev_2025-12-01-000000'));
+        $admin->deleteIndex('asset_dev_2025-12-01-000000');
     }
 
     public function testPrefixRestrictsPhysicalIndicesAndAliases(): void
@@ -299,7 +388,37 @@ class ESIndexAdminTest extends TestCase
             'mappings' => ['properties' => []],
             'aliases' => ['al'],
             'stats' => ['docs' => ['count' => 3]],
+            'fields' => ['count' => 0, 'limit' => ESIndexAdmin::DEFAULT_TOTAL_FIELDS_LIMIT, 'ignoreDynamicBeyondLimit' => false],
         ], $admin->getIndexDetails('x'));
+    }
+
+    public function testIndexDetailsReportTheMappedFieldsAgainstTheLimit(): void
+    {
+        $admin = $this->createAdmin();
+        $this->indices->method('get')->with(['index' => 'x'])->willReturn($this->createResponse([
+            'x' => [
+                'settings' => ['index' => ['mapping' => ['total_fields' => ['limit' => '5000', 'ignore_dynamic_beyond_limit' => 'true']]]],
+                'mappings' => [
+                    'properties' => [
+                        'title' => ['type' => 'text', 'fields' => ['raw' => ['type' => 'keyword']]],
+                        'attributes' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'en' => ['properties' => ['a_text_s' => ['type' => 'text']]],
+                            ],
+                        ],
+                    ],
+                    'runtime' => ['day' => ['type' => 'keyword']],
+                ],
+            ],
+        ]));
+        $this->indices->method('stats')->willReturn($this->createResponse(['indices' => []]));
+
+        // title, title.raw, attributes, attributes.en, attributes.en.a_text_s and the runtime field
+        $this->assertSame(
+            ['count' => 6, 'limit' => 5000, 'ignoreDynamicBeyondLimit' => true],
+            $admin->getIndexDetails('x')['fields'],
+        );
     }
 
     public function testResetLogicalIndexDelegatesToTheResetter(): void

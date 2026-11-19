@@ -9,6 +9,11 @@
 parameters:
     locale: 'en'
     env(ASSET_DAYS_RETENTION): 31
+    env(UPLOAD_LINK_MAX_TTL): 90
+    # Maximum lifetime of an upload link, in days
+    app.upload_link.max_ttl: '%env(int:UPLOAD_LINK_MAX_TTL)%'
+    # Longest a download from a URL may take, in seconds, whatever the speed of the remote server
+    app.download.max_duration: 600
 
 services:
     # default configuration for services in *this* file

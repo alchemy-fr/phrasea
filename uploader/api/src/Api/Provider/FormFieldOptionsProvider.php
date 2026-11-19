@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * The values a user may pick for an entity or tag field of the target's form.
+ * The values a user may pick for an entity field of the target's form.
  * Only the lists the form offers can be read through it.
  */
 final readonly class FormFieldOptionsProvider implements ProviderInterface
@@ -48,27 +48,21 @@ final readonly class FormFieldOptionsProvider implements ProviderInterface
 
         $definition = $target->getFormDefinition();
         $field = $definition?->getField((string) $uriVariables['key']);
-        if (null === $definition || null === $field || $field->hidden) {
+        if (null === $field || $field->hidden) {
             throw new NotFoundHttpException('The target form has no such field');
+        }
+        if (FieldType::Entity !== $field->type || null === $field->entityListId) {
+            throw new NotFoundHttpException('The field has no Databox values');
         }
 
         $query = self::optionsQuery($request);
 
-        return match ($field->type) {
-            FieldType::Entity => self::fromDatabox(fn (): array => $this->catalog->getEntityOptions(
-                (string) $field->entityListId,
-                $query['query'],
-                $query['ids'],
-                $query['page'],
-                $request->getLocale(),
-            )),
-            FieldType::Tag => self::fromDatabox(fn (): array => $this->catalog->getTagOptions(
-                (string) $definition->workspaceId,
-                $query['query'],
-                $query['ids'],
-                $query['page'],
-            )),
-            default => throw new NotFoundHttpException('The field has no Databox values'),
-        };
+        return self::fromDatabox(fn (): array => $this->catalog->getEntityOptions(
+            $field->entityListId,
+            $query['query'],
+            $query['ids'],
+            $query['page'],
+            $request->getLocale(),
+        ));
     }
 }

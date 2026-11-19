@@ -7,9 +7,14 @@ namespace App\Tests\Functional\Import;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Consumer\Handler\File\DeleteFileFromStorage;
+use App\Consumer\Handler\File\DeleteFileFromStorageHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetImport;
+use App\Entity\Core\File;
+use App\Entity\Core\Workspace;
+use App\Service\Storage\FileManager;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use App\Tests\Functional\Api\MultipartUploadTestTrait;
 
 /**
  * An import is created by whoever can create assets in its destination, and read by its
@@ -18,6 +23,7 @@ use App\Tests\Functional\AbstractDataboxTestCase;
 final class AssetImportApiTest extends AbstractDataboxTestCase
 {
     use AssetImportTestTrait;
+    use MultipartUploadTestTrait;
 
     protected function setUp(): void
     {
@@ -149,5 +155,56 @@ final class AssetImportApiTest extends AbstractDataboxTestCase
         $deletions = $this->getQueuedMessages($this->p2Queue, DeleteFileFromStorage::class);
         $this->assertSame([[$sourcePath]], array_map(static fn (DeleteFileFromStorage $message): array => $message->getPaths(), $deletions));
         $this->assertCount(1, self::getEntityManager()->getRepository(Asset::class)->findBy(['workspace' => $workspace->getId()]));
+    }
+
+    public function testAnUploadIsImportedOnce(): void
+    {
+        [$workspace] = $this->createWorkspaceWithDefaults('ws-import', self::OWNER);
+        $upload = $this->createUpload(self::ndjson([['name' => 'a']]), 'import.ndjson', 'application/x-ndjson', self::OWNER);
+        $payload = [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'format' => AssetImport::FORMAT_NDJSON,
+            'multipart' => self::multipartPayload($upload),
+        ];
+
+        $importId = $this->apiRequest('POST', '/asset-imports', self::OWNER, $payload)->toArray()['id'];
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame($upload->getPath(), $this->findImport($importId)->getSourcePath());
+
+        // A second import of the same upload would share (and delete with it) the same object
+        $response = $this->apiRequest('POST', '/asset-imports', self::OWNER, $payload);
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('already used', $response->toArray(false)['description']);
+        $this->assertCount(1, self::getEntityManager()->getRepository(AssetImport::class)->findAll());
+    }
+
+    public function testDeletingAnImportKeepsAnObjectAFileStillPointsTo(): void
+    {
+        [$workspace] = $this->createWorkspaceWithDefaults('ws-import', self::OWNER);
+        $importId = $this->postImport($workspace, self::ndjson([['name' => 'a']]))->toArray()['id'];
+        $sourcePath = $this->findImport($importId)->getSourcePath();
+
+        // A file sharing the object, as an upload used twice before uploads were single-use could leave
+        $em = self::getEntityManager();
+        $file = self::getService(FileManager::class)->createFile(File::STORAGE_S3_MAIN, $sourcePath, 'application/x-ndjson', null, 'import.ndjson', $em->find(Workspace::class, $workspace->getId()));
+        $em->flush();
+        $fileId = $file->getId();
+
+        $this->apiRequest('DELETE', '/asset-imports/'.$importId, self::OWNER);
+        $this->assertResponseStatusCodeSame(204);
+
+        $deletions = $this->getQueuedMessages($this->p2Queue, DeleteFileFromStorage::class);
+        $this->assertCount(1, $deletions);
+        $handler = self::getService(DeleteFileFromStorageHandler::class);
+        $handler($deletions[0]);
+        $storage = self::getService(FileStorageManager::class);
+        $this->assertTrue($storage->has($sourcePath), 'the object of the file is kept');
+
+        // Once nothing points to it any more, the object is deleted
+        $em = self::getEntityManager();
+        $em->remove($em->find(File::class, $fileId));
+        $em->flush();
+        $handler($deletions[0]);
+        $this->assertFalse($storage->has($sourcePath));
     }
 }

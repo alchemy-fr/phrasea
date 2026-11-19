@@ -71,7 +71,13 @@ describe('Integrations', () => {
                 cy.fieldByLabel('Name').should('have.value', 'Faces');
                 cy.fieldByLabel('Type').should('be.disabled');
                 cy.getBySel('create-attribute-multiple').should('have.attr', 'aria-checked', 'true').and('be.disabled');
-                // No entity list yet: a new one is proposed
+                // The workspace already has a list ("Tags" of seedWorkspace): none is picked by default
+                cy.get('#create-attribute-list').click();
+            });
+        cy.contains('[cmdk-item]', 'New list…').click();
+        cy.getBySel('form-dialog')
+            .last()
+            .within(() => {
                 cy.fieldByLabel('List name').should('have.value', 'Persons');
                 cy.contains('button', 'Create').click();
             });

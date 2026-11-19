@@ -35,7 +35,7 @@ It is stored in the `audit_log` table (formerly `action_log`), one row per actio
 The auditable objects are the entities implementing `App\Audit\AuditableInterface`:
 assets, collections, workspaces, baskets, shares, saved searches and their automations,
 profiles, pages, templates, attribute definitions, policies and filter rules, entity lists
-and entities, rendition definitions and policies, tags, workspace environment variables,
+and entities, rendition definitions and policies, workspace environment variables,
 integrations and secrets. Their object type is the key of the `alchemy_track` entities map
 (`config/packages/alchemy_track.yaml`), exposed by the API as the snake case short class
 name (`asset`, `saved_search`...).

@@ -33,6 +33,7 @@ final readonly class AlbumArtworkTransformerModule implements TransformerModuleI
         #[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
+        private int $ffmpegMaxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
     ) {
     }
 
@@ -94,7 +95,7 @@ final readonly class AlbumArtworkTransformerModule implements TransformerModuleI
             throw new \InvalidArgumentException('Invalid input file family, should be audio');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver, $this->ffmpegMaxTimeout);
         $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var Audio $audio */

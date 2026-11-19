@@ -59,7 +59,7 @@ class AssetImportIntegrationController extends AbstractController
         }
 
         $config = $integrationManager->getIntegrationConfiguration($integration);
-        if (!hash_equals((string) ($config['securityKey'] ?? ''), $authToken)) {
+        if (!$config->matches('securityKey', $authToken)) {
             throw new AccessDeniedHttpException('Invalid ApiKey');
         }
 

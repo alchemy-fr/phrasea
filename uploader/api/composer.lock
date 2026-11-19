@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "95ee68133bb3ec742b24729a1cede070",
+    "content-hash": "230681fdf4099e511b98bae41afaced8",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -367,10 +367,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
-                "reference": "8089108ea1a4813509b488e29b37fb5a5d9f168d"
+                "reference": "7e88ddc5826236bda24ab43bcdf1334518b10710"
             },
             "require": {
+                "ext-amqp": "*",
                 "php": "^8.5",
+                "symfony/amqp-messenger": "^7.4 || ^8.0",
                 "symfony/doctrine-messenger": "^7.4 || ^8.0",
                 "symfony/framework-bundle": "^7.4 || ^8.0",
                 "symfony/messenger": "^7.4 || ^8.0",
@@ -599,7 +601,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
-                "reference": "9cc8270278bc7a265464a569f9b96ef21668d2a0"
+                "reference": "32e93bc947377806b20cb0b1a902595fd32d5a92"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -608,9 +610,11 @@
                 "php": "^8.5",
                 "ramsey/uuid": "^4.2.3",
                 "symfony/framework-bundle": "^7.4 || ^8.0",
-                "symfony/mime": "^7.4 || ^8.0"
+                "symfony/mime": "^7.4 || ^8.0",
+                "symfony/rate-limiter": "^7.4 || ^8.0"
             },
             "require-dev": {
+                "doctrine/orm": "^3.3",
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^11.5"
@@ -10298,6 +10302,80 @@
                 }
             ],
             "time": "2026-10-07T08:21:34+00:00"
+        },
+        {
+            "name": "symfony/rate-limiter",
+            "version": "v8.1.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/rate-limiter.git",
+                "reference": "6311b3a5d7448684894d6e184d963f4d504086a5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/rate-limiter/zipball/6311b3a5d7448684894d6e184d963f4d504086a5",
+                "reference": "6311b3a5d7448684894d6e184d963f4d504086a5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4.1",
+                "symfony/options-resolver": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "psr/cache": "^1.0|^2.0|^3.0",
+                "symfony/lock": "^7.4|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\RateLimiter\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Wouter de Jong",
+                    "email": "wouter@wouterj.nl"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides a Token Bucket implementation to rate limit input and output in your application",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "limiter",
+                "rate-limiter"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/rate-limiter/tree/v8.1.11"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-11-01T19:30:44+00:00"
         },
         {
             "name": "symfony/routing",

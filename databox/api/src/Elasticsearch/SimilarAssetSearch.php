@@ -4,26 +4,21 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use App\Elasticsearch\AQL\ConditionOperatorEnum;
-use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
-use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Elasticsearch\Query\Knn;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetStatusEnum;
 use App\Service\Vector\AssetEmbeddingManager;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\TransformedFinder;
 use FOS\ElasticaBundle\HybridResult;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class SimilarAssetSearch extends AbstractSearch
+class SimilarAssetSearch
 {
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset')]
         private readonly TransformedFinder $finder,
         private readonly AssetEmbeddingManager $assetEmbeddingManager,
-        private readonly DeletedBuiltInAttribute $deletedBuiltInAttribute,
-        private readonly AssetStatusBuiltInAttribute $assetStatusBuiltInAttribute,
+        private readonly AssetSearch $assetSearch,
     ) {
     }
 
@@ -69,25 +64,19 @@ class SimilarAssetSearch extends AbstractSearch
             return null;
         }
 
-        $options = [
-            'userId' => $userId,
-            'groupIds' => $groupIds,
-        ];
-
+        // The base filters (ACL, attribute filter rules, trash, quarantine) MUST be applied within
+        // the knn query (pre-filtering), otherwise the nearest neighbors would be computed over
+        // documents the user cannot see. No search option: the trash and the quarantine are never shown.
         $filter = new Query\BoolQuery();
-
-        // The ACL filter MUST be applied within the knn query (pre-filtering),
-        // otherwise the nearest neighbors would be computed over unauthorized documents.
-        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        if (null !== $aclBoolQuery) {
-            $filter->addFilter($aclBoolQuery);
+        foreach ($this->assetSearch->createBaseFilterQueries($userId, $groupIds) as $baseFilterQuery) {
+            $filter->addFilter($baseFilterQuery);
         }
-
-        $filter->addFilter($this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options));
-        $filter->addFilter($this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options));
         $filter->addMustNot(new Query\Terms('_id', [$asset->getId()]));
 
         $knn = new Knn('embedding', $vector, $numCandidates);
+        // Without k, Elasticsearch takes the size of the search: none for an aggregation-only
+        // search (rejected), and only the current page for the hits, their total and the facets.
+        $knn->setK($numCandidates);
         $knn->setFilter($filter);
 
         return $knn;

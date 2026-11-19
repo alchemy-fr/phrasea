@@ -200,6 +200,14 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals('Pub #3', $json[2]['title']);
     }
 
+    public function testListPublicationsWithMalformedIdFilterReturns400(): void
+    {
+        foreach (['parentId', 'profileId'] as $parameter) {
+            $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/publications?'.$parameter.'=not-a-uuid');
+            $this->assertEquals(400, $response->getStatusCode(), $parameter);
+        }
+    }
+
     public function testListPublicationsAsAdmin(): void
     {
         $this->createPublication([

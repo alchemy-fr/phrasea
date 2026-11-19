@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Integration\Core\FaceRecognition;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Attribute\Type\EntityAttributeType;
+use App\Doctrine\Delete\AssetDelete;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
@@ -15,8 +18,10 @@ use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\ImageSet;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Traits\AssetAnnotationsInterface;
+use App\Integration\Core\FaceRecognition\FaceIndex;
 use App\Integration\Core\FaceRecognition\FaceManager;
 use App\Integration\Core\FaceRecognition\FacePhotoCropper;
 use App\Integration\Core\FaceRecognition\FaceRecognitionAnalyzer;
@@ -95,7 +100,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->assertSame(self::BOX_RIGHT, self::boxOf($rightFace));
         $this->assertSame(Attribute::ORIGIN_MACHINE, $leftFace->getOrigin());
         $this->assertSame(FaceRecognitionIntegration::getName(), $leftFace->getOriginVendor());
-        $this->assertSame(self::ALICE, $leftFace->getEmbedding()['v']);
+        $this->assertSame(self::vector(self::ALICE), $leftFace->getEmbedding()['v']);
         $unknownAlice = $this->person($leftFace);
         $unknownBob = $this->person($rightFace);
         $this->assertNotSame($unknownAlice->getId(), $unknownBob->getId(), 'Different persons');
@@ -159,8 +164,10 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         // 6. Alice gets a second look-alike recognized from her reference: propagation moves a
         //    face of a pending person, never a face a user named
         $strangerFace = $em->find(Attribute::class, $strangerFace->getId());
-        $strangerFace->setEmbedding(['m' => 'mock', 'v' => self::ALICE_LOOKALIKE]);
+        $strangerFace->setEmbedding(['m' => 'mock', 'v' => self::vector(self::ALICE_LOOKALIKE)]);
         $em->flush();
+        // An embedding never changes otherwise: nothing else sends it to the face index again
+        self::getService(FaceIndex::class)->update([$strangerFace]);
         $leftFace = $em->find(Attribute::class, $leftFace->getId());
         $this->assertSame(1, $faceManager->propagate($leftFace, $config));
         $em->clear();
@@ -403,6 +410,32 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         );
     }
 
+    public function testIndexCommandDetectsTheFacesSynchronously(): void
+    {
+        $this->setUpScene();
+        $this->createIntegration();
+        $group = $this->createImageAsset();
+        $portrait = $this->createImageAsset();
+        $noImage = $this->createAsset(['workspace' => $this->workspace]);
+
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE), self::face(self::BOX_RIGHT, self::BOB)]);
+
+        $tester = new CommandTester((new Application(self::$kernel))->find('app:face-recognition:index'));
+        $tester->execute(['--sync' => true, '--workspace' => $this->workspace->getId()]);
+        $tester->assertCommandIsSuccessful();
+
+        $display = $tester->getDisplay();
+        $this->assertStringContainsString($group->getId().' 2 face(s)', $display);
+        $this->assertStringContainsString($portrait->getId().' 2 face(s)', $display);
+        $this->assertStringContainsString($noImage->getId().' skipped', $display);
+        $this->assertStringContainsString('3 asset(s) processed', $display);
+        $this->assertCount(2, $this->getFaces($group));
+        $this->assertCount(2, $this->getFaces($portrait));
+        $this->assertCount(0, $this->getFaces($noImage));
+    }
+
     public function testApprovingAnUnknownPersonMakesItsBestFaceAReference(): void
     {
         $em = self::getEntityManager();
@@ -473,6 +506,80 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->assertNotSame($faces[0]->getValue(), $faces[1]->getValue());
     }
 
+    public function testAFaceTheDatabaseNoLongerHasIsNotRecognized(): void
+    {
+        $em = self::getEntityManager();
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+
+        $analyzer = self::getService(FaceRecognitionAnalyzer::class);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        [$aliceFace] = $analyzer->analyze($this->createImageAsset(), $config);
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE_LOOKALIKE)]);
+        [$recognized] = $analyzer->analyze($this->createImageAsset(), $config);
+        $this->assertSame($aliceFace->getValue(), $recognized->getValue(), 'Recognized through the face index');
+
+        // Deleted by a DQL query: the face index still holds both faces
+        $em->createQueryBuilder()
+            ->delete(Attribute::class, 'a')
+            ->andWhere('a.id IN (:ids)')
+            ->setParameter('ids', [$aliceFace->getId(), $recognized->getId()])
+            ->getQuery()
+            ->execute();
+        $em->clear();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        [$face] = $analyzer->analyze($this->createImageAsset(), $config);
+        $this->assertNotSame($aliceFace->getValue(), $face->getValue(), 'A new unknown person');
+    }
+
+    public function testAFaceOfATrashedAssetStillRecognizesItsPersonButIsNeverItsReference(): void
+    {
+        $em = self::getEntityManager();
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+
+        $analyzer = self::getService(FaceRecognitionAnalyzer::class);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE, 1.0)]);
+        $trashed = $this->createImageAsset();
+        [$trashedFace] = $analyzer->analyze($trashed, $config);
+        $em->find(Asset::class, $trashed->getId())->setDeletedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE_LOOKALIKE)]);
+        [$recognized] = $analyzer->analyze($this->createImageAsset(), $config);
+        $this->assertSame($trashedFace->getValue(), $recognized->getValue(), 'Recognized from the trashed asset');
+
+        $reference = self::getService(FaceManager::class)->markReference($this->person($recognized), $config, KeycloakClientTestMock::USER_UID);
+        $this->assertSame($recognized->getId(), $reference?->getId(), 'The most confident face is in the trash');
+    }
+
+    public function testTheFacesOfADeletedAssetLeaveTheFaceIndex(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $asset = $this->createImageAsset();
+        [$face] = self::getService(FaceRecognitionAnalyzer::class)->analyze($asset, $config);
+        $definitionId = $face->getDefinition()->getId();
+
+        $faceIndex = self::getService(FaceIndex::class);
+        $this->assertSame([$face->getId()], $faceIndex->findNearest($definitionId, self::vector(self::ALICE), 0.6));
+
+        self::getEntityManager()->clear();
+        self::getService(AssetDelete::class)->deleteAssets([$asset->getId()]);
+        $this->assertSame([], $faceIndex->findNearest($definitionId, self::vector(self::ALICE), 0.6));
+    }
+
     public function testAssetWithoutImageIsSkipped(): void
     {
         $this->setUpScene();
@@ -486,6 +593,101 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $asset = $this->createAsset(['workspace' => $this->workspace]);
         $this->assertNull(self::getService(FaceRecognitionAnalyzer::class)->analyze($asset, $config));
         $this->assertCount($calls, $client->getCalls(), 'The service is not called');
+    }
+
+    public function testThePhotoComesFromAFaceEveryReaderOfTheListSees(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+        $analyzer = self::getService(FaceRecognitionAnalyzer::class);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        self::interceptP2();
+
+        // The most confident face of the person is on a secret asset
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
+        $secretAsset = $this->createImageAsset(WorkspaceItemPrivacyInterface::SECRET);
+        $secretFace = $analyzer->analyze($secretAsset, $config)[0];
+        $person = (string) $secretFace->getValue();
+        $client->setFaces([self::face(self::BOX_RIGHT, self::ALICE_LOOKALIKE)]);
+        $openAsset = $this->createImageAsset();
+        $openFace = $analyzer->analyze($openAsset, $config)[0];
+        $this->assertSame($person, (string) $openFace->getValue());
+        $em = self::getEntityManager();
+        $em->find(Attribute::class, $secretFace->getId())->setConfidence(0.99);
+        $em->find(Attribute::class, $openFace->getId())->setConfidence(0.7);
+        $em->flush();
+        // The files of a removed photo are deleted by a message
+        self::stopInterceptingP2();
+        $photo = fn () => self::getService(FaceRecognitionPhotoHandler::class)(new FaceRecognitionPhoto($person, $config->getIntegrationId()));
+
+        // 1. Only the face of the asset every reader of the workspace sees is a candidate
+        $photo();
+        $this->assertSame($openFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
+
+        // 2. Its asset is not open to every reader any more: the photo is removed with its files
+        $files = self::imageFilesOf($this->photoOf($person));
+        $this->updateAsset($openAsset, fn (Asset $a) => $a->setPrivacy(WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE));
+        $photo();
+        $this->assertNull($this->photoOf($person));
+        $this->assertImageFilesAreDeleted($files);
+
+        // 3. The most confident face becomes visible to every reader
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE));
+        $photo();
+        $this->assertSame($secretFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
+
+        // 4. Anyone reads the list of a public workspace: only the public assets are candidates
+        $this->workspace()->setPublic(true);
+        self::getEntityManager()->flush();
+        $photo();
+        $this->assertNull($this->photoOf($person));
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC));
+        $photo();
+        $this->assertSame($secretFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
+
+        // 5. A quarantined asset is not a candidate
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->setStatus(AssetStatusEnum::Quarantined));
+        $photo();
+        $this->assertNull($this->photoOf($person));
+        $this->updateAsset($secretAsset, fn (Asset $a) => $a->setStatus(AssetStatusEnum::Accepted));
+
+        // 6. Nor an asset that an attribute filter rule hides from some user
+        $tag = $this->findOrCreateTagEntity('Visible to all', $this->workspace());
+        $tagsDefinitionId = $this->getOrCreateTagsDefinition($this->workspace())->getId();
+        self::getAttributeFilterManager()->saveRule($this->workspace(), ['some_user'], [], sprintf('tags = "%s"', $tag->getId()));
+        $photo();
+        $this->assertNull($this->photoOf($person));
+        $this->updateAsset($secretAsset, function (Asset $a) use ($tag, $tagsDefinitionId): void {
+            $em = self::getEntityManager();
+            $attribute = new Attribute();
+            $attribute->setAsset($a);
+            $attribute->setDefinition($em->find(AttributeDefinition::class, $tagsDefinitionId));
+            $attribute->setOrigin(Attribute::ORIGIN_HUMAN);
+            $attribute->setValue($tag->getId());
+            $em->persist($attribute);
+        });
+        $photo();
+        $this->assertSame($secretFace->getId(), $this->photoOf($person)?->getSourceAttributeId());
+    }
+
+    public function testAnalyzeActionRefusesARejectedSource(): void
+    {
+        $this->setUpScene();
+        $integration = $this->createIntegration();
+        $asset = $this->createImageAsset();
+        $asset->getSource()->rejectContent('Declared type "image/jpeg", content is "text/html"');
+        self::getEntityManager()->flush();
+
+        $response = static::createClient()->request('POST', '/integrations/'.$integration->getId().'/actions/'.FaceRecognitionIntegration::ACTION_ANALYZE, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => ['assetId' => $asset->getId()],
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('its content was rejected', $response->toArray(false)['detail'] ?? '');
     }
 
     public function testConfigurationIsValidated(): void
@@ -583,10 +785,22 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         return [
             'box' => $box,
             'confidence' => $confidence,
-            'embedding' => $embedding,
+            'embedding' => self::vector($embedding),
             'age' => 30,
             'gender' => 'F',
         ];
+    }
+
+    /**
+     * The embedding of the face index (512 dimensions) from its first dimensions.
+     *
+     * @param float[] $dimensions
+     *
+     * @return float[]
+     */
+    private static function vector(array $dimensions): array
+    {
+        return array_pad($dimensions, 512, 0.0);
     }
 
     private static function boxOf(Attribute $face): array
@@ -683,7 +897,11 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         }
     }
 
-    private function createImageAsset(): Asset
+    /**
+     * An image asset open to every reader of the workspace by default (a candidate for the photo of
+     * its persons), indexed.
+     */
+    private function createImageAsset(int $privacy = WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE): Asset
     {
         $em = self::getEntityManager();
         $workspace = $this->workspace();
@@ -703,10 +921,36 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
             'workspace' => $workspace,
             'no_flush' => true,
         ]);
+        $asset->setPrivacy($privacy);
         $asset->setSource($file);
         $em->flush();
+        self::indexAssets();
 
         return $asset;
+    }
+
+    /**
+     * @param \Closure(Asset): void $change
+     */
+    private function updateAsset(Asset $asset, \Closure $change): void
+    {
+        $em = self::getEntityManager();
+        $managed = $em->find(Asset::class, $asset->getId());
+        $change($managed);
+        $em->flush();
+        // A change of its attributes alone does not schedule the asset for indexing
+        self::getService(DeferredIndexListener::class)->scheduleForUpdate($managed);
+        self::indexAssets();
+    }
+
+    /**
+     * Sends the pending changes of the assets to the index, without repopulating it.
+     */
+    private static function indexAssets(): void
+    {
+        self::$documentIndices['asset'] = self::getContainer()->get('fos_elastica.index.asset');
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
     }
 
     /**

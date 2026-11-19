@@ -19,6 +19,11 @@ class AdminTest extends AbstractAdminTestCase
         $this->doTestRealtimePage();
     }
 
+    public function testQueuesPage(): void
+    {
+        $this->doTestQueuesPage();
+    }
+
     public function testGlobalPermissionPages(): void
     {
         $this->client->loginUser($this->getAuthAdminUser(), 'admin');

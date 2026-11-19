@@ -9,11 +9,7 @@ import {
 } from '@/types/api';
 import {Input, Textarea} from '@alchemy/next-ui/ui/input';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {
-    AttributeEntitySelect,
-    TagSelect,
-    UserSelect,
-} from '@/components/form/selects';
+import {AttributeEntitySelect, UserSelect} from '@/components/form/selects';
 import {PrivacyField} from '@/components/form/PrivacyField';
 import {assetStatusLabels} from '@/features/attributes/types/registry';
 import {idFromIri} from '@/lib/utils/iri';
@@ -24,7 +20,7 @@ export type AttributeWidgetProps = {
     id: string;
     definition: AttributeDefinition;
     value: unknown;
-    /** `item` is the selected object for relation types (tag, entity, user) */
+    /** `item` is the selected object for relation types (entity, user) */
     onChange: (value: unknown, item?: unknown) => void;
     disabled?: boolean;
     readOnly?: boolean;
@@ -32,7 +28,6 @@ export type AttributeWidgetProps = {
     /** bulk editor: several assets have different values */
     indeterminate?: boolean;
     rtl?: boolean;
-    workspaceId?: string;
     onKeyDown?: React.KeyboardEventHandler;
     className?: string;
 };
@@ -60,7 +55,6 @@ export function AttributeWidget(props: AttributeWidgetProps) {
         autoFocus,
         indeterminate,
         rtl,
-        workspaceId,
         onKeyDown,
         className,
     } = props;
@@ -207,22 +201,6 @@ export function AttributeWidget(props: AttributeWidgetProps) {
                 />
             );
         }
-        case AttributeType.Tag:
-            return (
-                <TagSelect
-                    id={id}
-                    workspaceId={workspaceId}
-                    disabled={disabled || readOnly}
-                    value={
-                        value
-                            ? typeof value === 'object'
-                                ? (value as any).id
-                                : idFromIri(String(value))
-                            : undefined
-                    }
-                    onChange={(v, tag) => onChange(v, tag)}
-                />
-            );
         case AttributeType.Entity: {
             const listId = definition.entityList
                 ? typeof definition.entityList === 'string'

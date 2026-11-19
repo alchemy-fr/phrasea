@@ -43,8 +43,6 @@ facet:
     name: Renditions
   relevance:
     name: Pertinence
-  tags:
-    name: Tags
   workspace:
     name: Workspace
   is_story:
@@ -94,8 +92,6 @@ built_in_attribute:
     name: Est une Story
   stories:
     name: Stories
-  tags:
-    name: Tag
   renditions:
     name: Rendition
   editedAt:

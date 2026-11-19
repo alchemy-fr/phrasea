@@ -38,7 +38,18 @@ run (`unit` + `functional`, with the SQLite and Elasticsearch reset of
 `pre-phpunit`). Then the libs as in quick.
 
 Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
-`bin/setup.sh test` and loads the expose fixtures first.
+`bin/setup.sh test` and loads the expose fixtures first. The CI stack runs with
+`APP_ENV=prod` and the default secrets of `.env`: `ci.yaml` and
+`bin/dev/run-tests-in-ci-conditions.sh` set `PHRASEA_ALLOW_DEFAULT_SECRETS=1`,
+otherwise `bin/setup.sh` refuses them (`check_default_secrets` in `bin/functions.sh`).
+They also set the `*_POSTGRES_USER`/`*_POSTGRES_PASSWORD` pairs, so that the
+APIs, Keycloak and report-api connect with a role of their own, as a hardened
+production would (see [Database roles](../01_setup.md#database-roles));
+`bin/dev/test-migrations.sh` replays the migrations as the superuser, which
+creates and drops the scratch databases. Likewise, the `*_S3_ACCESS_KEY`/
+`*_S3_SECRET_KEY` pairs give the APIs, the clients and the indexer a MinIO user
+restricted to their bucket (see [MinIO users](../01_setup.md#minio-users)),
+created by `minio-setup` in `bin/setup.sh` and `bin/test.sh standard`.
 
 ### Keycloak and report-api in CI
 

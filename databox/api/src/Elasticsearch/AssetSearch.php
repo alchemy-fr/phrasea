@@ -6,7 +6,9 @@ namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\GeoPointAttributeType;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
@@ -20,12 +22,13 @@ use App\Elasticsearch\Geo\GeoClusterResult;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\SavedSearch\SavedSearchRepository;
 use App\Security\AttributeFilterManager;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetVoter;
 use App\Service\Asset\AssetSortGroupMapper;
 use App\Service\Vector\AssetSimilarityScorer;
 use Elastica\Aggregation;
@@ -36,6 +39,7 @@ use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -48,6 +52,55 @@ class AssetSearch extends AbstractSearch
      * Marks an order resolved from a saved search, whose fields may have disappeared since it was saved.
      */
     private const string OPT_SAVED_SORT = '_savedSearchSort';
+
+    /**
+     * Sorts on the values indexed in the workspaces of params.w only (any workspace when null),
+     * minus the assets of the scopes of params.x (see HiddenAttributeScope): the others count as
+     * missing (params.m, sorted last). Like a field sort, a multi-valued field sorts on its lowest
+     * value in ascending order and on its highest one in descending order (doc values are sorted).
+     */
+    private const string RESTRICTED_SORT_VALUE = <<<'PAINLESS'
+        String f = params.f;
+        if (!doc.containsKey(f) || doc[f].size() == 0 || doc['workspaceId'].size() == 0) {
+            return params.m;
+        }
+        String ws = doc['workspaceId'].value;
+        if (params.w != null && !params.w.contains(ws)) {
+            return params.m;
+        }
+        if (!params.x.isEmpty() && doc.containsKey('referenceCollectionPath.raw') && doc['referenceCollectionPath.raw'].size() > 0) {
+            String path = doc['referenceCollectionPath.raw'].value;
+            for (def s : params.x) {
+                if (s.w != ws) {
+                    continue;
+                }
+                boolean inScope = true;
+                for (def p : s.p) {
+                    if (path != p && !path.startsWith(p + '/')) {
+                        inScope = false;
+                        break;
+                    }
+                }
+                if (inScope) {
+                    return params.m;
+                }
+            }
+        }
+        def v = doc[f][params.asc ? 0 : doc[f].size() - 1];
+
+        PAINLESS;
+
+    private const string RESTRICTED_SORT_STRING_SCRIPT = self::RESTRICTED_SORT_VALUE.'return v;';
+
+    private const string RESTRICTED_SORT_NUMBER_SCRIPT = self::RESTRICTED_SORT_VALUE.<<<'PAINLESS'
+        if (params.k == 'd') {
+            return v.toInstant().toEpochMilli();
+        }
+        if (params.k == 'b') {
+            return v ? 1.0 : 0.0;
+        }
+        return v;
+        PAINLESS;
 
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset')]
@@ -92,7 +145,13 @@ class AssetSearch extends AbstractSearch
         array $groupIds,
         array $options = [],
     ): array {
-        [$query, $limit, $options] = $this->buildQuery($userId, $groupIds, $options);
+        [$query, $maxLimit, $options] = $this->buildQuery($userId, $groupIds, $options);
+        [$limit, $page] = self::resolvePagination($options, $maxLimit);
+
+        $groupByKey = $options['group'][0] ?? null;
+        if (null !== $groupByKey && (!is_string($groupByKey) || !$this->isGroupableField($groupByKey, $options))) {
+            throw new BadRequestHttpException(sprintf('Cannot group by "%s": it does not exist or you are not allowed to read it', is_scalar($groupByKey) ? $groupByKey : get_debug_type($groupByKey)));
+        }
 
         $this->applySort($query, $options);
 
@@ -117,10 +176,10 @@ class AssetSearch extends AbstractSearch
         $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(fn (Asset $asset,
         ): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
-        $result->setMaxPerPage((int) $limit);
-        if ($options['page'] ?? false) {
+        $result->setMaxPerPage($limit);
+        if ($page > 1) {
             $result->setAllowOutOfRangePages(true);
-            $result->setCurrentPage((int) $options['page']);
+            $result->setCurrentPage($page);
         }
         $start = microtime(true);
         // Force query to ensure adapter will run it just once.
@@ -132,7 +191,6 @@ class AssetSearch extends AbstractSearch
 
         $esQuery = $query->toArray();
 
-        $groupByKey = $options['group'][0] ?? null;
         if (null !== $groupByKey) {
             $this->assetSortGroupMapper->resolveSortGroups($result, $groupByKey);
         }
@@ -187,6 +245,68 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
+     * Among the given assets of the workspace, the IDs of those every reader of the workspace sees,
+     * for a content shown to all of them alike whatever their own rights (e.g. the photo of a
+     * person of an entity list): see createEveryReaderFilterQueries().
+     *
+     * @param string[] $assetIds
+     *
+     * @return string[]
+     */
+    public function getIdsVisibleToEveryReader(Workspace $workspace, array $assetIds): array
+    {
+        $assetIds = array_values(array_unique($assetIds));
+        if (empty($assetIds)) {
+            return [];
+        }
+
+        $boolQuery = new Query\BoolQuery();
+        foreach ($this->createEveryReaderFilterQueries($workspace) as $filterQuery) {
+            $boolQuery->addFilter($filterQuery);
+        }
+        $boolQuery->addFilter(new Query\Terms('_id', $assetIds));
+
+        $query = new Query($boolQuery);
+        $query->setSource(false);
+        $query->setSize(count($assetIds));
+
+        return array_map(
+            static fn (Result $result): string => (string) $result->getId(),
+            $this->index->search($query)->getResults(),
+        );
+    }
+
+    /**
+     * The counterpart of createBaseFilterQueries() for every reader of the workspace at once,
+     * none of them in particular: the assets of the workspace that are accepted, not deleted,
+     * open to every reader of the workspace (to anyone, anonymous users included, when the
+     * workspace is public) and matched by every attribute filter rule of the workspace, whoever
+     * it targets.
+     *
+     * @return Query\AbstractQuery[]
+     */
+    private function createEveryReaderFilterQueries(Workspace $workspace): array
+    {
+        $options = ['userId' => null, 'groupIds' => []];
+
+        $filterQueries = [
+            new Query\Term(['workspaceId' => $workspace->getId()]),
+            new Query\Range('privacy', [
+                'gte' => $workspace->isPublic() ? WorkspaceItemPrivacyInterface::PUBLIC : WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
+            ]),
+            $this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options),
+            $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options),
+        ];
+
+        $conditions = $this->attributeFilterManager->getWorkspaceConditions($workspace->getId());
+        if (null !== $rulesQuery = $this->buildRuleSetQuery([$workspace->getId() => $conditions], $options)) {
+            $filterQueries[] = $rulesQuery;
+        }
+
+        return $filterQueries;
+    }
+
+    /**
      * Clusters the geolocated assets matching the search on a tile grid.
      *
      * @param string                                                           $field     the geo point attribute key (e.g. "location_geo-point_s")
@@ -215,7 +335,7 @@ class AssetSearch extends AbstractSearch
 
         $geoFilter = new Query\BoolQuery();
         $geoFilter->addFilter(new Query\Exists($fieldInfo->name));
-        if (null !== $workspaceRestriction = $this->createFieldWorkspaceRestriction($userId, $groupIds, $fieldInfo->name)) {
+        if (null !== $workspaceRestriction = $this->attributeSearch->createVisibilityQuery($userId, $groupIds, $field)) {
             $geoFilter->addFilter($workspaceRestriction);
         }
 
@@ -277,33 +397,9 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
-     * Restricts an attribute field to the workspaces where the user may read it.
-     * Null when the user may read it everywhere.
-     */
-    private function createFieldWorkspaceRestriction(?string $userId, array $groupIds, string $fieldName): ?Query\AbstractQuery
-    {
-        $workspaceIds = [];
-        foreach ($this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds) as $cluster) {
-            if (!isset($cluster['fields'][$fieldName])) {
-                continue;
-            }
-            if (empty($cluster['w'])) {
-                return null;
-            }
-            array_push($workspaceIds, ...$cluster['w']);
-        }
-
-        if (empty($workspaceIds)) {
-            return new Query\MatchNone();
-        }
-
-        return new Query\Terms('workspaceId', array_values(array_unique($workspaceIds)));
-    }
-
-    /**
      * The filtered query shared by the asset searches: ACL, conditions and full-text query.
      *
-     * @return array{Query, int, array} the query, the page size and the resolved options
+     * @return array{Query, int, array} the query, the maximum page size and the resolved options
      */
     private function buildQuery(
         ?string $userId,
@@ -331,7 +427,7 @@ class AssetSearch extends AbstractSearch
         if (isset($options['collection'])) {
             // Exact membership: unlike "parents", this does not span the sub-tree.
             // collectionPaths is path-hierarchy analyzed, its "raw" sub-field holds the full paths.
-            $collection = DoctrineUtil::findStrictByRepo($this->collectionRepository, $options['collection'], throw404: true);
+            $collection = $this->findReadableCollection($options['collection']);
             $filterQueries[] = new Query\Term(['collectionPaths.raw' => $collection->getAbsolutePath()]);
         }
 
@@ -355,28 +451,6 @@ class AssetSearch extends AbstractSearch
 
         if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
             $filterQueries[] = new Query\Terms('workspaceId', $workspaceIds);
-        }
-
-        if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
-            $tagsBoolQuery = new Query\BoolQuery();
-            $filterQueries[] = $tagsBoolQuery;
-
-            if (isset($options['tags_must'])) {
-                foreach ($options['tags_must'] as $tag) {
-                    $tagsBoolQuery->addMust(new Query\Term(['tags' => $tag]));
-                }
-            }
-
-            if (isset($options['tags_must_not'])) {
-                foreach ($options['tags_must_not'] as $tag) {
-                    $tagsBoolQuery->addMustNot(new Query\Term(['tags' => $tag]));
-                }
-            }
-        }
-
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
         }
 
         $hasDeletedFilter = false;
@@ -403,7 +477,7 @@ class AssetSearch extends AbstractSearch
                 $conditionQuery = $this->attributeSearch->buildConditionQuery(
                     $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
                     $condition,
-                    $options
+                    [...$options, AQLToESQuery::OPT_TRUSTED_CONDITIONS => false]
                 );
 
                 if ($this->isScoreBasedCondition((string) $condition)) {
@@ -451,11 +525,11 @@ class AssetSearch extends AbstractSearch
         $query->setTrackTotalHits();
         $query->setQuery($filterQuery);
 
-        return [$query, (int) $limit, $options];
+        return [$query, $maxLimit, $options];
     }
 
     /**
-     * Filters shared by every search on the asset index: ACL, tag filter rules and, unless the
+     * Filters shared by every search on the asset index: ACL, attribute filter rules and, unless the
      * caller filters on them itself, "not deleted" and "accepted" status.
      * When the caller does filter on them, the deleted and quarantined assets stay restricted
      * to the users the AssetVoter lets read them: the caller's conditions cannot widen that.
@@ -475,7 +549,7 @@ class AssetSearch extends AbstractSearch
         $options['groupIds'] = $groupIds;
 
         $filterQueries = [];
-        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds)) {
+        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds, WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)) {
             $filterQueries[] = $aclBoolQuery;
         }
 
@@ -491,14 +565,31 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
+     * A collection filtering the search must be readable: it would otherwise reveal which of the
+     * readable assets belong to it. It is then answered like an unknown collection.
+     */
+    private function findReadableCollection(mixed $id): Collection
+    {
+        $collection = is_string($id) && Uuid::isValid($id) ? $this->collectionRepository->find($id) : null;
+        if (null === $collection || !$this->isGranted(AbstractVoter::READ, $collection)) {
+            throw new NotFoundHttpException(sprintf('%s %s not found', Collection::class, is_scalar($id) ? $id : get_debug_type($id)));
+        }
+
+        return $collection;
+    }
+
+    /**
      * @param string|string[] $collectionIds
      *
-     * @return string[] the absolute path of each requested collection
+     * @return string[] the absolute path of each requested collection the user can read
      */
     private function resolveCollectionPaths(array|string $collectionIds): array
     {
-        $collections = DoctrineUtil::getFromIds($this->collectionRepository, self::toIdList($collectionIds));
-        $paths = array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections);
+        $collections = array_filter(
+            DoctrineUtil::getFromIds($this->collectionRepository, self::toIdList($collectionIds)),
+            fn (Collection $collection): bool => $this->isGranted(AbstractVoter::READ, $collection),
+        );
+        $paths = array_values(array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections));
 
         if (empty($paths)) {
             throw new NotFoundHttpException('Collections not found');
@@ -509,7 +600,14 @@ class AssetSearch extends AbstractSearch
 
     private function buildAttributeFilterQuery(?string $userId, array $groupIds, array $options): ?Query\BoolQuery
     {
-        $ruleSet = $this->attributeFilterManager->getUserRules($userId, $groupIds);
+        return $this->buildRuleSetQuery($this->attributeFilterManager->getUserRules($userId, $groupIds), $options);
+    }
+
+    /**
+     * @param array<string, string[]> $ruleSet AQL conditions indexed by workspace ID
+     */
+    private function buildRuleSetQuery(array $ruleSet, array $options): ?Query\BoolQuery
+    {
         if (empty($ruleSet)) {
             return null;
         }
@@ -524,7 +622,7 @@ class AssetSearch extends AbstractSearch
                     $conditionQuery = $this->attributeSearch->buildConditionQuery(
                         $attributeGroups,
                         $condition,
-                        $options
+                        [...$options, AQLToESQuery::OPT_TRUSTED_CONDITIONS => true]
                     );
                 } catch (\Throwable $e) {
                     // Fail-closed: hide the whole workspace rather than breaking search or leaking assets
@@ -594,7 +692,7 @@ class AssetSearch extends AbstractSearch
             if (!empty($order)) {
                 $options['order'] = $order;
                 $options[self::OPT_SAVED_SORT] = true;
-                if (null !== $group && !isset($options['group']) && $this->isKnownField($group)) {
+                if (null !== $group && !isset($options['group']) && $this->isGroupableField($group, $options)) {
                     $options['group'] = [$group];
                 }
             }
@@ -603,15 +701,24 @@ class AssetSearch extends AbstractSearch
         return $options;
     }
 
-    private function isKnownField(string $field): bool
+    /**
+     * Grouping exposes the value of the first asset of each group: only a built-in attribute enabled
+     * for the user or an attribute the user may read can group the results.
+     */
+    private function isGroupableField(string $field, array $options): bool
     {
         try {
-            $this->attributeSearch->getESFieldInfo($field);
-
-            return true;
+            $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
         } catch (\InvalidArgumentException) {
             return false;
         }
+
+        if (!$esFieldInfo->enabled) {
+            return false;
+        }
+
+        return $esFieldInfo->builtIn
+            || $this->attributeSearch->isReadableAttributeKey($options['userId'] ?? null, $options['groupIds'] ?? [], $field);
     }
 
     private function applySort(Query $query, array $options): void
@@ -689,12 +796,29 @@ class AssetSearch extends AbstractSearch
 
                 if ($esFieldInfo->builtIn) {
                     $sort[] = [$fieldName => $w];
-                } else {
+
+                    continue;
+                }
+
+                $readableWorkspaceIds = $this->attributeSearch->getReadableWorkspaceIds($options['userId'] ?? null, $options['groupIds'] ?? [], $field);
+                $hiddenScopes = $this->attributeSearch->getHiddenScopes($options['userId'] ?? null, $options['groupIds'] ?? [], $field);
+                if (null === $readableWorkspaceIds && empty($hiddenScopes)) {
                     $sort[] = [$fieldName => [
                         'order' => $w,
                         'unmapped_type' => 'keyword',
                     ]];
+
+                    continue;
                 }
+
+                // The values the user cannot read (other workspaces, assets where asset policies hide the attribute) must not order the assets
+                if (null === $restrictedSort = self::createRestrictedSort($fieldName, $esFieldInfo->type, $w, $readableWorkspaceIds, $hiddenScopes)) {
+                    if ($lenient) {
+                        continue;
+                    }
+                    throw new BadRequestHttpException(sprintf('Cannot sort on attribute "%s": you are not allowed to read it in every workspace', $field));
+                }
+                $sort[] = $restrictedSort;
             }
         }
 
@@ -711,8 +835,53 @@ class AssetSearch extends AbstractSearch
         $query->setSort($sort);
     }
 
-    protected function getAdminScope(): ?string
+    /**
+     * @param string[]|null                       $workspaceIds null for every workspace
+     * @param list<array{w: string, p: string[]}> $hiddenScopes
+     */
+    private static function createRestrictedSort(string $fieldName, AttributeTypeInterface $type, string $way, ?array $workspaceIds, array $hiddenScopes): ?array
     {
-        return AssetVoter::SCOPE_PREFIX.AbstractVoter::LIST;
+        $kind = null !== $type->getElasticSearchSortSubField() ? 's' : match ($type->getElasticSearchType()) {
+            'keyword', 'ip' => 's',
+            'long', 'integer', 'short', 'byte', 'double', 'float', 'half_float', 'scaled_float', 'unsigned_long' => 'n',
+            'date' => 'd',
+            'boolean' => 'b',
+            default => null,
+        };
+        if (null === $kind) {
+            return null;
+        }
+
+        $asc = 'ASC' === $way;
+        if ('s' === $kind) {
+            // Code point U+10FFFF sorts after any value, the empty string before
+            $missing = $asc ? "\u{10FFFF}" : '';
+        } else {
+            $missing = $asc ? PHP_FLOAT_MAX : -PHP_FLOAT_MAX;
+        }
+
+        return [
+            '_script' => [
+                'type' => 's' === $kind ? 'string' : 'number',
+                'order' => $way,
+                'script' => [
+                    'lang' => 'painless',
+                    'source' => 's' === $kind ? self::RESTRICTED_SORT_STRING_SCRIPT : self::RESTRICTED_SORT_NUMBER_SCRIPT,
+                    'params' => [
+                        'f' => $fieldName,
+                        'w' => null !== $workspaceIds ? array_values($workspaceIds) : null,
+                        'x' => $hiddenScopes,
+                        'asc' => $asc,
+                        'k' => $kind,
+                        'm' => $missing,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    protected function createListedSubject(): Asset
+    {
+        return new Asset();
     }
 }

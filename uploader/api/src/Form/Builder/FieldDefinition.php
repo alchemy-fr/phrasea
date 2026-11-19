@@ -92,10 +92,10 @@ final readonly class FieldDefinition
                     throw new InvalidFormDefinitionException(sprintf('Unknown built-in field "%s"', $key), $path.'.key');
                 }
                 $type = $builtin->getType();
-                $multiple = $builtin->isMultiple();
+                $multiple = false;
                 break;
             case FieldSource::Attribute:
-                if (null === $type || FieldType::Choice === $type || FieldType::Tag === $type) {
+                if (null === $type || FieldType::Choice === $type) {
                     throw new InvalidFormDefinitionException('Invalid attribute field type', $path.'.type');
                 }
                 if (!is_array($data['attribute'] ?? null)) {
@@ -112,7 +112,7 @@ final readonly class FieldDefinition
                 if (null !== Builtin::tryFrom($key)) {
                     throw new InvalidFormDefinitionException(sprintf('"%s" is a built-in field', $key), $path.'.key');
                 }
-                if (null === $type || FieldType::Entity === $type || FieldType::Tag === $type) {
+                if (null === $type || FieldType::Entity === $type) {
                     throw new InvalidFormDefinitionException('Invalid custom field type', $path.'.type');
                 }
                 if (FieldType::Choice === $type) {

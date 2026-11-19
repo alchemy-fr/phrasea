@@ -35,6 +35,12 @@ class PopulatePass extends AbstractUuidEntity
     private ?string $error = null;
 
     /**
+     * The populate run (process or ESPopulate message) the pass belongs to, see PopulateLockManager::getRunId().
+     */
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    private ?string $runId = null;
+
+    /**
      * Memory of the populate, page by page (see PopulatePageTracker).
      *
      * @var array<string, mixed>|null
@@ -137,6 +143,16 @@ class PopulatePass extends AbstractUuidEntity
     public function setError(?string $error): void
     {
         $this->error = $error;
+    }
+
+    public function getRunId(): ?string
+    {
+        return $this->runId;
+    }
+
+    public function setRunId(?string $runId): void
+    {
+        $this->runId = $runId;
     }
 
     /**

@@ -79,6 +79,13 @@ services:
       - ./expose/api:/srv/app
       - ./lib/php:/lib/php
 
+  expose-scheduler:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
+    volumes:
+      - ./expose/api:/srv/app
+      - ./lib/php:/lib/php
+
   uploader-api-php:
     environment:
       - XDEBUG_ENABLED
@@ -139,16 +146,25 @@ services:
       - ./lib/php:/lib/php
 
   elasticsearch:
+    networks:
+      - data
+      - host-ports
     ports:
-      - ${DEV_ELASTICSEARCH_PORT}:9200
+      - 127.0.0.1:${DEV_ELASTICSEARCH_PORT}:9200
 
   similarity-embedder:
+    networks:
+      - data
+      - host-ports
     ports:
-      - ${DEV_SIMILARITY_EMBEDDER_PORT}:8000
+      - 127.0.0.1:${DEV_SIMILARITY_EMBEDDER_PORT}:8000
 
   face-recognition:
+    networks:
+      - data
+      - host-ports
     ports:
-      - ${DEV_FACE_RECOGNITION_PORT}:8000
+      - 127.0.0.1:${DEV_FACE_RECOGNITION_PORT}:8000
 
   dev:
     build:
@@ -157,7 +173,8 @@ services:
       entitlements:
         - network.host
     networks:
-      - internal
+      - data
+      - egress
     stdin_open: true
     tty: true
     hostname: local
@@ -316,6 +333,9 @@ services:
       - ./:/srv/workspace/phrasea
 
   db:
+    networks:
+      - data
+      - host-ports
     ports:
       - 127.0.0.1:${DB_DEV_PORT}:5432
 
@@ -331,6 +351,14 @@ services:
       - ./cypress/output:/cypress/output
       - ./cypress/cypress.config.js:/cypress/cypress.config.js
       - /tmp/.X11-unix:/tmp/.X11-unix
+
+networks:
+  # Docker publishes no port of a container attached only to internal networks
+  # (`data`). Without NAT, this network gives no Internet access either.
+  host-ports:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "false"
 
 volumes:
   dev:

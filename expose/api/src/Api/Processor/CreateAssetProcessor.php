@@ -7,11 +7,14 @@ namespace App\Api\Processor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Upload\UploadRequestResolver;
+use App\Consumer\Handler\CheckPresignedUpload;
+use App\Consumer\Handler\CheckPresignedUploadHandler;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class CreateAssetProcessor implements ProcessorInterface
 {
@@ -20,6 +23,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         private UploadRequestResolver $uploadRequestResolver,
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
         private ProcessorInterface $persistProcessor,
+        private MessageBusInterface $bus,
     ) {
     }
 
@@ -39,11 +43,15 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
             $upload->size,
             $request->request->all(),
         );
-        if (null !== $upload->uploadUrl) {
-            $asset->setUploadURL($upload->uploadUrl);
+        if (null === $upload->uploadUrl) {
+            return $this->persistProcessor->process($asset, $operation, $uriVariables, $context);
         }
 
-        return $this->persistProcessor->process($asset, $operation, $uriVariables, $context);
+        $asset->setUploadURL($upload->uploadUrl);
+        $result = $this->persistProcessor->process($asset, $operation, $uriVariables, $context);
+        $this->bus->dispatch(new CheckPresignedUpload(Asset::class, (string) $asset->getId()), [CheckPresignedUploadHandler::createDelayStamp()]);
+
+        return $result;
     }
 
     private function getPublicationId(Request $request, array $uriVariables): string

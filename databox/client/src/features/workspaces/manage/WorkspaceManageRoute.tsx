@@ -15,7 +15,6 @@ import {
     ScaleIcon,
     ShieldIcon,
     SlidersHorizontalIcon,
-    TagIcon,
     ShieldCheckIcon,
     FileLockIcon,
 } from 'lucide-react';
@@ -32,7 +31,6 @@ import {useCollectionStore} from '@/features/collections/collectionStore';
 import {WorkspaceInfoTab} from './tabs/WorkspaceInfoTab';
 import {WorkspaceEditTab} from './tabs/WorkspaceEditTab';
 import {WorkspacePermissionsTab} from './tabs/WorkspacePermissionsTab';
-import {TagManagerTab} from './tabs/TagManagerTab';
 import {EntityListsTab} from './entities/EntityListsTab';
 import {AttributeDefinitionsTab} from './tabs/AttributeDefinitionsTab';
 import {AttributePoliciesTab} from './tabs/AttributePoliciesTab';
@@ -88,13 +86,6 @@ function useTabs(workspace?: Workspace): DialogTab<WorkspaceTabProps>[] {
             icon: <ShieldIcon />,
             component: WorkspacePermissionsTab,
             enabled: !!workspace?.capabilities.editPermissions,
-        },
-        {
-            id: 'tags',
-            title: t('workspace.manage.tags', 'Tags'),
-            icon: <TagIcon />,
-            component: TagManagerTab,
-            enabled: canEdit,
         },
         {
             id: 'entities',

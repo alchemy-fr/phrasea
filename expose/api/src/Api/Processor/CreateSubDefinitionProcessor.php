@@ -7,6 +7,8 @@ namespace App\Api\Processor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Upload\UploadRequestResolver;
+use App\Consumer\Handler\CheckPresignedUpload;
+use App\Consumer\Handler\CheckPresignedUploadHandler;
 use App\Entity\SubDefinition;
 use App\Security\Voter\AssetVoter;
 use App\Storage\AssetManager;
@@ -15,6 +17,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class CreateSubDefinitionProcessor implements ProcessorInterface
 {
@@ -24,6 +27,7 @@ final readonly class CreateSubDefinitionProcessor implements ProcessorInterface
         private Security $security,
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
         private ProcessorInterface $persistProcessor,
+        private MessageBusInterface $bus,
     ) {
     }
 
@@ -57,10 +61,14 @@ final readonly class CreateSubDefinitionProcessor implements ProcessorInterface
             $upload->size,
             $request->request->all(),
         );
-        if (null !== $upload->uploadUrl) {
-            $subDefinition->setUploadURL($upload->uploadUrl);
+        if (null === $upload->uploadUrl) {
+            return $this->persistProcessor->process($subDefinition, $operation, $uriVariables, $context);
         }
 
-        return $this->persistProcessor->process($subDefinition, $operation, $uriVariables, $context);
+        $subDefinition->setUploadURL($upload->uploadUrl);
+        $result = $this->persistProcessor->process($subDefinition, $operation, $uriVariables, $context);
+        $this->bus->dispatch(new CheckPresignedUpload(SubDefinition::class, (string) $subDefinition->getId()), [CheckPresignedUploadHandler::createDelayStamp()]);
+
+        return $result;
     }
 }

@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
+use App\Storage\CommitManager;
 
 class PostCommitTest extends AbstractUploaderTestCase
 {
@@ -33,6 +34,61 @@ class PostCommitTest extends AbstractUploaderTestCase
         $this->assertEquals(KeycloakClientTestMock::ADMIN_UID, $commit->getUserId());
         $this->assertEquals(84, (int) $commit->getTotalSize());
         $this->assertCount(2, $commit->getAssets());
+    }
+
+    public function testFilesCommittedTwiceAtOnceGoWithOneCommitOnly(): void
+    {
+        $target = $this->createTarget();
+        $files = [$this->createAsset($target)->getId(), $this->createAsset($target)->getId()];
+        $manager = self::getService(CommitManager::class);
+
+        $first = $this->newCommit($target, $files);
+        $this->assertTrue($manager->store($first));
+
+        // Both passed the checks before either was stored
+        $this->assertFalse($manager->store($this->newCommit($target, $files)));
+        $this->assertFalse($manager->store($this->newCommit($target, [$files[0], $this->createAsset($target)->getId()])), 'One file only taken');
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $commits = $em->getRepository(Commit::class)->findBy(['target' => $target->getId()]);
+        $this->assertCount(1, $commits);
+        $this->assertSame($first->getId(), $commits[0]->getId());
+        $this->assertCount(2, $commits[0]->getAssets());
+    }
+
+    public function testACommitWhoseFilesWereTakenMeanwhileIsAConflict(): void
+    {
+        $target = $this->createTarget();
+        $asset = $this->createAsset($target);
+
+        $client = static::createClient();
+        $manager = $this->createMock(CommitManager::class);
+        $manager->expects($this->once())->method('store')->willReturn(false);
+        static::getContainer()->set(CommitManager::class, $manager);
+
+        $response = $client->request('POST', '/commit', [
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID)],
+            'json' => [
+                'files' => [$asset->getId()],
+                'formData' => [],
+                'target' => '/targets/'.$target->getId(),
+            ],
+        ]);
+        $this->assertEquals(409, $response->getStatusCode(), $response->getContent(false));
+    }
+
+    /**
+     * @param string[] $files
+     */
+    private function newCommit(Target $target, array $files): Commit
+    {
+        $commit = new Commit();
+        $commit->setTarget($target);
+        $commit->setFiles($files);
+        $commit->setUserId(KeycloakClientTestMock::ADMIN_UID);
+
+        return $commit;
     }
 
     public function testCommitWithUnknownTargetSlugReturns400(): void

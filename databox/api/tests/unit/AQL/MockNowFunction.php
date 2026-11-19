@@ -20,6 +20,11 @@ final readonly class MockNowFunction implements AQLFunctionInterface
         return '';
     }
 
+    public function getScriptDeclaration(): ?string
+    {
+        return null;
+    }
+
     public static function getName(): string
     {
         return 'now';

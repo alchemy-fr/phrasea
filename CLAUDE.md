@@ -100,11 +100,11 @@ dc run --rm dev pnpm --filter databox-client test -- -t "test name"         # si
 Each API defines Composer scripts. `composer test` runs var-dump-check + PHPStan + PHPUnit.
 
 ```bash
-dc run --rm databox-api-php composer test       # full check
-dc run --rm databox-api-php composer phpstan     # static analysis only
-dc run --rm databox-api-php composer cs          # php-cs-fixer
-dc run --rm databox-api-php composer phpunit     # resets test DB + elastica, then PHPUnit
-dc run --rm databox-api-php composer phpunit:compact   # same, agent-friendly output (PREFER THIS)
+dc run --rm databox-api-php su app -c "composer test"       # full check
+dc run --rm databox-api-php su app -c "composer phpstan"     # static analysis only
+dc run --rm databox-api-php su app -c "composer cs"          # php-cs-fixer
+dc run --rm databox-api-php su app -c "composer phpunit"     # resets test DB + elastica, then PHPUnit
+dc run --rm databox-api-php su app -c "composer phpunit:compact"   # same, agent-friendly output (PREFER THIS)
 ```
 
 **Prefer `composer phpunit:compact`** (databox, expose, uploader): same run as
@@ -131,10 +131,12 @@ inside the API containers.
 Single PHP test (PHPUnit filter):
 
 ```bash
-dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/functional/Path/SomeTest.php
+dc run --rm -e APP_ENV=test databox-api-php su app -c "php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/functional/Path/SomeTest.php"
 ```
 
-Symfony console: `dc run --rm databox-api-php bin/console <cmd>`.
+Symfony console: `dc run --rm databox-api-php su app -c "bin/console <cmd>"`.
+
+The API images run as root: a `bin/console` or `composer` without `su app` writes root-owned files into the bind-mounted `var/cache/dev` (HTMLPurifier, Twig…), which the `app` user then fails to remove (`cache:clear` → "Permission denied").
 
 ### Whole-repo / CI test flow
 
@@ -159,6 +161,7 @@ The canonical project lists (used by the whole-repo scripts) live in `bin/vars.s
 - **databox API DTOs:** Input DTOs become entities in `src/Api/Mapper/Input/*InputMapper`, applied by `InputMapperProcessor` set on each write operation; checks on the resulting entity go in `extraProperties` (`InputMapperProcessor::ENTITY_SECURITY`, `ENTITY_SECURITY_POST_VALIDATION`), since `securityPostDenormalize` would see the DTO. Entities become output DTOs in `src/Api/Mapper/Output/*OutputMapper`, applied in every format (plain JSON included) by `OutputMapperProcessor` (root) and `EmbeddedOutputNormalizer` (nested). There are no Input/OutputTransformers any more.
 - **Assets are never queried in SQL.** Listing, filtering, counting or paginating assets — or rows hanging off them across assets (attributes, renditions, …) — goes through Elasticsearch with `AssetSearch::createBaseFilterQueries()`, so that the asset rights (ACL, attribute filter rules, deletion, quarantine) apply in the query. Doctrine only loads entities by already known IDs. Filtering a SQL page with a voter afterwards leaks totals and returns short pages.
 - **Shared code first:** cross-app concerns (auth, config, storage, notifications, reporting, workflow) live in `lib/php/*` bundles and `lib/js/*` packages rather than being duplicated per app. When a behavior spans multiple apps, the change usually belongs in a lib, not in one app.
+- **Docker networks** (`docker-compose.yml`): `proxy` (Traefik and what it routes from the front, `PS_SUBNET`), `app` (nginx ↔ php-fpm, `internal: true`), `data` (databases, queues, storage, internal services, `internal: true`), `egress` (Internet and the host for the containers not on `proxy`). A data service never goes on `proxy`; a routed service that is not on `proxy` carries `traefik.docker.network=${COMPOSE_PROJECT_NAME}_data`; a container only on internal networks gets no published port and no `extra_hosts` route to the host (see `doc/tech/01_setup.md`).
 - **Auth** is centralized (Keycloak-based; see `lib/php/auth-bundle`, `lib/js/auth`, and `doc/tech/Authentication/`).
 - **MCP servers** (`/mcp` of each API, for AI assistants): tools are thin wrappers that replay REST calls as internal sub-requests through `Alchemy\McpBundle\Api\ApiClient` (`lib/php/mcp-bundle`), so they never reimplement security or business rules; see `doc/tech/Development/mcp.md`.
 - **databox client search** uses AQL, parsed client-side by `databox/client/src/features/search/aql/parser.ts` and server-side by the PEG grammar in `databox/api/src/Elasticsearch/AQL/` (see `doc/tech/Databox/aql.md`); keep both in sync.

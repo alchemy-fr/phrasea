@@ -47,6 +47,20 @@ class SortAssetsTest extends AbstractExposeTestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
+    public function testSortAssetsWithMalformedIdReturns400(): void
+    {
+        $publication = $this->createPublication();
+        $asset = $this->createAsset($publication);
+
+        $response = $this->request(
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            'POST',
+            '/publications/'.$publication->getId().'/sort-assets',
+            ['order' => [$asset, 'not-a-uuid']]
+        );
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+    }
+
     public function testSortAssetsAsNonOwnerReturns403(): void
     {
         $publication = $this->createPublication(['ownerId' => '42']);

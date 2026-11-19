@@ -19,7 +19,7 @@ DATABOX_ALLOWED_FILE_TYPES='image/*(.jpg,.jpeg,.png),application/pdf(.pdf),audio
 
 The check applies to every way a file enters an application:
 
-- multipart uploads (`POST /uploads`) and presigned `PUT` URLs (expose `upload` mode), on the declared type;
+- multipart uploads (`POST /uploads`) and presigned `PUT` URLs (expose `upload` mode), on the declared type when they are created, then on the type of the content (see below);
 - files sent in the request (`file` field of databox assets and renditions, uploader `POST /assets`, expose `file` mode, Phraseanet renditions), on the type of the content (see below);
 - databox files given by URL (`sourceFile`, CSV import, webhooks…), on the declared type or the type of the extension when the file is created, then on the type of the content when it is imported;
 - files coming from the uploader into databox, and files the uploader downloads from a URL.
@@ -30,16 +30,18 @@ Browsers do not always know the type of a file: the databox and uploader clients
 
 ## Content check
 
-The type declared by the client is kept as the type of the file, but the first bytes of the content (64 KiB) are inspected with libmagic (`Alchemy\StorageBundle\Upload\ContentTypeDetector`):
+The first bytes of the content (64 KiB) are inspected with libmagic (`Alchemy\StorageBundle\Upload\ContentTypeDetector`):
 
 - **Forbidden formats**, whatever the declared type: HLS playlists (`#EXTM3U`) and ffconcat scripts (`ffconcat version`), even after a BOM or blank lines. ffmpeg would read the files or URLs they list.
 - **Families**: the detected type must belong to the family of the declared one: image (including SVG, Photoshop, PostScript), audio/video (one family: libmagic cannot tell an audio-only MP4 or OGG from a video), document (PDF, RTF, text, CSV, Office, OpenDocument), or other. A JPEG declared `video/mp4`, or an HTML page declared `image/jpeg`, is refused. A file declared without type or as `application/octet-stream` claims nothing and is not compared.
-- **Containers**: libmagic sometimes only knows the container of a format. These detected types are accepted for a more precise declared type: `application/zip` for OOXML and OpenDocument, `application/x-ole-storage`, `application/CDFV2` and `application/vnd.ms-office` for legacy Office documents, `text/xml` for SVG, `application/pdf` for Illustrator, `text/plain` for CSV, and `application/octet-stream` (nothing recognized) for raw HEVC/H.264 streams and for any declared type outside the image, audio/video and document families (InDesign…). What libmagic returns for each allowed format is recorded in `ContentTypeDetectorTest`.
+- **Containers**: libmagic sometimes only knows the container of a format. These detected types are accepted for a more precise declared type: `application/zip` for OOXML and OpenDocument, `application/x-ole-storage`, `application/CDFV2` and `application/vnd.ms-office` for legacy Office documents, `text/xml` for SVG, `application/pdf` for Illustrator, `text/plain` for CSV and for JSON (libmagic only recognizes a whole JSON document), `image/tiff` for the camera raw formats built on TIFF (DNG, CR2, NEF, ARW…), and `application/octet-stream` (nothing recognized) for raw HEVC/H.264 streams and for any declared type outside the image, audio/video and document families (InDesign…). What libmagic returns for each allowed format is recorded in `ContentTypeDetectorTest`.
 - **Allowed types**: the detected type (the declared one when only its container or nothing was recognized) must be allowed for the file name. An SVG named `.jpg` is refused when `image/svg+xml` is not allowed for `.jpg`.
 
 Where it runs:
 
 - Files received by an API (direct uploads, uploader, expose, Phraseanet, imports by URL): a refused file is not stored, the request answers `400`, the job or the message fails with the reason.
+- Multipart uploads, when the request using the upload completes it (databox assets, renditions, message attachments, logos, entity images, integrations, imports; uploader assets; expose assets and sub-definitions): the API reads the first bytes of the stored object (ranged `GetObject`). A refused object is deleted with the upload and the request answers `400`. The type of an accepted upload becomes the type of the content (the declared one when only its container or nothing was recognized): the resource gets this type, not the declared one. The object is stored on S3 as `application/octet-stream`, never with the declared type.
+- Expose presigned `PUT` URLs (`upload` mode, kept for external clients): the URL binds neither the size nor the content, which are checked once it expired (`CheckPresignedUpload`, 1 hour after the expiry of the URL): the asset or sub-definition gets the real size and the type of the content, or is deleted with its file when the content is refused. Until then, the declared size and type are served. Databox publishes its renditions to Expose as multipart uploads.
 - Databox asset source files, whatever their origin (multipart upload, URL, uploader, new version): the `check_content` job of the asset ingest workflow, run after the import of the source and before every integration. It stores the detected type on the file (`file.detected_type`). A refused file is marked as such (`file.content_rejected`): its analysis fails with a message giving both types (`Declared type "image/jpeg", content is "text/html"`), the asset is quarantined, its URL is not served, and the job fails, so that no rendition or analysis runs. Later analyses do not lift the refusal. Bypassing the quarantine (`POST /assets/{id}/quarantine-bypass`, granted by the `bypassQuarantine` capability) does, and the next ingest keeps that decision.
 
 Files already stored before this check are not inspected again; running the asset ingest workflow again checks their content.

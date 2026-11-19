@@ -6,12 +6,16 @@ namespace App\Tests\Functional\Api\Asset;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\StorageBundle\Entity\MultipartUpload;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetRelationship;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use App\Tests\Functional\Api\MultipartUploadTestTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -20,6 +24,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 final class AssetCreateTest extends AbstractDataboxTestCase
 {
     use AssetApiTestTrait;
+    use MultipartUploadTestTrait;
 
     public function testCreateAssetWithoutFile(): void
     {
@@ -73,6 +78,59 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         $this->assertSame($workspace->getId(), $asset->getSource()->getWorkspaceId());
     }
 
+    #[DataProvider('sourceUrlProvider')]
+    public function testSourceUrlScheme(string $url, int $expectedStatus): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+
+        $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'sourceFile' => [
+                'url' => $url,
+                'originalName' => 'photo.jpg',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame($expectedStatus);
+    }
+
+    public static function sourceUrlProvider(): array
+    {
+        return [
+            ['https://example.com/files/photo.jpg', 201],
+            ['HTTP://example.com/files/photo.jpg', 201],
+            ['javascript:alert(1)', 422],
+            ['JavaScript://example.com/%0Aalert(1)', 422],
+            [' https://example.com/files/photo.jpg', 422],
+            ['data:text/html,<script>alert(1)</script>', 422],
+            ['indexer:///e2e/photo.jpg', 422],
+            ['ftp://example.com/photo.jpg', 422],
+            ['//example.com/photo.jpg', 422],
+            ['https:///photo.jpg', 422],
+        ];
+    }
+
+    public function testRenditionSourceUrlScheme(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+
+        $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'sourceFile' => [
+                'url' => 'https://example.com/files/photo.jpg',
+            ],
+            'renditions' => [
+                [
+                    'name' => 'preview',
+                    'sourceFile' => [
+                        'url' => 'javascript:alert(1)',
+                        'originalName' => 'preview.jpg',
+                    ],
+                ],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     #[DataProvider('alternateUrlProvider')]
     public function testAlternateUrlScheme(string $url, int $expectedStatus): void
     {
@@ -121,10 +179,13 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         $this->assertArrayNotHasKey('url', $data['source']);
     }
 
-    public function testCreateAssetFromAnExistingFileOfTheWorkspace(): void
+    public function testCreateAssetFromTheSourceOfAnotherAsset(): void
     {
         $workspace = $this->createOwnedWorkspace();
         $file = $this->createFile($workspace);
+        $asset = $this->createAsset(['ownerId' => self::OWNER, 'no_flush' => true]);
+        $asset->setSource($file);
+        self::getEntityManager()->flush();
 
         $data = $this->request('POST', '/assets', self::OWNER, [
             'workspace' => '/workspaces/'.$workspace->getId(),
@@ -133,6 +194,19 @@ final class AssetCreateTest extends AbstractDataboxTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame($file->getId(), $data['source']['id']);
+    }
+
+    public function testCreateAssetFromAFileUsedNowhereIsRejected(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $file = $this->createFile($workspace);
+
+        $this->request('POST', '/assets', self::OWNER, [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'sourceFileId' => $file->getId(),
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testCreateAssetFromAFileOfAnotherWorkspaceIsRejected(): void
@@ -153,32 +227,42 @@ final class AssetCreateTest extends AbstractDataboxTestCase
     public function testCreateAssetWithTags(): void
     {
         $workspace = $this->createOwnedWorkspace();
-        $foo = $this->findOrCreateTagByName('foo', $workspace);
-        $bar = $this->findOrCreateTagByName('bar', $workspace);
+        $definition = $this->getOrCreateTagsDefinition($workspace);
+        $foo = $this->findOrCreateTagEntity('foo', $workspace);
+        $bar = $this->findOrCreateTagEntity('bar', $workspace);
 
         $data = $this->request('POST', '/assets', self::OWNER, [
             'workspace' => '/workspaces/'.$workspace->getId(),
-            'tags' => ['/tags/'.$foo->getId(), '/tags/'.$bar->getId()],
+            'attributes' => [
+                ['definitionId' => $definition->getId(), 'value' => $foo->getId()],
+                ['definitionId' => $definition->getId(), 'value' => $bar->getId()],
+            ],
         ])->toArray();
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertEqualsCanonicalizing(['foo', 'bar'], array_column($data['tags'], 'name'));
+        $values = array_map(
+            fn (Attribute $attribute): string => $attribute->getValue(),
+            self::getEntityManager()->getRepository(Attribute::class)->findBy(['asset' => $data['id'], 'definition' => $definition->getId()]),
+        );
+        $this->assertEqualsCanonicalizing([$foo->getId(), $bar->getId()], $values);
     }
 
     public function testCreateAssetWithATagOfAnotherWorkspaceIsRejected(): void
     {
-        $this->markTestIncomplete('BUG: a tag of another workspace makes Asset::addTag() throw a \\InvalidArgumentException, answered as a 500 instead of a 4xx (AssetInputTransformer.php:141 -> Asset.php:602).');
-
         $workspace = $this->createOwnedWorkspace();
         $otherWorkspace = $this->createAnotherWorkspace('other-ws');
-        $tag = $this->findOrCreateTagByName('foreign', $otherWorkspace);
+        $definition = $this->getOrCreateTagsDefinition($workspace);
+        $tag = $this->findOrCreateTagEntity('foreign', $otherWorkspace);
 
         $this->request('POST', '/assets', self::OWNER, [
             'workspace' => '/workspaces/'.$workspace->getId(),
-            'tags' => ['/tags/'.$tag->getId()],
+            'attributes' => [
+                ['definitionId' => $definition->getId(), 'value' => $tag->getId()],
+            ],
         ]);
 
         $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(0, self::getEntityManager()->getRepository(Attribute::class)->count(['value' => $tag->getId()]));
     }
 
     public function testCreateAssetInACollection(): void
@@ -387,6 +471,46 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(201);
     }
 
+    public static function getMultipartCreations(): iterable
+    {
+        yield 'single' => [false];
+        yield 'multiple' => [true];
+    }
+
+    /**
+     * Completing the upload would leave on S3 an object that no asset references.
+     */
+    #[DataProvider('getMultipartCreations')]
+    public function testUploadIsNotCompletedWithoutTheRightToCreate(bool $multiple): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $this->addUserOnWorkspace(self::OTHER, $workspace->getId());
+        $upload = $this->createUpload("\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb\x00C\x00", 'photo.jpg', 'image/jpeg', self::OTHER);
+        $asset = [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'multipart' => self::multipartPayload($upload),
+        ];
+        $uri = $multiple ? '/assets/multiple' : '/assets';
+        $payload = $multiple ? ['assets' => [$asset]] : $asset;
+
+        $this->request('POST', $uri, self::OTHER, $payload);
+        $this->assertResponseStatusCodeSame(403);
+
+        self::getEntityManager()->clear();
+        $stored = self::getEntityManager()->find(MultipartUpload::class, $upload->getId());
+        $this->assertFalse($stored->isComplete());
+        $this->assertFalse($stored->isConsumed());
+        $this->assertSame(0, self::getEntityManager()->getRepository(Asset::class)->count([]));
+
+        // The upload can still be used where the user is allowed to
+        $this->grantContributor(self::OTHER, $workspace);
+        $this->request('POST', $uri, self::OTHER, $payload);
+        $this->assertResponseStatusCodeSame(201);
+
+        self::getEntityManager()->clear();
+        $this->assertTrue(self::getEntityManager()->find(MultipartUpload::class, $upload->getId())->isComplete());
+    }
+
     public function testChildCreateOnACollectionAllowsCreatingInIt(): void
     {
         $workspace = $this->createOwnedWorkspace();
@@ -578,6 +702,90 @@ final class AssetCreateTest extends AbstractDataboxTestCase
 
         $this->assertResponseStatusCodeSame(403);
         $this->assertSame(0, self::getEntityManager()->getRepository(Asset::class)->count([]));
+    }
+
+    public function testOwnerIdOfAnotherUserIsReservedToAdmins(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $payload = fn (string $ownerId): array => [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'ownerId' => $ownerId,
+        ];
+
+        $this->request('POST', '/assets', self::OWNER, $payload(self::OTHER));
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertSame(0, self::getEntityManager()->getRepository(Asset::class)->count([]));
+
+        $data = $this->request('POST', '/assets', self::OWNER, $payload(self::OWNER))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame(self::OWNER, $this->reloadAsset($data['id'])->getOwnerId());
+
+        $data = $this->request('POST', '/assets', self::ADMIN, $payload(self::OTHER))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame(self::OTHER, $this->reloadAsset($data['id'])->getOwnerId());
+    }
+
+    public function testNestedRenditionOfAnotherWorkspaceDefinitionIsRejected(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $otherWorkspace = $this->createAnotherWorkspace('other-ws');
+        $em = self::getEntityManager();
+        $foreignDefinition = $em->getRepository(RenditionDefinition::class)->findOneBy(['workspace' => $otherWorkspace->getId()]);
+        $definition = $em->getRepository(RenditionDefinition::class)->findOneBy(['workspace' => $workspace->getId()]);
+        $payload = fn (RenditionDefinition $definition): array => [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'renditions' => [
+                [
+                    'definitionId' => $definition->getId(),
+                    'sourceFile' => [
+                        'url' => 'https://example.com/files/rendition.jpg',
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->request('POST', '/assets', self::OWNER, $payload($foreignDefinition));
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('not found', $this->errorMessage($response));
+        $this->assertSame(0, self::getEntityManager()->getRepository(Asset::class)->count([]));
+
+        $this->request('POST', '/assets', self::OWNER, $payload($definition));
+        $this->assertResponseStatusCodeSame(201);
+    }
+
+    public function testRelationshipRequiresAReadableItemOfTheSameWorkspace(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $source = $this->createAsset(['ownerId' => self::OWNER, 'workspace' => $workspace]);
+        $unreadable = $this->createAsset(['ownerId' => self::ADMIN, 'workspace' => $this->createAnotherWorkspace('foreign-ws', self::ADMIN)]);
+        $otherWorkspaceAsset = $this->createAsset(['ownerId' => self::OWNER, 'workspace' => $this->createAnotherWorkspace('other-ws')]);
+        $unusedFile = $this->createFile($workspace);
+        $payload = fn (array $relationship): array => [
+            'workspace' => '/workspaces/'.$workspace->getId(),
+            'relationship' => array_merge(['type' => 'save_as'], $relationship),
+        ];
+
+        $response = $this->request('POST', '/assets', self::OWNER, $payload(['source' => $unreadable->getId()]));
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('not found', $this->errorMessage($response));
+
+        $response = $this->request('POST', '/assets', self::OWNER, $payload(['source' => $otherWorkspaceAsset->getId()]));
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('does not belong to the asset workspace', $this->errorMessage($response));
+
+        $response = $this->request('POST', '/assets', self::OWNER, $payload(['source' => $source->getId(), 'sourceFileId' => $unusedFile->getId()]));
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('not found', $this->errorMessage($response));
+
+        $this->request('POST', '/assets', self::OWNER, ['workspace' => '/workspaces/'.$workspace->getId(), 'relationship' => ['type' => 'save_as']]);
+        $this->assertResponseStatusCodeSame(400);
+
+        $this->assertSame(0, self::getEntityManager()->getRepository(AssetRelationship::class)->count([]));
+
+        $data = $this->request('POST', '/assets', self::OWNER, $payload(['source' => $source->getId()]))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+        $relationship = self::getEntityManager()->getRepository(AssetRelationship::class)->findOneBy(['target' => $data['id']]);
+        $this->assertSame($source->getId(), $relationship->getSource()->getId());
     }
 
     private function grantContributor(string $userId, Workspace $workspace): void

@@ -138,9 +138,7 @@ export function FormBuilder({
             {
                 id: 'builtin',
                 title: t('builder.palette.builtin', 'Databox values'),
-                items: BUILTINS.filter(
-                    b => b.type !== 'tag' || !!definition.workspaceId
-                ).map(b => ({
+                items: BUILTINS.map(b => ({
                     id: builtinItemId(b.key),
                     label: t(
                         `builder.builtin.${b.key}`,
@@ -173,14 +171,7 @@ export function FormBuilder({
                 ],
             },
         ];
-    }, [
-        t,
-        i18n.language,
-        databoxFields,
-        databoxStatus,
-        used,
-        definition.workspaceId,
-    ]);
+    }, [t, i18n.language, databoxFields, databoxStatus, used]);
 
     const paletteItems = useMemo(
         () =>

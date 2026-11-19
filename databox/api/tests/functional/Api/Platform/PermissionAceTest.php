@@ -258,6 +258,50 @@ final class PermissionAceTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
+    public function testTheAceListIgnoresAJsonBodyAndRequiresAnObjectInTheQuery(): void
+    {
+        $workspace = $this->createSharedWorkspace();
+
+        static::createClient()->request('GET', '/permissions/aces', [
+            'headers' => $this->headers(self::OWNER),
+            'json' => [
+                'objectType' => 'workspace',
+                'objectId' => $workspace->getId(),
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testTheAceListOfANonAdminIsLimitedToTheObjectCheckedInTheQuery(): void
+    {
+        $workspace = $this->createSharedWorkspace();
+        $otherWorkspace = $this->createWorkspace(['ownerId' => self::MEMBER, 'name' => 'Other', 'slug' => 'other']);
+        $this->addUserOnWorkspace(self::THIRD_USER, $otherWorkspace->getId());
+
+        $response = static::createClient()->request('GET', '/permissions/aces', [
+            'headers' => $this->headers(self::OWNER),
+            'query' => [
+                'objectType' => 'workspace',
+                'objectId' => $workspace->getId(),
+                'objectIdWildcard' => '1',
+            ],
+            'json' => [
+                'objectType' => 'workspace',
+                'objectId' => $otherWorkspace->getId(),
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $aces = $response->toArray();
+        $this->assertNotEmpty($aces);
+        foreach ($aces as $ace) {
+            $this->assertSame('workspace', $ace['objectType']);
+            $this->assertSame($workspace->getId(), $ace['objectId']);
+        }
+        $this->assertNotContains(self::THIRD_USER, array_column($aces, 'userId'));
+    }
+
     public function testAdminSetsAGlobalAceOnAnObjectType(): void
     {
         $ace = static::createClient()->request('PUT', '/permissions/ace', [

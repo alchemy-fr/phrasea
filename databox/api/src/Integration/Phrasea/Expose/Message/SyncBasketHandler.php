@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Integration\Phrasea\Expose\Message;
 
+use App\Automation\Exception\AutomationOwnerUnavailableException;
 use App\Entity\Basket\Basket;
+use App\Entity\Integration\IntegrationData;
 use App\Integration\Auth\MissingIntegrationTokenException;
 use App\Integration\IntegrationDataManager;
 use App\Integration\Phrasea\Expose\ExposeIntegration;
@@ -44,20 +46,27 @@ final class SyncBasketHandler
             ]);
         } catch (MissingIntegrationTokenException $e) {
             // The user must authenticate again: retrying would fail the same way.
-            $this->logger->warning('Expose basket synchronization aborted: no valid integration token', [
-                'integrationDataId' => $integrationData->getId(),
-                'userId' => $integrationData->getUserId(),
-            ]);
-
-            /** @var Basket $basket */
-            $basket = $integrationData->getObject();
-            $this->triggerBasketPush(ExposeIntegration::getName(), $basket, [
-                'id' => $integrationData->getId(),
-                'action' => 'sync-failed',
-                'reason' => 'missing-token',
-            ], direct: true);
-
+            $this->abort($integrationData, 'no valid integration token', 'missing-token');
             $this->exceptionNotifier->notifyException($e);
+        } catch (AutomationOwnerUnavailableException $e) {
+            // The user is missing or disabled in the IdP: retrying would fail the same way.
+            $this->abort($integrationData, 'user unavailable', 'user-unavailable', $e);
         }
+    }
+
+    private function abort(IntegrationData $integrationData, string $cause, string $reason, ?\Throwable $exception = null): void
+    {
+        $this->logger->warning(sprintf('Expose basket synchronization aborted: %s', $cause), [
+            'integrationDataId' => $integrationData->getId(),
+            'userId' => $integrationData->getUserId(),
+        ] + ($exception ? ['exception' => $exception] : []));
+
+        /** @var Basket $basket */
+        $basket = $integrationData->getObject();
+        $this->triggerBasketPush(ExposeIntegration::getName(), $basket, [
+            'id' => $integrationData->getId(),
+            'action' => 'sync-failed',
+            'reason' => $reason,
+        ], direct: true);
     }
 }

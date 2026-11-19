@@ -10,7 +10,6 @@ use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\FileSourceInput;
-use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Http\FileUploadManager;
@@ -42,26 +41,13 @@ abstract class AbstractFileInputMapper extends AbstractInputMapper
             throw new BadRequestHttpException(sprintf('Copy error: File "%s" does not belong to workspace "%s"', $fileId, $workspace->getId()));
         }
 
-        // A file of an asset (source or rendition) is copied only if the user can read it.
-        // Files not used yet (integration outputs to be saved as an asset) have no asset to check.
-        if ($this->isUsedByAnAsset($file) && !$this->isGranted(AbstractVoter::READ, $file)) {
+        // The user must be able to read the file where it is used (see FileVoter):
+        // a file used nowhere readable (message attachment, asset relationship…) cannot be referenced.
+        if (!$this->isGranted(AbstractVoter::READ, $file)) {
             throw new AccessDeniedHttpException(sprintf('Copy error: Cannot read file "%s"', $fileId));
         }
 
         return $file;
-    }
-
-    private function isUsedByAnAsset(File $file): bool
-    {
-        return null !== $this->em->createQueryBuilder()
-            ->select('a.id')
-            ->from(Asset::class, 'a')
-            ->leftJoin('a.renditions', 'r')
-            ->andWhere('a.source = :f OR r.file = :f')
-            ->setParameter('f', $file->getId())
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
     }
 
     protected function handleUpload(?MultipartUploadInput $multipart, Workspace $workspace): ?File

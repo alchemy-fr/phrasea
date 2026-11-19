@@ -30,6 +30,7 @@ use App\Api\Processor\DeleteAttributeEntityImageProcessor;
 use App\Api\Processor\MergeAttributeEntitiesProcessor;
 use App\Api\Processor\UploadAttributeEntityImageProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
+use App\Attribute\IndexableLocales;
 use App\Audit\AuditableInterface;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
@@ -43,6 +44,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'attribute-entity',
@@ -378,11 +380,51 @@ class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, 
                 }
                 if (is_numeric($locale) || empty($lSynonyms)) {
                     unset($synonyms[$locale]);
+                } elseif (LocaleUtil::normalizeLocale($locale) !== $locale) {
+                    $synonyms[LocaleUtil::normalizeLocale($locale)] = $lSynonyms;
+                    unset($synonyms[$locale]);
                 }
             }
         }
 
         $this->synonyms = $synonyms;
+    }
+
+    /**
+     * The translation and synonym keys become fields of the asset index mapping, shared by every
+     * workspace (see EntityAttributeType::normalizeElasticsearchValue()): only the indexable
+     * locales are accepted, "_" being allowed for the synonyms only (merged values land there).
+     */
+    #[Assert\Callback]
+    public function validateLocales(ExecutionContextInterface $context): void
+    {
+        $workspaceLocales = $this->getWorkspaceLocales();
+
+        foreach (array_keys($this->translations ?? []) as $locale) {
+            if (!IndexableLocales::isKnown((string) $locale, $workspaceLocales)) {
+                $context->buildViolation('Unsupported locale "{{ locale }}".')
+                    ->setParameter('{{ locale }}', (string) $locale)
+                    ->atPath('translations')
+                    ->addViolation();
+            }
+        }
+
+        foreach (array_keys($this->synonyms ?? []) as $locale) {
+            if (!IndexableLocales::isIndexable((string) $locale, $workspaceLocales)) {
+                $context->buildViolation('Unsupported locale "{{ locale }}".')
+                    ->setParameter('{{ locale }}', (string) $locale)
+                    ->atPath('synonyms')
+                    ->addViolation();
+            }
+        }
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getWorkspaceLocales(): array
+    {
+        return ($this->workspace ?? $this->list?->getWorkspace())?->getEnabledLocales() ?? [];
     }
 
     /**

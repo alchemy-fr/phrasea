@@ -1,9 +1,29 @@
+# A data service (database, queue, storage, internal service) never joins
+# `proxy`: `app` and `data` are internal (no Internet, no route to the host),
+# and a container only reaches the services of the networks it shares with them.
 networks:
-  internal:
+  # Traefik and the services it routes from the front; Internet and the host
+  # (extra_hosts -> PS_GATEWAY_IP) for them.
+  proxy:
     driver: bridge
     ipam:
       config:
         - subnet: ${PS_SUBNET}
+          gateway: ${PS_GATEWAY_IP}
+  # nginx <-> php-fpm (FastCGI)
+  app:
+    driver: bridge
+    internal: true
+  # Databases, queues, storage and internal services.
+  data:
+    driver: bridge
+    internal: true
+  # Internet and the host for the containers that are not on `proxy`.
+  egress:
+    driver: bridge
+  docker-socket:
+    driver: bridge
+    internal: true
 
 x-logging: &default-logging
   driver: json-file
@@ -16,12 +36,17 @@ services:
     logging: *default-logging
     image: ${TRAEFIK_IMAGE}
     networks:
-      - internal
+      proxy:
+        ipv4_address: ${PS_TRAEFIK_IP}
+      # Routes the services that are not on `proxy` (label traefik.docker.network).
+      data: {}
+      docker-socket: {}
+    depends_on:
+      - docker-socket-proxy
     ports:
       - ${TRAEFIK_HTTPS_PORT}:443
       - ${TRAEFIK_HTTP_PORT}:80
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./infra/traefik/dynamic_conf.yaml:/etc/traefik/dynamic_conf.yaml:ro
       - ./infra/traefik/letsencrypt:/etc/traefik/letsencrypt
       - ./infra/certs:/etc/traefik/certs:ro
@@ -29,17 +54,23 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.traefik-console.rule=Host(`traefik-console.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.services.traefik-console.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik-console.service=api@internal"
       - "traefik.http.middlewares.admin-secured.basicauth.realm=Secured"
       - "traefik.http.middlewares.admin-secured.basicauth.users=${ADMIN_BASIC_AUTH_USER}"
-      - "traefik.http.routers.traefik-console.middlewares=admin-secured@docker"
+      - "traefik.http.middlewares.admin-allowlist.ipallowlist.sourcerange=${ADMIN_ALLOWED_SOURCE_RANGES}"
+      - "traefik.http.middlewares.admin-console.chain.middlewares=admin-allowlist@docker,admin-secured@docker"
+      - "traefik.http.middlewares.traefik-console-root.redirectregex.regex=^https?://([^/]+)/?$$"
+      - "traefik.http.middlewares.traefik-console-root.redirectregex.replacement=https://$${1}/dashboard/"
+      - "traefik.http.routers.traefik-console.middlewares=traefik-console-root@docker,admin-console@docker"
     environment:
       - TRAEFIK_API=true
-      - TRAEFIK_API_INSECURE=true
+      - TRAEFIK_API_INSECURE=false
       - TRAEFIK_ACCESSLOG=${TRAEFIK_ACCESSLOG}
       - TRAEFIK_LOG_LEVEL=${TRAEFIK_LOG_LEVEL}
       - TRAEFIK_LOG_FORMAT=common
       - TRAEFIK_PROVIDERS_DOCKER=true
+      - TRAEFIK_PROVIDERS_DOCKER_ENDPOINT=tcp://docker-socket-proxy:2375
+      - TRAEFIK_PROVIDERS_DOCKER_NETWORK=${COMPOSE_PROJECT_NAME}_proxy
       - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
       - TRAEFIK_PROVIDERS_DOCKER_CONSTRAINTS=Label(`traefik.project_name`,`${COMPOSE_PROJECT_NAME}`)
       - TRAEFIK_ENTRYPOINTS_WEB=true
@@ -74,6 +105,23 @@ services:
       - SCW_PROJECT_ID=${LEGO_SCW_PROJECT_ID}
       - SCW_SECRET_KEY=${LEGO_SCW_SECRET_KEY}
       - SCW_ACCESS_KEY=${LEGO_SCW_ACCESS_KEY}
+
+  docker-socket-proxy:
+    logging: *default-logging
+    image: ${DOCKER_SOCKET_PROXY_IMAGE}
+    networks:
+      - docker-socket
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - CONTAINERS=1
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+
   a_client:
     logging: *default-logging
     profiles:
@@ -87,7 +135,7 @@ services:
       entitlements:
         - network.host
     networks:
-      - internal
+      - proxy
     environment:
       - DEV_MODE
       - DEBUG_STACK_CONFIG
@@ -103,11 +151,14 @@ services:
       - SENTRY_ENVIRONMENT
       - SENTRY_TUNNEL_RATE_LIMIT_PER_IP
       - SENTRY_TUNNEL_RATE_LIMIT_GLOBAL
+      - CSP_REPORT_ONLY
+      - CSP_EXTRA_SOURCES
       - VERIFY_SSL
       - VERIFY_HOST
       - CONFIGURATOR_S3_ENDPOINT=${S3_ENDPOINT}
-      - CONFIGURATOR_S3_ACCESS_KEY=${S3_ACCESS_KEY}
-      - CONFIGURATOR_S3_SECRET_KEY=${S3_SECRET_KEY}
+      # Read-only on the configurator bucket when set (minio-setup)
+      - CONFIGURATOR_S3_ACCESS_KEY=${CONFIG_READER_S3_ACCESS_KEY:-${S3_ACCESS_KEY}}
+      - CONFIGURATOR_S3_SECRET_KEY=${CONFIG_READER_S3_SECRET_KEY:-${S3_SECRET_KEY}}
       - CONFIGURATOR_S3_PATH_PREFIX=${S3_PATH_PREFIX}
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
@@ -138,7 +189,9 @@ services:
       entitlements:
         - network.host
     networks:
-      - internal
+      - app
+      - data
+      - egress
     environment:
       - APP_ENV
       - LOG_ACTION_LEVEL
@@ -153,8 +206,6 @@ services:
       - MAIL_FROM
       - MAIL_FROM_DISPLAY_NAME
       - POSTGRES_HOST
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
       - RABBITMQ_HOST
       - RABBITMQ_PORT
       - RABBITMQ_USER
@@ -210,6 +261,8 @@ services:
       - S3_MULTIPART_MAX_CHUNK_SIZE
       - S3_MULTIPART_MAX_PART_NUMBER
       - S3_MAX_OBJECT_SIZE
+      - MULTIPART_UPLOAD_RATE_LIMIT
+      - MULTIPART_UPLOAD_MAX_PENDING
 
   uploader-api-php:
     logging: *default-logging
@@ -234,10 +287,20 @@ services:
       - UPLOAD_MAX_FILE_SIZE
       - S3_REQUEST_SIGNATURE_TTL=${UPLOADER_REQUEST_SIGNATURE_TTL}
       - S3_BUCKET_NAME=${UPLOADER_S3_BUCKET_NAME}
+      # The MinIO user of the application when set (minio-setup): its bucket,
+      # and config.json in the configurator bucket, pushed from the admin
+      - S3_ACCESS_KEY=${UPLOADER_S3_ACCESS_KEY:-${S3_ACCESS_KEY}}
+      - S3_SECRET_KEY=${UPLOADER_S3_SECRET_KEY:-${S3_SECRET_KEY}}
+      - CONFIGURATOR_S3_ACCESS_KEY=${UPLOADER_S3_ACCESS_KEY:-${S3_ACCESS_KEY}}
+      - CONFIGURATOR_S3_SECRET_KEY=${UPLOADER_S3_SECRET_KEY:-${S3_SECRET_KEY}}
       - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
+      - UPLOAD_LINK_MAX_TTL=${UPLOADER_UPLOAD_LINK_MAX_TTL}
+      - DOWNLOAD_RATE_LIMIT=${UPLOADER_DOWNLOAD_RATE_LIMIT}
       - NEWRELIC_APP_NAME=uploader-api
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
       - DB_NAME=${UPLOADER_DB_NAME}
+      - POSTGRES_USER=${UPLOADER_POSTGRES_USER:-${POSTGRES_USER}}
+      - POSTGRES_PASSWORD=${UPLOADER_POSTGRES_PASSWORD:-${POSTGRES_PASSWORD}}
     volumes:
       - uploader:/var/data/upload
     extra_hosts:
@@ -286,7 +349,10 @@ services:
     environment:
       - UPLOAD_MAX_FILE_SIZE
     networks:
-      internal:
+      proxy:
+        aliases:
+          - uploader-api
+      app:
         aliases:
           - uploader-api
     depends_on:
@@ -312,7 +378,9 @@ services:
       - DATABOX_CLIENT_URL
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
+      - MAX_UPLOAD_FILE_SIZE=${DATABOX_MAX_UPLOAD_FILE_SIZE}
       - MAPBOX_TOKEN
+      - CLOUD_FRONT_URL=${DATABOX_CLOUD_FRONT_URL}
       - KEYCLOAK_INTERNAL_URL
       - MATOMO_DISABLE_COOKIES
       - DATABOX_TICKETING_ENABLED
@@ -346,6 +414,7 @@ services:
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
       - ALLOWED_FRAME_ANCESTORS=${EXPOSE_ALLOWED_FRAME_ANCESTORS}
+      - CLOUD_FRONT_URL=${EXPOSE_CLOUD_FRONT_URL}
       - MATOMO_DISABLE_COOKIES
     labels:
       - "traefik.enable=true"
@@ -393,9 +462,16 @@ services:
       - APP_SECRET=${EXPOSE_APP_SECRET}
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - S3_BUCKET_NAME=${EXPOSE_S3_BUCKET_NAME}
+      # The MinIO user of the application when set (minio-setup): its bucket,
+      # and config.json in the configurator bucket, pushed from the admin
+      - S3_ACCESS_KEY=${EXPOSE_S3_ACCESS_KEY:-${S3_ACCESS_KEY}}
+      - S3_SECRET_KEY=${EXPOSE_S3_SECRET_KEY:-${S3_SECRET_KEY}}
+      - CONFIGURATOR_S3_ACCESS_KEY=${EXPOSE_S3_ACCESS_KEY:-${S3_ACCESS_KEY}}
+      - CONFIGURATOR_S3_SECRET_KEY=${EXPOSE_S3_SECRET_KEY:-${S3_SECRET_KEY}}
       - EXPOSE_API_URL
       - EXPOSE_CLIENT_URL
       - UPLOAD_MAX_FILE_SIZE
+      - MAX_UPLOAD_FILE_SIZE=${EXPOSE_MAX_UPLOAD_FILE_SIZE}
       - ALLOWED_FILE_TYPES=${EXPOSE_ALLOWED_FILE_TYPES}
       - MAPBOX_TOKEN
       - EXPOSE_CLIENT_LOGO_URL
@@ -409,6 +485,8 @@ services:
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
       - DB_NAME=${EXPOSE_DB_NAME}
+      - POSTGRES_USER=${EXPOSE_POSTGRES_USER:-${POSTGRES_USER}}
+      - POSTGRES_PASSWORD=${EXPOSE_POSTGRES_PASSWORD:-${POSTGRES_PASSWORD}}
     extra_hosts:
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -423,6 +501,20 @@ services:
       replicas: $EXPOSE_WORKER_REPLICAS
     environment:
       - WORKER_PRIORITIES=p1
+
+  # Never scale it: a schedule must be consumed by a single process.
+  expose-scheduler:
+    logging: *default-logging
+    extends:
+      service: expose-worker
+    profiles: !reset
+      - expose-scheduler
+    build: !reset null
+    deploy:
+      replicas: 1
+    environment:
+      - WORKER_PRIORITIES=scheduler_main
+      - SCHEDULER_OFFSET
 
   expose-api-nginx:
     logging: *default-logging
@@ -442,12 +534,14 @@ services:
     volumes:
       - expose_nginx_cache:/var/cache/nginx
     networks:
-      - internal
+      - proxy
+      - app
     depends_on:
       - expose-api-php
     environment:
       - UPLOAD_MAX_FILE_SIZE
-      - PS_SUBNET
+      # The origin the proxy cache keeps apart (without it, the requests of the client bypass the cache)
+      - EXPOSE_CLIENT_URL
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -459,7 +553,7 @@ services:
       - redis
     image: ${REDIS_IMAGE}
     networks:
-      - internal
+      - data
     volumes:
       - redis:/data
 
@@ -470,7 +564,7 @@ services:
     image: ${POSTGRES_IMAGE}
     hostname: postgres
     networks:
-      - internal
+      - data
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -484,7 +578,7 @@ services:
     image: ${RABBITMQ_IMAGE}
     hostname: rabbitmq
     networks:
-      - internal
+      - data
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
@@ -493,8 +587,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME}_data"
       - "traefik.http.routers.rabbitmq-console.rule=Host(`rabbitmq-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.rabbitmq-console.loadbalancer.server.port=15672"
+      # RabbitMQ authenticates with HTTP Basic itself: no basic auth layer here.
+      - "traefik.http.routers.rabbitmq-console.middlewares=admin-allowlist@docker"
 
   dockerize:
     logging: *default-logging
@@ -502,14 +599,15 @@ services:
       - dockerize
     image: jwilder/dockerize:0.6.1
     networks:
-      - internal
+      - data
     command:
       - "-wait"
       - "tcp://db:5432"
       - "-wait"
       - "tcp://rabbitmq:5672"
       - "-wait"
-      - "http://elasticsearch:9200"
+      # An HTTP wait would get a 401: Elasticsearch requires authentication.
+      - "tcp://elasticsearch:9200"
       - "-wait"
       - "tcp://minio:9000"
       - "-timeout"
@@ -524,7 +622,7 @@ services:
       - minio
     image: ${MINIO_IMAGE}
     networks:
-      - internal
+      - data
     command: server /data --console-address :9001
     volumes:
       - s3:/data
@@ -544,12 +642,50 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME}_data"
       - "traefik.http.routers.minio.rule=Host(`minio.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.minio.service=minio"
       - "traefik.http.services.minio.loadbalancer.server.port=9000"
       - "traefik.http.routers.minio-console.rule=Host(`minio-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.routers.minio-console.middlewares=admin-console@docker"
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+
+  # Creates or updates, as the root user, the MinIO user of each consumer whose
+  # *_S3_ACCESS_KEY/*_S3_SECRET_KEY pair is set, restricted to its bucket, then
+  # exits (nothing to do without any pair). It waits for MinIO but does not start
+  # it. bin/setup.sh, bin/migrate.sh and bin/test.sh run it (setup_minio_users)
+  # when the `minio` profile is active.
+  minio-setup:
+    logging: *default-logging
+    profiles:
+      - setup
+    image: ${MINIO_MC_IMAGE}
+    networks:
+      - data
+    entrypoint: ["/bin/bash", "/usr/local/bin/minio-setup.sh"]
+    volumes:
+      - ./infra/docker/minio-setup/setup.sh:/usr/local/bin/minio-setup.sh:ro
+    environment:
+      - S3_INTERNAL_URL
+      - S3_ACCESS_KEY
+      - S3_SECRET_KEY
+      - S3_PATH_PREFIX
+      - CONFIGURATOR_S3_BUCKET_NAME
+      - DATABOX_S3_BUCKET_NAME
+      - EXPOSE_S3_BUCKET_NAME
+      - UPLOADER_S3_BUCKET_NAME
+      - INDEXER_BUCKET_NAME
+      - DATABOX_S3_ACCESS_KEY
+      - DATABOX_S3_SECRET_KEY
+      - EXPOSE_S3_ACCESS_KEY
+      - EXPOSE_S3_SECRET_KEY
+      - UPLOADER_S3_ACCESS_KEY
+      - UPLOADER_S3_SECRET_KEY
+      - CONFIG_READER_S3_ACCESS_KEY
+      - CONFIG_READER_S3_SECRET_KEY
+      - INDEXER_S3_ACCESS_KEY
+      - INDEXER_S3_SECRET_KEY
 
   matomo-php:
     logging: *default-logging
@@ -562,7 +698,9 @@ services:
       entitlements:
         - network.host
     networks:
-      - internal
+      - app
+      - data
+      - egress
     environment:
       - MATOMO_DATABASE_HOST=matomo-db
       - MATOMO_DATABASE_USERNAME
@@ -582,7 +720,8 @@ services:
       entitlements:
         - network.host
     networks:
-      - internal
+      - proxy
+      - app
     depends_on:
       - matomo-php
     volumes:
@@ -601,7 +740,7 @@ services:
       - "mysqld"
       - "--max_allowed_packet=64MB"
     networks:
-      internal:
+      data:
         aliases:
           - matomo-db
     environment:
@@ -618,13 +757,13 @@ services:
       - report
     image: ${REPORT_API_IMAGE}
     networks:
-      - internal
+      - data
     environment:
       - APP_ENV
       - POSTGRES_HOST
       - POSTGRES_PORT
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
+      - POSTGRES_USER=${REPORT_POSTGRES_USER:-${POSTGRES_USER}}
+      - POSTGRES_PASSWORD=${REPORT_POSTGRES_PASSWORD:-${POSTGRES_PASSWORD}}
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
 
   pgadmin:
@@ -633,7 +772,7 @@ services:
       - pgadmin
     image: dpage/pgadmin4:9.11.0
     networks:
-      - internal
+      - data
     environment:
       - PGADMIN_DEFAULT_EMAIL
       - PGADMIN_DEFAULT_PASSWORD
@@ -645,7 +784,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME}_data"
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.pgadmin.middlewares=admin-console@docker"
 
   phpmyadmin:
     logging: *default-logging
@@ -653,14 +794,15 @@ services:
       - phpmyadmin
     image: phpmyadmin/phpmyadmin
     networks:
-      - internal
+      - data
     environment:
       - PMA_HOST=matomo-db
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME}_data"
       - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.phpmyadmin.middlewares=admin-secured@docker"
+      - "traefik.http.routers.phpmyadmin.middlewares=admin-console@docker"
 
   mailpit:
     logging: *default-logging
@@ -668,16 +810,17 @@ services:
       - mailpit
     image: ${MAILPIT_IMAGE}
     networks:
-      - internal
+      - data
     environment:
       - MP_SMTP_AUTH_ACCEPT_ANY=1
       - MP_SMTP_AUTH_ALLOW_INSECURE=1
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME}_data"
       - "traefik.http.routers.mailpit.rule=Host(`mailpit.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
-      - "traefik.http.routers.mailpit.middlewares=admin-secured@docker"
+      - "traefik.http.routers.mailpit.middlewares=admin-console@docker"
 
   dashboard-client:
     logging: *default-logging
@@ -738,6 +881,8 @@ services:
       - EXPOSE_API_URL
       - EXPOSE_ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - EXPOSE_ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
+      # The only Uploader allowed on the private network, with its S3 storage (S3_ENDPOINT)
+      - UPLOADER_API_URL
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_USERNAME
       - ELASTICSEARCH_PASSWORD
@@ -747,7 +892,14 @@ services:
       - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - S3_BUCKET_NAME=${DATABOX_S3_BUCKET_NAME}
+      # The MinIO user of the application when set (minio-setup): its bucket,
+      # and config.json in the configurator bucket, pushed from the admin
+      - S3_ACCESS_KEY=${DATABOX_S3_ACCESS_KEY:-${S3_ACCESS_KEY}}
+      - S3_SECRET_KEY=${DATABOX_S3_SECRET_KEY:-${S3_SECRET_KEY}}
+      - CONFIGURATOR_S3_ACCESS_KEY=${DATABOX_S3_ACCESS_KEY:-${S3_ACCESS_KEY}}
+      - CONFIGURATOR_S3_SECRET_KEY=${DATABOX_S3_SECRET_KEY:-${S3_SECRET_KEY}}
       - UPLOAD_MAX_FILE_SIZE
+      - MAX_UPLOAD_FILE_SIZE=${DATABOX_MAX_UPLOAD_FILE_SIZE}
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
       - NEWRELIC_APP_NAME=databox-api
       - CLOUD_FRONT_URL=${DATABOX_CLOUD_FRONT_URL}
@@ -771,6 +923,8 @@ services:
       - SOCKUDO_KEY
       - SOCKUDO_SECRET
       - DB_NAME=${DATABOX_DB_NAME}
+      - POSTGRES_USER=${DATABOX_POSTGRES_USER:-${POSTGRES_USER}}
+      - POSTGRES_PASSWORD=${DATABOX_POSTGRES_PASSWORD:-${POSTGRES_PASSWORD}}
       - PWI_DATABOX_EXPOSE_INTEGRATION_CLIENT_ID=${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}
       - API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE=${DATABOX_API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE}
       - API_COLLECTION_OWNER_PROPERTY_REQUIRED_ROLE=${DATABOX_API_COLLECTION_OWNER_PROPERTY_REQUIRED_ROLE}
@@ -802,6 +956,9 @@ services:
       - IMAGEMAGICK_POLICY_MEMORY
       - IMAGEMAGICK_POLICY_VERSION
       - IMAGEMAGICK_POLICY_WIDTH
+      - IMAGEMAGICK_POLICY_HEIGHT
+      - IMAGEMAGICK_POLICY_TIME
+      - IMAGEMAGICK_POLICY_LIST_LENGTH
       - IMAGEMAGICK_POLICY_MAP
       - IMAGEMAGICK_POLICY_AREA
       - IMAGEMAGICK_POLICY_DISK
@@ -837,7 +994,10 @@ services:
       entitlements:
         - network.host
     networks:
-      internal:
+      proxy:
+        aliases:
+          - databox-api
+      app:
         aliases:
           - databox-api
     environment:
@@ -866,7 +1026,8 @@ services:
     profiles:
       - indexer
     networks:
-      - internal
+      - proxy
+      - data
     environment:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
       - IMPORT_FILES=${INDEXER_IMPORT_FILES}
@@ -883,8 +1044,9 @@ services:
       - S3_ENDPOINT
       - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
-      - S3_ACCESS_KEY
-      - S3_SECRET_KEY
+      # Read-only on its bucket when set (minio-setup)
+      - S3_ACCESS_KEY=${INDEXER_S3_ACCESS_KEY:-${S3_ACCESS_KEY}}
+      - S3_SECRET_KEY=${INDEXER_S3_SECRET_KEY:-${S3_SECRET_KEY}}
       - S3_REGION
       - S3_BUCKET_NAME=${INDEXER_BUCKET_NAME}
       - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
@@ -918,7 +1080,7 @@ services:
       - elasticsearch
     image: ${ELASTICSEARCH_IMAGE}
     networks:
-      - internal
+      - data
     volumes:
       - elasticsearch9:/usr/share/elasticsearch/data
     deploy:
@@ -931,31 +1093,66 @@ services:
         soft: -1
         hard: -1
     environment:
-      - xpack.security.enabled=false
+      # Password of the `elastic` superuser, only used by elasticsearch-setup:
+      # the applications get their own user, restricted to their indices.
+      - ELASTIC_PASSWORD
+      - xpack.security.enabled=true
+      # No TLS: Elasticsearch is only reachable from the internal `data` network.
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - discovery.type=single-node
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=${ELASTICSEARCH_JAVA_OPTS}
+
+  # Creates or updates the user of the applications (ELASTICSEARCH_USERNAME) and
+  # its role, restricted to the ELASTICSEARCH_INDEX_PREFIX indices, then exits.
+  # Run at every `up`; bin/setup.sh, bin/migrate.sh and bin/test.sh run it in the
+  # foreground (setup_elasticsearch_users) before anything uses Elasticsearch.
+  elasticsearch-setup:
+    logging: *default-logging
+    profiles:
+      - elasticsearch
+    image: ${ELASTICSEARCH_IMAGE}
+    networks:
+      - data
+    depends_on:
+      - elasticsearch
+    entrypoint: ["/bin/bash", "/usr/local/bin/setup-users.sh"]
+    volumes:
+      - ./infra/docker/elasticsearch/setup-users.sh:/usr/local/bin/setup-users.sh:ro
+    environment:
+      - ELASTIC_PASSWORD
+      - ELASTICSEARCH_USERNAME
+      - ELASTICSEARCH_PASSWORD
+      - ELASTICSEARCH_INDEX_PREFIX
 
   similarity-embedder:
     logging: *default-logging
     profiles:
       - similarity
     image: ${SIMILARITY_EMBEDDER_IMAGE}
+    # The models are in the image, and `data` has no Internet: no check against the Hub.
+    environment:
+      - HF_HUB_OFFLINE=1
+      - TRANSFORMERS_OFFLINE=1
     security_opt:
       - no-new-privileges:true
     networks:
-      - internal
+      - data
 
   face-recognition:
     logging: *default-logging
     profiles:
       - face-recognition
     image: ${FACE_RECOGNITION_IMAGE}
+    # `data` has no Internet: no version check at startup.
+    environment:
+      - NO_ALBUMENTATIONS_UPDATE=1
     security_opt:
       - no-new-privileges:true
     networks:
-      - internal
+      - data
 
   k6:
     logging: *default-logging
@@ -963,7 +1160,8 @@ services:
       - loadtest
     image: grafana/k6:0.26.2
     networks:
-      - internal
+      - data
+      - egress
     command: '' # Manually run 'dc run --rm k6 run /scripts/src/main.js'
     environment:
       - K6_OUT=influxdb=http://influxdb:8086/k6
@@ -982,7 +1180,7 @@ services:
     profiles:
       - loadtest
     networks:
-      - internal
+      - data
     environment:
       - INFLUXDB_DB=k6
 
@@ -992,7 +1190,7 @@ services:
     profiles:
       - loadtest
     networks:
-      - internal
+      - data
     environment:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -1002,8 +1200,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME}_data"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.grafana.middlewares=admin-secured@docker"
+      - "traefik.http.routers.grafana.middlewares=admin-console@docker"
 
   webhook-endpoint:
     logging: *default-logging
@@ -1011,11 +1210,12 @@ services:
     profiles:
       - webhooks
     networks:
-      - internal
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.webhook-endpoint.middlewares=admin-console@docker"
 
   keycloak:
     logging: *default-logging
@@ -1025,7 +1225,8 @@ services:
       - '--optimized'
     restart: on-failure:30
     networks:
-      - internal
+      - proxy
+      - data
     environment:
       - DASHBOARD_CLIENT_URL
       - KC_LOGIN_CSS_BACKGROUND
@@ -1038,8 +1239,8 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=${KEYCLOAK_ADMIN}
       - KC_BOOTSTRAP_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
       - KC_HOSTNAME=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - KC_DB_USERNAME=${POSTGRES_USER}
-      - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - KC_DB_USERNAME=${KEYCLOAK_POSTGRES_USER:-${POSTGRES_USER}}
+      - KC_DB_PASSWORD=${KEYCLOAK_POSTGRES_PASSWORD:-${POSTGRES_PASSWORD}}
       - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${KEYCLOAK_DB_NAME}
     extra_hosts:
@@ -1048,6 +1249,12 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.keycloak.service=keycloak"
+      # Super-admin console: its JavaScript sends its own Bearer token, so no basic auth layer.
+      - "traefik.http.routers.keycloak-master.rule=Host(`keycloak.${PHRASEA_DOMAIN}`) && (PathPrefix(`/admin/master`) || PathPrefix(`/realms/master`))"
+      - "traefik.http.routers.keycloak-master.priority=1000"
+      - "traefik.http.routers.keycloak-master.service=keycloak"
+      - "traefik.http.routers.keycloak-master.middlewares=admin-allowlist@docker"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
 
   keycloak2:
@@ -1057,7 +1264,8 @@ services:
       - 'start'
       - '--optimized'
     networks:
-      - internal
+      - proxy
+      - data
     profiles:
       - openid
     environment:
@@ -1066,8 +1274,8 @@ services:
       - KEYCLOAK_ADMIN=${KEYCLOAK2_ADMIN}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK2_ADMIN_PASSWORD}
       - KC_HOSTNAME=https://keycloak2.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - KC_DB_USERNAME=${POSTGRES_USER}
-      - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - KC_DB_USERNAME=${KEYCLOAK_POSTGRES_USER:-${POSTGRES_USER}}
+      - KC_DB_PASSWORD=${KEYCLOAK_POSTGRES_PASSWORD:-${POSTGRES_PASSWORD}}
       - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${KEYCLOAK2_DB_NAME}
     labels:
@@ -1089,7 +1297,8 @@ services:
       entitlements:
         - network.host
     networks:
-      - internal
+      - data
+      - egress
     profiles:
       - configurator
     environment:
@@ -1173,6 +1382,7 @@ services:
       - KC_REALM_ADMIN_EVENT_EXPIRATION
       - KEYCLOAK_ADMIN_PASSWORD_IS_DEFINITIVE
       - RABBITMQ_CONSOLE_URL
+      - RABBITMQ_MANAGEMENT_URL
       - RABBITMQ_HOST
       - RABBITMQ_USER
       - RABBITMQ_PORT
@@ -1201,14 +1411,22 @@ services:
       - REPORT_DB_NAME
       - KEYCLOAK_DB_NAME
       - KEYCLOAK2_DB_NAME
+      - DATABOX_POSTGRES_USER
+      - DATABOX_POSTGRES_PASSWORD
+      - EXPOSE_POSTGRES_USER
+      - EXPOSE_POSTGRES_PASSWORD
+      - UPLOADER_POSTGRES_USER
+      - UPLOADER_POSTGRES_PASSWORD
+      - KEYCLOAK_POSTGRES_USER
+      - KEYCLOAK_POSTGRES_PASSWORD
+      - REPORT_POSTGRES_USER
+      - REPORT_POSTGRES_PASSWORD
       - DATABOX_EXPOSE_INTEGRATION_CLIENT_ID
     volumes:
       - ./tmp/configurator-output:/output
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - rabbitmq-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - minio-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   cypress:
     logging: *default-logging
@@ -1264,7 +1482,7 @@ services:
       - sockudo
     image: ${SOCKUDO_IMAGE}
     networks:
-      - internal
+      - data
     environment:
       - SOCKUDO_DEFAULT_APP_ID=${SOCKUDO_APP_ID}
       - SOCKUDO_DEFAULT_APP_KEY=${SOCKUDO_KEY}
@@ -1291,10 +1509,12 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       # /usage, /stats and /operator are served on the app port: only /usage
       # is exposed, on its own host.
+      - "traefik.docker.network=${COMPOSE_PROJECT_NAME}_data"
       - "traefik.http.routers.sockudo.rule=Host(`ws.${PHRASEA_DOMAIN}`) && !PathPrefix(`/usage`) && !PathPrefix(`/stats`) && !PathPrefix(`/operator`)"
       - "traefik.http.routers.sockudo.service=sockudo"
       - "traefik.http.routers.sockudo-usage.rule=Host(`ws-usage.${PHRASEA_DOMAIN}`) && Path(`/usage`)"
       - "traefik.http.routers.sockudo-usage.service=sockudo"
+      - "traefik.http.routers.sockudo-usage.middlewares=admin-console@docker"
       - "traefik.http.services.sockudo.loadbalancer.server.port=6001"
 
 volumes:

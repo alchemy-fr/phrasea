@@ -36,9 +36,22 @@ class CollectionOutputMapper implements OutputMapperInterface
 
     final public const string COLLECTION_CACHE_NS = 'coll_visibility';
 
+    /**
+     * Keeps a UUID such as "2e19…" from being taken for a number by the cache adapters.
+     */
     private const string CACHE_KEY_PREFIX = 'c.';
 
+    /**
+     * Same as Collection::getAbsoluteName(): non-breaking spaces around the slash.
+     */
+    private const string PATH_SEPARATOR = "\u{a0}/\u{a0}";
+
     private readonly CacheInterface $visibilityRequestCache;
+
+    /**
+     * READ decisions of the current user: never to be stored in the shared collection cache.
+     */
+    private readonly CacheInterface $readRequestCache;
 
     public function __construct(
         private readonly CollectionSearch $collectionSearch,
@@ -50,6 +63,7 @@ class CollectionOutputMapper implements OutputMapperInterface
         TemporaryCacheFactory $cacheFactory,
     ) {
         $this->visibilityRequestCache = $cacheFactory->createCache();
+        $this->readRequestCache = $cacheFactory->createCache();
     }
 
     public function supports(object $data): bool
@@ -71,7 +85,7 @@ class CollectionOutputMapper implements OutputMapperInterface
         $output->deleted = $data->isDeleted();
 
         $parent = $data->getParent();
-        if (null !== $parent && $this->isGranted(AbstractVoter::READ, $parent)) {
+        if (null !== $parent && $this->isReadable($parent)) {
             $output->parentId = $parent->getId();
             if ($this->hasGroup([
                 Collection::GROUP_ASCENDANTS,
@@ -103,9 +117,10 @@ class CollectionOutputMapper implements OutputMapperInterface
         $output->translations = $data->getTranslations();
 
         if ($this->hasGroup([Collection::GROUP_ABSOLUTE_NAME], $context)) {
-            $output->absolutePath = $data->getAbsolutePath();
-            $output->absoluteName = $data->getAbsoluteName();
-            $output->absoluteDisplayName = $this->getAbsoluteDisplayName($data, $preferredLocales);
+            $branch = $this->getReadableBranch($data);
+            $output->absolutePath = '/'.implode('/', array_map(static fn (Collection $c): string => $c->getId(), $branch));
+            $output->absoluteName = self::joinNames($branch, static fn (Collection $c): ?string => $c->getName());
+            $output->absoluteDisplayName = self::joinNames($branch, static fn (Collection $c): ?string => $c->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $c->getName()));
         }
 
         if ($this->hasGroup(Collection::GROUP_CHILDREN, $context)) {
@@ -207,17 +222,44 @@ class CollectionOutputMapper implements OutputMapperInterface
         return $output;
     }
 
-    public function getAbsoluteDisplayName(Collection $collection, array $preferredLocales): ?string
+    /**
+     * The collection and its ancestors, from the root down, cut at the first ancestor the user
+     * cannot read: the path must not disclose the name or the ID of an unreadable collection.
+     *
+     * @return Collection[]
+     */
+    private function getReadableBranch(Collection $collection): array
     {
-        $ptr = $collection;
-        $path = $ptr->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $ptr->getName());
-        $ptr = $ptr->getParent();
-        while ($ptr) {
-            $path = $ptr->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $ptr->getName()).' / '.$path;
+        $branch = [$collection];
+        $ptr = $collection->getParent();
+        while (null !== $ptr && $this->isReadable($ptr)) {
+            $branch[] = $ptr;
             $ptr = $ptr->getParent();
         }
 
-        return $path;
+        return array_reverse($branch);
+    }
+
+    /**
+     * @param Collection[]                  $branch
+     * @param callable(Collection): ?string $getName
+     */
+    private static function joinNames(array $branch, callable $getName): ?string
+    {
+        if (1 === count($branch)) {
+            return $getName($branch[0]);
+        }
+
+        return implode(self::PATH_SEPARATOR, array_map(static fn (Collection $c): string => (string) $getName($c), $branch));
+    }
+
+    private function isReadable(Collection $collection): bool
+    {
+        // The same ancestors come back for every collection embedded in a page of assets
+        return $this->readRequestCache->get(
+            self::CACHE_KEY_PREFIX.$collection->getId(),
+            fn (): bool => $this->isGranted(AbstractVoter::READ, $collection),
+        );
     }
 
     /**

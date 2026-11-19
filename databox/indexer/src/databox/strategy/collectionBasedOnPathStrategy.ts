@@ -55,7 +55,6 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             key: asset.key,
             name: asset.name || p.basename(path),
             attributes: asset.attributes,
-            tags: asset.tags,
             renditions: asset.renditions,
             isStory: asset.isStory,
         });
@@ -68,7 +67,6 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
                 ids: [assetId],
                 byReference: true,
                 withAttributes: false,
-                withTags: false,
             });
         }
     } catch (e: any) {

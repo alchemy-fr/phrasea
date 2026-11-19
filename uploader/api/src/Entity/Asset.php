@@ -18,6 +18,7 @@ use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Processor\AssetAckProcessor;
 use App\Api\Processor\CreateAssetProcessor;
+use App\Api\Processor\DeleteAssetProcessor;
 use App\Security\Voter\AssetVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,7 +28,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
     shortName: 'asset',
     operations: [
         new Get(security: 'is_granted("READ_META", object)'),
-        new Delete(security: 'is_granted("'.AssetVoter::DELETE.'", object)'),
+        new Delete(
+            security: 'is_granted("'.AssetVoter::DELETE.'", object)',
+            processor: DeleteAssetProcessor::class,
+        ),
         new Post(
             uriTemplate: '/assets/{id}/ack',
             security: 'is_granted("'.AssetVoter::ACK.'", object)',
@@ -350,5 +354,14 @@ class Asset extends AbstractUuidEntity
     public function setUploadLink(?UploadLink $uploadLink): void
     {
         $this->uploadLink = $uploadLink;
+    }
+
+    /**
+     * Whether the file was sent through an upload link, on behalf of the creator of the link.
+     */
+    #[Groups(self::GROUP_READ)]
+    public function isFromUploadLink(): bool
+    {
+        return null !== $this->uploadLink || null !== $this->commit?->getUploadLink();
     }
 }

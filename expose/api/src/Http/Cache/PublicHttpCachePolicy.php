@@ -30,7 +30,8 @@ final readonly class PublicHttpCachePolicy
     {
         return $publication->isVisible()
             && $publication->isPublic()
-            && $this->isAnonymous($request);
+            && $this->isAnonymous($request)
+            && $this->isPurgeable($request);
     }
 
     /**
@@ -48,8 +49,16 @@ final readonly class PublicHttpCachePolicy
             }
         }
 
-        // A signed URL would stay in the cache once its signature expires: purges target the URL without query.
-        return !$request->query->has('jwt');
+        return true;
+    }
+
+    /**
+     * Purges target the URL without query string, which nginx does not cache either: a signed URL,
+     * or any other variant, would stay in a cache until it expires.
+     */
+    private function isPurgeable(Request $request): bool
+    {
+        return 0 === $request->query->count();
     }
 
     public function setPublic(Response $response, Publication $publication): void

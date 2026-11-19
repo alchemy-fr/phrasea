@@ -7,9 +7,7 @@ namespace App\Attribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\Tag;
 use App\Model\AssetTypeEnum;
-use App\Repository\Core\TagRepository;
 use App\Service\Asset\Attribute\AssetNameFiller;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -19,7 +17,6 @@ final readonly class AttributeDataImporter
 
     public function __construct(
         private EntityManagerInterface $em,
-        private TagRepository $tagRepository,
         private AssetNameFiller $assetNameFiller,
     ) {
     }
@@ -33,19 +30,6 @@ final readonly class AttributeDataImporter
             if (str_starts_with((string) $key, self::BUILT_IN_ATTRIBUTE_PREFIX)) {
                 $k = substr((string) $key, strlen(self::BUILT_IN_ATTRIBUTE_PREFIX));
                 switch ($k) {
-                    case 'tags':
-                        if (is_array($value)) {
-                            foreach ($value as $tagId) {
-                                $t = $this->tagRepository->findOneBy([
-                                    'id' => $tagId,
-                                    'workspace' => $workspaceId,
-                                ]);
-                                if ($t instanceof Tag) {
-                                    $asset->addTag($t);
-                                }
-                            }
-                        }
-                        break;
                     case 'name':
                         if (is_string($value) && !$asset->isStory()) {
                             $this->assetNameFiller->fillName($asset, $value);

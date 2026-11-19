@@ -18,7 +18,6 @@ export enum BuiltInAttribute {
     Rendition = '@rendition',
     Score = '@score',
     Similar = '@similar',
-    Tag = '@tag',
     IsStory = '@isStory',
     Story = '@story',
     Workspace = '@workspace',

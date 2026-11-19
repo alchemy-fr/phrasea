@@ -28,8 +28,8 @@ is provisioned by the configurator.
 A user already signed in to Keycloak (from the dashboard, expose, uploader…)
 arrives signed in: without a stored session, the app checks the SSO session at
 startup with a `prompt=none` authorization in a hidden iframe redirected to
-`/silent-check-sso.html` (5 s at most, then anonymous). A Content Security
-Policy added to the Next server must allow `frame-src ${KEYCLOAK_URL}`.
+`/silent-check-sso.html` (5 s at most, then anonymous): the Content Security
+Policy allows Keycloak in `frame-src` (see below).
 
 ## Runtime configuration
 
@@ -44,10 +44,11 @@ baked at build time.
 | `KEYCLOAK_URL`, `KEYCLOAK_REALM_NAME`, `CLIENT_ID` | OpenID Connect settings |
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
 | `SOCKUDO_HOST`, `SOCKUDO_KEY`, `NOTIFICATIONS_ENABLED` | Realtime |
-| `S3_MULTIPART_*`, `S3_MAX_OBJECT_SIZE`, `ALLOWED_FILE_TYPES` | Uploads |
+| `S3_MULTIPART_*`, `S3_MAX_OBJECT_SIZE`, `MAX_UPLOAD_FILE_SIZE`, `ALLOWED_FILE_TYPES` | Uploads |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES` | Matomo analytics (see `doc/tech/Databox/analytics.md`) |
 | `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
+| `CSP_REPORT_ONLY`, `CSP_EXTRA_SOURCES` | Content Security Policy (see below) |
 | `DATABOX_TICKETING_ENABLED`, `DATABOX_TICKETING_JIRA_*` | Ticketing (see below) |
 | `CONFIGURATOR_S3_*`, `CONFIG_IS_PUBLIC`, `STACK_CONFIG_SRC`, `STACK_CONFIG_REFRESH_INTERVAL` | Stack configuration (see below) |
 
@@ -114,6 +115,26 @@ signed-in user. The SDK posts its envelopes to the same origin route
 `SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
 `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
 code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel*`).
+
+## Content Security Policy
+
+`src/proxy.ts` sets the Content Security Policy of the pages at request time,
+with a new nonce for every response (`@alchemy/next-core/security/*`): a
+script only runs if it bears the nonce or was loaded by one that does
+(`'strict-dynamic'`). Next puts it on its own scripts; the inline scripts of
+the layout (theme pre-paint) read it from the `x-nonce` request
+header. The other sources come from the environment
+(`src/lib/security/csp.ts`): the API, the realtime server (`SOCKUDO_HOST`), Mapbox when `MAPBOX_TOKEN` is set, the dashboard (services menu), Keycloak, the buckets
+(`CONFIGURATOR_S3_ENDPOINT`, `CLOUD_FRONT_URL`), Matomo and
+`CSP_EXTRA_SOURCES` (space separated, for any other host serving files to the
+pages). Styles stay allowed inline.
+
+The policy is only reported (`Content-Security-Policy-Report-Only`) unless
+`CSP_REPORT_ONLY` is false. Any site may embed the pages (share pages). The violations show in the browser
+console and, when `SENTRY_DSN` is set, are relayed to its project by the same
+origin route `/api/relay/csp` (same rate limits as `/api/relay`; the DSN
+never reaches the browser). `/silent-check-sso.html` has no policy: a static
+page whose inline script cannot bear the nonce.
 
 ## Ticketing (JIRA)
 
@@ -205,10 +226,10 @@ Implemented:
 - Files & quarantine: analysis chips, quarantine banner, duplicate merge,
   file manage dialog.
 - Upload: dropzone, URL import, templates, stories, pending uploads, toasts.
-- Workspaces admin: info/edit/permissions, tags, entity lists (values,
+- Workspaces admin: info/edit/permissions, entity lists (values,
   import/export, merge, moderation), attribute definitions & policies,
-  rendition definitions & policies, asset policies, integrations, tag filter
-  rules (the API has no attribute filter rule resource).
+  rendition definitions & policies, asset policies, integrations, attribute
+  filter rules.
 - Collections tree (CRUD, move, notifications, permissions, trash),
   baskets (panel, switcher with per-basket actions, view with the same
   display options as the results, manage, integrations), share links & embed,

@@ -18,6 +18,7 @@ use App\Service\Storage\RenditionManager;
 use App\Service\Workflow\Action\AcceptFileAction;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -121,9 +122,13 @@ class PhraseanetIntegrationController extends AbstractController
         return new Response();
     }
 
+    /**
+     * Authenticated by the "token" query parameter: the URL set in Phraseanet carries
+     * the "webhookSecret" of the integration (see PhraseanetRenditionIntegration::getConfigurationInfo()).
+     */
     #[Route(path: '/{integrationId}/events', name: 'webhook_event', methods: ['POST'])]
     public function webhookEventAction(
-        $integrationId,
+        string $integrationId,
         Request $request,
         MessageBusInterface $bus,
         LoggerInterface $logger,
@@ -131,9 +136,28 @@ class PhraseanetIntegrationController extends AbstractController
         StateRepositoryInterface $workflowStateRepository,
         IntegrationManager $integrationManager,
     ): Response {
+        $token = (string) $request->query->get('token', '');
+        if ('' === $token) {
+            throw new UnauthorizedHttpException('Token', 'Missing webhook token');
+        }
+
+        try {
+            $integration = Uuid::isValid($integrationId) ? $integrationManager->loadIntegration($integrationId) : null;
+        } catch (\InvalidArgumentException) {
+            $integration = null;
+        }
+        if (null === $integration || PhraseanetRenditionIntegration::NAME !== $integration->getIntegration()) {
+            throw new NotFoundHttpException('Integration not found');
+        }
+
+        $config = $integrationManager->getIntegrationConfiguration($integration);
+        if (!$config->matches('webhookSecret', $token)) {
+            throw new UnauthorizedHttpException('Token', 'Invalid webhook token');
+        }
+
         $json = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
-        switch ($json['event']) {
+        switch ($json['event'] ?? null) {
             case 'record.subdef.created':
                 $data = $json['data'];
                 $uuidRegex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
@@ -156,12 +180,7 @@ class PhraseanetIntegrationController extends AbstractController
                     // Temporary hack
                     $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', (string) $data['permalink']);
 
-                    // This webhook is not authenticated: only files of the configured Phraseanet are fetched
-                    try {
-                        $config = $integrationManager->getIntegrationConfiguration($integrationManager->loadIntegration((string) $integrationId));
-                    } catch (\InvalidArgumentException) {
-                        break;
-                    }
+                    // Only files of the configured Phraseanet are fetched
                     $phraseanetHost = parse_url((string) $config['baseUrl'], PHP_URL_HOST);
                     if (!is_string($phraseanetHost)
                         || parse_url((string) $url, PHP_URL_HOST) !== $phraseanetHost
@@ -177,14 +196,13 @@ class PhraseanetIntegrationController extends AbstractController
                     );
 
                     $logger->debug(sprintf('URL: %s', $url));
+                    // The type and size of the event are not trusted: the import of the file measures them
                     $bus->dispatch(new PhraseanetDownloadSubdef(
                         $assetId,
                         (string) $data['databox_id'],
                         (string) $data['record_id'],
                         $data['subdef_name'],
                         $url,
-                        $data['type'],
-                        (int) $data['size']
                     ));
                 }
 
@@ -229,7 +247,8 @@ class PhraseanetIntegrationController extends AbstractController
         return new JsonResponse([
             'id' => $asset->getId(),
             'originalName' => sprintf('%s%s_%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $workflowId, $asset->getSource()->getExtension()),
-            'url' => $fileUrlResolver->resolveUrl($asset->getSource()),
+            'url' => $fileUrlResolver->resolveUrl($asset->getSource())
+                ?? throw new NotFoundHttpException(sprintf('Asset "%s" source has no HTTP(S) URL', $assetId)),
             'formData' => [
                 AcceptFileAction::COLLECTION_DESTINATION => $options['collectionId'],
             ],

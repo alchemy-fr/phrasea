@@ -26,7 +26,8 @@ export DOCKER_TAG=test
 export COMPOSE_PROJECT_NAME=build
 export PS_SUBNET=172.34.0.0/16
 export PS_GATEWAY_IP=172.34.0.1
-export TRUSTED_PROXIES=172.34.0.0/16
+export PS_TRAEFIK_IP=172.34.255.254
+export TRUSTED_PROXIES=172.34.255.254
 export PHRASEA_DOMAIN=phrasea.local
 export TRAEFIK_HTTPS_PORT=4442
 export TRAEFIK_HTTP_PORT=8042
@@ -34,8 +35,32 @@ export HTTPS_PORT_PREFIX=':4442'
 export VERIFY_SSL=false
 export COMPOSE_PROFILES=databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,sockudo
 export FIXTURES_GENERATE_IMAGES=true
+# The CI stack runs with APP_ENV=prod and the public default secrets of .env
+export PHRASEA_ALLOW_DEFAULT_SECRETS=1
 # The S3 minimum part size, so that the e2e uploads span several parts
 export S3_MULTIPART_MIN_CHUNK_SIZE=5242880
+# One PostgreSQL role per application (optional in production): the CI exercises it
+export DATABOX_POSTGRES_USER=databox
+export DATABOX_POSTGRES_PASSWORD=databox-ci
+export EXPOSE_POSTGRES_USER=expose
+export EXPOSE_POSTGRES_PASSWORD=expose-ci
+export UPLOADER_POSTGRES_USER=uploader
+export UPLOADER_POSTGRES_PASSWORD=uploader-ci
+export KEYCLOAK_POSTGRES_USER=keycloak
+export KEYCLOAK_POSTGRES_PASSWORD=keycloak-ci
+export REPORT_POSTGRES_USER=report
+export REPORT_POSTGRES_PASSWORD=report-ci
+# One MinIO user per consumer, restricted to its bucket (optional in production): the CI exercises it
+export DATABOX_S3_ACCESS_KEY=databox
+export DATABOX_S3_SECRET_KEY=databox-ci
+export EXPOSE_S3_ACCESS_KEY=expose
+export EXPOSE_S3_SECRET_KEY=expose-ci
+export UPLOADER_S3_ACCESS_KEY=uploader
+export UPLOADER_S3_SECRET_KEY=uploader-ci
+export CONFIG_READER_S3_ACCESS_KEY=config-reader
+export CONFIG_READER_S3_SECRET_KEY=config-reader-ci
+export INDEXER_S3_ACCESS_KEY=indexer
+export INDEXER_S3_SECRET_KEY=indexer-ci
 
 if [[ "${CLEAN}" == "1" ]]; then
   docker compose kill

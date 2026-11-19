@@ -20,7 +20,6 @@ const pages = [
         {
             id: 'asset-1',
             name: 'Asset 1',
-            tags: [],
             capabilities: {},
             workspace: {id: 'ws'},
         } as unknown as Asset,

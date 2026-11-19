@@ -13,6 +13,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\FileProcessingGuard;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -23,6 +24,7 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
 
     public function __construct(
         private readonly AssetRenditionRepository $assetRenditionRepository,
+        private readonly FileProcessingGuard $processingGuard,
     ) {
     }
 
@@ -42,16 +44,7 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
         if ($isNew) {
             $object = new AssetRendition();
             $asset = $context['asset'] ?? $this->getEntity(Asset::class, $data->assetId);
-            if ($data->definitionId) {
-                $definition = $this->getEntity(RenditionDefinition::class, $data->definitionId);
-            } elseif ($data->name) {
-                $definition = $this->renditionManager
-                    ->getRenditionDefinitionByName($asset->getWorkspaceId(), $data->name);
-            } else {
-                throw new BadRequestHttpException('Missing "definitionId" or "name"');
-            }
-
-            $object->setDefinition($definition);
+            $object->setDefinition($this->getDefinition($data, $asset));
             $object->setAsset($asset);
             $asset->getRenditions()->removeElement($object);
         }
@@ -84,6 +77,32 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
         );
     }
 
+    /**
+     * Only a definition of the asset workspace: one of another workspace is answered as an unknown one.
+     */
+    private function getDefinition(AssetRenditionInput $data, Asset $asset): RenditionDefinition
+    {
+        if ($data->definitionId) {
+            /** @var RenditionDefinition $definition */
+            $definition = $this->getEntity(RenditionDefinition::class, $data->definitionId);
+            if ($definition->getWorkspaceId() !== $asset->getWorkspaceId()) {
+                throw new BadRequestHttpException(sprintf('Rendition definition "%s" not found', $data->definitionId));
+            }
+
+            return $definition;
+        }
+
+        if ($data->name) {
+            try {
+                return $this->renditionManager->getRenditionDefinitionByName($asset->getWorkspaceId(), $data->name);
+            } catch (\InvalidArgumentException $e) {
+                throw new BadRequestHttpException($e->getMessage(), $e);
+            }
+        }
+
+        throw new BadRequestHttpException('Missing "definitionId" or "name"');
+    }
+
     private function transformDynamicRendition(AssetRenditionInput $data, ?object $target, array $context): AssetRendition
     {
         if (null !== $target) {
@@ -106,8 +125,12 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
             if (!$sourceRendition->isReady()) {
                 throw new BadRequestHttpException(sprintf('Rendition "%s" has no file yet', $data->sourceRenditionId));
             }
-        } elseif (null === $asset->getSource()) {
-            throw new BadRequestHttpException(sprintf('Asset "%s" has no source file', $asset->getId()));
+            $source = $sourceRendition->getFile();
+        } else {
+            $source = $asset->getSource();
+            if (null === $source) {
+                throw new BadRequestHttpException(sprintf('Asset "%s" has no source file', $asset->getId()));
+            }
         }
 
         $rendition = $this->assetRenditionRepository->findDynamicRenditionByName($asset->getId(), $data->name);
@@ -131,6 +154,10 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
         ], fn ($value): bool => null !== $value && false !== $value) ?: null);
 
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $rendition);
+
+        if (null !== $source && null !== $refusal = $this->processingGuard->getRefusal($source)) {
+            throw new BadRequestHttpException(sprintf('Rendition cannot be built: %s', $refusal));
+        }
 
         $this->postFlushStackListener->addBusMessage(new BuildDynamicRendition($rendition->getId()));
 

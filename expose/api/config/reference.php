@@ -134,6 +134,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type AlchemyStorageConfig = array{
  *     upload?: array{
  *         allowed_types?: scalar|Param|null, // comma separated values of MIME types, optionally including their extensions // Default: "%env(ALLOWED_FILE_TYPES)%"
+ *         max_file_size?: mixed, // maximum size of an uploaded file in bytes, within S3_MAX_OBJECT_SIZE (null or below 1: S3_MAX_OBJECT_SIZE only); checked when the multipart upload is created and when it is completed // Default: "%env(int:MAX_UPLOAD_FILE_SIZE)%"
  *     },
  * }
  * @psalm-type AlchemyCoreConfig = array{
@@ -492,7 +493,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     scheduler?: bool|array{ // Scheduler configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *     },
  *     disallow_search_engine_index?: bool|Param, // Enabled by default when debug is enabled. // Default: true
  *     http_client?: bool|array{ // HTTP Client configuration

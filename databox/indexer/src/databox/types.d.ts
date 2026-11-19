@@ -38,7 +38,6 @@ export type AssetInput = {
     workspace?: string;
     workspaceId?: string;
     attributes?: AttributeInput[];
-    tags?: TagInput[];
     renditions?: RenditionInput[];
     generateRenditions?: boolean;
     isStory?: boolean;
@@ -49,7 +48,6 @@ export type AssetCopyInput = {
     ids: string[];
     byReference: boolean;
     withAttributes?: boolean;
-    withTags?: boolean;
 };
 
 export type CollectionInput = {
@@ -92,6 +90,11 @@ export type AttributeDefinition = {
     multiple: boolean;
     key?: string | undefined;
     name: string;
+    slug?: string;
+    entityList?: string | null;
+    facetEnabled?: boolean;
+    searchable?: boolean;
+    target?: number;
     editable: boolean;
     type: DataboxAttributeType;
     workspace: string;
@@ -101,14 +104,22 @@ export type AttributeDefinition = {
     allowInvalid?: boolean;
 };
 
-export type Tag = {
-    workspace: string;
+export type EntityList = {
     id: string;
     name: string;
-    color?: string | undefined;
+    workspace?: string;
+    withColors?: boolean;
+    withTranslations?: boolean;
 };
 
-export type TagInput = string;
+export type AttributeEntity = {
+    id: string;
+    value: string;
+    list?: string;
+    position?: number;
+    color?: string | null;
+    translations?: Record<string, string> | null;
+};
 
 export type AttributePolicy = {
     ['@id']: string;

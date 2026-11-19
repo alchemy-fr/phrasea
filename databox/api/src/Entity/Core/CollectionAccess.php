@@ -13,6 +13,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
 #[ORM\Table]
 #[ORM\Entity]
 #[ORM\UniqueConstraint(name: 'collection_access_uniq', columns: ['collection_id', 'user_id'])]
+#[ORM\UniqueConstraint(name: 'collection_access_null_user_uniq', columns: ['collection_id'], options: ['where' => '(user_id IS NULL)'])]
 #[ORM\Index(name: 'ca_path_idx', columns: ['path'])]
 #[ORM\Index(name: 'ca_privacy_idx', columns: ['privacy'])]
 #[ORM\Index(name: 'ca_user_privacy_idx', columns: ['user_id', 'privacy'])]
@@ -31,7 +32,7 @@ class CollectionAccess
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Workspace $workspace = null;
 
-    // NULL for public collections
+    // User or group; NULL stands for everyone (ACE granted to everyone)
     #[ORM\Column(type: UuidType::NAME, nullable: true)]
     private ?string $userId = null;
 

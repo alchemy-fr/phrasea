@@ -26,6 +26,12 @@ final readonly class ConcatFunction implements AQLFunctionInterface
 
     public function getScript(array $arguments): string
     {
-        return sprintf('%s.Concat(%s)', $arguments[0], $arguments[1]);
+        // String concatenation accepts any value, numbers included, as sprintf() does
+        return sprintf("('' + %s + %s)", $arguments[0], $arguments[1]);
+    }
+
+    public function getScriptDeclaration(): ?string
+    {
+        return null;
     }
 }

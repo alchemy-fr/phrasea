@@ -28,6 +28,16 @@
         <dd class="col-sm-10">{{ details.stats.docs.count|default('?') }} ({{ details.stats.docs.deleted|default(0) }} deleted)</dd>
         <dt class="col-sm-2">Store size</dt>
         <dd class="col-sm-10">{{ (details.stats.store.size_in_bytes|default(0) / 1024)|round(1) }} kB</dd>
+        <dt class="col-sm-2">Mapped fields</dt>
+        <dd class="col-sm-10">
+            {% set fields = details.fields %}
+            <span class="{{ fields.count >= fields.limit * 0.9 ? 'text-danger fw-bold' : '' }}">{{ fields.count }} / {{ fields.limit }}</span>
+            {% if fields.ignoreDynamicBeyondLimit %}
+                <span class="text-muted">(beyond the limit, the new dynamic fields are left unindexed, the documents are still indexed)</span>
+            {% else %}
+                <span class="text-muted">(beyond the limit, the documents bringing new fields are rejected)</span>
+            {% endif %}
+        </dd>
         <dt class="col-sm-2">Created</dt>
         <dd class="col-sm-10">{{ details.settings.index.creation_date is defined ? (details.settings.index.creation_date // 1000)|date('Y-m-d H:i:s') : '?' }}</dd>
     </dl>

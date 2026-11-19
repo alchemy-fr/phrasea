@@ -9,6 +9,7 @@ use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use App\Attribute\Type\GeoPointAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetEmbedding;
 use App\Entity\Core\AssetRendition;
@@ -56,6 +57,79 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
 
         $this->assertNull($this->searchScores(sprintf('NOT (@similar = "%s")', $reference->getId())));
         $this->assertNull($this->searchScores('@workspace = "'.$workspace->getId().'"'));
+    }
+
+    public function testSimilarConditionOnAnAggregationOnlySearch(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $location = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Location',
+            'slug' => 'location',
+            'type' => GeoPointAttributeType::NAME,
+            'no_flush' => true,
+        ]);
+        $create = fn (string $name, array $vector): Asset => $this->createEmbeddedAsset($workspace, $name, $vector, [
+            'attributes' => [['definition' => $location, 'value' => '48.8566,2.3522']],
+        ]);
+        $reference = $create('Reference', self::vector([0 => 1.0]));
+        $create('Close', self::vector([0 => 1.0, 1 => 0.2]));
+        $create('Far', self::vector([1 => 1.0]));
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $response = self::createClient()->request('GET', '/assets/geo-clusters', [
+            'query' => [
+                'field' => 'location_geo-point_s',
+                'conditions' => [sprintf('@similar = "%s"', $reference->getId())],
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(2, $response->toArray()['geolocated']);
+    }
+
+    /**
+     * `/assets/{id}/similar` only ranks the assets the user may find: the attribute filter
+     * rules apply to the nearest neighbors, and the scores only cover the returned assets.
+     */
+    public function testSimilarEndpointAppliesAttributeFilterRules(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $reference = $this->createEmbeddedAsset($workspace, 'Reference', self::vector([0 => 1.0]));
+        $visible = $this->createEmbeddedAsset($workspace, 'Visible', self::vector([0 => 1.0, 1 => 0.5]), ['tags' => ['shown']]);
+        $this->createEmbeddedAsset($workspace, 'Hidden', self::vector([0 => 1.0, 1 => 0.2]));
+        self::getAttributeFilterManager()->saveRule(
+            $workspace,
+            [KeycloakClientTestMock::USER_UID],
+            [],
+            sprintf('tags = "%s"', $this->findOrCreateTagEntity('shown', $workspace)->getId()),
+        );
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $similar = function (string $userId) use ($reference): array {
+            $response = self::createClient()->request('GET', '/assets/'.$reference->getId().'/similar', [
+                'headers' => [
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId),
+                ],
+            ]);
+
+            return $this->getDataFromResponse($response, 200);
+        };
+
+        $data = $similar(KeycloakClientTestMock::USER_UID);
+        $this->assertSame(['Visible'], array_map(fn (array $asset): ?string => $asset['name'] ?? null, $data['member']));
+        $this->assertSame([$visible->getId()], array_keys($data['scores']));
+
+        // The rule only targets USER_UID
+        $data = $similar(KeycloakClientTestMock::OTHER_USER_UID);
+        $this->assertSame(['Hidden', 'Visible'], array_map(fn (array $asset): ?string => $asset['name'] ?? null, $data['member']));
     }
 
     /**
@@ -257,14 +331,14 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
         $em->flush();
     }
 
-    private function createEmbeddedAsset(Workspace $workspace, string $name, ?array $vector): Asset
+    private function createEmbeddedAsset(Workspace $workspace, string $name, ?array $vector, array $options = []): Asset
     {
-        $asset = $this->createAsset([
+        $asset = $this->createAsset(array_merge($options, [
             'workspace' => $workspace,
             'name' => $name,
             'public' => true,
             'no_flush' => true,
-        ]);
+        ]));
         if (null !== $vector) {
             $embedding = new AssetEmbedding();
             $embedding->setAsset($asset);

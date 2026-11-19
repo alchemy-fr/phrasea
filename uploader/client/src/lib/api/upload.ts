@@ -1,5 +1,6 @@
 import {
     multipartUpload as runMultipartUpload,
+    parseRetryAfter,
     type MultipartUpload,
     type MultipartUploadInit,
     type MultipartUploadPlan,
@@ -178,6 +179,10 @@ export function uploadFileParts(
             putBlob(url, blob, p, s),
         isExpiredUrlError: e =>
             e instanceof PartUploadError && e.status === 403,
+        getRetryDelay: e =>
+            isApiError(e, 429)
+                ? parseRetryAfter(e.response?.headers.get('Retry-After'))
+                : undefined,
     };
 
     return runMultipartUpload(transport, file, {

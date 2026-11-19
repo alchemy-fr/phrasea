@@ -88,6 +88,19 @@ final class AttributeAction extends AbstractAutomationAction
                 }
                 break;
             case BatchAttributeManager::ACTION_DELETE:
+                // Without values, every value of the definition is removed
+                $values = $config['value'] ?? null;
+                if (null !== $values) {
+                    $values = is_array($values) ? array_values($values) : [$values];
+                    if (empty($values)) {
+                        self::throwViolations(['value' => 'Choose at least one value to remove, or none to remove them all.']);
+                    }
+                    if (count($values) > 1 && !$definition->isMultiple()) {
+                        self::throwViolations(['value' => 'This attribute is not multi-valued: choose one value to remove.']);
+                    }
+                    $normalized['value'] = $definition->isMultiple() ? $values : $values[0];
+                    $this->validateValue($definition, $normalized);
+                }
                 break;
             case BatchAttributeManager::ACTION_REPLACE:
                 $from = $config['value'] ?? null;
@@ -99,8 +112,11 @@ final class AttributeAction extends AbstractAutomationAction
                     self::throwViolations(['replaceWith' => 'This value should be a string.']);
                 }
                 $regex = (bool) ($config['regex'] ?? false);
+                if ($regex && mb_strlen($from) > AttributeActionInput::REGEX_MAX_LENGTH) {
+                    self::throwViolations(['value' => sprintf('The regex pattern is too long (%d characters or less).', AttributeActionInput::REGEX_MAX_LENGTH)]);
+                }
                 $flags = $config['flags'] ?? null;
-                if (null !== $flags && (!is_string($flags) || !preg_match('#^[a-z]*$#', $flags))) {
+                if (null !== $flags && (!is_string($flags) || !preg_match(AttributeActionInput::REGEX_FLAGS_PATTERN, $flags))) {
                     self::throwViolations(['flags' => 'Invalid regex flags.']);
                 }
 
@@ -181,8 +197,11 @@ final class AttributeAction extends AbstractAutomationAction
         $action->regex = $config['regex'] ?? null;
         $action->flags = $config['flags'] ?? null;
         $action->replaceWith = $config['replaceWith'] ?? null;
-        $action->origin = Attribute::ORIGIN_LABELS[Attribute::ORIGIN_MACHINE];
-        $action->originVendor = 'automation';
+        // On a "delete", the origin would filter the removed values instead of describing the written ones
+        if (BatchAttributeManager::ACTION_DELETE !== $action->action) {
+            $action->origin = Attribute::ORIGIN_LABELS[Attribute::ORIGIN_MACHINE];
+            $action->originVendor = 'automation';
+        }
 
         return $action;
     }

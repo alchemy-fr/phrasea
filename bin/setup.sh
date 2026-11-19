@@ -5,6 +5,7 @@ set -e
 . bin/functions.sh
 
 load-env
+check_default_secrets
 
 export COMPOSE_PROFILES="dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,uploader"
 if [ -n "${REPORT_API_URL}" ]; then
@@ -82,8 +83,12 @@ fail() {
 
 docker compose up -d "${infra_services[@]}"
 
+setup_elasticsearch_users || fail
+
 setup_container configurator "bin/setup.sh $@"
 wait_all || fail
+
+setup_minio_users || fail
 
 setup_container uploader-api-php "bin/setup.sh"
 setup_container expose-api-php "bin/setup.sh"

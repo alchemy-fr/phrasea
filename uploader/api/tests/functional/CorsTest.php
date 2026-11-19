@@ -38,7 +38,7 @@ class CorsTest extends AbstractUploaderTestCase
             'headers' => [
                 'Origin' => $origin,
                 'Access-Control-Request-Method' => $method,
-                'Access-Control-Request-Headers' => 'authorization, content-type',
+                'Access-Control-Request-Headers' => 'authorization, content-type, x-upload-session',
             ],
         ]);
     }

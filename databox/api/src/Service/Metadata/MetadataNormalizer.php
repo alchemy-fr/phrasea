@@ -14,6 +14,7 @@ final readonly class MetadataNormalizer
 {
     public function __construct(
         private MetadataManipulator $metadataManipulator,
+        private WritableMetadataPolicy $writableMetadataPolicy,
         private LoggerInterface $logger,
     ) {
     }
@@ -55,7 +56,7 @@ final readonly class MetadataNormalizer
         $bag = new MetadataBag();
 
         foreach ($data as $group => $tags) {
-            if ('System' === $group || !is_array($tags)) {
+            if (!is_array($tags)) {
                 continue;
             }
 
@@ -79,6 +80,14 @@ final readonly class MetadataNormalizer
                 }
 
                 if (!$meta->getTagGroup()->isWritable()) {
+                    continue;
+                }
+
+                if (!$this->writableMetadataPolicy->isWritable($meta->getTagGroup()->getId())) {
+                    $this->logger->warning('Skipping metadata tag not allowed to be written', [
+                        'tag' => $tagGroupId,
+                    ]);
+
                     continue;
                 }
 

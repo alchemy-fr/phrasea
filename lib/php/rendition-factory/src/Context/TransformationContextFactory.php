@@ -12,6 +12,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class TransformationContextFactory
 {
+    public const int DEFAULT_MAX_DOWNLOAD_SIZE = 5 * 1024 * 1024 * 1024;
+    public const float DEFAULT_MAX_DOWNLOAD_DURATION = 900.0;
+
     private string $workingDirectory;
 
     public function __construct(
@@ -24,7 +27,16 @@ final readonly class TransformationContextFactory
          * which are not trusted with the internal services or the cloud metadata.
          */
         private bool $allowPrivateNetwork = false,
+        /**
+         * Bounds of each remote file download, in bytes and seconds.
+         */
+        private int $maxDownloadSize = self::DEFAULT_MAX_DOWNLOAD_SIZE,
+        private float $maxDownloadDuration = self::DEFAULT_MAX_DOWNLOAD_DURATION,
     ) {
+        if ($maxDownloadSize < 1 || $maxDownloadDuration <= 0) {
+            throw new \InvalidArgumentException('Invalid remote file download limits');
+        }
+
         $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
     }
 
@@ -49,6 +61,8 @@ final readonly class TransformationContextFactory
             $this->logger ?? new NullLogger(),
             $options?->getMetadataContainer(),
             $options?->getInputFiles() ?? [],
+            $this->maxDownloadSize,
+            $this->maxDownloadDuration,
         );
     }
 

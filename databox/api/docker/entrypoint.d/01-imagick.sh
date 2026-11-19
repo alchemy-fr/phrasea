@@ -3,6 +3,13 @@
 POLICY_FILE="/etc/ImageMagick-${IMAGEMAGICK_POLICY_VERSION}/policy.xml"
 PREVIOUS_POLICY_FILE=${POLICY_FILE}.bak
 
+# Bounds of every ImageMagick command, whose input files are untrusted: a forged
+# image may announce huge dimensions, thousands of frames or pages, or take
+# forever to decode. Each one can be changed through its variable.
+IMAGEMAGICK_POLICY_TIME="${IMAGEMAGICK_POLICY_TIME:-120}"
+IMAGEMAGICK_POLICY_HEIGHT="${IMAGEMAGICK_POLICY_HEIGHT:-${IMAGEMAGICK_POLICY_WIDTH}}"
+IMAGEMAGICK_POLICY_LIST_LENGTH="${IMAGEMAGICK_POLICY_LIST_LENGTH:-128}"
+
 if [ -f "${POLICY_FILE}" ]; then
   if [ ! -f "${PREVIOUS_POLICY_FILE}" ]; then
     echo "Backing up ${POLICY_FILE} to ${PREVIOUS_POLICY_FILE}"
@@ -29,6 +36,12 @@ if [ -f "${POLICY_FILE}" ]; then
   fi
   if [ -n "${IMAGEMAGICK_POLICY_HEIGHT}" ]; then
     echo "  <policy domain=\"resource\" name=\"height\" value=\"${IMAGEMAGICK_POLICY_HEIGHT}\" />" >> "${POLICY_FILE}"
+  fi
+  if [ -n "${IMAGEMAGICK_POLICY_TIME}" ]; then
+    echo "  <policy domain=\"resource\" name=\"time\" value=\"${IMAGEMAGICK_POLICY_TIME}\" />" >> "${POLICY_FILE}"
+  fi
+  if [ -n "${IMAGEMAGICK_POLICY_LIST_LENGTH}" ]; then
+    echo "  <policy domain=\"resource\" name=\"list-length\" value=\"${IMAGEMAGICK_POLICY_LIST_LENGTH}\" />" >> "${POLICY_FILE}"
   fi
   if [ -n "${IMAGEMAGICK_POLICY_DISK}" ]; then
     echo "  <policy domain=\"resource\" name=\"disk\" value=\"${IMAGEMAGICK_POLICY_DISK}\" />" >> "${POLICY_FILE}"

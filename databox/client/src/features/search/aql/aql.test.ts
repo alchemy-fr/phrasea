@@ -41,12 +41,14 @@ describe('AQL parser', () => {
     });
 
     it('parses IS ANY OF, IS NONE OF, HAS ALL OF, BETWEEN, IS [NOT] EMPTY', () => {
-        expect(roundTrip('tag IS ANY OF ("a", "b")')).toBe(
-            'tag IS ANY OF ("a", "b")'
+        expect(roundTrip('keyword IS ANY OF ("a", "b")')).toBe(
+            'keyword IS ANY OF ("a", "b")'
         );
-        expect(roundTrip('tag IS NONE OF ("a")')).toBe('tag IS NONE OF ("a")');
-        expect(roundTrip('tag HAS ALL OF ("a", "b")')).toBe(
-            'tag HAS ALL OF ("a", "b")'
+        expect(roundTrip('keyword IS NONE OF ("a")')).toBe(
+            'keyword IS NONE OF ("a")'
+        );
+        expect(roundTrip('keyword HAS ALL OF ("a", "b")')).toBe(
+            'keyword HAS ALL OF ("a", "b")'
         );
         expect(roundTrip('@createdAt BETWEEN "2020" AND "2021"')).toBe(
             '@createdAt BETWEEN "2020" AND "2021"'
@@ -61,10 +63,18 @@ describe('AQL parser', () => {
     it('parses legacy operators as aliases', () => {
         expect(roundTrip('t = "a"')).toBe('t IS "a"');
         expect(roundTrip('t != "a"')).toBe('t IS NOT "a"');
-        expect(roundTrip('tag IN ("a", "b")')).toBe('tag IS ANY OF ("a", "b")');
-        expect(roundTrip('tag HAS ANY OF ("a")')).toBe('tag IS ANY OF ("a")');
-        expect(roundTrip('tag NOT IN ("a")')).toBe('tag IS NONE OF ("a")');
-        expect(roundTrip('tag HAS NONE OF ("a")')).toBe('tag IS NONE OF ("a")');
+        expect(roundTrip('keyword IN ("a", "b")')).toBe(
+            'keyword IS ANY OF ("a", "b")'
+        );
+        expect(roundTrip('keyword HAS ANY OF ("a")')).toBe(
+            'keyword IS ANY OF ("a")'
+        );
+        expect(roundTrip('keyword NOT IN ("a")')).toBe(
+            'keyword IS NONE OF ("a")'
+        );
+        expect(roundTrip('keyword HAS NONE OF ("a")')).toBe(
+            'keyword IS NONE OF ("a")'
+        );
         expect(roundTrip('x IS MISSING')).toBe('x IS EMPTY');
         expect(roundTrip('x EXISTS')).toBe('x IS NOT EMPTY');
         expect(roundTrip('t is not other')).toBe('t IS NOT other');
@@ -136,11 +146,11 @@ describe('AQL parser', () => {
     });
 
     it('parses entity references', () => {
-        const ast = parseAQL('tag = @<123:My tag>', true)!;
+        const ast = parseAQL('keyword = @<123:My keyword>', true)!;
         expect(ast.expression).toMatchObject({
-            rightOperand: {type: 'entity', id: '123', label: 'My tag'},
+            rightOperand: {type: 'entity', id: '123', label: 'My keyword'},
         });
-        expect(astToString(ast)).toBe('tag IS @<123:My tag>');
+        expect(astToString(ast)).toBe('keyword IS @<123:My keyword>');
     });
 
     it('rejects invalid input', () => {
@@ -159,13 +169,13 @@ describe('AQL parser', () => {
 describe('ConditionBuilder', () => {
     it('reads values back from a query', () => {
         const b = ConditionBuilder.fromQuery(
-            'tag',
-            parseAQL('tag IN ("a", "b") OR tag IS MISSING')
+            'keyword',
+            parseAQL('keyword IN ("a", "b") OR keyword IS MISSING')
         );
         expect(b.getValues()).toEqual(['a', 'b']);
         expect(b.includeMissing).toBe(true);
         expect(b.toggleValue('a').toString()).toBe(
-            'tag IS "b" OR tag IS EMPTY'
+            'keyword IS "b" OR keyword IS EMPTY'
         );
     });
 

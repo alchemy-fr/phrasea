@@ -11,7 +11,6 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\EntityList;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\EntityListVoter;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -37,12 +36,12 @@ final class EntityListExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        if ($this->isAdmin() || $this->hasScope(AbstractVoter::LIST, EntityListVoter::SCOPE_PREFIX)) {
+        if ($this->isGranted(AbstractVoter::LIST, new EntityList())) {
             return;
         }
 
         $user = $this->getUser();
-        $workspaceIds = $this->workspaceRepository->getAllowedWorkspaceIds($user?->getId(), $user?->getGroups() ?? [], false);
+        $workspaceIds = $this->workspaceRepository->getReadableWorkspaceIds($user?->getId(), $user?->getGroups() ?? [], false);
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $param = $queryNameGenerator->generateParameterName('allowedWorkspaces');

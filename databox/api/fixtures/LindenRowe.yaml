@@ -68,8 +68,22 @@ App\Entity\Core\EntityList:
     lr_el_models:
         workspace: '@w_linden'
         name: Models
+    lr_el_tags:
+        workspace: '@w_linden'
+        name: Tags
+        withTranslations: true
+        withColors: true
 
 App\Entity\Core\AttributeEntity:
+    lr_tpl_tag (template):
+        list: '@lr_el_tags'
+        workspace: '@w_linden'
+    lr_tag_newin (extends lr_tpl_tag): { value: New in, color: '#26A69A', translations: { fr: Nouveauté, it: Novità } }
+    lr_tag_bestseller (extends lr_tpl_tag): { value: Bestseller, color: '#FFB300', translations: { fr: Meilleure vente, it: Più venduto } }
+    lr_tag_sale (extends lr_tpl_tag): { value: Sale, color: '#E53935', translations: { fr: Soldes, it: Saldi } }
+    lr_tag_sustainable (extends lr_tpl_tag): { value: Sustainable, color: '#43A047', translations: { fr: Responsable, it: Sostenibile } }
+    lr_tag_donotpublish (extends lr_tpl_tag): { value: Do not publish, color: '#424242', translations: { fr: Ne pas publier, it: Non pubblicare } }
+
     lr_tpl_colour (template):
         list: '@lr_el_colour'
         workspace: '@w_linden'
@@ -239,15 +253,15 @@ App\Entity\Core\AttributeDefinition:
         annotationsEnabled: true
         position: 16
         translations: { name: { fr: Mannequins, it: Modelli } }
-
-App\Entity\Core\Tag:
-    lr_tpl_tag (template):
-        workspace: '@w_linden'
-    lr_tag_newin (extends lr_tpl_tag): { name: New in, color: '#26A69A', translations: { name: { fr: Nouveauté, it: Novità } } }
-    lr_tag_bestseller (extends lr_tpl_tag): { name: Bestseller, color: '#FFB300', translations: { name: { fr: Meilleure vente, it: Più venduto } } }
-    lr_tag_sale (extends lr_tpl_tag): { name: Sale, color: '#E53935', translations: { name: { fr: Soldes, it: Saldi } } }
-    lr_tag_sustainable (extends lr_tpl_tag): { name: Sustainable, color: '#43A047', translations: { name: { fr: Responsable, it: Sostenibile } } }
-    lr_tag_donotpublish (extends lr_tpl_tag): { name: Do not publish, color: '#424242', translations: { name: { fr: Ne pas publier, it: Non pubblicare } } }
+    lr_ad_tags (extends lr_tpl_ad):
+        name: Tags
+        type: entity
+        entityList: '@lr_el_tags'
+        multiple: true
+        facetEnabled: true
+        target: '<(App\Model\AssetTypeEnum::Both)>'
+        position: 17
+        translations: { name: { fr: Étiquettes, it: Etichette } }
 
 # Collections (privacy):
 # Seasons (1)
@@ -298,60 +312,50 @@ App\Entity\Core\Asset:
         ownerId: <keycloakUser("bob")>
         privacy: 1
 
-    lr_tpl_packshot (template, extends lr_tpl_a):
-        __calls:
-            - addTag (30%?): ['@lr_tag_newin']
-            - addTag (20%?): ['@lr_tag_bestseller']
-            - addTag (15%?): ['@lr_tag_sale']
-            - addTag (30%?): ['@lr_tag_sustainable']
-            - addTag (10%?): ['@lr_tag_donotpublish']
-
     # SS26 packshots, by category
-    lr_a_p{1..6} (extends lr_tpl_packshot):
+    lr_a_p{1..6} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_dresses', true, true]
             - addToCollection: ['@lr_sc<current()>', true]
-    lr_a_p{7..12} (extends lr_tpl_packshot):
+    lr_a_p{7..12} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_knitwear', true, true]
-    lr_a_p{13..18} (extends lr_tpl_packshot):
+    lr_a_p{13..18} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_shirts', true, true]
-    lr_a_p{19..24} (extends lr_tpl_packshot):
+    lr_a_p{19..24} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_outerwear', true, true]
-    lr_a_p{25..30} (extends lr_tpl_packshot):
+    lr_a_p{25..30} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_bags', true, true]
             - addToCollection: ['@lr_sc<($current - 24)>', true]
-    lr_a_p{31..36} (extends lr_tpl_packshot):
+    lr_a_p{31..36} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_footwear', true, true]
             - addToCollection: ['@lr_sc<($current - 30)>', true]
     # FW26 packshots (unreleased)
-    lr_a_p{37..40} (extends lr_tpl_packshot):
+    lr_a_p{37..40} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_fw26_women', true, true]
-            - addTag: ['@lr_tag_donotpublish']
-    lr_a_p{41..44} (extends lr_tpl_packshot):
+    lr_a_p{41..44} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_fw26_men', true, true]
-            - addTag: ['@lr_tag_donotpublish']
     # SS25 shirts, out of the catalogue
-    lr_a_p{45..48} (extends lr_tpl_packshot):
+    lr_a_p{45..48} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_retired', true, true]
     # SS26 dresses of the press kit
-    lr_a_p{49..52} (extends lr_tpl_packshot):
+    lr_a_p{49..52} (extends lr_tpl_a):
         source: '@lr_f_m<current()>'
         privacy: 5
         __calls:
@@ -371,7 +375,6 @@ App\Entity\Core\Asset:
         ownerId: <keycloakUser("alice")>
         __calls:
             - addToCollection: ['@lr_c_campaign_fw26', true, true]
-            - addTag: ['@lr_tag_donotpublish']
 
     lr_a_d_spec{1..6} (extends lr_tpl_a):
         source: '@lr_f_spec<current()>'
@@ -424,6 +427,16 @@ App\Entity\Core\File:
 App\Entity\Core\Attribute:
     lr_tpl_at (template):
         origin: 0
+
+    # Tags. The FW26 packshots and campaign photos (unreleased) must not be published.
+    lr_at_tag_newin_p{1..12} (extends lr_tpl_at): { definition: '@lr_ad_tags', asset: '@lr_a_p<current()>', value: '@lr_tag_newin->id' }
+    lr_at_tag_bestseller_p{13..16} (extends lr_tpl_at): { definition: '@lr_ad_tags', asset: '@lr_a_p<current()>', value: '@lr_tag_bestseller->id' }
+    lr_at_tag_bestseller_p{25..28} (extends lr_tpl_at): { definition: '@lr_ad_tags', asset: '@lr_a_p<current()>', value: '@lr_tag_bestseller->id' }
+    lr_at_tag_sale_p{45..48} (extends lr_tpl_at): { definition: '@lr_ad_tags', asset: '@lr_a_p<current()>', value: '@lr_tag_sale->id' }
+    lr_at_tag_sustainable_p{7..10} (extends lr_tpl_at): { definition: '@lr_ad_tags', asset: '@lr_a_p<current()>', value: '@lr_tag_sustainable->id' }
+    lr_at_tag_sustainable_p{19..24} (extends lr_tpl_at): { definition: '@lr_ad_tags', asset: '@lr_a_p<current()>', value: '@lr_tag_sustainable->id' }
+    lr_at_tag_donotpublish_p{37..44} (extends lr_tpl_at): { definition: '@lr_ad_tags', asset: '@lr_a_p<current()>', value: '@lr_tag_donotpublish->id' }
+    lr_at_tag_donotpublish_c{59..64} (extends lr_tpl_at): { definition: '@lr_ad_tags', asset: '@lr_a_c<current()>', value: '@lr_tag_donotpublish->id' }
 
     # Product names by category. productName() picks the product of the asset, so it must come
     # before retailPrice(), wholesalePrice() and marketingCopy().
@@ -551,7 +564,7 @@ Alchemy\AclBundle\Entity\AccessControlEntry:
 App\Entity\Core\AttributeFilterRule:
     lr_afr_donotpublish:
         workspace: '@w_linden'
-        condition: '<aqlTagIsNot(@lr_tag_donotpublish->id)>'
+        condition: '<aqlAttributeIsNot("tags", @lr_tag_donotpublish->id)>'
         __calls:
             - addTarget: [0, '<keycloakUser("carol")>']
 

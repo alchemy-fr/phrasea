@@ -62,6 +62,23 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         $this->assertNull($this->findLogo($ws));
     }
 
+    public function testAnUploadIsUsedOnce(): void
+    {
+        $ws = $this->createWs('ws', ['ownerId' => self::USER]);
+        $otherWs = $this->createWs('other-ws', ['ownerId' => self::USER]);
+        $payload = self::multipartPayload($this->createPngUpload());
+
+        $this->uploadLogo($ws, self::USER, $payload);
+        $this->assertResponseStatusCodeSame(201);
+        $image = $this->findLogo($ws)->getImageFile();
+
+        // Another logo on the same object would delete it along with its own image
+        $this->uploadLogo($otherWs, self::USER, $payload);
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertNull($this->findLogo($otherWs));
+        $this->assertTrue(self::isStored($image->getPath()));
+    }
+
     public function testARasterLogoIsReplacedByAnOptimizedWebp(): void
     {
         $ws = $this->createWs('ws', ['ownerId' => self::USER]);
@@ -282,7 +299,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
     public function testLogoSizeIsLimitedTo5MB(): void
     {
         $ws = $this->createWs('ws', ['ownerId' => self::USER]);
-        $upload = $this->createUpload(self::createImage(1, 1, 'png'), 'big.png', 'image/png', 5 * 1024 * 1024 + 1);
+        $upload = $this->createUpload(str_pad(self::createImage(1, 1, 'png'), 5 * 1024 * 1024 + 1, "\0"), 'big.png', 'image/png');
 
         $this->uploadLogo($ws, self::USER, self::multipartPayload($upload));
 

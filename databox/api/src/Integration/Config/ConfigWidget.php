@@ -31,6 +31,18 @@ enum ConfigWidget: string
     final public const string ATTR_WIDGET_OPTIONS = 'widgetOptions';
     /** The value is a secret: the form masks it */
     final public const string ATTR_SECRET = 'secret';
+    /**
+     * The value is a URL (an endpoint the integration calls, a link given to the users), a
+     * first-level key only: in a workspace integration, a value other than the default refers
+     * to no secret nor variable, and disables the instance variables (see IntegrationConfig).
+     */
+    final public const string ATTR_URL = 'url';
+    /**
+     * The API reads the value itself (e.g. the key a webhook compares to its requests), a
+     * first-level key only: it cannot refer to a secret, which only the workers decrypt
+     * (see IntegrationConfig::validateReferences()).
+     */
+    final public const string ATTR_READ_BY_API = 'readByApi';
 
     /**
      * @template T of NodeDefinition

@@ -7,6 +7,7 @@ namespace Alchemy\StorageBundle\Entity;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadPartsOutput;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadPartUrlOutput;
 use Alchemy\StorageBundle\Api\Processor\MultipartUploadCancelProcessor;
+use Alchemy\StorageBundle\Api\Processor\MultipartUploadCreateProcessor;
 use Alchemy\StorageBundle\Api\Processor\MultipartUploadPartsProcessor;
 use Alchemy\StorageBundle\Api\Processor\MultipartUploadPartUrlProcessor;
 use ApiPlatform\Metadata\ApiProperty;
@@ -23,6 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'Upload',
@@ -31,9 +33,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Post(
             normalizationContext: ['groups' => ['upload:read', 'upload:urls']],
             security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+            processor: MultipartUploadCreateProcessor::class,
             openapi: new OpenApiOperation(
                 summary: 'Create a multi part upload.',
-                description: 'The server decides the part size ("chunkSize") from the file size and returns the presigned PUT URLs of every part ("urls", keyed by part number). URLs are valid for 3 hours; ask "/uploads/{id}/parts" for fresh ones.',
+                description: 'The server decides the part size ("chunkSize") from the file size and returns the presigned PUT URLs of the first 1000 parts at most ("urls", keyed by part number); ask "/uploads/{id}/parts" for the following ones. URLs are valid for 3 hours; ask "/uploads/{id}/parts" for fresh ones. A file above the maximum size of the application is refused (400). Answers 429 when the user sends too many upload requests (see the Retry-After header) or has too many uploads in progress.',
             ),
         ),
         new Post(
@@ -47,7 +50,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             processor: MultipartUploadPartsProcessor::class,
             openapi: new OpenApiOperation(
                 summary: 'Get the presigned upload URLs of all the remaining parts.',
-                description: 'Returns the part size, the number of parts and the presigned PUT URLs of the parts from "from" (default 1) to the last one. Used to resume an upload or to refresh expired URLs.',
+                description: 'Returns the part size, the number of parts and the presigned PUT URLs of the parts from "from" (default 1), 1000 at most. Used to resume an upload, to refresh expired URLs or to get the URLs following the ones already received. Answers 429 when the user sends too many upload requests (see the Retry-After header).',
                 parameters: [
                     new OpenApiParameter(
                         name: 'id',
@@ -128,6 +131,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     denormalizationContext: ['groups' => ['upload:write']]
 )]
 #[ORM\Entity]
+#[ORM\Index(name: 'multipart_upload_owner_created_idx', columns: ['owner_id', 'created_at'])]
 class MultipartUpload
 {
     /**
@@ -145,10 +149,18 @@ class MultipartUpload
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups(['upload:read', 'upload:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $filename = null;
 
+    /**
+     * Declared by the client, then replaced by the type of the content when
+     * the upload is completed (UploadManager::handleMultipartUpload()).
+     */
     #[ORM\Column(type: Types::STRING, length: 150)]
     #[Groups(['upload:read', 'upload:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 150)]
     private ?string $type = null;
 
     #[ORM\Column(name: 'size', type: 'bigint', options: ['unsigned' => true])]
@@ -192,6 +204,14 @@ class MultipartUpload
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Groups(['upload:read'])]
     private bool $complete = false;
+
+    /**
+     * When the upload was reserved by the request using it (UploadManager::claim()):
+     * an upload backs a single resource, the S3 object is never shared.
+     */
+    #[ApiProperty(writable: false)]
+    #[ORM\Column(name: 'consumed_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $consumedAt = null;
 
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
@@ -284,7 +304,23 @@ class MultipartUpload
         $this->complete = $complete;
     }
 
+    public function getConsumedAt(): ?\DateTimeImmutable
+    {
+        return $this->consumedAt;
+    }
+
+    public function setConsumedAt(?\DateTimeImmutable $consumedAt): void
+    {
+        $this->consumedAt = $consumedAt;
+    }
+
+    public function isConsumed(): bool
+    {
+        return null !== $this->consumedAt;
+    }
+
     #[Groups('upload:read')]
+    #[Assert\NotNull]
     public function getSize(): int
     {
         return (int) $this->sizeAsString;

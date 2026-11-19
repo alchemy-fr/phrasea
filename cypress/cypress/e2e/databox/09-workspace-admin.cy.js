@@ -1,5 +1,5 @@
 /**
- * Feature 9 — Workspace administration dialog: info, edit, tags, attribute
+ * Feature 9 — Workspace administration dialog: info, edit, attribute
  * definitions & policies, renditions, asset policies.
  */
 import {deleteWorkspace, ensureUser, seedWorkspace} from './lib/api';
@@ -64,7 +64,7 @@ describe('Workspace administration', () => {
         cy.menuItem('Manage workspace').click();
         routeDialog().within(() => {
             cy.contains('Manage workspace').should('be.visible');
-            ['Info', 'Edit', 'Permissions', 'Tags', 'Entities', 'Attributes', 'Renditions', 'Integrations', 'Filter rules'].forEach(tab => {
+            ['Info', 'Edit', 'Permissions', 'Entities', 'Attributes', 'Renditions', 'Integrations', 'Filter rules'].forEach(tab => {
                 cy.get('[role=tab]').contains(tab).should('exist');
             });
         });
@@ -108,27 +108,10 @@ describe('Workspace administration', () => {
         routeDialog().getBySel('workspace-logo').find('img').should('not.exist');
     });
 
-    it('creates and deletes a tag', () => {
-        cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/tags`);
-        routeDialog().within(() => {
-            cy.getBySel('definition-item').should('have.length', 2);
-            cy.getBySel('definition-create').click();
-            cy.fieldByLabel('Name').type('embargo');
-            cy.contains('button', 'Save').click();
-        });
-        expectToastText('Tag saved');
-        routeDialog().within(() => {
-            cy.getBySel('definition-item').should('have.length', 3);
-            cy.getBySel('definition-item').contains('embargo').closest('[data-testid=definition-item]').find('[aria-label=Delete]').click({force: true});
-        });
-        cy.dialog('last').contains('button', /Confirm|Delete/).click();
-        routeDialog().getBySel('definition-item').should('have.length', 2);
-    });
-
     it('creates an attribute definition', () => {
         cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/attributes`);
         routeDialog().within(() => {
-            cy.getBySel('definition-item').should('have.length', 3);
+            cy.getBySel('definition-item').should('have.length', 4);
             cy.getBySel('definition-create').click();
             cy.fieldByLabel('Name').type('Author');
             cy.fieldByLabel('Policy').selectOption('Public');
@@ -136,12 +119,12 @@ describe('Workspace administration', () => {
             cy.contains('button', 'Save').click();
         });
         expectToastText('Attribute saved');
-        routeDialog().getBySel('definition-item').should('have.length', 4).and('contain', 'Author');
+        routeDialog().getBySel('definition-item').should('have.length', 5).and('contain', 'Author');
     });
 
     it('reorders the attribute definitions by dragging', () => {
         cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/attributes`);
-        routeDialog().getBySel('definition-item').should('have.length', 4);
+        routeDialog().getBySel('definition-item').should('have.length', 5);
         cy.getBySel('definition-item').then($items => {
             const first = $items.eq(0).text();
             dragRow(cy.wrap($items.eq(0)), cy.wrap($items.eq(1)));
@@ -244,9 +227,9 @@ describe('Workspace administration', () => {
 
     it('duplicates an attribute definition', () => {
         cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/attributes`);
-        routeDialog().getBySel('definition-item').should('have.length', 4);
-        duplicateDefinition('Author');
         routeDialog().getBySel('definition-item').should('have.length', 5);
+        duplicateDefinition('Author');
+        routeDialog().getBySel('definition-item').should('have.length', 6);
     });
 
     it('duplicates a rendition definition', () => {

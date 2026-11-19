@@ -182,7 +182,7 @@ export function suggestFields(
     return needle === '' ? items : items.slice(0, limit);
 }
 
-/** The field references entities (tags, workspaces, entity lists...): values are ids */
+/** The field references entities (workspaces, users, entity lists...): values are ids */
 export function isEntityField(
     definition: AttributeDefinitionOrBuiltIn
 ): boolean {

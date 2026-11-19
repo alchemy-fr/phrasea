@@ -100,11 +100,15 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                     || $isOwnerSlow()
                 )
             ,
+            // A private (or private in workspace) collection lists its name, not its assets
             AssetContainerVoterInterface::ASSET_VIEW => (!$subject->isDeleted() || $this->security->isGranted(AbstractVoter::DELETE, $subject))
                 && (
                     $isCreator()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
+                    || ($userId && in_array($subject->getPrivacy(), [
+                        WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
+                        WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS,
+                    ], true))
                     || $this->parentIsGranted($attribute, $subject)
                     || $this->hasAcl([
                         PermissionInterface::VIEW,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Tests;
 
+use Alchemy\AdminBundle\Controller\QueuesListController;
 use Alchemy\AdminBundle\Controller\RealtimeStatusController;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
@@ -72,6 +73,28 @@ abstract class AbstractAdminTestCase extends WebTestCase
         $crawler = $this->loadPage($path);
         $this->assertStringContainsString('Realtime (Sockudo)', $crawler->filter('title')->text());
         $this->assertStringContainsString('Disabled', (string) $this->client->getResponse()->getContent());
+    }
+
+    protected function doTestQueuesPage(): void
+    {
+        $container = static::getContainer();
+        $router = $container->get('router');
+        $queue = $container->getParameter('alchemy_admin.worker_queues')[0];
+        $inspectPath = $router->generate(QueuesListController::ROUTE_INSPECT, ['queue' => $queue]);
+
+        $this->client->loginUser($this->getAuthAdminUser(), 'admin');
+        $crawler = $this->client->request('GET', $router->generate(QueuesListController::ROUTE_LIST));
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString($queue, $crawler->filter('table.datagrid')->text());
+
+        $this->client->request('POST', $router->generate(QueuesListController::ROUTE_INSPECT, ['queue' => 'not-a-worker-queue']), ['token' => 'invalid']);
+        $this->assertResponseStatusCodeSame(404);
+
+        $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
+        $this->assertResponseRedirects($router->generate(QueuesListController::ROUTE_LIST));
+
+        $this->client->request('GET', $inspectPath);
+        $this->assertResponseStatusCodeSame(405);
     }
 
     private function explore(string $path): void

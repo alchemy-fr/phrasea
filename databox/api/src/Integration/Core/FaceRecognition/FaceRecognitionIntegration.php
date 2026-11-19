@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Core\FaceRecognition;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Attribute\Type\EntityAttributeType;
@@ -26,6 +27,7 @@ use App\Integration\WorkflowIntegrationInterface;
 use App\Notification\EntityDisableNotifyableException;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\FileProcessingGuard;
 use App\Service\Storage\RenditionManager;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -64,6 +66,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         private readonly MessageBusInterface $bus,
         private readonly RenditionManager $renditionManager,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
+        private readonly FileProcessingGuard $processingGuard,
     ) {
     }
 
@@ -137,16 +140,16 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
 
         $definition = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($workspaceId, (string) $config['attribute']);
         if (null === $definition) {
-            throw self::createAttributeException(sprintf('Attribute "%s" not found in the workspace', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" not found in the workspace', $config->getClientValue('attribute')));
         }
         if (EntityAttributeType::NAME !== $definition->getType()) {
-            throw self::createAttributeException(sprintf('Attribute "%s" must be of type "entity"', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be of type "entity"', $config->getClientValue('attribute')));
         }
         if (!$definition->isMultiple()) {
-            throw self::createAttributeException(sprintf('Attribute "%s" must be multi-valued', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be multi-valued', $config->getClientValue('attribute')));
         }
         if (null === $definition->getEntityList()) {
-            throw self::createAttributeException(sprintf('Attribute "%s" must be bound to an entity list', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be bound to an entity list', $config->getClientValue('attribute')));
         }
     }
 
@@ -215,11 +218,15 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
             throw new BadRequestHttpException('Missing assetId');
         }
 
-        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
+        $asset = DoctrineUtil::findStrict($this->em, Asset::class, UuidUtil::assertValid($assetId, 'assetId'), throw404: true);
         if ($asset->getWorkspaceId() !== $config->getWorkspaceId()) {
             throw new BadRequestHttpException(sprintf('Asset "%s" does not belong to the integration workspace', $assetId));
         }
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $asset);
+
+        if (null !== $refusal = $this->processingGuard->getAssetRefusal($asset)) {
+            throw new BadRequestHttpException(sprintf('Asset cannot be analyzed: %s', $refusal));
+        }
 
         $this->bus->dispatch(new FaceRecognitionAnalyze($asset->getId(), $config->getIntegrationId()));
 
@@ -232,7 +239,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         $definition = null !== $config->getWorkspaceId() ? $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($config->getWorkspaceId(), (string) $config['attribute']) : null;
 
         return [
-            'attribute' => $config['attribute'],
+            'attribute' => $definition?->getSlug(),
             'attributeDefinition' => $definition?->getId(),
             'entityList' => $definition?->getEntityList()?->getId(),
             'processIncoming' => $config['processIncoming'],

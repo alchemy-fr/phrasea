@@ -106,7 +106,6 @@ describe('executeDrop assets', () => {
             false,
             {
                 withAttributes: true,
-                withTags: true,
             }
         );
         // Same workspace: no confirmation
@@ -161,7 +160,6 @@ describe('executeDrop assets', () => {
             false,
             {
                 withAttributes: true,
-                withTags: true,
             }
         );
     });

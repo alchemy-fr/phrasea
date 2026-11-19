@@ -51,6 +51,9 @@ security:
         - { path: ^/_healthcheck, roles: PUBLIC_ACCESS }
         - { path: ^/notifications/email-logo$, roles: PUBLIC_ACCESS }
         - { path: ^/\.well-known/oauth-protected-resource, roles: PUBLIC_ACCESS }
+        # The identity of an AssetToken is shared by every commit token (AssetTokenUser): no multipart upload.
+        # Its role is read from the user: is_granted() grants any attribute to the admins (AdminVoter).
+        - { path: ^/uploads(/|$), allow_if: "is_granted('IS_AUTHENTICATED_FULLY') and 'ROLE_ASSET_TOKEN' not in user.getRoles()" }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

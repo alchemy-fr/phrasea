@@ -33,7 +33,6 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
     public function testCreate(): void
     {
         $definition = $this->createDefinition('Title');
-        $tag = $this->findOrCreateTagByName('foo', $this->workspace);
         $collection = $this->createCollection(['workspace' => $this->workspace, 'ownerId' => self::USER, 'name' => 'Coll']);
 
         $data = $this->apiJson('POST', '/asset-data-templates', self::USER, [
@@ -41,7 +40,6 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
             'workspace' => '/workspaces/'.$this->workspace->getId(),
             'collection' => '/collections/'.$collection->getId(),
             'includeCollectionChildren' => true,
-            'tags' => ['/tags/'.$tag->getId()],
             'privacy' => 2,
             'public' => true,
             'ownerId' => self::OTHER,
@@ -63,7 +61,6 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         $this->assertSame($collection->getId(), $template->getCollectionId());
         $this->assertTrue($template->isIncludeCollectionChildren());
         $this->assertTrue($template->isPublic());
-        $this->assertSame([$tag->getId()], array_map(static fn ($t): string => $t->getId(), $template->getTags()->getValues()));
         $this->assertCount(1, $template->getAttributes());
         $this->assertSame('Hello', $template->getAttributes()->first()->getValue());
     }
@@ -81,7 +78,6 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
 
         $data = $this->apiJson('GET', '/asset-data-templates/'.$data['id'], self::USER);
         $this->assertFalse($data['public']);
-        $this->assertSame([], $data['tags']);
         $this->assertSame([], $data['attributes']);
         $this->assertFalse($data['includeCollectionChildren']);
         $this->assertSame(self::USER, $data['ownerId']);
@@ -107,13 +103,11 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
     public function testCreateRejectsItemsOfAnotherWorkspace(): void
     {
         $foreign = $this->createOtherWorkspace(self::USER, 'foreign');
-        $foreignTag = $this->findOrCreateTagByName('bar', $foreign);
         $foreignCollection = $this->createCollection(['workspace' => $foreign, 'ownerId' => self::USER]);
         $foreignDefinition = $this->createDefinition('Foreign', $foreign);
 
         $base = ['name' => 'T', 'workspace' => '/workspaces/'.$this->workspace->getId()];
 
-        $this->assertStatus(422, 'POST', '/asset-data-templates', self::USER, $base + ['tags' => ['/tags/'.$foreignTag->getId()]]);
         $this->assertStatus(422, 'POST', '/asset-data-templates', self::USER, $base + ['collection' => '/collections/'.$foreignCollection->getId()]);
         $this->assertStatus(400, 'POST', '/asset-data-templates', self::USER, $base + ['attributes' => [
             ['definitionId' => $foreignDefinition->getId(), 'value' => 'x'],

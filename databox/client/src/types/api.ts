@@ -121,7 +121,6 @@ export enum AttributeType {
     Story = 'story',
     /** Client-side type of the `@similar` built-in: an asset ID */
     Asset = 'asset',
-    Tag = 'tag',
     Text = 'text',
     Textarea = 'textarea',
     User = 'user',
@@ -147,7 +146,6 @@ export enum EntityName {
     BuiltInAttribute = 'built-in-attributes',
     AttributeEntity = 'attribute-entities',
     User = 'users',
-    Tag = 'tags',
     AssetDataTemplate = 'asset-data-templates',
     OperationTask = 'operation-tasks',
     EntityList = 'entity-lists',
@@ -266,7 +264,7 @@ export interface AssetRendition extends HydraObject, Entity {
 }
 
 // ---------------------------------------------------------------------------
-// Workspaces, collections, tags
+// Workspaces, collections
 
 export interface Workspace
     extends
@@ -305,14 +303,6 @@ export type WorkspaceTerms = {
     attachToExports: boolean;
     pdfUrl?: string | null;
 };
-
-export interface Tag extends HydraObject, Entity {
-    name: string;
-    displayName: string;
-    color: string | null;
-    translations?: Record<string, Translations>;
-    workspace: Workspace | string;
-}
 
 export interface Collection
     extends
@@ -562,7 +552,6 @@ export interface Asset
     roi?: MediaClip | null;
     description?: string;
     privacy: Privacy;
-    tags?: Tag[];
     owner?: User;
     threadKey: string;
     thread?: Thread;
@@ -1001,7 +990,6 @@ export type AssetDataTemplate = Entity & {
     attributes?: Attribute[] | AttributeBatchAction[];
     privacy?: Privacy | null;
     public: boolean;
-    tags?: Tag[];
     assetName?: string;
 };
 

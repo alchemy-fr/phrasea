@@ -8,6 +8,7 @@ enum TypeEnum
 {
     case STRING;
     case NUMBER;
+    case INTEGER;
     case BOOL;
     case DATE;
 }

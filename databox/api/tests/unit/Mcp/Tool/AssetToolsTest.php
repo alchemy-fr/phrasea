@@ -36,13 +36,11 @@ class AssetToolsTest extends AbstractToolTestCase
 
         $result = $this->tools->search(
             query: 'sunset',
-            conditions: ['@tag IS "t1"', 'title STARTS WITH "Beach"'],
+            conditions: ['tags IS "t1"', 'title STARTS WITH "Beach"'],
             workspaceIds: ['w1'],
             parentIds: ['c1'],
             collectionId: 'c2',
             storyId: 's1',
-            tagsMust: ['t2'],
-            tagsMustNot: ['t3'],
             order: ['@createdAt' => 'desc'],
             withFacets: true,
             page: 2,
@@ -51,13 +49,11 @@ class AssetToolsTest extends AbstractToolTestCase
 
         $this->assertLastRequest('GET', '/assets', [
             'query' => 'sunset',
-            'conditions' => ['@tag IS "t1"', 'title STARTS WITH "Beach"'],
+            'conditions' => ['tags IS "t1"', 'title STARTS WITH "Beach"'],
             'workspaces' => ['w1'],
             'parents' => ['c1'],
             'collection' => 'c2',
             'story' => 's1',
-            'tags_must' => ['t2'],
-            'tags_must_not' => ['t3'],
             'order' => ['@createdAt' => 'desc'],
             'page' => '2',
             'limit' => '50',
@@ -74,7 +70,6 @@ class AssetToolsTest extends AbstractToolTestCase
             collectionId: 'c1',
             url: 'https://example.com/sunset.jpg',
             name: 'Sunset',
-            tagIds: ['t1'],
             attributes: [['definitionId' => 'd1', 'value' => 'Coucher de soleil', 'locale' => 'fr', 'origin' => 'human']],
             originVendor: 'claude',
         );
@@ -86,7 +81,6 @@ class AssetToolsTest extends AbstractToolTestCase
                 'importFile' => false,
             ],
             'name' => 'Sunset',
-            'tags' => ['/tags/t1'],
             'attributes' => [[
                 'definitionId' => 'd1',
                 'value' => 'Coucher de soleil',
@@ -121,11 +115,10 @@ class AssetToolsTest extends AbstractToolTestCase
     {
         $this->kernel->willRespond(['id' => 'a1']);
 
-        $this->tools->update('a1', privacy: 'secret', tagIds: []);
+        $this->tools->update('a1', privacy: 'secret');
 
         $this->assertLastRequest('PATCH', '/assets/a1', body: [
             'privacyLabel' => 'secret',
-            'tags' => [],
         ]);
     }
 
@@ -159,7 +152,6 @@ class AssetToolsTest extends AbstractToolTestCase
             'destination' => '/workspaces/w2',
             'byReference' => false,
             'withAttributes' => true,
-            'withTags' => false,
         ]);
     }
 

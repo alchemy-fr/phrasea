@@ -12,10 +12,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class MatomoManager
 {
     public function __construct(
-        private HttpClientInterface $matomoClient,
+        private HttpClientInterface $httpClient,
         private CacheInterface $analyticsCache,
         private string $matomoSiteId,
         private string $matomoAuthToken,
+        // Empty on a stack deployed without Matomo
+        #[Autowire(env: 'MATOMO_URL')]
+        private string $matomoUrl,
         #[Autowire(env: 'bool:MATOMO_MEDIA_PLUGIN_ENABLED')]
         private bool $mediaAnalyticsEnabled = false,
     ) {
@@ -29,6 +32,9 @@ final readonly class MatomoManager
         ): array {
             $item->expiresAfter(300);
 
+            if ('' === trim($this->matomoUrl)) {
+                throw new \Exception('Matomo URL is not configured');
+            }
             if (!$this->matomoAuthToken) {
                 throw new \Exception('Matomo auth token is not configured');
             }
@@ -46,7 +52,7 @@ final readonly class MatomoManager
                 }
             }
 
-            $response = $this->matomoClient->request('POST', '/', [
+            $response = $this->httpClient->request('POST', rtrim($this->matomoUrl, '/').'/', [
                 'query' => [
                     'module' => 'API',
                     'idSite' => $this->matomoSiteId,

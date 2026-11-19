@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributeFilterRule;
-use App\Entity\Core\Tag;
 use App\Service\Workspace\WorkspaceDuplicateManager;
 use App\Tests\Functional\AbstractDataboxTestCase;
 
@@ -31,17 +31,17 @@ class AttributeFilterRuleTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(422);
     }
 
-    public function testDuplicateWorkspaceRemapsTagReferences(): void
+    public function testDuplicateWorkspaceRemapsEntityReferences(): void
     {
         $workspace = $this->createWorkspace();
-        $foo = $this->findOrCreateTagByName('foo', $workspace);
-        $bar = $this->findOrCreateTagByName('bar', $workspace);
+        $foo = $this->findOrCreateTagEntity('foo', $workspace);
+        $bar = $this->findOrCreateTagEntity('bar', $workspace);
 
         self::getAttributeFilterManager()->saveRule(
             $workspace,
             [KeycloakClientTestMock::USER_UID],
             [],
-            sprintf('@tag = "%s" AND @tag NOT IN ("%s")', $foo->getId(), $bar->getId())
+            sprintf('tags = "%s" AND tags NOT IN ("%s")', $foo->getId(), $bar->getId())
         );
 
         $em = self::getEntityManager();
@@ -52,8 +52,8 @@ class AttributeFilterRuleTest extends AbstractDataboxTestCase
         $em->clear();
 
         $newTagIds = [];
-        foreach ($em->getRepository(Tag::class)->findBy(['workspace' => $newWorkspace->getId()]) as $tag) {
-            $newTagIds[$tag->getName()] = $tag->getId();
+        foreach ($em->getRepository(AttributeEntity::class)->findBy(['workspace' => $newWorkspace->getId()]) as $tag) {
+            $newTagIds[$tag->getValue()] = $tag->getId();
         }
         $this->assertCount(2, $newTagIds);
 
@@ -61,7 +61,7 @@ class AttributeFilterRuleTest extends AbstractDataboxTestCase
         $rules = $em->getRepository(AttributeFilterRule::class)->findBy(['workspace' => $newWorkspace->getId()]);
         $this->assertCount(1, $rules);
         $this->assertSame(
-            sprintf('@tag = "%s" AND @tag NOT IN ("%s")', $newTagIds['foo'], $newTagIds['bar']),
+            sprintf('tags = "%s" AND tags NOT IN ("%s")', $newTagIds['foo'], $newTagIds['bar']),
             $rules[0]->getCondition()
         );
         $this->assertSame([KeycloakClientTestMock::USER_UID], $rules[0]->getUserIds());

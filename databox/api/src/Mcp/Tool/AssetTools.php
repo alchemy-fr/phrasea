@@ -15,10 +15,11 @@ final readonly class AssetTools
     private const string MACHINE_ORIGIN = 'machine';
 
     private const string AQL = <<<'TXT'
-        AQL conditions, combined with AND. A condition is `field OPERATOR [value]`; a field is an attribute slug or a built-in field (@tag, @collection, @workspace, @createdAt, @editedAt, @filename, @type, @owner…).
+        AQL conditions, combined with AND. A condition is `field OPERATOR [value]`; a field is an attribute slug or a built-in field (@collection, @workspace, @createdAt, @editedAt, @filename, @type, @owner…).
         Operators (uppercase): IS, IS NOT, <, <=, >, >=, BETWEEN a AND b, IS ANY OF ("a", "b"), IS NONE OF (…), HAS ALL OF (…), IS EMPTY, IS NOT EMPTY, CONTAINS, STARTS WITH, ENDS WITH (case-insensitive, add CASE SENSITIVE after the value otherwise), MATCHES (full-text, every word required), WITHIN CIRCLE (lat, lng, "1500m"), WITHIN RECTANGLE (tlLat, tlLng, brLat, brLng).
         Values are quoted strings, numbers, true, false, null or functions (NOW(), DATE_SUB(NOW(), "P7D")…); combine with AND, OR, NOT and parentheses. On dates, IS matches a prefix: @createdAt IS "2024-03" is the whole month.
-        Example: title STARTS WITH "Report" AND (@tag HAS ALL OF ("a", "b") OR description IS EMPTY)
+        An entity attribute (e.g. "tags") is compared with the IDs of the entities of its list.
+        Example: title STARTS WITH "Report" AND (tags HAS ALL OF ("<entity ID>", "<entity ID>") OR description IS EMPTY)
         TXT;
 
     public function __construct(
@@ -47,10 +48,6 @@ final readonly class AssetTools
         ?string $collectionId = null,
         #[Schema(description: 'Only the assets of this story')]
         ?string $storyId = null,
-        #[Schema(description: 'Tag IDs the assets must all have', items: ['type' => 'string'])]
-        ?array $tagsMust = null,
-        #[Schema(description: 'Tag IDs the assets must not have', items: ['type' => 'string'])]
-        ?array $tagsMustNot = null,
         #[Schema(
             type: 'object',
             description: 'Sort, by attribute slug or built-in field, e.g. {"@createdAt": "desc"}; by relevance when unset',
@@ -71,8 +68,6 @@ final readonly class AssetTools
             'parents' => null !== $parentIds ? array_values($parentIds) : null,
             'collection' => $collectionId,
             'story' => $storyId,
-            'tags_must' => null !== $tagsMust ? array_values($tagsMust) : null,
-            'tags_must_not' => null !== $tagsMustNot ? array_values($tagsMustNot) : null,
             'order' => $order,
             'page' => $page,
             'limit' => $limit,
@@ -81,7 +76,7 @@ final readonly class AssetTools
 
     #[McpTool(
         name: 'get_asset',
-        description: 'Get an asset with its attributes, tags, collections and main renditions.',
+        description: 'Get an asset with its attributes, collections and main renditions.',
         annotations: new ToolAnnotations(readOnlyHint: true),
     )]
     public function get(
@@ -109,8 +104,6 @@ final readonly class AssetTools
         bool $importFile = false,
         #[Schema(description: 'Name of the asset, filling the attributes defined to be filled from it (usually the title)')]
         ?string $name = null,
-        #[Schema(description: 'Tag IDs', items: ['type' => 'string'])]
-        ?array $tagIds = null,
         #[Schema(definition: ToolSchemas::ATTRIBUTES)]
         ?array $attributes = null,
         #[Schema(definition: ToolSchemas::PRIVACY)]
@@ -137,7 +130,6 @@ final readonly class AssetTools
                 'importFile' => $importFile,
             ]) : null,
             'name' => $name,
-            'tags' => null !== $tagIds ? self::iris('/tags/', $tagIds) : null,
             'attributes' => null !== $attributes ? array_map(
                 static fn (array $attribute): array => self::machineValue([
                     'definitionId' => $attribute['definitionId'] ?? null,
@@ -156,7 +148,7 @@ final readonly class AssetTools
 
     #[McpTool(
         name: 'update_asset',
-        description: 'Update the privacy or the tags of an asset. Only the given fields are changed. To change its title or any other metadata, use set_asset_attributes.',
+        description: 'Update the privacy of an asset. To change its title, its tags or any other metadata, use set_asset_attributes.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true),
     )]
     public function update(
@@ -164,12 +156,9 @@ final readonly class AssetTools
         string $id,
         #[Schema(definition: ToolSchemas::PRIVACY)]
         ?string $privacy = null,
-        #[Schema(description: 'Tag IDs, replacing the current tags ([] removes them all)', items: ['type' => 'string'])]
-        ?array $tagIds = null,
     ): array {
         return $this->client->patch('/assets/'.rawurlencode($id), ApiClient::withoutNulls([
             'privacyLabel' => $privacy,
-            'tags' => null !== $tagIds ? self::iris('/tags/', $tagIds) : null,
         ]));
     }
 
@@ -242,8 +231,6 @@ final readonly class AssetTools
         bool $byReference = false,
         #[Schema(description: 'Copy the attribute values')]
         bool $withAttributes = false,
-        #[Schema(description: 'Copy the tags')]
-        bool $withTags = false,
     ): array {
         $ids = array_values($ids);
         $this->client->post('/assets/copy', [
@@ -251,7 +238,6 @@ final readonly class AssetTools
             'destination' => self::destination($collectionId, $workspaceId),
             'byReference' => $byReference,
             'withAttributes' => $withAttributes,
-            'withTags' => $withTags,
         ]);
 
         return ['copied' => $ids];
@@ -356,16 +342,6 @@ final readonly class AssetTools
         int $limit = 10,
     ): array {
         return $this->client->getCollection('/assets/'.rawurlencode($id).'/similar', ['limit' => $limit], ['scores']);
-    }
-
-    /**
-     * @param list<string> $ids
-     *
-     * @return list<string>
-     */
-    private static function iris(string $prefix, array $ids): array
-    {
-        return array_map(static fn (string $id): string => $prefix.$id, array_values($ids));
     }
 
     private static function destination(?string $collectionId, ?string $workspaceId): string

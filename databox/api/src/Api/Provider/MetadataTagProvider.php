@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Model\MetadataTag;
+use App\Service\Metadata\WritableMetadataPolicy;
 use PHPExiftool\Exception\TagUnknown;
 
 final readonly class MetadataTagProvider implements ProviderInterface
@@ -20,6 +21,7 @@ final readonly class MetadataTagProvider implements ProviderInterface
 
     public function __construct(
         private MetadataManipulator $metadataManipulator,
+        private WritableMetadataPolicy $writableMetadataPolicy,
     ) {
     }
 
@@ -120,7 +122,7 @@ final readonly class MetadataTagProvider implements ProviderInterface
                 namespace: explode(':', $id, 2)[0],
                 name: $name,
                 description: $tagGroup->getDescription('en'),
-                writable: $tagGroup->isWritable(),
+                writable: $tagGroup->isWritable() && $this->writableMetadataPolicy->isWritable($tagGroup->getId()),
                 multi: $tagGroup->isMulti(),
             );
         }

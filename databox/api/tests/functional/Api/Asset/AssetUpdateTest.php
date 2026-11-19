@@ -6,6 +6,7 @@ namespace App\Tests\Functional\Api\Asset;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\AssetFileVersion;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -21,21 +22,17 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
     {
         $workspace = $this->createOwnedWorkspace('custom_owner');
         $this->addUserOnWorkspace(self::OWNER, $workspace->getId());
-        $asset = $this->createAsset(['ownerId' => self::OWNER, 'tags' => ['old']]);
-        $tag = $this->findOrCreateTagByName('new', $workspace);
+        $asset = $this->createAsset(['ownerId' => self::OWNER]);
 
         $data = $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, [
             'extraMetadata' => ['foo' => 'bar'],
             'externalId' => 'ext-2',
-            'tags' => ['/tags/'.$tag->getId()],
         ])->toArray();
 
         $this->assertResponseIsSuccessful();
         $this->assertSame($asset->getId(), $data['id']);
         $this->assertSame(['foo' => 'bar'], $data['extraMetadata']);
         $this->assertSame('ext-2', $data['externalId']);
-        // Tags are replaced
-        $this->assertSame(['new'], array_column($data['tags'], 'name'));
     }
 
     public function testPatchUsesMergePatch(): void
@@ -60,19 +57,18 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(415);
     }
 
-    public function testEmptyTagListClearsTheTags(): void
+    public function testPatchKeepsTheTags(): void
     {
         $this->createOwnedWorkspace();
         $asset = $this->createAsset(['ownerId' => self::OWNER, 'tags' => ['foo', 'bar']]);
-        $other = $this->createAsset(['ownerId' => self::OWNER, 'tags' => ['foo']]);
 
-        $data = $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, ['tags' => []])->toArray();
+        $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, ['extraMetadata' => ['a' => 1]]);
         $this->assertResponseIsSuccessful();
-        $this->assertSame([], $data['tags']);
 
-        // Omitting them keeps them
-        $data = $this->request('PATCH', '/assets/'.$other->getId(), self::OWNER, ['extraMetadata' => ['a' => 1]])->toArray();
-        $this->assertSame(['foo'], array_column($data['tags'], 'name'));
+        $this->assertSame(2, self::getEntityManager()->getRepository(Attribute::class)->count([
+            'asset' => $asset->getId(),
+            'definition' => $this->getOrCreateTagsDefinition()->getId(),
+        ]));
     }
 
     /**

@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\UrlGeneratorInterface;
 use App\Api\Provider\ShareReadProvider;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Repository\Core\AssetRenditionRepository;
@@ -46,8 +47,20 @@ final readonly class ShareRenditionUrlGenerator
 
         return array_values(array_filter(
             $renditions,
-            fn (AssetRendition $rendition): bool => ShareReadProvider::isRenditionShared($share, $rendition),
+            fn (AssetRendition $rendition): bool => ShareReadProvider::isRenditionShared($share, $rendition)
+                && self::isServable($rendition->getFile()),
         ));
+    }
+
+    /**
+     * A share link only redirects to files of the storage: redirecting to an
+     * external URL would make the public link of the API an open redirect.
+     *
+     * @phpstan-assert-if-true File $file
+     */
+    public static function isServable(?File $file): bool
+    {
+        return File::STORAGE_S3_MAIN === $file?->getStorage();
     }
 
     public function generateUrl(Share $share, Asset $asset, RenditionDefinition $definition): string

@@ -333,16 +333,16 @@ class AssetSearchPermissionsTest extends AbstractSearchTestCase
         self::releaseIndex();
 
         $resolveTag = function (string $tagName) use ($workspace): string {
-            $tag = $this->findOrCreateTagByName($tagName, $workspace);
+            $tag = $this->findOrCreateTagEntity($tagName, $workspace);
 
             return $tag->getId();
         };
         $include = array_map($resolveTag, $include);
         $exclude = array_map($resolveTag, $exclude);
 
-        $conditionParts = array_map(fn (string $id): string => sprintf('@tag = "%s"', $id), $include);
+        $conditionParts = array_map(fn (string $id): string => sprintf('tags = "%s"', $id), $include);
         if (!empty($exclude)) {
-            $conditionParts[] = sprintf('@tag NOT IN (%s)', implode(', ', array_map(fn (string $id): string => sprintf('"%s"', $id), $exclude)));
+            $conditionParts[] = sprintf('tags NOT IN (%s)', implode(', ', array_map(fn (string $id): string => sprintf('"%s"', $id), $exclude)));
         }
         $condition = implode(' AND ', $conditionParts);
 

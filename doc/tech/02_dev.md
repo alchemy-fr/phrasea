@@ -71,7 +71,14 @@ dc run --rm dev pnpm install
 ### Messages handled by the workers
 
 In dev, the Symfony Messenger messages are handled synchronously, in the request or command that dispatches them
-(`DEV_MESSENGER_TRANSPORT_DSN=sync://`). To go through RabbitMQ and the workers, as in production, set in `.env.local`:
+(`DEV_MESSENGER_TRANSPORT_DSN=sync://`). To go through RabbitMQ and the workers, as in production, start the stack with:
+
+```bash
+bin/dev/up-workers.sh
+```
+
+It empties the transport and runs at least one replica of each worker for this `up` only; a plain `dc up -d` brings the
+PHP containers back to sync mode. To keep that mode permanently, set in `.env.local`:
 
 ```dotenv
 DEV_MESSENGER_TRANSPORT_DSN=

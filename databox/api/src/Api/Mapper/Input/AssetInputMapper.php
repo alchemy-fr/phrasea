@@ -22,6 +22,7 @@ use App\Service\Clip\ClipFamily;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[AsTaggedItem(index: AssetInput::class)]
 class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInterface
@@ -101,8 +102,8 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
 
         if ($isNew) {
             $object->setWorkspace($workspace);
-            if ($data->getOwnerId()) {
-                $object->setOwnerId($data->getOwnerId());
+            if (null !== $ownerId = $this->getInputOwnerId($data)) {
+                $object->setOwnerId($ownerId);
             }
 
             if ($data->key) {
@@ -114,6 +115,13 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
                     $object->setReferenceCollection($data->collection);
                 }
                 $object->addToCollection($data->collection, extraMetadata: $data->relationExtraMetadata);
+            }
+
+            // Checked before anything is stored, the uploaded file included: completing a
+            // multipart upload writes its object on S3, which nothing would reference.
+            $this->processOwnerId($object);
+            if (!$this->isGranted(AbstractVoter::CREATE, $object)) {
+                throw new AccessDeniedException('Not allowed to create an asset here');
             }
 
             if (!empty($data->attributes)) {
@@ -152,15 +160,6 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
         }
 
         $this->renditionManager->deleteScheduledRenditions();
-
-        if (isset($data->tags)) {
-            $object->getTags()->clear();
-            foreach ($data->tags as $tag) {
-                $object->addTag($tag);
-            }
-
-            $object->setTagsEditedAt(new \DateTimeImmutable());
-        }
 
         $object = $this->processOwnerId($object);
 
@@ -224,19 +223,49 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
 
     private function handleRelationship(AssetRelationshipInput $input, Asset $asset): void
     {
+        if (null === $input->source) {
+            throw new BadRequestHttpException('Missing relationship "source"');
+        }
+
         $rel = new AssetRelationship();
         $rel->setTarget($asset);
-        $rel->setSource($this->getEntity(Asset::class, $input->source));
+        $rel->setSource($this->getRelated(Asset::class, $input->source, $asset));
 
         if ($input->sourceFileId) {
-            $rel->setSourceFile($this->getEntity(File::class, $input->sourceFileId));
+            $rel->setSourceFile($this->getRelated(File::class, $input->sourceFileId, $asset));
         }
         if ($input->integration) {
-            $rel->setIntegration($this->getEntity(WorkspaceIntegration::class, $input->integration));
+            $rel->setIntegration($this->getRelated(WorkspaceIntegration::class, $input->integration, $asset));
         }
 
         $rel->setType($input->type);
 
         $this->em->persist($rel);
+    }
+
+    /**
+     * An item the user cannot read is answered as an unknown one. An integration without
+     * workspace is an instance-wide one, which any workspace can relate to.
+     *
+     * @template T of Asset|File|WorkspaceIntegration
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    private function getRelated(string $class, string $id, Asset $asset): object
+    {
+        $object = $this->getEntity($class, $id);
+        if (!$this->isGranted(AbstractVoter::READ, $object)) {
+            throw new BadRequestHttpException(sprintf('%s "%s" not found', $class, $id));
+        }
+
+        $workspace = $object->getWorkspace();
+        $isInstanceWide = null === $workspace && $object instanceof WorkspaceIntegration;
+        if (!$isInstanceWide && $workspace?->getId() !== $asset->getWorkspaceId()) {
+            throw new BadRequestHttpException(sprintf('%s "%s" does not belong to the asset workspace', $class, $id));
+        }
+
+        return $object;
     }
 }

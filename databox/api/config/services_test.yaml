@@ -16,3 +16,8 @@ services:
             $client: '@App\Tests\Functional\Integration\Expose\ExposeHttpClientMock'
     App\Tests\Functional\Integration\Aws\Transcribe\SnsCertificateClientMock: ~
     App\Integration\Aws\Sns\SnsCertificateClient: '@App\Tests\Functional\Integration\Aws\Transcribe\SnsCertificateClientMock'
+    test.storage.s3_client:
+        class: Aws\S3\S3Client
+        decorates: alchemy_storage.s3_client
+        factory: ['App\Tests\Functional\Storage\LocalS3Handler', 'install']
+        arguments: ['@.inner', '@test.storage.local_filesystem', '%env(S3_PATH_PREFIX)%']

@@ -41,8 +41,9 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
-        "symplify/config-transformer": "^12.4",
-        "php-parallel-lint/php-var-dump-check": "v0.5"
+        "php-parallel-lint/php-var-dump-check": "v0.5",
+        "phpunit/phpunit": "^11.5",
+        "symplify/config-transformer": "^12.4"
     },
     "config": {
         "allow-plugins": {
@@ -59,7 +60,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "App\\Tests\\Unit\\": "tests/unit/"
         }
     },
     "replace": {
@@ -89,11 +90,14 @@
             "@var-dump-check",
             "@cs:check"
         ],
+        "phpunit": "php bin/phpunit",
         "test:quick": [
-            "@lint"
+            "@lint",
+            "@phpunit"
         ],
         "test": [
-            "@lint"
+            "@lint",
+            "@phpunit"
         ]
     },
     "conflict": {

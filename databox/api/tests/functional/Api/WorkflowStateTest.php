@@ -108,4 +108,32 @@ class WorkflowStateTest extends AbstractDataboxTestCase
         $this->assertSame(2, $data['number']);
         $this->assertSame($asset->getId(), $data['asset']['id']);
     }
+
+    public function testAnAssociativeAssetFilterOnlyListsTheCheckedAssets(): void
+    {
+        $asset = $this->createAsset(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $otherAsset = $this->createAsset();
+        $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $asset->getWorkspaceId());
+
+        $ingest1 = $this->startWorkflow($asset, 'asset-ingest');
+        $update1 = $this->startWorkflow($asset, 'attributes-update');
+        $ingest2 = $this->startWorkflow($asset, 'asset-ingest');
+        $this->startWorkflow($otherAsset, 'asset-ingest');
+
+        $client = static::createClient();
+
+        $response = $client->request('GET', '/workflows', [
+            'query' => ['asset' => ['x' => '/assets/'.$asset->getId()]],
+            'headers' => $this->headers(KeycloakClientTestMock::USER_UID),
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertEqualsCanonicalizing([$ingest2, $update1, $ingest1], array_column($response->toArray()['member'], 'id'));
+
+        $response = $client->request('GET', '/workflows', [
+            'query' => ['asset' => ['x' => $asset->getId(), 'y' => $otherAsset->getId()]],
+            'headers' => $this->headers(KeycloakClientTestMock::USER_UID),
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(0, $response->toArray()['member']);
+    }
 }

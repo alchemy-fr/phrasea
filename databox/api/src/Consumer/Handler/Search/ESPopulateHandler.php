@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Search;
 
 use App\Elasticsearch\PopulateLockManager;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -49,11 +50,16 @@ final readonly class ESPopulateHandler
             $command[] = '--index='.$message->index;
         }
 
+        // The passes of the child are recorded with this run id: if it dies, only they are closed
+        $runId = Uuid::uuid4()->toString();
+
         // No timeout: populating every asset can take hours
-        $process = new Process($command, $this->projectDir, ['APP_ENV' => $this->environment], timeout: null);
+        $process = new Process($command, $this->projectDir, [
+            'APP_ENV' => $this->environment,
+            PopulateLockManager::RUN_ID_ENV => $runId,
+        ], timeout: null);
 
         $errorOutput = '';
-        $startedAt = new \DateTimeImmutable();
         $process->run(static function (string $type, string $buffer) use (&$errorOutput): void {
             if (Process::ERR === $type) {
                 $errorOutput = substr($errorOutput.$buffer, -self::ERROR_OUTPUT_BUFFER_LENGTH);
@@ -69,7 +75,7 @@ final readonly class ESPopulateHandler
 
         // A killed process (OOM…) leaves its pass open and its index locked
         $cause = self::extractCause($errorOutput);
-        $this->populateLockManager->closeDeadPasses($message->index, $startedAt, null !== $cause ? sprintf('Exit code %s: %s', $exitCode, $cause) : $error);
+        $this->populateLockManager->closeDeadPasses($runId, $message->index, null !== $cause ? sprintf('Exit code %s: %s', $exitCode, $cause) : $error);
 
         // Unrecoverable: a retry would start the whole populate again
         throw new UnrecoverableMessageHandlingException(sprintf("%s:\n%s", $error, trim(substr($errorOutput, -self::ERROR_OUTPUT_LENGTH))));

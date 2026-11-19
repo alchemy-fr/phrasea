@@ -146,10 +146,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * Each API only accepts the access tokens whose audience ("aud" claim) includes its admin client
-     * (see JwtValidator of the auth bundle), but the ones of its admin client itself. The client scope
-     * "<app>-api" of each API puts it there, through an audience mapper: the clients calling an API have
-     * its scope among their default ones.
+     * Each API only accepts the access tokens whose audience ("aud" claim) includes the name of the
+     * application ("databox", "expose", "uploader"; see JwtValidator of the auth bundle), but the ones of
+     * its admin client itself. The client scope "<app>-api" of each API puts it there, through an audience
+     * mapper (custom audience): the clients calling an API have its scope among their default ones.
      */
     private function configureApiAudiences(): void
     {
@@ -173,7 +173,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'protocolMapper' => 'oidc-audience-mapper',
                 'name' => $mapperName,
                 'config' => [
-                    'included.client.audience' => EnvHelper::getEnvOrThrow(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app))),
+                    'included.custom.audience' => $app,
                     'access.token.claim' => 'true',
                     'id.token.claim' => 'false',
                     'introspection.token.claim' => 'true',

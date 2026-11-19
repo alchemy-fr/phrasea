@@ -6,15 +6,22 @@ namespace App\Tests\Functional\Api\Platform;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
+use Alchemy\StorageBundle\Doctrine\MultipartUploadListener;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Test\Client;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use Aws\CommandInterface;
 use Aws\Result;
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
+use Doctrine\DBAL\Types\Types;
 use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -30,6 +37,9 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
 {
     private const string S3_UPLOAD_ID = 'mock-s3-upload-id';
 
+    private const string MP4 = "\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00mp42isom\x00\x00\x00\x08free";
+    private const string PNG = "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xf8\xcf\xc0\xf0\x1f\x00\x05\x00\x01\xff\x89\x99=\x1d\x00\x00\x00\x00IEND\xaeB`\x82";
+
     private Client $client;
 
     /**
@@ -41,6 +51,23 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
      * ContentLength answered to HeadObject, i.e. the size of the completed object.
      */
     private int $s3ObjectSize = 0;
+
+    /**
+     * Body answered to GetObject, i.e. the head of the completed object.
+     */
+    private string $s3ObjectContent = self::MP4;
+
+    /**
+     * S3 refuses CompleteMultipartUpload (e.g. a wrong part ETag).
+     */
+    private bool $s3CompletionFails = false;
+
+    /**
+     * Uploads answered to ListMultipartUploads.
+     *
+     * @var array<array{Key: string, UploadId: string, Initiated: \DateTimeImmutable}>
+     */
+    private array $s3Uploads = [];
 
     protected function setUp(): void
     {
@@ -57,9 +84,17 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
                 'args' => $command->toArray(),
             ];
 
+            if ($this->s3CompletionFails && 'CompleteMultipartUpload' === $command->getName()) {
+                return Create::rejectionFor(new S3Exception('One or more of the specified parts could not be found', $command, [
+                    'code' => 'InvalidPart',
+                ]));
+            }
+
             return Create::promiseFor(new Result(match ($command->getName()) {
                 'CreateMultipartUpload' => ['UploadId' => self::S3_UPLOAD_ID],
                 'HeadObject' => ['ContentLength' => $this->s3ObjectSize],
+                'GetObject' => ['Body' => Utils::streamFor($this->s3ObjectContent)],
+                'ListMultipartUploads' => ['Uploads' => $this->s3Uploads],
                 default => [],
             }));
         });
@@ -95,18 +130,18 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
     /**
      * Inserts an upload row directly, e.g. one already completed.
      */
-    private function persistUpload(bool $complete = false, ?int $chunkSize = 5_242_880, int $size = 12_000_000, ?string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
+    private function persistUpload(bool $complete = false, ?int $chunkSize = 5_242_880, int $size = 12_000_000, ?string $ownerId = KeycloakClientTestMock::USER_UID, string $filename = 'video.mp4', string $type = 'video/mp4'): MultipartUpload
     {
         $em = self::getEntityManager();
         $upload = new MultipartUpload();
         $upload->setOwnerId($ownerId);
-        $upload->setFilename('video.mp4');
-        $upload->setType('video/mp4');
+        $upload->setFilename($filename);
+        $upload->setType($type);
         $upload->setSize($size);
         if (null !== $chunkSize) {
             $upload->setChunkSize($chunkSize);
         }
-        $upload->setPath('tests/'.uniqid().'.mp4');
+        $upload->setPath('tests/'.uniqid().'.'.pathinfo($filename, PATHINFO_EXTENSION));
         $upload->setUploadId('existing-s3-upload');
         $upload->setComplete($complete);
         $em->persist($upload);
@@ -145,10 +180,10 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
             $this->assertStringContainsString('X-Amz-Signature=', $url);
         }
 
-        // One S3 multipart upload was started, with the file type and extension
+        // One S3 multipart upload was started, with the file extension but not the declared type, unchecked
         $this->assertSame(['CreateMultipartUpload'], $this->getS3CommandNames());
         $args = $this->s3Commands[0]['args'];
-        $this->assertSame('image/jpeg', $args['ContentType']);
+        $this->assertSame('application/octet-stream', $args['ContentType']);
         $this->assertStringEndsWith('.jpg', $args['Key']);
 
         // Internal S3 data is persisted but never exposed
@@ -195,8 +230,11 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
     {
         yield 'blank filename' => [['filename' => '', 'type' => 'image/jpeg', 'size' => 10], 422];
         yield 'blank type' => [['filename' => 'a.jpg', 'type' => '', 'size' => 10], 422];
+        yield 'filename longer than its column' => [['filename' => str_repeat('a', 252).'.jpg', 'type' => 'image/jpeg', 'size' => 10], 422];
+        yield 'type longer than its column' => [['filename' => 'a.jpg', 'type' => 'image/'.str_repeat('a', 145), 'size' => 10], 422];
         yield 'negative size' => [['filename' => 'a.jpg', 'type' => 'image/jpeg', 'size' => -1], 400];
         yield 'size above the maximum object size' => [['filename' => 'a.jpg', 'type' => 'image/jpeg', 'size' => 52_776_558_133_249], 400];
+        yield 'size above the maximum file size of databox' => [['filename' => 'a.jpg', 'type' => 'image/jpeg', 'size' => 107_374_182_401], 400];
     }
 
     #[DataProvider('getInvalidUploads')]
@@ -424,7 +462,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $s3Client->getHandlerList()->setHandler(function (CommandInterface $command) {
             $this->s3Commands[] = ['name' => $command->getName(), 'args' => $command->toArray()];
 
-            return Create::rejectionFor(new \Aws\S3\Exception\S3Exception('The upload does not exist', $command, [
+            return Create::rejectionFor(new S3Exception('The upload does not exist', $command, [
                 'code' => 'NoSuchUpload',
             ]));
         });
@@ -566,9 +604,48 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
 
         $this->complete($upload);
 
-        $this->assertSame(['CompleteMultipartUpload', 'HeadObject'], $this->getS3CommandNames());
+        $this->assertSame(['CompleteMultipartUpload', 'HeadObject', 'GetObject'], $this->getS3CommandNames());
         $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[1]['args']['Key']);
-        $this->assertTrue($this->findUpload($upload->getId())->isComplete());
+        $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[2]['args']['Key']);
+        $this->assertSame('bytes=0-65535', $this->s3Commands[2]['args']['Range']);
+        $completed = $this->findUpload($upload->getId());
+        $this->assertTrue($completed->isComplete());
+        $this->assertSame('video/mp4', $completed->getType());
+    }
+
+    public function testTheTypeOfTheContentReplacesTheDeclaredOne(): void
+    {
+        $upload = $this->persistUpload(size: strlen(self::PNG), filename: 'photo.png', type: 'image/jpeg');
+        $this->s3ObjectSize = strlen(self::PNG);
+        $this->s3ObjectContent = self::PNG;
+
+        $this->assertSame('image/png', $this->complete($upload)->getType());
+        $this->assertSame('image/png', $this->findUpload($upload->getId())->getType());
+    }
+
+    public static function getRefusedContents(): iterable
+    {
+        yield 'html declared as an image' => ['photo.jpg', 'image/jpeg', '<!DOCTYPE html><html><body><script>alert(1)</script></body></html>', 'content is "text/html"'];
+        yield 'hls playlist declared as a video' => ['video.mp4', 'video/mp4', "#EXTM3U\n#EXTINF:10,\nfile:///etc/passwd\n", 'HLS playlist'];
+    }
+
+    #[DataProvider('getRefusedContents')]
+    public function testARefusedContentIsDeleted(string $filename, string $type, string $content, string $expectedMessage): void
+    {
+        $upload = $this->persistUpload(size: strlen($content), filename: $filename, type: $type);
+        $this->s3ObjectSize = strlen($content);
+        $this->s3ObjectContent = $content;
+
+        try {
+            $this->complete($upload);
+            $this->fail('The upload must be refused');
+        } catch (BadRequestHttpException $e) {
+            $this->assertStringContainsString($expectedMessage, $e->getMessage());
+        }
+
+        $this->assertSame(['CompleteMultipartUpload', 'HeadObject', 'GetObject', 'DeleteObject'], $this->getS3CommandNames());
+        $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[3]['args']['Key']);
+        $this->assertNull($this->findUpload($upload->getId()));
     }
 
     public static function getForeignOwners(): iterable
@@ -593,17 +670,77 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $this->assertFalse($this->findUpload($upload->getId())->isComplete());
     }
 
-    public function testAnUploadIsCompletedOnce(): void
+    public function testAnUploadIsUsedOnce(): void
+    {
+        $upload = $this->persistUpload(size: 1000);
+        $this->s3ObjectSize = 1000;
+        $this->complete($upload);
+        $this->assertNotNull($this->findUpload($upload->getId())->getConsumedAt());
+        $this->s3Commands = [];
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('already used');
+        try {
+            $this->complete($this->findUpload($upload->getId()));
+        } finally {
+            $this->assertSame([], $this->s3Commands);
+        }
+    }
+
+    public function testAnUploadCompletedBeforeBeingConsumedIsNotUsedAgain(): void
     {
         $upload = $this->persistUpload(complete: true, size: 1000);
 
         $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('already complete');
+        $this->expectExceptionMessage('already used');
         try {
             $this->complete($upload);
         } finally {
             $this->assertSame([], $this->s3Commands);
         }
+    }
+
+    public function testOnlyOneOfConcurrentRequestsGetsTheUpload(): void
+    {
+        $upload = $this->persistUpload(size: 1000);
+        $this->s3ObjectSize = 1000;
+        // Another request claims the upload after this one loaded it
+        self::getEntityManager()->getConnection()->executeStatement(
+            'UPDATE multipart_upload SET consumed_at = :now WHERE id = :id',
+            ['now' => new \DateTimeImmutable(), 'id' => $upload->getId()],
+            ['now' => Types::DATETIME_IMMUTABLE],
+        );
+        $this->assertNull($upload->getConsumedAt());
+
+        try {
+            $this->complete($upload);
+            $this->fail('The upload must not be used twice');
+        } catch (BadRequestHttpException $e) {
+            $this->assertStringContainsString('already used', $e->getMessage());
+        }
+
+        $this->assertSame([], $this->s3Commands);
+        $this->assertFalse($this->findUpload($upload->getId())->isComplete());
+    }
+
+    public function testAFailedCompletionReleasesTheUpload(): void
+    {
+        $upload = $this->persistUpload(size: 1000);
+        $this->s3ObjectSize = 1000;
+
+        $this->s3CompletionFails = true;
+
+        try {
+            $this->complete($upload);
+            $this->fail('The completion must fail');
+        } catch (S3Exception) {
+        }
+        $this->assertNull($this->findUpload($upload->getId())->getConsumedAt());
+
+        // The client can retry
+        $this->s3CompletionFails = false;
+        $this->complete($this->findUpload($upload->getId()));
+        $this->assertTrue($this->findUpload($upload->getId())->isComplete());
     }
 
     public static function getWrongSizes(): iterable
@@ -628,5 +765,138 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $this->assertSame(['CompleteMultipartUpload', 'HeadObject', 'DeleteObject'], $this->getS3CommandNames());
         $this->assertStringEndsWith($upload->getPath(), $this->s3Commands[2]['args']['Key']);
         $this->assertNull($this->findUpload($upload->getId()));
+    }
+
+    public function testTheUrlsAreHandedOutByPages(): void
+    {
+        $partCount = MultipartUploadListener::MAX_SIGNED_URLS + 2;
+        $data = $this->createUpload(size: $partCount * 5_242_880);
+        $this->assertSame(5_242_880, $data['chunkSize'], 'The fixture assumes parts of 5 MiB');
+        $this->assertSame(range(1, MultipartUploadListener::MAX_SIGNED_URLS), array_map('intval', array_keys($data['urls'])));
+
+        $response = $this->client->request('POST', '/uploads/'.$data['id'].'/parts', [
+            'headers' => $this->headers(),
+            'json' => ['from' => 2],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $plan = $response->toArray();
+        $this->assertSame($partCount, $plan['partCount']);
+        $this->assertSame(range(2, MultipartUploadListener::MAX_SIGNED_URLS + 1), array_map('intval', array_keys($plan['urls'])));
+
+        $response = $this->client->request('POST', '/uploads/'.$data['id'].'/parts', [
+            'headers' => $this->headers(),
+            'json' => ['from' => MultipartUploadListener::MAX_SIGNED_URLS + 1],
+        ]);
+        $this->assertSame([MultipartUploadListener::MAX_SIGNED_URLS + 1, $partCount], array_map('intval', array_keys($response->toArray()['urls'])));
+    }
+
+    public function testTheUploadsInProgressOfAUserAreLimited(): void
+    {
+        for ($i = 0; $i < 19; ++$i) {
+            $this->persistUpload();
+        }
+        // Not in progress: completed, being completed, abandoned, or of another user
+        $this->persistUpload(complete: true);
+        $consumed = $this->persistUpload();
+        $old = $this->persistUpload();
+        $this->persistUpload(ownerId: KeycloakClientTestMock::ADMIN_UID);
+        self::getEntityManager()->createQueryBuilder()
+            ->update(MultipartUpload::class, 'u')
+            ->set('u.consumedAt', ':now')
+            ->andWhere('u.id = :id')
+            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
+            ->setParameter('id', $consumed->getId())
+            ->getQuery()
+            ->execute();
+        self::getEntityManager()->createQueryBuilder()
+            ->update(MultipartUpload::class, 'u')
+            ->set('u.createdAt', ':old')
+            ->andWhere('u.id = :id')
+            ->setParameter('old', new \DateTimeImmutable('-25 hours'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('id', $old->getId())
+            ->getQuery()
+            ->execute();
+
+        // The 20th
+        $this->createUpload();
+        $this->assertSame(['CreateMultipartUpload'], $this->getS3CommandNames());
+
+        $response = $this->client->request('POST', '/uploads', [
+            'headers' => $this->headers(),
+            'json' => [
+                'filename' => 'photo.jpg',
+                'type' => 'image/jpeg',
+                'size' => 1000,
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(429);
+        $this->assertStringContainsString('Too many uploads in progress', $response->toArray(false)['detail']);
+        $this->assertSame(['CreateMultipartUpload'], $this->getS3CommandNames(), 'Nothing opened on S3');
+
+        $this->createUpload(userId: KeycloakClientTestMock::ADMIN_UID);
+    }
+
+    private function setCreatedAt(MultipartUpload $upload, string $createdAt): void
+    {
+        self::getEntityManager()->createQueryBuilder()
+            ->update(MultipartUpload::class, 'u')
+            ->set('u.createdAt', ':createdAt')
+            ->andWhere('u.id = :id')
+            ->setParameter('createdAt', new \DateTimeImmutable($createdAt), Types::DATETIME_IMMUTABLE)
+            ->setParameter('id', $upload->getId())
+            ->getQuery()
+            ->execute();
+    }
+
+    private function prune(array $options = []): CommandTester
+    {
+        $tester = new CommandTester(new Application(self::$kernel)->find('alchemy:storage:prune-multipart-uploads'));
+        $tester->execute($options);
+
+        return $tester;
+    }
+
+    public function testPruningAbortsTheAbandonedUploadsAndDeletesTheUnusedOnes(): void
+    {
+        $this->s3Uploads = [
+            ['Key' => 'prefix/aa/abandoned.jpg', 'UploadId' => 's3-old', 'Initiated' => new \DateTimeImmutable('-25 hours')],
+            ['Key' => 'prefix/aa/in-progress.jpg', 'UploadId' => 's3-recent', 'Initiated' => new \DateTimeImmutable('-1 hour')],
+        ];
+
+        $abandoned = $this->persistUpload();
+        $this->setCreatedAt($abandoned, '-25 hours');
+        $completed = $this->persistUpload(complete: true);
+        $this->setCreatedAt($completed, '-25 hours');
+        $inProgress = $this->persistUpload();
+
+        $tester = $this->prune();
+
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame(['ListMultipartUploads', 'AbortMultipartUpload'], $this->getS3CommandNames());
+        $this->assertSame('prefix/aa/abandoned.jpg', $this->s3Commands[1]['args']['Key'], 'The listed key already holds the path prefix');
+        $this->assertSame('s3-old', $this->s3Commands[1]['args']['UploadId']);
+        $this->assertNull($this->findUpload($abandoned->getId()));
+        $this->assertNotNull($this->findUpload($completed->getId()));
+        $this->assertNotNull($this->findUpload($inProgress->getId()));
+    }
+
+    public function testPruningKeepsTheUploadsYoungerThanTheMinimumAge(): void
+    {
+        $upload = $this->persistUpload();
+        $this->setCreatedAt($upload, '-5 hours');
+
+        $this->prune();
+        $this->assertNotNull($this->findUpload($upload->getId()));
+
+        $this->prune(['--min-age' => '4']);
+        $this->assertNull($this->findUpload($upload->getId()));
+    }
+
+    public function testPruningRefusesAMinimumAgeShorterThanThePartUrls(): void
+    {
+        $tester = $this->prune(['--min-age' => '2']);
+
+        $this->assertSame(Command::INVALID, $tester->getStatusCode());
+        $this->assertSame([], $this->s3Commands);
     }
 }

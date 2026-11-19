@@ -43,6 +43,7 @@ final readonly class RenditionBuilder
         private RenditionDefinitionParser $definitionParser,
         private StoryContactSheetInputResolver $contactSheetInputResolver,
         private StoryContactSheetScheduler $contactSheetScheduler,
+        private FileProcessingGuard $processingGuard,
     ) {
     }
 
@@ -86,6 +87,9 @@ final readonly class RenditionBuilder
                 throw new RenditionBuildException(false, sprintf('Asset "%s" has no source file', $asset->getId()));
             }
         }
+
+        // The base renditions are built before the analysis on purpose (WorkspaceCreator)
+        $this->processingGuard->assertProcessable($source, allowPendingAnalysis: true);
 
         $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
 
@@ -220,7 +224,7 @@ final readonly class RenditionBuilder
     }
 
     /**
-     * @param OutputFileInterface|File $built the built file, or the source when the build left it untouched
+     * @param OutputFileInterface|File $built the built file, or the source when the build left it untouched (its analysis is its own)
      */
     private function storeBuiltRendition(
         Asset $asset,
@@ -239,11 +243,10 @@ final readonly class RenditionBuilder
                 $built->getPath(),
                 $built->getType()
             );
+            $file->setNoAnalysisNeeded();
         } else {
             $file = $built;
         }
-
-        $file->setNoAnalysisNeeded();
 
         // Building can take minutes: the asset may have been deleted meanwhile while
         // it is still held in the identity map. Check the database before writing
@@ -277,6 +280,7 @@ final readonly class RenditionBuilder
         }
 
         $source = $this->resolveDynamicRenditionSource($rendition);
+        $this->processingGuard->assertProcessable($source);
         $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetNameResolver);
 
         try {
@@ -296,11 +300,11 @@ final readonly class RenditionBuilder
                     $outputFile->getPath(),
                     $outputFile->getType()
                 );
+                $file->setNoAnalysisNeeded();
             } else {
+                // Left untouched by the build: the source keeps its own analysis
                 $file = $source;
             }
-
-            $file->setNoAnalysisNeeded();
 
             $this->renditionManager->attachRenditionFile(
                 $rendition,

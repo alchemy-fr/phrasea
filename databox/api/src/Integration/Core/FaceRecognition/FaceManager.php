@@ -38,7 +38,31 @@ final class FaceManager
         private readonly FaceRecognitionConfigResolver $configResolver,
         private readonly DeferredIndexListener $deferredIndexListener,
         private readonly MessageBusInterface $bus,
+        private readonly FaceIndex $faceIndex,
     ) {
+    }
+
+    /**
+     * The person of a new face of the asset (see findPerson), among its nearest faces in the
+     * other assets of the workspace and the faces of the asset already known.
+     *
+     * @param float[]                                                   $vector
+     * @param array<array{value: string, origin: int, vector: float[]}> $assetFaces
+     *
+     * @return array{value: string, confidence: float}|null the entity ID and the similarity
+     */
+    public function recognize(string $definitionId, string $assetId, array $vector, array $assetFaces, float $threshold): ?array
+    {
+        if ($threshold <= 0) {
+            return null;
+        }
+
+        $nearest = $this->faceIndex->findNearest($definitionId, $vector, $threshold, $assetId);
+
+        return $this->findPerson($vector, [
+            ...iterator_to_array($this->attributeRepository->iterateEmbeddings($definitionId, $assetId, $nearest), false),
+            ...$assetFaces,
+        ], $threshold);
     }
 
     /**
@@ -168,6 +192,7 @@ final class FaceManager
 
         $this->confirm($reference, $userId);
         FaceRecognitionDoctrineListener::suspend(fn () => $this->em->flush());
+        $this->faceIndex->update([$reference]);
 
         return $reference;
     }
@@ -202,10 +227,14 @@ final class FaceManager
         $person = (string) $reference->getValue();
         $list = $this->configResolver->getEntityList($config);
 
+        $assetId = $reference->getAsset()->getId();
+        // Every face of the workspace is scanned when too many are similar for a search
+        $similar = $this->faceIndex->findSimilarMachineFaces($definition->getId(), $vector, $threshold, $assetId);
+
         $count = 0;
         $previous = [];
         $this->pendingPersons = [];
-        foreach ($this->attributeRepository->iterateMachineEmbeddings($definition->getId(), $reference->getAsset()->getId()) as $candidate) {
+        foreach ($this->attributeRepository->iterateMachineEmbeddings($definition->getId(), $assetId, $similar) as $candidate) {
             $similarity = FaceMatcher::cosineSimilarity($vector, $candidate->getEmbedding()['v'] ?? []);
             $current = (string) $candidate->getValue();
             $closer = $current === $person

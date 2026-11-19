@@ -376,6 +376,13 @@ $notifier->broadcast('admin:message', [
 | `GET /notification-preferences` | List effective preferences |
 | `PUT /notification-preferences` | Update preferences (`{"items":[{"topic","channel","enabled"}]}`) |
 
+Preference updates only accept user-configurable topics and the channels each
+topic delivers through; `enabled` must be a JSON boolean and at most 100 items
+are accepted per request (400 otherwise). Duplicate `(topic, channel)` pairs are
+merged, the last one wins. A 409 means another request changed the same
+preferences concurrently: retry it. A stored preference of a topic that is not
+user-configurable is ignored at delivery.
+
 ## Extending
 
 - **Contact resolution**: replace `SubscriberInfoProviderInterface` (default:

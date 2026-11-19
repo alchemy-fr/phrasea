@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Alchemy\StorageBundle\Entity\MultipartUpload;
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 
 class WorkspaceTermsTest extends AbstractDataboxTestCase
 {
+    use MultipartUploadTestTrait;
+
     private function adminHeaders(): array
     {
         return [
@@ -107,37 +106,11 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
     }
 
     /**
-     * Simulates a finished S3 multipart upload: the file is already in the
-     * storage and the MultipartUpload row is complete, so the endpoint does
-     * not need to reach S3. Returns the "multipart" request payload.
+     * The "multipart" request payload of an upload of $content, left for the endpoint to complete.
      */
-    private function createCompletedUpload(string $content, string $name, string $type, string $ownerId = KeycloakClientTestMock::ADMIN_UID): array
+    private function uploadPayload(string $content, string $name, string $type, string $ownerId = KeycloakClientTestMock::ADMIN_UID): array
     {
-        $container = static::getContainer();
-        /** @var EntityManagerInterface $em */
-        $em = $container->get('doctrine')->getManager();
-        /** @var FileStorageManager $storage */
-        $storage = $container->get(FileStorageManager::class);
-
-        $upload = new MultipartUpload();
-        $upload->setOwnerId($ownerId);
-        $upload->setFilename($name);
-        $upload->setType($type);
-        $upload->setSize(strlen($content));
-        $upload->setPath(sprintf('test-uploads/%s.%s', uniqid(), pathinfo($name, PATHINFO_EXTENSION)));
-        $upload->setUploadId('test-'.uniqid());
-        $upload->setComplete(true);
-        $em->persist($upload);
-        $em->flush();
-
-        $storage->store($upload->getPath(), $content);
-
-        return [
-            'uploadId' => $upload->getId(),
-            'parts' => [
-                ['ETag' => 'test-etag', 'PartNumber' => 1],
-            ],
-        ];
+        return self::multipartPayload($this->createUpload($content, $name, $type, $ownerId));
     }
 
     public function testPdfProvidedTerms(): void
@@ -150,7 +123,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $response = $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
+                'multipart' => $this->uploadPayload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -163,7 +136,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
+                'multipart' => $this->uploadPayload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -176,7 +149,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $response = $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload('%PDF-1.4 updated terms pdf', 'terms.pdf', 'application/pdf'),
+                'multipart' => $this->uploadPayload('%PDF-1.4 updated terms pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -186,7 +159,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload('not a pdf', 'terms.pdf', 'application/pdf'),
+                'multipart' => $this->uploadPayload('not a pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
@@ -195,7 +168,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client->request('POST', $iri.'/terms', [
             'headers' => $this->userHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload('%PDF-1.4 x', 'terms.pdf', 'application/pdf', KeycloakClientTestMock::USER_UID),
+                'multipart' => $this->uploadPayload('%PDF-1.4 x', 'terms.pdf', 'application/pdf', KeycloakClientTestMock::USER_UID),
             ],
         ]);
         $this->assertResponseStatusCodeSame(403);
@@ -228,7 +201,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $response = $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
+                'multipart' => $this->uploadPayload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -250,7 +223,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $response = $client->request('POST', $iri.'/logo', [
             'headers' => $this->adminHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload($png, 'logo.png', 'image/png'),
+                'multipart' => $this->uploadPayload($png, 'logo.png', 'image/png'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -260,7 +233,7 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client->request('POST', $iri.'/logo', [
             'headers' => $this->adminHeaders(),
             'json' => [
-                'multipart' => $this->createCompletedUpload('plain text', 'logo.txt', 'text/plain'),
+                'multipart' => $this->uploadPayload('plain text', 'logo.txt', 'text/plain'),
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
@@ -417,5 +390,30 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
         $this->assertArrayNotHasKey('text', $data['terms'] ?? []);
+    }
+
+    public function testTermsPdfIsServedWithSafeHeaders(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
+
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
+            'json' => [
+                'terms' => 'Some terms.',
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        $response = $client->request('GET', $iri.'/terms.pdf', [
+            'headers' => $this->adminHeaders(),
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+        $this->assertResponseHeaderSame('content-type', 'application/pdf');
+        $this->assertResponseHeaderSame('content-disposition', 'inline; filename=terms-test-workspace-v1.pdf');
+        $this->assertResponseHeaderSame('x-content-type-options', 'nosniff');
+        $this->assertResponseHeaderSame('content-security-policy', 'sandbox');
     }
 }

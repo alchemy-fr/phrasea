@@ -11,9 +11,11 @@ use App\Service\Workspace\Template\WorkspaceTemplateOptions;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
- * UUIDs embedded in the AQL condition (@tag, @rendition, entity values, …) are remapped to the
+ * UUIDs embedded in the AQL condition (@rendition, entity values, …) are remapped to the
  * imported entities. Other UUIDs (e.g. collections) are not part of a template: such rules fail closed.
  * Without the targets (portable templates), an imported rule applies to everyone.
+ * A condition on "@tag" (an unknown field, found in old templates) is refused: skipping a visibility rule would widen what its targets see,
+ * keeping it would hide the whole workspace from them.
  */
 #[AsTaggedItem(priority: 60)]
 final class AttributeFilterRuleSection extends AbstractTemplateSection
@@ -38,6 +40,9 @@ final class AttributeFilterRuleSection extends AbstractTemplateSection
     {
         $ws = $context->workspace;
         foreach ($data as $item) {
+            if (preg_match('#@tag\b#i', $item['condition'])) {
+                throw new \InvalidArgumentException(sprintf('AttributeFilterRule "%s" uses "@tag", which no longer exists: use the slug of the entity list attribute holding the tags instead', $item['condition']));
+            }
             $condition = $context->remapIds($item['condition']);
             $o = $context->findExisting(AttributeFilterRule::class, [
                 'workspace' => $ws,

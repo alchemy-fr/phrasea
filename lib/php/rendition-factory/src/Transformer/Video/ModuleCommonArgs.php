@@ -19,8 +19,9 @@ class ModuleCommonArgs
         array $supportedOutputFormats,
         array $options,
         TransformationContextInterface $context,
-        ModuleOptionsResolver $optionsResolver)
-    {
+        ModuleOptionsResolver $optionsResolver,
+        int $ffmpegMaxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
+    ) {
         $resolverContext = $context->getTemplatingContext();
 
         $format = $optionsResolver->resolveOption($options['format'] ?? null, $resolverContext);
@@ -47,7 +48,7 @@ class ModuleCommonArgs
             'timeout' => $optionsResolver->resolveOption($options['timeout'] ?? null, $resolverContext),
             'threads' => $optionsResolver->resolveOption($options['threads'] ?? null, $resolverContext),
         ];
-        $this->ffmpeg = FFMpegHelper::createFFMpeg($ffmpegOptions);
+        $this->ffmpeg = FFMpegHelper::createFFMpeg($ffmpegOptions, $ffmpegMaxTimeout);
     }
 
     public function getOutputFormat(): FormatInterface

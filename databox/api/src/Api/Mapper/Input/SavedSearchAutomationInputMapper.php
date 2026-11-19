@@ -205,7 +205,8 @@ class SavedSearchAutomationInputMapper extends AbstractInputMapper implements In
                 continue;
             }
 
-            $config = $this->secretsHandler->decrypt($type, $definition['config'] ?? []);
+            // The API cannot decrypt the secrets: these constraints do not depend on them
+            $config = $this->secretsHandler->mask($type, $definition['config'] ?? []);
             if ($action instanceof ScopeAwareActionInterface) {
                 foreach ($action->getScopeViolations($config, $automation->getScope()) as $key => $message) {
                     $path = $actionsWritten ? sprintf('actions[%d].config.%s', $i, $key) : 'scope';

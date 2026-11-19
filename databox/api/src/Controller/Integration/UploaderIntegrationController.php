@@ -6,11 +6,13 @@ namespace App\Controller\Integration;
 
 use App\Integration\IntegrationManager;
 use App\Integration\Phrasea\Uploader\Message\IngestUploaderCommit;
+use App\Integration\Phrasea\Uploader\UploaderIntegration;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -30,9 +32,17 @@ class UploaderIntegrationController extends AbstractController
             throw new UnauthorizedHttpException('Missing ApiKey token');
         }
 
-        $integration = $integrationManager->loadIntegration($integrationId);
+        try {
+            $integration = $integrationManager->loadIntegration($integrationId);
+        } catch (\InvalidArgumentException) {
+            throw new NotFoundHttpException('Integration not found');
+        }
+        if (UploaderIntegration::NAME !== $integration->getIntegration() || !$integration->isEnabled()) {
+            throw new NotFoundHttpException('Integration not found');
+        }
+
         $config = $integrationManager->getIntegrationConfiguration($integration);
-        if (!hash_equals((string) $config['securityKey'], $authToken)) {
+        if (!$config->matches('securityKey', $authToken)) {
             throw new AccessDeniedHttpException('Invalid token');
         }
 

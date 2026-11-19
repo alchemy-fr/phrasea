@@ -140,7 +140,7 @@ class TargetFormTest extends AbstractUploaderTestCase
         $this->assertSame('form.fields.0.key', $response->toArray(false)['violations'][0]['propertyPath']);
 
         $definition = self::definition();
-        $definition['fields'][] = ['id' => 'f_tags', 'source' => 'builtin', 'key' => 'databox_tags'];
+        $definition['fields'][] = ['id' => 'f_tags', 'source' => 'attribute', 'key' => 'tags', 'type' => 'entity', 'multiple' => true, 'attribute' => ['entityListId' => 'c705d014-5e18-4711-bad6-5e9e27e10099']];
 
         $response = $this->putForm(KeycloakClientTestMock::ADMIN_UID, $this->getOrCreateDefaultTarget()->getId(), $definition);
         $this->assertEquals(422, $response->getStatusCode(), $response->getContent(false));

@@ -16,6 +16,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
+use App\Service\Share\ShareRenditionUrlGenerator;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -71,34 +72,33 @@ final class ShareRenditionProvider implements ProviderInterface
             'createdAt' => 'DESC',
         ]);
 
-        // Same rule as the share's alternateUrls
-        if (null === $rendition || !ShareReadProvider::isRenditionShared($item, $rendition)) {
+        // Same rules as the share's alternateUrls
+        if (null === $rendition
+            || !ShareReadProvider::isRenditionShared($item, $rendition)
+            || !ShareRenditionUrlGenerator::isServable($file = $rendition->getFile())
+            || null === $url = $this->fileUrlResolver->resolveUrl($file)) {
             return $this->createNotFoundResponse();
         }
 
-        if (null !== $file = $rendition->getFile()) {
-            // Tracking is optional: without MATOMO_URL the tracker falls back to
-            // localhost and its failure must never break the share itself.
-            if ('' !== trim($this->matomoUrl)) {
-                $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
-                $trackingId = $asset->getResolvedTrackingId();
-                $name = $this->assetNameResolver->resolveNameAsString($asset);
+        // Tracking is optional (no MATOMO_URL on a stack without Matomo) and
+        // its failure must never break the share itself.
+        if ('' !== trim($this->matomoUrl)) {
+            $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
+            $trackingId = $asset->getResolvedTrackingId();
+            $name = $this->assetNameResolver->resolveNameAsString($asset);
 
-                $this->terminateStackListener->addCallback(function () use ($matomoTracker, $name, $trackingId): void {
-                    try {
-                        $matomoTracker->doTrackContentImpression($name, $trackingId);
-                    } catch (\Throwable $e) {
-                        $this->logger->error('Matomo content impression tracking failed', [
-                            'exception' => $e,
-                        ]);
-                    }
-                });
-            }
-
-            return new RedirectResponse($this->fileUrlResolver->resolveUrl($file));
+            $this->terminateStackListener->addCallback(function () use ($matomoTracker, $name, $trackingId): void {
+                try {
+                    $matomoTracker->doTrackContentImpression($name, $trackingId);
+                } catch (\Throwable $e) {
+                    $this->logger->error('Matomo content impression tracking failed', [
+                        'exception' => $e,
+                    ]);
+                }
+            });
         }
 
-        return $this->createNotFoundResponse();
+        return new RedirectResponse($url);
     }
 
     private function resolveAsset(Share $share, string $assetId): ?Asset

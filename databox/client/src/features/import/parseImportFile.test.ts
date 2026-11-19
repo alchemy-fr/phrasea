@@ -28,7 +28,7 @@ describe('parseImportContent (ndjson)', () => {
                 '{"sourceUrl": "https://example.com/a.jpg"}',
                 '',
                 '   ',
-                '{"name": "B", "tags": ["x"]}',
+                '{"name": "B", "privacy": 2}',
                 '',
             ].join('\n'),
             'ndjson'
@@ -48,7 +48,7 @@ describe('parseImportContent (ndjson)', () => {
                 '',
                 '{not json',
                 '[1, 2]',
-                '{"tags": ["only tags"]}',
+                '{"privacy": 2}',
                 '{"name": "x", "collection": "c1", "path": "A/B"}',
                 '{"renditions": {}}',
             ].join('\r\n'),

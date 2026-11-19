@@ -12,10 +12,12 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * Pushes a local file to another Phrasea application through its multipart
  * upload API (storage-bundle "/uploads").
  *
- * The target API decides the part size and presigns every part when the
+ * The target API decides the part size and presigns the first parts when the
  * upload is created; the parts are then PUT straight to the storage. Expired
- * URLs are renewed with "/uploads/{id}/parts", transient failures are retried
- * and the upload is cancelled if a part cannot be sent.
+ * or missing URLs are asked to "/uploads/{id}/parts", transient failures are
+ * retried and the upload is cancelled if a part cannot be sent. The target
+ * API limits the upload requests of a user: a call it refuses for now (429
+ * with a Retry-After delay) is sent again after the delay.
  *
  * The returned payload is what the target API expects as "multipart" when
  * creating the resource (asset, rendition...).
@@ -23,6 +25,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class MultipartUploader
 {
     private const int MAX_ATTEMPTS = 3;
+
+    private const int MAX_RATE_LIMIT_RETRIES = 5;
+
+    /**
+     * Seconds, at most, waited before sending again a call refused by the rate limit.
+     */
+    private const int MAX_RETRY_AFTER = 60;
 
     /**
      * @param HttpClientInterface $storageClient client used for the presigned PUTs (no API credentials)
@@ -44,13 +53,13 @@ final readonly class MultipartUploader
             throw new \InvalidArgumentException(sprintf('Cannot read size of file "%s"', $filePath));
         }
 
-        $upload = $apiClient->request('POST', '/uploads', [
+        $upload = $this->requestApi($apiClient, 'POST', '/uploads', [
             'json' => [
                 'filename' => $filename,
                 'type' => $type,
                 'size' => $size,
             ],
-        ])->toArray();
+        ]);
 
         $uploadId = $upload['id'];
         $chunkSize = (int) $upload['chunkSize'];
@@ -174,13 +183,31 @@ final readonly class MultipartUploader
     }
 
     /**
-     * @return array<int, string> part number => presigned URL, from $from to the last part
+     * @return array<int, string> part number => presigned URL, from $from (as many as the API signs at once)
      */
     private function fetchUrls(HttpClientInterface $apiClient, string $uploadId, int $from): array
     {
-        return $apiClient->request('POST', '/uploads/'.$uploadId.'/parts', [
+        return $this->requestApi($apiClient, 'POST', '/uploads/'.$uploadId.'/parts', [
             'json' => ['from' => $from],
-        ])->toArray()['urls'];
+        ])['urls'];
+    }
+
+    private function requestApi(HttpClientInterface $apiClient, string $method, string $path, array $options): array
+    {
+        for ($attempt = 1;; ++$attempt) {
+            $response = $apiClient->request($method, $path, $options);
+            if (429 === $response->getStatusCode() && $attempt <= self::MAX_RATE_LIMIT_RETRIES) {
+                // Without a delay, the refusal is not temporary (e.g. too many uploads in progress)
+                $retryAfter = trim($response->getHeaders(false)['retry-after'][0] ?? '');
+                if (ctype_digit($retryAfter)) {
+                    sleep(min((int) $retryAfter, self::MAX_RETRY_AFTER));
+
+                    continue;
+                }
+            }
+
+            return $response->toArray();
+        }
     }
 
     private function cancel(HttpClientInterface $apiClient, string $uploadId): void

@@ -6,7 +6,6 @@ namespace App\Tests\Functional\Admin;
 
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\Search\ESPopulate;
-use App\Elasticsearch\Listener\PopulatePassListener;
 use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
 use Doctrine\ORM\EntityManagerInterface;
@@ -147,43 +146,74 @@ class PopulatePassAdminTest extends AbstractDataboxAdminTestCase
         $lockFactory = static::getContainer()->get(LockFactory::class);
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
-        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName('tag'), 600);
+        $deadWorker = $lockFactory->createLock(static::getContainer()->get(PopulateLockManager::class)->getLockName('attribute_entity'), 600);
         $this->assertTrue($deadWorker->acquire());
 
         try {
             $crawler = $this->loadAddPage();
-            $this->assertStringContainsString('A populate is currently running for: tag', $crawler->filter('.alert-warning')->text());
+            $this->assertStringContainsString('A populate is currently running for: attribute_entity', $crawler->filter('.alert-warning')->text());
             $form = $crawler->selectButton('Start populate')->form();
             $token = $form->get('token')->getValue();
 
             // refused while the lock is held, even without any open pass
-            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'selected', 'indices' => ['tag']]);
+            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'selected', 'indices' => ['attribute_entity']]);
             $this->assertResponseRedirects();
             $this->assertSame([], $this->getPopulateMessages());
 
             // the "Release lock" button posts to the unlock action
-            $unlock = $crawler->filter('button.es-unlock[data-index="tag"]');
+            $unlock = $crawler->filter('button.es-unlock[data-index="attribute_entity"]');
             $this->assertCount(1, $unlock);
             $unlockForm = $unlock->form();
-            $this->assertStringEndsWith('/admin/populate-pass/unlock/tag', $unlockForm->getUri());
+            $this->assertStringEndsWith('/admin/populate-pass/unlock/attribute_entity', $unlockForm->getUri());
 
             // wrong token: nothing happens
             $this->client->request('POST', $unlockForm->getUri(), ['token' => 'invalid']);
             $this->assertResponseRedirects();
-            $this->assertTrue($manager->isLocked('tag'));
+            $this->assertTrue($manager->isLocked('attribute_entity'));
 
             $this->client->request('POST', $unlockForm->getUri(), ['token' => $token]);
             $this->assertResponseRedirects();
-            $this->assertFalse($manager->isLocked('tag'));
+            $this->assertFalse($manager->isLocked('attribute_entity'));
             $crawler = $this->client->followRedirect();
-            $this->assertStringContainsString('Populate lock of "tag" released', $crawler->filter('#flash-messages')->text());
+            $this->assertStringContainsString('Populate lock of "attribute_entity" released', $crawler->filter('#flash-messages')->text());
 
             // and the index can be queued again
-            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'selected', 'indices' => ['tag']]);
+            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'selected', 'indices' => ['attribute_entity']]);
             $this->assertResponseRedirects();
-            $this->assertSame(['tag'], array_map(static fn (ESPopulate $m): ?string => $m->index, $this->getPopulateMessages()));
+            $this->assertSame(['attribute_entity'], array_map(static fn (ESPopulate $m): ?string => $m->index, $this->getPopulateMessages()));
         } finally {
-            $manager->forceRelease('tag');
+            $manager->forceRelease('attribute_entity');
+        }
+    }
+
+    public function testTheLockOfALivePopulateIsOnlyReleasedWhenForced(): void
+    {
+        /** @var LockFactory $lockFactory */
+        $lockFactory = static::getContainer()->get(LockFactory::class);
+        /** @var PopulateLockManager $manager */
+        $manager = static::getContainer()->get(PopulateLockManager::class);
+        $worker = $lockFactory->createLock($manager->getLockName('attribute_entity'), 600);
+        $this->assertTrue($worker->acquire());
+        $manager->writeOwner('attribute_entity', ['runId' => 'run', 'passId' => null, 'host' => 'worker-1', 'pid' => 42, 'index' => null], 600);
+
+        try {
+            $crawler = $this->loadAddPage();
+            $this->assertStringContainsString('Alive: host worker-1, pid 42', $crawler->filter('.alert-warning')->text());
+            $unlockForm = $crawler->filter('button.es-unlock[data-index="attribute_entity"]')->form();
+            $token = $unlockForm->get('token')->getValue();
+
+            $this->client->request('POST', $unlockForm->getUri(), ['token' => $token]);
+            $this->assertResponseRedirects();
+            $this->assertTrue($manager->isLocked('attribute_entity'), 'the lock of a live populate is kept');
+            $crawler = $this->client->followRedirect();
+            $this->assertStringContainsString('still alive', $crawler->filter('#flash-messages')->text());
+
+            $this->client->request('POST', $unlockForm->getUri(), ['token' => $token, 'force' => '1']);
+            $this->assertResponseRedirects();
+            $this->assertFalse($manager->isLocked('attribute_entity'));
+        } finally {
+            $worker->release();
+            $manager->forceRelease('attribute_entity', evenIfAlive: true);
         }
     }
 

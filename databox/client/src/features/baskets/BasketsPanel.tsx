@@ -46,6 +46,7 @@ export function BasketsPanel() {
         baskets,
         loaded,
         loading,
+        error,
         load,
         loadMore,
         next,
@@ -98,6 +99,18 @@ export function BasketsPanel() {
                     {[...Array(3)].map((_, i) => (
                         <Skeleton key={i} className="h-8" />
                     ))}
+                </div>
+            ) : null}
+            {error ? (
+                <div className="flex flex-col items-center gap-1 px-3 py-4 text-center text-xs">
+                    <p className="text-destructive">{error}</p>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => void load({force: true})}
+                    >
+                        {t('common.retry', 'Retry')}
+                    </Button>
                 </div>
             ) : null}
             {loaded && baskets.length === 0 ? (

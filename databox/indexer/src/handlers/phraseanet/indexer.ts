@@ -10,7 +10,7 @@ import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
 import {
     AttrPolicyIndex,
     createAsset,
-    TagIndex,
+    StatusBitIndex,
     getStorySourceRecord,
     extractRenditionsFromRecord,
     extractRenditionsFromEmbeds,
@@ -141,15 +141,17 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             });
 
             logger.info(`Importing status-bits structure`);
-            let tagIndex: TagIndex = {};
+            let statusBitIndex: StatusBitIndex | undefined;
             if (dm.importStatusBits !== false) {
-                tagIndex = await importStatusBitsStructure(
+                statusBitIndex = await importStatusBitsStructure({
                     databoxClient,
                     workspaceId,
-                    phraseanetDatabox.databox_id,
+                    phraseanetDataboxId: phraseanetDatabox.databox_id,
                     phraseanetClient,
-                    logger
-                );
+                    idempotencePrefixes,
+                    attrPolicy: attrPolicyIndex[defaultPublicPolicy]['@id'],
+                    logger,
+                });
             }
 
             logger.info(`Importing subdefs structure`);
@@ -257,7 +259,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                     workspaceId,
                                     importFiles,
                                     fieldMap,
-                                    tagIndex,
+                                    statusBitIndex,
                                     storiesAsCollections,
                                     recordsCollectionPathTwig,
                                     recordsCollectionPath,
@@ -350,7 +352,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                     workspaceId,
                                     importFiles,
                                     fieldMap,
-                                    tagIndex,
+                                    statusBitIndex,
                                     storiesAsCollections,
                                     recordsCollectionPathTwig,
                                     recordsCollectionPath,
@@ -431,7 +433,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             record.record_id,
                         false,
                         fieldMap,
-                        tagIndex,
+                        statusBitIndex,
                         copyTo,
                         dm.sourceFile,
                         subdefToRendition,
@@ -495,7 +497,7 @@ async function importStory(
     workspaceId: string,
     importFiles: boolean,
     fieldMap: Record<string, FieldMap>,
-    tagIndex: TagIndex,
+    statusBitIndex: StatusBitIndex | undefined,
     storiesAsCollections: boolean,
     recordsCollectionPathTwig: Twig.Template | null,
     recordsCollectionPath: string,
@@ -689,7 +691,7 @@ async function importStory(
                 story.story_id,
             true,
             fieldMap,
-            tagIndex,
+            statusBitIndex,
             [],
             dm.sourceFile,
             subdefToRendition,
@@ -718,7 +720,6 @@ async function importStory(
             key: storyAsset.key,
             name: storyAsset.name || p.basename(storyAssetBasePath),
             attributes: storyAsset.attributes,
-            tags: storyAsset.tags,
             renditions: storyAsset.renditions,
             isStory: storyAsset.isStory,
         });

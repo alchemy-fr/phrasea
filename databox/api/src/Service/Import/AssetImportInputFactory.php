@@ -11,7 +11,6 @@ use App\Api\Model\Input\FileSourceInput;
 use App\Entity\Core\AssetImport;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
-use App\Entity\Core\Tag;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Service\Import\Exception\InvalidImportEntryException;
 use App\Service\Storage\RenditionManager;
@@ -58,10 +57,6 @@ final readonly class AssetImportInputFactory
             $input->privacy = $privacy;
         } elseif (is_string($privacy)) {
             $input->privacyLabel = $privacy;
-        }
-
-        if (isset($entry['tags'])) {
-            $input->tags = array_map(fn (string $tag): Tag => $this->resolveTag($workspaceId, $tag), $entry['tags']);
         }
 
         if (!empty($entry['attributes'])) {
@@ -141,21 +136,6 @@ final readonly class AssetImportInputFactory
         }
 
         return $import->getCollection();
-    }
-
-    private function resolveTag(string $workspaceId, string $tagRef): Tag
-    {
-        $tagId = basename($tagRef);
-        $tag = Uuid::isValid($tagId)
-            ? $this->em->getRepository(Tag::class)->findOneBy(['id' => $tagId, 'workspace' => $workspaceId])
-            : null;
-
-        $tag ??= $this->em->getRepository(Tag::class)->findOneBy(['name' => $tagRef, 'workspace' => $workspaceId]);
-        if (!$tag instanceof Tag) {
-            throw new InvalidImportEntryException(sprintf('Tag "%s" not found in the workspace', $tagRef));
-        }
-
-        return $tag;
     }
 
     /**

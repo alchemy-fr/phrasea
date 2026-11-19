@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Border;
 
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -13,12 +14,25 @@ class UploaderClientMock extends UploaderClient
 {
     private array $acknowledgedAssets = [];
 
+    /**
+     * The uploading user sent with the commits: the owner of the test workspace by default.
+     *
+     * Not defaulted to the constant here: the test class is missing from a --no-dev install,
+     * and reflecting the default properties (container build) would evaluate it.
+     */
+    public ?string $userId = null;
+
+    /**
+     * Merged into the uploaded asset, as returned by the Uploader.
+     */
+    public array $assetData = [];
+
     #[\Override]
     public function getCommit(string $baseUrl, string $id, string $token): array
     {
         return [
             'id' => $id,
-            'userId' => 'test_user',
+            'userId' => $this->userId ?? KeycloakClientTestMock::ADMIN_UID,
             'assets' => [
                 '42',
             ],
@@ -28,7 +42,7 @@ class UploaderClientMock extends UploaderClient
     #[\Override]
     public function getAsset(string $baseUrl, string $id, string $token): array
     {
-        return [
+        return array_merge([
             'originalName' => 'test_file.png',
             'mimeType' => 'image/png',
             'size' => 42,
@@ -37,7 +51,8 @@ class UploaderClientMock extends UploaderClient
             ],
             'formData' => [
             ],
-        ];
+            'fromUploadLink' => false,
+        ], $this->assetData);
     }
 
     #[\Override]

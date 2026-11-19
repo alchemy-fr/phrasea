@@ -7,7 +7,14 @@ CLOUD_FRONT_URL=https://xxxxx.cloudfront.net
 CLOUD_FRONT_PRIVATE_KEY=MIIEpQIBAAKCAQEAzd8YI+qHSkEXuB+ZIQXIBO+qFxLmhqmgKVSNn3ErDIf4ouR2\n...
 CLOUD_FRONT_KEY_PAIR_ID=XXXXXXXXX
 CLOUD_FRONT_REGION=eu-west-3
+# Validity of the signed URLs, in seconds (DATABOX_CLOUD_FRONT_TTL, EXPOSE_CLOUD_FRONT_TTL)
+CLOUD_FRONT_TTL=3600
 ```
+
+A signed URL stays valid for its whole TTL, even once its user has lost access
+to the file (removed from the workspace, share or publication password
+revoked): keep the TTL short. Databox also hands the same signed URL to every
+user reading the file for 5 minutes at most.
 
 ## Forced response headers
 

@@ -126,11 +126,32 @@ class AssetDeleteTest extends AbstractExposeTestCase
             'asset_id' => 'foo',
         ]);
 
-        foreach ([null, KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID)] as $accessToken) {
-            $response = $this->request($accessToken, 'DELETE', '/assets/delete-by-asset-id/foo');
-            $this->assertContains($response->getStatusCode(), [401, 403]);
-            $this->assertAssetExist($id);
-        }
+        $response = $this->request(null, 'DELETE', '/assets/delete-by-asset-id/foo');
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertAssetExist($id);
+
+        $response = $this->request(null, 'DELETE', '/assets/delete-by-asset-id/unknown');
+        $this->assertEquals(401, $response->getStatusCode());
+
+        // The publication is visible: the user reads the asset, but may not delete it.
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'DELETE', '/assets/delete-by-asset-id/foo');
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertAssetExist($id);
+    }
+
+    public function testDeleteAssetByAssetIdIgnoresTheAssetsTheUserMayNotRead(): void
+    {
+        $publication = $this->createPublication([
+            'ownerId' => KeycloakClientTestMock::ADMIN_UID,
+            'enabled' => false,
+        ]);
+        $id = $this->createAsset($publication, [
+            'asset_id' => 'foo',
+        ]);
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'DELETE', '/assets/delete-by-asset-id/foo');
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertAssetExist($id);
     }
 
     private function assertSubDefinitionExist(string $id): void

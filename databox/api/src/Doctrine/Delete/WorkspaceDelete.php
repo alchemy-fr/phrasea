@@ -22,7 +22,6 @@ use App\Entity\Core\File;
 use App\Entity\Core\ImageSet;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\IntegrationToken;
@@ -126,7 +125,6 @@ final readonly class WorkspaceDelete
         }
 
         $this->deleteDependencies(Asset::class, $workspaceId);
-        $this->deleteDependencies(Tag::class, $workspaceId);
         $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
         $this->deleteDependencies(RenditionPolicy::class, $workspaceId);
         $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);

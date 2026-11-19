@@ -20,7 +20,6 @@ export function SaveAsTemplateSection({
     workspaceId,
     collectionId,
     privacy,
-    tags,
     attributes,
     appliedTemplate,
     onSaved,
@@ -28,7 +27,6 @@ export function SaveAsTemplateSection({
     workspaceId: string;
     collectionId?: string;
     privacy?: Privacy;
-    tags: string[];
     attributes: AttributeBatchAction[];
     appliedTemplate?: AssetDataTemplate;
     onSaved?: () => void;
@@ -42,7 +40,6 @@ export function SaveAsTemplateSection({
     const [includeChildren, setIncludeChildren] = useState(true);
     const [withAttributes, setWithAttributes] = useState(true);
     const [withPrivacy, setWithPrivacy] = useState(true);
-    const [withTags, setWithTags] = useState(true);
     const [isPublic, setIsPublic] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -76,9 +73,6 @@ export function SaveAsTemplateSection({
                 includeCollectionChildren: includeChildren,
                 attributes: withAttributes ? attributes : undefined,
                 privacy: withPrivacy ? privacy : undefined,
-                tags: withTags
-                    ? tags.map(id => iri(EntityName.Tag, id))
-                    : undefined,
                 public: isPublic,
             } as any;
             if (replace && appliedTemplate) {
@@ -155,12 +149,6 @@ export function SaveAsTemplateSection({
                     <Checkbox
                         checked={withPrivacy}
                         onCheckedChange={v => setWithPrivacy(v === true)}
-                    />
-                </LabeledControl>
-                <LabeledControl label={t('common.tags', 'Tags')}>
-                    <Checkbox
-                        checked={withTags}
-                        onCheckedChange={v => setWithTags(v === true)}
                     />
                 </LabeledControl>
                 <LabeledControl label={t('common.public', 'Public')}>

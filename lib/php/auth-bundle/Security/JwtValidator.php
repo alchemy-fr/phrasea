@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Accepts the access tokens of the realm (not its ID or refresh tokens, signed by the same key)
- * meant for this API: obtained by its own client, or whose audience includes that client.
+ * meant for this API: obtained by its own client, or whose audience includes the name of the application.
  */
 final class JwtValidator implements JwtValidatorInterface
 {
@@ -36,9 +36,10 @@ final class JwtValidator implements JwtValidatorInterface
 
     /**
      * @param string $clientId    the client of the application itself (admin, Swagger UI, service account), always
-     *                            accepted, and the audience required from the tokens of the other clients
+     *                            accepted, even without audience
      * @param int    $tokenLeeway clock skew tolerated on "exp", "nbf" and "iat", in seconds
-     * @param string $appName     the application, naming the client scope giving the audience in the logs
+     * @param string $appName     the application ("databox", "expose", "uploader"): the audience required from the
+     *                            tokens of the other clients, naming the client scope giving it in the logs
      */
     public function __construct(
         private readonly KeycloakClient $keycloakClient,
@@ -78,10 +79,10 @@ final class JwtValidator implements JwtValidatorInterface
             return true;
         }
 
-        if (!$this->validator->validate($token, new PermittedFor($this->clientId))) {
+        if (!$this->validator->validate($token, new PermittedFor($this->appName))) {
             $this->logger->warning('Access token of the OAuth client "{client_id}" refused: its audience does not include "{audience}" (give the client the "{scope}" client scope in Keycloak)', [
                 'client_id' => $clientId,
-                'audience' => $this->clientId,
+                'audience' => $this->appName,
                 'scope' => ApiAudience::getScopeName($this->appName),
             ]);
 

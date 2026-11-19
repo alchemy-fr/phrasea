@@ -18,6 +18,7 @@ final readonly class RenditionDefinitionMetadataEmbedder
 {
     public function __construct(
         private MetadataManipulator $metadataManipulator,
+        private WritableMetadataPolicy $writableMetadataPolicy,
         private LoggerInterface $logger,
     ) {
     }
@@ -32,10 +33,6 @@ final readonly class RenditionDefinitionMetadataEmbedder
         $bag = new MetadataBag();
 
         foreach ($map as $tagGroupId => $value) {
-            if (str_starts_with($tagGroupId, 'System:')) {
-                continue;
-            }
-
             try {
                 $meta = $this->metadataManipulator->createMetadata($tagGroupId);
             } catch (\Throwable $e) {
@@ -50,6 +47,15 @@ final readonly class RenditionDefinitionMetadataEmbedder
 
             $tagGroup = $meta->getTagGroup();
             if (!$tagGroup->isWritable()) {
+                continue;
+            }
+
+            if (!$this->writableMetadataPolicy->isWritable($tagGroup->getId())) {
+                $this->logger->warning('Metadata tag not allowed to be written in rendition definition', [
+                    'renditionDefinition' => $definition->getId(),
+                    'tag' => $tagGroupId,
+                ]);
+
                 continue;
             }
 

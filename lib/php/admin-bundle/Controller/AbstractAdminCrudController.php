@@ -20,6 +20,7 @@ abstract class AbstractAdminCrudController extends AbstractCrudController
             ->setPaginatorPageSize(50)
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
             ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('flash_messages', '@AlchemyAdmin/flash_messages.html.twig')
             ->showEntityActionsInlined()
         ;
     }

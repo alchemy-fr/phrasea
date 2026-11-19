@@ -152,7 +152,9 @@ class FileOutputMapper implements OutputMapperInterface
         $renditions = $this->em->getRepository(AssetRendition::class)->findBy(['file' => $file->getId()]);
         foreach ($renditions as $rendition) {
             $asset = $rendition->getAsset();
-            if (!$this->isGranted(AbstractVoter::READ, $asset)) {
+            if (!$this->isGranted(AbstractVoter::READ, $asset)
+                || !$this->isGranted(AbstractVoter::READ, $rendition)
+            ) {
                 continue;
             }
 

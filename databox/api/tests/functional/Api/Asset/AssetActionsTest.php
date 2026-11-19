@@ -50,7 +50,7 @@ final class AssetActionsTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(201);
         $entities = $response->toArray()['entities'];
         $this->assertSame($readable->getId(), $entities['/assets/'.$readable->getId()]['id']);
-        $this->assertSame(['notAllowed' => true], $entities['/assets/'.$secret->getId()]);
+        $this->assertNull($entities['/assets/'.$secret->getId()]);
         $this->assertSame('Mine', $entities['/collections/'.$collection->getId()]['name']);
         $this->assertNull($entities[$unknown]);
         // Resolved for display, without the rest of its IdP record
@@ -131,7 +131,7 @@ final class AssetActionsTest extends AbstractDataboxTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame($public->getId(), $entities['/assets/'.$public->getId()]['id']);
-        $this->assertSame(['notAllowed' => true], $entities['/assets/'.$secret->getId()]);
+        $this->assertNull($entities['/assets/'.$secret->getId()]);
         // Users are not disclosed to anonymous visitors
         $this->assertSame(['notAllowed' => true], $entities['/users/'.self::OWNER]);
     }

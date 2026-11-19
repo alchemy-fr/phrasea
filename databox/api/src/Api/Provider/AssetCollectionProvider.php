@@ -10,6 +10,7 @@ use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Elasticsearch\AssetSearch;
 use App\Elasticsearch\NoWorkspaceAllowedException;
+use App\Elasticsearch\SearchDebugMeta;
 use App\Service\Asset\AssetListPreloader;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -21,6 +22,7 @@ class AssetCollectionProvider extends AbstractCollectionProvider
         private readonly AssetSearch $assetSearch,
         private readonly Security $security,
         private readonly AssetListPreloader $assetListPreloader,
+        private readonly SearchDebugMeta $searchDebugMeta,
     ) {
     }
 
@@ -43,10 +45,7 @@ class AssetCollectionProvider extends AbstractCollectionProvider
         if (null !== $scores) {
             $response->setMeta('scores', $scores);
         }
-        $response->setMeta('debug:es', [
-            'query' => $queryJson,
-            'time' => $searchTime,
-        ]);
+        $this->searchDebugMeta->apply($response, $queryJson, $searchTime);
 
         return $response;
     }

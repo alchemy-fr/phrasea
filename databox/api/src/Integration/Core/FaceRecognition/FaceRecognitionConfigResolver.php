@@ -50,7 +50,7 @@ final class FaceRecognitionConfigResolver implements ResetInterface
         // Fetched again each time: the cached ID survives a cleared entity manager, a cached entity would not
         $definition = null !== $this->definitions[$key] ? $this->em->find(AttributeDefinition::class, $this->definitions[$key]) : null;
 
-        return $definition ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['attribute'], $config->getWorkspaceId()));
+        return $definition ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config->getClientValue('attribute'), $config->getWorkspaceId()));
     }
 
     /**
@@ -59,7 +59,7 @@ final class FaceRecognitionConfigResolver implements ResetInterface
     public function getEntityList(IntegrationConfig $config): EntityList
     {
         return $this->getDefinition($config)->getEntityList()
-            ?? throw new \InvalidArgumentException(sprintf('Attribute "%s" is not bound to an entity list', $config['attribute']));
+            ?? throw new \InvalidArgumentException(sprintf('Attribute "%s" is not bound to an entity list', $config->getClientValue('attribute')));
     }
 
     /**

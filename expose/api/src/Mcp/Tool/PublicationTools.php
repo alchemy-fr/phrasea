@@ -90,7 +90,7 @@ final readonly class PublicationTools
      */
     #[McpTool(
         name: 'check_publication_slug',
-        description: 'Tell whether a URL slug is still available for a publication.',
+        description: 'Tell whether a URL slug is still available for a publication. Requires the right to create publications.',
         annotations: new ToolAnnotations(readOnlyHint: true),
     )]
     public function checkSlug(string $slug): array

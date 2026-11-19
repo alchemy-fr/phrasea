@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use App\Entity\Asset;
 use App\Entity\Commit;
-use App\Storage\AssetManager;
+use App\Storage\CommitManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -16,43 +16,26 @@ final readonly class CommitHandler
 {
     public function __construct(
         private MessageBusInterface $bus,
-        private AssetManager $assetManager,
+        private CommitManager $commitManager,
         private EntityManagerInterface $em,
+        private LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(CommitMessage $message): void
     {
         $commit = Commit::fromMessage($message, $this->em);
-        $commit->generateToken();
-        $target = $commit->getTarget();
 
-        $commit->setFormLocale($message->getLocale());
-
-        $totalSize = $this->assetManager->getTotalSize($commit->getFiles());
-        $commit->setTotalSize($totalSize);
-
-        $formData = array_merge($commit->getFormData(), $target->getData() ?? []);
-        if (!isset($formData['collection_destination']) && null !== $target->getDefaultDestination()) {
-            $formData['collection_destination'] = $target->getDefaultDestination();
-        }
-        $commit->setFormData($formData);
-
-        $this->em->beginTransaction();
-        try {
-            $this->em->persist($commit);
-            $this->em->flush();
-            $this->em
-                ->getRepository(Asset::class)
-                ->attachCommit($commit->getFiles(), $commit->getId());
-
-            $this->em->commit();
-        } catch (\Throwable $e) {
-            $this->em->rollback();
-            throw $e;
-        }
-
+        $stored = $this->commitManager->store($commit);
         $this->em->clear();
+
+        if (!$stored) {
+            // Nothing to notify: the files went with another commit
+            $this->logger->warning('Commit dropped: its files were committed meanwhile', ['files' => $message->getFiles()]);
+
+            return;
+        }
+
         $this->bus->dispatch(new AssetConsumerNotify($commit->getId()));
     }
 }

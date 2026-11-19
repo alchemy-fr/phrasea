@@ -1,7 +1,6 @@
 import {moveToCollectionAction} from './MoveToCollectionForm';
 import {addToCollectionAction} from './AddToCollectionForm';
 import {attributeAction} from './AttributeActionForm';
-import {tagsAction} from './TagsActionForm';
 import {emailReportAction} from './EmailReportForm';
 import {remoteExportAction} from './RemoteExportForm';
 import {shareExportAction} from './ShareExportForm';
@@ -20,7 +19,6 @@ export const actionRegistry = {
     move_to_collection: moveToCollectionAction,
     add_to_collection: addToCollectionAction,
     attribute: attributeAction,
-    tags: tagsAction,
     email_report: emailReportAction,
     remote_export: remoteExportAction,
     share_export: shareExportAction,

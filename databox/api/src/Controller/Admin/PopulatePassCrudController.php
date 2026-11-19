@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\Search\ESPopulate;
+use App\Elasticsearch\Exception\PopulateOwnerAliveException;
 use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
 use Doctrine\ORM\EntityManagerInterface;
@@ -172,16 +173,30 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             return $this->redirect($this->getIndexUrl());
         }
 
+        $running = $this->getRunningIndices($indices);
+        $owners = [];
+        foreach ($running as $index) {
+            $owner = $this->lockManager->getOwner($index);
+            if (null !== $owner) {
+                $owners[$index] = [
+                    'description' => PopulateLockManager::describeOwner($owner),
+                    'alive' => $this->lockManager->isAlive($index),
+                ];
+            }
+        }
+
         return $this->render('admin/populate_pass/add.html.twig', [
             'indices' => $indices,
-            'running' => $this->getRunningIndices($indices),
+            'running' => $running,
+            'owners' => $owners,
             'indexUrl' => $this->getIndexUrl(),
         ]);
     }
 
     /**
      * Force-releases the populate lock of an index (and closes its open passes)
-     * when a worker died mid-populate.
+     * when a worker died mid-populate. Refused while the populate gives signs of
+     * life, unless "force" is posted.
      */
     #[AdminRoute('/unlock/{index}', name: 'unlock', options: ['methods' => ['POST']])]
     public function unlockPopulate(Request $request, string $index): Response
@@ -197,7 +212,13 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             return $this->redirect($this->getIndexUrl());
         }
 
-        $result = $this->lockManager->forceRelease($index);
+        try {
+            $result = $this->lockManager->forceRelease($index, evenIfAlive: $request->request->getBoolean('force'));
+        } catch (PopulateOwnerAliveException $e) {
+            $this->addFlash('danger', $e->getMessage().' Tick "even if alive" to release it anyway.');
+
+            return $this->redirect($this->getIndexUrl());
+        }
 
         $this->addFlash('warning', \sprintf(
             'Populate lock of "%s" %s, %d open pass(es) closed. The index can be populated again.',

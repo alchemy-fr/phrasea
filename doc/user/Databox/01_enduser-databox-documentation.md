@@ -54,7 +54,7 @@ The main actions menu is located just above the results display area. It allows 
 To the right of the actions menu, on the same line, are the **User Preferences Display**. They group the following options:
 
 * Display mode for results  
-* Display preferences for asset views: whether or not to show titles, collections, tags, hover preview  
+* Display preferences for asset views: whether or not to show titles, collections, hover preview  
 * Choice of thumbnail size  
 * Choice of global display size and ratio between preview and attributes  
 * Creation and management of personal attribute lists
@@ -77,11 +77,11 @@ We also invite you to visit the "Phrasea Vocabulary" page, which brings together
 
 **Workspace**
 
-A Workspace is a set that contains collections. It allows you to configure languages, attributes, renditions, tags, and permissions.
+A Workspace is a set that contains collections. It allows you to configure languages, attributes, entity lists, renditions, and permissions.
 
 **Collection**
 
-A collection groups assets together. Collections can be hierarchical. They have a set of parameters (permissions and tag rules).
+A collection groups assets together. Collections can be hierarchical. They have a set of parameters (permissions).
 
 ### **Organizing Your Assets**
 
@@ -166,7 +166,7 @@ Users can create templates adapted for different uses, which can be shared if ne
 
 #### Creation of a template
 
-* Fill in the attributes, tags, etc., on assets selected for import, then check the box in the import form: **"Save values as a template for reuse"**.  
+* Fill in the attributes, etc., on assets selected for import, then check the box in the import form: **"Save values as a template for reuse"**.  
 * Give the template a name.  
 * Fill in the options available within a template:  
   * Replace or not a template that has been applied  
@@ -174,7 +174,6 @@ Users can create templates adapted for different uses, which can be shared if ne
   * Include or not sub-collections  
   * Include or not attributes  
   * Include or not confidentiality  
-  * Include or not tags  
   * Make the template Public or only available for use by the user who created it.  
 * Click the **"Add"** button to transfer the assets.
 
@@ -229,9 +228,9 @@ Faceted search can be seen as a map of the search results. After launching a sea
 
 The combination or exclusion of facets allows you to broaden or narrow the scope of the search. This ensures you find the exact information more effectively.
 
-After selecting a value for a facet (for example: the tag "New"), click on the "..." menu for the value. Several options are offered:
+After selecting a value for a facet (for example: the value "New" of the "Tags" attribute), click on the "..." menu for the value. Several options are offered:
 
-* **Disable:** to exclude this value from the search. All assets with tags except the "New" tag will be displayed.  
+* **Disable:** to exclude this value from the search. All assets except those with the value "New" will be displayed.  
 * **Enable:** when you have excluded a value from the search. The facet will then be reactivated.  
 * **Edit:** to modify a condition (see "Advanced Search" below).  
 * **Remove:** to remove this facet from your search.
@@ -253,7 +252,7 @@ Click on **"Add condition"**.
 It is from this window that conditions must be added:
 
 * Selection of a field to search in:  
-  * Either a so-called technical field (collection, dates, file size or type, tags, etc.)  
+  * Either a so-called technical field (collection, dates, file size or type, etc.)  
   * Or among your attributes (credit field, title, caption, country, city, keywords, etc.)  
 * Selection of the operator: After choosing the field, choose the operator ("is", "is any of", "is empty", "contains", "starts with", "ends with", "is before", etc.; these operators change depending on the type of the chosen field).  
 * Selection of the value: Finally, enter a value: a term, a date, etc.
@@ -262,7 +261,7 @@ You can then launch the search by clicking the **"Add"** button, or add one or m
 
 ### **Sorting**
 
-You can sort and group your search results: Sort by creation date, modification date, by tags, or attributes. By grouping the results into major sections, you get a display adapted to your needs.
+You can sort and group your search results: Sort by creation date, modification date, or attributes. By grouping the results into major sections, you get a display adapted to your needs.
 
 Example: A sort on the "Country" attribute placed in the 1st position, then the city is added. Uncheck the unwanted attributes and move these two elements to the top by drag and drop.
 
@@ -283,7 +282,7 @@ Three views are available in Phrasea: thumbnails, list, and masonry. To change t
 The Databox interface adjusts to your needs. The display only shows what you want to see. To do this, go to **Display Preferences**. You can:
 
 * Choose the size of your thumbnails  
-* Choose whether or not to display the title, tags, collections (as well as the number), and the image preview on hover  
+* Choose whether or not to display the title, collections (as well as the number), and the image preview on hover  
 * Choose preview preferences: autoplay for videos, choose to display only the image, only the attributes, or both  
 * Finally, choose the overall size of the preview, as well as the size dedicated to displaying attributes.
 
@@ -326,7 +325,7 @@ In the indexing window, you can organize your assets. Select the assets to index
 
 #### Entering Information
 
-The entry area allows you to preview documents and display the fields and tags to be modified.
+The entry area allows you to preview documents and display the fields to be modified.
 
 * Enter information into the fields. It's possible to index in multiple languages simultaneously.  
 * Values are visible on the right side of the window.  
@@ -341,7 +340,7 @@ If you only want to modify a single asset, follow these steps:
 * Select the asset you want to edit.  
 * Click the "Edit" button.  
   The "Attributes" tab opens and presents the fields to be filled in.  
-* Enter the information in the various fields. Tags, however, must be entered from the "**Edit**" tab.  
+* Enter the information in the various fields.  
 * Click on "**Save**".
 
 ---
@@ -512,7 +511,7 @@ Click on the basket as mentioned previously to view its contents, then select on
 
 The action buttons are grayed out. Select assets to activate them. If they remain grayed out, it means you do not have sufficient permissions.
 
-Just like in the results display area, you can choose your display preferences (adjust thumbnail size, attributes, choose whether to display titles, tags, collections, hover preview, switch to thumbnail or list view, etc.).
+Just like in the results display area, you can choose your display preferences (adjust thumbnail size, attributes, choose whether to display titles, collections, hover preview, switch to thumbnail or list view, etc.).
 
 ### **Sharing Baskets**
 

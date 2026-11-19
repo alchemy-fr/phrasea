@@ -223,7 +223,7 @@ function optionsParams(query: FieldOptionsQuery) {
     };
 }
 
-/** The values of an entity or tag field of the target's form */
+/** The values of an entity field of the target's form */
 export function getFormFieldOptions(
     targetId: string,
     key: string,
@@ -256,18 +256,6 @@ export function getDataboxEntityValues(
     return api.get<FieldOptionsPage>(
         `/databox/entity-lists/${entityListId}/values`,
         {params: optionsParams(query)}
-    );
-}
-
-export function getDataboxTags(
-    workspaceId: string,
-    query: FieldOptionsQuery
-): Promise<FieldOptionsPage> {
-    return api.get<FieldOptionsPage>(
-        `/databox/workspaces/${workspaceId}/tags`,
-        {
-            params: optionsParams(query),
-        }
     );
 }
 

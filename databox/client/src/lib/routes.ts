@@ -54,7 +54,6 @@ export type WorkspaceTab =
     | 'info'
     | 'edit'
     | 'permissions'
-    | 'tags'
     | 'entities'
     | 'attributes'
     | 'attribute-policies'

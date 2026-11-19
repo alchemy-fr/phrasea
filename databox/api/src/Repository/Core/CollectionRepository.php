@@ -46,11 +46,17 @@ class CollectionRepository extends ServiceEntityRepository
     /**
      * Without loading the children (a collection can have thousands of them).
      */
+    /**
+     * Whether the collection has children outside the trash, whoever may read them: the flag
+     * reveals the existence of children the user cannot see.
+     */
     public function hasChildren(string $collectionId): bool
     {
         return [] !== $this->createQueryBuilder('t')
             ->select('t.id')
             ->andWhere('t.parent = :id')
+            ->andWhere('t.deletedAt IS NULL')
+            ->andWhere('t.storyAsset IS NULL')
             ->setParameter('id', $collectionId)
             ->setMaxResults(1)
             ->getQuery()
@@ -114,9 +120,13 @@ class CollectionRepository extends ServiceEntityRepository
             $queryBuilder->setParameter('users', array_merge([$userId], $groups));
         }
 
-        return $queryBuilder
+        /** @var Collection[] $collections */
+        $collections = $queryBuilder
             ->setParameter('ws', $allowedWorkspaces)
             ->getQuery()
             ->getResult();
+
+        // A collection under a trashed parent is in the trash too, which SQL cannot tell without walking the tree
+        return array_values(array_filter($collections, fn (Collection $collection): bool => !$collection->isDeleted()));
     }
 }

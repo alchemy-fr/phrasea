@@ -4,6 +4,7 @@ import {actionTypes, getActionDefinition} from './registry';
 import {mapViolations} from '../formErrors';
 import {parseEmails} from './EmailReportForm';
 import {toHeaders} from './WebhookForm';
+import {deleteValuesOf} from './AttributeActionForm';
 
 // Default value with interpolation, as i18next does without resources
 const t = ((
@@ -21,7 +22,6 @@ describe('automation actions registry', () => {
             'move_to_collection',
             'add_to_collection',
             'attribute',
-            'tags',
             'email_report',
             'remote_export',
             'share_export',
@@ -60,12 +60,16 @@ describe('automation actions registry', () => {
             })
         ).toBe(true);
         expect(
-            getActionDefinition('tags')!.isComplete({add: [], remove: ['t1']})
+            getActionDefinition('attribute')!.isComplete({
+                definitionId: 'd1',
+                action: 'delete',
+            })
         ).toBe(true);
         expect(
             getActionDefinition('attribute')!.isComplete({
                 definitionId: 'd1',
                 action: 'delete',
+                value: ['e1', 'e2'],
             })
         ).toBe(true);
         expect(
@@ -234,14 +238,17 @@ describe('automation actions registry', () => {
 
     it('summarizes the configurations', () => {
         expect(
-            getActionDefinition('tags')!.summary(
-                {add: ['a', 'b'], remove: ['c']},
-                t
-            )
-        ).toBe('Tags: add 2 tags, remove 1 tags');
-        expect(
             getActionDefinition('attribute')!.summary({action: 'replace'}, t)
         ).toBe('Replace text in an attribute');
+        expect(
+            getActionDefinition('attribute')!.summary({action: 'delete'}, t)
+        ).toBe('Remove attribute values');
+        expect(
+            getActionDefinition('attribute')!.summary(
+                {action: 'delete', value: ['e1', 'e2']},
+                t
+            )
+        ).toBe('Remove 2 attribute values');
         expect(
             getActionDefinition('email_report')!.summary(
                 {users: ['u1'], groups: ['g1'], emails: ['a@example.com']},
@@ -290,6 +297,15 @@ describe('automation actions registry', () => {
         expect(exposePublish.summary(exposePublish.defaultConfig(), t)).toBe(
             'Publish to Expose'
         );
+    });
+
+    it('reads the values a delete of attribute values is limited to', () => {
+        expect(deleteValuesOf({action: 'delete'})).toEqual([]);
+        expect(deleteValuesOf({action: 'delete', value: null})).toEqual([]);
+        expect(deleteValuesOf({action: 'delete', value: 'e1'})).toEqual(['e1']);
+        expect(
+            deleteValuesOf({action: 'delete', value: ['e1', '', 'e2']})
+        ).toEqual(['e1', 'e2']);
     });
 
     it('parses the email addresses', () => {

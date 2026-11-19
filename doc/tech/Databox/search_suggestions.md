@@ -37,7 +37,7 @@ supporting suggestions (text, keyword, entity, IP) and values up to 300 characte
 `SuggestionSearch` runs, on the asset index, a `nested` aggregation with a `filter` and a
 `multi_terms` (`definitionId` + `value`) sub-aggregation:
 
-- **permissions**: the query carries the same filters as the asset search (ACL, tag filter rules,
+- **permissions**: the query carries the same filters as the asset search (ACL, attribute filter rules,
   not deleted, accepted status), and only the definitions flagged `suggest` that the user is allowed
   to read are aggregated;
 - **locale**: per definition, the aggregated nested documents are restricted to the user's best

@@ -15,19 +15,20 @@ A token is accepted when all of these hold:
   clock skew between Keycloak and the API (`alchemy_auth.token_leeway`, in seconds).
 - **Type**: the `typ` claim is `Bearer`. The ID tokens (`typ: ID`) and refresh tokens, signed by the same
   key, are refused: an ID token travels more than an access token (e.g. `id_token_hint` of the logout).
-- **Audience**: the `aud` claim (a string or a list) includes the **admin client of the API**
+- **Audience**: the `aud` claim (a string or a list) includes the **name of the application**: `databox`,
+  `expose` or `uploader` (`alchemy_core.app_name`). The tokens of the admin client of the API itself
   (`ADMIN_CLIENT_ID` of the API: `DATABOX_ADMIN_CLIENT_ID`, `EXPOSE_ADMIN_CLIENT_ID`,
-  `UPLOADER_ADMIN_CLIENT_ID`, read by the bundle as `alchemy_auth.client_id`). The tokens of that admin
-  client itself (admin, Swagger UI, client credentials of its service account), read from the `azp` claim
-  (else `client_id`), are accepted without it.
+  `UPLOADER_ADMIN_CLIENT_ID`, read by the bundle as `alchemy_auth.client_id`; admin, Swagger UI, client
+  credentials of its service account), read from the `azp` claim (else `client_id`), are accepted without
+  it. The admin client is not an audience: a token whose `aud` only names it is refused.
 
 ## Audiences
 
 Keycloak decides which clients get which audience: each API has a **client scope** named `<app>-api`
 (`databox-api`, `expose-api`, `uploader-api`), whose audience mapper (`oidc-audience-mapper`, "Included
-Client Audience" = the admin client of the API) adds the API to the `aud` claim of the access tokens. The
-scope is not added to the `scope` claim of the token (`include.in.token.scope = false`), which keeps carrying
-the functional scopes only (`databox:*`, `publish`…).
+Custom Audience" = the name of the application: `databox`, `expose`, `uploader`) adds the API to the `aud`
+claim of the access tokens. The scope is not added to the `scope` claim of the token
+(`include.in.token.scope = false`), which keeps carrying the functional scopes only (`databox:*`, `publish`…).
 
 A client calls an API when it has the scope of the API among its **default** client scopes. The configurator
 creates the scopes and gives them to the clients of the stack, at the installation (`bin/setup.sh`) and at
@@ -59,7 +60,7 @@ A refused token answers `401 Invalid token.`, and the API logs a warning naming 
 lacks:
 
 ```
-Access token of the OAuth client "my-script" refused: its audience does not include "databox-admin" (give the client the "databox-api" client scope in Keycloak)
+Access token of the OAuth client "my-script" refused: its audience does not include "databox" (give the client the "databox-api" client scope in Keycloak)
 ```
 
 In Keycloak, add the scope of every API the client calls: Clients › `<client>` › Client scopes › Add client
@@ -81,6 +82,7 @@ refresh the token).
 ## Tests
 
 `KeycloakClientTestMock::getJwtFor()`, `getClientCredentialJwt()` and `createJwt()` forge access tokens
-like Keycloak's (`typ: Bearer`, `azp: test-app`, `nbf` and `iat` at the current time), with the admin client of
-the API under test as audience (`aud`: `ADMIN_CLIENT_ID` of the environment,
-`KeycloakClientTestMock::getApiAudience()`). Pass `'aud' => null` to `createJwt()` for a token without audience.
+like Keycloak's (`typ: Bearer`, `azp: test-app`, `nbf` and `iat` at the current time), with the name of the
+application under test as audience (`aud`: `API_AUDIENCE`, declared in the `.env.test` of each API with the
+value of `alchemy_core.app_name`, `KeycloakClientTestMock::getApiAudience()`). A wrong or missing value makes
+every authenticated test fail. Pass `'aud' => null` to `createJwt()` for a token without audience.

@@ -384,7 +384,7 @@ final class EntityListTest extends AbstractDataboxTestCase
         $json = $this->export(self::USER, $list, ['format' => 'json']);
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('content-type', 'application/json');
-        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename="Colors.json"');
+        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename=Colors.json');
         $rows = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(2, $rows);
         $byId = array_column($rows, null, 'id');
@@ -394,12 +394,12 @@ final class EntityListTest extends AbstractDataboxTestCase
 
         // With a locale, the translated value (or the value) is exported
         $rows = json_decode($this->export(self::USER, $list, ['format' => 'json', 'locale' => 'fr']), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename="Colors-fr.json"');
+        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename=Colors-fr.json');
         $this->assertEqualsCanonicalizing(['Rouge', 'Blue'], array_column($rows, 'value'));
         $this->assertArrayNotHasKey('translations', $rows[0]);
 
         $liform = json_decode($this->export(self::USER, $list, ['format' => 'liform', 'locale' => 'fr']), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename="Colors-fr.liform.json"');
+        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename=Colors-fr.liform.json');
         $this->assertEqualsCanonicalizing([$red->getId(), $blue->getId()], $liform['enum']);
         $this->assertEqualsCanonicalizing(['Rouge', 'Blue'], $liform['enum_titles']);
     }
@@ -413,7 +413,7 @@ final class EntityListTest extends AbstractDataboxTestCase
         $csv = $this->export(self::USER, $list, ['format' => 'csv']);
         $this->assertResponseIsSuccessful();
         $this->assertStringStartsWith('text/csv', static::getClient()->getResponse()->headers->get('content-type'));
-        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename="Colors.csv"');
+        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename=Colors.csv');
         $lines = array_map(str_getcsv(...), array_filter(explode("\n", $csv)));
         // one translation column per enabled locale of the workspace (fr, en, de)
         $this->assertSame(['id', 'value', 'emoji', 'color', 'status', 'external_id', 'translation_fr', 'translation_en', 'translation_de'], $lines[0]);
@@ -421,8 +421,21 @@ final class EntityListTest extends AbstractDataboxTestCase
 
         // The "_" locale means "no locale"
         $csv = $this->export(self::USER, $list, ['format' => 'csv', 'locale' => '_']);
-        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename="Colors.csv"');
+        $this->assertResponseHeaderSame('content-disposition', 'attachment; filename=Colors.csv');
         $this->assertStringStartsWith('id,value,emoji,color,status,external_id,translation_fr', $csv);
+    }
+
+    public function testExportFilenameIsEncoded(): void
+    {
+        $this->setUpScene();
+        $list = $this->createEntityList(['name' => 'Couleurs "été"/x']);
+
+        $this->export(self::USER, $list, ['format' => 'json']);
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseHeaderSame(
+            'content-disposition',
+            'attachment; filename=Couleurs-ete-x.json; filename*=utf-8\'\'Couleurs%20%22%C3%A9t%C3%A9%22-x.json',
+        );
     }
 
     public function testExportValidation(): void

@@ -11,12 +11,15 @@ use Alchemy\Workflow\Message\JobConsumer;
 use ApiPlatform\Test\ApiTestCase;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdef;
 use App\Controller\Integration\PhraseanetIntegrationController;
+use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\IntegrationManager;
 use App\Integration\Phraseanet\PhraseanetApiClientFactory;
 use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Service\Workflow\Action\AcceptFileAction;
 use App\Tests\Functional\FileUploadTrait;
+use App\Tests\Functional\WithoutSecretKeyTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -26,6 +29,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
     use FixturesTrait;
     use FileUploadTrait;
     use TestServicesTrait;
+    use WithoutSecretKeyTrait;
 
     protected static ?bool $alwaysBootKernel = true;
 
@@ -68,6 +72,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'renditions' => [
                 'thumbnail',
             ],
+            'webhookSecret' => 'webhook-secret',
         ]);
         $integration->setOwnerId('custom_owner');
         $em->persist($integration);
@@ -164,61 +169,54 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         ]);
 
         // Phraseanet creates sub definitions...
-        // Then we receive webhook for each generated sub def:
-        // Call from Phraseanet with valid token
-        // A permalink outside of the Phraseanet host is ignored
-        $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
-            'json' => [
-                'event' => 'record.subdef.created',
-                'url' => 'foo.bar',
-                'data' => [
-                    'databox_id' => 1,
-                    'record_id' => 123456,
-                    'original_name' => $originalName,
-                    'permalink' => 'http://169.254.169.254/latest/meta-data/',
-                    'subdef_name' => 'thumbnail',
-                    'type' => 'image/jpeg',
-                    'size' => 42,
-                ],
+        // Then we receive webhook for each generated sub def, on the URL given by the integration
+        $webhookUrl = $this->getWebhookUrl($integration);
+        self::assertSame(sprintf('/integrations/phraseanet/%s/events?token=webhook-secret', $integration->getId()), $webhookUrl);
+        $subdefEvent = static fn (string $permalink): array => [
+            'event' => 'record.subdef.created',
+            'url' => 'foo.bar',
+            'data' => [
+                'databox_id' => 1,
+                'record_id' => 123456,
+                'original_name' => $originalName,
+                'permalink' => $permalink,
+                'subdef_name' => 'thumbnail',
+                'type' => 'image/jpeg',
+                'size' => 42,
             ],
+        ];
+        $thumbnailRemoteUrl = 'https://foo.bar/permalink/123456/thumb.jpg';
+
+        // Call without token
+        $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
+            'json' => $subdefEvent($thumbnailRemoteUrl),
+        ]);
+        $this->assertResponseStatusCodeSame(401);
+        $this->assertCount(0, $inMemoryTransport->get());
+
+        // Call with an invalid token
+        $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events?token=invalid', $integration->getId()), [
+            'json' => $subdefEvent($thumbnailRemoteUrl),
+        ]);
+        $this->assertResponseStatusCodeSame(401);
+        $this->assertCount(0, $inMemoryTransport->get());
+
+        // A permalink outside of the Phraseanet host is ignored
+        $apiClient->request('POST', $webhookUrl, [
+            'json' => $subdefEvent('http://169.254.169.254/latest/meta-data/'),
         ]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertCount(0, $inMemoryTransport->get());
 
         // Nor on another port of the Phraseanet host
-        $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
-            'json' => [
-                'event' => 'record.subdef.created',
-                'url' => 'foo.bar',
-                'data' => [
-                    'databox_id' => 1,
-                    'record_id' => 123456,
-                    'original_name' => $originalName,
-                    'permalink' => 'http://foo.bar:6379/permalink/123456/thumb.jpg',
-                    'subdef_name' => 'thumbnail',
-                    'type' => 'image/jpeg',
-                    'size' => 42,
-                ],
-            ],
+        $apiClient->request('POST', $webhookUrl, [
+            'json' => $subdefEvent('http://foo.bar:6379/permalink/123456/thumb.jpg'),
         ]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertCount(0, $inMemoryTransport->get());
 
-        $thumbnailRemoteUrl = 'https://foo.bar/permalink/123456/thumb.jpg';
-        $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
-            'json' => [
-                'event' => 'record.subdef.created',
-                'url' => 'foo.bar',
-                'data' => [
-                    'databox_id' => 1,
-                    'record_id' => 123456,
-                    'original_name' => $originalName,
-                    'permalink' => $thumbnailRemoteUrl,
-                    'subdef_name' => 'thumbnail',
-                    'type' => 'image/jpeg',
-                    'size' => 42,
-                ],
-            ],
+        $apiClient->request('POST', $webhookUrl, [
+            'json' => $subdefEvent($thumbnailRemoteUrl),
         ]);
         $this->assertResponseStatusCodeSame(200);
 
@@ -230,7 +228,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $em = self::getService(EntityManagerInterface::class);
         $em->clear();
 
-        $apiClient->request('GET', '/assets/'.$assetId, [
+        $response = $apiClient->request('GET', '/assets/'.$assetId, [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
@@ -242,10 +240,130 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'thumbnail' => [
                 'file' => [
                     'url' => $thumbnailRemoteUrl,
-                    'size' => 42,
-                    'type' => 'image/jpeg',
                 ],
             ],
         ]);
+        // Measured by the import of the file, never taken from the event
+        $thumbnailFile = $em->find(File::class, $response->toArray()['thumbnail']['file']['id']);
+        self::assertInstanceOf(File::class, $thumbnailFile);
+        self::assertTrue($thumbnailFile->isImportPending());
+        self::assertNull($thumbnailFile->getSize());
+        self::assertNull($thumbnailFile->getType());
+    }
+
+    public function testWebhookWithoutSecretIsRefused(): void
+    {
+        self::enableFixtures();
+        $apiClient = static::createClient();
+        $em = self::getService(EntityManagerInterface::class);
+
+        /** @var Workspace $workspace */
+        $workspace = $em->getRepository(Workspace::class)->findOneBy([
+            'slug' => 'test-workspace',
+        ]);
+
+        $integration = new WorkspaceIntegration();
+        $integration->setPublic(true);
+        $integration->setWorkspace($workspace);
+        $integration->setName('Renditions');
+        $integration->setIntegration(PhraseanetRenditionIntegration::getName());
+        $integration->setConfig([
+            'baseUrl' => 'https://foo.bar',
+            'token' => 'baz',
+            'collectionId' => 42,
+            'method' => PhraseanetRenditionIntegration::METHOD_ENQUEUE,
+            'renditions' => [
+                'thumbnail',
+            ],
+        ]);
+        $integration->setOwnerId('custom_owner');
+        $em->persist($integration);
+        $em->flush();
+
+        self::assertSame('Not set', $this->getWebhookUrl($integration));
+
+        foreach (['', '?token=', '?token=invalid'] as $query) {
+            $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events%s', $integration->getId(), $query), [
+                'json' => ['event' => 'record.subdef.created', 'data' => []],
+            ]);
+            $this->assertResponseStatusCodeSame(401);
+        }
+    }
+
+    /**
+     * The API cannot decrypt a secret: a webhook secret referring to one matches no token,
+     * neither the secret nor a placeholder.
+     */
+    public function testWebhookSecretReferringToASecretMatchesNoToken(): void
+    {
+        self::enableFixtures();
+        self::removeSecretKey();
+        $apiClient = static::createClient();
+        $em = self::getService(EntityManagerInterface::class);
+
+        /** @var Workspace $workspace */
+        $workspace = $em->getRepository(Workspace::class)->findOneBy([
+            'slug' => 'test-workspace',
+        ]);
+        self::createWorkspaceSecret($workspace, 'PHRASEANET_WEBHOOK', 'webhook-secret');
+
+        $integration = new WorkspaceIntegration();
+        $integration->setPublic(true);
+        $integration->setWorkspace($workspace);
+        $integration->setName('Renditions');
+        $integration->setIntegration(PhraseanetRenditionIntegration::getName());
+        $integration->setConfig([
+            'baseUrl' => 'https://foo.bar',
+            'token' => 'baz',
+            'collectionId' => 42,
+            'method' => PhraseanetRenditionIntegration::METHOD_ENQUEUE,
+            'renditions' => [
+                'thumbnail',
+            ],
+            'webhookSecret' => '${PHRASEANET_WEBHOOK}',
+        ]);
+        $integration->setOwnerId('custom_owner');
+        $em->persist($integration);
+        $em->flush();
+
+        self::assertSame(sprintf('/integrations/phraseanet/%s/events?token=${PHRASEANET_WEBHOOK}', $integration->getId()), $this->getWebhookUrl($integration));
+
+        foreach (['***', 'webhook-secret', '${PHRASEANET_WEBHOOK}'] as $token) {
+            $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
+                'query' => ['token' => $token],
+                'json' => ['event' => 'record.subdef.created', 'data' => []],
+            ]);
+            $this->assertResponseStatusCodeSame(401, $token);
+        }
+    }
+
+    public function testWebhookSecretIsGeneratedAndNotDuplicated(): void
+    {
+        $integration = self::getService(PhraseanetRenditionIntegration::class);
+
+        $config = $integration->generateConfigurationDefaults([]);
+        self::assertMatchesRegularExpression('#^[0-9a-f]{64}$#', $config['webhookSecret']);
+        self::assertSame(['webhookSecret' => 'kept'], $integration->generateConfigurationDefaults(['webhookSecret' => 'kept']));
+
+        $duplicated = $integration->prepareDuplicateConfiguration(['webhookSecret' => $config['webhookSecret']]);
+        self::assertMatchesRegularExpression('#^[0-9a-f]{64}$#', $duplicated['webhookSecret']);
+        self::assertNotSame($config['webhookSecret'], $duplicated['webhookSecret']);
+    }
+
+    /**
+     * Path and query of the "Webhook URL" shown in the integration information.
+     */
+    private function getWebhookUrl(WorkspaceIntegration $workspaceIntegration): string
+    {
+        $config = self::getService(IntegrationManager::class)->getIntegrationConfiguration($workspaceIntegration);
+        $info = self::getService(PhraseanetRenditionIntegration::class)->getConfigurationInfo($config);
+        $webhook = array_values(array_filter($info, static fn (array $i): bool => 'Webhook URL' === $i['label']));
+        self::assertCount(1, $webhook);
+        $url = $webhook[0]['value'];
+        if (!str_contains((string) $url, '://')) {
+            return $url;
+        }
+
+        return parse_url((string) $url, PHP_URL_PATH).'?'.parse_url((string) $url, PHP_URL_QUERY);
     }
 }

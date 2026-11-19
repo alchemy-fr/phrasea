@@ -157,6 +157,22 @@ class PublicHttpCacheTest extends AbstractExposeTestCase
         $this->assertNotPubliclyCached($response);
     }
 
+    public function testUrlWithQueryStringIsNotCacheable(): void
+    {
+        $publication = $this->createPublication();
+        $assetId = $this->createAsset($publication);
+        $this->clearEmBeforeApiCall();
+
+        foreach ([
+            '/publications/'.$publication->getId().'?a=1',
+            '/assets/'.$assetId.'?a=1',
+        ] as $uri) {
+            $response = $this->request(null, 'GET', $uri);
+            $this->assertEquals(200, $response->getStatusCode(), $uri);
+            $this->assertNotPubliclyCached($response);
+        }
+    }
+
     public function testMaxAgeDoesNotExceedExpiration(): void
     {
         $publication = $this->createPublication([

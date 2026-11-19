@@ -48,7 +48,6 @@ final readonly class DataboxProxyProvider implements ProviderInterface
             DataboxProxy::WORKSPACE => $this->catalog->getWorkspace($id),
             DataboxProxy::WORKSPACE_FIELDS => $this->catalog->getFields($id),
             DataboxProxy::TARGET_DESTINATION => $this->getTargetDestination($id),
-            DataboxProxy::WORKSPACE_TAGS => $this->catalog->getTagOptions($id, $query['query'], $query['ids'], $query['page']),
             DataboxProxy::ENTITY_LIST_VALUES => $this->catalog->getEntityOptions($id, $query['query'], $query['ids'], $query['page'], $request->getLocale()),
             default => throw new \LogicException(sprintf('Unsupported operation "%s"', $operation->getName())),
         });

@@ -19,6 +19,10 @@ class IndexRemoverTest extends TestCase
         'asset_dev_2025-12-01-000000' => [],              // old generation
         'asset_dev_2025-11-01-000000' => [],              // old generation
         'asset_devil' => [],                               // starts with "asset_" but is not ours
+        'asset_dev_old' => [],                             // not a dated generation
+        'asset_data_template_dev' => [],                   // another logical index starting with "asset_"
+        'asset_test_2026-01-01-000000' => [],              // another environment
+        'other_asset_dev_2026-01-01-000000' => [],         // another deployment (prefixed)
         'collection_dev_2026-01-01-000000' => ['collection_dev'],
         'tag_dev' => [],                                   // direct index (no alias)
         '.kibana' => [],
@@ -67,7 +71,7 @@ class IndexRemoverTest extends TestCase
         ], $plan['asset']);
     }
 
-    public function testForcePrefixMatchesEveryIndexStartingWithLogicalName(): void
+    public function testForcePrefixMatchesOnlyThePhysicalIndicesOfTheLogicalIndex(): void
     {
         $plan = $this->createRemover()->collectIndicesToRemove('asset', forcePrefix: true);
 
@@ -75,8 +79,31 @@ class IndexRemoverTest extends TestCase
             'asset_dev_2026-01-01-000000' => IndexRemover::REASON_PREFIXED,
             'asset_dev_2025-12-01-000000' => IndexRemover::REASON_PREFIXED,
             'asset_dev_2025-11-01-000000' => IndexRemover::REASON_PREFIXED,
-            'asset_devil' => IndexRemover::REASON_PREFIXED,
         ], $plan['asset']);
+    }
+
+    public function testForcePrefixMatchesTheDirectIndex(): void
+    {
+        $plan = $this->createRemover()->collectIndicesToRemove('tag', forcePrefix: true);
+
+        $this->assertSame(['tag_dev' => IndexRemover::REASON_PREFIXED], $plan['tag']);
+    }
+
+    public function testForcePrefixUsesTheConfiguredPrefixedName(): void
+    {
+        $client = $this->createClientMock();
+        $this->indices->method('getAlias')->willReturn($this->createResponse(self::aliasesResponse([
+            'pfx_asset_dev_2026-01-01-000000' => ['pfx_asset_dev'],
+            'pfx_asset_dev_2025-12-01-000000' => [],
+            'asset_dev_2026-01-01-000000' => ['asset_dev'],   // unprefixed deployment
+            'pfx_asset_data_template_dev' => [],
+        ])));
+        $remover = new IndexRemover($this->createIndexManagerMock(['asset' => 'pfx_asset_dev']), $client);
+
+        $this->assertSame([
+            'pfx_asset_dev_2026-01-01-000000' => IndexRemover::REASON_PREFIXED,
+            'pfx_asset_dev_2025-12-01-000000' => IndexRemover::REASON_PREFIXED,
+        ], $remover->collectIndicesToRemove('asset', forcePrefix: true)['asset']);
     }
 
     public function testNoIndexArgumentCoversEveryLogicalIndex(): void

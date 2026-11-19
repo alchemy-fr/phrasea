@@ -86,16 +86,14 @@ class ResolveEntitiesProcessor implements ProcessorInterface
         return new ResolveEntitiesOutput($entities);
     }
 
-    private function resolveReadableEntity(?object $entity): object|array|null
+    /**
+     * An entity the user may not read resolves as an unknown one: telling them apart
+     * would disclose which IRIs exist.
+     */
+    private function resolveReadableEntity(?object $entity): ?object
     {
-        if (null === $entity) {
+        if (null === $entity || !$this->isGranted(AbstractVoter::READ, $entity)) {
             return null;
-        }
-
-        if (!$this->isGranted(AbstractVoter::READ, $entity)) {
-            return [
-                'notAllowed' => true,
-            ];
         }
 
         return $entity;

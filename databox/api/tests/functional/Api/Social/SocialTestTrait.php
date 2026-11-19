@@ -82,6 +82,22 @@ trait SocialTestTrait
         return $file;
     }
 
+    private function createStorageFile(Workspace $workspace, string $path, string $type = 'image/jpeg', int $size = 1234): File
+    {
+        $em = self::getEntityManager();
+
+        $file = new File();
+        $file->setWorkspace(self::managed($workspace));
+        $file->setStorage(File::STORAGE_S3_MAIN);
+        $file->setPath($path);
+        $file->setType($type);
+        $file->setSize($size);
+        $em->persist($file);
+        $em->flush();
+
+        return $file;
+    }
+
     private function createRenditionDefinition(Workspace $workspace, string $name, bool $publicPolicy): RenditionDefinition
     {
         $em = self::getEntityManager();

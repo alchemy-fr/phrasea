@@ -234,9 +234,9 @@ YAML;
         $this->jsonRequest('GET', '/rendition-definitions/'.$definition->getId(), self::READER);
         $this->assertResponseStatusCodeSame(403);
 
-        // The workspace editors keep reading them
+        // Nor do the workspace editors: a soft-deleted workspace is unreachable until its deletion
         $this->jsonRequest('GET', '/rendition-definitions/'.$definition->getId(), self::EDITOR);
-        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testCreateRights(): void

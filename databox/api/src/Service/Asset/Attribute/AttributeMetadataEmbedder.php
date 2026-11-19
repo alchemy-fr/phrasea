@@ -9,7 +9,9 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\RenditionDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Metadata\WritableMetadataPolicy;
 use PHPExiftool\Driver\Metadata\MetadataBag;
+use Psr\Log\LoggerInterface;
 
 /**
  * Builds a metadata bag from an asset's attribute values, according to the "writeMetadata"
@@ -25,6 +27,8 @@ readonly class AttributeMetadataEmbedder
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributesResolver $attributesResolver,
         private MetadataManipulator $metadataManipulator,
+        private WritableMetadataPolicy $writableMetadataPolicy,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -57,8 +61,28 @@ readonly class AttributeMetadataEmbedder
             }
 
             foreach ($definition->getWriteMetadata() ?? [] as $tagGroupId) {
-                $meta = $this->metadataManipulator->createMetadata($tagGroupId);
-                if (!$meta->getTagGroup()->isWritable() || str_starts_with($tagGroupId, 'System:')) {
+                try {
+                    $meta = $this->metadataManipulator->createMetadata($tagGroupId);
+                } catch (\Throwable $e) {
+                    $this->logger->warning('Unknown metadata tag in attribute definition', [
+                        'exception' => $e,
+                        'attributeDefinition' => $definition->getId(),
+                        'tag' => $tagGroupId,
+                    ]);
+
+                    continue;
+                }
+
+                if (!$meta->getTagGroup()->isWritable()) {
+                    continue;
+                }
+
+                if (!$this->writableMetadataPolicy->isWritable($meta->getTagGroup()->getId())) {
+                    $this->logger->warning('Metadata tag not allowed to be written in attribute definition', [
+                        'attributeDefinition' => $definition->getId(),
+                        'tag' => $tagGroupId,
+                    ]);
+
                     continue;
                 }
 

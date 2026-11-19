@@ -7,6 +7,7 @@ import {
     extractRenditionsFromRecord,
     getStorySourceRecord,
     PhraseanetSearchType,
+    StatusBitIndex,
 } from '../../../../src/handlers/phraseanet/shared';
 import {
     CPhraseanetRecord,
@@ -261,7 +262,7 @@ const build = (
     record: CPhraseanetRecord | CPhraseanetStory,
     overrides: {
         fieldMap?: Record<string, FieldMap>;
-        tagIndex?: Record<number, string>;
+        statusBitIndex?: StatusBitIndex;
         shortcuts?: {id: string; path: string}[];
         sourceSubdefName?: string;
         subdefToRendition?: Record<string, string[]>;
@@ -278,7 +279,7 @@ const build = (
         'idmp_asset_1_100',
         overrides.isStory ?? false,
         overrides.fieldMap ?? {},
-        overrides.tagIndex ?? {},
+        overrides.statusBitIndex,
         overrides.shortcuts ?? [],
         overrides.sourceSubdefName,
         overrides.subdefToRendition ?? {},
@@ -300,7 +301,6 @@ describe('createAsset: envelope', () => {
             generateRenditions: false,
             isStory: false,
             attributes: [],
-            tags: [],
             renditions: [],
             shortcutIntoCollections: [],
         });
@@ -533,8 +533,13 @@ describe('createAsset: attributes', () => {
     });
 });
 
-describe('createAsset: tags', () => {
-    it('adds the tag of every raised status bit', async () => {
+describe('createAsset: status bits', () => {
+    const statusBitIndex: StatusBitIndex = {
+        definitionId: 'def-tags',
+        entities: {4: 'ent-a', 5: 'ent-b', 6: 'ent-c', 7: 'ent-a'},
+    };
+
+    it('sets the entity of every raised status bit on the "Tags" attribute', async () => {
         const asset = await build(
             cRecord({
                 status: [
@@ -543,18 +548,53 @@ describe('createAsset: tags', () => {
                     makeStatusBit(6, true),
                 ],
             }),
-            {tagIndex: {4: '/tags/a', 5: '/tags/b', 6: '/tags/c'}}
+            {statusBitIndex}
         );
 
-        expect(asset.tags).toEqual(['/tags/a', '/tags/c']);
+        expect(asset.attributes).toEqual([
+            {
+                definitionId: 'def-tags',
+                origin: 'machine',
+                originVendor: 'indexer-import',
+                position: 0,
+                value: ['ent-a', 'ent-c'],
+            },
+        ]);
+        expect(asset).not.toHaveProperty('tags');
     });
 
-    it('ignores bits that have no tag', async () => {
-        const asset = await build(cRecord({status: [makeStatusBit(4, true)]}), {
-            tagIndex: {},
+    it('sets an entity shared by several raised bits once', async () => {
+        const asset = await build(
+            cRecord({
+                status: [makeStatusBit(4, true), makeStatusBit(7, true)],
+            }),
+            {statusBitIndex}
+        );
+
+        expect(asset.attributes).toMatchObject([{value: ['ent-a']}]);
+    });
+
+    it('ignores bits that have no entity', async () => {
+        const asset = await build(cRecord({status: [makeStatusBit(8, true)]}), {
+            statusBitIndex,
         });
 
-        expect(asset.tags).toEqual([]);
+        expect(asset.attributes).toEqual([]);
+    });
+
+    it('sets no attribute when no bit is raised', async () => {
+        const asset = await build(
+            cRecord({status: [makeStatusBit(4, false)]}),
+            {statusBitIndex}
+        );
+
+        expect(asset.attributes).toEqual([]);
+    });
+
+    it('sets no attribute when the status bits are not imported', async () => {
+        const asset = await build(cRecord({status: [makeStatusBit(4, true)]}));
+
+        expect(asset.attributes).toEqual([]);
     });
 });
 
