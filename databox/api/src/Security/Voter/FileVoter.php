@@ -173,6 +173,7 @@ class FileVoter extends AbstractVoter
             ->innerJoin('d.integration', 'i')
             ->andWhere('d.name = :name')
             ->andWhere('d.value = :id')
+            ->andWhere(sprintf('LENGTH(d.value) = %d', IntegrationData::INDEXED_VALUE_LENGTH))
             ->andWhere('i.workspace IS NULL OR i.workspace = :ws')
             ->setParameter('name', self::INTEGRATION_OUTPUT_DATA_NAME)
             ->setParameter('id', $file->getId())
