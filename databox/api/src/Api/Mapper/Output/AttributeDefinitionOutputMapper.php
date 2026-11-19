@@ -75,6 +75,7 @@ class AttributeDefinitionOutputMapper implements OutputMapperInterface
         $output->position = $data->getPosition();
         $output->fillFromName = $data->isFillFromName();
         $output->namePriority = $data->getNamePriority();
+        $output->useAsName = $data->isUseAsName();
 
         if ($this->hasGroup(AttributeDefinition::GROUP_LIST, $context)) {
             $output->labels = $data->getLabels();

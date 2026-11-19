@@ -123,6 +123,11 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         if (self::hasKey('namePriority', $data->namePriority, $context)) {
             $object->setNamePriority($data->namePriority);
         }
+        if (false === $data->useAsName) {
+            $object->setNamePriority(null);
+        } elseif (true === $data->useAsName && !$object->isUseAsName()) {
+            $object->setNamePriority(0);
+        }
 
         if (null !== $data->fileType) {
             $object->setFileType($data->fileType);

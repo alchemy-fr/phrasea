@@ -117,6 +117,10 @@ final readonly class AttributeDefinitionTools
         ?bool $annotationsEnabled = null,
         #[Schema(description: 'Whether it is filled with the asset name (e.g. the file name) when the asset is created')]
         ?bool $fillFromName = null,
+        #[Schema(description: 'Whether its value gives the asset its name (title)')]
+        ?bool $useAsName = null,
+        #[Schema(description: 'Among the attributes used as name, the one with the highest priority wins (0 by default)')]
+        ?int $namePriority = null,
         #[Schema(definition: self::INITIAL_VALUES)]
         ?array $initialValues = null,
         #[Schema(definition: self::FALLBACK)]
@@ -152,6 +156,8 @@ final readonly class AttributeDefinitionTools
             'allowInvalid' => $allowInvalid,
             'annotationsEnabled' => $annotationsEnabled,
             'fillFromName' => $fillFromName,
+            'useAsName' => $useAsName,
+            'namePriority' => $namePriority,
             'initialValues' => $initialValues,
             'fallback' => $fallback,
             'readFromMetadata' => $readFromMetadata,
@@ -190,6 +196,8 @@ final readonly class AttributeDefinitionTools
         ?bool $allowInvalid = null,
         ?bool $annotationsEnabled = null,
         ?bool $fillFromName = null,
+        ?bool $useAsName = null,
+        ?int $namePriority = null,
         #[Schema(definition: self::INITIAL_VALUES)]
         ?array $initialValues = null,
         #[Schema(definition: self::FALLBACK)]
@@ -222,6 +230,8 @@ final readonly class AttributeDefinitionTools
             'allowInvalid' => $allowInvalid,
             'annotationsEnabled' => $annotationsEnabled,
             'fillFromName' => $fillFromName,
+            'useAsName' => $useAsName,
+            'namePriority' => $namePriority,
             'initialValues' => $initialValues,
             'fallback' => $fallback,
             'readFromMetadata' => $readFromMetadata,

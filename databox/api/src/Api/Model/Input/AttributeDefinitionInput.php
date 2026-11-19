@@ -52,6 +52,12 @@ class AttributeDefinitionInput
     public ?int $namePriority = null;
 
     /**
+     * Whether the attribute gives the asset its name (title): enabling it without a namePriority sets the priority to 0,
+     * disabling it clears the priority.
+     */
+    public ?bool $useAsName = null;
+
+    /**
      * @var bool
      */
     public $searchable;

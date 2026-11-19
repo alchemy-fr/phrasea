@@ -464,12 +464,58 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains(['violations' => [['propertyPath' => 'namePriority']]]);
 
+        $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
+            'multiple' => true,
+            'useAsName' => true,
+        ]));
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['violations' => [['propertyPath' => 'namePriority']]]);
+
         $response = $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
             'multiple' => true,
             'fillFromName' => false,
         ]));
         $this->assertResponseStatusCodeSame(201);
         $this->assertTrue($response->toArray()['multiple']);
+    }
+
+    public function testUseAsNameIsIndependentFromFillFromName(): void
+    {
+        $this->setUpScene();
+
+        $response = $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
+            'useAsName' => true,
+        ]));
+        $this->assertResponseStatusCodeSame(201);
+        $data = $response->toArray();
+        $this->assertTrue($data['useAsName']);
+        $this->assertSame(0, $data['namePriority']);
+        $this->assertFalse($data['fillFromName']);
+        $id = $data['id'];
+
+        $response = $this->api('PATCH', '/attribute-definitions/'.$id, self::USER, [
+            'useAsName' => true,
+            'namePriority' => 5,
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(5, $response->toArray()['namePriority']);
+
+        $response = $this->api('PATCH', '/attribute-definitions/'.$id, self::USER, [
+            'useAsName' => true,
+            'namePriority' => null,
+        ]);
+        $this->assertSame(0, $response->toArray()['namePriority']);
+
+        $response = $this->api('PATCH', '/attribute-definitions/'.$id, self::USER, [
+            'fillFromName' => true,
+            'useAsName' => false,
+            'namePriority' => 3,
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $data = $response->toArray();
+        $this->assertFalse($data['useAsName']);
+        $this->assertArrayNotHasKey('namePriority', $data);
+        $this->assertTrue($data['fillFromName']);
     }
 
     public function testADefinitionFilledFromTheNameCannotBecomeMultiple(): void

@@ -384,6 +384,7 @@ export interface AttributeDefinition
     locales?: string[];
     allowInvalid: boolean;
     fillFromName: boolean;
+    useAsName: boolean;
     namePriority?: number | null;
     canEdit: boolean;
     searchBoost: number;
