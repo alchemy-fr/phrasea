@@ -4,7 +4,7 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {createI18n} from '@/i18n';
-import {AttributeType} from '@/types/api';
+import {AttributeType, Facets, FacetType} from '@/types/api';
 import {seedDefinitions} from '@/features/attributes/definitionsStore';
 import {SearchBar} from './SearchBar';
 
@@ -25,9 +25,13 @@ const api = vi.hoisted(() => ({
     getAttributeDefinitionsPage: vi.fn(async () => ({items: [], total: 0})),
 }));
 
+const results = vi.hoisted(() => ({
+    facets: undefined as Facets | undefined,
+}));
+
 vi.mock('./SearchProvider', () => ({useSearch: () => search}));
 vi.mock('./ResultProvider', () => ({
-    useResults: () => ({loading: false, facets: undefined}),
+    useResults: () => ({loading: false, facets: results.facets}),
 }));
 vi.mock('@/lib/api/assets', () => api);
 vi.mock('@/lib/api/metadata', async importOriginal => ({
@@ -76,8 +80,20 @@ describe('SearchBar filter suggestions', () => {
         search.upsertCondition.mockReset();
         search.setInputQuery.mockReset();
         search.setQuery.mockReset();
+        results.facets = undefined;
         seedDefinitions({
             builtIn: [
+                {
+                    id: '@id',
+                    name: '@id',
+                    slug: '@id',
+                    searchSlug: '@id',
+                    displayName: 'ID',
+                    type: AttributeType.Id,
+                    builtIn: true,
+                    enabled: true,
+                    searchable: true,
+                },
                 {
                     id: '@story',
                     name: '@story',
@@ -191,6 +207,52 @@ describe('SearchBar filter suggestions', () => {
         });
         expect(search.setQuery).not.toHaveBeenCalled();
         expect(input.value).toBe('');
+    });
+
+    it('turns a pasted id into a condition on Enter', () => {
+        const uuid = '0f2c5a3e-8b1d-4c7a-9e6f-2d4b8a1c3e5f';
+        const input = renderBar();
+        type(input, `@id:${uuid}`);
+
+        act(() => {
+            fireEvent.keyDown(input, {key: 'Enter'});
+        });
+        expect(search.upsertCondition).toHaveBeenCalledWith({
+            id: '@id',
+            query: `@id IS "${uuid}"`,
+            resetQuery: true,
+        });
+        expect(search.setQuery).not.toHaveBeenCalled();
+        expect(input.value).toBe('');
+    });
+
+    it('applies the value matching the typed text exactly on Enter', () => {
+        results.facets = {
+            title_text_s: {
+                meta: {
+                    displayName: 'Title',
+                    sortable: false,
+                    widget: FacetType.Text,
+                },
+                buckets: [
+                    {key: 'Chat', doc_count: 2},
+                    {key: 'Chaton', doc_count: 1},
+                ],
+            },
+        };
+        const input = renderBar();
+        type(input, 'title:chat');
+        expect(options()).toEqual(['Chat', 'Chaton']);
+
+        act(() => {
+            fireEvent.keyDown(input, {key: 'Enter'});
+        });
+        expect(search.upsertCondition).toHaveBeenCalledWith({
+            id: 'title_text_s',
+            query: 'title IS "Chat"',
+            resetQuery: true,
+        });
+        expect(search.setQuery).not.toHaveBeenCalled();
     });
 
     it('never submits a field being typed as a text search', () => {

@@ -13,6 +13,7 @@ import {
     buildFilterCondition,
     clientValueSuggestions,
     findConditionId,
+    findExactValue,
     isApiSuggestable,
     isFieldToken,
     mergeValueSuggestions,
@@ -71,6 +72,7 @@ const isStory = builtIn('@isStory', 'Is story', AttributeType.Boolean);
 const privacy = builtIn('@privacy', 'Privacy', AttributeType.Privacy);
 const size = builtIn('@size', 'File size', AttributeType.FileSize);
 const tag = builtIn('@tag', 'Tags', AttributeType.Tag);
+const id = builtIn('@id', 'ID', AttributeType.Id);
 const title = attribute('title', 'Title', AttributeType.Text);
 const history = attribute('history', 'History', AttributeType.Text);
 const hidden = attribute('secret', 'Story secret', AttributeType.Text, {
@@ -348,12 +350,11 @@ describe('API values', () => {
             },
             t,
         });
-        const api = ['Chat', 'Chien'].map(
-            name =>
-                apiItemToValueSuggestion(
-                    {id: name, name, hl: name, t: title.id, tName: 'Title'},
-                    title
-                )!
+        const api = ['Chat', 'Chien'].map(name =>
+            apiItemToValueSuggestion(
+                {id: name, name, hl: name, t: title.id, tName: 'Title'},
+                title
+            )!
         );
         expect(mergeValueSuggestions(client, api).map(s => s.value)).toEqual([
             'Chat',
@@ -377,6 +378,16 @@ describe('rawSuggestionFor', () => {
         });
     });
 
+    it('offers a typed id, unless it contains whitespace', () => {
+        const uuid = '0f2c5a3e-8b1d-4c7a-9e6f-2d4b8a1c3e5f';
+        expect(rawSuggestionFor(id, uuid, [])).toMatchObject({
+            kind: 'raw',
+            field: '@id',
+            query: `@id IS "${uuid}"`,
+        });
+        expect(rawSuggestionFor(id, 'a b', [])).toBeNull();
+    });
+
     it('refuses empty, unfit or already suggested values', () => {
         expect(rawSuggestionFor(title, '  ', [])).toBeNull();
         expect(rawSuggestionFor(isStory, 'true', [])).toBeNull();
@@ -396,6 +407,29 @@ describe('rawSuggestionFor', () => {
         });
         expect(rawSuggestionFor(title, 'chat', values)).toBeNull();
         expect(rawSuggestionFor(title, 'cha', values)).not.toBeNull();
+    });
+});
+
+describe('findExactValue', () => {
+    const values = clientValueSuggestions({
+        definition: privacy,
+        prefix: '',
+        t,
+    });
+
+    it('finds the value whose label or value is the typed text', () => {
+        const label = values[1].label;
+        expect(findExactValue(values, ` ${label.toUpperCase()} `)).toBe(
+            values[1]
+        );
+        expect(findExactValue(values, String(values[2].value))).toBe(values[2]);
+    });
+
+    it('ignores partial and empty texts', () => {
+        expect(
+            findExactValue(values, values[1].label.slice(0, 2))
+        ).toBeUndefined();
+        expect(findExactValue(values, '  ')).toBeUndefined();
     });
 });
 

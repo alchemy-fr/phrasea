@@ -29,8 +29,10 @@ import {useBrowserLocation} from '@/hooks/useBrowserLocation';
 import {useSearchSuggestions} from './suggest/useSearchSuggestions';
 import {
     findConditionId,
+    findExactValue,
     isEntityField,
     SuggestionItem,
+    ValueSuggestion,
 } from './suggest/filterSuggestions';
 
 export function SearchBar() {
@@ -139,11 +141,20 @@ export function SearchBar() {
                             } else if (mode === 'field') {
                                 // A `field:` input is a filter being typed,
                                 // never a text search: apply the typed value,
-                                // or the only value left by the typed prefix
+                                // else the suggested value equal to it, else
+                                // the only value left by the typed prefix
                                 e.preventDefault();
-                                const raw = items.find(i => i.kind === 'raw');
-                                if (raw) {
-                                    applyItem(raw);
+                                const item =
+                                    items.find(i => i.kind === 'raw') ??
+                                    findExactValue(
+                                        items.filter(
+                                            (i): i is ValueSuggestion =>
+                                                i.kind === 'value'
+                                        ),
+                                        valuePrefix
+                                    );
+                                if (item) {
+                                    applyItem(item);
                                 } else if (valuePrefix && items.length === 1) {
                                     applyItem(items[0]);
                                 }
