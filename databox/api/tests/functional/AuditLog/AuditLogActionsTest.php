@@ -17,6 +17,8 @@ use App\Consumer\Handler\Collection\CollectionsMoveToTrash;
 use App\Consumer\Handler\Collection\CollectionsRestore;
 use App\Consumer\Stamp\AuditContextStamp;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Model\AuditActorTypeEnum;
@@ -144,6 +146,55 @@ class AuditLogActionsTest extends AbstractDataboxTestCase
         $this->assertSame(['delete', ['After'], []], [$change['op'], $change['old'], $change['new']]);
     }
 
+    public function testUntranslatedValueReplacedByALocalizedOne(): void
+    {
+        $em = self::getEntityManager();
+        $name = $em->getRepository(AttributeDefinition::class)->findOneBy([
+            'workspace' => $this->getOrCreateDefaultWorkspace()->getId(),
+            'slug' => 'name',
+        ]);
+        $name->setTranslatable(true);
+        $em->flush();
+        $asset = $this->createAsset([
+            'attributes' => [
+                ['definition' => $name, 'value' => 'AAA'],
+            ],
+        ]);
+        $untranslated = $em->getRepository(Attribute::class)->findOneBy([
+            'asset' => $asset->getId(),
+            'definition' => $name->getId(),
+        ]);
+        $this->purgeLogs();
+
+        $input = new AssetAttributeBatchUpdateInput();
+        $input->actions = [
+            self::action(BatchAttributeManager::ACTION_SET, $name->getId(), 'AAA en', ['locale' => 'en']),
+            self::action(BatchAttributeManager::ACTION_DELETE, $name->getId(), null, ['id' => $untranslated->getId()]),
+        ];
+        self::getService(BatchAttributeManager::class)->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input, null);
+
+        $changes = [];
+        foreach ($this->findLog(AuditLogActionEnum::AssetAttributeChanged, $asset->getId())->getData()['changes'] as $change) {
+            $changes[$change['locale'] ?? 'none'] = $change;
+        }
+        $this->assertCount(2, $changes);
+        $this->assertSame([$name->getId(), 'Name', null, 'delete', ['AAA'], []], [
+            $changes['none']['definitionId'],
+            $changes['none']['definitionName'],
+            $changes['none']['locale'],
+            $changes['none']['op'],
+            $changes['none']['old'],
+            $changes['none']['new'],
+        ]);
+        $this->assertSame([$name->getId(), 'Name', 'en', [], ['AAA en']], [
+            $changes['en']['definitionId'],
+            $changes['en']['definitionName'],
+            $changes['en']['locale'],
+            $changes['en']['old'],
+            $changes['en']['new'],
+        ]);
+    }
+
     public function testPermissionsGrantedChangedAndRevoked(): void
     {
         $collection = $this->createCollection(['name' => 'Shared']);
@@ -228,7 +279,7 @@ class AuditLogActionsTest extends AbstractDataboxTestCase
         $title = $this->createAttributeDefinition(['name' => 'Title', 'no_flush' => true]);
         $title->setNamePriority(1);
         self::getEntityManager()->flush();
-        $this->assertSame(1, self::getEntityManager()->getRepository(\App\Entity\Core\AttributeDefinition::class)->find($title->getId())?->getNamePriority());
+        $this->assertSame(1, self::getEntityManager()->getRepository(AttributeDefinition::class)->find($title->getId())?->getNamePriority());
         $asset = $this->createAsset([
             'attributes' => [
                 ['definition' => $title, 'value' => 'Gone'],
@@ -252,6 +303,8 @@ class AuditLogActionsTest extends AbstractDataboxTestCase
         $input->value = $value;
         $input->assets = $options['assets'] ?? null;
         $input->replaceWith = $options['replaceWith'] ?? null;
+        $input->locale = $options['locale'] ?? null;
+        $input->id = $options['id'] ?? null;
 
         return $input;
     }
