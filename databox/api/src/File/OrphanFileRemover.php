@@ -72,6 +72,7 @@ final class OrphanFileRemover
             ->from(IntegrationData::class, 'd')
             ->andWhere('d.name = :name')
             ->andWhere('d.value = :id')
+            ->andWhere(sprintf('LENGTH(d.value) = %d', IntegrationData::INDEXED_VALUE_LENGTH))
             ->setParameter('name', FileVoter::INTEGRATION_OUTPUT_DATA_NAME)
             ->setParameter('id', $fileId)
             ->setMaxResults(1)

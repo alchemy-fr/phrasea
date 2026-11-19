@@ -80,6 +80,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\Index(columns: ['integration_id', 'object_type', 'object_id'], name: 'int_obj_idx')]
 #[ORM\Index(columns: ['integration_id', 'name'], name: 'int_nam_idx')]
+#[ORM\Index(name: 'int_uuid_val_idx', columns: ['value'], options: ['where' => '(length(value) = '.self::INDEXED_VALUE_LENGTH.')'])]
 class IntegrationData extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -87,6 +88,12 @@ class IntegrationData extends AbstractUuidEntity
     final public const string GROUP_READ = 'int-data:read';
     final public const string GROUP_LIST = 'int-data:index';
     final public const string GROUP_WRITE = 'int-data:w';
+
+    /**
+     * Only UUID-long values are indexed: the value also holds large JSON payloads that
+     * exceed the btree row size. A lookup by ID must repeat LENGTH(value) = this length.
+     */
+    final public const int INDEXED_VALUE_LENGTH = 36;
 
     #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class, inversedBy: 'data')]
     #[ORM\JoinColumn(nullable: false)]
