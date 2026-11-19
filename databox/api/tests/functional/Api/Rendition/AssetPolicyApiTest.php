@@ -79,6 +79,27 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
+    public function testListScopes(): void
+    {
+        [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $policy = $this->createAssetPolicy($ws, 'Hide', [self::READER], [['action' => 'hide_rendition', 'definitionId' => 'x']]);
+
+        $list = fn (string $scope): ResponseInterface => $this->jsonRequest('GET', '/asset-policies', null, options: [
+            'query' => ['workspaceId' => $ws->getId()],
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getClientCredentialJwt($scope)],
+        ]);
+
+        $list('workspace:read');
+        $this->assertResponseStatusCodeSame(403);
+
+        $list('workspace:read workspace:list');
+        $this->assertResponseStatusCodeSame(403);
+
+        $response = $list('workspace:read asset-policy:list');
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([$policy->getId()], $this->memberIds($response));
+    }
+
     public function testGetItemIsRestrictedToWorkspaceEditors(): void
     {
         [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
