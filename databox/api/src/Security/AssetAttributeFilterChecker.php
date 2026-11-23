@@ -13,7 +13,7 @@ use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\ESDocumentStateManager;
 use App\Entity\Core\Asset;
 use Psr\Log\LoggerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * Applies the attribute filter rules to a single asset, as the asset search does in its query
@@ -24,7 +24,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 final readonly class AssetAttributeFilterChecker
 {
-    private CacheInterface $cache;
+    private ArrayAdapter $cache;
 
     public function __construct(
         private AttributeFilterManager $attributeFilterManager,
@@ -69,6 +69,15 @@ final readonly class AssetAttributeFilterChecker
             // A decision already taken in PHP is kept
             $this->cache->get(self::getDecisionKey($assetId, $userId, $groupIds), static fn (): bool => true);
         }
+    }
+
+    /**
+     * Forgets the decisions taken, which a change of the rules may invalidate
+     * (see AttributeFilterRuleCacheListener).
+     */
+    public function clearCache(): void
+    {
+        $this->cache->clear();
     }
 
     private static function getDecisionKey(string $assetId, ?string $userId, array $groupIds): string

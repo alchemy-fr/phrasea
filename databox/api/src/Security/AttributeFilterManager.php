@@ -9,12 +9,11 @@ use App\Entity\Core\AttributeFilterRule;
 use App\Entity\Core\Workspace;
 use App\Repository\Core\AttributeFilterRuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 readonly class AttributeFilterManager
 {
-    private CacheInterface $cache;
+    private ArrayAdapter $cache;
 
     public function __construct(
         private EntityManagerInterface $em,
@@ -43,11 +42,15 @@ readonly class AttributeFilterManager
         $this->em->persist($rule);
         $this->em->flush();
 
-        if ($this->cache instanceof CacheItemPoolInterface) {
-            $this->cache->clear();
-        }
-
         return $rule;
+    }
+
+    /**
+     * Called by AttributeFilterRuleCacheListener whenever a rule or one of its targets is written.
+     */
+    public function clearCache(): void
+    {
+        $this->cache->clear();
     }
 
     /**
