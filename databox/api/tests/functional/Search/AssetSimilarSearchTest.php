@@ -101,7 +101,8 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
             'public' => true,
             'no_flush' => true,
         ]);
-        $reference = $this->createEmbeddedAsset($workspace, 'Reference', self::vector([0 => 1.0]));
+        // The reference itself must be readable by the user the rule targets
+        $reference = $this->createEmbeddedAsset($workspace, 'Reference', self::vector([0 => 1.0]), ['tags' => ['shown']]);
         $visible = $this->createEmbeddedAsset($workspace, 'Visible', self::vector([0 => 1.0, 1 => 0.5]), ['tags' => ['shown']]);
         $this->createEmbeddedAsset($workspace, 'Hidden', self::vector([0 => 1.0, 1 => 0.2]));
         self::getAttributeFilterManager()->saveRule(
