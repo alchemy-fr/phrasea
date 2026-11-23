@@ -17,6 +17,7 @@ use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\ESDocumentStateManager;
 use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -40,6 +41,7 @@ final readonly class AssetAttributeFilterChecker
         private AQLDocumentEvaluator $evaluator,
         private ESDocumentStateManager $documentStateManager,
         private AssetRepository $assetRepository,
+        private EntityManagerInterface $em,
         private AssetIndexPreloader $indexPreloader,
         private AssetPermissionComputer $permissionComputer,
         private TokenStorageInterface $tokenStorage,
@@ -81,13 +83,17 @@ final readonly class AssetAttributeFilterChecker
             return;
         }
 
-        $undecided = [];
+        $hasRules = static fn (Asset $asset): bool => !empty($rules[$asset->getWorkspaceId()] ?? []);
+
+        // The workspace of an asset not loaded yet (a proxy) is only read once the query below loads it
+        $toLoad = [];
         foreach ($assets as $asset) {
-            if (!$this->cache->hasItem(self::getDecisionKey($asset->getId(), $userId, $groupIds))) {
-                $undecided[$asset->getId()] = $asset;
+            if (($this->em->isUninitializedObject($asset) || $hasRules($asset))
+                && !$this->cache->hasItem(self::getDecisionKey($asset->getId(), $userId, $groupIds))) {
+                $toLoad[$asset->getId()] = $asset;
             }
         }
-        if ([] === $undecided) {
+        if ([] === $toLoad) {
             return;
         }
 
@@ -95,14 +101,11 @@ final readonly class AssetAttributeFilterChecker
         // and relations not loaded yet get loaded, those already loaded are kept as they are
         $this->assetRepository->createElasticaToModelQueryBuilder('a')
             ->andWhere('a.id IN (:ids)')
-            ->setParameter('ids', array_keys($undecided))
+            ->setParameter('ids', array_keys($toLoad))
             ->getQuery()
             ->getResult();
 
-        $pending = array_values(array_filter(
-            $undecided,
-            static fn (Asset $asset): bool => !empty($rules[$asset->getWorkspaceId()] ?? []),
-        ));
+        $pending = array_values(array_filter($toLoad, $hasRules));
         if ([] === $pending) {
             return;
         }

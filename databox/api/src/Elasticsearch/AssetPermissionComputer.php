@@ -45,8 +45,8 @@ final class AssetPermissionComputer
 
     /**
      * Runs $callback with the ACEs of these assets loaded at once, and the permissions of the
-     * workspaces and collections computed once, instead of for every asset. Nothing is kept
-     * afterwards: the real-time indexing must never get a stale value.
+     * workspaces, collections and assets (the stories of the members) computed once, instead of
+     * for every asset. Nothing is kept afterwards: the real-time indexing must never get a stale value.
      *
      * @template T
      *
@@ -57,15 +57,16 @@ final class AssetPermissionComputer
      */
     public function runWithPreloadedAssets(array $assets, callable $callback): mixed
     {
-        $previous = [$this->workspaceCache, $this->collectionCache, $this->preloadedAssetAces];
+        $previous = [$this->workspaceCache, $this->collectionCache, $this->assetCache, $this->preloadedAssetAces];
         $this->workspaceCache ??= new ArrayAdapter(deepClone: false);
         $this->collectionCache ??= new ArrayAdapter(deepClone: false);
+        $this->assetCache ??= new ArrayAdapter(deepClone: false);
         $this->preloadedAssetAces = $this->loadAssetAces($assets) + ($this->preloadedAssetAces ?? []);
 
         try {
             return $callback();
         } finally {
-            [$this->workspaceCache, $this->collectionCache, $this->preloadedAssetAces] = $previous;
+            [$this->workspaceCache, $this->collectionCache, $this->assetCache, $this->preloadedAssetAces] = $previous;
         }
     }
 

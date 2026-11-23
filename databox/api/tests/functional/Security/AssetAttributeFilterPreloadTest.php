@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Security;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
@@ -80,6 +81,42 @@ class AssetAttributeFilterPreloadTest extends AbstractDataboxTestCase
 
     public function testQueriesOfTheRulesDoNotGrowWithTheAssets(): void
     {
+        $this->assertQueriesOfTheRulesDoNotGrow(function (Workspace $workspace, int $count): array {
+            $collection = $this->createCollection([
+                'workspace' => $workspace,
+                'public' => true,
+            ]);
+
+            return $this->createAssets($workspace, $count, $collection->getId(), 'press');
+        });
+    }
+
+    public function testQueriesOfTheRulesDoNotGrowWithTheMembersOfAStory(): void
+    {
+        $this->assertQueriesOfTheRulesDoNotGrow(function (Workspace $workspace, int $count): array {
+            $em = self::getEntityManager();
+            $story = $this->createAsset([
+                'workspace' => $workspace,
+                'name' => 'Story',
+                'public' => true,
+                'no_flush' => true,
+            ]);
+            $storyCollection = new Collection();
+            $storyCollection->setWorkspace($workspace);
+            $storyCollection->setOwnerId($story->getOwnerId());
+            $em->persist($storyCollection);
+            $story->setStoryCollection($storyCollection);
+            $em->flush();
+
+            return $this->createAssets($workspace, $count, $storyCollection->getId(), 'press');
+        });
+    }
+
+    /**
+     * @param callable(Workspace, int): string[] $createAssets
+     */
+    private function assertQueriesOfTheRulesDoNotGrow(callable $createAssets): void
+    {
         // Assets voted on by POST /assets/prepare-delete, by workspace
         $lists = [];
         foreach ([5, 20] as $count) {
@@ -87,11 +124,7 @@ class AssetAttributeFilterPreloadTest extends AbstractDataboxTestCase
                 'public' => true,
                 'slug' => 'ws-'.$count,
             ]);
-            $collection = $this->createCollection([
-                'workspace' => $workspace,
-                'public' => true,
-            ]);
-            $lists[$workspace->getId()] = $this->createAssets($workspace, $count, $collection->getId(), 'press');
+            $lists[$workspace->getId()] = $createAssets($workspace, $count);
         }
 
         $client = static::createClient();
