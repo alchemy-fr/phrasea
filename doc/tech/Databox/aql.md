@@ -124,9 +124,12 @@ an operator goes there, or in both.
 An attribute filter rule (`AttributeFilterRule`) restricts, for its targets (users, groups, or
 everyone when it has none, anonymous users included), the assets of a workspace to those matching
 its AQL condition. Every rule of the workspace targeting the user applies, whatever their role
-(workspace owner included); only a token carrying an `asset:` scope bypasses them. Exception: an
-administrator (`ROLE_ADMIN`) reads any asset by ID, since `AdminVoter` grants every attribute, while
-the search still applies the rules to them. The conditions are
+(workspace owner and asset owner included); only a token carrying an `asset:` scope bypasses them.
+An asset they hide is invisible and untouchable: it can be neither read by ID nor edited, deleted,
+shared, quarantined… (the owner of a hidden asset loses these rights too), nor can the objects
+whose rights derive from the asset (attributes, renditions, files, attachments…). Exception: an
+administrator (`ROLE_ADMIN`) reads and acts on any asset by ID, since `AdminVoter` grants every
+attribute, while the search still applies the rules to them. The conditions are
 trusted (`AQLToESQuery::OPT_TRUSTED_CONDITIONS`): the built-in attributes disabled for the user and
 the collections they cannot read stay usable in them. A condition that cannot be applied hides the
 whole workspace (fail-closed).
@@ -134,7 +137,8 @@ whole workspace (fail-closed).
 They are enforced twice, with the same semantics:
 
 - in the asset searches, inside the Elasticsearch query (`AssetSearch::createBaseFilterQueries()`);
-- on every asset read by ID (`AssetVoter::READ`, through `AssetAttributeFilterChecker`): the
+- on every vote on an asset (`AssetVoter`, every attribute but `CREATE`, which votes on an asset
+  being created, through `AssetAttributeFilterChecker`), after its rights are granted: the
   condition is evaluated in PHP by `AQLDocumentEvaluator` on the Elasticsearch document of the asset
   built in memory (the one the indexing would send), so an asset not indexed yet is evaluated like
   the others. The checker first builds the Elasticsearch query of the condition: a condition the

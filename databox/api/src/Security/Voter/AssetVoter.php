@@ -71,7 +71,7 @@ class AssetVoter extends AbstractVoter
         $isWorkspaceOwnerSlow = fn (): bool => $this->security->isGranted(AbstractVoter::OWNER, $workspace);
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        return match ($attribute) {
+        $granted = match ($attribute) {
             AbstractVoter::CREATE => $isWorkspaceOwnerFast()
                 || $this->voteOnContainer($subject, AssetContainerVoterInterface::ASSET_CREATE)
                 || $isWorkspaceOwnerSlow(),
@@ -89,12 +89,6 @@ class AssetVoter extends AbstractVoter
                     || $this->security->isGranted(AssetContainerVoterInterface::ASSET_VIEW, $workspace)
                     || $this->collectionGrantsAccess($subject)
                     || $isWorkspaceOwnerSlow()
-                )
-                // Whatever the role, as in the asset search, except for the admins: AdminVoter grants them anyway
-                && $this->attributeFilterChecker->isReadable(
-                    $subject,
-                    $userId ?: null,
-                    $user instanceof JwtUser ? $user->getGroups() : [],
                 ),
             self::EDIT_ATTRIBUTES => $isOwner()
                 || $isWorkspaceOwnerFast()
@@ -148,6 +142,16 @@ class AssetVoter extends AbstractVoter
                 || $isWorkspaceOwnerSlow(),
             default => false,
         };
+
+        // An asset hidden by the attribute filter rules can be neither read nor acted upon, whatever
+        // the role, as in the asset search, except for the admins: AdminVoter grants them anyway.
+        // CREATE votes on an asset being created, whose values are not stored yet.
+        return $granted
+            && (AbstractVoter::CREATE === $attribute || $this->attributeFilterChecker->isReadable(
+                $subject,
+                $userId ?: null,
+                $user instanceof JwtUser ? $user->getGroups() : [],
+            ));
     }
 
     private function voteOnContainer(Asset $asset, string|int $attribute): bool
