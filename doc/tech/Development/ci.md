@@ -66,6 +66,15 @@ explicitly) and the `report` profile, and the configurator skip its Keycloak
 configuration and migrations (`KeycloakMigrationTrait`). The PHP suites pass
 that way, but Cypress and the indexer end-to-end log in through Keycloak.
 
+### Image push
+
+The ECR Public push of `ci.yaml` and the Docker Hub pushes of `release.yaml`
+go through `bin/ci-push-images.sh`: one image at a time, with up to 5 attempts
+(30, 60, 90 then 120 s apart), because a parallel push exceeds the request rate
+limit of ECR Public (`Rate exceeded`). A new attempt skips the layers already
+pushed. If the failures go on: `max-concurrent-uploads` in the dockerd
+configuration, or the ECR Public quotas in Service Quotas (us-east-1).
+
 ### release — `bin/test.sh release`
 
 `standard`, then:
