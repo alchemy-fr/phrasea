@@ -8,9 +8,8 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetStatusEnum;
 use App\Security\Voter\AssetVoter;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Asset\QuarantineResolver;
 
 /**
  * Accepts a quarantined asset despite its failed file analysis: the asset
@@ -22,7 +21,7 @@ final class BypassQuarantineProcessor implements ProcessorInterface
     use SecurityAwareTrait;
 
     public function __construct(
-        private readonly EntityManagerInterface $em,
+        private readonly QuarantineResolver $quarantineResolver,
     ) {
     }
 
@@ -34,15 +33,7 @@ final class BypassQuarantineProcessor implements ProcessorInterface
         $this->denyAccessUnlessGranted(AssetVoter::READ, $data);
         $this->denyAccessUnlessGranted(AssetVoter::QUARANTINE_BYPASS, $data);
 
-        $source = $data->getSource();
-        if (null !== $source) {
-            $source->bypassAnalysis();
-            $this->em->persist($source);
-        }
-
-        $data->setStatus(AssetStatusEnum::Accepted);
-        $this->em->persist($data);
-        $this->em->flush();
+        $this->quarantineResolver->bypass($data);
 
         return $data;
     }

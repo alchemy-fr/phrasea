@@ -5,7 +5,7 @@ export const quarantineQueueKey = ['quarantine-queue'];
 type State = {
     /** Ids resolved in this session, hidden from the queue */
     resolved: string[];
-    markResolved: (id: string) => void;
+    markResolved: (ids: string | string[]) => void;
     reset: () => void;
 };
 
@@ -17,9 +17,13 @@ type State = {
  */
 export const useQuarantineQueueStore = create<State>(set => ({
     resolved: [],
-    markResolved: id =>
-        set(s =>
-            s.resolved.includes(id) ? s : {resolved: [...s.resolved, id]}
-        ),
+    markResolved: ids =>
+        set(s => {
+            const added = (Array.isArray(ids) ? ids : [ids]).filter(
+                id => !s.resolved.includes(id)
+            );
+
+            return added.length > 0 ? {resolved: [...s.resolved, ...added]} : s;
+        }),
     reset: () => set({resolved: []}),
 }));

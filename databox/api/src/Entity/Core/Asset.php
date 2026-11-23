@@ -34,6 +34,8 @@ use App\Api\Model\Input\FollowInput;
 use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
+use App\Api\Model\Input\QuarantineBatchInput;
+use App\Api\Model\Input\QuarantineBatchPrepareInput;
 use App\Api\Model\Input\ResolveEntitiesInput;
 use App\Api\Model\Input\StoryCoverInput;
 use App\Api\Model\Output\AssetDuplicateOutput;
@@ -41,6 +43,8 @@ use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
+use App\Api\Model\Output\QuarantineBatchOutput;
+use App\Api\Model\Output\QuarantineBatchPrepareOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
 use App\Api\Processor\AddAsAssetVersionProcessor;
@@ -59,6 +63,8 @@ use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
+use App\Api\Processor\QuarantineBatchPrepareProcessor;
+use App\Api\Processor\QuarantineBatchProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\SetAssetPositionProcessor;
@@ -401,6 +407,30 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: PrepareDeleteAssetsOutput::class,
             name: 'prepare_delete',
             processor: PrepareDeleteAssetProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/quarantine/prepare-batch',
+            description: 'Tell which batch action each quarantined asset is eligible to',
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST, 'dates'],
+            ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: QuarantineBatchPrepareInput::class,
+            output: QuarantineBatchPrepareOutput::class,
+            name: 'quarantine_prepare_batch',
+            processor: QuarantineBatchPrepareProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/quarantine/batch',
+            description: 'Resolve a batch of quarantined assets with the same action, asset by asset',
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: QuarantineBatchInput::class,
+            output: QuarantineBatchOutput::class,
+            name: 'quarantine_batch',
+            processor: QuarantineBatchProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/move',

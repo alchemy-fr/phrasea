@@ -600,6 +600,40 @@ export type DuplicateAsset = {
     analyzers: string[];
 };
 
+export type QuarantineBatchAction = 'bypass' | 'merge' | 'trash' | 'delete';
+
+/** Eligibility keys of a prepared item: merge splits on its mode */
+export type QuarantineBatchEligibility =
+    'bypass' | 'trash' | 'delete' | 'mergeAsVersion' | 'mergeDiscard';
+
+export type QuarantineBatchPrepareItem = {
+    id: string;
+    /** Why the asset is not eligible, for each action it is not */
+    reasons: Partial<Record<QuarantineBatchEligibility, string>>;
+    /** `validTarget`: the incoming file can be added to it as a new version */
+    duplicates: (DuplicateAsset & {validTarget: boolean})[];
+} & Record<QuarantineBatchEligibility, boolean>;
+
+export type QuarantineBatchInput = {
+    action: QuarantineBatchAction;
+    items: {id: string; targetId?: string}[];
+    /** Merge only: keep the incoming file as a new version, or discard it */
+    addAsVersion?: boolean;
+};
+
+export type QuarantineBatchResultStatus = 'processed' | 'skipped' | 'failed';
+
+export type QuarantineBatchResult = {
+    results: {
+        id: string;
+        status: QuarantineBatchResultStatus;
+        reason?: string;
+    }[];
+    processed: number;
+    skipped: number;
+    failed: number;
+};
+
 export type MatomoMediaMetrics = Record<string, string | number>;
 
 // ---------------------------------------------------------------------------

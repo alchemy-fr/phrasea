@@ -9,11 +9,10 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\AssetAddAsVersionInput;
-use App\Doctrine\Delete\AssetDelete;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
-use App\Service\Asset\AssetManager;
+use App\Service\Asset\QuarantineResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -30,8 +29,7 @@ final class AddAsAssetVersionProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly AssetManager $assetManager,
-        private readonly AssetDelete $assetDelete,
+        private readonly QuarantineResolver $quarantineResolver,
     ) {
     }
 
@@ -55,10 +53,7 @@ final class AddAsAssetVersionProcessor implements ProcessorInterface
             throw new BadRequestHttpException('Assets are not in the same workspace.');
         }
 
-        $this->assetManager->assignNewAssetSourceFile($target, $file);
-        $this->em->flush();
-
-        $this->assetDelete->deleteAssets([$quarantined->getId()]);
+        $this->quarantineResolver->addAsVersion($quarantined, $target);
 
         return $target;
     }

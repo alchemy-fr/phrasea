@@ -18,6 +18,9 @@ import {
     MatomoMediaMetrics,
     MediaClip,
     Page,
+    QuarantineBatchInput,
+    QuarantineBatchPrepareItem,
+    QuarantineBatchResult,
     SearchSuggestion,
 } from '@/types/api';
 import {multipartUpload, MultipartUpload, type UploadProgress} from './upload';
@@ -592,6 +595,60 @@ export function addAsAssetVersion(
         `/${EntityName.Asset}/${quarantinedAssetId}/add-as-version`,
         {targetAssetId}
     );
+}
+
+/** Server-side limit of the quarantine batch endpoints */
+const quarantineBatchSize = 100;
+
+function chunk<T>(list: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < list.length; i += size) {
+        chunks.push(list.slice(i, i + size));
+    }
+
+    return chunks;
+}
+
+export async function prepareQuarantineBatch(
+    ids: string[]
+): Promise<QuarantineBatchPrepareItem[]> {
+    const pages = await Promise.all(
+        chunk(ids, quarantineBatchSize).map(page =>
+            api.post<{items?: QuarantineBatchPrepareItem[]}>(
+                `/${EntityName.Asset}/quarantine/prepare-batch`,
+                {ids: page}
+            )
+        )
+    );
+
+    return pages.flatMap(p => p.items ?? []);
+}
+
+/**
+ * Runs the action slice by slice (the server takes up to 100 assets at once),
+ * one slice after the other.
+ */
+export async function runQuarantineBatch(
+    input: QuarantineBatchInput
+): Promise<QuarantineBatchResult> {
+    const total: QuarantineBatchResult = {
+        results: [],
+        processed: 0,
+        skipped: 0,
+        failed: 0,
+    };
+    for (const items of chunk(input.items, quarantineBatchSize)) {
+        const res = await api.post<QuarantineBatchResult>(
+            `/${EntityName.Asset}/quarantine/batch`,
+            {...input, items}
+        );
+        total.results.push(...res.results);
+        total.processed += res.processed;
+        total.skipped += res.skipped;
+        total.failed += res.failed;
+    }
+
+    return total;
 }
 
 export function getAssetMetrics(assetId: string): Promise<MatomoMediaMetrics> {
