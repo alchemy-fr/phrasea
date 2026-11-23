@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Search;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\EntityAttributeType;
+use App\Consumer\MessageDeduplication;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Suggestion\SuggestionLocales;
@@ -57,7 +58,7 @@ final readonly class AttributeEntityMergeHandler
         // The faces of the merged persons are the main one's now: it may get its photo from them
         $faceRecognitionConfig = $this->faceRecognitionConfigResolver->getConfigOfList($mainEntity->getList());
         if (null !== $faceRecognitionConfig) {
-            $this->bus->dispatch(new FaceRecognitionPhoto($mainEntity->getId(), $faceRecognitionConfig->getIntegrationId()));
+            $this->bus->dispatch(MessageDeduplication::coalesce(new FaceRecognitionPhoto($mainEntity->getId(), $faceRecognitionConfig->getIntegrationId()), 900));
         }
 
         $fields = [];

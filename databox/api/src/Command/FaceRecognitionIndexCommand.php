@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Core\FaceRecognition\FaceRecognitionAnalyzer;
@@ -86,7 +87,7 @@ class FaceRecognitionIndexCommand extends Command
                     $this->em->clear();
                     $workspaceIntegration = $this->em->find(WorkspaceIntegration::class, $workspaceIntegration->getId());
                 } else {
-                    $this->bus->dispatch(new FaceRecognitionAnalyze($assetId, $workspaceIntegration->getId()));
+                    $this->bus->dispatch(MessageDeduplication::coalesce(new FaceRecognitionAnalyze($assetId, $workspaceIntegration->getId()), 900));
                 }
                 ++$count;
             }

@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\RemoveFromBasketInput;
 use App\Consumer\Handler\Basket\BasketUpdate;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Basket\Basket;
 use App\Repository\Basket\BasketRepository;
 use App\Security\Voter\AbstractVoter;
@@ -38,7 +39,7 @@ class RemoveFromBasketProcessor implements ProcessorInterface
 
         $this->basketRepository->removeFromBasket($basketId, $data->items);
 
-        $this->bus->dispatch(new BasketUpdate($basket->getId()));
+        $this->bus->dispatch(MessageDeduplication::coalesce(new BasketUpdate($basket->getId()), 900));
 
         return $basket;
     }

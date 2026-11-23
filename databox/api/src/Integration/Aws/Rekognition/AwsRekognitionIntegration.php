@@ -8,6 +8,7 @@ use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Action\FileUserActionsTrait;
@@ -256,11 +257,11 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
     {
         $file = $this->getProcessableFile($request);
         match ($action) {
-            self::ACTION_ANALYZE => $this->bus->dispatch(new RekognitionAnalyze(
+            self::ACTION_ANALYZE => $this->bus->dispatch(MessageDeduplication::untilHandled(new RekognitionAnalyze(
                 $file->getId(),
                 $config->getIntegrationId(),
                 $request->request->get('category')
-            )),
+            ))),
             default => throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action)),
         };
 

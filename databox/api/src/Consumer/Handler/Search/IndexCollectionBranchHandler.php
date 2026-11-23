@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Search;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -35,7 +36,7 @@ readonly class IndexCollectionBranchHandler
             $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], Operation::Upsert);
         }
         if ($indexAssets) {
-            $this->bus->dispatch(new IndexCollectionAssets($collection->getId()));
+            $this->bus->dispatch(MessageDeduplication::coalesce(new IndexCollectionAssets($collection->getId())));
         }
 
         foreach ($collection->getChildren() as $child) {

@@ -6,6 +6,7 @@ namespace App\Integration\Core\FaceRecognition;
 
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Attribute\AttributeAssigner;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
@@ -335,7 +336,7 @@ final class FaceManager
     public function dispatchPhotos(IntegrationConfig $config, array $entityIds): void
     {
         foreach (array_unique(array_filter(array_map('strval', $entityIds))) as $entityId) {
-            $this->bus->dispatch(new FaceRecognitionPhoto($entityId, $config->getIntegrationId()));
+            $this->bus->dispatch(MessageDeduplication::coalesce(new FaceRecognitionPhoto($entityId, $config->getIntegrationId()), 900));
         }
     }
 

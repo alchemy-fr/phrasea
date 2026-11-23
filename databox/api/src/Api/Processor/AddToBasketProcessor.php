@@ -13,6 +13,7 @@ use App\Api\Mapper\Input\BasketAssetInputMapper;
 use App\Api\Model\Input\AddToBasketInput;
 use App\Api\Model\Input\AssetToBasketInput;
 use App\Consumer\Handler\Basket\BasketUpdate;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
@@ -86,7 +87,7 @@ class AddToBasketProcessor implements ProcessorInterface
 
         $this->em->flush();
 
-        $this->bus->dispatch(new BasketUpdate($basket->getId()));
+        $this->bus->dispatch(MessageDeduplication::coalesce(new BasketUpdate($basket->getId()), 900));
 
         return $basket;
     }

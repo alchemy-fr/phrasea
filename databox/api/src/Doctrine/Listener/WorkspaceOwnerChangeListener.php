@@ -9,6 +9,7 @@ use App\Api\Mapper\Output\CollectionOutputMapper;
 use App\Consumer\Handler\Search\ComputeWorkspaceCollections;
 use App\Consumer\Handler\Search\IndexAllAssets;
 use App\Consumer\Handler\Search\IndexAllCollections;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
@@ -39,8 +40,8 @@ final readonly class WorkspaceOwnerChangeListener
         $this->collectionCache->invalidateTags([CollectionOutputMapper::COLLECTION_CACHE_NS]);
 
         $workspaceId = $workspace->getId();
-        $this->postFlushStack->addBusMessage(new ComputeWorkspaceCollections($workspaceId));
-        $this->postFlushStack->addBusMessage(new IndexAllCollections($workspaceId));
-        $this->postFlushStack->addBusMessage(new IndexAllAssets($workspaceId));
+        $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new ComputeWorkspaceCollections($workspaceId)));
+        $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new IndexAllCollections($workspaceId)));
+        $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new IndexAllAssets($workspaceId)));
     }
 }

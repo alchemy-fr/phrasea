@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Phrasea\Expose\Message;
 
 use App\Automation\Exception\AutomationOwnerUnavailableException;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\Auth\MissingIntegrationTokenException;
@@ -41,9 +42,7 @@ final class SyncBasketHandler
         } catch (TooManyRequestsHttpException $e) {
             $delay = $e->getHeaders()['Retry-After'] ?? 300;
 
-            $this->bus->dispatch($message, [
-                new DelayStamp($delay * 1000),
-            ]);
+            $this->bus->dispatch(MessageDeduplication::coalesce($message, max(900, $delay + 60))->with(new DelayStamp($delay * 1000)));
         } catch (MissingIntegrationTokenException $e) {
             // The user must authenticate again: retrying would fail the same way.
             $this->abort($integrationData, 'no valid integration token', 'missing-token');

@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Collection;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
+use App\Consumer\MessageDeduplication;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Collection;
 use App\Model\AuditLogActionEnum;
@@ -87,7 +88,7 @@ readonly class CollectionsMoveToTrashHandler
 
         // The assets only linked to the branch lose the rights it gave them
         foreach ($message->getIds() as $id) {
-            $this->bus->dispatch(new IndexCollectionBranch($id, true));
+            $this->bus->dispatch(MessageDeduplication::coalesce(new IndexCollectionBranch($id, true)));
         }
     }
 }

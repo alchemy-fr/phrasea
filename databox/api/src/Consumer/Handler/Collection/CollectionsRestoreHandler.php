@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Collection;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
+use App\Consumer\MessageDeduplication;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Collection;
 use App\Model\AuditLogActionEnum;
@@ -90,7 +91,7 @@ readonly class CollectionsRestoreHandler
 
         // Descendants with their own trash date, and the assets only linked to the branch
         foreach ($restored as $collection) {
-            $this->bus->dispatch(new IndexCollectionBranch($collection->getId(), true));
+            $this->bus->dispatch(MessageDeduplication::coalesce(new IndexCollectionBranch($collection->getId(), true)));
         }
     }
 }

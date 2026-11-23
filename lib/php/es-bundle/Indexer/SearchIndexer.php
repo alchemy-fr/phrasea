@@ -12,8 +12,11 @@ use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Lock\Key;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DeduplicateStamp;
 
 #[AsEventListener(KernelEvents::TERMINATE, method: 'flush', priority: -255)]
 #[AsEventListener(ConsoleEvents::TERMINATE, method: 'flush', priority: -255)]
@@ -37,6 +40,7 @@ final class SearchIndexer
         private readonly int $batchSize = 100,
         private readonly int $maxPerMessage = 200,
         private readonly int $maxDepth = 10,
+        private readonly float $deduplicationTtl = 0,
     ) {
         $this->dependencyStacks = new DependencyStacks();
     }
@@ -52,16 +56,32 @@ final class SearchIndexer
     public function scheduleIndex(array $objects, int $depth = 1, array $parents = []): void
     {
         if (!$this->direct) {
-            $this->messageBus->dispatch(new ESIndex(
+            $this->messageBus->dispatch($this->withDeduplication(new ESIndex(
                 $objects,
                 $depth,
                 array_map(fn (EntityGroup $entityGroup): array => $entityGroup->toArray(), $parents))
-            );
+            ));
 
             return;
         }
 
         $this->index($objects, $depth, $parents);
+    }
+
+    /**
+     * An identical message waiting in the queue makes this one useless: the indexation reads
+     * the entities when it runs. The lock is released when the message is received, so a
+     * change made during the indexation is indexed again.
+     */
+    private function withDeduplication(ESIndex $message): ESIndex|Envelope
+    {
+        if ($this->deduplicationTtl <= 0 || !class_exists(Key::class)) {
+            return $message;
+        }
+
+        return new Envelope($message, [
+            new DeduplicateStamp('dedup:'.ESIndex::class.':'.sha1(serialize($message)), $this->deduplicationTtl, onlyDeduplicateInQueue: true),
+        ]);
     }
 
     /**

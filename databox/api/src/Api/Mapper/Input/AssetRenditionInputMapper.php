@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Input\AssetRenditionInput;
 use App\Consumer\Handler\File\ImportFile;
 use App\Consumer\Handler\Rendition\BuildDynamicRendition;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
@@ -159,7 +160,7 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
             throw new BadRequestHttpException(sprintf('Rendition cannot be built: %s', $refusal));
         }
 
-        $this->postFlushStackListener->addBusMessage(new BuildDynamicRendition($rendition->getId()));
+        $this->postFlushStackListener->addBusMessage(MessageDeduplication::coalesce(new BuildDynamicRendition($rendition->getId()), 900));
 
         return $rendition;
     }

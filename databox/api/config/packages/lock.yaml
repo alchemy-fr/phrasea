@@ -1,2 +1,8 @@
 framework:
     lock: '%env(REDIS_URL)%'
+
+when@test:
+    framework:
+        # The messages intercepted by the test transports would keep their deduplication
+        # locks in Redis from one test (and one run) to another
+        lock: 'in-memory'

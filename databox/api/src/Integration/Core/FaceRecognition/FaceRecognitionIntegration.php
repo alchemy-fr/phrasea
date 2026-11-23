@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Util\UuidUtil;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Attribute\Type\EntityAttributeType;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
@@ -228,7 +229,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
             throw new BadRequestHttpException(sprintf('Asset cannot be analyzed: %s', $refusal));
         }
 
-        $this->bus->dispatch(new FaceRecognitionAnalyze($asset->getId(), $config->getIntegrationId()));
+        $this->bus->dispatch(MessageDeduplication::coalesce(new FaceRecognitionAnalyze($asset->getId(), $config->getIntegrationId()), 900));
 
         return null;
     }

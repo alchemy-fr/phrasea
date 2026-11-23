@@ -14,6 +14,8 @@ use App\Entity\Core\File;
 use App\Security\Voter\DataboxExtraPermissionInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 /**
  * Basket item operations (no Elasticsearch involved).
@@ -635,6 +637,12 @@ final class BasketApiTest extends AbstractDataboxTestCase
         $this->apiJson('PATCH', $uri, self::USER, ['clip' => self::CLIP]);
         $this->assertCount(1, $updates());
         $this->assertSame($basket->getId(), $updates()[0]->getMessage()->getId());
+        // Consumed as a worker would: an identical update is dropped while one is queued
+        $bus = self::getContainer()->get(MessageBusInterface::class);
+        foreach ($queue->get() as $envelope) {
+            $bus->dispatch($envelope->with(new ReceivedStamp('p2')));
+            $queue->ack($envelope);
+        }
 
         // Same clip (float noise included), no clip key: nothing to synchronize
         $this->apiJson('PATCH', $uri, self::USER, ['clip' => [

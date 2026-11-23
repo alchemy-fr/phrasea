@@ -31,6 +31,7 @@ class AlchemyESExtension extends Extension
 
         $def = $container->getDefinition(SearchIndexer::class);
         $def->setArgument('$direct', !$config['async']);
+        $def->setArgument('$deduplicationTtl', (float) $config['deduplication_ttl']);
 
         $container->registerForAutoconfiguration(IndexableDependenciesResolverInterface::class)
             ->addTag(IndexableDependenciesResolverInterface::TAG)

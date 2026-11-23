@@ -6,6 +6,7 @@ namespace App\Integration\Phrasea\Expose;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\CoreBundle\Util\UuidUtil;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\AbstractIntegration;
@@ -118,7 +119,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                     multiple: true,
                 );
 
-                $this->bus->dispatch(new SyncBasket($integrationData->getId()));
+                $this->bus->dispatch(MessageDeduplication::coalesce(new SyncBasket($integrationData->getId()), 900));
 
                 return $this->createNewDataResponse($integrationData);
             case 'force-sync':
@@ -129,7 +130,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                     $userId,
                 );
 
-                $this->bus->dispatch(new SyncBasket($intData->getId()));
+                $this->bus->dispatch(MessageDeduplication::coalesce(new SyncBasket($intData->getId()), 900));
 
                 return null;
             case 'stop':
@@ -168,7 +169,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
     public function handleBasketUpdate(IntegrationData $data, IntegrationConfig $config): void
     {
-        $this->bus->dispatch(new SyncBasket($data->getId()));
+        $this->bus->dispatch(MessageDeduplication::coalesce(new SyncBasket($data->getId()), 900));
     }
 
     public function transformData(IntegrationData $data, IntegrationConfig $config): void

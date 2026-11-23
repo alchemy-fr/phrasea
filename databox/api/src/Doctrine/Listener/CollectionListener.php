@@ -11,6 +11,7 @@ use App\Api\Mapper\Output\CollectionOutputMapper;
 use App\Consumer\Handler\Collection\DeleteCollection;
 use App\Consumer\Handler\Search\ComputeCollectionBranch;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\Collection;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -52,7 +53,7 @@ class CollectionListener
 
         $this->collectionCache->invalidateTags([CollectionOutputMapper::COLLECTION_CACHE_NS]);
 
-        $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
+        $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new ComputeCollectionBranch($entity->getId())));
     }
 
     public function postUpdate(PostUpdateEventArgs $args): void
@@ -84,9 +85,9 @@ class CollectionListener
         $this->collectionCache->invalidateTags([CollectionOutputMapper::COLLECTION_CACHE_NS]);
 
         if ($accessChanged) {
-            $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
+            $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new ComputeCollectionBranch($entity->getId())));
         }
-        $this->postFlushStack->addBusMessage(new IndexCollectionBranch($entity->getId(), true));
+        $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new IndexCollectionBranch($entity->getId(), true)));
 
         if ($this->hasChangedField(['parent'], $args->getObjectManager(), $entity)) {
             // The "hasChildren" flag of the former and of the new parent
