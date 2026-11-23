@@ -15,10 +15,11 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * Loads what the documents of a page of assets need (see AssetPostTransformListener) with
  * a few queries for the whole page, as plain values rather than entities: the attributes
- * (without their face embeddings), the embedding of each asset and its rendition definitions.
+ * (without their face embeddings, unless asked), the embedding of each asset and its rendition
+ * definitions.
  *
  * An asset that was not preloaded is read straight from the database, without being kept:
- * the real-time indexing must never get a stale value.
+ * the real-time indexing must never get a stale value. Whoever preloads resets afterwards.
  */
 final class AssetIndexPreloader implements ResetInterface
 {
@@ -39,9 +40,11 @@ final class AssetIndexPreloader implements ResetInterface
     }
 
     /**
-     * @param iterable<object> $objects the objects of the page, only the assets are preloaded
+     * @param iterable<object> $objects             the objects of the page, only the assets are preloaded
+     * @param bool             $attributeEmbeddings the attributes outlive the indexing when loaded during a
+     *                                              request: they must then be loaded whole
      */
-    public function preload(iterable $objects): void
+    public function preload(iterable $objects, bool $attributeEmbeddings = false): void
     {
         $assetIds = [];
         foreach ($objects as $object) {
@@ -54,7 +57,7 @@ final class AssetIndexPreloader implements ResetInterface
             return;
         }
 
-        $this->attributeRepository->prefetchAssetAttributes($assetIds, withEmbeddings: false);
+        $this->attributeRepository->prefetchAssetAttributes($assetIds, withEmbeddings: $attributeEmbeddings);
 
         foreach ($assetIds as $assetId) {
             $this->embeddings[$assetId] = null;

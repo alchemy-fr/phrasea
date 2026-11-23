@@ -12,6 +12,7 @@ use App\Api\Model\Input\AssetsRestoreInput;
 use App\Consumer\Handler\Asset\AssetsRestore;
 use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,7 @@ class AssetsRestoreProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly AssetRepository $assetRepository,
         private readonly MessageBusInterface $bus,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -33,7 +35,8 @@ class AssetsRestoreProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Response
     {
-        $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $data->ids);
+        $assets = [...DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $data->ids)];
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
         }

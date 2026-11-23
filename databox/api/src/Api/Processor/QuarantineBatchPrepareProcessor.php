@@ -11,6 +11,7 @@ use App\Api\Model\Output\QuarantineBatchPrepareOutput;
 use App\Entity\Core\Asset;
 use App\Model\QuarantineBatchActionEnum;
 use App\Repository\Core\AssetRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Service\Asset\QuarantineResolver;
 use Ramsey\Uuid\Uuid;
 
@@ -24,6 +25,7 @@ final readonly class QuarantineBatchPrepareProcessor implements ProcessorInterfa
     public function __construct(
         private AssetRepository $assetRepository,
         private QuarantineResolver $quarantineResolver,
+        private AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -38,6 +40,7 @@ final readonly class QuarantineBatchPrepareProcessor implements ProcessorInterfa
         foreach ($this->assetRepository->findByIds(array_values(array_filter($ids, Uuid::isValid(...)))) as $asset) {
             $assets[$asset->getId()] = $asset;
         }
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
         return new QuarantineBatchPrepareOutput(array_map(
             fn (string $id): array => $this->prepareItem($id, $assets[strtolower($id)] ?? null),

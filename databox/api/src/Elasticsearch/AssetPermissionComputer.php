@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\AclBundle\Entity\AccessControlEntry;
+use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
@@ -15,6 +17,8 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\DataboxExtraPermissionInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 
 final class AssetPermissionComputer
@@ -27,9 +31,81 @@ final class AssetPermissionComputer
     private ?CacheInterface $collectionCache = null;
     private ?CacheInterface $assetCache = null;
 
+    /**
+     * @var array<string, AccessControlEntryInterface[]>|null by asset ID
+     */
+    private ?array $preloadedAssetAces = null;
+
     public function __construct(
         private readonly PermissionManager $permissionManager,
+        private readonly EntityManagerInterface $em,
+        private readonly ObjectMapping $objectMapping,
     ) {
+    }
+
+    /**
+     * Runs $callback with the ACEs of these assets loaded at once, and the permissions of the
+     * workspaces and collections computed once, instead of for every asset. Nothing is kept
+     * afterwards: the real-time indexing must never get a stale value.
+     *
+     * @template T
+     *
+     * @param Asset[]       $assets
+     * @param callable(): T $callback
+     *
+     * @return T
+     */
+    public function runWithPreloadedAssets(array $assets, callable $callback): mixed
+    {
+        $previous = [$this->workspaceCache, $this->collectionCache, $this->preloadedAssetAces];
+        $this->workspaceCache ??= new ArrayAdapter(deepClone: false);
+        $this->collectionCache ??= new ArrayAdapter(deepClone: false);
+        $this->preloadedAssetAces = $this->loadAssetAces($assets) + ($this->preloadedAssetAces ?? []);
+
+        try {
+            return $callback();
+        } finally {
+            [$this->workspaceCache, $this->collectionCache, $this->preloadedAssetAces] = $previous;
+        }
+    }
+
+    /**
+     * The ACEs PermissionManager::getObjectAces() returns for each asset, in the same order.
+     *
+     * @param Asset[] $assets
+     *
+     * @return array<string, AccessControlEntryInterface[]>
+     */
+    private function loadAssetAces(array $assets): array
+    {
+        if ([] === $assets) {
+            return [];
+        }
+
+        $repository = $this->em->getRepository(AccessControlEntry::class);
+        $objectType = $this->objectMapping->getObjectKey(Asset::class);
+        $orderBy = [
+            'parentId' => 'DESC',
+            'createdAt' => 'DESC',
+        ];
+
+        $aces = [];
+        foreach ($assets as $asset) {
+            $aces[$asset->getId()] = [];
+        }
+        foreach ($repository->findBy([
+            'objectType' => $objectType,
+            'objectId' => array_keys($aces),
+        ], $orderBy) as $ace) {
+            $aces[$ace->getObjectId()][] = $ace;
+        }
+
+        $typeAces = $repository->findBy([
+            'objectType' => $objectType,
+            'objectId' => null,
+        ], $orderBy);
+
+        return array_map(static fn (array $objectAces): array => array_merge($objectAces, $typeAces), $aces);
     }
 
     public function setWorkspaceCache(CacheInterface $workspaceCache): void
@@ -88,7 +164,8 @@ final class AssetPermissionComputer
         $permissions = new PermissionsDTO();
 
         // As AssetVoter grants READ, DELETE and QUARANTINE on the asset itself
-        foreach ($this->permissionManager->getObjectAces($asset) as $access) {
+        $aces = $this->preloadedAssetAces[$asset->getId()] ?? $this->permissionManager->getObjectAces($asset);
+        foreach ($aces as $access) {
             self::addAce(
                 $permissions,
                 $access,

@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\AdminVoter;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Elasticsearch\AQL\AQLDocumentEvaluator;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\UnsupportedEvaluationException;
+use App\Elasticsearch\AssetIndexPreloader;
+use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\ESDocumentStateManager;
 use App\Entity\Core\Asset;
+use App\Repository\Core\AssetRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Applies the attribute filter rules to a single asset, as the asset search does in its query
@@ -33,6 +39,10 @@ final readonly class AssetAttributeFilterChecker
         private AQLToESQuery $queryBuilder,
         private AQLDocumentEvaluator $evaluator,
         private ESDocumentStateManager $documentStateManager,
+        private AssetRepository $assetRepository,
+        private AssetIndexPreloader $indexPreloader,
+        private AssetPermissionComputer $permissionComputer,
+        private TokenStorageInterface $tokenStorage,
         private LoggerInterface $logger,
         TemporaryCacheFactory $cacheFactory,
     ) {
@@ -54,6 +64,80 @@ final readonly class AssetAttributeFilterChecker
             self::getDecisionKey($asset->getId(), $userId, $groupIds),
             fn (): bool => $this->evaluate($asset, $workspaceId, $conditions, $userId, $groupIds),
         );
+    }
+
+    /**
+     * Takes at once the decisions on a list of assets about to be voted on, loading what their
+     * documents are built from with a few queries for the whole list instead of a few per asset.
+     * The decisions are the ones isReadable() would take.
+     *
+     * @param iterable<Asset> $assets
+     * @param string[]        $groupIds
+     */
+    public function preload(iterable $assets, ?string $userId, array $groupIds): void
+    {
+        $rules = $this->attributeFilterManager->getUserRules($userId, $groupIds);
+        if ([] === array_filter($rules)) {
+            return;
+        }
+
+        $undecided = [];
+        foreach ($assets as $asset) {
+            if (!$this->cache->hasItem(self::getDecisionKey($asset->getId(), $userId, $groupIds))) {
+                $undecided[$asset->getId()] = $asset;
+            }
+        }
+        if ([] === $undecided) {
+            return;
+        }
+
+        // Fetch-joins the relations the document reads (collections, source file...): the assets
+        // and relations not loaded yet get loaded, those already loaded are kept as they are
+        $this->assetRepository->createElasticaToModelQueryBuilder('a')
+            ->andWhere('a.id IN (:ids)')
+            ->setParameter('ids', array_keys($undecided))
+            ->getQuery()
+            ->getResult();
+
+        $pending = array_values(array_filter(
+            $undecided,
+            static fn (Asset $asset): bool => !empty($rules[$asset->getWorkspaceId()] ?? []),
+        ));
+        if ([] === $pending) {
+            return;
+        }
+
+        $this->indexPreloader->preload($pending, attributeEmbeddings: true);
+        try {
+            $this->permissionComputer->runWithPreloadedAssets($pending, function () use ($pending, $userId, $groupIds): void {
+                foreach ($pending as $asset) {
+                    $this->isReadable($asset, $userId, $groupIds);
+                }
+            });
+        } finally {
+            $this->indexPreloader->reset();
+        }
+    }
+
+    /**
+     * preload() for the user of the current token, as AssetVoter sees it.
+     *
+     * @param iterable<Asset> $assets
+     */
+    public function preloadForCurrentUser(iterable $assets): void
+    {
+        $token = $this->tokenStorage->getToken();
+        // AdminVoter grants the admins any asset: their votes need no decision
+        if (null !== $token && in_array(AdminVoter::ROLE, $token->getRoleNames(), true)) {
+            return;
+        }
+
+        $user = $token?->getUser();
+        if ($user instanceof JwtUser) {
+            $this->preload($assets, $user->getId(), $user->getGroups());
+        } else {
+            $this->preload($assets, null, []);
+        }
     }
 
     /**
@@ -103,13 +187,7 @@ final readonly class AssetAttributeFilterChecker
         $document = null;
         foreach ($conditions as $condition) {
             try {
-                $ast = $this->parser->parse($condition);
-                if (null === $ast) {
-                    throw new \InvalidArgumentException(sprintf('Invalid condition: %s', $condition));
-                }
-
-                // The search hides the whole workspace when its query cannot be built
-                $this->queryBuilder->createQuery($fieldClusters, $ast['data'], $options);
+                $ast = $this->getCheckedCondition($condition, $fieldClusters, $options);
 
                 if (null === $document) {
                     $document = $this->documentStateManager->createDocument($asset)->getData();
@@ -118,7 +196,7 @@ final readonly class AssetAttributeFilterChecker
                     }
                 }
 
-                if (!$this->evaluator->evaluate($fieldClusters, $ast['data'], $document, $asset->getId(), $options)) {
+                if (!$this->evaluator->evaluate($fieldClusters, $ast, $document, $asset->getId(), $options)) {
                     return false;
                 }
             } catch (UnsupportedEvaluationException $e) {
@@ -142,5 +220,35 @@ final readonly class AssetAttributeFilterChecker
         }
 
         return true;
+    }
+
+    /**
+     * The parsed condition, once its search query is known to be built: the search hides the whole
+     * workspace when it cannot be. Both only depend on the condition and the user, not on the asset.
+     *
+     * @throws \Throwable the condition is refused
+     */
+    private function getCheckedCondition(string $condition, array $fieldClusters, array $options): array
+    {
+        $checked = $this->cache->get('c_'.md5(json_encode([$condition, $options], JSON_THROW_ON_ERROR)), function () use ($condition, $fieldClusters, $options): array {
+            try {
+                $ast = $this->parser->parse($condition);
+                if (null === $ast) {
+                    throw new \InvalidArgumentException(sprintf('Invalid condition: %s', $condition));
+                }
+
+                $this->queryBuilder->createQuery($fieldClusters, $ast['data'], $options);
+
+                return ['ast' => $ast['data']];
+            } catch (\Throwable $e) {
+                return ['error' => $e];
+            }
+        });
+
+        if (isset($checked['error'])) {
+            throw $checked['error'];
+        }
+
+        return $checked['ast'];
     }
 }

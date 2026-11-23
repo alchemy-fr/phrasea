@@ -13,6 +13,7 @@ use App\Api\Model\Input\CopyAssetInput;
 use App\Consumer\Handler\Asset\AssetCopy;
 use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\CollectionVoter;
 use App\Service\Asset\AssetCopier;
@@ -31,6 +32,7 @@ class CopyAssetProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly IriConverterInterface $iriConverter,
         private readonly RenditionManager $renditionManager,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -46,6 +48,7 @@ class CopyAssetProcessor implements ProcessorInterface
 
         $assets = $this->em->getRepository(Asset::class)
             ->findByIds($data->ids);
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
         $dest = $this->iriConverter->getResourceFromIri($data->destination);
         $this->denyAccessUnlessGranted(CollectionVoter::ASSET_CREATE, $dest);

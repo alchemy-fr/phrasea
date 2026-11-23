@@ -12,6 +12,7 @@ use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\ShareRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -23,6 +24,7 @@ class PrepareDeleteAssetProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly AssetRepository $assetRepository,
         private readonly ShareRepository $shareRepository,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -32,6 +34,7 @@ class PrepareDeleteAssetProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): PrepareDeleteAssetsOutput
     {
         $assets = $this->assetRepository->findByIds($data->ids);
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
         $canDelete = false;
         $cache = [];

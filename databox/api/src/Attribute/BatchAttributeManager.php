@@ -21,6 +21,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\AttributeDefinitionVoter;
 use Doctrine\DBAL\Types\ConversionException;
@@ -47,6 +48,7 @@ class BatchAttributeManager
         private readonly AttributeValidator $attributeValidator,
         private readonly AttributeChangeAuditor $attributeChangeAuditor,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -79,6 +81,8 @@ class BatchAttributeManager
         if (count($assets) !== count($allAssetIds)) {
             throw new \InvalidArgumentException('Some assets where not found. Possible issues: there are coming from different workspaces, they were deleted');
         }
+
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
         foreach ($assets as $asset) {
             if (!$this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset)) {

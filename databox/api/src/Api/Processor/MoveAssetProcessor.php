@@ -13,6 +13,7 @@ use App\Consumer\Handler\Asset\AssetMove;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\CollectionVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,6 +29,7 @@ class MoveAssetProcessor implements ProcessorInterface
         private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
         private readonly IriConverterInterface $iriConverter,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -38,6 +40,7 @@ class MoveAssetProcessor implements ProcessorInterface
     {
         $assets = $this->em->getRepository(Asset::class)
             ->findByIds($data->ids);
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
         $dest = $this->iriConverter->getResourceFromIri($data->destination);
         $this->denyAccessUnlessGranted(CollectionVoter::ASSET_CREATE, $dest);

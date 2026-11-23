@@ -18,6 +18,7 @@ use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Repository\Basket\BasketRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -31,6 +32,7 @@ class AddToBasketProcessor implements ProcessorInterface
         private readonly BasketRepository $basketRepository,
         private readonly IriConverterInterface $iriConverter,
         private readonly MessageBusInterface $bus,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -70,6 +72,7 @@ class AddToBasketProcessor implements ProcessorInterface
 
         $assets = $this->em->getRepository(Asset::class)
             ->findByIds($ids);
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
