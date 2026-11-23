@@ -103,6 +103,10 @@ class RenditionDefinitionInput
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     public $useAsAnimatedThumbnail;
 
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
+    public ?bool $buildFirst = null;
+
     /**
      * @var string|null
      */

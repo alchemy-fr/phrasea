@@ -247,6 +247,7 @@ export interface RenditionDefinition extends HydraObject, Entity {
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
     useAsAnimatedThumbnail?: boolean;
+    buildFirst?: boolean;
     priority: number;
     target: AssetType;
 }

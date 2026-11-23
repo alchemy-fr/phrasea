@@ -51,6 +51,7 @@ final readonly class WorkspaceCreator
             $rendition->setUseAsPreview('preview' === $renditionName);
             $rendition->setUseAsThumbnail('thumbnail' === $renditionName);
             $rendition->setUseAsAnimatedThumbnail('animatedThumbnail' === $renditionName);
+            $rendition->setBuildFirst('thumbnail' === $renditionName);
             $buildFile = __DIR__.'/renditions/'.$renditionName.'.yaml';
             if (file_exists($buildFile)) {
                 $rendition->setBuildMode(RenditionDefinition::BUILD_MODE_CUSTOM);
@@ -75,6 +76,7 @@ final readonly class WorkspaceCreator
         $contactSheet->setDefinition(file_get_contents(__DIR__.'/renditions/storyContactSheet.yaml'));
         $contactSheet->setUseAsThumbnail(true);
         $contactSheet->setUseAsAnimatedThumbnail(true);
+        $contactSheet->setBuildFirst(true);
         $contactSheet->setSubstitutable(true);
         $this->em->persist($contactSheet);
         $renditionDefs['storyContactSheet'] = $contactSheet;

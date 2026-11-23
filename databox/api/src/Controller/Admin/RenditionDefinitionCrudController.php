@@ -92,6 +92,9 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield Field::new('useAsAnimatedThumbnail', 'Animated Thumbnail')
             ->hideOnIndex();
+        yield BooleanField::new('buildFirst')
+            ->setHelp('Built by the workers before the other renditions')
+            ->hideOnIndex();
         yield IntegerField::new('priority');
         yield BooleanField::new('download')
             ->hideOnIndex();

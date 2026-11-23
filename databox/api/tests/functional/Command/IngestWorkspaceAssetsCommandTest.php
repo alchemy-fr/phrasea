@@ -30,7 +30,7 @@ final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
         self::getEntityManager()->flush();
 
         // The jobs of the workflow are not run
-        $jobs = InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
+        $jobs = InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy', 'heavy_low');
 
         $tester = $this->runIngestCommand(['workspaces' => ['ingested']]);
 
@@ -58,7 +58,7 @@ final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
         $otherAsset->setSource($this->createFile($other));
         self::getEntityManager()->flush();
 
-        InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
+        InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy', 'heavy_low');
 
         $tester = $this->runIngestCommand();
 

@@ -64,7 +64,7 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
         yield WorkflowHelper::createIntegrationJob(
             $config,
             SimilarityEmbedAction::class,
-            queue: WorkerQueue::HEAVY,
+            queue: WorkerQueue::HEAVY_LOW,
         );
     }
 

@@ -18,11 +18,17 @@ framework:
             heavy:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/heavy'
                 options: '%alchemy_messenger.amqp_transport_options%'
+            heavy_low:
+                dsn: '%alchemy_messenger.amqp_transport_dsn%/heavy_low'
+                options: '%alchemy_messenger.amqp_transport_options%'
             bulk:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/bulk'
                 options: '%alchemy_messenger.amqp_transport_options%'
             bulk_heavy:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/bulk_heavy'
+                options: '%alchemy_messenger.amqp_transport_options%'
+            bulk_heavy_low:
+                dsn: '%alchemy_messenger.amqp_transport_dsn%/bulk_heavy_low'
                 options: '%alchemy_messenger.amqp_transport_options%'
             task:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/task'
@@ -48,8 +54,10 @@ when@dev:
                 p1: '%alchemy_messenger.dev_transport_dsn%/p1'
                 p2: '%alchemy_messenger.dev_transport_dsn%/p2'
                 heavy: '%alchemy_messenger.dev_transport_dsn%/heavy'
+                heavy_low: '%alchemy_messenger.dev_transport_dsn%/heavy_low'
                 bulk: '%alchemy_messenger.dev_transport_dsn%/bulk'
                 bulk_heavy: '%alchemy_messenger.dev_transport_dsn%/bulk_heavy'
+                bulk_heavy_low: '%alchemy_messenger.dev_transport_dsn%/bulk_heavy_low'
                 task: '%alchemy_messenger.dev_transport_dsn%/task'
 
 when@test:
@@ -59,6 +67,8 @@ when@test:
                 p1: 'test://'
                 p2: 'test://'
                 heavy: 'test://'
+                heavy_low: 'test://'
                 bulk: 'test://'
                 bulk_heavy: 'test://'
+                bulk_heavy_low: 'test://'
                 task: 'test://'

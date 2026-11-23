@@ -92,6 +92,9 @@ class RenditionDefinitionInputMapper extends AbstractInputMapper implements Inpu
         if (null !== $data->useAsAnimatedThumbnail) {
             $object->setUseAsAnimatedThumbnail($data->useAsAnimatedThumbnail);
         }
+        if (null !== $data->buildFirst) {
+            $object->setBuildFirst($data->buildFirst);
+        }
         if (null !== $data->definition) {
             $object->setDefinition($data->definition);
         }

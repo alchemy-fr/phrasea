@@ -167,7 +167,7 @@ YAML;
 
         $data = $this->jsonRequest('GET', '/rendition-definitions/'.$preview->getId(), self::READER)->toArray();
         $this->assertSame('Preview', $data['name']);
-        foreach (['buildMode', 'useAsMain', 'useAsPreview', 'useAsThumbnail', 'useAsAnimatedThumbnail', 'definition', 'priority'] as $adminField) {
+        foreach (['buildMode', 'useAsMain', 'useAsPreview', 'useAsThumbnail', 'useAsAnimatedThumbnail', 'buildFirst', 'definition', 'priority'] as $adminField) {
             $this->assertArrayNotHasKey($adminField, $data, $adminField.' must be hidden to a mere reader');
         }
         $this->assertArrayHasKey('substitutable', $data);
@@ -273,6 +273,7 @@ YAML;
             'buildMode' => RenditionDefinition::BUILD_MODE_CUSTOM,
             'useAsThumbnail' => true,
             'useAsMain' => false,
+            'buildFirst' => false,
             'priority' => 7,
             'substitutable' => false,
             'download' => false,
@@ -356,14 +357,20 @@ YAML;
         $response = $this->jsonRequest('PATCH', '/rendition-definitions/'.$preview->getId(), self::EDITOR, [
             'name' => 'Renamed',
             'useAsAnimatedThumbnail' => true,
+            'buildFirst' => true,
         ]);
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
         $this->assertSame('Renamed', $data['name']);
         $this->assertTrue($data['useAsAnimatedThumbnail']);
+        $this->assertTrue($data['buildFirst']);
         $this->assertTrue($data['useAsPreview']);
         $this->assertSame(RenditionDefinition::BUILD_MODE_CUSTOM, $data['buildMode']);
         $this->assertSame(0, $data['priority']);
+
+        $data = $this->jsonRequest('GET', '/rendition-definitions/'.$preview->getId(), self::EDITOR)->toArray();
+        $this->assertTrue($data['buildFirst']);
+        $this->assertTrue($data['useAsAnimatedThumbnail']);
     }
 
     public function testPatchKeepsTheParent(): void
@@ -524,6 +531,7 @@ YAML;
         $source->setUseAsPreview(true);
         $source->setUseAsThumbnail(true);
         $source->setUseAsAnimatedThumbnail(true);
+        $source->setBuildFirst(true);
         $source->setDownload(false);
         $source->setWriteMetadata(true);
         $source->setMetadata(['IPTC:CopyrightNotice' => 'ACME']);
@@ -556,6 +564,7 @@ YAML;
         $this->assertTrue($data['useAsPreview']);
         $this->assertTrue($data['useAsThumbnail']);
         $this->assertTrue($data['useAsAnimatedThumbnail']);
+        $this->assertTrue($data['buildFirst']);
 
         $em->clear();
         /** @var RenditionDefinition $source */
@@ -568,7 +577,7 @@ YAML;
         $this->assertNull($copy->getKey());
         foreach ([
             'getDefinition', 'getConfig', 'getBuildMode', 'isSubstitutable', 'isDownload', 'getPriority',
-            'isUseAsMain', 'isUseAsPreview', 'isUseAsThumbnail', 'isUseAsAnimatedThumbnail', 'getLabels', 'getTarget',
+            'isUseAsMain', 'isUseAsPreview', 'isUseAsThumbnail', 'isUseAsAnimatedThumbnail', 'isBuildFirst', 'getLabels', 'getTarget',
         ] as $getter) {
             $this->assertSame($source->$getter(), $copy->$getter(), $getter);
         }

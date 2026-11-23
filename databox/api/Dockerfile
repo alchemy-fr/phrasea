@@ -97,7 +97,7 @@ ENV FPM_HOSTNAME=databox-api-php
 FROM app AS worker
 
 ENV PHP_MEMORY_LIMIT=1G \
-    WORKER_PRIORITIES="p1 p1,p2,bulk p1,p2,heavy,bulk,bulk_heavy task" \
+    WORKER_PRIORITIES="p1 p1,p2,bulk p1,p2,heavy,heavy_low,bulk,bulk_heavy,bulk_heavy_low task" \
     WORKER_TIME_LIMIT=3600 \
     WORKER_LIMIT=1000 \
     IS_WORKER=1

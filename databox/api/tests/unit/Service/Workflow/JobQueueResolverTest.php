@@ -34,8 +34,10 @@ class JobQueueResolverTest extends TestCase
     {
         yield 'interactive, default queue' => [null, false, null];
         yield 'interactive, heavy job' => [WorkerQueue::HEAVY, false, WorkerQueue::HEAVY];
+        yield 'interactive, low priority heavy job' => [WorkerQueue::HEAVY_LOW, false, WorkerQueue::HEAVY_LOW];
         yield 'bulk, default queue' => [null, true, WorkerQueue::BULK];
         yield 'bulk, p1 job' => [WorkerQueue::P1, true, WorkerQueue::BULK];
         yield 'bulk, heavy job' => [WorkerQueue::HEAVY, true, WorkerQueue::BULK_HEAVY];
+        yield 'bulk, low priority heavy job' => [WorkerQueue::HEAVY_LOW, true, WorkerQueue::BULK_HEAVY_LOW];
     }
 }

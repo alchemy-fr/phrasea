@@ -176,7 +176,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         yield WorkflowHelper::createIntegrationJob(
             $config,
             FaceRecognitionDetectAction::class,
-            queue: WorkerQueue::HEAVY,
+            queue: WorkerQueue::HEAVY_LOW,
         );
     }
 

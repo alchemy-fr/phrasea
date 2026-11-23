@@ -83,6 +83,19 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
             $definitions = array_values($definitionsIndex);
         }
 
+        // An ancestor of a "build first" rendition is built first too,
+        // otherwise the rendition would wait for it in the low priority queue
+        $buildFirstIds = [];
+        foreach ($definitions as $definition) {
+            if (!$definition->isBuildFirst()) {
+                continue;
+            }
+            $ancestor = $definition;
+            do {
+                $buildFirstIds[$ancestor->getId()] = true;
+            } while (null !== ($ancestor = $ancestor->getParent()) && !isset($buildFirstIds[$ancestor->getId()]));
+        }
+
         $jobs = [];
         foreach ($definitions as $definition) {
             $j = WorkflowHelper::createIntegrationJob(
@@ -90,7 +103,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
                 RenditionBuildAction::class,
                 self::getJobIdSuffix($definition->getId()),
                 $definition->getName(),
-                queue: WorkerQueue::HEAVY,
+                queue: isset($buildFirstIds[$definition->getId()]) ? WorkerQueue::HEAVY : WorkerQueue::HEAVY_LOW,
             );
             $j->getWith()->offsetSet('definition', $definition->getId());
             if ($this->definitionParser->isGenerateDefinition($definition)) {

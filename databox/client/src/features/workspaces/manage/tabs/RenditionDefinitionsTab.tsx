@@ -23,7 +23,7 @@ import {
 import {Button} from '@alchemy/next-ui/ui/button';
 import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {Badge} from '@alchemy/next-ui/ui/misc';
 import {ReferenceDetails} from '@/components/form/ReferenceDetails';
@@ -83,7 +83,8 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
                 d.useAsMain ||
                 d.useAsPreview ||
                 d.useAsThumbnail ||
-                d.useAsAnimatedThumbnail ? (
+                d.useAsAnimatedThumbnail ||
+                d.buildFirst ? (
                     <>
                         {d.useAsMain ? (
                             <Badge variant="secondary">main</Badge>
@@ -96,6 +97,9 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
                         ) : null}
                         {d.useAsAnimatedThumbnail ? (
                             <Badge variant="secondary">animated thumb</Badge>
+                        ) : null}
+                        {d.buildFirst ? (
+                            <Badge variant="outline">build first</Badge>
                         ) : null}
                     </>
                 ) : null
@@ -147,6 +151,7 @@ function DefinitionForm({
         useAsPreview: d?.useAsPreview ?? false,
         useAsThumbnail: d?.useAsThumbnail ?? false,
         useAsAnimatedThumbnail: d?.useAsAnimatedThumbnail ?? false,
+        buildFirst: d?.buildFirst ?? false,
     });
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState(form);
@@ -174,6 +179,7 @@ function DefinitionForm({
                 useAsPreview: form.useAsPreview,
                 useAsThumbnail: form.useAsThumbnail,
                 useAsAnimatedThumbnail: form.useAsAnimatedThumbnail,
+                buildFirst: form.buildFirst,
             };
             const saved = d
                 ? await putRenditionDefinition(d.id, data)
@@ -313,6 +319,18 @@ function DefinitionForm({
                     </LabeledControl>
                 ))}
             </div>
+            <LabeledControl
+                label={t('rendition_def.build_first', 'Build first')}
+                description={t(
+                    'rendition_def.build_first_help',
+                    'Built by the workers before the other renditions, with the renditions it is built from (e.g. the thumbnails)'
+                )}
+            >
+                <Switch
+                    checked={form.buildFirst}
+                    onCheckedChange={v => set('buildFirst', v)}
+                />
+            </LabeledControl>
             {Number(form.buildMode) === RenditionBuildMode.Custom ? (
                 <div className="space-y-2">
                     <FormRow

@@ -64,8 +64,8 @@ Follow these steps in order. Each one is detailed in the sections below.
    Remove the Zippy containers, volume and settings (see
    [Zippy service removed](#zippy-service-removed)).
    If your databox workers set `WORKER_PRIORITIES`, make them consume the new
-   `heavy`, `bulk` and `bulk_heavy` transports (see
-   [Worker queues of databox](#worker-queues-of-databox)).
+   `heavy`, `heavy_low`, `bulk`, `bulk_heavy` and `bulk_heavy_low` transports
+   (see [Worker queues of databox](#worker-queues-of-databox)).
 9. Optionally, if the integration is enabled and its service deployed:
 
     ```bash
@@ -421,24 +421,35 @@ untrusted: the workers now bound what they spend on them.
 
 ### Worker queues of databox
 
-Databox has three new Messenger transports, so that long jobs no longer delay the
+Databox has five new Messenger transports, so that long jobs no longer delay the
 fast messages (see [Databox workers](doc/tech/Databox/workers.md)):
 
-- `heavy`: renditions, metadata reading, file analysis, AI integrations,
+- `heavy`: the renditions built first, metadata reading, file analysis,
   downloads, exports, bulk deletions…;
-- `bulk` and `bulk_heavy`: the light and heavy jobs of the workflows started by
-  a bulk processing (workspace ingestion, asset import, automation).
+- `heavy_low`: the heavy workflow jobs that are not urgent, the other
+  renditions (animated thumbnails, custom renditions…) and the AI integrations;
+- `bulk`, `bulk_heavy` and `bulk_heavy_low`: the light, heavy and non urgent
+  heavy jobs of the workflows started by a bulk processing (workspace
+  ingestion, asset import, automation).
+
+A rendition definition has a new "Build first" setting (`buildFirst`): its
+jobs, and those of the definitions it is built from, go to `heavy`, the other
+renditions to `heavy_low`, so that the thumbnails of a large ingestion are all
+built before the other renditions. The migration sets it on the existing
+definitions used as thumbnail; review it on your other definitions.
 
 `ESPopulate`, `IndexAllAssets`, `IndexAllCollections` and `DeleteWorkspace` move
 to `task`.
 
 `WORKER_PRIORITIES` accepts several receivers per process, in priority order,
 separated by `,`, and a number of processes with a `:N` suffix. The databox
-worker image now defaults to `p1 p1,p2,bulk p1,p2,heavy,bulk,bulk_heavy task`:
+worker image now defaults to
+`p1 p1,p2,bulk p1,p2,heavy,heavy_low,bulk,bulk_heavy,bulk_heavy_low task`:
 each process takes the most urgent message waiting among its receivers, so the
 bulk processings use every idle process while the interactive messages keep the
 priority. A deployment that sets `WORKER_PRIORITIES` itself (Helm values…)
-**must consume `heavy`, `bulk` and `bulk_heavy`**, in the same deployment or in
+**must consume `heavy`, `heavy_low`, `bulk`, `bulk_heavy` and
+`bulk_heavy_low`**, in the same deployment or in
 a dedicated one: otherwise their messages pile up in RabbitMQ and the assets are
 never processed. Each process has its own `PHP_MEMORY_LIMIT`: give
 `DATABOX_WORKER_MEMORY_LIMIT` room for the new one.

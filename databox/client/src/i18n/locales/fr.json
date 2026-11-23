@@ -1513,6 +1513,8 @@
     "rendition.write_metadata": "Écrire les attributs dans les métadonnées du fichier",
     "rendition.zoom": "Zoom",
     "rendition_def.build_custom": "Définition personnalisée",
+    "rendition_def.build_first": "Construire en priorité",
+    "rendition_def.build_first_help": "Construite par les workers avant les autres renditions, avec les renditions dont elle est issue (ex. les vignettes)",
     "rendition_def.build_mode": "Mode de génération",
     "rendition_def.build_none": "Pas de génération automatique",
     "rendition_def.build_pick_source": "Utiliser le fichier source",

@@ -249,7 +249,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
                     [
                         'category' => $category,
                     ],
-                    WorkerQueue::HEAVY,
+                    WorkerQueue::HEAVY_LOW,
                 );
             }
         }

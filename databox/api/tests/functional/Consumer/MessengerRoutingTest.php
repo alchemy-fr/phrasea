@@ -31,8 +31,10 @@ final class MessengerRoutingTest extends KernelTestCase
         WorkerQueue::P1,
         WorkerQueue::P2,
         WorkerQueue::HEAVY,
+        WorkerQueue::HEAVY_LOW,
         WorkerQueue::BULK,
         WorkerQueue::BULK_HEAVY,
+        WorkerQueue::BULK_HEAVY_LOW,
         WorkerQueue::TASK,
     ];
 
@@ -71,8 +73,10 @@ final class MessengerRoutingTest extends KernelTestCase
     public static function getJobQueues(): iterable
     {
         yield [WorkerQueue::HEAVY];
+        yield [WorkerQueue::HEAVY_LOW];
         yield [WorkerQueue::BULK];
         yield [WorkerQueue::BULK_HEAVY];
+        yield [WorkerQueue::BULK_HEAVY_LOW];
     }
 
     /**

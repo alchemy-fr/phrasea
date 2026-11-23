@@ -96,7 +96,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         yield WorkflowHelper::createIntegrationJob(
             $config,
             TranscribeAction::class,
-            queue: WorkerQueue::HEAVY,
+            queue: WorkerQueue::HEAVY_LOW,
         );
     }
 

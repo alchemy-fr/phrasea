@@ -21,6 +21,7 @@ final readonly class BulkOriginMiddleware implements MiddlewareInterface
         WorkerQueue::TASK,
         WorkerQueue::BULK,
         WorkerQueue::BULK_HEAVY,
+        WorkerQueue::BULK_HEAVY_LOW,
     ];
 
     public function __construct(

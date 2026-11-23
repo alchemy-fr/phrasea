@@ -45,9 +45,9 @@ class FileAnalysisUnblockerTest extends AbstractDataboxTestCase
         parent::setUp();
         self::bootKernel();
         $this->before = new \DateTimeImmutable('-1 hour');
-        // Workflow jobs are dispatched on p2, or heavy for their own queue: keep them queued instead of running them.
+        // Workflow jobs are dispatched on p2, or heavy / heavy_low for their own queue: keep them queued instead of running them.
         $this->jobQueues = [];
-        foreach (['p2', 'heavy'] as $name) {
+        foreach (['p2', 'heavy', 'heavy_low'] as $name) {
             /** @var TestTransport $transport */
             $transport = self::getContainer()->get('messenger.transport.'.$name);
             $this->jobQueues[] = $transport->intercept();

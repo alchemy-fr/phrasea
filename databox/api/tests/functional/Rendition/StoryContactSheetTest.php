@@ -419,7 +419,7 @@ YAML,
      */
     private function interceptBuilds(): InterceptedTransports
     {
-        return InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
+        return InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy', 'heavy_low');
     }
 
     /**

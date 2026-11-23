@@ -188,7 +188,7 @@ final class WorkflowRunControlTest extends AbstractDataboxTestCase
         $this->getStateRepository()->persistJobState(new JobState($state->getId(), $jobId, JobState::STATUS_FAILURE));
 
         $client = static::createClient();
-        $queue = InterceptedTransports::intercept(static::getContainer(), 'p2', 'heavy');
+        $queue = InterceptedTransports::intercept(static::getContainer(), 'p2', 'heavy', 'heavy_low');
 
         $response = $client->request('POST', '/workflows/'.$state->getId().'/jobs/'.$jobId.'/rerun', [
             'headers' => $this->headers(self::OWNER),
@@ -221,7 +221,7 @@ final class WorkflowRunControlTest extends AbstractDataboxTestCase
         $jobId = $this->getFirstJobId($this->getRun(self::OWNER, $state->getId()));
 
         $client = static::createClient();
-        $queue = InterceptedTransports::intercept(static::getContainer(), 'p2', 'heavy');
+        $queue = InterceptedTransports::intercept(static::getContainer(), 'p2', 'heavy', 'heavy_low');
 
         $client->request('POST', '/workflows/'.$state->getId().'/jobs/'.$jobId.'/rerun', [
             'headers' => $this->headers(self::OWNER),

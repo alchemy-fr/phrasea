@@ -30,7 +30,7 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
         yield WorkflowHelper::createIntegrationJob(
             $config,
             HappyscribeAction::class,
-            queue: WorkerQueue::HEAVY,
+            queue: WorkerQueue::HEAVY_LOW,
         );
     }
 

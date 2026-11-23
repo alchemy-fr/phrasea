@@ -1513,6 +1513,8 @@
     "rendition.write_metadata": "Write attributes as file metadata",
     "rendition.zoom": "Zoom",
     "rendition_def.build_custom": "Custom definition",
+    "rendition_def.build_first": "Build first",
+    "rendition_def.build_first_help": "Built by the workers before the other renditions, with the renditions it is built from (e.g. the thumbnails)",
     "rendition_def.build_mode": "Build mode",
     "rendition_def.build_none": "No automatic build",
     "rendition_def.build_pick_source": "Use the source file",

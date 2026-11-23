@@ -35,8 +35,10 @@ class BulkOriginMiddlewareTest extends TestCase
         yield 'received from task' => [new Envelope(new \stdClass(), [new ReceivedStamp('task')]), true];
         yield 'received from bulk' => [new Envelope(new \stdClass(), [new ReceivedStamp('bulk')]), true];
         yield 'received from bulk_heavy' => [new Envelope(new \stdClass(), [new ReceivedStamp('bulk_heavy')]), true];
+        yield 'received from bulk_heavy_low' => [new Envelope(new \stdClass(), [new ReceivedStamp('bulk_heavy_low')]), true];
         yield 'received from p2' => [new Envelope(new \stdClass(), [new ReceivedStamp('p2')]), false];
         yield 'received from heavy' => [new Envelope(new \stdClass(), [new ReceivedStamp('heavy')]), false];
+        yield 'received from heavy_low' => [new Envelope(new \stdClass(), [new ReceivedStamp('heavy_low')]), false];
         yield 'dispatched' => [new Envelope(new \stdClass()), false];
     }
 

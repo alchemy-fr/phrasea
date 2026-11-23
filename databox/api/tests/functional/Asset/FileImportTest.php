@@ -48,9 +48,9 @@ final class FileImportTest extends AbstractDataboxTestCase
     {
         parent::setUp();
         self::bootKernel();
-        // Keep the workflow jobs (p2, heavy for the source import) and the ImportFile messages (heavy)
+        // Keep the workflow jobs (p2, heavy for the source import, heavy_low) and the ImportFile messages (heavy)
         // queued: running them would download the URLs.
-        $this->queue = InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
+        $this->queue = InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy', 'heavy_low');
     }
 
     public function testAssetSourceIsFlaggedAndLeftToTheIngestWorkflow(): void
@@ -135,7 +135,7 @@ final class FileImportTest extends AbstractDataboxTestCase
         $asset->setSource($this->createUrlFile($ws));
         self::getEntityManager()->flush();
 
-        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy');
+        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy', 'heavy_low');
         self::getService(WorkspaceAssetIngester::class)->ingestAsset($asset, null);
 
         $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);
@@ -151,7 +151,7 @@ final class FileImportTest extends AbstractDataboxTestCase
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $asset = $this->createAsset(['workspace' => $ws]);
 
-        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy');
+        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy', 'heavy_low');
         self::getService(WorkspaceAssetIngester::class)->ingestAsset($asset, null);
 
         $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);

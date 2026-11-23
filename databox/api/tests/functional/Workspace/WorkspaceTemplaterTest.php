@@ -118,6 +118,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         $newEntity = $em->getRepository(AttributeEntity::class)->findOneBy(['list' => $newList, 'value' => 'Red']);
         $newGreen = $em->getRepository(AttributeEntity::class)->findOneBy(['list' => $newList, 'value' => 'Green']);
         $this->assertNotSame($refs['rendition']->getId(), $newRd->getId());
+        $this->assertTrue($newRd->isBuildFirst());
 
         /** @var AttributeDefinition $newAd */
         $newAd = $em->getRepository(AttributeDefinition::class)->findOneBy(['workspace' => $target, 'name' => 'Description']);
@@ -219,7 +220,8 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
             'substituable' => true,
             'useAsMain' => $main,
             'useAsPreview' => false,
-            'useAsThumbnail' => false,
+            // No "buildFirst" in the older templates
+            'useAsThumbnail' => 'thumbnail' === $name,
             'useAsAnimatedThumbnail' => false,
             'labels' => null,
             'definition' => '',
@@ -266,6 +268,8 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         /** @var RenditionDefinition $thumbnail */
         $thumbnail = $em->getRepository(RenditionDefinition::class)->findOneBy(['workspace' => $ws->getId(), 'name' => 'thumbnail']);
         $this->assertSame('main', $thumbnail->getParent()->getName());
+        $this->assertTrue($thumbnail->isBuildFirst(), 'a thumbnail of an older template is built first');
+        $this->assertFalse($thumbnail->getParent()->isBuildFirst());
         /** @var AttributeDefinition $ad */
         $ad = $em->getRepository(AttributeDefinition::class)->findOneBy(['workspace' => $ws->getId(), 'name' => 'Color']);
         $this->assertSame('entity', $ad->getType());
@@ -412,6 +416,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         $rendition->setWriteMetadata(true);
         $rendition->setMetadata(['XMP-dc:Rights' => 'Me']);
         $rendition->setDefinition('foo: bar');
+        $rendition->setBuildFirst(true);
         $em->persist($rendition);
 
         $ad = new AttributeDefinition();

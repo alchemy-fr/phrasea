@@ -65,7 +65,7 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
             yield WorkflowHelper::createIntegrationJob(
                 $config,
                 RemoveBgAction::class,
-                queue: WorkerQueue::HEAVY,
+                queue: WorkerQueue::HEAVY_LOW,
             );
         }
     }

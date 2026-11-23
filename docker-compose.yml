@@ -957,7 +957,7 @@ services:
           memory: ${DATABOX_WORKER_MEMORY_LIMIT}
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
-      - WORKER_PRIORITIES=p1 p1,p2,bulk p1,p2,heavy,bulk,bulk_heavy task
+      - WORKER_PRIORITIES=p1 p1,p2,bulk p1,p2,heavy,heavy_low,bulk,bulk_heavy,bulk_heavy_low task
       - IMAGICK_VERSION
       - IMAGEMAGICK_POLICY_MEMORY
       - IMAGEMAGICK_POLICY_VERSION

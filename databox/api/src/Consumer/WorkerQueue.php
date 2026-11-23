@@ -26,6 +26,11 @@ final class WorkerQueue
     public const string HEAVY = 'heavy';
 
     /**
+     * Heavy jobs that are not urgent: the renditions not marked "build first", the AI integrations.
+     */
+    public const string HEAVY_LOW = 'heavy_low';
+
+    /**
      * The light jobs of the workflows started by a bulk processing.
      */
     public const string BULK = 'bulk';
@@ -34,6 +39,11 @@ final class WorkerQueue
      * The heavy jobs of the workflows started by a bulk processing.
      */
     public const string BULK_HEAVY = 'bulk_heavy';
+
+    /**
+     * The non urgent heavy jobs of the workflows started by a bulk processing.
+     */
+    public const string BULK_HEAVY_LOW = 'bulk_heavy_low';
 
     /**
      * Bulk orchestrations.
