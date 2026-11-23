@@ -1112,6 +1112,15 @@ unchanged. Only `PUT` → `PATCH`, the `hydra:` prefix and filter typing change:
   to it. `http` is accepted for a host of the stack, without dot
   (`http://databox-api/…`), and in the dev and test environments. The existing
   targets are not checked until they are edited.
+- The notification of a target reaches the private network only for the origin
+  (scheme, host and port) of `DATABOX_API_URL` and the ones listed in
+  `UPLOADER_TARGET_PRIVATE_ORIGINS` (comma separated, empty by default,
+  `TARGET_PRIVATE_ORIGINS` in the API container): any other host resolving to a
+  private address is refused, and the commit fails after its retries. A target
+  on a host of the stack (`http://databox-api/…`) must use the URL of
+  `DATABOX_API_URL` (the target URL shown by the Databox Uploader integration)
+  or be listed. A notification lasts 60 seconds at most, and does not follow
+  redirections when it targets one of these origins.
 
 ### Tags field of the forms
 
