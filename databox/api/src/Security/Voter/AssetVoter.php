@@ -9,8 +9,10 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Security\AssetAttributeFilterChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class AssetVoter extends AbstractVoter
 {
@@ -20,6 +22,14 @@ class AssetVoter extends AbstractVoter
     final public const string QUARANTINE_BYPASS = 'QUARANTINE_BYPASS';
 
     final public const string SCOPE_PREFIX = 'asset:';
+
+    private AssetAttributeFilterChecker $attributeFilterChecker;
+
+    #[Required]
+    public function setAttributeFilterChecker(AssetAttributeFilterChecker $attributeFilterChecker): void
+    {
+        $this->attributeFilterChecker = $attributeFilterChecker;
+    }
 
     #[\Override]
     protected function getScopeHierarchy(): array
@@ -79,6 +89,12 @@ class AssetVoter extends AbstractVoter
                     || $this->security->isGranted(AssetContainerVoterInterface::ASSET_VIEW, $workspace)
                     || $this->collectionGrantsAccess($subject)
                     || $isWorkspaceOwnerSlow()
+                )
+                // Whatever the role, as in the asset search
+                && $this->attributeFilterChecker->isReadable(
+                    $subject,
+                    $userId ?: null,
+                    $user instanceof JwtUser ? $user->getGroups() : [],
                 ),
             self::EDIT_ATTRIBUTES => $isOwner()
                 || $isWorkspaceOwnerFast()

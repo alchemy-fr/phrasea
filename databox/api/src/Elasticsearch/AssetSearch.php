@@ -27,6 +27,7 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\SavedSearch\SavedSearchRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\AttributeFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\AssetSortGroupMapper;
@@ -119,6 +120,7 @@ class AssetSearch extends AbstractSearch
         private readonly AssetSortGroupMapper $assetSortGroupMapper,
         private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
         private readonly AssetSimilarityScorer $assetSimilarityScorer,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -174,8 +176,15 @@ class AssetSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset,
-        ): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
+        // Without a locale, the query applied the attribute filter rules of the user as AssetVoter::READ does
+        $rulesApplied = null === ($options['locale'] ?? null);
+        $result = new Pagerfanta(new FilteredPager(function (Asset $asset) use ($userId, $groupIds, $rulesApplied): bool {
+            if ($rulesApplied) {
+                $this->attributeFilterChecker->markReadable($userId, $groupIds, [$asset->getId()]);
+            }
+
+            return $this->isGranted(AbstractVoter::READ, $asset);
+        }, $adapter));
         $result->setMaxPerPage($limit);
         if ($page > 1) {
             $result->setAllowOutOfRangePages(true);

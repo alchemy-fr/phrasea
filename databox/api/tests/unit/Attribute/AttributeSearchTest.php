@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Attribute;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\AQL\AQLConditionResolver;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
@@ -202,12 +203,12 @@ class AttributeSearchTest extends TestCase
             $em,
             $attributeTypeRegistry,
             new AQLParser(),
-            new AQLToESQuery(
+            new AQLToESQuery(new AQLConditionResolver(
                 $builtInAttributeRegistry,
                 new AQLFunctionRegistry(),
                 $attributeTypeRegistry,
                 new DateNormalizer(),
-            ),
+            )),
             new AssetPolicyManager($policyRepository, $collectionRepository, new TemporaryCacheFactory()),
             new TemporaryCacheFactory(),
         );

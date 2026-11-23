@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\AttributeFilterRule;
 use App\Entity\Core\Workspace;
 use App\Repository\Core\AttributeFilterRuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 readonly class AttributeFilterManager
 {
+    private CacheInterface $cache;
+
     public function __construct(
         private EntityManagerInterface $em,
         private AttributeFilterRuleRepository $repository,
+        TemporaryCacheFactory $cacheFactory,
     ) {
+        $this->cache = $cacheFactory->createCache();
     }
 
     /**
@@ -36,21 +43,31 @@ readonly class AttributeFilterManager
         $this->em->persist($rule);
         $this->em->flush();
 
+        if ($this->cache instanceof CacheItemPoolInterface) {
+            $this->cache->clear();
+        }
+
         return $rule;
     }
 
     /**
+     * Cached for the request.
+     *
      * @return array<string, string[]> AQL conditions indexed by workspace ID
      */
     public function getUserRules(?string $userId, array $groupIds): array
     {
-        $rules = $this->repository->getRules($userId, $groupIds, null);
-        $wsRules = [];
-        foreach ($rules as $rule) {
-            $wsRules[$rule->getWorkspaceId()][] = $rule->getCondition();
-        }
+        $groupIds = array_values(array_unique($groupIds));
+        sort($groupIds);
 
-        return $wsRules;
+        return $this->cache->get('r_'.md5(json_encode([$userId, $groupIds], JSON_THROW_ON_ERROR)), function () use ($userId, $groupIds): array {
+            $wsRules = [];
+            foreach ($this->repository->getRules($userId, $groupIds, null) as $rule) {
+                $wsRules[$rule->getWorkspaceId()][] = $rule->getCondition();
+            }
+
+            return $wsRules;
+        });
     }
 
     /**

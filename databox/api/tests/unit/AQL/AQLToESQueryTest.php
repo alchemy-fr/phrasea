@@ -11,6 +11,7 @@ use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AbstractSearch;
+use App\Elasticsearch\AQL\AQLConditionResolver;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
@@ -345,8 +346,8 @@ class AQLToESQueryTest extends TestCase
         };
         $builtInAttributeRegistry = new BuiltInAttributeRegistry($container);
 
-        $esQueryConverter = new AQLToESQuery(
-            $builtInAttributeRegistry, $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
+        $esQueryConverter = new AQLToESQuery(new AQLConditionResolver(
+            $builtInAttributeRegistry, $functionRegistry, $attributeTypeRegistry, new DateNormalizer()));
 
         $fieldClusters = [
             [

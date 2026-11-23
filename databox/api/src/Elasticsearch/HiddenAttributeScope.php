@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Elasticsearch\AQL\DocumentTextAnalyzer;
 use Elastica\Query;
 
 /**
@@ -28,6 +29,27 @@ final class HiddenAttributeScope
         }
 
         return $query;
+    }
+
+    /**
+     * Whether the Elasticsearch document of an asset is in the scope: the evaluation of createQuery() in PHP.
+     *
+     * @param Scope $scope
+     */
+    public static function coversDocument(array $scope, array $document): bool
+    {
+        if (!in_array($scope['w'], (array) ($document['workspaceId'] ?? []), true)) {
+            return false;
+        }
+
+        $tokens = [];
+        foreach ((array) ($document['referenceCollectionPath'] ?? []) as $path) {
+            if (is_string($path)) {
+                array_push($tokens, ...DocumentTextAnalyzer::pathHierarchyTokens($path));
+            }
+        }
+
+        return array_all($scope['p'], static fn (string $path): bool => in_array($path, $tokens, true));
     }
 
     /**
