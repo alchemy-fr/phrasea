@@ -331,7 +331,7 @@ jobs:
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ env.IMAGE_TAG }}"
           done
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
-          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
+          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} bin/ci-push-images.sh
 
   # The documentation builder reads /srv/app/doc from the api-php and
   # configurator images of this run (GHCR, tagged with the commit sha), once
