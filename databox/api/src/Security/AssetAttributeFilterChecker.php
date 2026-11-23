@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Elasticsearch\AQL\AQLDocumentEvaluator;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
+use App\Elasticsearch\AQL\UnsupportedEvaluationException;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\ESDocumentStateManager;
 use App\Entity\Core\Asset;
@@ -111,6 +112,15 @@ final readonly class AssetAttributeFilterChecker
                 if (!$this->evaluator->evaluate($fieldClusters, $ast['data'], $document, $asset->getId(), $options)) {
                     return false;
                 }
+            } catch (UnsupportedEvaluationException $e) {
+                $this->logger->warning('Attribute filter rule condition not evaluable outside of Elasticsearch', [
+                    'workspaceId' => $workspaceId,
+                    'condition' => $condition,
+                    'assetId' => $asset->getId(),
+                    'error' => $e->getMessage(),
+                ]);
+
+                return false;
             } catch (\Throwable $e) {
                 $this->logger->error('Invalid attribute filter rule condition', [
                     'workspaceId' => $workspaceId,
