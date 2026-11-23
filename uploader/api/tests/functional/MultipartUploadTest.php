@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Doctrine\MultipartUploadListener;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -183,14 +184,15 @@ class MultipartUploadTest extends AbstractUploaderTestCase
     public static function getInvalidPartNumbers(): iterable
     {
         yield 'zero' => [0];
-        yield 'past the last part' => [(int) ceil(self::SIZE / (5 * 1024 * 1024)) + 1];
+        // Depends on the configured part size: resolved by the test
+        yield 'past the last part' => [null];
     }
 
     #[DataProvider('getInvalidPartNumbers')]
-    public function testDeprecatedSinglePartUrlIsBoundedToThePartCount(int $part): void
+    public function testDeprecatedSinglePartUrlIsBoundedToThePartCount(?int $part): void
     {
         $upload = $this->createUpload(self::SIZE);
-        $this->assertSame(5 * 1024 * 1024, $upload['chunkSize'], 'The fixture assumes parts of 5MB');
+        $part ??= (int) ceil(self::SIZE / $upload['chunkSize']) + 1;
 
         $response = self::createClient()->request('POST', '/uploads/'.$upload['id'].'/part', [
             'headers' => $this->authHeaders(),
@@ -284,8 +286,9 @@ class MultipartUploadTest extends AbstractUploaderTestCase
     public function testTheUrlsAreHandedOutByPages(): void
     {
         $partCount = MultipartUploadListener::MAX_SIGNED_URLS + 2;
-        $upload = $this->createUpload($partCount * 5 * 1024 * 1024);
-        $this->assertSame(5 * 1024 * 1024, $upload['chunkSize'], 'The fixture assumes parts of 5MB');
+        $chunkSize = self::getContainer()->get(MultipartUploadPlanner::class)->resolveChunkSize(0);
+        $upload = $this->createUpload($partCount * $chunkSize);
+        $this->assertSame($chunkSize, $upload['chunkSize'], 'The fixture assumes parts of the minimum size');
 
         $this->assertSame(range(1, MultipartUploadListener::MAX_SIGNED_URLS), array_map('intval', array_keys($upload['urls'])));
 

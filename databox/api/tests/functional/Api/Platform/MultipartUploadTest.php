@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Doctrine\MultipartUploadListener;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Test\Client;
 use App\Tests\Functional\AbstractDataboxTestCase;
@@ -770,8 +771,9 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
     public function testTheUrlsAreHandedOutByPages(): void
     {
         $partCount = MultipartUploadListener::MAX_SIGNED_URLS + 2;
-        $data = $this->createUpload(size: $partCount * 5_242_880);
-        $this->assertSame(5_242_880, $data['chunkSize'], 'The fixture assumes parts of 5 MiB');
+        $chunkSize = self::getContainer()->get(MultipartUploadPlanner::class)->resolveChunkSize(0);
+        $data = $this->createUpload(size: $partCount * $chunkSize);
+        $this->assertSame($chunkSize, $data['chunkSize'], 'The fixture assumes parts of the minimum size');
         $this->assertSame(range(1, MultipartUploadListener::MAX_SIGNED_URLS), array_map('intval', array_keys($data['urls'])));
 
         $response = $this->client->request('POST', '/uploads/'.$data['id'].'/parts', [
