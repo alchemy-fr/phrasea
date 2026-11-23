@@ -8,8 +8,16 @@ export const UNKNOWN_RENDITION = '_';
 export const routes = {
     home: () => '/',
     assets: () => '/assets',
-    assetView: (id: string, renditionId = UNKNOWN_RENDITION, hash = '') =>
-        `/assets/${id}/${renditionId}${hash}`,
+    /** `storyId`: the story an item is browsed in, restored by the viewer */
+    assetView: (
+        id: string,
+        renditionId = UNKNOWN_RENDITION,
+        hash = '',
+        storyId?: string
+    ) =>
+        `/assets/${id}/${renditionId}${
+            storyId ? `?story=${encodeURIComponent(storyId)}` : ''
+        }${hash}`,
     fileManage: (id: string, tab = 'info') => `/files/${id}/manage/${tab}`,
     collectionManage: (id: string, tab = 'info') =>
         `/collections/${id}/manage/${tab}`,

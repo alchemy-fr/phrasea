@@ -5,10 +5,13 @@
  */
 import {createAsset, deleteWorkspace, getAsset, seedWorkspace, uploadAssetFromFixture, waitForAsset, waitForIndexed} from './lib/api';
 import {login, visitAssetView} from './lib/app';
+import {databoxUrl} from '../lib/urls';
 
 describe('Stories', () => {
     let ctx;
     let story;
+    let item;
+    let otherItem;
 
     before(() => {
         login();
@@ -28,13 +31,20 @@ describe('Stories', () => {
                     collection: `/collections/${story.storyCollection.id}`,
                 });
             })
-            .then(a => waitForAsset(a.id, asset => !!asset.preview, 'renditions of the first story item'))
+            .then(a => {
+                item = a;
+
+                return waitForAsset(a.id, asset => !!asset.preview, 'renditions of the first story item');
+            })
             .then(() =>
                 createAsset(ctx.workspace.id, {
                     name: 'Story item 2',
                     collection: `/collections/${story.storyCollection.id}`,
                 })
             )
+            .then(a => {
+                otherItem = a;
+            })
             .then(() => waitForIndexed({story: story.id}, 2));
     });
 
@@ -67,7 +77,8 @@ describe('Stories', () => {
 
                 cy.getBySel('story-carousel').find(`button[title="${names[1]}"]`).click();
                 cy.getBySel('asset-view-title').should('have.text', names[1]);
-                cy.url().should('not.include', story.id);
+                cy.location('pathname').should('not.include', story.id);
+                cy.location('search').should('eq', `?story=${story.id}`);
                 // Still browsing the story: the carousel stays, current item marked
                 cy.getBySel('story-carousel').find(`button[title="${names[1]}"]`).should('have.attr', 'aria-current', 'true');
 
@@ -78,8 +89,31 @@ describe('Stories', () => {
 
                 // Back to the story itself
                 cy.getBySel('story-cover').click();
-                cy.url().should('include', story.id);
+                cy.location('pathname').should('include', story.id);
+                cy.location('search').should('eq', '');
                 cy.getBySel('story-cover').should('have.attr', 'aria-current', 'true');
             });
+    });
+
+    it('keeps the story of an item on reload', () => {
+        visitAssetView(story.id);
+        cy.getBySel('story-carousel', {timeout: 30000}).find(`button[title="${item.name}"]`).click();
+        cy.getBySel('asset-view-title').should('have.text', item.name);
+        cy.location('search').should('eq', `?story=${story.id}`);
+
+        cy.reload();
+        cy.getBySel('asset-view-title', {timeout: 30000}).should('have.text', item.name);
+        cy.getBySel('story-carousel', {timeout: 30000})
+            .find(`button[title="${item.name}"]`)
+            .should('have.attr', 'aria-current', 'true');
+        cy.location('search').should('eq', `?story=${story.id}`);
+    });
+
+    it('drops an unknown story from the URL', () => {
+        // The other item is not a story, the first item is not one of its items
+        cy.visit(`${databoxUrl}/assets/${item.id}/_?story=${otherItem.id}`);
+        cy.getBySel('asset-view-title', {timeout: 30000}).should('have.text', item.name);
+        cy.location('search').should('eq', '');
+        cy.getBySel('story-carousel').should('not.exist');
     });
 });
