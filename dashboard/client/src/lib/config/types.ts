@@ -41,6 +41,20 @@ export const toolIds = [
 
 export type ToolId = (typeof toolIds)[number];
 
+/**
+ * The tiles that only link to a page outside the stack APIs (an external
+ * application, the documentation), shown when their URL is set
+ */
+export const linkIds = [
+    'parade',
+    'consent',
+    'lend',
+    'order',
+    'documentation',
+] as const;
+
+export type LinkId = (typeof linkIds)[number];
+
 export type AppConfig = {
     appId: string;
     clientUrl: string;
@@ -58,6 +72,8 @@ export type AppConfig = {
     apps: Partial<Record<AppId, AppService>>;
     /** Operation tools offered to the `tech` role, by URL */
     tools: Partial<Record<ToolId, string>>;
+    /** The URL of each link tile */
+    links: Partial<Record<LinkId, string>>;
     devMode: boolean;
     analytics: AnalyticsConfig;
     /** `SENTRY_DSN`: the browser errors are reported to Sentry */

@@ -16,7 +16,13 @@ export const metadata: Metadata = {
         template: '%s · Expose',
     },
     description: 'Phrasea Expose - Asset publications',
-    icons: {icon: '/favicon.svg'},
+    icons: {
+        icon: [
+            {url: '/favicon.ico', sizes: 'any'},
+            {url: '/favicon.svg', type: 'image/svg+xml'},
+        ],
+        apple: '/apple-touch-icon.png',
+    },
 };
 
 export const viewport: Viewport = {

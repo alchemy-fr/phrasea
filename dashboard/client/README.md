@@ -42,6 +42,8 @@ visitor with the page.
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
 | `DATABOX_API_URL`, `EXPOSE_API_URL`, `UPLOADER_API_URL` | An application is deployed when its API URL is set; its admin is allowed to frame the dashboard |
 | `DATABOX_CLIENT_URL`, `EXPOSE_CLIENT_URL`, `UPLOADER_CLIENT_URL` | Link of the card (none when empty); allowed to frame the dashboard |
+| `PARADE_CLIENT_URL`, `CONSENT_CLIENT_URL`, `LEND_CLIENT_URL`, `ORDER_CLIENT_URL` | Tile of an external application, hidden when empty |
+| `DASHBOARD_DOCUMENTATION_URL` | Documentation tile, hidden when empty |
 | `ALLOWED_FRAME_ANCESTORS` | Other sites allowed to frame the dashboard (space separated), set by `src/proxy.ts` |
 | `PGADMIN_URL`, `PHPMYADMIN_URL`, `MAILPIT_URL`, `MATOMO_URL`, `RABBITMQ_CONSOLE_URL`, `TRAEFIK_CONSOLE_URL`, `SOCKUDO_USAGE_URL` | Technical tools (role `tech`) |
 | `STACK_NAME`, `STACK_VERSION` | Title and version of the stack (compose project name and `DOCKER_TAG`) |

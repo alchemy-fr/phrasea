@@ -1,6 +1,6 @@
 import 'server-only';
 import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
-import type {AppConfig, AppId, AppService, ToolId} from './types';
+import type {AppConfig, AppId, AppService, LinkId, ToolId} from './types';
 import type {StackConfig} from '@alchemy/next-core/config/stackConfig';
 
 type Env = Record<string, string | undefined>;
@@ -33,6 +33,30 @@ const toolEnv: Record<ToolId, string> = {
     traefik: 'TRAEFIK_CONSOLE_URL',
     sockudo: 'SOCKUDO_USAGE_URL',
 };
+
+const linkEnv: Record<LinkId, string> = {
+    parade: 'PARADE_CLIENT_URL',
+    consent: 'CONSENT_CLIENT_URL',
+    lend: 'LEND_CLIENT_URL',
+    order: 'ORDER_CLIENT_URL',
+    documentation: 'DASHBOARD_DOCUMENTATION_URL',
+};
+
+/** The URL of each entry of `keys` whose variable is set */
+function urls<Id extends string>(
+    keys: Record<Id, string>,
+    env: Env
+): Partial<Record<Id, string>> {
+    const values: Partial<Record<Id, string>> = {};
+    for (const [id, key] of Object.entries(keys) as [Id, string][]) {
+        const value = url(env[key]);
+        if (value) {
+            values[id] = value;
+        }
+    }
+
+    return values;
+}
 
 /** The applications deployed on the stack: those whose API URL is set */
 export function getApps(env: Env = process.env): AppConfig['apps'] {
@@ -75,14 +99,6 @@ export function getServerConfig(
     stackConfig: StackConfig = {},
     env: Env = process.env
 ): AppConfig {
-    const tools: AppConfig['tools'] = {};
-    for (const [id, key] of Object.entries(toolEnv) as [ToolId, string][]) {
-        const value = url(env[key]);
-        if (value) {
-            tools[id] = value;
-        }
-    }
-
     return {
         appId: env.APP_ID || 'dashboard',
         clientUrl: url(env.DASHBOARD_CLIENT_URL) ?? '',
@@ -97,7 +113,8 @@ export function getServerConfig(
             version: env.STACK_VERSION || undefined,
         },
         apps: getApps(env),
-        tools,
+        tools: urls(toolEnv, env),
+        links: urls(linkEnv, env),
         devMode: bool(env.DEV_MODE),
         analytics:
             env.MATOMO_URL && env.MATOMO_SITE_ID

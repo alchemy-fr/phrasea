@@ -15,6 +15,6 @@ export const config = {
     // The page of the Keycloak silent sign-in is static: its inline script
     // cannot bear the nonce
     matcher: [
-        '/((?!_next/static|_next/image|favicon.svg|silent-check-sso.html).*)',
+        '/((?!_next/static|_next/image|favicon.svg|favicon.ico|apple-touch-icon.png|silent-check-sso.html).*)',
     ],
 };

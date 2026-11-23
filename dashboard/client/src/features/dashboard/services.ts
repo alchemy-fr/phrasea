@@ -1,8 +1,8 @@
-import type {AppConfig, AppId, ToolId} from '@/lib/config/types';
-import {appIds, toolIds} from '@/lib/config/types';
+import type {AppConfig, AppId, LinkId, ToolId} from '@/lib/config/types';
+import {appIds, linkIds, toolIds} from '@/lib/config/types';
 import {isAppAdmin, isRealmManager, Role} from './roles';
 
-export type CardId = 'iam' | AppId | 'dashboard';
+export type CardId = 'iam' | AppId | LinkId | 'dashboard';
 
 export type ActionId = 'master-admin' | 'admin' | 'api-doc';
 
@@ -18,7 +18,7 @@ export type ServiceCard = {
 };
 
 type Context = {
-    config: Pick<AppConfig, 'apps' | 'keycloak' | 'clientUrl'>;
+    config: Pick<AppConfig, 'apps' | 'links' | 'keycloak' | 'clientUrl'>;
     /** Realm roles of the user, empty when anonymous */
     roles: readonly string[];
     authenticated: boolean;
@@ -70,6 +70,13 @@ export function getServiceCards({
             actions.push({id: 'api-doc', href: app.apiUrl});
         }
         cards.push({id, href: app.clientUrl, actions, statusOf: id});
+    }
+
+    for (const id of linkIds) {
+        const href = config.links[id];
+        if (href) {
+            cards.push({id, href, actions: []});
+        }
     }
 
     if (embedded) {

@@ -17,7 +17,13 @@ export const metadata: Metadata = {
         template: '%s · Dashboard',
     },
     description: 'Phrasea Dashboard',
-    icons: {icon: '/favicon.svg'},
+    icons: {
+        icon: [
+            {url: '/favicon.ico', sizes: 'any'},
+            {url: '/favicon.svg', type: 'image/svg+xml'},
+        ],
+        apple: '/apple-touch-icon.png',
+    },
 };
 
 export const viewport: Viewport = {

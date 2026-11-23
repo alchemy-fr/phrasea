@@ -2,7 +2,9 @@ import {describe, expect, it} from 'vitest';
 import {getServiceCards, getTools} from './services';
 import type {AppConfig} from '@/lib/config/types';
 
-const config: Pick<AppConfig, 'apps' | 'keycloak' | 'clientUrl'> = {
+type Config = Pick<AppConfig, 'apps' | 'links' | 'keycloak' | 'clientUrl'>;
+
+const config: Config = {
     clientUrl: 'https://dashboard.test',
     keycloak: {
         url: 'https://keycloak.test',
@@ -16,6 +18,13 @@ const config: Pick<AppConfig, 'apps' | 'keycloak' | 'clientUrl'> = {
         },
         uploader: {apiUrl: 'https://api-uploader.test'},
     },
+    links: {},
+};
+
+const links: Config['links'] = {
+    documentation: 'https://docs.test',
+    order: 'https://order.test',
+    parade: 'https://parade.test',
 };
 
 const anonymous = {roles: [], authenticated: false, embedded: false};
@@ -82,6 +91,29 @@ describe('getServiceCards', () => {
             href: 'https://keycloak.test/admin/master/console',
             actions: [],
         });
+    });
+
+    it('adds a tile for each configured link, without actions', () => {
+        const withLinks = (ctx: Parameters<typeof cards>[0] = {}) =>
+            cards({config: {...config, links}, ...ctx});
+        const linkIds = ['parade', 'order', 'documentation'];
+
+        expect(withLinks().slice(2)).toEqual([
+            {id: 'parade', href: 'https://parade.test', actions: []},
+            {id: 'order', href: 'https://order.test', actions: []},
+            {id: 'documentation', href: 'https://docs.test', actions: []},
+        ]);
+        expect(
+            withLinks({authenticated: true, roles: ['admin']})
+                .filter(c => linkIds.includes(c.id))
+                .map(c => c.actions)
+        ).toEqual([[], [], []]);
+        expect(
+            withLinks({embedded: true})
+                .slice(-2)
+                .map(c => c.id)
+        ).toEqual(['documentation', 'dashboard']);
+        expect(cards().map(c => c.id)).toEqual(['databox', 'uploader']);
     });
 
     it('adds the dashboard itself in the services menu', () => {
