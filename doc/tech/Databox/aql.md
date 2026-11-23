@@ -124,7 +124,9 @@ an operator goes there, or in both.
 An attribute filter rule (`AttributeFilterRule`) restricts, for its targets (users, groups, or
 everyone when it has none, anonymous users included), the assets of a workspace to those matching
 its AQL condition. Every rule of the workspace targeting the user applies, whatever their role
-(workspace owner included); only a token carrying an `asset:` scope bypasses them. The conditions are
+(workspace owner included); only a token carrying an `asset:` scope bypasses them. Exception: an
+administrator (`ROLE_ADMIN`) reads any asset by ID, since `AdminVoter` grants every attribute, while
+the search still applies the rules to them. The conditions are
 trusted (`AQLToESQuery::OPT_TRUSTED_CONDITIONS`): the built-in attributes disabled for the user and
 the collections they cannot read stay usable in them. A condition that cannot be applied hides the
 whole workspace (fail-closed).

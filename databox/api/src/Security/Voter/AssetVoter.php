@@ -90,7 +90,7 @@ class AssetVoter extends AbstractVoter
                     || $this->collectionGrantsAccess($subject)
                     || $isWorkspaceOwnerSlow()
                 )
-                // Whatever the role, as in the asset search
+                // Whatever the role, as in the asset search, except for the admins: AdminVoter grants them anyway
                 && $this->attributeFilterChecker->isReadable(
                     $subject,
                     $userId ?: null,
