@@ -64,7 +64,7 @@ Follow these steps in order. Each one is detailed in the sections below.
    Remove the Zippy containers, volume and settings (see
    [Zippy service removed](#zippy-service-removed)).
    If your databox workers set `WORKER_PRIORITIES`, make them consume the new
-   `heavy` and `bulk` transports (see
+   `heavy`, `bulk` and `bulk_heavy` transports (see
    [Worker queues of databox](#worker-queues-of-databox)).
 9. Optionally, if the integration is enabled and its service deployed:
 
@@ -421,22 +421,24 @@ untrusted: the workers now bound what they spend on them.
 
 ### Worker queues of databox
 
-Databox has two new Messenger transports, so that long jobs no longer delay the
+Databox has three new Messenger transports, so that long jobs no longer delay the
 fast messages (see [Databox workers](doc/tech/Databox/workers.md)):
 
 - `heavy`: renditions, metadata reading, file analysis, AI integrations,
   downloads, exports, bulk deletions…;
-- `bulk`: every job of the workflows started by a bulk processing (workspace
-  ingestion, asset import, automation).
+- `bulk` and `bulk_heavy`: the light and heavy jobs of the workflows started by
+  a bulk processing (workspace ingestion, asset import, automation).
 
 `ESPopulate`, `IndexAllAssets`, `IndexAllCollections` and `DeleteWorkspace` move
 to `task`.
 
 `WORKER_PRIORITIES` accepts several receivers per process, in priority order,
-separated by `,`, and a number of processes with a `:N` suffix:
-`p1 p2 heavy,bulk:2 task`. The databox worker image now defaults to
-`p1 p2 heavy,bulk task`. A deployment that sets `WORKER_PRIORITIES` itself
-(Helm values…) **must consume `heavy` and `bulk`**, in the same deployment or in
+separated by `,`, and a number of processes with a `:N` suffix. The databox
+worker image now defaults to `p1 p1,p2,bulk p1,p2,heavy,bulk,bulk_heavy task`:
+each process takes the most urgent message waiting among its receivers, so the
+bulk processings use every idle process while the interactive messages keep the
+priority. A deployment that sets `WORKER_PRIORITIES` itself (Helm values…)
+**must consume `heavy`, `bulk` and `bulk_heavy`**, in the same deployment or in
 a dedicated one: otherwise their messages pile up in RabbitMQ and the assets are
 never processed. Each process has its own `PHP_MEMORY_LIMIT`: give
 `DATABOX_WORKER_MEMORY_LIMIT` room for the new one.

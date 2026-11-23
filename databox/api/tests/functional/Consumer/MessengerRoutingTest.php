@@ -32,6 +32,7 @@ final class MessengerRoutingTest extends KernelTestCase
         WorkerQueue::P2,
         WorkerQueue::HEAVY,
         WorkerQueue::BULK,
+        WorkerQueue::BULK_HEAVY,
         WorkerQueue::TASK,
     ];
 
@@ -71,6 +72,7 @@ final class MessengerRoutingTest extends KernelTestCase
     {
         yield [WorkerQueue::HEAVY];
         yield [WorkerQueue::BULK];
+        yield [WorkerQueue::BULK_HEAVY];
     }
 
     /**

@@ -6,7 +6,8 @@ namespace App\Consumer;
 
 /**
  * Whether the current processing comes from a bulk processing (a message consumed
- * from the "task" or "bulk" transport): the workflow jobs it triggers then go to "bulk".
+ * from the "task", "bulk" or "bulk_heavy" transport): the workflow jobs it triggers
+ * then go to the bulk transports.
  */
 final class BulkOrigin
 {

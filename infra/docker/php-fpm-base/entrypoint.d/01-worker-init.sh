@@ -3,7 +3,7 @@
 # WORKER_PRIORITIES: space-separated entries, one supervisor program each.
 # An entry lists its receivers separated by "," in priority order (messenger:consume
 # goes back to the first receiver after each handled message), with an optional
-# ":N" suffix setting its number of processes (default 1): "p1 p2 heavy,bulk:2".
+# ":N" suffix setting its number of processes (default 1): "p1 p1,p2 p1,p2,heavy:2".
 
 if [ "${IS_WORKER}" == "1" ]; then
   WORKER_INI_FILE=/docker/worker/worker.ini

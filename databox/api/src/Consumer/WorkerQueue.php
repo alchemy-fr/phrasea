@@ -26,9 +26,14 @@ final class WorkerQueue
     public const string HEAVY = 'heavy';
 
     /**
-     * Every job of the workflows started by a bulk processing.
+     * The light jobs of the workflows started by a bulk processing.
      */
     public const string BULK = 'bulk';
+
+    /**
+     * The heavy jobs of the workflows started by a bulk processing.
+     */
+    public const string BULK_HEAVY = 'bulk_heavy';
 
     /**
      * Bulk orchestrations.

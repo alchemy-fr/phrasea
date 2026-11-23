@@ -12,8 +12,9 @@ use App\Consumer\WorkerQueue;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
- * Every job of a workflow started or continued by a bulk processing goes to "bulk",
- * whatever its own queue, so that a bulk ingestion never delays the interactive ones.
+ * Every job of a workflow started or continued by a bulk processing goes to "bulk_heavy"
+ * when it is heavy, to "bulk" otherwise, so that a bulk ingestion never delays the
+ * interactive ones.
  */
 #[AsAlias(id: JobQueueResolverInterface::class)]
 final readonly class JobQueueResolver implements JobQueueResolverInterface
@@ -26,7 +27,7 @@ final readonly class JobQueueResolver implements JobQueueResolverInterface
     public function resolveQueue(WorkflowState $state, Job $job): ?string
     {
         if ($this->bulkOrigin->isActive()) {
-            return WorkerQueue::BULK;
+            return WorkerQueue::HEAVY === $job->getQueue() ? WorkerQueue::BULK_HEAVY : WorkerQueue::BULK;
         }
 
         return $job->getQueue();

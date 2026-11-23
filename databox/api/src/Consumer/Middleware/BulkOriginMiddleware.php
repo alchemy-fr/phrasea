@@ -13,13 +13,14 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 /**
  * Marks the handling of a message received from a bulk transport, so that the
- * workflows it starts or continues keep their jobs on the "bulk" transport.
+ * workflows it starts or continues keep their jobs on the bulk transports.
  */
 final readonly class BulkOriginMiddleware implements MiddlewareInterface
 {
     private const array BULK_TRANSPORTS = [
         WorkerQueue::TASK,
         WorkerQueue::BULK,
+        WorkerQueue::BULK_HEAVY,
     ];
 
     public function __construct(
