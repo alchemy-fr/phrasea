@@ -294,6 +294,28 @@ class AQLDocumentEvaluatorTest extends TestCase
         // Painless refuses to order strings
         yield ['category > keywords', 'Cannot compare', UnsupportedEvaluationException::class];
         yield ['@privacy = 300', 'out of range', UnsupportedEvaluationException::class];
+        // Integers from 2^53 on do not all have a float
+        yield ['count = 9007199254740993', 'exact comparison', UnsupportedEvaluationException::class];
+        yield ['count > 9007199254740992', 'exact comparison', UnsupportedEvaluationException::class];
+        yield ['count BETWEEN 0 AND 9007199254740993', 'exact comparison', UnsupportedEvaluationException::class];
+    }
+
+    /**
+     * Elasticsearch compares the long fields exactly, beyond the integers a float holds.
+     */
+    public function testLongValuesBeyondFloatPrecision(): void
+    {
+        $document = self::getDocument();
+        $document['attrs'][0]['_']['count_number_s'] = 9007199254740993;
+
+        $this->assertFalse($this->evaluate('count = 9007199254740991', $document));
+        $this->assertTrue($this->evaluate('count > 9007199254740991', $document));
+        $this->assertFalse($this->evaluate('count < 9007199254740991', $document));
+        $this->assertTrue($this->evaluate('count > other', $document));
+
+        $document['attrs'][0]['_']['count_number_s'] = '9007199254740993';
+        $this->expectException(UnsupportedEvaluationException::class);
+        $this->evaluate('count = 42', $document);
     }
 
     public function testUnsupportedCharactersAreRefused(): void

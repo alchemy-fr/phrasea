@@ -59,6 +59,12 @@ final readonly class AQLDocumentEvaluator
         'byte' => [-128, 127],
     ];
 
+    /**
+     * 2^53: from there on, a float no longer holds every integer, while Elasticsearch compares the
+     * integer fields exactly.
+     */
+    private const float MAX_EXACT_FLOAT_INTEGER = 9007199254740992.0;
+
     private const array KEYWORD = ['type' => 'keyword'];
     private const array PATH = ['type' => 'text', 'analyzer' => 'collection_path', 'search_analyzer' => 'keyword'];
     private const array DATE = ['type' => 'date', 'fields' => ['raw' => self::KEYWORD]];
@@ -578,8 +584,10 @@ final readonly class AQLDocumentEvaluator
                 if ($number < $range[0] || $number > $range[1]) {
                     throw new UnsupportedEvaluationException(sprintf('Value "%s" is out of range', self::toKeyword($value)));
                 }
+                self::assertExactFloat($number, $value);
+                $integer = (int) $number;
 
-                return static fn (mixed $v): bool => (float) $v === $number;
+                return static fn (mixed $v): bool => $v === $integer;
             case 'boolean':
                 $bool = match (true) {
                     is_bool($value) => $value,
@@ -759,7 +767,7 @@ final readonly class AQLDocumentEvaluator
                 throw new UnsupportedEvaluationException(sprintf('Invalid number "%s"', is_scalar($value) ? self::toKeyword($value) : get_debug_type($value)));
             }
 
-            return (float) $value;
+            return self::assertExactFloat((float) $value, $value);
         }
 
         if ($strictDateTime && (!is_string($value)
@@ -838,12 +846,32 @@ final readonly class AQLDocumentEvaluator
         }
 
         $range = self::INTEGER_RANGES[$ref['mapping']['type'] ?? 'long'] ?? self::INTEGER_RANGES['long'];
+        if (is_int($value)) {
+            if ($value < $range[0] || $value > $range[1]) {
+                throw new UnsupportedEvaluationException(sprintf('Number out of range in "%s"', $ref['path']));
+            }
+
+            return $value;
+        }
+
         $number = (float) $value;
         if ($number < $range[0] || $number > $range[1] || is_nan($number)) {
             throw new UnsupportedEvaluationException(sprintf('Number out of range in "%s"', $ref['path']));
         }
 
-        return is_int($value) ? $value : (int) $number;
+        return (int) self::assertExactFloat($number, $value);
+    }
+
+    /**
+     * Refuses a number from 2^53 on, where distinct integers share the same float.
+     */
+    private static function assertExactFloat(float $number, mixed $value): float
+    {
+        if (abs($number) >= self::MAX_EXACT_FLOAT_INTEGER) {
+            throw new UnsupportedEvaluationException(sprintf('The exact comparison of "%s" is not reproduced', is_scalar($value) ? self::toKeyword($value) : get_debug_type($value)));
+        }
+
+        return $number;
     }
 
     private function compileWithinCircle(array $ref, mixed $value): \Closure
