@@ -23,4 +23,13 @@ class YamlLoaderTest extends TestCase
         $this->assertCount(0, $copyFilesJob->getEnv());
         $this->assertEquals('env.foo == "bar"', $copyFilesJob->getIf());
     }
+
+    public function testLoadJobQueue(): void
+    {
+        $loader = new YamlLoader();
+        $workflow = $loader->load(__DIR__.'/../fixtures/queues.yaml');
+
+        $this->assertSame('heavy', $workflow->getJobs()['download']->getQueue());
+        $this->assertNull($workflow->getJobs()['notify']->getQueue());
+    }
 }

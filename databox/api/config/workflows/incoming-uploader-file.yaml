@@ -20,6 +20,8 @@ on:
 
 jobs:
     border:
+        # Downloads the file from the Uploader and stores it
+        queue: heavy
         steps:
             -   id: accept_file
                 uses: App\Service\Workflow\Action\AcceptFileAction

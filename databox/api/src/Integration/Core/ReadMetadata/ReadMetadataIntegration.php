@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Core\ReadMetadata;
 
 use Alchemy\Workflow\Model\Workflow;
+use App\Consumer\WorkerQueue;
 use App\Integration\AbstractIntegration;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
@@ -31,6 +32,7 @@ class ReadMetadataIntegration extends AbstractIntegration implements WorkflowInt
             ReadMetadataAction::class,
             'extract',
             'Extract file metadata',
+            queue: WorkerQueue::HEAVY,
         );
 
         $initializeAttributesJob = WorkflowHelper::createIntegrationJob(

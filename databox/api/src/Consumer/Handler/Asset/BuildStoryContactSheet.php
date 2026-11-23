@@ -9,7 +9,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 /**
  * Builds the "generate" renditions (contact sheets) of a story.
  */
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class BuildStoryContactSheet
 {
     public function __construct(

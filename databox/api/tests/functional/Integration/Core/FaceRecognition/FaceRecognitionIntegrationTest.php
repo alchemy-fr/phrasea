@@ -37,11 +37,11 @@ use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Attribute\AttributeApiTestTrait;
 use App\Tests\Functional\Api\ImageUploadTestTrait;
 use App\Tests\Functional\Face\FaceRecognitionClientMock;
+use App\Tests\Functional\InterceptedTransports;
 use App\Tests\Functional\Search\SearchTestTrait;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 /**
  * Faces are values of the configured entity attribute, persons are the entities of its list.
@@ -204,7 +204,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $config = $this->createConfig();
         /** @var FaceRecognitionClientMock $client */
         $client = self::getService(FaceRecognitionClient::class);
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
 
         $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
         $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
@@ -244,7 +244,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $analyzer = self::getService(FaceRecognitionAnalyzer::class);
         /** @var FaceRecognitionClientMock $client */
         $client = self::getService(FaceRecognitionClient::class);
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
 
         $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
         $first = $analyzer->analyze($this->createImageAsset(), $config)[0];
@@ -271,7 +271,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $third->setValue($person);
         self::getService(FaceManager::class)->confirm($third, KeycloakClientTestMock::ADMIN_UID);
         $em->flush();
-        self::stopInterceptingP2();
+        self::stopInterceptingImageMessages();
         self::getService(FaceRecognitionPhotoHandler::class)(new FaceRecognitionPhoto($person, $config->getIntegrationId()));
         $named = $this->photoOf($person);
         $this->assertNotSame($photo->getId(), $named->getId());
@@ -298,7 +298,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $config = $this->createConfig();
         /** @var FaceRecognitionClientMock $client */
         $client = self::getService(FaceRecognitionClient::class);
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
 
         $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
         $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
@@ -340,7 +340,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $config = $this->createConfig();
         /** @var FaceRecognitionClientMock $client */
         $client = self::getService(FaceRecognitionClient::class);
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
 
         $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
         $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
@@ -366,7 +366,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $config = $this->createConfig();
         /** @var FaceRecognitionClientMock $client */
         $client = self::getService(FaceRecognitionClient::class);
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
 
         $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
         $face = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config)[0];
@@ -399,7 +399,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $auto = $this->createEntity($this->list, 'Automatic photo');
         $this->attachImage($auto->getId(), '2f1c7f0e-0b0a-4b6e-9a51-3c1b4f8f0a99');
         $this->createEntity($this->createEntityList(['name' => 'Places', 'workspace' => $this->workspace]), 'Elsewhere');
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
 
         $tester = new CommandTester((new Application(self::$kernel))->find('app:face-recognition:photos'));
         $tester->execute([]);
@@ -602,7 +602,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $analyzer = self::getService(FaceRecognitionAnalyzer::class);
         /** @var FaceRecognitionClientMock $client */
         $client = self::getService(FaceRecognitionClient::class);
-        self::interceptP2();
+        self::interceptImageMessages();
 
         // The most confident face of the person is on a secret asset
         $client->setFaces([self::face(self::BOX_LEFT, self::ALICE)]);
@@ -618,7 +618,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $em->find(Attribute::class, $openFace->getId())->setConfidence(0.7);
         $em->flush();
         // The files of a removed photo are deleted by a message
-        self::stopInterceptingP2();
+        self::stopInterceptingImageMessages();
         $photo = fn () => self::getService(FaceRecognitionPhotoHandler::class)(new FaceRecognitionPhoto($person, $config->getIntegrationId()));
 
         // 1. Only the face of the asset every reader of the workspace sees is a candidate
@@ -819,7 +819,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
     /**
      * @return FaceRecognitionPhoto[]
      */
-    private static function sentPhotoMessages(InMemoryTransport $transport): array
+    private static function sentPhotoMessages(InterceptedTransports $transport): array
     {
         return array_values(array_filter(
             array_map(static fn ($envelope): object => $envelope->getMessage(), $transport->getSent()),
@@ -830,7 +830,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
     /**
      * Handles the photo messages kept by the intercepted transport, after forgetting every message.
      */
-    private function handlePhotoMessages(InMemoryTransport $transport): void
+    private function handlePhotoMessages(InterceptedTransports $transport): void
     {
         $messages = self::sentPhotoMessages($transport);
         $transport->reset();

@@ -6,7 +6,7 @@ namespace App\Integration\Core\FaceRecognition\Message;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class FaceRecognitionAnalyze
 {
     public function __construct(

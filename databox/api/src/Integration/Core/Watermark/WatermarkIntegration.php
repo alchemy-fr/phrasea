@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Core\Watermark;
 
 use Alchemy\Workflow\Model\Workflow;
+use App\Consumer\WorkerQueue;
 use App\Integration\AbstractIntegration;
 use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
@@ -67,6 +68,7 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
         yield WorkflowHelper::createIntegrationJob(
             $config,
             WatermarkAction::class,
+            queue: WorkerQueue::HEAVY,
         );
     }
 

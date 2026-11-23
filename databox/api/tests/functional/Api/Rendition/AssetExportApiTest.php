@@ -6,7 +6,6 @@ namespace App\Tests\Functional\Api\Rendition;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Consumer\Handler\Asset\AssetExportProcess;
 use App\Consumer\Handler\Asset\AssetExportProcessHandler;
@@ -19,7 +18,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Model\ExportStatusEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use App\Tests\Functional\InterceptedTransports;
 
 /**
  * POST /asset-exports, GET /asset-exports/{id}.
@@ -31,12 +30,12 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     private const string OWNER = KeycloakClientTestMock::USER_UID;
     private const string OTHER = KeycloakClientTestMock::OTHER_USER_UID;
 
-    private function interceptP1(): InMemoryTransport
+    /**
+     * Keeps the exports (heavy) and the indexing (p1) from being handled.
+     */
+    private function interceptExports(): InterceptedTransports
     {
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p1');
-
-        return $transport->intercept();
+        return InterceptedTransports::intercept(self::getContainer(), 'p1', 'heavy');
     }
 
     /**
@@ -93,7 +92,7 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     public function testCreateQueuesTheExport(): void
     {
         [$assetId, $definitionId] = $this->createExportableAsset();
-        $transport = $this->interceptP1();
+        $transport = $this->interceptExports();
 
         $response = $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
             'assets' => [$assetId],
@@ -130,7 +129,7 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     public function testGetExport(): void
     {
         [$assetId, $definitionId] = $this->createExportableAsset();
-        $this->interceptP1();
+        $this->interceptExports();
         $exportId = $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
             'assets' => [$assetId],
             'renditions' => [$definitionId],
@@ -155,7 +154,7 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     public function testReadyExportExposesASignedDownloadUrl(): void
     {
         [$assetId, $definitionId] = $this->createExportableAsset();
-        $this->interceptP1();
+        $this->interceptExports();
         $exportId = $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
             'assets' => [$assetId],
             'renditions' => [$definitionId],
@@ -216,7 +215,7 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     public function testCreateFromBasketItems(): void
     {
         [$itemIds, $definitionId] = $this->createBasketItems();
-        $transport = $this->interceptP1();
+        $transport = $this->interceptExports();
 
         $response = $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
             'basketAssets' => $itemIds,
@@ -260,7 +259,7 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     public function testCreateFromBasketItemsRequiresToReadTheBasket(): void
     {
         [$itemIds, $definitionId] = $this->createBasketItems(self::OTHER);
-        $this->interceptP1();
+        $this->interceptExports();
 
         $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
             'basketAssets' => $itemIds,
@@ -281,7 +280,7 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     public function testCreateFromBasketItemsRequiresToReadTheAssets(): void
     {
         [$itemIds, $definitionId] = $this->createBasketItems();
-        $this->interceptP1();
+        $this->interceptExports();
 
         // OTHER owns a basket holding assets of a workspace they cannot read
         $em = self::getEntityManager();
@@ -298,7 +297,7 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     public function testExportOfAnotherUserIsNotReadable(): void
     {
         [$assetId, $definitionId] = $this->createExportableAsset();
-        $this->interceptP1();
+        $this->interceptExports();
         $exportId = $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
             'assets' => [$assetId],
             'renditions' => [$definitionId],
@@ -349,7 +348,7 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
      */
     private function export(array $payload): array
     {
-        $this->interceptP1();
+        $this->interceptExports();
         $response = $this->jsonRequest('POST', '/asset-exports', self::OWNER, $payload);
         $this->assertResponseStatusCodeSame(201);
         $exportId = $response->toArray()['id'];

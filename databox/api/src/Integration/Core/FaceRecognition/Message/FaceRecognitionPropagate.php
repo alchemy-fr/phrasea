@@ -9,7 +9,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 /**
  * Propagates the person of a face a user named to the similar faces of the workspace.
  */
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class FaceRecognitionPropagate
 {
     public function __construct(

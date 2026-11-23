@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Similarity;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class SimilarityEmbed
 {
     public function __construct(

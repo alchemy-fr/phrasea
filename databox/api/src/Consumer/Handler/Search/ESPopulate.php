@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Search;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('task')]
 final readonly class ESPopulate
 {
     public function __construct(

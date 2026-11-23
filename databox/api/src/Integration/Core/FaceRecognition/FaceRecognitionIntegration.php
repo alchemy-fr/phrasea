@@ -10,6 +10,7 @@ use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Attribute\Type\EntityAttributeType;
 use App\Consumer\MessageDeduplication;
+use App\Consumer\WorkerQueue;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
@@ -175,6 +176,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         yield WorkflowHelper::createIntegrationJob(
             $config,
             FaceRecognitionDetectAction::class,
+            queue: WorkerQueue::HEAVY,
         );
     }
 

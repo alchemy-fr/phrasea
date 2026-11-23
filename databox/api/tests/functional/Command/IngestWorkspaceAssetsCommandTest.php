@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Command;
 
-use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\Workflow\Message\JobConsumer;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Workflow\WorkflowState;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use App\Tests\Functional\InterceptedTransports;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
 {
@@ -31,7 +30,7 @@ final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
         self::getEntityManager()->flush();
 
         // The jobs of the workflow are not run
-        $p2 = self::interceptTransport('p2');
+        $jobs = InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
 
         $tester = $this->runIngestCommand(['workspaces' => ['ingested']]);
 
@@ -42,7 +41,7 @@ final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
         $this->assertCount(1, $states);
         $this->assertSame(AssetIngestWorkflowEvent::getWorkflowName($workspace->getId()), $states[0]->getName());
         $this->assertSame('asset_owner', $states[0]->getInitiatorId());
-        $this->assertNotEmpty(array_filter($p2->getSent(), fn ($envelope): bool => $envelope->getMessage() instanceof JobConsumer));
+        $this->assertNotEmpty(array_filter($jobs->getSent(), fn ($envelope): bool => $envelope->getMessage() instanceof JobConsumer));
 
         $this->assertSame([], $this->findWorkflowStates($story->getId()));
         $this->assertSame([], $this->findWorkflowStates($otherAsset->getId()));
@@ -59,7 +58,7 @@ final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
         $otherAsset->setSource($this->createFile($other));
         self::getEntityManager()->flush();
 
-        self::interceptTransport('p2');
+        InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
 
         $tester = $this->runIngestCommand();
 
@@ -107,13 +106,5 @@ final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
         self::getEntityManager()->persist($file);
 
         return $file;
-    }
-
-    private static function interceptTransport(string $name): InMemoryTransport
-    {
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.'.$name);
-
-        return $transport->intercept();
     }
 }

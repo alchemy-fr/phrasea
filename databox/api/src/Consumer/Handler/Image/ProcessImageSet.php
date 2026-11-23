@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Image;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class ProcessImageSet
 {
     public function __construct(

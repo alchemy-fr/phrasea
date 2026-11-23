@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Asset;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
@@ -13,6 +12,7 @@ use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use App\Consumer\Handler\File\ImportFile;
+use App\Consumer\WorkerQueue;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
@@ -28,7 +28,7 @@ use App\Service\Workflow\Action\ImportSourceFileAction;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Rendition\RenditionTestTrait;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use App\Tests\Functional\InterceptedTransports;
 
 /**
  * Files created from a URL with "importFile": the source of an asset is imported
@@ -42,16 +42,15 @@ final class FileImportTest extends AbstractDataboxTestCase
     private const string IMPORT_JOB_ID = 'import_source';
     private const string CHECK_CONTENT_JOB_ID = 'check_content';
 
-    private InMemoryTransport $queue;
+    private InterceptedTransports $queue;
 
     protected function setUp(): void
     {
         parent::setUp();
         self::bootKernel();
-        // Keep the workflow jobs queued: running them would download the URLs.
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $this->queue = $transport->intercept();
+        // Keep the workflow jobs (p2, heavy for the source import) and the ImportFile messages (heavy)
+        // queued: running them would download the URLs.
+        $this->queue = InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
     }
 
     public function testAssetSourceIsFlaggedAndLeftToTheIngestWorkflow(): void
@@ -121,6 +120,11 @@ final class FileImportTest extends AbstractDataboxTestCase
         }
         $this->assertSame([self::IMPORT_JOB_ID], $jobs->offsetGet(self::CHECK_CONTENT_JOB_ID)->getNeeds()->getArrayCopy());
         $this->assertSame([self::IMPORT_JOB_ID, self::CHECK_CONTENT_JOB_ID], $jobs->offsetGet($this->getAnalyzerJobId($integration))->getNeeds()->getArrayCopy());
+
+        // The download and the analysis run on their own worker queue, the content check on the default one
+        $this->assertSame(WorkerQueue::HEAVY, $importJob->getQueue());
+        $this->assertSame(WorkerQueue::HEAVY, $jobs->offsetGet($this->getAnalyzerJobId($integration))->getQueue());
+        $this->assertNull($jobs->offsetGet(self::CHECK_CONTENT_JOB_ID)->getQueue());
     }
 
     public function testIntegrationsRunWhenThereIsNothingToImport(): void
@@ -131,9 +135,7 @@ final class FileImportTest extends AbstractDataboxTestCase
         $asset->setSource($this->createUrlFile($ws));
         self::getEntityManager()->flush();
 
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $transport->intercept(false);
+        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy');
         self::getService(WorkspaceAssetIngester::class)->ingestAsset($asset, null);
 
         $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);
@@ -149,9 +151,7 @@ final class FileImportTest extends AbstractDataboxTestCase
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $asset = $this->createAsset(['workspace' => $ws]);
 
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $transport->intercept(false);
+        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy');
         self::getService(WorkspaceAssetIngester::class)->ingestAsset($asset, null);
 
         $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);

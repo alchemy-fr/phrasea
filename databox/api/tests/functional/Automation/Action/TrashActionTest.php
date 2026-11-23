@@ -57,7 +57,7 @@ final class TrashActionTest extends AbstractDataboxTestCase
 
         $this->assertSame([], self::getService(TrashAction::class)->validateConfig(['unexpected' => true]));
 
-        $transport = self::interceptTransport('p1');
+        $transport = self::interceptTransport('heavy');
         $state = $this->processAction(self::getService(TrashAction::class), [], [$asset, $trashed]);
 
         $this->assertSame(2, $state->getProcessed());
@@ -71,7 +71,7 @@ final class TrashActionTest extends AbstractDataboxTestCase
     {
         $asset = $this->createAsset(['workspace' => $this->workspace, 'ownerId' => self::OWNER]);
 
-        $transport = self::interceptTransport('p1');
+        $transport = self::interceptTransport('heavy');
         $state = $this->processAction(self::getService(TrashAction::class), [], [$asset], self::OTHER);
 
         $this->assertSame(0, $state->getProcessed());

@@ -36,7 +36,7 @@ YAML;
         $assetId = $this->createAssetWithSource($client);
 
         // Intercept the queue so that the build is not performed synchronously
-        $transport = $this->interceptQueue('p2');
+        $transport = $this->interceptQueue('heavy');
 
         $response = $client->request('POST', '/renditions', [
             'headers' => [
@@ -173,7 +173,7 @@ YAML;
         $refuse($em->find(Asset::class, $assetId));
         $em->flush();
 
-        $transport = $this->interceptQueue('p2');
+        $transport = $this->interceptQueue('heavy');
 
         $response = $client->request('POST', '/renditions', [
             'headers' => [

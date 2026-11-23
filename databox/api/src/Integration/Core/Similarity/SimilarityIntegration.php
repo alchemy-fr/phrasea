@@ -6,6 +6,7 @@ namespace App\Integration\Core\Similarity;
 
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
+use App\Consumer\WorkerQueue;
 use App\Integration\AbstractIntegration;
 use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
@@ -63,6 +64,7 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
         yield WorkflowHelper::createIntegrationJob(
             $config,
             SimilarityEmbedAction::class,
+            queue: WorkerQueue::HEAVY,
         );
     }
 

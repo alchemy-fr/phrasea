@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Core\Rendition;
 
 use Alchemy\Workflow\Model\Workflow;
+use App\Consumer\WorkerQueue;
 use App\Integration\AbstractIntegration;
 use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
@@ -89,6 +90,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
                 RenditionBuildAction::class,
                 self::getJobIdSuffix($definition->getId()),
                 $definition->getName(),
+                queue: WorkerQueue::HEAVY,
             );
             $j->getWith()->offsetSet('definition', $definition->getId());
             if ($this->definitionParser->isGenerateDefinition($definition)) {

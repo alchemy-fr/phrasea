@@ -113,6 +113,9 @@ RabbitMQ queues.
 Keep **exactly one replica** of each scheduler container and never scale them:
 scale the `*-worker` services instead.
 
+The queues consumed by the databox workers, and how to split them between
+deployments, are described in [Databox workers](./Databox/workers.md).
+
 | Application | Task                                                                                         | Frequency    |
 |-------------|----------------------------------------------------------------------------------------------|--------------|
 | databox     | trigger the due automations of the saved searches                                            | every minute |

@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Asset;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p1')]
+#[MessengerMessage('heavy')]
 final readonly class AssetsDelete
 {
     public function __construct(

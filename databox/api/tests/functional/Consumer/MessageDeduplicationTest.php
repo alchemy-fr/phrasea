@@ -19,7 +19,7 @@ final class MessageDeduplicationTest extends KernelTestCase
 {
     public function testAnIdenticalMessageIsDroppedWhileOneIsQueued(): void
     {
-        $transport = $this->interceptP1();
+        $transport = $this->interceptTask();
         $bus = $this->getBus();
 
         $bus->dispatch(MessageDeduplication::coalesce(new IndexAllAssets('ws-x')));
@@ -30,7 +30,7 @@ final class MessageDeduplicationTest extends KernelTestCase
 
     public function testMessagesWithDifferentPayloadsAreAllQueued(): void
     {
-        $transport = $this->interceptP1();
+        $transport = $this->interceptTask();
         $bus = $this->getBus();
 
         $bus->dispatch(MessageDeduplication::coalesce(new IndexAllAssets('ws-x')));
@@ -42,7 +42,7 @@ final class MessageDeduplicationTest extends KernelTestCase
 
     public function testAMessageIsQueuedAgainOnceTheQueuedOneIsReceived(): void
     {
-        $transport = $this->interceptP1();
+        $transport = $this->interceptTask();
         $bus = $this->getBus();
 
         $bus->dispatch(MessageDeduplication::coalesce(new IndexAllAssets('ws-x')));
@@ -50,7 +50,7 @@ final class MessageDeduplicationTest extends KernelTestCase
         $this->assertCount(1, $queued);
 
         // As a worker does
-        $bus->dispatch($queued[0]->with(new ReceivedStamp('p1')));
+        $bus->dispatch($queued[0]->with(new ReceivedStamp('task')));
         $transport->ack($queued[0]);
         $transport->reset();
 
@@ -59,10 +59,10 @@ final class MessageDeduplicationTest extends KernelTestCase
         $this->assertSame(['ws-x'], $this->getQueuedWorkspaceIds($transport));
     }
 
-    private function interceptP1(): InMemoryTransport
+    private function interceptTask(): InMemoryTransport
     {
         /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p1');
+        $transport = self::getContainer()->get('messenger.transport.task');
 
         return $transport->intercept();
     }

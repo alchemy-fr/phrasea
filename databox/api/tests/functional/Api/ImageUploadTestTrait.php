@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Consumer\Handler\Image\ProcessImageSet;
 use App\Entity\Core\File;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use App\Tests\Functional\InterceptedTransports;
 
 /**
  * Uploads of images (entity list value photos, workspace logos) and their processing.
@@ -66,28 +65,23 @@ trait ImageUploadTestTrait
     }
 
     /**
-     * Keeps the p2 messages (ProcessImageSet) in memory instead of handling them right away.
+     * Keeps the p2 and heavy messages (ProcessImageSet, DeleteFilesIfOrphan…) in memory instead of handling them right away.
      * The client must not reboot the kernel (disableReboot()), which would drop the interception.
      */
-    private static function interceptP2(): InMemoryTransport
+    private static function interceptImageMessages(): InterceptedTransports
     {
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-
-        return $transport->intercept();
+        return InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
     }
 
-    private static function stopInterceptingP2(): void
+    private static function stopInterceptingImageMessages(): void
     {
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $transport->intercept(false);
+        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy');
     }
 
     /**
      * @return ProcessImageSet[]
      */
-    private static function sentProcessImageSetMessages(InMemoryTransport $transport): array
+    private static function sentProcessImageSetMessages(InterceptedTransports $transport): array
     {
         return array_values(array_filter(
             array_map(static fn ($envelope): object => $envelope->getMessage(), $transport->getSent()),

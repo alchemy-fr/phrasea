@@ -14,6 +14,8 @@ jobs:
         if: App\Service\Workflow\Action\ImportSourceFileAction::evaluateIf
         # Skipped when there is nothing to import: the integrations still run.
         continue-on-skip: true
+        # Downloads the source file
+        queue: heavy
         steps:
             -   uses: App\Service\Workflow\Action\ImportSourceFileAction
 

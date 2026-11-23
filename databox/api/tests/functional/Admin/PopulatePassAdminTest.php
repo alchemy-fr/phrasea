@@ -26,7 +26,7 @@ class PopulatePassAdminTest extends AbstractDataboxAdminTestCase
         $this->client->disableReboot();
 
         /** @var TestTransport $transport */
-        $transport = static::getContainer()->get('messenger.transport.p2');
+        $transport = static::getContainer()->get('messenger.transport.task');
         $this->inMemory = $transport->intercept();
     }
 

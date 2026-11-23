@@ -10,7 +10,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
  * Gives a person (an entity of the list of the integration) the photo of its best face, when
  * it has no photo yet or an automatic one that is outdated.
  */
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class FaceRecognitionPhoto
 {
     public function __construct(

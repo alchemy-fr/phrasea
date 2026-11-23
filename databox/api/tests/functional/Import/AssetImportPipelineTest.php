@@ -91,7 +91,7 @@ final class AssetImportPipelineTest extends AbstractDataboxTestCase
         foreach ($asset->getRenditions() as $rendition) {
             $renditions[$rendition->getDefinition()->getId()] = $rendition;
         }
-        $importedFileIds = array_map(static fn (ImportFile $message): string => $message->getFileId(), $this->getQueuedMessages($this->p2Queue, ImportFile::class));
+        $importedFileIds = array_map(static fn (ImportFile $message): string => $message->getFileId(), $this->getQueuedMessages($this->heavyQueue, ImportFile::class));
         foreach ([
             'preview' => 'https://cdn.example.com/a-preview.jpg',
             'thumbnail' => 'https://cdn.example.com/a-thumb.jpg',

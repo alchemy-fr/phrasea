@@ -9,6 +9,7 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Consumer\MessageDeduplication;
+use App\Consumer\WorkerQueue;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Action\FileUserActionsTrait;
@@ -247,7 +248,8 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
                     ucfirst($category),
                     [
                         'category' => $category,
-                    ]
+                    ],
+                    WorkerQueue::HEAVY,
                 );
             }
         }

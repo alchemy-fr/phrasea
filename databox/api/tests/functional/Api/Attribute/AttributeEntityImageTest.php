@@ -121,7 +121,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
         $this->setUpScene();
         $client = static::createClient();
         $client->disableReboot();
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
         $upload = $this->createPngUpload(3000, 1500, 'alice.png');
 
         $response = $client->request('POST', $this->imageUri(), [
@@ -145,7 +145,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
         $this->assertSame($upload->getPath(), $original->getPath());
         $this->assertNull($imageSet->getThumbnailFile());
 
-        self::stopInterceptingP2();
+        self::stopInterceptingImageMessages();
         self::getService(ProcessImageSetHandler::class)(new ProcessImageSet($imageSet->getId()));
 
         $imageSet = $this->findImage();
@@ -202,7 +202,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
 
         $client = static::createClient();
         $client->disableReboot();
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
         $client->request('POST', $this->imageUri(), [
             'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(self::USER)],
             'json' => ['multipart' => self::multipartPayload($this->createPngUpload())],
@@ -220,7 +220,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
             }
         }
         $this->assertEqualsCanonicalizing(array_keys($firstFiles), $scheduled);
-        self::stopInterceptingP2();
+        self::stopInterceptingImageMessages();
     }
 
     public function testRemovingTheImage(): void
@@ -266,7 +266,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
         $this->setUpScene();
         $client = static::createClient();
         $client->disableReboot();
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
         $svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" onload="alert(1)">'
             .'<script>alert(2)</script>'
             .'<image xlink:href="https://evil.example/x.png" width="1" height="1"/>'
@@ -293,7 +293,7 @@ final class AttributeEntityImageTest extends AbstractDataboxTestCase
         $this->assertSame([], self::getEntityManager()->getRepository(File::class)->findBy(['workspace' => $this->workspace->getId()]));
         $this->assertFalse(self::isStored($upload->getPath()), 'the uploaded object is deleted');
         $this->assertSame([], self::sentProcessImageSetMessages($transport), 'an SVG is not processed');
-        self::stopInterceptingP2();
+        self::stopInterceptingImageMessages();
     }
 
     public function testAnSvgImageIsLimitedTo100KB(): void

@@ -47,6 +47,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $queueName = 'p2';
         $inMemoryTransport = $this->interceptMessengerEvents($queueName);
+        $heavyTransport = $this->interceptMessengerEvents('heavy');
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
@@ -107,9 +108,9 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         // The ingest starts with the source import, skipped: nothing to import.
-        $importEnvelope = $inMemoryTransport->get()[0];
+        $importEnvelope = $heavyTransport->get()[0];
         self::assertEquals('import_source', $importEnvelope->getMessage()->getJobId());
-        $this->consumeEvent($importEnvelope, $queueName);
+        $this->consumeEvent($importEnvelope, 'heavy');
 
         // Then the check of the source content
         $sent = $inMemoryTransport->getSent();
@@ -192,38 +193,38 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'json' => $subdefEvent($thumbnailRemoteUrl),
         ]);
         $this->assertResponseStatusCodeSame(401);
-        $this->assertCount(0, $inMemoryTransport->get());
+        $this->assertCount(0, $heavyTransport->get());
 
         // Call with an invalid token
         $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events?token=invalid', $integration->getId()), [
             'json' => $subdefEvent($thumbnailRemoteUrl),
         ]);
         $this->assertResponseStatusCodeSame(401);
-        $this->assertCount(0, $inMemoryTransport->get());
+        $this->assertCount(0, $heavyTransport->get());
 
         // A permalink outside of the Phraseanet host is ignored
         $apiClient->request('POST', $webhookUrl, [
             'json' => $subdefEvent('http://169.254.169.254/latest/meta-data/'),
         ]);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertCount(0, $inMemoryTransport->get());
+        $this->assertCount(0, $heavyTransport->get());
 
         // Nor on another port of the Phraseanet host
         $apiClient->request('POST', $webhookUrl, [
             'json' => $subdefEvent('http://foo.bar:6379/permalink/123456/thumb.jpg'),
         ]);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertCount(0, $inMemoryTransport->get());
+        $this->assertCount(0, $heavyTransport->get());
 
         $apiClient->request('POST', $webhookUrl, [
             'json' => $subdefEvent($thumbnailRemoteUrl),
         ]);
         $this->assertResponseStatusCodeSame(200);
 
-        $envelope = $inMemoryTransport->get()[0];
+        $envelope = $heavyTransport->get()[0];
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(PhraseanetDownloadSubdef::class, $eventMessage);
-        $this->consumeEvent($envelope, $queueName);
+        $this->consumeEvent($envelope, 'heavy');
 
         $em = self::getService(EntityManagerInterface::class);
         $em->clear();

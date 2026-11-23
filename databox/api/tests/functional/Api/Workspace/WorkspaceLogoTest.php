@@ -333,7 +333,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         $ws = $this->createWs('ws', ['ownerId' => self::USER]);
         $client = static::createClient();
         $client->disableReboot();
-        $transport = self::interceptP2();
+        $transport = self::interceptImageMessages();
 
         $client->request('POST', self::iri($ws).'/logo', [
             'headers' => self::authHeaders(self::USER),
@@ -342,7 +342,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(201);
         $messages = self::sentProcessImageSetMessages($transport);
         $this->assertCount(1, $messages);
-        self::stopInterceptingP2();
+        self::stopInterceptingImageMessages();
 
         // Until the job has run, the logo is the original
         $logo = $this->findLogo($ws);

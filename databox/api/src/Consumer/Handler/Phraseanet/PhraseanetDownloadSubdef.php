@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Phraseanet;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class PhraseanetDownloadSubdef
 {
     public function __construct(

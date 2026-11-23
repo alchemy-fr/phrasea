@@ -25,7 +25,7 @@ final class CollectionListenerTest extends AbstractDataboxTestCase
     {
         $collection = $this->createCollection(['name' => 'Owned', 'ownerId' => self::USER]);
         $id = $collection->getId();
-        $inMemory = $this->interceptP1();
+        $inMemory = $this->interceptTransports();
 
         $collection->setOwnerId(self::ADMIN);
         self::getEntityManager()->flush();
@@ -37,7 +37,7 @@ final class CollectionListenerTest extends AbstractDataboxTestCase
     public function testRenameDoesNotRecomputeTheBranch(): void
     {
         $collection = $this->createCollection(['name' => 'Owned', 'ownerId' => self::USER]);
-        $inMemory = $this->interceptP1();
+        $inMemory = $this->interceptTransports();
 
         $collection->setName('Renamed');
         self::getEntityManager()->flush();
@@ -49,27 +49,34 @@ final class CollectionListenerTest extends AbstractDataboxTestCase
     /**
      * To call after the creation of the collection, whose postPersist already
      * sends a ComputeCollectionBranch.
+     *
+     * @return InMemoryTransport[] ComputeCollectionBranch goes to p1, IndexCollectionBranch to heavy
      */
-    private function interceptP1(): InMemoryTransport
+    private function interceptTransports(): array
     {
-        /** @var TestTransport $transport */
-        $transport = static::getContainer()->get('messenger.transport.p1');
+        return array_map(static function (string $name): InMemoryTransport {
+            /** @var TestTransport $transport */
+            $transport = static::getContainer()->get('messenger.transport.'.$name);
 
-        return $transport->intercept();
+            return $transport->intercept();
+        }, ['p1', 'heavy']);
     }
 
     /**
+     * @param InMemoryTransport[]                                         $transports
      * @param class-string<ComputeCollectionBranch|IndexCollectionBranch> $class
      *
      * @return list<string|null>
      */
-    private function sentCollectionIds(InMemoryTransport $inMemory, string $class): array
+    private function sentCollectionIds(array $transports, string $class): array
     {
         $ids = [];
-        foreach ($inMemory->getSent() as $envelope) {
-            $message = $envelope->getMessage();
-            if ($message instanceof $class) {
-                $ids[] = $message->getCollectionId();
+        foreach ($transports as $inMemory) {
+            foreach ($inMemory->getSent() as $envelope) {
+                $message = $envelope->getMessage();
+                if ($message instanceof $class) {
+                    $ids[] = $message->getCollectionId();
+                }
             }
         }
 

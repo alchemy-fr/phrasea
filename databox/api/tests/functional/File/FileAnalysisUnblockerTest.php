@@ -23,6 +23,7 @@ use App\Integration\IntegrationManager;
 use App\Integration\WorkflowHelper;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 /**
@@ -34,17 +35,31 @@ class FileAnalysisUnblockerTest extends AbstractDataboxTestCase
     private const string OLD = '-2 hours';
 
     private \DateTimeImmutable $before;
-    private InMemoryTransport $jobQueue;
+    /**
+     * @var InMemoryTransport[]
+     */
+    private array $jobQueues = [];
 
     protected function setUp(): void
     {
         parent::setUp();
         self::bootKernel();
         $this->before = new \DateTimeImmutable('-1 hour');
-        // Workflow jobs are dispatched on p2: keep them queued instead of running them.
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $this->jobQueue = $transport->intercept();
+        // Workflow jobs are dispatched on p2, or heavy for their own queue: keep them queued instead of running them.
+        $this->jobQueues = [];
+        foreach (['p2', 'heavy'] as $name) {
+            /** @var TestTransport $transport */
+            $transport = self::getContainer()->get('messenger.transport.'.$name);
+            $this->jobQueues[] = $transport->intercept();
+        }
+    }
+
+    /**
+     * @return Envelope[]
+     */
+    private function getSentJobs(): array
+    {
+        return array_merge(...array_map(static fn (InMemoryTransport $queue): array => $queue->getSent(), $this->jobQueues));
     }
 
     public function testPendingFileWithoutAnyWorkflowGetsANewIngest(): void
@@ -60,7 +75,7 @@ class FileAnalysisUnblockerTest extends AbstractDataboxTestCase
         $workflow = $this->findLatestIngestWorkflow($asset);
         $this->assertNotNull($workflow, 'a new ingest workflow was started');
         $this->assertSame(AssetIngestWorkflowEvent::getWorkflowName($workspace->getId()), $workflow->getName());
-        $this->assertNotEmpty($this->jobQueue->getSent(), 'its first jobs were queued');
+        $this->assertNotEmpty($this->getSentJobs(), 'its first jobs were queued');
     }
 
     public function testNothingToDoWhenFilesAreNotStuck(): void
@@ -83,7 +98,7 @@ class FileAnalysisUnblockerTest extends AbstractDataboxTestCase
         self::getEntityManager()->flush();
 
         $this->assertSame([], $this->unblock());
-        $this->assertSame([], $this->jobQueue->getSent());
+        $this->assertSame([], $this->getSentJobs());
     }
 
     public function testFilesOfWorkspacesWithoutAnalyzerAreIgnored(): void
@@ -119,7 +134,7 @@ class FileAnalysisUnblockerTest extends AbstractDataboxTestCase
             $recent->getId() => FileAnalysisUnblockAction::Skipped,
             $cancelled->getId() => FileAnalysisUnblockAction::Skipped,
         ], $results);
-        $this->assertSame([], $this->jobQueue->getSent());
+        $this->assertSame([], $this->getSentJobs());
     }
 
     public function testFailedOrLostAnalyzerJobIsRerun(): void
@@ -156,7 +171,7 @@ class FileAnalysisUnblockerTest extends AbstractDataboxTestCase
             $this->assertSame(ModelWorkflowState::STATUS_STARTED, $stateRepository->getWorkflowState($workflow->getId())->getStatus());
         }
         $this->assertCount(1, $stateRepository->getJobStates($runningWorkflow->getId(), $analyzerJobId));
-        $this->assertCount(2, $this->jobQueue->getSent());
+        $this->assertCount(2, $this->getSentJobs());
     }
 
     public function testFailedDependencyOfTheAnalyzerIsRetried(): void
@@ -225,7 +240,7 @@ class FileAnalysisUnblockerTest extends AbstractDataboxTestCase
             $noWorkflow->getId() => FileAnalysisUnblockAction::IngestDispatched,
             $failed->getId() => FileAnalysisUnblockAction::JobRerun,
         ], $results);
-        $this->assertSame([], $this->jobQueue->getSent());
+        $this->assertSame([], $this->getSentJobs());
         $this->assertCount(1, $this->getStateRepository()->getJobStates($workflow->getId(), $analyzerJobId));
         $this->assertSame(ModelWorkflowState::STATUS_FAILURE, $this->getStateRepository()->getWorkflowState($workflow->getId())->getStatus());
     }

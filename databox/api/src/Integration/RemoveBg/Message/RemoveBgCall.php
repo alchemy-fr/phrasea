@@ -7,7 +7,7 @@ namespace App\Integration\RemoveBg\Message;
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 use App\Integration\Message\AbstractFileActionMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class RemoveBgCall extends AbstractFileActionMessage
 {
 }

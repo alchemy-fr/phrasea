@@ -29,6 +29,7 @@ trait AssetImportTestTrait
 
     private InMemoryTransport $taskQueue;
     private InMemoryTransport $p2Queue;
+    private InMemoryTransport $heavyQueue;
     /**
      * @var array<int, object> the handled messages (kept alive for their object ID)
      */
@@ -43,6 +44,9 @@ trait AssetImportTestTrait
         /** @var TestTransport $p2 */
         $p2 = self::getContainer()->get('messenger.transport.p2');
         $this->p2Queue = $p2->intercept();
+        /** @var TestTransport $heavy */
+        $heavy = self::getContainer()->get('messenger.transport.heavy');
+        $this->heavyQueue = $heavy->intercept();
         $this->consumedTaskMessages = [];
     }
 

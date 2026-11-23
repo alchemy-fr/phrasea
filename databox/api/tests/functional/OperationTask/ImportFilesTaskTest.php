@@ -39,7 +39,7 @@ class ImportFilesTaskTest extends AbstractDataboxTestCase
         $em->flush();
 
         /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
+        $transport = self::getContainer()->get('messenger.transport.heavy');
         $inMemory = $transport->intercept();
 
         self::getService(OperationTaskManager::class)->handleTask($task);
