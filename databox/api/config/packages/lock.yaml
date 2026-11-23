@@ -1,8 +1,12 @@
 framework:
-    lock: '%env(REDIS_URL)%'
+    lock:
+        default: '%env(REDIS_URL)%'
+        # PopulateLockManager inspects and removes these locks straight in Redis
+        populate: '%env(REDIS_URL)%'
 
 when@test:
     framework:
-        # The messages intercepted by the test transports would keep their deduplication
-        # locks in Redis from one test (and one run) to another
-        lock: 'in-memory'
+        lock:
+            # The messages intercepted by the test transports would keep their deduplication
+            # locks in Redis from one test (and one run) to another
+            default: 'in-memory'

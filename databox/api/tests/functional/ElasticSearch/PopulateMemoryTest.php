@@ -36,7 +36,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Lock\LockFactory;
 
 /**
  * The memory of a populate must not grow with the number of indexed pages: once a page
@@ -307,7 +306,7 @@ final class PopulateMemoryTest extends KernelTestCase
         $guardedListener = new PopulatePassListener(
             $container->get(EntityManagerInterface::class),
             $container->get(IndexSyncState::class),
-            $container->get(LockFactory::class),
+            $container->get('lock.populate.factory'),
             $container->get(PopulatePageTracker::class),
             $container->get(PopulateLockManager::class),
             $container->get(PopulateIndexGuard::class),

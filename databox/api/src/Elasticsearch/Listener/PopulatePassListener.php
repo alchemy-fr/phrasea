@@ -25,6 +25,7 @@ use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
 use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
 use FOS\ElasticaBundle\Persister\Event\PreFetchObjectsEvent;
 use FOS\ElasticaBundle\Persister\Event\PreInsertObjectsEvent;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\Exception\LockExpiredException;
@@ -79,6 +80,7 @@ class PopulatePassListener implements EventSubscriberInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly IndexSyncState $indexSyncState,
+        #[Target('populate')]
         private readonly LockFactory $lockFactory,
         private readonly PopulatePageTracker $pageTracker,
         private readonly PopulateLockManager $lockManager,

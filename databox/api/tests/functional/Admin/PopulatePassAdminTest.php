@@ -143,7 +143,7 @@ class PopulatePassAdminTest extends AbstractDataboxAdminTestCase
     public function testALockedIndexIsRefusedAndCanBeForceUnlocked(): void
     {
         /** @var LockFactory $lockFactory */
-        $lockFactory = static::getContainer()->get(LockFactory::class);
+        $lockFactory = static::getContainer()->get('lock.populate.factory');
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
         $deadWorker = $lockFactory->createLock(static::getContainer()->get(PopulateLockManager::class)->getLockName('attribute_entity'), 600);
@@ -189,7 +189,7 @@ class PopulatePassAdminTest extends AbstractDataboxAdminTestCase
     public function testTheLockOfALivePopulateIsOnlyReleasedWhenForced(): void
     {
         /** @var LockFactory $lockFactory */
-        $lockFactory = static::getContainer()->get(LockFactory::class);
+        $lockFactory = static::getContainer()->get('lock.populate.factory');
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
         $worker = $lockFactory->createLock($manager->getLockName('attribute_entity'), 600);

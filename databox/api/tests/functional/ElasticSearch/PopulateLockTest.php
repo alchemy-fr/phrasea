@@ -72,7 +72,7 @@ class PopulateLockTest extends KernelTestCase
     public function testPopulateIsRefusedWhileTheIndexIsLocked(): void
     {
         /** @var LockFactory $lockFactory */
-        $lockFactory = static::getContainer()->get(LockFactory::class);
+        $lockFactory = static::getContainer()->get('lock.populate.factory');
         $otherProcess = $lockFactory->createLock(static::getContainer()->get(PopulateLockManager::class)->getLockName(self::INDEX), 60);
         $this->assertTrue($otherProcess->acquire(), 'the lock is free before the test');
 
@@ -126,7 +126,7 @@ class PopulateLockTest extends KernelTestCase
     public function testForceReleaseRemovesTheLockAndClosesOpenPasses(): void
     {
         /** @var LockFactory $lockFactory */
-        $lockFactory = static::getContainer()->get(LockFactory::class);
+        $lockFactory = static::getContainer()->get('lock.populate.factory');
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
 
@@ -163,7 +163,7 @@ class PopulateLockTest extends KernelTestCase
     {
         $container = static::getContainer();
         /** @var LockFactory $lockFactory */
-        $lockFactory = $container->get(LockFactory::class);
+        $lockFactory = $container->get('lock.populate.factory');
         /** @var PopulateLockManager $manager */
         $manager = $container->get(PopulateLockManager::class);
         // another stack sharing the same Redis server
@@ -240,7 +240,7 @@ class PopulateLockTest extends KernelTestCase
     public function testCloseDeadPassesOnlyClosesThePassesOfTheDeadRun(): void
     {
         /** @var LockFactory $lockFactory */
-        $lockFactory = static::getContainer()->get(LockFactory::class);
+        $lockFactory = static::getContainer()->get('lock.populate.factory');
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
 
@@ -334,7 +334,7 @@ class PopulateLockTest extends KernelTestCase
     public function testForceReleaseIsRefusedWhileThePopulateIsAlive(): void
     {
         /** @var LockFactory $lockFactory */
-        $lockFactory = static::getContainer()->get(LockFactory::class);
+        $lockFactory = static::getContainer()->get('lock.populate.factory');
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
 
@@ -485,7 +485,7 @@ class PopulateLockTest extends KernelTestCase
     public function testUnlockCommand(): void
     {
         /** @var LockFactory $lockFactory */
-        $lockFactory = static::getContainer()->get(LockFactory::class);
+        $lockFactory = static::getContainer()->get('lock.populate.factory');
         /** @var PopulateLockManager $manager */
         $manager = static::getContainer()->get(PopulateLockManager::class);
         $tester = new CommandTester(static::getContainer()->get(ESPopulateUnlockCommand::class));
