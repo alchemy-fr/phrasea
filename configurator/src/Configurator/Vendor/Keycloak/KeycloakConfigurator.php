@@ -13,6 +13,12 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem(priority: -100)]
 final readonly class KeycloakConfigurator implements ConfiguratorInterface
 {
+    /**
+     * Where Keycloak sends the user back to the Uploader mobile app (custom URL scheme of the app,
+     * `uploader-mobile` repository).
+     */
+    private const string UPLOADER_MOBILE_REDIRECT_URI = 'phrasea-uploader://auth/callback';
+
     public function __construct(
         private KeycloakManager $keycloakManager,
         private array $symfonyApplications,
@@ -218,6 +224,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             [EnvHelper::getEnvOrThrow('EXPOSE_CLIENT_ID'), ['expose']],
             // The Uploader API forwards the token of the user to Databox
             [EnvHelper::getEnvOrThrow('UPLOADER_CLIENT_ID'), ['uploader', 'databox']],
+            [EnvHelper::getEnv('UPLOADER_MOBILE_CLIENT_ID'), ['uploader', 'databox']],
             [EnvHelper::getEnvOrThrow('DASHBOARD_CLIENT_ID'), ['databox']],
             [EnvHelper::getEnv('INDEXER_DATABOX_CLIENT_ID'), ['databox']],
             [EnvHelper::getEnv('DATABOX_EXPOSE_INTEGRATION_CLIENT_ID'), ['expose']],
@@ -327,6 +334,28 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             );
         }
 
+        if ($clientId = EnvHelper::getEnv('UPLOADER_MOBILE_CLIENT_ID')) {
+            // A public client (no secret can be kept in an app): authorization code with PKCE only
+            $clientData = $this->configureClient(
+                $clientId,
+                null,
+                null,
+                [
+                    'standardFlowEnabled' => true,
+                    'implicitFlowEnabled' => false,
+                    'directAccessGrantsEnabled' => false,
+                    'serviceAccountsEnabled' => false,
+                    'webOrigins' => [],
+                    'attributes' => [
+                        'pkce.code.challenge.method' => 'S256',
+                    ],
+                ],
+                redirectUris: [self::UPLOADER_MOBILE_REDIRECT_URI],
+            );
+            // The app keeps its session past the idle timeout of the SSO session
+            $this->keycloakManager->addScopeToClient('offline_access', $clientData['id'], false);
+        }
+
         if (EnvHelper::getEnv('INDEXER_DATABOX_CLIENT_ID')) {
             $clientData = $this->keycloakManager->createClient(
                 EnvHelper::getEnvOrThrow('INDEXER_DATABOX_CLIENT_ID'),
@@ -407,7 +436,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     private function configureClient(
         string $clientId,
         ?string $clientSecret,
-        string $baseUri,
+        ?string $baseUri,
         array $data = [],
         ?array $redirectUris = null,
     ): array {

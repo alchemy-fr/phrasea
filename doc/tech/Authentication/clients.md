@@ -39,6 +39,7 @@ each upgrade (`bin/migrate.sh`, Keycloak synchronization):
 | Databox client                                 | `DATABOX_CLIENT_ID`                                    | `databox-api`                  |
 | Expose client                                  | `EXPOSE_CLIENT_ID`                                     | `expose-api`                   |
 | Uploader client                                | `UPLOADER_CLIENT_ID`                                   | `uploader-api`, `databox-api`: the Uploader API forwards the user's token to read Databox |
+| Uploader mobile app                            | `UPLOADER_MOBILE_CLIENT_ID` (public, PKCE, redirect URI `phrasea-uploader://auth/callback`) | `uploader-api`, `databox-api`; `offline_access` as optional scope |
 | Dashboard                                      | `DASHBOARD_CLIENT_ID`                                  | `databox-api` (groups management) |
 | Databox indexer                                | `INDEXER_DATABOX_CLIENT_ID` (client credentials)       | `databox-api`                  |
 | Expose integration of Databox                  | `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`                 | `expose-api`                   |
