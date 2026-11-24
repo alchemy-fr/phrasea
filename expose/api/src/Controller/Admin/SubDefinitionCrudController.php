@@ -41,8 +41,9 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('id'))
+            ->add(AssociationIdentifierFilter::new('id'))
             ->add(TextFilter::new('name'))
+            ->add(TextFilter::new('mimeType'))
             ->add(AssociationIdentifierFilter::new('asset'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
@@ -66,7 +67,5 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
         ;
         yield JsonField::new('clientAnnotations')
             ->hideOnIndex();
-
-        return [];
     }
 }

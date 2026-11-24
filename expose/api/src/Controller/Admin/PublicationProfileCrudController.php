@@ -4,17 +4,28 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
+use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
 use App\Field\PublicationConfigField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class PublicationProfileCrudController extends AbstractAclAdminCrudController
 {
+    public function __construct(
+        private readonly UserChoiceFilter $userChoiceFilter,
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return PublicationProfile::class;
@@ -23,9 +34,15 @@ class PublicationProfileCrudController extends AbstractAclAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('id'))
+            ->add(AssociationIdentifierFilter::new('id'))
             ->add(TextFilter::new('name'))
-            ->add(TextFilter::new('ownerId'))
+            ->add($this->userChoiceFilter->createFilter('ownerId', 'Owner'))
+            ->add(DateTimeFilter::new('createdAt'))
+            ->add(BooleanFilter::new('config.enabled', 'Enabled'))
+            ->add(BooleanFilter::new('config.publiclyListed', 'Publicly listed'))
+            ->add(ChoiceFilter::new('config.securityMethod', 'Security method')->setChoices(PublicationConfig::getSecurityMethodChoices()))
+            ->add(DateTimeFilter::new('config.beginsAt', 'Begins at'))
+            ->add(DateTimeFilter::new('config.expiresAt', 'Expires at'))
         ;
     }
 
@@ -38,13 +55,15 @@ class PublicationProfileCrudController extends AbstractAclAdminCrudController
         yield PublicationConfigField::new('config')
             ->hideOnIndex()
             ->hideOnDetail();
-        yield Field::new('config.enabled', 'Enabled')
+        yield BooleanField::new('config.enabled', 'Enabled')
+            ->renderAsSwitch(false)
             ->hideOnForm();
 
         yield TextField::new('config.layout', 'Layout')
             ->hideOnForm()
         ;
-        yield Field::new('config.publiclyListed', 'PubliclyListed')
+        yield BooleanField::new('config.publiclyListed', 'Publicly listed')
+            ->renderAsSwitch(false)
             ->hideOnForm();
         yield DateTimeField::new('config.beginsAt', 'Begins At')
             ->hideOnForm();
@@ -61,7 +80,5 @@ class PublicationProfileCrudController extends AbstractAclAdminCrudController
         yield DateTimeField::new('createdAt')
             ->hideOnForm()
         ;
-
-        return [];
     }
 }

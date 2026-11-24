@@ -6,6 +6,8 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Consumer\Handler\AssetConsumerNotify;
 use App\Entity\Commit;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
@@ -21,7 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -30,6 +32,7 @@ class CommitCrudController extends AbstractAdminCrudController
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -54,14 +57,17 @@ class CommitCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Commit')
             ->setEntityLabelInPlural('Commits')
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['id', 'totalSize', 'formData', 'options', 'userId', 'token', 'notify', 'locale']);
+            ->setSearchFields(['id', 'totalSize', 'userId', 'token', 'locale']);
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('id'))
-            ->add(TextFilter::new('userId'))
+            ->add(AssociationIdentifierFilter::new('id'))
+            ->add($this->userChoiceFilter->createFilter('userId', 'User'))
+            ->add(EntityFilter::new('target'))
+            ->add(AssociationIdentifierFilter::new('uploadLink'))
+            ->add(BooleanFilter::new('notify'))
             ->add(BooleanFilter::new('acknowledged'))
             ->add(DateTimeFilter::new('acknowledgedAt'))
             ->add(DateTimeFilter::new('createdAt'))
@@ -73,7 +79,6 @@ class CommitCrudController extends AbstractAdminCrudController
         yield IdField::new();
         yield AssociationField::new('target')
             ->autocomplete();
-        yield IdField::new('userId');
         yield $this->userChoiceField->create('userId', 'User');
         yield TextField::new('token')
             ->hideOnIndex();
@@ -83,13 +88,15 @@ class CommitCrudController extends AbstractAdminCrudController
             ->renderAsSwitch(false)
             ->hideOnIndex();
         yield IntegerField::new('totalSize')
-            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig')
-            ->hideOnIndex();
+            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        yield TextField::new('uploadLink.name', 'Upload link')
+            ->hideOnForm();
         yield JsonField::new('formData')
             ->hideOnIndex();
         yield JsonField::new('options')
             ->hideOnIndex();
-        yield TextField::new('locale');
+        yield TextField::new('locale')
+            ->hideOnIndex();
         yield TextField::new('formLocale')
             ->hideOnIndex();
         yield DateTimeField::new('acknowledgedAt')

@@ -16,6 +16,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class TargetCrudController extends AbstractAdminCrudController
@@ -31,14 +33,18 @@ class TargetCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Target')
             ->setEntityLabelInPlural('Targets')
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'authorizationKey', 'authorizationScheme', 'allowedGroups']);
+            ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'authorizationScheme', 'allowedGroups']);
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
             ->add(TextFilter::new('name'))
+            ->add(TextFilter::new('slug'))
             ->add(BooleanFilter::new('enabled'))
+            ->add(BooleanFilter::new('hidden'))
+            ->add(NullFilter::new('targetUrl', 'Mode')->setChoiceLabels('Pull', 'Push'))
+            ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 
@@ -51,7 +57,7 @@ class TargetCrudController extends AbstractAdminCrudController
         yield TextareaField::new('description')
             ->hideOnIndex();
         yield CodeField::new('pullModeUrl', 'Pull mode URL')
-            ->onlyOnIndex();
+            ->onlyOnDetail();
         yield TextField::new('targetUrl')
             ->setHelp('Leave empty for pull mode. i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet. https only: the authorization key is sent to it (http is accepted for a host of the stack, without dot).');
         yield TextField::new('authorizationScheme')
@@ -59,8 +65,7 @@ class TargetCrudController extends AbstractAdminCrudController
             ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "'.AssetConsumerNotifyHandler::DEFAULT_AUTHORIZATION_SCHEME.'"']])
             ->onlyOnForms();
         yield TextField::new('authorizationKey')
-            ->hideOnIndex()
-        ;
+            ->onlyOnForms();
         yield TextField::new('defaultDestination')
             ->setHelp('i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)')
             ->hideOnIndex();

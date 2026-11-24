@@ -42,6 +42,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         yield MenuItem::subMenu('Uploads', 'fa-solid fa-cloud-arrow-up')->setSubItems([
             MenuItem::linkTo(TargetCrudController::class, 'Targets', 'fa-solid fa-bullseye'),
+            MenuItem::linkTo(UploadLinkCrudController::class, 'Upload Links', 'fa-solid fa-share-from-square'),
             MenuItem::linkTo(CommitCrudController::class, 'Commits', 'fa-solid fa-code-commit'),
             MenuItem::linkTo(AssetCrudController::class, 'Assets', 'fa-solid fa-image'),
             MenuItem::linkTo(MultipartUploadCrudController::class, 'Multipart Uploads', 'fa-solid fa-upload'),
@@ -89,6 +90,7 @@ class DashboardController extends AbstractAdminDashboardController
             'Upload links',
             'fa-solid fa-link',
             fn (): array => ['total' => $this->em->getRepository(UploadLink::class)->count()],
+            $this->generateCrudUrl(UploadLinkCrudController::class),
         );
         yield fn (): ?HomeStat => $this->createFailedMessagesStat($this->em);
     }
@@ -145,12 +147,14 @@ class DashboardController extends AbstractAdminDashboardController
                         date: $link->getLastCommitAt(),
                         label: $link->getName() ?? $link->getId(),
                         detail: $link->getTarget()?->getName(),
+                        url: $this->generateCrudUrl(UploadLinkCrudController::class, Action::DETAIL, $link->getId()),
                         userId: $link->getOwnerId(),
                         status: $link->isEnabled() ? 'Enabled' : 'Disabled',
                         statusVariant: $link->isEnabled() ? HomeActivityItem::VARIANT_SUCCESS : HomeActivityItem::VARIANT_SECONDARY,
                     );
                 }
             },
+            $this->generateCrudUrl(UploadLinkCrudController::class),
         );
     }
 

@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -22,6 +23,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class AssetCrudController extends AbstractAdminCrudController
 {
+    public function __construct(
+        private readonly UserChoiceFilter $userChoiceFilter,
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return Asset::class;
@@ -43,10 +49,12 @@ class AssetCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('id'))
+            ->add(AssociationIdentifierFilter::new('id'))
             ->add(TextFilter::new('title'))
-            ->add(TextFilter::new('ownerId'))
+            ->add(TextFilter::new('originalName'))
+            ->add($this->userChoiceFilter->createFilter('ownerId', 'Owner'))
             ->add(TextFilter::new('mimeType'))
+            ->add(TextFilter::new('assetId'))
             ->add(AssociationIdentifierFilter::new('publication'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
@@ -65,8 +73,10 @@ class AssetCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield JsonField::new('translations')
             ->hideOnIndex();
-        yield NumberField::new('lat');
-        yield NumberField::new('lng');
+        yield NumberField::new('lat')
+            ->hideOnIndex();
+        yield NumberField::new('lng')
+            ->hideOnIndex();
         yield NumberField::new('altitude')
             ->hideOnIndex();
         yield JsonField::new('webVTT')

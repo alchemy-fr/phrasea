@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,12 +21,15 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class AssetCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly AssetManager $assetManager,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -68,10 +72,15 @@ class AssetCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('id'))
+            ->add(AssociationIdentifierFilter::new('id'))
+            ->add($this->userChoiceFilter->createFilter('userId', 'User'))
+            ->add(EntityFilter::new('target'))
+            ->add(TextFilter::new('originalName'))
             ->add(TextFilter::new('mimeType'))
             ->add(BooleanFilter::new('acknowledged'))
             ->add(AssociationIdentifierFilter::new('commit'))
+            ->add(NullFilter::new('commit.id', 'Committed')->setChoiceLabels('Not committed', 'Committed'))
+            ->add(AssociationIdentifierFilter::new('uploadLink'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
@@ -95,6 +104,8 @@ class AssetCrudController extends AbstractAdminCrudController
             ->autocomplete();
         yield AssociationField::new('commit')
             ->autocomplete();
+        yield TextField::new('uploadLink.name', 'Upload link')
+            ->hideOnForm();
         yield BooleanField::new('committed')->renderAsSwitch(false);
         yield DateTimeField::new('createdAt');
     }

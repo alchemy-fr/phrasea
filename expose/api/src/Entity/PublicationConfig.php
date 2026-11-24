@@ -116,6 +116,17 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->layoutOptions = new LayoutOptions();
     }
 
+    /**
+     * @return array<string, string> label => security method
+     */
+    public static function getSecurityMethodChoices(): array
+    {
+        return [
+            'Password' => self::SECURITY_METHOD_PASSWORD,
+            'Authentication' => self::SECURITY_METHOD_AUTHENTICATION,
+        ];
+    }
+
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
     {
         $clone = clone $this;
