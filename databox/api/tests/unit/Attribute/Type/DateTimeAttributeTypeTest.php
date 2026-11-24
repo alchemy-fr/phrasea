@@ -29,6 +29,7 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTestCase
             ['2008-01-12', null],
             [new \DateTimeImmutable('2008-01-12T00:00:00'), null],
             [new \DateTime('2008-01-12T00:00:00'), null],
+            ['2008-01-12T12:13:00.000Z', null],
         ];
     }
 
@@ -49,6 +50,7 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTestCase
             ['2008-01-12', new \DateTimeImmutable('2008-01-12T00:00:00+00:00')],
             [new \DateTimeImmutable('2008-01-12T00:00:00'), new \DateTimeImmutable('2008-01-12T00:00:00+00:00')],
             [new \DateTime('2008-01-12T00:00:00'), new \DateTimeImmutable('2008-01-12T00:00:00+00:00')],
+            ['2008-01-12T12:13:00.000Z', new \DateTimeImmutable('2008-01-12T12:13:00+00:00')],
         ];
     }
 
@@ -69,6 +71,7 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTestCase
             ['2008-01-12', '2008-01-12T00:00:00+00:00'],
             [new \DateTimeImmutable('2008-01-12T00:00:00'), '2008-01-12T00:00:00+00:00'],
             [new \DateTime('2008-01-12T00:00:00'), '2008-01-12T00:00:00+00:00'],
+            ['2008-01-12T12:13:00.000Z', '2008-01-12T12:13:00+00:00'],
         ];
     }
 

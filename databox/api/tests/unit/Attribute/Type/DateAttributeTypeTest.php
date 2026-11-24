@@ -30,6 +30,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTestCase
             [new \DateTimeImmutable('2008-01-12T00:00:00'), null],
             [new \DateTime('2008-01-12T00:00:00'), null],
             ['1997/1997_01/', ['Invalid date']],
+            ['2026-04-26T00:00:00.000Z', null],
         ];
     }
 
@@ -66,6 +67,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTestCase
             [new \DateTimeImmutable('2008-01-12T00:00:00'), '2008-01-12T00:00:00+00:00'],
             [new \DateTime('2008-01-12T00:00:00'), '2008-01-12T00:00:00+00:00'],
             ['1997/1997_01/', '1997/1997_01/'],
+            ['2026-04-26T00:00:00.000Z', '2026-04-26T00:00:00+00:00'],
         ];
     }
 
@@ -85,6 +87,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTestCase
             ['2008-01-12T12:13:00Z ', new \DateTimeImmutable('2008-01-12T12:13:00')],
             ['2008-01-12T12:13:00Z', new \DateTimeImmutable('2008-01-12T12:13:00')],
             ['2008-01-12T12:13:00Z', new \DateTime('2008-01-12T12:13:00')],
+            ['2008-01-12', new \DateTimeImmutable('2008-01-12T00:00:00')],
         ];
     }
 
