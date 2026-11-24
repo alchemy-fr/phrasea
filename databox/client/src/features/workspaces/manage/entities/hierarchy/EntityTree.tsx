@@ -9,6 +9,7 @@ import {
     ChevronDownIcon,
     ChevronRightIcon,
     GripVerticalIcon,
+    ListTreeIcon,
     MoveIcon,
     PlusIcon,
 } from 'lucide-react';
@@ -23,13 +24,13 @@ import {
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Input} from '@alchemy/next-ui/ui/input';
 import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
-import {Badge} from '@alchemy/next-ui/ui/misc';
 import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {EntityChip} from '@/components/chips';
 import {AttributeEntitySelect} from '@/components/form/selects';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {iri} from '@/lib/utils/iri';
 import {cn} from '@alchemy/next-ui/utils/cn';
+import {isChildrenGridQueryKey} from '../useEntityGridQuery';
 import {MoveEntityDialog} from './MoveEntityDialog';
 import {
     dropZoneClass,
@@ -56,10 +57,13 @@ export function useRefreshHierarchy(listId: string) {
             queryClient.invalidateQueries({
                 queryKey: hierarchyQueryKey(listId),
             }),
-            // Not the values table: the tree only moves its rows
+            // Not the flat values table: the tree only moves its rows. The
+            // table of the children of a node (`filters.parent`) does change.
             queryClient.invalidateQueries({
                 queryKey: ['attribute-entities'],
-                predicate: q => q.queryKey[1] !== 'grid',
+                predicate: q =>
+                    q.queryKey[1] !== 'grid' ||
+                    isChildrenGridQueryKey(q.queryKey),
             }),
         ]);
 }
@@ -74,6 +78,10 @@ type TreeOptions = {
     renderActions?: (entity: AttributeEntity) => ReactNode;
     /** An entity was created in the tree */
     onCreated?: () => void;
+    /** The selected node, `null` for the root (the top level) */
+    selectedId?: string | null;
+    /** A click on a node, or on the root (`null`), selects it */
+    onSelect?: (entity: AttributeEntity | null) => void;
 };
 
 /**
@@ -159,6 +167,7 @@ function TopLevel({
     onAdded: () => void;
 }) {
     const {setNodeRef, isOver} = useTopLevelDrop();
+    const {list, selectedId, onSelect} = options;
 
     return (
         <div
@@ -169,15 +178,32 @@ function TopLevel({
             )}
             data-testid="entity-tree"
         >
-            {adding ? (
-                <AddChild
-                    list={options.list}
-                    parent={null}
-                    onDone={onAdded}
-                    onCreated={options.onCreated}
-                />
-            ) : null}
-            <Children options={options} parentId={null} ancestorIds={[]} />
+            {/* As wide as its widest node: deep nodes scroll horizontally */}
+            <div className="w-max min-w-full">
+                {onSelect ? (
+                    <div
+                        className={cn(
+                            'flex cursor-default items-center gap-1 rounded px-1 py-0.5 text-sm font-medium whitespace-nowrap hover:bg-accent/50',
+                            selectedId === null && 'bg-accent'
+                        )}
+                        aria-selected={selectedId === null}
+                        onClick={() => onSelect(null)}
+                        data-testid="entity-tree-root"
+                    >
+                        <ListTreeIcon className="size-4 text-muted-foreground" />
+                        {list.name}
+                    </div>
+                ) : null}
+                {adding ? (
+                    <AddChild
+                        list={list}
+                        parent={null}
+                        onDone={onAdded}
+                        onCreated={options.onCreated}
+                    />
+                ) : null}
+                <Children options={options} parentId={null} ancestorIds={[]} />
+            </div>
         </div>
     );
 }
@@ -209,7 +235,8 @@ function TreeNode({
 }) {
     const {t} = useTranslation();
     const {openModal} = useModals();
-    const {list, wrapRow, onOpen, renderActions, onCreated} = options;
+    const {list, wrapRow, onOpen, renderActions, onCreated, onSelect} = options;
+    const selected = !!onSelect && options.selectedId === entity.id;
     const refresh = useRefreshHierarchy(list.id);
     const [open, setOpen] = useState(false);
     const [adding, setAdding] = useState(false);
@@ -246,7 +273,8 @@ function TreeNode({
         <div
             ref={setNodeRef}
             className={cn(
-                'group flex items-center gap-1 rounded px-1 py-0.5 hover:bg-accent/50',
+                'group flex items-center gap-1 rounded px-1 py-0.5 whitespace-nowrap hover:bg-accent/50',
+                selected && 'bg-accent',
                 entity.status === AttributeEntityStatus.Pending &&
                     'bg-warning/10',
                 entity.status === AttributeEntityStatus.Rejected &&
@@ -256,6 +284,17 @@ function TreeNode({
                 isDragging && 'opacity-40',
                 zone && dropZoneClass[zone]
             )}
+            aria-selected={onSelect ? selected : undefined}
+            onClick={
+                onSelect
+                    ? e => {
+                          // Not its buttons (toggle, drag, actions)
+                          if (!(e.target as HTMLElement).closest('button')) {
+                              onSelect(entity);
+                          }
+                      }
+                    : undefined
+            }
             onDoubleClick={onOpen ? () => onOpen(entity) : undefined}
             data-testid="entity-tree-node"
         >
@@ -274,9 +313,6 @@ function TreeNode({
                 )}
             </button>
             <NodeLabel entity={entity} />
-            <Badge variant="muted" className="ml-1">
-                {entity.hierarchyDepth}
-            </Badge>
             <span className="ml-auto flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                 {renderActions?.(entity)}
                 <Button

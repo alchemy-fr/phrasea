@@ -106,6 +106,26 @@ describe('useEntityGridQuery', () => {
         });
     });
 
+    it('lists the children of a parent, or the top level', async () => {
+        api.getAttributeEntities.mockResolvedValue({total: 0, items: []});
+        renderGrid({filters: {...filters, parent: 'p1'}});
+        await waitFor(() =>
+            expect(api.getAttributeEntities).toHaveBeenLastCalledWith(
+                expect.objectContaining({parent: 'p1'})
+            )
+        );
+
+        renderGrid({filters: {...filters, parent: null}});
+        await waitFor(() =>
+            expect(api.getAttributeEntities).toHaveBeenLastCalledWith(
+                expect.objectContaining({depth: 0})
+            )
+        );
+        expect(api.getAttributeEntities.mock.lastCall?.[0]).not.toHaveProperty(
+            'parent'
+        );
+    });
+
     it('patches, inserts and removes entities in the cache', async () => {
         api.getAttributeEntities.mockResolvedValue({
             total: 2,

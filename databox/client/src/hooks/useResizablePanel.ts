@@ -15,14 +15,16 @@ import {
  * asset (`info`, which keeps the historical key), and editing its attributes
  * (`edit`) — so each one is resized and remembered on its own. `workflow-job`
  * is the details of the job selected in a workflow graph, `left-panel` the
- * sidebar of the app and `quarantine` the queue of the quarantine screen.
+ * sidebar of the app, `quarantine` the queue of the quarantine screen and
+ * `entity-tree` the tree of a hierarchical entity list.
  */
 export type PanelVariant =
     | 'info'
     | 'edit'
     | 'workflow-job'
     | 'left-panel'
-    | 'quarantine';
+    | 'quarantine'
+    | 'entity-tree';
 
 type PanelConfig = {
     storageKey: string;
@@ -68,6 +70,13 @@ const configs: Record<PanelVariant, PanelConfig> = {
         defaultWidth: 280,
         minWidth: 200,
         maxRatio: 0.5,
+        side: 'left',
+    },
+    'entity-tree': {
+        storageKey: 'dbx.entityTreeWidth',
+        defaultWidth: 320,
+        minWidth: 200,
+        maxRatio: 0.6,
         side: 'left',
     },
 };

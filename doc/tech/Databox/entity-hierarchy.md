@@ -54,6 +54,15 @@ A flat list is a forest of single entities at depth 0: lists can be organized pr
 - The migration flagged the lists having a hierarchy already; a workspace template without the
   flag gets it when one of its entities has a parent.
 
+### Client
+
+The values of a hierarchical list open as an explorer (`EntityGrid`): the tree on the left, in a
+pane resized by its handle (width remembered on the device, `useResizablePanel('entity-tree')`),
+and on the right the table of the direct children of the selected node — the top level when the
+root (the name of the list) is selected. Both panes scroll horizontally when their content is
+wider. The table keeps its filters, inline edition and moderation; a row added there is created
+under the selected node. A list without the flag only has the table, of every value.
+
 ## API
 
 - `POST /attribute-entities` `{"list": …, "value": …, "parent": "/attribute-entities/{id}", "placeholder": false}`.

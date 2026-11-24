@@ -14,10 +14,8 @@ import {
     EraserIcon,
     ListPlusIcon,
     MergeIcon,
-    ListTreeIcon,
     MoreVerticalIcon,
     PlusIcon,
-    TableIcon,
     ThumbsDownIcon,
     ThumbsUpIcon,
     Trash2Icon,
@@ -25,7 +23,7 @@ import {
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {AttributeEntity, EntityList, Workspace} from '@/types/api';
-import {AttributeEntityStatus} from '@/types/api';
+import {AttributeEntityStatus, EntityName} from '@/types/api';
 import {
     type AttributeEntitySortField,
     clearEntityList,
@@ -60,6 +58,9 @@ import {useRoutePath} from '@/lib/navigation/routePath';
 import {toastError} from '@alchemy/next-ui/utils/errors';
 import {downloadUrl} from '@alchemy/next-ui/utils/misc';
 import {cn} from '@alchemy/next-ui/utils/cn';
+import {iri} from '@/lib/utils/iri';
+import {useResizablePanel} from '@/hooks/useResizablePanel';
+import {ResizeHandle} from '@/components/ui/resize-handle';
 import {
     checkUploadFile,
     describeUploadRejection,
@@ -83,6 +84,8 @@ import {
 } from './dialogs';
 import {
     type EntityStatusFilter,
+    entityGridQueryKey,
+    isChildrenGridQueryKey,
     pendingCountQueryKey,
     useEntityGridQuery,
     usePendingCount,
@@ -114,13 +117,13 @@ async function inBatches<T>(
     return results;
 }
 
-type EntityView = 'tree' | 'table';
-
 /**
- * The values of an entity list, either as a tree (the hierarchy, organized by
- * drag & drop) or as a spreadsheet: inline edition, moderation (status chips,
- * approve / reject, one by one or the selection), server-side sort and
- * filters, infinite loading. Both share the menu of a value.
+ * The values of an entity list as a spreadsheet: inline edition, moderation
+ * (status chips, approve / reject, one by one or the selection), server-side
+ * sort and filters, infinite loading. A hierarchy is shown as an explorer:
+ * the tree (organized by drag & drop) in a resizable pane on the left, the
+ * table of the children of the selected node on the right. Both share the
+ * menu of a value.
  *
  * The value edited in the full form is in the URL (`useRoutePath`):
  * `:entityId` or `new`.
@@ -142,18 +145,15 @@ export function EntityGrid({
         [workspace.enabledLocales]
     );
 
-    // Both views stay mounted: switching keeps the open nodes, the selection
-    // and the scroll
-    // A list not flagged as a hierarchy only has the table
+    // A hierarchy is shown as an explorer, the table filtered on the node
+    // selected in the tree; a list not flagged as a hierarchy only has the
+    // table, of every value
     const isHierarchy = !!list.isHierarchy;
-    const [selectedView, setView] = useState<EntityView>('tree');
-    const view: EntityView = isHierarchy ? selectedView : 'table';
-    const viewRef = useRef(view);
-    viewRef.current = view;
-    // Changed from the other view: reloaded on demand only
-    const [outdated, setOutdated] = useState<ReadonlySet<EntityView>>(
-        () => new Set()
+    // The node of the tree whose children are listed, null for the top level
+    const [treeSelection, setTreeSelection] = useState<AttributeEntity | null>(
+        null
     );
+    const treePanel = useResizablePanel('entity-tree');
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebouncedValue(search.trim(), 250);
     const [statusFilter, setStatusFilter] = useState<EntityStatusFilter>('all');
@@ -192,43 +192,32 @@ export function EntityGrid({
             status: statusFilter,
             value: debouncedSearch ? undefined : columnFilter('value'),
             note: columnFilter('note'),
+            parent: isHierarchy ? (treeSelection?.id ?? null) : undefined,
         },
     });
     const pending = usePendingCount(list.id);
-    const refreshView = (v: EntityView) => {
-        if (v === 'tree') {
-            void queryClient.invalidateQueries({
-                queryKey: hierarchyQueryKey(list.id),
-            });
-        } else {
-            void grid.refetch();
-        }
-        setOutdated(s => {
-            if (!s.has(v)) {
-                return s;
-            }
-            const next = new Set(s);
-            next.delete(v);
-
-            return next;
-        });
-    };
     /**
-     * After a change the given views do not show yet: the displayed one is
-     * refreshed, the other one offers a reload. The table applies most changes
-     * to its rows itself, hence only the tree by default.
+     * After a change, the tree is refreshed: the table applies most changes
+     * to its rows itself, and is reloaded only with `reloadTable`.
      */
-    const dataChanged = (...views: EntityView[]) => {
+    const dataChanged = (reloadTable = false) => {
         void queryClient.invalidateQueries({
             queryKey: pendingCountQueryKey(list.id),
         });
-        (views.length > 0 ? views : (['tree'] as EntityView[])).forEach(v => {
-            if (v === viewRef.current) {
-                refreshView(v);
-            } else {
-                setOutdated(s => new Set(s).add(v));
-            }
-        });
+        if (isHierarchy) {
+            void queryClient.invalidateQueries({
+                queryKey: hierarchyQueryKey(list.id),
+            });
+            // The children of the other nodes, reloaded once selected
+            void queryClient.invalidateQueries({
+                queryKey: entityGridQueryKey(list.id),
+                predicate: q => isChildrenGridQueryKey(q.queryKey),
+                refetchType: 'none',
+            });
+        }
+        if (reloadTable) {
+            void grid.refetch();
+        }
     };
     const data = useMemo(
         () => [...drafts, ...grid.items],
@@ -288,7 +277,16 @@ export function EntityGrid({
                 const saved = await postAttributeEntity(list.id, {
                     value: v,
                     status: AttributeEntityStatus.Approved,
-                });
+                    // In the explorer, under the selected node
+                    ...(treeSelection
+                        ? {
+                              parent: iri(
+                                  EntityName.AttributeEntity,
+                                  treeSelection.id
+                              ),
+                          }
+                        : {}),
+                } as Partial<AttributeEntity>);
                 discardDraft(row.id);
                 grid.insertEntity(saved);
                 setRequestFocus({
@@ -381,6 +379,9 @@ export function EntityGrid({
                     .map(e => e.id);
                 grid.removeEntities(deleted);
                 setRowSelection({});
+                if (treeSelection && deleted.includes(treeSelection.id)) {
+                    setTreeSelection(null);
+                }
                 if (editingId && deleted.includes(editingId)) {
                     navigate([], {replace: true});
                 }
@@ -401,13 +402,17 @@ export function EntityGrid({
             },
         });
 
-    const reload = () => dataChanged('tree', 'table');
+    const reload = () => dataChanged(true);
 
     const openMerge = (entities: AttributeEntity[]) =>
         openModal(MergeEntitiesDialog, {
             entities,
             onMerged: () => {
                 setRowSelection({});
+                // It may be gone in the merge
+                if (entities.some(e => e.id === treeSelection?.id)) {
+                    setTreeSelection(null);
+                }
                 reload();
             },
         });
@@ -530,25 +535,10 @@ export function EntityGrid({
         [menuActions, list, locales, t, uploadingImageIds]
     );
 
-    /** Shows a view, offering to reload it when the other one changed its data */
-    const switchView = (v: EntityView) => {
-        if (v === view) {
-            return;
-        }
-        setView(v);
-        if (outdated.has(v)) {
-            openModal(ConfirmDialog, {
-                title: t('entity.reload_title', 'Reload the values?'),
-                description: t(
-                    'entity.reload_hint',
-                    'Values were changed in the other view.'
-                ),
-                confirmLabel: t('entity.reload', 'Reload'),
-                cancelLabel: t('entity.reload_keep', 'Keep the display'),
-                onConfirm: () => refreshView(v),
-            });
-        }
-    };
+    const valueCount =
+        grid.total !== undefined
+            ? t('entity.count', '{{count}} values', {count: grid.total})
+            : null;
 
     const chips: {id: EntityStatusFilter; label: string}[] = [
         {id: 'all', label: t('entity.filter.all', 'All')},
@@ -565,30 +555,6 @@ export function EntityGrid({
                 </Button>
                 <h3 className="text-sm font-semibold">{list.name}</h3>
                 <ExploreEntityListButton listId={list.id} />
-                {isHierarchy ? (
-                    <div className="flex items-center gap-0.5" role="group">
-                        <Button
-                            size="icon-sm"
-                            variant={view === 'tree' ? 'secondary' : 'ghost'}
-                            aria-pressed={view === 'tree'}
-                            title={t('entity.view.tree', 'Tree')}
-                            data-testid="entity-view-tree"
-                            onClick={() => switchView('tree')}
-                        >
-                            <ListTreeIcon />
-                        </Button>
-                        <Button
-                            size="icon-sm"
-                            variant={view === 'table' ? 'secondary' : 'ghost'}
-                            aria-pressed={view === 'table'}
-                            title={t('entity.view.table', 'Table')}
-                            data-testid="entity-view-table"
-                            onClick={() => switchView('table')}
-                        >
-                            <TableIcon />
-                        </Button>
-                    </div>
-                ) : null}
                 <Button
                     size="sm"
                     variant="outline"
@@ -597,126 +563,116 @@ export function EntityGrid({
                 >
                     <PlusIcon /> {t('entity.create', 'New value')}
                 </Button>
-                {view === 'table' ? (
-                    <>
-                        <FilterInput
-                            value={search}
-                            onValueChange={setSearch}
-                            placeholder={t('common.search', 'Search…')}
-                            className="w-56"
-                            data-testid="entity-search"
-                        />
-                        <div className="flex items-center gap-1" role="group">
-                            {chips.map(c => (
-                                <Button
-                                    key={c.id}
-                                    size="sm"
-                                    variant={
-                                        statusFilter === c.id
-                                            ? 'secondary'
-                                            : 'ghost'
-                                    }
-                                    aria-pressed={statusFilter === c.id}
-                                    data-testid={`entity-filter-${c.id}`}
-                                    onClick={() => {
-                                        setStatusFilter(c.id);
-                                        setRowSelection({});
-                                    }}
+                <FilterInput
+                    value={search}
+                    onValueChange={setSearch}
+                    placeholder={t('common.search', 'Search…')}
+                    className="w-56"
+                    data-testid="entity-search"
+                />
+                <div className="flex items-center gap-1" role="group">
+                    {chips.map(c => (
+                        <Button
+                            key={c.id}
+                            size="sm"
+                            variant={
+                                statusFilter === c.id ? 'secondary' : 'ghost'
+                            }
+                            aria-pressed={statusFilter === c.id}
+                            data-testid={`entity-filter-${c.id}`}
+                            onClick={() => {
+                                setStatusFilter(c.id);
+                                setRowSelection({});
+                            }}
+                        >
+                            {c.label}
+                            {c.id === 'pending' && pending.data ? (
+                                <Badge
+                                    variant="warning"
+                                    data-testid="entity-pending-count"
+                                    title={t(
+                                        'entity.pending_count',
+                                        '{{count}} pending',
+                                        {count: pending.data}
+                                    )}
                                 >
-                                    {c.label}
-                                    {c.id === 'pending' && pending.data ? (
-                                        <Badge
-                                            variant="warning"
-                                            data-testid="entity-pending-count"
-                                            title={t(
-                                                'entity.pending_count',
-                                                '{{count}} pending',
-                                                {count: pending.data}
-                                            )}
-                                        >
-                                            {pending.data}
-                                        </Badge>
-                                    ) : null}
-                                </Button>
-                            ))}
-                        </div>
+                                    {pending.data}
+                                </Badge>
+                            ) : null}
+                        </Button>
+                    ))}
+                </div>
+                <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={addRow}
+                    data-testid="entity-add-row"
+                >
+                    <ListPlusIcon /> {t('entity.add_row', 'Add row')}
+                </Button>
+                {selected.length > 0 ? (
+                    <>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                                void setStatus(
+                                    selected,
+                                    AttributeEntityStatus.Approved
+                                )
+                            }
+                            data-testid="entity-approve-selected"
+                        >
+                            <ThumbsUpIcon />{' '}
+                            {t(
+                                'entity.approve_selected',
+                                'Approve {{count}} values',
+                                {
+                                    count: selected.length,
+                                }
+                            )}
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                                void setStatus(
+                                    selected,
+                                    AttributeEntityStatus.Rejected
+                                )
+                            }
+                            data-testid="entity-reject-selected"
+                        >
+                            <ThumbsDownIcon />{' '}
+                            {t(
+                                'entity.reject_selected',
+                                'Reject {{count}} values',
+                                {
+                                    count: selected.length,
+                                }
+                            )}
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={selected.length < 2}
+                            onClick={() => openMerge(selected)}
+                        >
+                            <MergeIcon /> {t('entity.merge', 'Merge')}
+                        </Button>
                         <Button
                             size="sm"
                             variant="ghost"
-                            onClick={addRow}
-                            data-testid="entity-add-row"
+                            className="text-destructive"
+                            onClick={() => confirmDelete(selected)}
                         >
-                            <ListPlusIcon /> {t('entity.add_row', 'Add row')}
+                            <Trash2Icon /> {t('common.delete', 'Delete')}
                         </Button>
-                        {selected.length > 0 ? (
-                            <>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                        void setStatus(
-                                            selected,
-                                            AttributeEntityStatus.Approved
-                                        )
-                                    }
-                                    data-testid="entity-approve-selected"
-                                >
-                                    <ThumbsUpIcon />{' '}
-                                    {t(
-                                        'entity.approve_selected',
-                                        'Approve {{count}} values',
-                                        {
-                                            count: selected.length,
-                                        }
-                                    )}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                        void setStatus(
-                                            selected,
-                                            AttributeEntityStatus.Rejected
-                                        )
-                                    }
-                                    data-testid="entity-reject-selected"
-                                >
-                                    <ThumbsDownIcon />{' '}
-                                    {t(
-                                        'entity.reject_selected',
-                                        'Reject {{count}} values',
-                                        {
-                                            count: selected.length,
-                                        }
-                                    )}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    disabled={selected.length < 2}
-                                    onClick={() => openMerge(selected)}
-                                >
-                                    <MergeIcon /> {t('entity.merge', 'Merge')}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-destructive"
-                                    onClick={() => confirmDelete(selected)}
-                                >
-                                    <Trash2Icon />{' '}
-                                    {t('common.delete', 'Delete')}
-                                </Button>
-                            </>
-                        ) : null}
                     </>
                 ) : null}
                 <span className="ml-auto text-xs text-muted-foreground">
-                    {grid.total !== undefined
-                        ? t('entity.count', '{{count}} values', {
-                              count: grid.total,
-                          })
-                        : null}
+                    {/* A hierarchy counts the values of the selected node, above its table */}
+                    {isHierarchy ? null : valueCount}
                 </span>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -846,6 +802,7 @@ export function EntityGrid({
                                     onConfirm: async () => {
                                         await clearEntityList(list.id);
                                         setRowSelection({});
+                                        setTreeSelection(null);
                                         reload();
                                     },
                                 })
@@ -856,21 +813,22 @@ export function EntityGrid({
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="relative min-h-0 flex-1">
-                {/* Hidden, not unmounted: it keeps its state and its scroll */}
+            <div className="flex min-h-0 flex-1">
                 {isHierarchy ? (
                     <div
-                        className={cn(
-                            'absolute inset-0 flex flex-col',
-                            view !== 'tree' && 'invisible'
-                        )}
-                        inert={view !== 'tree'}
+                        style={{width: treePanel.width}}
+                        className="flex min-w-0 shrink-0 flex-col pr-2"
                     >
                         <EntityTree
                             list={list}
                             className="min-h-0 flex-1"
+                            selectedId={treeSelection?.id ?? null}
+                            onSelect={e => {
+                                setTreeSelection(e);
+                                setRowSelection({});
+                            }}
                             onOpen={e => navigate([e.id])}
-                            onCreated={() => dataChanged('table')}
+                            onCreated={() => dataChanged(true)}
                             wrapRow={(entity, row) => (
                                 <EntityRowContextMenu
                                     entity={entity}
@@ -884,13 +842,52 @@ export function EntityGrid({
                         />
                     </div>
                 ) : null}
+                {isHierarchy ? (
+                    <ResizeHandle
+                        panel={treePanel}
+                        data-testid="entity-tree-resize"
+                    />
+                ) : null}
                 <div
                     className={cn(
-                        'absolute inset-0 flex flex-col',
-                        view !== 'table' && 'invisible'
+                        'flex min-w-0 flex-1 flex-col gap-1',
+                        isHierarchy && 'pl-2'
                     )}
-                    inert={view !== 'table'}
                 >
+                    {isHierarchy ? (
+                        <p className="flex gap-2 text-xs text-muted-foreground">
+                            <span
+                                className="truncate"
+                                data-testid="entity-table-parent"
+                            >
+                                {treeSelection
+                                    ? t(
+                                          'entity_hierarchy.children_of',
+                                          'Children of "{{name}}"',
+                                          {
+                                              name: treeSelection.placeholder
+                                                  ? t(
+                                                        'entity_hierarchy.placeholder',
+                                                        'empty level'
+                                                    )
+                                                  : treeSelection.value,
+                                          }
+                                      )
+                                    : t(
+                                          'entity_hierarchy.root_children',
+                                          'Top level'
+                                      )}
+                            </span>
+                            {valueCount ? (
+                                <span
+                                    className="shrink-0"
+                                    data-testid="entity-count"
+                                >
+                                    · {valueCount}
+                                </span>
+                            ) : null}
+                        </p>
+                    ) : null}
                     <DataTable<AttributeEntity>
                         data={data}
                         columns={columns}
