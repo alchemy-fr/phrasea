@@ -75,14 +75,14 @@ describe('Asset viewer', () => {
         waitForResults(4);
         // A first round trip from another search must not be remembered
         openAsset('Bravo');
-        cy.getBySel('asset-view').find('[aria-label="Close"]').click();
-        cy.getBySel('asset-view').should('not.exist');
+        // Search screen loaded with the page
+        closeViewerFromCache(() => cy.getBySel('asset-view').find('[aria-label="Close"]').click());
 
         search('Charlie');
         waitForResults(1);
         openAsset('Charlie');
-        cy.getBySel('asset-view').find('[aria-label="Close"]').click();
-        cy.getBySel('asset-view').should('not.exist');
+        // Search screen pushed by the search
+        closeViewerFromCache(() => cy.getBySel('asset-view').find('[aria-label="Close"]').click());
         cy.url().should('include', 'q=Charlie');
         cy.getBySel('search-input').should('have.value', 'Charlie');
         waitForResults(1);
@@ -210,8 +210,7 @@ describe('Asset viewer', () => {
         visitWorkspace(ctx.workspace.id);
         waitForResults(4);
         openAsset('Bravo');
-        cy.get('body').type('{esc}');
-        cy.getBySel('asset-view').should('not.exist');
+        closeViewerFromCache(() => cy.get('body').type('{esc}'));
         cy.url().should('include', '/assets');
         assetItem('Bravo').should('be.visible');
     });
@@ -222,6 +221,34 @@ describe('Asset viewer', () => {
         cy.contains(/Asset not found|Sign in/, {timeout: 30000}).should('be.visible');
     });
 });
+
+/**
+ * Closes the viewer with `close` and checks that the search screen comes back
+ * from the client router cache: a request for its RSC payload would hold the
+ * viewer on screen for a server round trip, behind the navigation progress
+ * bar. Prefetches (a link in view) do not count.
+ */
+function closeViewerFromCache(close) {
+    const requests = [];
+    cy.intercept(
+        {
+            method: 'GET',
+            hostname: new URL(databoxUrl).hostname,
+            pathname: '/assets',
+            headers: {rsc: '1'},
+        },
+        req => {
+            if (!req.headers['next-router-prefetch'] && !req.headers['next-router-segment-prefetch']) {
+                requests.push(req.url);
+            }
+        }
+    ).as('searchScreenRsc');
+    close();
+    cy.getBySel('asset-view').should('not.exist');
+    cy.then(() => {
+        expect(requests, 'RSC requests for the search screen').to.be.empty;
+    });
+}
 
 function resetPanelTabs() {
     apiRequest({

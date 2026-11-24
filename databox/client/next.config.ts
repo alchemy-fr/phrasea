@@ -32,6 +32,15 @@ const nextConfig: NextConfig = {
     },
     experimental: {
         optimizePackageImports: ['lucide-react', 'radix-ui', 'date-fns'],
+        // The pages only render the configuration on the server, their data
+        // comes from the API on the client: a recent payload of the client
+        // router cache is never stale. Without it (dynamic: 0), closing a
+        // route dialog or the asset viewer goes back to the server for the
+        // screen still mounted underneath, and the navigation progress bar
+        // shows up. `router.refresh()` (language switch) bypasses it.
+        staleTimes: {
+            dynamic: 300,
+        },
     },
     turbopack: {},
     // Workspace libraries are shipped as TypeScript sources
