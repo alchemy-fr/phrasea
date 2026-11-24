@@ -1,4 +1,4 @@
-FROM php:8.5.12-fpm-alpine3.24
+FROM php:8.5.13-fpm-alpine3.24
 
 # brotli-libs >= 1.2.1: CVE-2026-111497
 RUN apk upgrade --no-cache musl \
