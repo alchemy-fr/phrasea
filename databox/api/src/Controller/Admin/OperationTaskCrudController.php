@@ -66,7 +66,7 @@ class OperationTaskCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Operation Task')
             ->setEntityLabelInPlural('Operation Tasks')
-            ->setSearchFields(['id', 'task', 'payload'])
+            ->setSearchFields(['id', 'task'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 

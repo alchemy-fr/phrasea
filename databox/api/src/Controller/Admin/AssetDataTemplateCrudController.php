@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Template\AssetDataTemplate;
@@ -16,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
@@ -50,6 +52,8 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
         return $filters
             ->add(EntityFilter::new('workspace'))
             ->add(TextFilter::new('name'))
+            ->add(BooleanFilter::new('public'))
+            ->add(AssociationIdentifierFilter::new('collection'))
             ->add($this->userChoiceFilter->createFilter('ownerId', 'Owner'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
@@ -64,12 +68,12 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
         yield BooleanField::new('public');
         yield AssociationField::new('collection')
             ->autocomplete();
-        yield BooleanField::new('includeCollectionChildren', 'Include children');
+        yield BooleanField::new('includeCollectionChildren', 'Include children')
+            ->hideOnIndex();
         yield AssociationField::new('workspace')
             ->autocomplete();
         yield $this->privacyField->create('privacy');
-        yield $this->userChoiceField->create('ownerId', 'Owner')
-            ->hideOnIndex();
+        yield $this->userChoiceField->create('ownerId', 'Owner');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

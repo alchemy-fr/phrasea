@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use App\Entity\Automation\SavedSearchAutomation;
 use App\Model\AutomationRunStatusEnum;
 use App\Model\AutomationScopeEnum;
@@ -22,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
@@ -68,8 +70,11 @@ class SavedSearchAutomationCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(TextFilter::new('name'))
-            ->add(EntityFilter::new('savedSearch'))
+            ->add(EntityFilter::new('workspace'))
+            ->add(AssociationIdentifierFilter::new('savedSearch'))
             ->add(BooleanFilter::new('enabled'))
+            ->add(ChoiceFilter::new('scope')->setChoices(AutomationScopeEnum::getChoices()))
+            ->add(ChoiceFilter::new('lastRunStatus')->setChoices(AutomationRunStatusEnum::getChoices()))
             ->add(DateTimeFilter::new('nextRunAt'))
             ->add(DateTimeFilter::new('lastRunAt'))
         ;
@@ -80,6 +85,7 @@ class SavedSearchAutomationCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield TextField::new('name');
+        yield AssociationField::new('workspace');
         yield AssociationField::new('savedSearch');
         yield BooleanField::new('enabled')
             ->renderAsSwitch(false);
@@ -95,9 +101,17 @@ class SavedSearchAutomationCrudController extends AbstractAdminCrudController
         yield DateTimeField::new('nextRunAt');
         yield DateTimeField::new('lastRunAt');
         yield ChoiceField::new('lastRunStatus')
-            ->setChoices(AutomationRunStatusEnum::getChoices());
-        yield IntegerField::new('consecutiveFailures')
-            ->hideOnIndex();
+            ->setChoices(AutomationRunStatusEnum::getChoices())
+            ->renderAsBadges([
+                AutomationRunStatusEnum::Pending->value => 'secondary',
+                AutomationRunStatusEnum::Running->value => 'warning',
+                AutomationRunStatusEnum::Success->value => 'success',
+                AutomationRunStatusEnum::Partial->value => 'warning',
+                AutomationRunStatusEnum::Failed->value => 'danger',
+                AutomationRunStatusEnum::Skipped->value => 'info',
+                AutomationRunStatusEnum::Cancelled->value => 'dark',
+            ]);
+        yield IntegerField::new('consecutiveFailures');
         yield $this->userChoiceField->create('createdBy', 'Created by')
             ->hideOnIndex();
         yield DateTimeField::new('createdAt')

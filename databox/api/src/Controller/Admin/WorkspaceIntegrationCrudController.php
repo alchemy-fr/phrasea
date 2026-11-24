@@ -9,6 +9,7 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Field\YamlField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Admin\Field\IntegrationChoiceField;
 use App\Entity\Integration\WorkspaceIntegration;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -21,12 +22,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
 {
-    public function __construct(private readonly IntegrationChoiceField $integrationChoiceField, private readonly UserChoiceField $userChoiceField)
-    {
+    public function __construct(
+        private readonly IntegrationChoiceField $integrationChoiceField,
+        private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -40,8 +45,11 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
         return $filters
             ->add(TextFilter::new('name'))
             ->add(EntityFilter::new('workspace'))
+            ->add(NullFilter::new('workspace.id', 'Global')->setChoiceLabels('Global', 'In a workspace'))
             ->add($this->integrationChoiceField->createFilter('integration'))
             ->add(BooleanFilter::new('enabled'))
+            ->add(BooleanFilter::new('public'))
+            ->add($this->userChoiceFilter->createFilter('ownerId', 'Owner'))
         ;
     }
 
@@ -49,7 +57,7 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setSearchFields(['id', 'name', 'integration', 'config']);
+            ->setSearchFields(['id', 'name', 'integration']);
     }
 
     #[\Override]
@@ -65,7 +73,8 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
             ->onlyOndetail();
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield AssociationField::new('needs')
-            ->autocomplete();
+            ->autocomplete()
+            ->hideOnIndex();
         yield TextField::new('if')
             ->setHelp('Based on Symfony Expression Language.
 <br/>e.g.
@@ -85,7 +94,7 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
             ->hideOnForm();
         yield ArrayField::new('this', 'Config info')
             ->setTemplatePath('admin/integration_config_info.html.twig')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

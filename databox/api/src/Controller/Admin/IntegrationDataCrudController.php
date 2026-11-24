@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Integration\IntegrationData;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -16,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
@@ -23,6 +25,7 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -56,6 +59,8 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
             ->add(TextFilter::new('objectType'))
             ->add(TextFilter::new('objectId'))
             ->add(TextFilter::new('value'))
+            ->add($this->userChoiceFilter->createFilter('userId', 'User'))
+            ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 
@@ -70,7 +75,8 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
         yield IdField::new('objectId');
         yield $this->userChoiceField->create('userId', 'User');
         yield TextField::new('keyId');
-        yield CodeField::new('value');
+        yield CodeField::new('value')
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
     }

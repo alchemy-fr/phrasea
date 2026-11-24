@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Integration\IntegrationToken;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -20,6 +21,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class IntegrationTokenCrudController extends AbstractAdminCrudController
 {
+    public function __construct(
+        private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return IntegrationToken::class;
@@ -35,7 +42,7 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        return $actions
+        return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
         ;
@@ -46,7 +53,9 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('integration'))
+            ->add($this->userChoiceFilter->createFilter('userId', 'User'))
             ->add(DateTimeFilter::new('expiresAt'))
+            ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 
@@ -56,9 +65,11 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
         yield IdField::new();
         yield AssociationField::new('integration')
             ->autocomplete();
-        yield CodeField::new('userId', 'User ID');
+        yield $this->userChoiceField->create('userId', 'User');
         yield DateTimeField::new('expiresAt');
         yield BooleanField::new('expired')
             ->renderAsSwitch(false);
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
     }
 }

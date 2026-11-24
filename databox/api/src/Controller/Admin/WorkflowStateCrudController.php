@@ -7,6 +7,9 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Workflow\WorkflowState;
@@ -22,13 +25,23 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
 {
+    private const array STATUS_CHOICES = [
+        'STARTED' => ModelWorkflowState::STATUS_STARTED,
+        'SUCCESS' => ModelWorkflowState::STATUS_SUCCESS,
+        'FAILURE' => ModelWorkflowState::STATUS_FAILURE,
+        'CANCELLED' => ModelWorkflowState::STATUS_CANCELLED,
+    ];
+
     public function __construct(
         private readonly string $databoxClientBaseUrl,
         private readonly WorkflowOrchestrator $workflowOrchestrator,
+        private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -75,18 +88,17 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
             ->setDefaultSort([
                 'startedAt' => 'DESC',
             ])
-            ->setSearchFields(['id']);
+            ->setSearchFields(['id', 'name']);
     }
 
     #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(ChoiceFilter::new('status')->setChoices([
-                'STARTED' => ModelWorkflowState::STATUS_STARTED,
-                'SUCCESS' => ModelWorkflowState::STATUS_SUCCESS,
-                'FAILURE' => ModelWorkflowState::STATUS_FAILURE,
-            ]))
+            ->add(ChoiceFilter::new('status')->setChoices(self::STATUS_CHOICES))
+            ->add(TextFilter::new('name'))
+            ->add(AssociationIdentifierFilter::new('asset'))
+            ->add($this->userChoiceFilter->createFilter('initiatorId', 'Initiator'))
             ->add(DateTimeFilter::new('startedAt'))
             ->add(DateTimeFilter::new('endedAt'))
         ;
@@ -97,21 +109,19 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield ChoiceField::new('status', 'Status')
-            ->setChoices([
-                'STARTED' => ModelWorkflowState::STATUS_STARTED,
-                'SUCCESS' => ModelWorkflowState::STATUS_SUCCESS,
-                'FAILURE' => ModelWorkflowState::STATUS_FAILURE,
-            ])->renderAsBadges([
+            ->setChoices(self::STATUS_CHOICES)
+            ->renderAsBadges([
                 ModelWorkflowState::STATUS_STARTED => 'warning',
                 ModelWorkflowState::STATUS_SUCCESS => 'success',
                 ModelWorkflowState::STATUS_FAILURE => 'danger',
+                ModelWorkflowState::STATUS_CANCELLED => 'dark',
             ]);
 
         yield TextField::new('name', 'Name');
         yield TextField::new('eventName', 'Event');
         yield ArrayObjectField::new('eventInputs', 'Event inputs')
             ->hideOnIndex();
-        yield TextField::new('initiatorId', 'Initiator');
+        yield $this->userChoiceField->create('initiatorId', 'Initiator');
         yield ArrayObjectField::new('context', 'Context')
             ->hideOnIndex();
         yield AssociationField::new('asset', 'Asset')

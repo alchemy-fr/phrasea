@@ -74,7 +74,8 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield ChoiceField::new('status')
         ->setChoices(AttributeEntity::STATUS_CHOICES);
-        yield JsonField::new('translations');
+        yield JsonField::new('translations')
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

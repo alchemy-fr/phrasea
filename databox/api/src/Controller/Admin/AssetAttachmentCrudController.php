@@ -6,13 +6,14 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use App\Entity\Core\AssetAttachment;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class AssetAttachmentCrudController extends AbstractAdminCrudController
 {
@@ -35,8 +36,8 @@ class AssetAttachmentCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('asset'))
-            ->add(EntityFilter::new('attachment'))
+            ->add(AssociationIdentifierFilter::new('asset'))
+            ->add(AssociationIdentifierFilter::new('attachment'))
         ;
     }
 
@@ -51,6 +52,7 @@ class AssetAttachmentCrudController extends AbstractAdminCrudController
         yield AssociationField::new('attachment')
             ->autocomplete();
         yield IntegerField::new('priority');
-
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
     }
 }

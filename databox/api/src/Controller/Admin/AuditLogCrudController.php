@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use Alchemy\CoreBundle\Mapping\ObjectMapping;
 use Alchemy\TrackBundle\Admin\Field\ObjectTypeChoiceField;
 use Alchemy\TrackBundle\AlchemyTrackBundle;
@@ -22,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AuditLogCrudController extends AbstractAdminCrudController
@@ -30,6 +32,7 @@ class AuditLogCrudController extends AbstractAdminCrudController
         #[Autowire(service: AlchemyTrackBundle::OBJECT_MAPPING_SERVICE_ID)]
         private readonly ObjectMapping $objectMapping,
         private readonly ObjectTypeChoiceField $objectTypeChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -52,14 +55,15 @@ class AuditLogCrudController extends AbstractAdminCrudController
         }
 
         return $filters
+            ->add(DateTimeFilter::new('date'))
             ->add(ChoiceFilter::new('actorType')
                 ->setChoices(AuditActorTypeEnum::getChoices()))
-            ->add('userId')
-            ->add('impersonatorId')
+            ->add($this->userChoiceFilter->createFilter('userId', 'User'))
+            ->add($this->userChoiceFilter->createFilter('impersonatorId', 'Impersonator'))
             ->add('clientId')
             ->add(ChoiceFilter::new('objectType')
                 ->setChoices($objectTypeChoices))
-            ->add('objectId')
+            ->add(AssociationIdentifierFilter::new('objectId', 'Object ID'))
             // Exact match: a LIKE does not apply to a UUID column
             ->add(AssociationIdentifierFilter::new('workspaceId'))
             ->add(AssociationIdentifierFilter::new('correlationId'))
@@ -71,8 +75,7 @@ class AuditLogCrudController extends AbstractAdminCrudController
     #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
-            ->showEntityActionsInlined()
+        return parent::configureCrud($crud)
             ->setDefaultSort(['date' => 'DESC'])
         ;
     }
@@ -98,6 +101,7 @@ class AuditLogCrudController extends AbstractAdminCrudController
         yield CodeField::new('workspaceId')->hideOnIndex();
         yield CodeField::new('correlationId')->hideOnIndex();
         yield JsonField::new('meta')->hideOnIndex();
-        yield JsonField::new('data');
+        yield JsonField::new('data')
+            ->hideOnIndex();
     }
 }

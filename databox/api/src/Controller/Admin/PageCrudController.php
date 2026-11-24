@@ -50,6 +50,7 @@ class PageCrudController extends AbstractAclAdminCrudController
             ->add(TextFilter::new('title'))
             ->add(TextFilter::new('slug'))
             ->add(BooleanFilter::new('public'))
+            ->add(BooleanFilter::new('enabled'))
             ->add(DateTimeFilter::new('createdAt'))
             ->add(DateTimeFilter::new('updatedAt'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))

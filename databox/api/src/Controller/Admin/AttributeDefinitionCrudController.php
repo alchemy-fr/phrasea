@@ -9,6 +9,7 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AttributeDefinition;
+use App\Model\AssetTypeEnum;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -52,10 +53,16 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
+            ->add(TextFilter::new('name'))
             ->add(EntityFilter::new('policy'))
+            ->add(EntityFilter::new('entityList'))
+            ->add(BooleanFilter::new('enabled'))
             ->add(BooleanFilter::new('searchable'))
             ->add(BooleanFilter::new('multiple'))
+            ->add(BooleanFilter::new('translatable'))
+            ->add(BooleanFilter::new('facetEnabled'))
             ->add(ChoiceFilter::new('type')->setChoices($this->getTypeChoice()))
+            ->add(ChoiceFilter::new('target')->setChoices(AssetTypeEnum::getChoices()))
             ->add(TextFilter::new('fileType'))
         ;
     }
@@ -68,7 +75,8 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield TextField::new('name');
         yield JsonField::new('translations')
             ->hideOnIndex();
-        yield TextField::new('slug');
+        yield TextField::new('slug')
+            ->hideOnIndex();
         yield AssociationField::new('workspace')
             ->autocomplete();
         yield AssociationField::new('policy')
@@ -77,7 +85,8 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield ChoiceField::new('type')
             ->setChoices($this->getTypeChoice());
         yield AssociationField::new('entityList')
-            ->autocomplete();
+            ->autocomplete()
+            ->hideOnIndex();
         yield BooleanField::new('allowInvalid')
             ->hideOnIndex()
             ->renderAsSwitch(false);
@@ -133,7 +142,8 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield IntegerField::new('position');
         yield DateTimeField::new('createdAt')
-            ->hideOnForm();
+            ->hideOnForm()
+            ->hideOnIndex();
         yield DateTimeField::new('updatedAt')
             ->hideOnForm();
         yield JsonField::new('labels')

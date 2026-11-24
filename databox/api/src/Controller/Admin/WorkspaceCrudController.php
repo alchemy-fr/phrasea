@@ -28,6 +28,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
@@ -55,7 +56,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Workspace')
             ->setEntityLabelInPlural('Workspaces')
-            ->setSearchFields(['id', 'name', 'slug', 'config'])
+            ->setSearchFields(['id', 'name', 'slug'])
             ->setPaginatorPageSize(100)
             ->setDefaultSort(['name' => 'ASC']);
     }
@@ -97,6 +98,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->add(TextFilter::new('name'))
             ->add(BooleanFilter::new('public'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
+            ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 
@@ -113,7 +115,8 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->onlyOndetail();
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield ArrayField::new('enabledLocales');
-        yield ArrayField::new('localeFallbacks');
+        yield ArrayField::new('localeFallbacks')
+            ->hideOnIndex();
         yield BooleanField::new('public')
             ->setHelp('If you need to expose a collection publicly, then its workspace has to be public.');
         yield BooleanField::new('fileAnalysisRequired')
@@ -129,9 +132,8 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->onlyOnDetail();
         yield ChoiceField::new('applyWorkspaceTemplate')
             ->setFormTypeOption('mapped', false)
-            ->setChoices($this->getTemplateChoice());
-        yield DateTimeField::new('deletedAt')
-            ->hideOnIndex();
+            ->setChoices($this->getTemplateChoice())
+            ->onlyOnForms();
     }
 
     private function getTemplateChoice()

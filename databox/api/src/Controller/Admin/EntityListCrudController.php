@@ -6,6 +6,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Core\EntityList;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -19,6 +21,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class EntityListCrudController extends AbstractAdminCrudController
 {
+    public function __construct(
+        private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return EntityList::class;
@@ -30,6 +38,7 @@ class EntityListCrudController extends AbstractAdminCrudController
         return $filters
             ->add(EntityFilter::new('workspace'))
             ->add(TextFilter::new('name'))
+            ->add($this->userChoiceFilter->createFilter('ownerId', 'Owner'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
@@ -50,6 +59,7 @@ class EntityListCrudController extends AbstractAdminCrudController
         yield AssociationField::new('workspace')
             ->autocomplete();
         yield TextField::new('name');
+        yield $this->userChoiceField->create('ownerId', 'Owner');
         yield BooleanField::new('allowNewValues');
         yield BooleanField::new('approveNewValues');
         yield DateTimeField::new('createdAt')

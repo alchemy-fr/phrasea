@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Collection;
@@ -24,6 +25,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class CollectionCrudController extends AbstractAclAdminCrudController
@@ -65,7 +67,10 @@ class CollectionCrudController extends AbstractAclAdminCrudController
             ->add(EntityFilter::new('workspace'))
             ->add(TextFilter::new('name'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
+            ->add($this->privacyField->createFilter())
+            ->add(AssociationIdentifierFilter::new('parent'))
             ->add(DateTimeFilter::new('createdAt'))
+            ->add(NullFilter::new('deletedAt', 'Trashed')->setChoiceLabels('Not trashed', 'Trashed'))
         ;
     }
 
@@ -80,12 +85,11 @@ class CollectionCrudController extends AbstractAclAdminCrudController
             ->autocomplete();
         yield AssociationField::new('storyAsset')
             ->autocomplete()
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield AssociationField::new('workspace')
             ->autocomplete();
         yield $this->privacyField->create('privacy');
-        yield $this->userChoiceField->create('ownerId', 'Owner')
-            ->hideOnIndex();
+        yield $this->userChoiceField->create('ownerId', 'Owner');
         yield TextField::new('key')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')

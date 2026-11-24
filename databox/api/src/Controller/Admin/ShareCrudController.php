@@ -17,6 +17,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 final class ShareCrudController extends AbstractAdminCrudController
 {
@@ -37,15 +40,20 @@ final class ShareCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Share')
             ->setEntityLabelInPlural('Shares')
-            ->setPaginatorPageSize(100);
+            ->setPaginatorPageSize(100)
+            ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
     #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
+            ->add(TextFilter::new('name'))
             ->add(AssociationIdentifierFilter::new('assets'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
+            ->add(BooleanFilter::new('enabled'))
+            ->add(DateTimeFilter::new('expiresAt'))
+            ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 
@@ -54,6 +62,8 @@ final class ShareCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield TextField::new('name');
+        yield BooleanField::new('enabled')
+            ->renderAsSwitch(false);
         yield AssociationField::new('assets')
             ->autocomplete();
         // Through the adder and remover, which maintain renditionsRestricted
@@ -66,7 +76,8 @@ final class ShareCrudController extends AbstractAdminCrudController
             ->renderAsSwitch(false)
             ->hideOnForm()
             ->hideOnIndex();
-        yield CodeField::new('token');
+        yield CodeField::new('token')
+            ->hideOnIndex();
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield DateTimeField::new('startsAt');
         yield DateTimeField::new('expiresAt');

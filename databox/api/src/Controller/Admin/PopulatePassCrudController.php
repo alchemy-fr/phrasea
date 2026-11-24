@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -69,7 +70,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Populate Pass')
             ->setEntityLabelInPlural('Populate Passes')
-            ->setSearchFields(['id', 'documentCount', 'progress', 'indexName', 'mapping', 'error'])
+            ->setSearchFields(['id', 'documentCount', 'progress', 'indexName', 'error', 'runId'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
@@ -79,8 +80,10 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         return $filters
             ->add(NumericFilter::new('documentCount'))
             ->add(TextFilter::new('indexName'))
+            ->add(TextFilter::new('runId'))
             ->add(DateTimeFilter::new('createdAt'))
-            ->add(DateTimeFilter::new('endedAt'))
+            ->add(NullFilter::new('endedAt', 'Ended')->setChoiceLabels('Running', 'Ended'))
+            ->add(NullFilter::new('error', 'Error')->setChoiceLabels('No error', 'Failed'))
         ;
     }
 
@@ -105,6 +108,8 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             ->renderAsSwitch(false)
             ->onlyOnIndex();
         yield TextField::new('error');
+        yield TextField::new('runId')
+            ->onlyOnDetail();
         yield JsonField::new('stats')
             ->onlyOnDetail();
         yield JsonField::new('mapping')

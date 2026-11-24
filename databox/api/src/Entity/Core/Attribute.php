@@ -115,6 +115,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
         self::ORIGIN_HUMAN => 'human',
         self::ORIGIN_FALLBACK => 'fallback',
         self::ORIGIN_INITIAL => 'initial',
+        self::ORIGIN_FALLBACK_PERSISTED => 'fallback_persisted',
     ];
 
     final public const int STATUS_VALID = 0;

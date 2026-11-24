@@ -27,6 +27,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class JobStateCrudController extends AbstractAdminCrudController
@@ -105,21 +106,17 @@ class JobStateCrudController extends AbstractAdminCrudController
             ->setDefaultSort([
                 'triggeredAt' => 'DESC',
             ])
-            ->setSearchFields(['id']);
+            ->setSearchFields(['id', 'jobId']);
     }
 
     #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(ChoiceFilter::new('status')->setChoices([
-                'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
-                'SUCCESS' => ModelJobState::STATUS_SUCCESS,
-                'FAILURE' => ModelJobState::STATUS_FAILURE,
-                'SKIPPED' => ModelJobState::STATUS_SKIPPED,
-                'RUNNING' => ModelJobState::STATUS_RUNNING,
-            ]))
+            ->add(ChoiceFilter::new('status')->setChoices($this->getStatusChoices()))
             ->add(AssociationIdentifierFilter::new('workflow'))
+            ->add(TextFilter::new('jobId'))
+            ->add(DateTimeFilter::new('triggeredAt'))
             ->add(DateTimeFilter::new('startedAt'))
             ->add(DateTimeFilter::new('endedAt'))
             ->add(NumericFilter::new('number'))
@@ -137,19 +134,15 @@ class JobStateCrudController extends AbstractAdminCrudController
         yield DateTimeField::new('startedAt', 'Started At');
         yield NumberField::new('number');
         yield ChoiceField::new('status', 'Status')
-            ->setChoices([
-                'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
-                'SUCCESS' => ModelJobState::STATUS_SUCCESS,
-                'FAILURE' => ModelJobState::STATUS_FAILURE,
-                'SKIPPED' => ModelJobState::STATUS_SKIPPED,
-                'RUNNING' => ModelJobState::STATUS_RUNNING,
-            ])
+            ->setChoices($this->getStatusChoices())
             ->renderAsBadges([
                 ModelJobState::STATUS_TRIGGERED => 'secondary',
                 ModelJobState::STATUS_SUCCESS => 'success',
                 ModelJobState::STATUS_FAILURE => 'danger',
                 ModelJobState::STATUS_SKIPPED => 'info',
                 ModelJobState::STATUS_RUNNING => 'warning',
+                ModelJobState::STATUS_ERROR => 'danger',
+                ModelJobState::STATUS_CANCELLED => 'dark',
             ])
         ;
 
@@ -163,5 +156,10 @@ class JobStateCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield ArrayObjectField::new('outputs')
             ->hideOnIndex();
+    }
+
+    private function getStatusChoices(): array
+    {
+        return array_flip(array_map(strtoupper(...), ModelJobState::STATUS_LABELS));
     }
 }

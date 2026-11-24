@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use App\Entity\Core\File;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -21,6 +22,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class FileCrudController extends AbstractAdminCrudController
@@ -51,10 +53,16 @@ class FileCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
+            ->add(TextFilter::new('originalName'))
+            ->add(TextFilter::new('type'))
+            ->add(TextFilter::new('extension'))
             ->add(TextFilter::new('storage'))
             ->add(TextFilter::new('checksum'))
-            ->add(TextFilter::new('docUniqueId'))
+            ->add(AssociationIdentifierFilter::new('docUniqueId'))
             ->add(BooleanFilter::new('pathPublic'))
+            ->add(BooleanFilter::new('importPending'))
+            ->add(BooleanFilter::new('contentRejected'))
+            ->add(NullFilter::new('accepted', 'Analysis')->setChoiceLabels('Pending', 'Done'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
@@ -64,18 +72,19 @@ class FileCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield TextField::new('path');
-        yield TextField::new('storage');
-        yield TextField::new('originalName')
+        yield TextField::new('originalName');
+        yield TextField::new('path')
             ->hideOnIndex();
+        yield TextField::new('storage');
         yield AssociationField::new('workspace')
             ->autocomplete();
-        yield TextField::new('type')
-            ->hideOnIndex();
+        yield TextField::new('type');
+        yield TextField::new('detectedType')
+            ->onlyOnDetail();
         yield BooleanField::new('pathPublic')
             ->hideOnIndex();
         yield IntegerField::new('size')
-            ->hideOnIndex();
+            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
         yield TextField::new('checksum')
             ->hideOnIndex();
         yield TextField::new('docUniqueId')
@@ -89,6 +98,12 @@ class FileCrudController extends AbstractAdminCrudController
         yield DateTimeField::new('analyzedAt')
             ->onlyOnDetail();
         yield BooleanField::new('accepted')
+            ->renderAsSwitch(false)
+            ->onlyOnDetail();
+        yield BooleanField::new('contentRejected')
+            ->renderAsSwitch(false)
+            ->onlyOnDetail();
+        yield BooleanField::new('importPending')
             ->renderAsSwitch(false)
             ->onlyOnDetail();
         yield TextField::new('analysis?.status', 'Analysis status')

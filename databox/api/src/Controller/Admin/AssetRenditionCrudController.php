@@ -19,6 +19,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
@@ -75,6 +76,9 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         yield IdField::new();
         yield AssociationField::new('asset')
             ->autocomplete();
+        yield TextField::new('name')
+            ->setSortable(false)
+            ->hideOnForm();
         yield AssociationField::new('definition')
             ->autocomplete();
         yield CodeField::new('buildHash')

@@ -15,7 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CodeEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
@@ -52,7 +51,9 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->add(BooleanFilter::new('useAsMain'))
             ->add(BooleanFilter::new('useAsPreview'))
             ->add(BooleanFilter::new('useAsThumbnail'))
-            ->add(BooleanFilter::new('useAsAnimatedThumbnail', 'Thumb Active'))
+            ->add(BooleanFilter::new('useAsAnimatedThumbnail', 'Animated thumbnail'))
+            ->add(BooleanFilter::new('buildFirst'))
+            ->add(BooleanFilter::new('download'))
             ->add(ChoiceFilter::new('buildMode')
                 ->setChoices(RenditionDefinition::BUILD_MODE_CHOICES)
             )
@@ -67,7 +68,8 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         yield JsonField::new('translations')
             ->hideOnIndex();
         yield AssociationField::new('parent')
-            ->autocomplete();
+            ->autocomplete()
+            ->hideOnIndex();
         yield AssociationField::new('policy')
             ->autocomplete();
         yield AssociationField::new('workspace')
@@ -85,12 +87,13 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->setRequired(false)
             ->hideOnIndex();
         yield BooleanField::new('useAsMain')
-            ->hideOnIndex();
+            ->renderAsSwitch(false);
         yield BooleanField::new('useAsPreview')
-            ->hideOnIndex();
+            ->renderAsSwitch(false);
         yield BooleanField::new('useAsThumbnail')
-            ->hideOnIndex();
-        yield Field::new('useAsAnimatedThumbnail', 'Animated Thumbnail')
+            ->renderAsSwitch(false);
+        yield BooleanField::new('useAsAnimatedThumbnail', 'Animated thumbnail')
+            ->renderAsSwitch(false)
             ->hideOnIndex();
         yield BooleanField::new('buildFirst')
             ->setHelp('Built by the workers before the other renditions')
@@ -99,7 +102,8 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         yield BooleanField::new('download')
             ->hideOnIndex();
         yield DateTimeField::new('createdAt')
-            ->hideOnForm();
+            ->hideOnForm()
+            ->hideOnIndex();
         yield DateTimeField::new('updatedAt')
             ->hideOnForm();
 

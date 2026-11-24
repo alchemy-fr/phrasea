@@ -6,6 +6,9 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\CollectionAccess;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -13,12 +16,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class CollectionAccessCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly PrivacyField $privacyField,
+        private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -41,13 +45,10 @@ class CollectionAccessCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('collection'))
+            ->add(AssociationIdentifierFilter::new('collection'))
             ->add(EntityFilter::new('workspace'))
-            ->add(TextFilter::new('userId')
-                ->setFormTypeOption('comparison_type_options', [
-                    'type' => 'entity',
-                ]))
-            ->add(TextFilter::new('privacy'));
+            ->add($this->userChoiceFilter->createFilter('userId', 'User'))
+            ->add($this->privacyField->createFilter());
     }
 
     #[\Override]
@@ -56,8 +57,9 @@ class CollectionAccessCrudController extends AbstractAdminCrudController
         yield IdField::new();
         yield AssociationField::new('workspace');
         yield AssociationField::new('collection');
-        yield TextField::new('userId');
-        yield TextField::new('path');
+        yield $this->userChoiceField->create('userId', 'User');
+        yield TextField::new('path')
+            ->hideOnIndex();
         yield $this->privacyField->create('privacy');
 
     }

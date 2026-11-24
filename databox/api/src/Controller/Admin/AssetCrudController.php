@@ -9,6 +9,7 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Admin\Field\PrivacyField;
@@ -27,11 +28,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use Symfony\Component\HttpFoundation\Response;
 
 class AssetCrudController extends AbstractAclAdminCrudController
@@ -45,6 +46,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         private readonly UserChoiceField $userChoiceField,
         private readonly WorkflowOrchestrator $workflowOrchestrator,
         private readonly PrivacyField $privacyField,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -95,10 +97,14 @@ class AssetCrudController extends AbstractAclAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('id'))
+            ->add(AssociationIdentifierFilter::new('id'))
             ->add(EntityFilter::new('workspace'))
+            ->add(ChoiceFilter::new('status')->setChoices(AssetStatusEnum::getChoices()))
+            ->add($this->userChoiceFilter->createFilter('ownerId', 'Owner'))
+            ->add($this->privacyField->createFilter())
             ->add(AssociationIdentifierFilter::new('referenceCollection'))
             ->add(DateTimeFilter::new('createdAt'))
+            ->add(NullFilter::new('deletedAt', 'Trashed')->setChoiceLabels('Not trashed', 'Trashed'))
         ;
     }
 
@@ -113,21 +119,18 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->autocomplete()
             ->hideOnForm();
         yield ChoiceField::new('status')
-            ->setChoices(AssetStatusEnum::cases());
-        yield $this->userChoiceField->create('ownerId', 'Owner')
-            ->hideOnIndex();
+            ->setChoices(AssetStatusEnum::getChoices());
+        yield $this->userChoiceField->create('ownerId', 'Owner');
         yield $this->privacyField->create('privacy');
-        yield IntegerField::new('collections.count', '# Colls')
-            ->onlyOnIndex();
         yield AssociationField::new('source')
             ->autocomplete()
             ->onlyOnIndex();
         yield TextField::new('key')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield TextField::new('externalId')
             ->hideOnForm();
         yield IdField::new('trackingId')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

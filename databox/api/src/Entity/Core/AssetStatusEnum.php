@@ -11,4 +11,14 @@ enum AssetStatusEnum: int
     case Pending = 1;
 
     case Quarantined = 2;
+
+    public static function getChoices(): array
+    {
+        $choices = [];
+        foreach (self::cases() as $case) {
+            $choices[$case->name] = $case;
+        }
+
+        return $choices;
+    }
 }

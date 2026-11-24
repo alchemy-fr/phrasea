@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 
 class ProfileItemCrudController extends AbstractAdminCrudController
 {
@@ -29,7 +30,7 @@ class ProfileItemCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Profile Item')
             ->setEntityLabelInPlural('Profile Items')
-            ->setSearchFields(['id', 'definition', 'profile', 'key'])
+            ->setSearchFields(['id', 'key', 'profile.name', 'definition.name'])
             ->setPaginatorPageSize(100)
             ->setDefaultSort(['profile' => 'ASC', 'position' => 'ASC']);
     }
@@ -41,8 +42,8 @@ class ProfileItemCrudController extends AbstractAdminCrudController
             ->add(AssociationIdentifierFilter::new('profile'))
             ->add(AssociationIdentifierFilter::new('definition'))
             ->add('key')
-            ->add('section')
-            ->add('type')
+            ->add(ChoiceFilter::new('section')->setChoices(ProfileItem::SECTIONS))
+            ->add(ChoiceFilter::new('type')->setChoices(ProfileItem::TYPES))
         ;
     }
 
@@ -61,7 +62,8 @@ class ProfileItemCrudController extends AbstractAdminCrudController
             ->setChoices(ProfileItem::TYPES);
         yield TextField::new('key');
         yield BooleanField::new('displayEmpty');
-        yield TextField::new('format');
+        yield TextField::new('format')
+            ->hideOnIndex();
         yield NumberField::new('position');
     }
 }

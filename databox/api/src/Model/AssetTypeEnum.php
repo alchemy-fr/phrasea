@@ -18,4 +18,14 @@ enum AssetTypeEnum: int
             self::Both->value,
         ];
     }
+
+    public static function getChoices(): array
+    {
+        $choices = [];
+        foreach (self::cases() as $case) {
+            $choices[$case->name] = $case;
+        }
+
+        return $choices;
+    }
 }

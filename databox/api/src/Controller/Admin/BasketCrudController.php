@@ -14,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class BasketCrudController extends AbstractAclAdminCrudController
@@ -44,6 +45,7 @@ class BasketCrudController extends AbstractAclAdminCrudController
             ->add(DateTimeFilter::new('createdAt'))
             ->add(DateTimeFilter::new('updatedAt'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
+            ->add(NullFilter::new('archivedAt', 'Archived')->setChoiceLabels('Not archived', 'Archived'))
         ;
     }
 
@@ -56,6 +58,8 @@ class BasketCrudController extends AbstractAclAdminCrudController
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
+            ->hideOnForm();
+        yield DateTimeField::new('archivedAt')
             ->hideOnForm();
     }
 }

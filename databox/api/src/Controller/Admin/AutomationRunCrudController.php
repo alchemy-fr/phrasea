@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Automation\AutomationRun;
 use App\Model\AutomationRunStatusEnum;
 use App\Model\AutomationTriggerEnum;
@@ -22,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -29,6 +31,7 @@ class AutomationRunCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -64,7 +67,11 @@ class AutomationRunCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('automation'))
+            ->add(ChoiceFilter::new('status')->setChoices(AutomationRunStatusEnum::getChoices()))
+            ->add(ChoiceFilter::new('trigger')->setChoices(AutomationTriggerEnum::getChoices()))
+            ->add($this->userChoiceFilter->createFilter('initiatorId', 'Initiator'))
             ->add(BooleanFilter::new('dryRun'))
+            ->add(BooleanFilter::new('limitReached'))
             ->add(DateTimeFilter::new('startedAt'))
             ->add(DateTimeFilter::new('createdAt'))
         ;

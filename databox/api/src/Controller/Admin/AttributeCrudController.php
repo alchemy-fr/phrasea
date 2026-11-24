@@ -17,12 +17,15 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
@@ -51,12 +54,17 @@ class AttributeCrudController extends AbstractAdminCrudController
                 Workspace::class,
                 'Workspace'
             ))
-            ->add(EntityFilter::new('definition'))
+            ->add(EntityFilter::new('definition')->autocomplete())
             ->add(AssociationIdentifierFilter::new('asset'))
             ->add(TextFilter::new('value'))
             ->add(TextFilter::new('locale'))
+            ->add(ChoiceFilter::new('origin')->setChoices(array_flip(Attribute::ORIGIN_LABELS)))
+            ->add(TextFilter::new('originVendor'))
+            ->add(ChoiceFilter::new('status')->setChoices(array_flip(Attribute::STATUS_LABELS)))
             ->add(BooleanFilter::new('locked'))
             ->add(BooleanFilter::new('invalid'))
+            ->add(DateTimeFilter::new('createdAt'))
+            ->add(DateTimeFilter::new('updatedAt'))
         ;
     }
 
@@ -82,18 +90,20 @@ class AttributeCrudController extends AbstractAdminCrudController
         yield TextField::new('locale');
         yield TextField::new('value');
         yield BooleanField::new('locked');
-        yield IntegerField::new('origin');
+        yield ChoiceField::new('origin')
+            ->setChoices(array_flip(Attribute::ORIGIN_LABELS));
         yield TextField::new('originVendor');
         yield TextareaField::new('originVendorContext')
             ->hideOnIndex();
-        yield IntegerField::new('position');
+        yield IntegerField::new('position')
+            ->hideOnIndex();
         yield BooleanField::new('invalid');
         yield IdField::new('originUserId')
             ->hideOnIndex();
         yield JsonField::new('assetAnnotations')
             ->hideOnIndex();
-        yield IntegerField::new('status')
-            ->hideOnIndex();
+        yield ChoiceField::new('status')
+            ->setChoices(array_flip(Attribute::STATUS_LABELS));
         yield NumberField::new('confidence')
             ->hideOnIndex();
         yield DateTimeField::new('createdAt')
