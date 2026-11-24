@@ -25,9 +25,9 @@ final readonly class WorkspaceAssetIngester
     }
 
     /**
-     * Fan out the ingest: dispatch one message per asset so the main task
-     * worker is released immediately. Each message triggers the ingest
-     * workflow for its asset and updates the task progress; the last one
+     * Fan out the ingest: dispatch one message per asset (see IngestWorkspaceAsset)
+     * so the main task worker is released immediately. Each message triggers the
+     * ingest workflow for its asset and updates the task progress; the last one
      * completes the task.
      */
     public function ingestWorkspaceAssets(string $workspaceId, RunContext $context): void

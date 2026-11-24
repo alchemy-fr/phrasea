@@ -439,7 +439,9 @@ built before the other renditions. The migration sets it on the existing
 definitions used as thumbnail; review it on your other definitions.
 
 `ESPopulate`, `IndexAllAssets`, `IndexAllCollections` and `DeleteWorkspace` move
-to `task`.
+to `task`. `IngestWorkspaceAsset`, which starts the workflow of one asset of a
+workspace ingestion, moves from `task` to `bulk`: the workflows of every asset
+are started by all the worker processes before the non urgent jobs.
 
 `WORKER_PRIORITIES` accepts several receivers per process, in priority order,
 separated by `,`, and a number of processes with a `:N` suffix. The databox

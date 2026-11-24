@@ -10,6 +10,7 @@ use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\Workflow\Message\JobConsumer;
 use App\Consumer\Handler\Asset\AssetExportProcess;
 use App\Consumer\Handler\File\ImportFile;
+use App\Consumer\Handler\IngestWorkspaceAsset;
 use App\Consumer\Handler\Rendition\BuildDynamicRendition;
 use App\Consumer\Handler\Search\ESPopulate;
 use App\Consumer\Handler\Search\IndexAllAssets;
@@ -57,6 +58,7 @@ final class MessengerRoutingTest extends KernelTestCase
         yield 'dynamic rendition' => [BuildDynamicRendition::class, WorkerQueue::HEAVY];
         yield 'file import' => [ImportFile::class, WorkerQueue::HEAVY];
         yield 'export' => [AssetExportProcess::class, WorkerQueue::HEAVY];
+        yield 'workspace ingestion fan-out' => [IngestWorkspaceAsset::class, WorkerQueue::BULK];
         yield 'populate' => [ESPopulate::class, WorkerQueue::TASK];
         yield 'index all assets' => [IndexAllAssets::class, WorkerQueue::TASK];
         yield 'workspace deletion' => [DeleteWorkspace::class, WorkerQueue::TASK];

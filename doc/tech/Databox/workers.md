@@ -15,7 +15,7 @@ while it still gets every idle process.
 | `p2`             | Standard: the light workflow jobs (default routing of `JobConsumer`), webhooks, notifications, e-mails, `DeployConfig`, `BasketUpdate`, `SyncBasket`, file deletions…              |
 | `heavy`          | Computation, file transfers and slow external APIs: the jobs of the renditions built first, watermark, metadata reading, file analysis, blurhash, source downloads; heavy messages |
 | `heavy_low`      | The heavy jobs that are not urgent: the jobs of the other renditions, faces, similarity, Rekognition, Remove.bg, Happyscribe, Transcribe                                           |
-| `bulk`           | The light jobs of the workflows started by a bulk processing                                                                                                                       |
+| `bulk`           | The light jobs of the workflows started by a bulk processing, the start of each workflow of a workspace ingestion (`IngestWorkspaceAsset`)                                         |
 | `bulk_heavy`     | The heavy jobs (`queue: heavy`) of the workflows started by a bulk processing                                                                                                      |
 | `bulk_heavy_low` | The non urgent heavy jobs (`queue: heavy_low`) of the workflows started by a bulk processing                                                                                       |
 | `task`           | Bulk orchestrations (workspace ingestion, asset imports, automations, operation tasks), `ESPopulate`, `IndexAllAssets`, `IndexAllCollections`, `DeleteWorkspace`                   |
@@ -65,6 +65,15 @@ are built before the others, whatever the number of assets being ingested:
   Happyscribe, Transcribe) go to `heavy_low`;
 - the source import, the metadata reading, the file analysis, blurhash and the watermark stay
   on `heavy`: the other jobs need them.
+
+This order only holds if the workflows of every asset are started before the workers run out
+of heavy jobs: a worker finding `bulk_heavy` empty takes a face recognition job even though
+other assets are still waiting for their thumbnail. So the workspace ingestion task
+(`ingest_workspace_assets`) only dispatches one `IngestWorkspaceAsset` per asset, on `bulk`,
+which starts the workflow of its asset: every process but `p1` and `task` starts these workflows
+in parallel, before any `bulk_heavy` job, and the jobs of every asset are queued before a
+`bulk_heavy_low` one is taken. Only the last workflows still running may let a worker start a
+low priority job before their thumbnail.
 
 ### Bulk origin
 
