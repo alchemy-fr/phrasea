@@ -1,7 +1,7 @@
 import 'server-only';
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
-import {httpGet, isFalse, type HttpGet} from '../server/http';
+import {httpGet, isTrue, verifySslFromEnv, type HttpGet} from '../server/http';
 
 /**
  * The stack configuration: the configurator entries (logo, organisation
@@ -18,12 +18,6 @@ export type StackConfigEnv = Record<string, string | undefined>;
 
 export const DEFAULT_STACK_CONFIG_SRC = '/etc/app/stack-config.json';
 export const DEFAULT_REFRESH_INTERVAL = 60;
-
-function isTrue(value: string | undefined): boolean {
-    return ['1', 'true', 'on', 'y', 'yes'].includes(
-        (value ?? '').toLowerCase()
-    );
-}
 
 export type BucketLocation = {
     url: string;
@@ -134,7 +128,7 @@ export async function fetchStackConfigFromBucket(
     }
     const {status, body} = await get(location.url, {
         headers: bucketRequestHeaders(env, location),
-        rejectUnauthorized: !isFalse(env.VERIFY_SSL),
+        rejectUnauthorized: verifySslFromEnv(env),
     });
     if (status === 404) {
         return {};

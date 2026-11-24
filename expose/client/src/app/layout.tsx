@@ -9,30 +9,23 @@ import {Providers} from './providers';
 import {NONCE_HEADER} from '@alchemy/next-core/security/csp';
 import {languages} from '@/i18n/config';
 import {fontVariables} from '@alchemy/next-theme/googleFonts';
+import {appMetadata, appViewport} from '@alchemy/next-core/seo/metadata';
+import {isIndexingAllowed} from '@alchemy/next-core/seo/indexing';
+import {APP_DESCRIPTION, APP_NAME, INDEXING_DEFAULT} from '@/lib/seo/app';
 
-export const metadata: Metadata = {
-    title: {
-        default: 'Expose',
-        template: '%s · Expose',
-    },
-    description: 'Phrasea Expose - Asset publications',
-    icons: {
-        icon: [
-            {url: '/favicon.ico', sizes: 'any'},
-            {url: '/favicon.svg', type: 'image/svg+xml'},
-        ],
-        apple: '/apple-touch-icon.png',
-    },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    // From the container environment, like the configuration
+    await connection();
 
-export const viewport: Viewport = {
-    width: 'device-width',
-    initialScale: 1,
-    themeColor: [
-        {media: '(prefers-color-scheme: light)', color: '#fafafa'},
-        {media: '(prefers-color-scheme: dark)', color: '#1b1c22'},
-    ],
-};
+    return appMetadata({
+        name: APP_NAME,
+        description: APP_DESCRIPTION,
+        clientUrl: getServerConfig().clientUrl,
+        allowIndexing: isIndexingAllowed(process.env, INDEXING_DEFAULT),
+    });
+}
+
+export const viewport: Viewport = appViewport;
 
 export default async function RootLayout({
     children,

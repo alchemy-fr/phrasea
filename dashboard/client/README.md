@@ -38,6 +38,7 @@ visitor with the page.
 | Source | Description |
 |---|---|
 | `DASHBOARD_CLIENT_URL` | Public URL of this client |
+| `ALLOW_INDEXING` | Whether the search engines may index the client, in `robots.txt` and the robots meta tag (default `false`, `DASHBOARD_CLIENT_ALLOW_INDEXING` in `.env`) |
 | `KEYCLOAK_URL`, `KEYCLOAK_REALM_NAME`, `CLIENT_ID` | OpenID Connect settings, URLs of the Keycloak consoles |
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
 | `DATABOX_API_URL`, `EXPOSE_API_URL`, `UPLOADER_API_URL` | An application is deployed when its API URL is set; its admin is allowed to frame the dashboard |

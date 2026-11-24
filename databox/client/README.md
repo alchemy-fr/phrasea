@@ -41,6 +41,7 @@ baked at build time.
 |---|---|
 | `DATABOX_API_URL` | Databox API base URL |
 | `DATABOX_CLIENT_URL` | Public URL of this client |
+| `ALLOW_INDEXING` | Whether the search engines may index the client, in `robots.txt` and the robots meta tag (default `false`, `DATABOX_CLIENT_ALLOW_INDEXING` in `.env`) |
 | `KEYCLOAK_URL`, `KEYCLOAK_REALM_NAME`, `CLIENT_ID` | OpenID Connect settings |
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
 | `SOCKUDO_HOST`, `SOCKUDO_KEY`, `NOTIFICATIONS_ENABLED` | Realtime |
@@ -201,6 +202,12 @@ window — asset viewer, basket view, batch attribute editor — are laid out
 name to it with `usePageTrail(label, href?)`, which renders as
 `Assets › Basket X › Asset Y`: the trail is the way back out (and stacks when
 a screen opens over another).
+
+**Link previews** (Open Graph, Twitter) of a public share (`/s/:id/:token`,
+never indexed): the name of its asset (or of the first one, `(+N)`) and its
+first image, read anonymously from the API by the server
+(`src/lib/seo/shareMetadata.ts`); the image is served under a stable URL,
+`/api/og/share/:id/:token`, the API giving URLs signed for a while only.
 
 ## Feature coverage (vs. `databox/features.md`)
 

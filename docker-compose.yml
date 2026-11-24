@@ -377,6 +377,7 @@ services:
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - DATABOX_API_URL
       - DATABOX_CLIENT_URL
+      - ALLOW_INDEXING=${DATABOX_CLIENT_ALLOW_INDEXING}
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
       - MAX_UPLOAD_FILE_SIZE=${DATABOX_MAX_UPLOAD_FILE_SIZE}
@@ -393,6 +394,10 @@ services:
       - DATABOX_TICKETING_JIRA_BUG_ISSUE_TYPE
       - DATABOX_TICKETING_JIRA_LABELS
       - DATABOX_TICKETING_JIRA_API_VERSION
+    # The link previews of the shares are read from the API by the server,
+    # through traefik
+    extra_hosts:
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -412,11 +417,16 @@ services:
     environment:
       - EXPOSE_API_URL
       - EXPOSE_CLIENT_URL
+      - ALLOW_INDEXING=${EXPOSE_CLIENT_ALLOW_INDEXING}
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
       - ALLOWED_FRAME_ANCESTORS=${EXPOSE_ALLOWED_FRAME_ANCESTORS}
       - CLOUD_FRONT_URL=${EXPOSE_CLOUD_FRONT_URL}
       - MATOMO_DISABLE_COOKIES
+    # The link previews of the publications are read from the API by the
+    # server, through traefik
+    extra_hosts:
+      - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -436,6 +446,7 @@ services:
     environment:
       - UPLOADER_API_URL
       - UPLOADER_CLIENT_URL
+      - ALLOW_INDEXING=${UPLOADER_CLIENT_ALLOW_INDEXING}
       - CLIENT_ID=${UPLOADER_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
       - MATOMO_DISABLE_COOKIES
@@ -835,6 +846,7 @@ services:
       - dashboard
     environment:
       - DASHBOARD_CLIENT_URL
+      - ALLOW_INDEXING=${DASHBOARD_CLIENT_ALLOW_INDEXING}
       - CLIENT_ID=${DASHBOARD_CLIENT_ID}
       - DATABOX_API_URL
       - DATABOX_CLIENT_URL

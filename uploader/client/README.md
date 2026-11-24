@@ -35,6 +35,7 @@ container environment and the stack configuration at request time (see
 |---|---|
 | `UPLOADER_API_URL` | Uploader API base URL |
 | `UPLOADER_CLIENT_URL` | Public URL of this client |
+| `ALLOW_INDEXING` | Whether the search engines may index the client, in `robots.txt` and the robots meta tag (default `false`, `UPLOADER_CLIENT_ALLOW_INDEXING` in `.env`) |
 | `KEYCLOAK_URL`, `KEYCLOAK_REALM_NAME`, `CLIENT_ID` | OpenID Connect settings |
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
 | `S3_MAX_OBJECT_SIZE`, `ALLOWED_FILE_TYPES` | Upload limits (see below) |

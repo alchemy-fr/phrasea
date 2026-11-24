@@ -36,6 +36,7 @@ baked at build time.
 |---|---|
 | `EXPOSE_API_URL` | Expose API base URL |
 | `EXPOSE_CLIENT_URL` | Public URL of this client |
+| `ALLOW_INDEXING` | Whether the search engines may index the client, in `robots.txt` and the robots meta tag (default `true`, `EXPOSE_CLIENT_ALLOW_INDEXING` in `.env`); the administration, the embedded players, the sign-in and the share links never are |
 | `KEYCLOAK_URL`, `KEYCLOAK_REALM_NAME`, `CLIENT_ID` | OpenID Connect settings |
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
 | `DISABLE_INDEX_PAGE` | No public list of publications at `/` (nor link to it) |
@@ -102,6 +103,14 @@ publication slugs.
 The publication is rendered by the layout of its segment
 (`app/[publication]/layout.tsx`): moving from one asset to another only
 changes the URL, the grid and the media loaded stay in place.
+
+**Link previews** (Open Graph, Twitter): the pages of a publication, of one of
+its assets and of a share link (`/s/:token`) carry its title, description and
+image, read anonymously from the API by the server
+(`src/lib/seo/publicationMetadata.ts`); the image is served under a stable URL,
+`/api/og/publication/:publication[/asset/:asset]`, the API giving URLs signed
+for a while only. A publication that is not readable anonymously (nor publicly
+listed) gets the metadata of the app.
 
 ## Behaviour worth knowing
 
