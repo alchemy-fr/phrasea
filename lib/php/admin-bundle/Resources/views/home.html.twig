@@ -1,0 +1,98 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% macro value(stat, value) %}{{ stat.format == 'bytes' ? value|file_size : value|number_format(0, '.', ',') }}{% endmacro %}
+
+{% block content_title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    {% if userNamesError is not null %}
+        <p class="text-muted small"><i class="fa-solid fa-triangle-exclamation"></i> Cannot resolve the user names: {{ userNamesError }}</p>
+    {% endif %}
+
+    {% if stats is not empty %}
+        <div class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-3 mb-4 admin-home-stats">
+            {% for stat in stats %}
+                <div class="col">
+                    {% set tag = stat.url is not null ? 'a' : 'div' %}
+                    <{{ tag }} class="card h-100 text-decoration-none text-reset admin-home-stat"{% if stat.url is not null %} href="{{ stat.url }}"{% endif %}{% if stat.error is not null %} title="{{ stat.error }}"{% endif %}>
+                        <div class="card-body">
+                            <div class="text-muted"><i class="{{ stat.icon }} fa-fw"></i> {{ stat.label }}</div>
+                            {% if stat.error is not null %}
+                                <div class="fs-3 fw-bold">—</div>
+                                <div class="small text-muted text-truncate">{{ stat.error }}</div>
+                            {% else %}
+                                <div class="fs-3 fw-bold">{{ _self.value(stat, stat.total) }}</div>
+                                {% if stat.hasPeriods %}
+                                    <div class="small text-muted">
+                                        24h: {{ _self.value(stat, stat.last24h ?? 0) }}
+                                        · 7d: {{ _self.value(stat, stat.last7d ?? 0) }}
+                                        · 30d: {{ _self.value(stat, stat.last30d ?? 0) }}
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </{{ tag }}>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if blocks is not empty %}
+        <div class="row row-cols-1 row-cols-xl-2 g-3 admin-home-blocks">
+            {% for block in blocks %}
+                <div class="col">
+                    <div class="card h-100 admin-home-block">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="fw-bold"><i class="{{ block.icon }} fa-fw"></i> {{ block.title }}</span>
+                            {% if block.seeAllUrl is not null %}
+                                <a href="{{ block.seeAllUrl }}" class="small">See all</a>
+                            {% endif %}
+                        </div>
+                        <div class="card-body p-0">
+                            {% if block.error is not null %}
+                                <p class="text-danger m-3">Cannot load the latest items: {{ block.error }}</p>
+                            {% else %}
+                                <table class="table datagrid table-sm mb-0">
+                                    <tbody>
+                                    {% for item in block.items %}
+                                        {% set userName = item.userName ?? (item.userId is not null ? userNames[item.userId] ?? null : null) %}
+                                        <tr>
+                                            <td class="text-nowrap" title="{{ item.date|date('Y-m-d H:i:s T') }}">{{ item.date|date('d/m/Y H:i') }}</td>
+                                            <td>
+                                                {% if item.url is not null %}
+                                                    <a href="{{ item.url }}">{{ item.label }}</a>
+                                                {% else %}
+                                                    {{ item.label }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-muted">{{ item.detail }}</td>
+                                            <td>
+                                                {% if userName is not null %}
+                                                    {{ userName }}
+                                                {% elseif item.userId is not null %}
+                                                    <code>{{ item.userId }}</code>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                {% if item.status is not null %}
+                                                    <span class="badge text-bg-{{ item.statusVariant ?? 'secondary' }}">{{ item.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-muted">No recent activity.</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

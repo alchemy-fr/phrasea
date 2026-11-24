@@ -5,24 +5,34 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
+use Alchemy\AdminBundle\Home\HomeActivityItem;
+use Alchemy\AdminBundle\Home\HomeStat;
+use Alchemy\AdminBundle\Home\PeriodCounter;
+use Alchemy\AdminBundle\Utils\SizeUtils;
 use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
+use App\Entity\Asset;
+use App\Entity\Commit;
+use App\Entity\Target;
+use App\Entity\UploadLink;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\HttpFoundation\Response;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'easyadmin')]
 class DashboardController extends AbstractAdminDashboardController
 {
-    public function index(): Response
-    {
-        $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
+    private const int HOME_BLOCK_SIZE = 10;
 
-        return $this->redirect($adminUrlGenerator->setController(AssetCrudController::class)->generateUrl());
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+    ) {
     }
 
     public function configureMenuItems(): iterable
     {
+        yield $this->createHomeMenuItem();
+
         yield MenuItem::subMenu('Permissions', 'fa-solid fa-shield-halved')->setSubItems([
             MenuItem::linkToRoute('Target params permissions', 'fa-solid fa-sliders', GlobalPermissionsController::ROUTE_TARGET_DATA),
             MenuItem::linkToRoute('Form schema permissions', 'fa-solid fa-table-list', GlobalPermissionsController::ROUTE_FORM_SCHEMA),
@@ -40,5 +50,129 @@ class DashboardController extends AbstractAdminDashboardController
         yield NotifierAdminMenu::createMenuItem();
         yield $this->createSettingsMenu();
         yield $this->createDevMenu();
+    }
+
+    protected function getHomeStats(): iterable
+    {
+        yield $this->createHomeStat(
+            'Commits',
+            'fa-solid fa-code-commit',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(Commit::class)->createQueryBuilder('c'), 'c.createdAt'),
+            $this->generateCrudUrl(CommitCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Uploaded assets',
+            'fa-solid fa-image',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(Asset::class)->createQueryBuilder('a'), 'a.createdAt'),
+            $this->generateCrudUrl(AssetCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Uploaded volume',
+            'fa-solid fa-hard-drive',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(Commit::class)->createQueryBuilder('c'), 'c.createdAt', 'c.totalSize'),
+            $this->generateCrudUrl(CommitCrudController::class),
+            HomeStat::FORMAT_BYTES,
+        );
+        yield $this->createHomeStat(
+            'Unacknowledged commits',
+            'fa-solid fa-hourglass-half',
+            fn (): array => ['total' => $this->em->getRepository(Commit::class)->count(['acknowledged' => false])],
+            $this->generateCrudUrl(CommitCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Targets',
+            'fa-solid fa-bullseye',
+            fn (): array => ['total' => $this->em->getRepository(Target::class)->count()],
+            $this->generateCrudUrl(TargetCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Upload links',
+            'fa-solid fa-link',
+            fn (): array => ['total' => $this->em->getRepository(UploadLink::class)->count()],
+        );
+        yield fn (): ?HomeStat => $this->createFailedMessagesStat($this->em);
+    }
+
+    protected function getHomeActivityBlocks(): iterable
+    {
+        yield $this->createHomeActivityBlock(
+            'Latest commits',
+            'fa-solid fa-code-commit',
+            function (): iterable {
+                /** @var Commit[] $commits */
+                $commits = $this->em->getRepository(Commit::class)->createQueryBuilder('c')
+                    ->addSelect('t')
+                    ->leftJoin('c.target', 't')
+                    ->orderBy('c.createdAt', 'DESC')
+                    ->setMaxResults(self::HOME_BLOCK_SIZE)
+                    ->getQuery()
+                    ->getResult();
+
+                $assetCounts = $this->countCommitAssets($commits);
+                foreach ($commits as $commit) {
+                    $assetCount = $assetCounts[$commit->getId()] ?? 0;
+
+                    yield new HomeActivityItem(
+                        date: $commit->getCreatedAt(),
+                        label: $commit->getTarget()?->getName() ?? $commit->getId(),
+                        detail: sprintf('%d asset%s, %s', $assetCount, 1 === $assetCount ? '' : 's', SizeUtils::formatSize($commit->getTotalSize())),
+                        url: $this->generateCrudUrl(CommitCrudController::class, Action::DETAIL, $commit->getId()),
+                        userId: $commit->getUserId(),
+                        status: $commit->isAcknowledged() ? 'Acknowledged' : 'Pending',
+                        statusVariant: $commit->isAcknowledged() ? HomeActivityItem::VARIANT_SUCCESS : HomeActivityItem::VARIANT_WARNING,
+                    );
+                }
+            },
+            $this->generateCrudUrl(CommitCrudController::class),
+        );
+
+        yield $this->createHomeActivityBlock(
+            'Latest upload links used',
+            'fa-solid fa-link',
+            function (): iterable {
+                /** @var UploadLink[] $links */
+                $links = $this->em->getRepository(UploadLink::class)->createQueryBuilder('l')
+                    ->addSelect('t')
+                    ->leftJoin('l.target', 't')
+                    ->andWhere('l.lastCommitAt IS NOT NULL')
+                    ->orderBy('l.lastCommitAt', 'DESC')
+                    ->setMaxResults(self::HOME_BLOCK_SIZE)
+                    ->getQuery()
+                    ->getResult();
+
+                foreach ($links as $link) {
+                    yield new HomeActivityItem(
+                        date: $link->getLastCommitAt(),
+                        label: $link->getName() ?? $link->getId(),
+                        detail: $link->getTarget()?->getName(),
+                        userId: $link->getOwnerId(),
+                        status: $link->isEnabled() ? 'Enabled' : 'Disabled',
+                        statusVariant: $link->isEnabled() ? HomeActivityItem::VARIANT_SUCCESS : HomeActivityItem::VARIANT_SECONDARY,
+                    );
+                }
+            },
+        );
+    }
+
+    /**
+     * @param Commit[] $commits
+     *
+     * @return array<string, int> commit ID => number of assets
+     */
+    private function countCommitAssets(array $commits): array
+    {
+        if ([] === $commits) {
+            return [];
+        }
+
+        $rows = $this->em->getRepository(Asset::class)->createQueryBuilder('a')
+            ->select('IDENTITY(a.commit) AS commitId, COUNT(a.id) AS assetCount')
+            ->andWhere('a.commit IN (:commits)')
+            ->setParameter('commits', $commits)
+            ->groupBy('a.commit')
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_column(array_map(static fn (array $row): array => [(string) $row['commitId'], (int) $row['assetCount']], $rows), 1, 0);
     }
 }

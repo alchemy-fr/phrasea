@@ -13,6 +13,22 @@ class AdminTest extends AbstractAdminTestCase
         $this->doTestAllPages();
     }
 
+    public function testHomePage(): void
+    {
+        $this->doTestHomePage([
+            'Publications',
+            'Assets',
+            'Download requests',
+            'Publication shares',
+            'Profiles',
+            'Failed messages',
+        ], [
+            'Latest publications',
+            'Latest assets',
+            'Latest download requests',
+        ]);
+    }
+
     public function testRealtimePage(): void
     {
         $this->doTestRealtimePage();

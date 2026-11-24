@@ -63,10 +63,36 @@ abstract class AbstractAdminTestCase extends WebTestCase
         $menuLinks
             ->each(function (Crawler $node): void {
                 if ('#' !== $href = $node->attr('href')) {
-                    $this->assertMatchesRegularExpression('#^http://localhost/admin/?.+$#', $href);
-                    $this->explore($href);
+                    $this->assertMatchesRegularExpression('#^http://localhost/admin([/?].*)?$#', $href);
+                    // The home page (dashboard link) is the page being explored
+                    if ('http://localhost/admin' !== $href) {
+                        $this->explore($href);
+                    }
                 }
             });
+    }
+
+    /**
+     * @param string[] $expectedStatLabels
+     * @param string[] $expectedBlockTitles
+     */
+    protected function doTestHomePage(array $expectedStatLabels, array $expectedBlockTitles): void
+    {
+        $this->client->loginUser($this->getAuthAdminUser(), 'admin');
+        $crawler = $this->loadPage('/admin');
+
+        $this->assertStringContainsString('Home', $crawler->filter('title')->text());
+        $this->assertCount(1, $crawler->filter('nav#main-menu a.ea-sidebar-item-link[href="http://localhost/admin"]'), 'No Home link in the admin menu');
+
+        $statLabels = $crawler->filter('.admin-home-stat')->each(static fn (Crawler $node): string => trim($node->filter('.card-body > div')->first()->text()));
+        foreach ($expectedStatLabels as $label) {
+            $this->assertContains($label, $statLabels, sprintf('No "%s" card on the admin home page', $label));
+        }
+
+        $blockTitles = $crawler->filter('.admin-home-block .card-header > span')->each(static fn (Crawler $node): string => trim($node->text()));
+        foreach ($expectedBlockTitles as $title) {
+            $this->assertContains($title, $blockTitles, sprintf('No "%s" block on the admin home page', $title));
+        }
     }
 
     protected function doTestRealtimePage(): void

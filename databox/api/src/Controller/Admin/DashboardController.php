@@ -7,34 +7,60 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
+use Alchemy\AdminBundle\Home\HomeActivityItem;
+use Alchemy\AdminBundle\Home\HomeStat;
+use Alchemy\AdminBundle\Home\PeriodCounter;
+use Alchemy\CoreBundle\Mapping\ObjectMapping;
 use Alchemy\ESBundle\Admin\ESAdminMenu;
 use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
+use Alchemy\TrackBundle\AlchemyTrackBundle;
 use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookLogCrudController;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use App\Entity\Basket\Basket;
+use App\Entity\Core\Asset;
+use App\Entity\Core\AssetExport;
+use App\Entity\Core\AssetStatusEnum;
+use App\Entity\Core\Collection;
+use App\Entity\Core\Share;
+use App\Entity\Core\Workspace;
+use App\Entity\Log\AuditLog;
+use App\Entity\Workflow\WorkflowState;
+use App\Model\ExportStatusEnum;
+use App\Service\Asset\Attribute\AssetNameResolver;
+use App\Service\Asset\Attribute\AttributesResolver;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\HttpFoundation\Response;
+use Elastica\Index;
+use Elastica\Query;
+use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'easyadmin')]
 class DashboardController extends AbstractAdminDashboardController
 {
-    #[\Override]
-    public function index(): Response
-    {
-        /** @var AdminUrlGenerator $adminUrlGenerator */
-        $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
+    private const int HOME_BLOCK_SIZE = 10;
 
-        return $this->redirect($adminUrlGenerator
-            ->setDashboard(DashboardController::class)
-            ->setController(WorkspaceCrudController::class)
-            ->generateUrl());
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly Index $assetIndex,
+        #[Autowire(service: 'fos_elastica.finder.asset')]
+        private readonly PaginatedFinderInterface $assetFinder,
+        private readonly AssetNameResolver $assetNameResolver,
+        private readonly AttributesResolver $attributesResolver,
+        #[Autowire(service: AlchemyTrackBundle::OBJECT_MAPPING_SERVICE_ID)]
+        private readonly ObjectMapping $objectMapping,
+    ) {
     }
 
     #[\Override]
     public function configureMenuItems(): iterable
     {
+        yield $this->createHomeMenuItem();
+
         yield MenuItem::subMenu('Permissions', 'fa-solid fa-shield-halved')->setSubItems([
             MenuItem::linkTo(WorkspaceCrudController::class, 'Workspace permissions', 'fa-solid fa-briefcase')->setAction('globalPermissions'),
             MenuItem::linkTo(CollectionCrudController::class, 'Collection permissions', 'fa-solid fa-folder')->setAction('globalPermissions'),
@@ -125,5 +151,242 @@ class DashboardController extends AbstractAdminDashboardController
         yield NotifierAdminMenu::createMenuItem();
         yield $this->createSettingsMenu();
         yield $this->createDevMenu();
+    }
+
+    #[\Override]
+    protected function getHomeStats(): iterable
+    {
+        yield $this->createHomeStat(
+            'Assets',
+            'fa-solid fa-image',
+            fn (): array => PeriodCounter::fromCallable(fn (?\DateTimeImmutable $since): int => $this->assetIndex->count($this->createAssetQuery($since))),
+            $this->generateCrudUrl(AssetCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Collections',
+            'fa-solid fa-folder',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(Collection::class)->createQueryBuilder('c')
+                ->andWhere('c.deletedAt IS NULL'), 'c.createdAt'),
+            $this->generateCrudUrl(CollectionCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Workspaces',
+            'fa-solid fa-briefcase',
+            fn (): array => ['total' => $this->em->getRepository(Workspace::class)->count(['deletedAt' => null])],
+            $this->generateCrudUrl(WorkspaceCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Workflows',
+            'fa-solid fa-diagram-project',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(WorkflowState::class)->createQueryBuilder('w'), 'w.startedAt'),
+            $this->generateCrudUrl(WorkflowStateCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Failed workflows',
+            'fa-solid fa-circle-xmark',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(WorkflowState::class)->createQueryBuilder('w')
+                ->andWhere('w.status = :status')
+                ->setParameter('status', ModelWorkflowState::STATUS_FAILURE), 'w.startedAt'),
+            $this->generateCrudUrl(WorkflowStateCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Exports',
+            'fa-solid fa-file-export',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(AssetExport::class)->createQueryBuilder('e'), 'e.createdAt'),
+            $this->generateCrudUrl(AssetExportCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Shares',
+            'fa-solid fa-share-nodes',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(Share::class)->createQueryBuilder('s'), 's.createdAt'),
+            $this->generateCrudUrl(ShareCrudController::class),
+        );
+        yield $this->createHomeStat(
+            'Baskets',
+            'fa-solid fa-basket-shopping',
+            fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(Basket::class)->createQueryBuilder('b'), 'b.createdAt'),
+            $this->generateCrudUrl(BasketCrudController::class),
+        );
+        // DQL has no COUNT(DISTINCT CASE …): one query per window
+        yield $this->createHomeStat(
+            'Active users',
+            'fa-solid fa-users',
+            fn (): array => PeriodCounter::fromCallable(function (?\DateTimeImmutable $since): int {
+                $qb = $this->em->getRepository(AuditLog::class)->createQueryBuilder('a')
+                    ->select('COUNT(DISTINCT a.userId)');
+                if (null !== $since) {
+                    $qb->andWhere('a.date >= :since')->setParameter('since', $since);
+                }
+
+                return (int) $qb->getQuery()->getSingleScalarResult();
+            }),
+            $this->generateCrudUrl(AuditLogCrudController::class),
+        );
+        yield fn (): ?HomeStat => $this->createFailedMessagesStat($this->em);
+    }
+
+    #[\Override]
+    protected function getHomeActivityBlocks(): iterable
+    {
+        yield $this->createHomeActivityBlock(
+            'Latest assets',
+            'fa-solid fa-image',
+            function (): iterable {
+                $query = $this->createAssetQuery(null);
+                $query->setSort(['createdAt' => ['order' => 'desc']]);
+                $query->setSize(self::HOME_BLOCK_SIZE);
+
+                /** @var Asset[] $assets */
+                $assets = $this->assetFinder->find($query, self::HOME_BLOCK_SIZE);
+                foreach ($assets as $asset) {
+                    $status = $asset->getStatus();
+
+                    yield new HomeActivityItem(
+                        date: $asset->getCreatedAt(),
+                        label: $this->resolveAssetName($asset) ?? $asset->getId(),
+                        detail: $asset->getWorkspace()?->getName(),
+                        url: $this->generateCrudUrl(AssetCrudController::class, Action::DETAIL, $asset->getId()),
+                        userId: $asset->getOwnerId(),
+                        status: $status->name,
+                        statusVariant: AssetStatusEnum::Accepted === $status ? HomeActivityItem::VARIANT_SUCCESS : HomeActivityItem::VARIANT_WARNING,
+                    );
+                }
+            },
+            $this->generateCrudUrl(AssetCrudController::class),
+        );
+
+        yield $this->createHomeActivityBlock(
+            'Audit log',
+            'fa-solid fa-user-clock',
+            function (): iterable {
+                /** @var AuditLog[] $logs */
+                $logs = $this->em->getRepository(AuditLog::class)->createQueryBuilder('a')
+                    ->orderBy('a.date', 'DESC')
+                    ->setMaxResults(self::HOME_BLOCK_SIZE)
+                    ->getQuery()
+                    ->getResult();
+
+                foreach ($logs as $log) {
+                    yield new HomeActivityItem(
+                        date: $log->getDate(),
+                        label: ucfirst(str_replace('_', ' ', $log->getAction()->getKey())),
+                        detail: $log->getObjectLabel() ?? $this->getAuditLogObjectDescription($log),
+                        url: $this->generateCrudUrl(AuditLogCrudController::class, Action::DETAIL, $log->getId()),
+                        userId: $log->getUserId(),
+                        userName: $log->getUserName(),
+                    );
+                }
+            },
+            $this->generateCrudUrl(AuditLogCrudController::class),
+        );
+
+        yield $this->createHomeActivityBlock(
+            'Workflows',
+            'fa-solid fa-diagram-project',
+            function (): iterable {
+                /** @var WorkflowState[] $workflows */
+                $workflows = $this->em->getRepository(WorkflowState::class)->createQueryBuilder('w')
+                    ->orderBy('w.startedAt', 'DESC')
+                    ->setMaxResults(self::HOME_BLOCK_SIZE)
+                    ->getQuery()
+                    ->getResult();
+
+                foreach ($workflows as $workflow) {
+                    [$status, $variant] = match ($workflow->getStatus()) {
+                        ModelWorkflowState::STATUS_STARTED => ['Started', HomeActivityItem::VARIANT_INFO],
+                        ModelWorkflowState::STATUS_SUCCESS => ['Success', HomeActivityItem::VARIANT_SUCCESS],
+                        ModelWorkflowState::STATUS_FAILURE => ['Failure', HomeActivityItem::VARIANT_DANGER],
+                        ModelWorkflowState::STATUS_CANCELLED => ['Cancelled', HomeActivityItem::VARIANT_SECONDARY],
+                        default => [(string) $workflow->getStatus(), HomeActivityItem::VARIANT_SECONDARY],
+                    };
+                    $asset = $workflow->getAsset();
+
+                    yield new HomeActivityItem(
+                        date: $workflow->getStartedAt(),
+                        label: $workflow->getName(),
+                        detail: null !== $asset ? $this->resolveAssetName($asset) : null,
+                        url: $this->generateCrudUrl(WorkflowStateCrudController::class, Action::DETAIL, $workflow->getId()),
+                        userId: $workflow->getInitiatorId(),
+                        status: $status,
+                        statusVariant: $variant,
+                    );
+                }
+            },
+            $this->generateCrudUrl(WorkflowStateCrudController::class),
+        );
+
+        yield $this->createHomeActivityBlock(
+            'Exports',
+            'fa-solid fa-file-export',
+            function (): iterable {
+                /** @var AssetExport[] $exports */
+                $exports = $this->em->getRepository(AssetExport::class)->createQueryBuilder('e')
+                    ->orderBy('e.createdAt', 'DESC')
+                    ->setMaxResults(self::HOME_BLOCK_SIZE)
+                    ->getQuery()
+                    ->getResult();
+
+                foreach ($exports as $export) {
+                    $status = $export->getStatus();
+                    $assetCount = count($export->getAssets() ?? []) + count($export->getBasketAssets() ?? []);
+                    $renditions = $export->getRenditions();
+
+                    yield new HomeActivityItem(
+                        date: $export->getCreatedAt(),
+                        label: sprintf('%d asset%s', $assetCount, 1 === $assetCount ? '' : 's'),
+                        detail: null !== $renditions && [] !== $renditions ? sprintf('%d rendition%s', count($renditions), 1 === count($renditions) ? '' : 's') : null,
+                        url: $this->generateCrudUrl(AssetExportCrudController::class, Action::DETAIL, $export->getId()),
+                        userId: $export->getOwnerId(),
+                        status: $status->name,
+                        statusVariant: match ($status) {
+                            ExportStatusEnum::Pending => HomeActivityItem::VARIANT_SECONDARY,
+                            ExportStatusEnum::InProgress => HomeActivityItem::VARIANT_INFO,
+                            ExportStatusEnum::Ready => HomeActivityItem::VARIANT_SUCCESS,
+                            ExportStatusEnum::Failed => HomeActivityItem::VARIANT_DANGER,
+                        },
+                    );
+                }
+            },
+            $this->generateCrudUrl(AssetExportCrudController::class),
+        );
+    }
+
+    /**
+     * The non-deleted assets, created since the given date if any: assets are counted and
+     * listed through Elasticsearch only, never in SQL.
+     */
+    private function createAssetQuery(?\DateTimeImmutable $since): Query
+    {
+        $boolQuery = new Query\BoolQuery();
+        $boolQuery->addFilter(new Query\Term(['deleted' => false]));
+        if (null !== $since) {
+            $boolQuery->addFilter(new Query\Range('createdAt', ['gte' => $since->format(\DateTimeInterface::ATOM)]));
+        }
+
+        return new Query($boolQuery);
+    }
+
+    private function resolveAssetName(Asset $asset): ?string
+    {
+        try {
+            return $this->assetNameResolver->resolveNameAsString($asset, $this->attributesResolver->resolveAssetAttributes($asset, false));
+        } catch (\Throwable) {
+            return $asset->getSource()?->getOriginalName();
+        }
+    }
+
+    private function getAuditLogObjectDescription(AuditLog $log): ?string
+    {
+        if (null === $objectType = $log->getObjectType()) {
+            return $log->getObjectId();
+        }
+
+        try {
+            $type = (new \ReflectionClass($this->objectMapping->getClassName($objectType)))->getShortName();
+        } catch (\Throwable) {
+            $type = (string) $objectType;
+        }
+
+        return trim($type.' '.$log->getObjectId());
     }
 }

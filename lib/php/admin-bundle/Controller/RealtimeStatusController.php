@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Controller;
 
-use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
+use Alchemy\AdminBundle\Utils\UserDisplayNameResolver;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Pusher\RealtimeStatusProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -23,8 +22,7 @@ final class RealtimeStatusController extends AbstractController
     public const string ROUTE_NAME = 'easyadmin_realtime_status';
 
     public function __construct(
-        private readonly UserRepositoryInterface $userRepository,
-        private readonly LoggerInterface $logger,
+        private readonly UserDisplayNameResolver $userDisplayNameResolver,
         // Null when the application does not enable the Pusher integration of the core bundle.
         private readonly ?RealtimeStatusProvider $statusProvider = null,
     ) {
@@ -53,27 +51,15 @@ final class RealtimeStatusController extends AbstractController
             return [[], null];
         }
 
-        $ids = array_map(strval(...), array_keys($connections));
-        $error = null;
-        $keycloakUsers = null;
-        try {
-            $keycloakUsers = $this->userRepository->getUsersByIds($ids);
-        } catch (\Throwable $e) {
-            $this->logger->warning('Cannot resolve the connected users: {message}', [
-                'message' => $e->getMessage(),
-                'exception' => $e,
-            ]);
-            $error = $e->getMessage();
-        }
+        ['names' => $names, 'error' => $error] = $this->userDisplayNameResolver->resolve(array_map(strval(...), array_keys($connections)));
 
         $users = [];
         foreach ($connections as $id => $count) {
             $id = (string) $id;
-            $user = $keycloakUsers[$id] ?? null;
             $users[] = [
                 'id' => $id,
-                'name' => null !== $user ? self::getDisplayName($user) : null,
-                'known' => null !== $keycloakUsers ? null !== $user : null,
+                'name' => $names[$id] ?? null,
+                'known' => null === $error ? array_key_exists($id, $names) : null,
                 'connections' => $count,
             ];
         }
@@ -82,17 +68,5 @@ final class RealtimeStatusController extends AbstractController
             <=> [null === $b['name'], strtolower($b['name'] ?? $b['id'])]);
 
         return [$users, $error];
-    }
-
-    private static function getDisplayName(array $user): ?string
-    {
-        $fullName = trim(($user['firstName'] ?? '').' '.($user['lastName'] ?? ''));
-        $username = $user['username'] ?? null;
-
-        if (null === $username || '' === $username) {
-            return '' !== $fullName ? $fullName : null;
-        }
-
-        return '' !== $fullName ? sprintf('%s (%s)', $username, $fullName) : $username;
     }
 }

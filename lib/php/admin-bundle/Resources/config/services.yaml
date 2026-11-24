@@ -36,6 +36,8 @@ services:
 
   Alchemy\AdminBundle\Utils\WorkerQueues: ~
 
+  Alchemy\AdminBundle\Utils\UserDisplayNameResolver: ~
+
   Alchemy\AdminBundle\Listener\EasyAdminListener: ~
 
   Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter:
