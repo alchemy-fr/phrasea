@@ -33,6 +33,9 @@ final class AttributeDefinitionSection extends AbstractTemplateSection
             'labels' => $item->getLabels(),
             'translations' => $item->getTranslations(),
             'entityList' => $item->getEntityList()?->getId(),
+            'entityHierarchyDepthMin' => $item->getEntityHierarchyDepthMin(),
+            'entityHierarchyDepthMax' => $item->getEntityHierarchyDepthMax(),
+            'autoFillParents' => $item->isAutoFillParents(),
             'fallback' => $item->getFallback(),
             'type' => $item->getType(),
             'fileType' => $item->getFileType(),
@@ -99,6 +102,10 @@ final class AttributeDefinitionSection extends AbstractTemplateSection
                 $o->setTranslations($item['translations']);
             }
             $o->setEntityList($context->get(EntityListSection::getKey(), $item['entityList'] ?? null, EntityList::class));
+            // Templates exported before the depth range bound a single depth
+            $o->setEntityHierarchyDepthMin($item['entityHierarchyDepthMin'] ?? $item['entityHierarchyDepth'] ?? null);
+            $o->setEntityHierarchyDepthMax($item['entityHierarchyDepthMax'] ?? $item['entityHierarchyDepth'] ?? null);
+            $o->setAutoFillParents($item['autoFillParents'] ?? false);
             $o->setFallback($item['fallback']);
             $o->setTarget(AssetTypeEnum::tryFrom((int) $item['target']) ?? AssetTypeEnum::Asset);
             // Support previous fieldType key for backward compatibility with older templates

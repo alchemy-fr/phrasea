@@ -35,6 +35,7 @@ import {
 } from '@/types/api';
 import {EntityChip} from '@/components/chips';
 import {entityLabel} from '@/features/attributes/types/registry';
+import {pickTranslation} from '@/lib/utils/locale';
 import {idFromIri} from '@/lib/utils/iri';
 import {
     normalizeDefinition,
@@ -259,17 +260,47 @@ export function GroupSelect({
     );
 }
 
+/**
+ * Ancestors of an entity in its list hierarchy ("Paris / 16e"): tells apart
+ * the homonyms (Rue Victor Hugo in Paris and in Tours).
+ */
+export function entityPathLabel(e: AttributeEntity): string | undefined {
+    if (!e.path || e.path.length === 0) {
+        return undefined;
+    }
+
+    return e.path
+        .map(p => pickTranslation(p.translations ?? undefined, p.value))
+        .join(' / ');
+}
+
 function entityOption(e: AttributeEntity): ComboOption<AttributeEntity> {
+    const path = entityPathLabel(e);
+
     return {
         value: e.id,
-        label: entityLabel(e),
-        render: <EntityChip entity={e} size="sm" />,
+        label: path ? `${entityLabel(e)} (${path})` : entityLabel(e),
+        render: path ? (
+            <span className="flex min-w-0 items-center gap-2" title={path}>
+                <EntityChip entity={e} size="sm" />
+                <span className="truncate text-xs text-muted-foreground">
+                    {path}
+                </span>
+            </span>
+        ) : (
+            <EntityChip entity={e} size="sm" />
+        ),
         item: e,
     };
 }
 
 type AttributeEntitySelectProps = {
     listId: string | undefined;
+    /**
+     * Only the entities this attribute definition accepts: those at its
+     * hierarchy depth (and branch) when it is bound to one
+     */
+    definitionId?: string;
     allowNewValues?: boolean;
     disabled?: boolean;
     id?: string;
@@ -292,18 +323,19 @@ type AttributeEntitySelectProps = {
 
 export function AttributeEntitySelect(props: AttributeEntitySelectProps) {
     const {t} = useTranslation();
-    const {listId, allowNewValues, disabled, id} = props;
+    const {listId, definitionId, allowNewValues, disabled, id} = props;
     const load = useCallback(
         async (query: string, _signal: AbortSignal, cursor?: string) =>
             comboPage(
                 await getAttributeEntities({
                     list: listId,
+                    definition: definitionId,
                     query: query || undefined,
                     url: cursor,
                 }),
                 entityOption
             ),
-        [listId]
+        [listId, definitionId]
     );
     const resolve = useCallback(
         async (value: string) => entityOption(await loadAttributeEntity(value)),
@@ -312,7 +344,7 @@ export function AttributeEntitySelect(props: AttributeEntitySelectProps) {
     const common = {
         id,
         disabled: disabled || !listId,
-        queryKey: ['attribute-entities', listId],
+        queryKey: ['attribute-entities', listId, definitionId],
         loadPage: load,
         resolveValue: resolve,
         onCreate:

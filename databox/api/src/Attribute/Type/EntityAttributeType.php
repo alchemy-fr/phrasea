@@ -25,6 +25,11 @@ final class EntityAttributeType extends TextAttributeType
 
     public const string NAME = 'entity';
 
+    /**
+     * The entity and its ancestors (AttributeEntity::getBranchIds()).
+     */
+    public const string BRANCH_FIELD = 'branch';
+
     public function __construct(
         private readonly AttributeEntityRepository $repository,
         private readonly Security $security,
@@ -67,6 +72,7 @@ final class EntityAttributeType extends TextAttributeType
             AttributeInterface::NO_LOCALE => $entity->getValue(),
         ]);
         $entityId = $entity->getId();
+        $branch = $entity->getBranchIds();
 
         $output = [];
 
@@ -77,6 +83,7 @@ final class EntityAttributeType extends TextAttributeType
 
             $output[$locale] = [
                 'id' => $entityId,
+                'branch' => $branch,
                 'value' => $v,
             ];
         }
@@ -90,6 +97,7 @@ final class EntityAttributeType extends TextAttributeType
 
                 $output[$locale] ??= [
                     'id' => $entityId,
+                    'branch' => $branch,
                 ];
                 $output[$locale]['synonyms'] = $synonym;
             }
@@ -125,12 +133,15 @@ final class EntityAttributeType extends TextAttributeType
 
             $translatedValue = $this->getTranslatedValue($entity);
 
+            $path = $entity->getPath();
             $bucket['key'] = [
                 'value' => $bucket['key'],
                 'label' => $translatedValue,
                 'item' => [
                     ...$this->normalizeEntity($entity),
                     'translatedValue' => $translatedValue,
+                    // Nests the buckets of a hierarchical list (placeholders left out)
+                    'parentId' => [] !== $path ? $path[\count($path) - 1]['id'] : null,
                 ],
             ];
 
@@ -168,10 +179,13 @@ final class EntityAttributeType extends TextAttributeType
         return $translations[$locale] ?? $entity->getValue();
     }
 
+    /**
+     * Each value counts for its entity and the ancestors: the facet shows the hierarchy.
+     */
     #[\Override]
     public function getAggregationField(): string
     {
-        return 'id';
+        return self::BRANCH_FIELD;
     }
 
     #[\Override]
@@ -264,6 +278,9 @@ final class EntityAttributeType extends TextAttributeType
             'type' => 'object',
             'properties' => [
                 'id' => [
+                    'type' => 'keyword',
+                ],
+                self::BRANCH_FIELD => [
                     'type' => 'keyword',
                 ],
                 'value' => [

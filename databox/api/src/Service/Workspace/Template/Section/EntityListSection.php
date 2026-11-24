@@ -24,6 +24,7 @@ final class EntityListSection extends AbstractTemplateSection
         'withImages' => ['isWithImages', 'setWithImages'],
         'withTranslations' => ['isWithTranslations', 'setWithTranslations'],
         'withSynonyms' => ['isWithSynonyms', 'setWithSynonyms'],
+        'isHierarchy' => ['isHierarchy', 'setIsHierarchy'],
     ];
 
     public static function getKey(): string
@@ -58,6 +59,9 @@ final class EntityListSection extends AbstractTemplateSection
                 'status' => $entity->getStatus(),
                 'emoji' => $entity->getEmoji(),
                 'color' => $entity->getColor(),
+                'parent' => $entity->getParentId(),
+                'hierarchyDepth' => $entity->getHierarchyDepth(),
+                'placeholder' => $entity->isPlaceholder(),
             ], $entities);
 
             $o[] = $item;
@@ -87,12 +91,22 @@ final class EntityListSection extends AbstractTemplateSection
                     $list->$setter((bool) $item[$key]);
                 }
             }
+            if (!array_key_exists('isHierarchy', $item)) {
+                // A template older than the flag: a hierarchy makes it
+                foreach ($item['entities'] ?? [] as $entityItem) {
+                    if (!empty($entityItem['parent']) || !empty($entityItem['placeholder'])) {
+                        $list->setIsHierarchy(true);
+                        break;
+                    }
+                }
+            }
             $this->em->persist($list);
             $context->register(self::getKey(), $item['id'] ?? null, $list);
 
             foreach ($item['entities'] ?? [] as $entityItem) {
                 $this->importEntity($list, $entityItem, $context);
             }
+            $this->importHierarchy($item, $context);
         }
     }
 
@@ -127,8 +141,26 @@ final class EntityListSection extends AbstractTemplateSection
         if (array_key_exists('color', $item)) {
             $entity->setColor($item['color']);
         }
+        if (array_key_exists('placeholder', $item)) {
+            $entity->setPlaceholder((bool) $item['placeholder']);
+        }
         $this->em->persist($entity);
 
         $context->register(self::ENTITY_SECTION, $item['id'] ?? null, $entity);
+    }
+
+    /**
+     * Once all the entities of the list are known: the parents and the depths.
+     */
+    private function importHierarchy(array $item, TemplateImportContext $context): void
+    {
+        foreach ($item['entities'] ?? [] as $entityItem) {
+            $entity = $context->get(self::ENTITY_SECTION, $entityItem['id'] ?? null, AttributeEntity::class);
+            if (!$entity instanceof AttributeEntity) {
+                continue;
+            }
+            $entity->setParent($context->get(self::ENTITY_SECTION, $entityItem['parent'] ?? null, AttributeEntity::class));
+            $entity->setHierarchyDepth($entityItem['hierarchyDepth'] ?? 0);
+        }
     }
 }

@@ -85,6 +85,9 @@ trait AttributeApiTestTrait
         if (isset($options['approveNewValues'])) {
             $list->setApproveNewValues($options['approveNewValues']);
         }
+        if (isset($options['isHierarchy'])) {
+            $list->setIsHierarchy($options['isHierarchy']);
+        }
         $em->persist($list);
         if (!($options['no_flush'] ?? false)) {
             $em->flush();

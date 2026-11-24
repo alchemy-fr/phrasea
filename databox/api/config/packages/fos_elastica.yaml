@@ -425,6 +425,15 @@ fos_elastica:
                             type: keyword
                 workspaceId:
                     type: keyword
+                parentId:
+                    type: keyword
+                ancestorIds:
+                    type: keyword
+                depth:
+                    type: integer
+                    property_path: hierarchyDepth
+                placeholder:
+                    type: boolean
                 # status and creatorId: the visibility of the pending and rejected values (AttributeEntitySearch)
                 status:
                     type: keyword

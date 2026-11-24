@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
+use App\Attribute\Hierarchy\EntityHierarchyValueValidator;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Attribute;
@@ -35,6 +36,7 @@ final readonly class AttributeValidator
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeRepository $attributeRepository,
         private AttributeTypeRegistry $typeRegistry,
+        private EntityHierarchyValueValidator $hierarchyValueValidator,
         private AttributeEntityRepository $attributeEntityRepository,
     ) {
     }
@@ -79,7 +81,7 @@ final readonly class AttributeValidator
                     if (null !== $v) {
                         $normalized = $type->normalizeValue($v);
                         if (null !== $normalized) {
-                            $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                            $this->addErrorsToContext($definition, $attributeInput, $validationContext, $this->validateValue($definition, $type, $normalized));
                             $this->validateEntityOfList($definition, $type, $normalized, $validationContext);
                         }
                     }
@@ -89,11 +91,16 @@ final readonly class AttributeValidator
                 $normalized = $type->normalizeValue($value);
 
                 if (null !== $normalized) {
-                    $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                    $this->addErrorsToContext($definition, $attributeInput, $validationContext, $this->validateValue($definition, $type, $normalized));
                     $this->validateEntityOfList($definition, $type, $normalized, $validationContext);
                 }
             }
         }
+    }
+
+    private function validateValue(AttributeDefinition $definition, AttributeTypeInterface $type, mixed $normalized): ?array
+    {
+        return $type->validate($normalized) ?? $this->hierarchyValueValidator->validate($definition, $normalized);
     }
 
     /**

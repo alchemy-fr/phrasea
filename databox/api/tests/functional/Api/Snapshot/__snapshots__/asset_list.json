@@ -234,6 +234,7 @@
                     "definition": {
                         "@id": "/attribute-definitions/<uuid>",
                         "@type": "attribute-definition",
+                        "autoFillParents": false,
                         "createdAt": "<date>",
                         "displayName": "Name",
                         "id": "<uuid>",
@@ -330,6 +331,7 @@
                     "definition": {
                         "@id": "/attribute-definitions/<keywordsDef>",
                         "@type": "attribute-definition",
+                        "autoFillParents": false,
                         "createdAt": "<date>",
                         "displayName": "Keywords",
                         "id": "<keywordsDef>",
@@ -354,6 +356,7 @@
                     "definition": {
                         "@id": "/attribute-definitions/<keywordsDef>",
                         "@type": "attribute-definition",
+                        "autoFillParents": false,
                         "createdAt": "<date>",
                         "displayName": "Keywords",
                         "id": "<keywordsDef>",
@@ -378,6 +381,7 @@
                     "definition": {
                         "@id": "/attribute-definitions/<uuid>",
                         "@type": "attribute-definition",
+                        "autoFillParents": false,
                         "createdAt": "<date>",
                         "displayName": "Name",
                         "id": "<uuid>",
@@ -402,6 +406,7 @@
                     "definition": {
                         "@id": "/attribute-definitions/<titleDef>",
                         "@type": "attribute-definition",
+                        "autoFillParents": false,
                         "createdAt": "<date>",
                         "displayName": "Title",
                         "id": "<titleDef>",

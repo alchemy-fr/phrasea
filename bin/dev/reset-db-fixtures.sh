@@ -7,7 +7,7 @@ set -e
 . bin/functions.sh
 load-env
 
-export DEV_PHP_MEMORY_LIMIT=2G
+export DEV_PHP_MEMORY_LIMIT=-1
 
 echo "# Generating fixtures..."
 echo "## Setting up configurator..."

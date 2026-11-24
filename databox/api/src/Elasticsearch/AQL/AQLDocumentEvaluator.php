@@ -10,6 +10,7 @@ use App\Attribute\AttributeLocaleInterface;
 use App\Attribute\Type\AssetStatusAttributeType;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateTimeAttributeType;
+use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\AQL\Function\ConcatFunction;
 use App\Elasticsearch\AQL\Function\SubstringFunction;
@@ -197,6 +198,16 @@ final readonly class AQLDocumentEvaluator
         $value = $criteria->value;
         $negate = static fn (\Closure $m, bool $negate): \Closure => $negate ? static fn (array $doc): bool => !$m($doc) : $m;
 
+        if ($criteria->type instanceof EntityAttributeType && null !== $value && in_array($operator, [
+            ConditionOperatorEnum::EQUALS,
+            ConditionOperatorEnum::NOT_EQUALS,
+            ConditionOperatorEnum::IN,
+            ConditionOperatorEnum::NOT_IN,
+            ConditionOperatorEnum::HAS_ALL_OF,
+        ], true)) {
+            return $negate($this->compileEntityBranch($criteria, $value), in_array($operator, [ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::NOT_IN], true));
+        }
+
         switch ($operator) {
             case ConditionOperatorEnum::BETWEEN:
             case ConditionOperatorEnum::NOT_BETWEEN:
@@ -285,6 +296,28 @@ final readonly class AQLDocumentEvaluator
             default:
                 throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value));
         }
+    }
+
+    /**
+     * Mirror of AQLToESQuery::createEntityBranchQuery(): an entity matches the values of its descendants too,
+     * through the branch field (the ID field keeps matching the values indexed before it).
+     */
+    private function compileEntityBranch(ResolvedCriteria $criteria, mixed $value): \Closure
+    {
+        $refs = [
+            ...$this->createLocaleRefs($criteria, $criteria->subField),
+            ...$this->createLocaleRefs($criteria, EntityAttributeType::BRANCH_FIELD),
+        ];
+        $matchAny = fn (array $ids): \Closure => self::any(array_map(fn (array $ref): \Closure => $this->compileTerms($ref, $ids), $refs));
+        $ids = array_values(array_map('strval', (array) $value));
+
+        if (ConditionOperatorEnum::HAS_ALL_OF === $criteria->operator) {
+            $all = array_map(fn (string $id): \Closure => $matchAny([$id]), $ids);
+
+            return static fn (array $doc): bool => array_all($all, static fn (\Closure $m): bool => $m($doc));
+        }
+
+        return $matchAny($ids);
     }
 
     /**

@@ -23,10 +23,12 @@ import {
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {AttributeEntity, EntityList, Workspace} from '@/types/api';
-import {AttributeEntityStatus} from '@/types/api';
+import {AttributeEntityStatus, EntityName} from '@/types/api';
 import {
     type AttributeEntitySortField,
     clearEntityList,
+    exportEntityHierarchy,
+    exportEntityList,
     deleteAttributeEntity,
     deleteAttributeEntityImage,
     getAttributeEntity,
@@ -54,7 +56,11 @@ import type {CellPosition} from '@/components/ui/data-table/types';
 import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
 import {useRoutePath} from '@/lib/navigation/routePath';
 import {toastError} from '@alchemy/next-ui/utils/errors';
+import {downloadUrl} from '@alchemy/next-ui/utils/misc';
 import {cn} from '@alchemy/next-ui/utils/cn';
+import {iri} from '@/lib/utils/iri';
+import {useResizablePanel} from '@/hooks/useResizablePanel';
+import {ResizeHandle} from '@/components/ui/resize-handle';
 import {
     checkUploadFile,
     describeUploadRejection,
@@ -67,13 +73,19 @@ import {EntityCellEditor} from './EntityCellEditor';
 import {EntityFormDialog} from './EntityFormDialog';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityAssetsPreviewDialog} from './EntityAssetsPreviewDialog';
+import {EntityTree, hierarchyQueryKey} from './hierarchy/EntityTree';
+import {ImportEntityHierarchyDialog} from './hierarchy/ImportEntityHierarchyDialog';
 import {
     ExportEntitiesDialog,
     ImportEntitiesDialog,
+    ImportThesaurusDialog,
+    THESAURUS_FORMAT,
     MergeEntitiesDialog,
 } from './dialogs';
 import {
     type EntityStatusFilter,
+    entityGridQueryKey,
+    isChildrenGridQueryKey,
     pendingCountQueryKey,
     useEntityGridQuery,
     usePendingCount,
@@ -108,7 +120,10 @@ async function inBatches<T>(
 /**
  * The values of an entity list as a spreadsheet: inline edition, moderation
  * (status chips, approve / reject, one by one or the selection), server-side
- * sort and filters, infinite loading.
+ * sort and filters, infinite loading. A hierarchy is shown as an explorer:
+ * the tree (organized by drag & drop) in a resizable pane on the left, the
+ * table of the children of the selected node on the right. Both share the
+ * menu of a value.
  *
  * The value edited in the full form is in the URL (`useRoutePath`):
  * `:entityId` or `new`.
@@ -130,6 +145,15 @@ export function EntityGrid({
         [workspace.enabledLocales]
     );
 
+    // A hierarchy is shown as an explorer, the table filtered on the node
+    // selected in the tree; a list not flagged as a hierarchy only has the
+    // table, of every value
+    const isHierarchy = !!list.isHierarchy;
+    // The node of the tree whose children are listed, null for the top level
+    const [treeSelection, setTreeSelection] = useState<AttributeEntity | null>(
+        null
+    );
+    const treePanel = useResizablePanel('entity-tree');
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebouncedValue(search.trim(), 250);
     const [statusFilter, setStatusFilter] = useState<EntityStatusFilter>('all');
@@ -168,13 +192,33 @@ export function EntityGrid({
             status: statusFilter,
             value: debouncedSearch ? undefined : columnFilter('value'),
             note: columnFilter('note'),
+            parent: isHierarchy ? (treeSelection?.id ?? null) : undefined,
         },
     });
     const pending = usePendingCount(list.id);
-    const refreshPending = () =>
+    /**
+     * After a change, the tree is refreshed: the table applies most changes
+     * to its rows itself, and is reloaded only with `reloadTable`.
+     */
+    const dataChanged = (reloadTable = false) => {
         void queryClient.invalidateQueries({
             queryKey: pendingCountQueryKey(list.id),
         });
+        if (isHierarchy) {
+            void queryClient.invalidateQueries({
+                queryKey: hierarchyQueryKey(list.id),
+            });
+            // The children of the other nodes, reloaded once selected
+            void queryClient.invalidateQueries({
+                queryKey: entityGridQueryKey(list.id),
+                predicate: q => isChildrenGridQueryKey(q.queryKey),
+                refetchType: 'none',
+            });
+        }
+        if (reloadTable) {
+            void grid.refetch();
+        }
+    };
     const data = useMemo(
         () => [...drafts, ...grid.items],
         [drafts, grid.items]
@@ -233,14 +277,23 @@ export function EntityGrid({
                 const saved = await postAttributeEntity(list.id, {
                     value: v,
                     status: AttributeEntityStatus.Approved,
-                });
+                    // In the explorer, under the selected node
+                    ...(treeSelection
+                        ? {
+                              parent: iri(
+                                  EntityName.AttributeEntity,
+                                  treeSelection.id
+                              ),
+                          }
+                        : {}),
+                } as Partial<AttributeEntity>);
                 discardDraft(row.id);
                 grid.insertEntity(saved);
                 setRequestFocus({
                     rowIndex: drafts.filter(d => d.id !== row.id).length,
                     columnId: 'value',
                 });
-                refreshPending();
+                dataChanged();
             } catch (e) {
                 toastError(e);
             }
@@ -261,9 +314,7 @@ export function EntityGrid({
         try {
             const saved = await putAttributeEntity(row.id, patch);
             grid.replaceEntity(saved);
-            if ('status' in patch) {
-                refreshPending();
-            }
+            dataChanged();
         } catch (e) {
             grid.patchEntity(row.id, previous);
             toastError(e);
@@ -309,7 +360,7 @@ export function EntityGrid({
                       })
             );
         }
-        refreshPending();
+        dataChanged();
         setRowSelection({});
     };
 
@@ -328,6 +379,9 @@ export function EntityGrid({
                     .map(e => e.id);
                 grid.removeEntities(deleted);
                 setRowSelection({});
+                if (treeSelection && deleted.includes(treeSelection.id)) {
+                    setTreeSelection(null);
+                }
                 if (editingId && deleted.includes(editingId)) {
                     navigate([], {replace: true});
                 }
@@ -344,20 +398,21 @@ export function EntityGrid({
                         })
                     );
                 }
-                refreshPending();
+                dataChanged();
             },
         });
 
-    const reload = () => {
-        void grid.refetch();
-        refreshPending();
-    };
+    const reload = () => dataChanged(true);
 
     const openMerge = (entities: AttributeEntity[]) =>
         openModal(MergeEntitiesDialog, {
             entities,
             onMerged: () => {
                 setRowSelection({});
+                // It may be gone in the merge
+                if (entities.some(e => e.id === treeSelection?.id)) {
+                    setTreeSelection(null);
+                }
                 reload();
             },
         });
@@ -382,6 +437,7 @@ export function EntityGrid({
             grid.replaceEntity(
                 await uploadAttributeEntityImage(entity.id, file)
             );
+            dataChanged();
         } catch (e: any) {
             toast.error(
                 t(
@@ -406,6 +462,7 @@ export function EntityGrid({
         try {
             await deleteAttributeEntityImage(entity.id);
             grid.patchEntity(entity.id, {image: null, thumbnail: null});
+            dataChanged();
         } catch (e) {
             toastError(e);
         }
@@ -478,6 +535,11 @@ export function EntityGrid({
         [menuActions, list, locales, t, uploadingImageIds]
     );
 
+    const valueCount =
+        grid.total !== undefined
+            ? t('entity.count', '{{count}} values', {count: grid.total})
+            : null;
+
     const chips: {id: EntityStatusFilter; label: string}[] = [
         {id: 'all', label: t('entity.filter.all', 'All')},
         {id: 'pending', label: t('entity.pending', 'Pending')},
@@ -493,6 +555,14 @@ export function EntityGrid({
                 </Button>
                 <h3 className="text-sm font-semibold">{list.name}</h3>
                 <ExploreEntityListButton listId={list.id} />
+                <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(['new'])}
+                    data-testid="entity-create"
+                >
+                    <PlusIcon /> {t('entity.create', 'New value')}
+                </Button>
                 <FilterInput
                     value={search}
                     onValueChange={setSearch}
@@ -532,14 +602,6 @@ export function EntityGrid({
                         </Button>
                     ))}
                 </div>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => navigate(['new'])}
-                    data-testid="entity-create"
-                >
-                    <PlusIcon /> {t('entity.create', 'New value')}
-                </Button>
                 <Button
                     size="sm"
                     variant="ghost"
@@ -609,11 +671,8 @@ export function EntityGrid({
                     </>
                 ) : null}
                 <span className="ml-auto text-xs text-muted-foreground">
-                    {grid.total !== undefined
-                        ? t('entity.count', '{{count}} values', {
-                              count: grid.total,
-                          })
-                        : null}
+                    {/* A hierarchy counts the values of the selected node, above its table */}
+                    {isHierarchy ? null : valueCount}
                 </span>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -646,6 +705,88 @@ export function EntityGrid({
                         >
                             <UploadIcon /> {t('entity.import', 'Import…')}
                         </DropdownMenuItem>
+                        {isHierarchy ? (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onSelect={async () => {
+                                        try {
+                                            const {blob, filename} =
+                                                await exportEntityHierarchy(
+                                                    list.id
+                                                );
+                                            downloadUrl(
+                                                URL.createObjectURL(blob),
+                                                filename
+                                            );
+                                        } catch (e) {
+                                            toastError(e);
+                                        }
+                                    }}
+                                >
+                                    <DownloadIcon />{' '}
+                                    {t(
+                                        'entity_hierarchy.export',
+                                        'Export the hierarchy'
+                                    )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onSelect={() =>
+                                        openModal(ImportEntityHierarchyDialog, {
+                                            list,
+                                        })
+                                    }
+                                >
+                                    <UploadIcon />{' '}
+                                    {t(
+                                        'entity_hierarchy.import',
+                                        'Import the hierarchy…'
+                                    )}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onSelect={() =>
+                                        openModal(ImportThesaurusDialog, {
+                                            list,
+                                            onImported: reload,
+                                        })
+                                    }
+                                    data-testid="entity-thesaurus-import"
+                                >
+                                    <UploadIcon />{' '}
+                                    {t(
+                                        'entity.thesaurus.import',
+                                        'Import a tabulated thesaurus…'
+                                    )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onSelect={async () => {
+                                        try {
+                                            const {blob, filename} =
+                                                await exportEntityList(
+                                                    list.id,
+                                                    {
+                                                        format: THESAURUS_FORMAT,
+                                                    }
+                                                );
+                                            downloadUrl(
+                                                URL.createObjectURL(blob),
+                                                filename
+                                            );
+                                        } catch (e) {
+                                            toastError(e);
+                                        }
+                                    }}
+                                    data-testid="entity-thesaurus-export"
+                                >
+                                    <DownloadIcon />{' '}
+                                    {t(
+                                        'entity.thesaurus.export',
+                                        'Export as a tabulated thesaurus'
+                                    )}
+                                </DropdownMenuItem>
+                            </>
+                        ) : null}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             variant="destructive"
@@ -661,6 +802,7 @@ export function EntityGrid({
                                     onConfirm: async () => {
                                         await clearEntityList(list.id);
                                         setRowSelection({});
+                                        setTreeSelection(null);
                                         reload();
                                     },
                                 })
@@ -671,48 +813,125 @@ export function EntityGrid({
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <DataTable<AttributeEntity>
-                data={data}
-                columns={columns}
-                getRowId={e => e.id}
-                sorting={sorting}
-                onSortingChange={setSorting}
-                columnFilters={columnFilters}
-                onColumnFiltersChange={setColumnFilters}
-                rowSelection={rowSelection}
-                onRowSelectionChange={setRowSelection}
-                onCellCommit={commitCell}
-                renderEditor={p => <EntityCellEditor {...p} />}
-                rowClassName={e =>
-                    cn(
-                        e.status === AttributeEntityStatus.Pending &&
-                            !isDraft(e) &&
-                            'bg-warning/10',
-                        e.status === AttributeEntityStatus.Rejected &&
-                            'opacity-60',
-                        // Its context menu is open
-                        'data-[state=open]:bg-accent'
-                    )
-                }
-                rowWrapper={(entity, rowElement) => (
-                    <EntityRowContextMenu
-                        entity={entity}
-                        list={list}
-                        actions={menuActions}
-                        getTargets={menuTargets}
+            <div className="flex min-h-0 flex-1">
+                {isHierarchy ? (
+                    <div
+                        style={{width: treePanel.width}}
+                        className="flex min-w-0 shrink-0 flex-col pr-2"
                     >
-                        {rowElement}
-                    </EntityRowContextMenu>
-                )}
-                loading={grid.isLoading}
-                loadingMore={grid.isFetchingNextPage}
-                hasMore={grid.hasNextPage}
-                onReachEnd={() => void grid.fetchNextPage()}
-                emptyLabel={t('entity.empty', 'No value')}
-                requestFocus={requestFocus}
-                data-testid="entity-grid"
-                className="min-h-0 flex-1"
-            />
+                        <EntityTree
+                            list={list}
+                            className="min-h-0 flex-1"
+                            selectedId={treeSelection?.id ?? null}
+                            onSelect={e => {
+                                setTreeSelection(e);
+                                setRowSelection({});
+                            }}
+                            onOpen={e => navigate([e.id])}
+                            onCreated={() => dataChanged(true)}
+                            wrapRow={(entity, row) => (
+                                <EntityRowContextMenu
+                                    entity={entity}
+                                    list={list}
+                                    actions={menuActions}
+                                    getTargets={e => [e]}
+                                >
+                                    {row}
+                                </EntityRowContextMenu>
+                            )}
+                        />
+                    </div>
+                ) : null}
+                {isHierarchy ? (
+                    <ResizeHandle
+                        panel={treePanel}
+                        data-testid="entity-tree-resize"
+                    />
+                ) : null}
+                <div
+                    className={cn(
+                        'flex min-w-0 flex-1 flex-col gap-1',
+                        isHierarchy && 'pl-2'
+                    )}
+                >
+                    {isHierarchy ? (
+                        <p className="flex gap-2 text-xs text-muted-foreground">
+                            <span
+                                className="truncate"
+                                data-testid="entity-table-parent"
+                            >
+                                {treeSelection
+                                    ? t(
+                                          'entity_hierarchy.children_of',
+                                          'Children of "{{name}}"',
+                                          {
+                                              name: treeSelection.placeholder
+                                                  ? t(
+                                                        'entity_hierarchy.placeholder',
+                                                        'empty level'
+                                                    )
+                                                  : treeSelection.value,
+                                          }
+                                      )
+                                    : t(
+                                          'entity_hierarchy.root_children',
+                                          'Top level'
+                                      )}
+                            </span>
+                            {valueCount ? (
+                                <span
+                                    className="shrink-0"
+                                    data-testid="entity-count"
+                                >
+                                    · {valueCount}
+                                </span>
+                            ) : null}
+                        </p>
+                    ) : null}
+                    <DataTable<AttributeEntity>
+                        data={data}
+                        columns={columns}
+                        getRowId={e => e.id}
+                        sorting={sorting}
+                        onSortingChange={setSorting}
+                        columnFilters={columnFilters}
+                        onColumnFiltersChange={setColumnFilters}
+                        rowSelection={rowSelection}
+                        onRowSelectionChange={setRowSelection}
+                        onCellCommit={commitCell}
+                        renderEditor={p => <EntityCellEditor {...p} />}
+                        rowClassName={e =>
+                            cn(
+                                e.status === AttributeEntityStatus.Pending &&
+                                    !isDraft(e) &&
+                                    'bg-warning/10',
+                                e.status === AttributeEntityStatus.Rejected &&
+                                    'opacity-60',
+                                // Its context menu is open
+                                'data-[state=open]:bg-accent'
+                            )
+                        }
+                        rowWrapper={(entity, rowElement) => (
+                            <EntityRowContextMenu
+                                entity={entity}
+                                list={list}
+                                actions={menuActions}
+                                getTargets={menuTargets}
+                            >
+                                {rowElement}
+                            </EntityRowContextMenu>
+                        )}
+                        loading={grid.isLoading}
+                        loadingMore={grid.isFetchingNextPage}
+                        hasMore={grid.hasNextPage}
+                        onReachEnd={() => void grid.fetchNextPage()}
+                        emptyLabel={t('entity.empty', 'No value')}
+                        requestFocus={requestFocus}
+                        data-testid="entity-grid"
+                        className="min-h-0 flex-1"
+                    />
+                </div>
+            </div>
             <input
                 ref={imageInput}
                 type="file"
@@ -743,7 +962,7 @@ export function EntityGrid({
                     } else {
                         grid.insertEntity(saved);
                     }
-                    refreshPending();
+                    dataChanged();
                     navigate([]);
                 }}
             />

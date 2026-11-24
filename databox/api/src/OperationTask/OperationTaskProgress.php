@@ -43,6 +43,16 @@ final readonly class OperationTaskProgress
             ->execute();
     }
 
+    public function setProgress(string $taskId, int $progress): void
+    {
+        $this->em->createQuery(
+            sprintf('UPDATE %s t SET t.progress = :progress WHERE t.id = :id', OperationTask::class)
+        )
+            ->setParameter('progress', $progress)
+            ->setParameter('id', $taskId)
+            ->execute();
+    }
+
     public function increment(string $taskId): void
     {
         $this->em->createQuery(

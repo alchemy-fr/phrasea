@@ -14,6 +14,7 @@ use App\Elasticsearch\AttributeValueSearch;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\AttributeDefinitionVoter;
 use App\Service\Image\ImageSetManager;
 
@@ -29,6 +30,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         private readonly AttributeValueSearch $attributeValueSearch,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly ImageSetManager $imageSetManager,
+        private readonly AttributeEntityRepository $attributeEntityRepository,
     ) {
     }
 
@@ -54,6 +56,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
             }
         }
         $this->imageSetManager->preload(array_map(fn (AttributeEntity $entity) => $entity->getImage(), $entities));
+        $this->preloadHierarchy($entities);
 
         $usage = self::getParameterValue($operation, 'usage');
         if (null !== $usage && '' !== $usage && filter_var($usage, FILTER_VALIDATE_BOOL)) {
@@ -61,6 +64,29 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         }
 
         return $result;
+    }
+
+    /**
+     * Loads the ancestors of the page at once (AttributeEntity::getPath() walks them) and counts the children.
+     *
+     * @param AttributeEntity[] $entities
+     */
+    private function preloadHierarchy(array $entities): void
+    {
+        if (empty($entities)) {
+            return;
+        }
+
+        $ids = array_map(fn (AttributeEntity $e): string => $e->getId(), $entities);
+        $ancestorIds = array_values(array_unique(array_merge(...array_values($this->attributeEntityRepository->getAncestorIds($ids)))));
+        if (!empty($ancestorIds)) {
+            $this->attributeEntityRepository->findBy(['id' => $ancestorIds]);
+        }
+
+        $childCounts = $this->attributeEntityRepository->countChildren($ids);
+        foreach ($entities as $entity) {
+            $entity->setChildCount($childCounts[$entity->getId()] ?? 0);
+        }
     }
 
     /**

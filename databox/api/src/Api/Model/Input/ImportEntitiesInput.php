@@ -13,4 +13,10 @@ final class ImportEntitiesInput
 
     #[Assert\NotBlank]
     public ?string $format = null;
+
+    /**
+     * Locale of the labels given without one, for the formats supporting it (tabulated thesaurus).
+     */
+    #[Assert\Locale]
+    public ?string $defaultLocale = null;
 }

@@ -23,6 +23,7 @@ import {
     isAssetEligibleForDefinition,
     getAssetsByIds,
 } from '@/lib/api/assets';
+import {useHierarchyConflictConfirm} from '@/features/attributes/hierarchy/useHierarchyConflictConfirm';
 import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
 import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
@@ -573,6 +574,8 @@ export function AttributeBatchEditorRoute() {
         return actions;
     };
 
+    const runWithHierarchyConfirm = useHierarchyConflictConfirm();
+
     const save = async () => {
         const actions = computeActions();
         openModal(SavePreviewDialog as any, {
@@ -580,25 +583,34 @@ export function AttributeBatchEditorRoute() {
             assetCount: assets.length,
             onConfirm: async () => {
                 if (actions.length > 0) {
-                    await attributeBatchUpdate(
-                        assets.map(a => a.id),
-                        actions.map(a => ({
-                            action: a.action,
-                            definitionId: a.definition.id,
-                            value:
-                                a.action === AttributeBatchActionEnum.Delete &&
-                                a.definition.multiple
-                                    ? a.value
-                                    : a.action ===
-                                        AttributeBatchActionEnum.Delete
-                                      ? undefined
-                                      : a.value,
-                            locale:
-                                a.locale !== NO_LOCALE ? a.locale : undefined,
-                            assets: a.assets,
-                        })),
-                        workspaceId
+                    const saved = await runWithHierarchyConfirm(strategy =>
+                        attributeBatchUpdate(
+                            assets.map(a => a.id),
+                            actions.map(a => ({
+                                action: a.action,
+                                definitionId: a.definition.id,
+                                value:
+                                    a.action ===
+                                        AttributeBatchActionEnum.Delete &&
+                                    a.definition.multiple
+                                        ? a.value
+                                        : a.action ===
+                                            AttributeBatchActionEnum.Delete
+                                          ? undefined
+                                          : a.value,
+                                locale:
+                                    a.locale !== NO_LOCALE
+                                        ? a.locale
+                                        : undefined,
+                                assets: a.assets,
+                            })),
+                            workspaceId,
+                            strategy
+                        )
                     );
+                    if (undefined === saved) {
+                        return;
+                    }
                 }
                 track(EventCategory.Asset, AssetEvent.BatchEdit, {
                     value: assets.length,

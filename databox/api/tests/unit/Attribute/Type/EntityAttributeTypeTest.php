@@ -99,17 +99,20 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTestCase
         $entity->method('getValue')->willReturn('Hello');
         $entity->method('getId')->willReturn('17e9152c-fa5f-4f53-83ac-62674f6f6f8d');
         $entity->method('getSynonyms')->willReturn(['fr' => ['salut']]);
+        $entity->method('getBranchIds')->willReturn(['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', 'parent-id']);
 
         $this->repository->method('find')->willReturn($entity);
 
         $this->assertEquals([
             'fr' => [
                 'id' => '17e9152c-fa5f-4f53-83ac-62674f6f6f8d',
+                'branch' => ['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', 'parent-id'],
                 'value' => 'Bonjour',
                 'synonyms' => ['salut'],
             ],
             AttributeInterface::NO_LOCALE => [
                 'id' => '17e9152c-fa5f-4f53-83ac-62674f6f6f8d',
+                'branch' => ['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', 'parent-id'],
                 'value' => 'Hello',
             ],
         ], $this->getType()->normalizeElasticsearchValue('17e9152c-fa5f-4f53-83ac-62674f6f6f8d'));
@@ -127,10 +130,11 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTestCase
         $entity->setSynonyms(['_' => ['Crimson'], 'zz' => ['Spam']]);
         $this->repository->method('find')->with(self::ENTITY_ID)->willReturn($entity);
 
+        $branch = $entity->getBranchIds();
         $this->assertEquals([
-            'fr' => ['id' => $entity->getId(), 'value' => 'Rouge'],
-            'fr_FR' => ['id' => $entity->getId(), 'value' => 'Rouge (FR)'],
-            AttributeInterface::NO_LOCALE => ['id' => $entity->getId(), 'value' => 'Red', 'synonyms' => ['Crimson']],
+            'fr' => ['id' => $entity->getId(), 'branch' => $branch, 'value' => 'Rouge'],
+            'fr_FR' => ['id' => $entity->getId(), 'branch' => $branch, 'value' => 'Rouge (FR)'],
+            AttributeInterface::NO_LOCALE => ['id' => $entity->getId(), 'branch' => $branch, 'value' => 'Red', 'synonyms' => ['Crimson']],
         ], $this->getType()->normalizeElasticsearchValue(self::ENTITY_ID));
     }
 

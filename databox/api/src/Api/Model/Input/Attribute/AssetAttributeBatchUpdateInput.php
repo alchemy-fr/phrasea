@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Input\Attribute;
 
 use App\Api\Model\Input\InputLimits;
+use App\Attribute\Hierarchy\HierarchyAttributeFiller;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -16,6 +17,13 @@ class AssetAttributeBatchUpdateInput
     #[Assert\Valid]
     #[Assert\Count(max: InputLimits::MAX_IDS)]
     public ?array $actions = null;
+
+    /**
+     * What to do when a value disagrees with the hierarchy of an entity attribute:
+     * "reject" (default) answers the conflicts, "replace" lets the written values win.
+     */
+    #[Assert\Choice(choices: HierarchyAttributeFiller::CONFLICT_STRATEGIES)]
+    public ?string $hierarchyConflict = null;
 
     /**
      * Assets the whole batch applies to, on top of the ones of each action.

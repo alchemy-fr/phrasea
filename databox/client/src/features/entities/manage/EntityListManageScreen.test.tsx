@@ -2,6 +2,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {createI18n} from '@/i18n';
 import {EntityListManageScreen} from './EntityListManageScreen';
 
@@ -79,7 +80,9 @@ function renderScreen() {
     return render(
         <QueryClientProvider client={queryClient}>
             <I18nextProvider i18n={createI18n('en')}>
-                <EntityListManageScreen listId="list-1" />
+                <ModalProvider>
+                    <EntityListManageScreen listId="list-1" />
+                </ModalProvider>
             </I18nextProvider>
         </QueryClientProvider>
     );

@@ -59,8 +59,7 @@ export function pickTranslation<T>(
 
 export function pickFieldTranslation<T>(
     translations:
-        | Readonly<Record<string, Readonly<Record<string, T>>>>
-        | undefined,
+        Readonly<Record<string, Readonly<Record<string, T>>>> | undefined,
     field: string,
     fallback: T
 ): T {

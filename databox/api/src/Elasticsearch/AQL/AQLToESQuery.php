@@ -7,6 +7,7 @@ namespace App\Elasticsearch\AQL;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateTimeAttributeType;
+use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\BuiltInAttribute\CustomFilterQueryBuiltInAttributeInterface;
 use App\Elasticsearch\HiddenAttributeScope;
 use Elastica\Query;
@@ -127,6 +128,16 @@ final readonly class AQLToESQuery
         $value = $criteria->value;
         $type = $criteria->type;
         $caseInsensitive = $criteria->caseInsensitive;
+
+        if ($type instanceof EntityAttributeType && null !== $value && in_array($operator, [
+            ConditionOperatorEnum::EQUALS,
+            ConditionOperatorEnum::NOT_EQUALS,
+            ConditionOperatorEnum::IN,
+            ConditionOperatorEnum::NOT_IN,
+            ConditionOperatorEnum::HAS_ALL_OF,
+        ], true)) {
+            return $this->createEntityBranchQuery($fieldName, $field['locales'], $operator, $value);
+        }
 
         return match ($operator) {
             ConditionOperatorEnum::BETWEEN, ConditionOperatorEnum::NOT_BETWEEN => $this->wrapInNotQuery(new Query\Range($fieldName, $this->createRangeParams($value, $type)), ConditionOperatorEnum::NOT_BETWEEN === $operator),
@@ -255,6 +266,30 @@ final readonly class AQLToESQuery
         }
 
         return $boolQuery;
+    }
+
+    /**
+     * An entity matches the values of its descendants too (parent level selected in a facet). The ID field
+     * keeps matching the assets indexed before the branch field.
+     */
+    private function createEntityBranchQuery(string $idFieldName, array $locales, ConditionOperatorEnum $operator, mixed $value): Query\AbstractQuery
+    {
+        // $fn: the ID field of a locale ("….id")
+        $matchAny = fn (array $ids): Query\AbstractQuery => $this->yieldShouldQuery($idFieldName, $locales, fn (string $fn): Query\AbstractQuery => new Query\BoolQuery()
+            ->addShould(new Query\Terms($fn, $ids))
+            ->addShould(new Query\Terms(substr($fn, 0, -\strlen('id')).EntityAttributeType::BRANCH_FIELD, $ids)));
+        $ids = array_values(array_map('strval', (array) $value));
+
+        if (ConditionOperatorEnum::HAS_ALL_OF === $operator) {
+            $boolQuery = new Query\BoolQuery();
+            foreach ($ids as $id) {
+                $boolQuery->addMust($matchAny([$id]));
+            }
+
+            return $boolQuery;
+        }
+
+        return $this->wrapInNotQuery($matchAny($ids), \in_array($operator, [ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::NOT_IN], true));
     }
 
     private function createTermQuery(string $fieldName, mixed $value): Query\AbstractQuery

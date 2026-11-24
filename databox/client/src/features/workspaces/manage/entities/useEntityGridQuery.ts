@@ -23,6 +23,8 @@ export type EntityGridFilters = {
     status: EntityStatusFilter;
     value?: string;
     note?: string;
+    /** The children of an entity, `null` for the top level, none for every level */
+    parent?: string | null;
 };
 
 export type EntityGridSort = {id: AttributeEntitySortField; desc: boolean};
@@ -39,6 +41,15 @@ export function entityGridQueryKey(
     return sort && filters
         ? ['attribute-entities', 'grid', listId, {sort, filters}]
         : ['attribute-entities', 'grid', listId];
+}
+
+/** A grid query listing the children of a node, or the top level (`filters.parent`) */
+export function isChildrenGridQueryKey(queryKey: readonly unknown[]): boolean {
+    return (
+        queryKey[1] === 'grid' &&
+        (queryKey[3] as {filters?: EntityGridFilters} | undefined)?.filters
+            ?.parent !== undefined
+    );
 }
 
 export function pendingCountQueryKey(listId: string) {
@@ -134,6 +145,11 @@ export function useEntityGridQuery({
                 list: listId,
                 value: filters.search || filters.value || undefined,
                 note: filters.note || undefined,
+                ...(filters.parent !== undefined
+                    ? filters.parent
+                        ? {parent: filters.parent}
+                        : {depth: 0}
+                    : {}),
                 status: statusParam(filters.status),
                 usage: true,
                 limit: ENTITY_GRID_PAGE_SIZE,
