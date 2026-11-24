@@ -130,10 +130,11 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTestCase
         $entity->setSynonyms(['_' => ['Crimson'], 'zz' => ['Spam']]);
         $this->repository->method('find')->with(self::ENTITY_ID)->willReturn($entity);
 
+        $branch = $entity->getBranchIds();
         $this->assertEquals([
-            'fr' => ['id' => $entity->getId(), 'value' => 'Rouge'],
-            'fr_FR' => ['id' => $entity->getId(), 'value' => 'Rouge (FR)'],
-            AttributeInterface::NO_LOCALE => ['id' => $entity->getId(), 'value' => 'Red', 'synonyms' => ['Crimson']],
+            'fr' => ['id' => $entity->getId(), 'branch' => $branch, 'value' => 'Rouge'],
+            'fr_FR' => ['id' => $entity->getId(), 'branch' => $branch, 'value' => 'Rouge (FR)'],
+            AttributeInterface::NO_LOCALE => ['id' => $entity->getId(), 'branch' => $branch, 'value' => 'Red', 'synonyms' => ['Crimson']],
         ], $this->getType()->normalizeElasticsearchValue(self::ENTITY_ID));
     }
 
