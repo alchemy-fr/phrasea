@@ -73,8 +73,15 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(WorkspaceCrudController::class, 'Workspaces', 'fa-solid fa-briefcase'),
             MenuItem::linkTo(CollectionCrudController::class, 'Collections', 'fa-solid fa-folder'),
             MenuItem::linkTo(CollectionAccessCrudController::class, 'Collection Access', 'fa-solid fa-door-open'),
+            MenuItem::linkTo(CollectionAssetCrudController::class, 'Collection Assets', 'fa-solid fa-folder-tree'),
             MenuItem::linkTo(AssetCrudController::class, 'Assets', 'fa-solid fa-image'),
+            MenuItem::linkTo(AssetRelationshipCrudController::class, 'Asset Relationships', 'fa-solid fa-diagram-next'),
+            MenuItem::linkTo(AssetFileVersionCrudController::class, 'Asset File Versions', 'fa-solid fa-code-branch'),
+            MenuItem::linkTo(AssetImportCrudController::class, 'Asset Imports', 'fa-solid fa-file-import'),
+            MenuItem::linkTo(AssetImportErrorCrudController::class, 'Asset Import Errors', 'fa-solid fa-circle-exclamation'),
             MenuItem::linkTo(FileCrudController::class, 'Files', 'fa-solid fa-file'),
+            MenuItem::linkTo(FileAnalysisCrudController::class, 'File Analyses', 'fa-solid fa-microscope'),
+            MenuItem::linkTo(FileDuplicateCrudController::class, 'File Duplicates', 'fa-solid fa-copy'),
             MenuItem::linkTo(AssetAttachmentCrudController::class, 'Attachments', 'fa-solid fa-paperclip'),
             MenuItem::linkTo(AlternateUrlCrudController::class, 'Alternate URLs', 'fa-solid fa-link'),
             MenuItem::linkTo(AssetEmbeddingCrudController::class, 'Asset Embeddings', 'fa-solid fa-brain'),
@@ -109,7 +116,10 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(BasketCrudController::class, 'Baskets', 'fa-solid fa-basket-shopping'),
             MenuItem::linkTo(BasketAssetCrudController::class, 'Basket Assets', 'fa-solid fa-boxes-stacked'),
             MenuItem::linkTo(ThreadCrudController::class, 'Threads', 'fa-solid fa-comments'),
+            MenuItem::linkTo(MessageCrudController::class, 'Messages', 'fa-solid fa-message'),
             MenuItem::linkTo(PageCrudController::class, 'Pages', 'fa-solid fa-newspaper'),
+            MenuItem::linkTo(TermsVersionCrudController::class, 'Terms Versions', 'fa-solid fa-file-contract'),
+            MenuItem::linkTo(TermsSignatureCrudController::class, 'Terms Signatures', 'fa-solid fa-signature'),
         ]);
 
         yield MenuItem::subMenu('Searches', 'fa-solid fa-magnifying-glass')->setSubItems([
@@ -118,6 +128,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(SavedSearchCrudController::class, 'Saved Searches', 'fa-solid fa-bookmark'),
             MenuItem::linkTo(SavedSearchAutomationCrudController::class, 'Saved Search Automations', 'fa-solid fa-robot'),
             MenuItem::linkTo(AutomationRunCrudController::class, 'Automation Runs', 'fa-solid fa-play'),
+            MenuItem::linkTo(AutomationShareCrudController::class, 'Automation Shares', 'fa-solid fa-share-from-square'),
         ]);
 
         yield MenuItem::subMenu('Workflows', 'fa-solid fa-diagram-project')->setSubItems([

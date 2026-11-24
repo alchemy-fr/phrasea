@@ -106,4 +106,9 @@ class TermsVersion extends AbstractUuidEntity
     {
         return null === $this->file && '' === trim((string) $this->text);
     }
+
+    public function __toString(): string
+    {
+        return sprintf('%s v%d', $this->workspace?->getName() ?? $this->getId(), $this->version);
+    }
 }

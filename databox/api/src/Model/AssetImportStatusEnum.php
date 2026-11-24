@@ -26,4 +26,14 @@ enum AssetImportStatusEnum: int
             default => false,
         };
     }
+
+    public static function getChoices(): array
+    {
+        $choices = [];
+        foreach (self::cases() as $case) {
+            $choices[$case->name] = $case;
+        }
+
+        return $choices;
+    }
 }
