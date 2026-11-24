@@ -10,10 +10,14 @@ use Alchemy\AdminBundle\Field\Acl\ObjectTypeChoiceField;
 use Alchemy\AdminBundle\Field\Acl\PermissionsChoiceField;
 use Alchemy\AdminBundle\Field\Acl\UserTypeChoiceField;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 
 class AccessControlEntryCrudController extends AbstractAdminCrudController
 {
@@ -32,12 +36,23 @@ class AccessControlEntryCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId']);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(ChoiceFilter::new('userType')->setChoices(AccessControlEntry::USER_TYPES))
+            ->add(AssociationIdentifierFilter::new('userId', 'User/Group ID'))
+            ->add(ChoiceFilter::new('objectType')->setChoices($this->objectTypeChoiceField->getChoices()))
+            ->add(AssociationIdentifierFilter::new('objectId'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
 
         yield $this->userTypeChoiceField->create('userType');
-        yield TextField::new('userId', 'ID');
+        yield TextField::new('userId', 'User/Group ID');
         yield $this->objectTypeChoiceField->create('objectType');
         yield TextField::new('objectId');
         yield $this->permissionsChoiceField->create('permissions')

@@ -39,4 +39,19 @@ enum ChannelType: string
 
         return $choices;
     }
+
+    /**
+     * For the columns storing the channel as a plain string.
+     *
+     * @return array<string, string> label => channel value
+     */
+    public static function getValueChoices(): array
+    {
+        $choices = [];
+        foreach (self::cases() as $case) {
+            $choices[$case->label()] = $case->value;
+        }
+
+        return $choices;
+    }
 }

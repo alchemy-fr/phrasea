@@ -7,6 +7,8 @@ namespace Alchemy\NotifierBundle\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
+use Alchemy\NotifierBundle\Channel\ChannelType;
 use Alchemy\NotifierBundle\Entity\NotificationDigest;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -16,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -32,6 +35,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class NotificationDigestCrudController extends AbstractAdminCrudController
 {
+    public function __construct(private readonly UserChoiceFilter $userChoiceFilter)
+    {
+    }
+
     public static function getEntityFqcn(): string
     {
         return NotificationDigest::class;
@@ -60,8 +67,9 @@ class NotificationDigestCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
+            ->add($this->userChoiceFilter->createFilter('subscriber.userId', 'User'))
             ->add(TextFilter::new('topic'))
-            ->add(TextFilter::new('channel'))
+            ->add(ChoiceFilter::new('channel')->setChoices(ChannelType::getValueChoices()))
             ->add(DateTimeFilter::new('firstEventAt'))
             ->add(DateTimeFilter::new('lastEventAt'))
         ;

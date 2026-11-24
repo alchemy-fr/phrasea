@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Admin;
 
+use Alchemy\TestBundle\Helper\TestServicesTrait;
+use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceCreator;
+use App\Tests\Functional\DataboxTestTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 
 class AdminFiltersTest extends AbstractDataboxAdminTestCase
 {
+    use DataboxTestTrait;
+    use TestServicesTrait;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -37,9 +44,30 @@ class AdminFiltersTest extends AbstractDataboxAdminTestCase
 
     public function testFilterOnAnAssociationIdentifier(): void
     {
-        $this->client->request('GET', '/admin/attribute', ['filters' => [
-            'asset' => ['comparison' => '=', 'value' => Uuid::uuid4()->toString()],
+        $definition = $this->createAttributeDefinition(['name' => 'Filtered definition']);
+        $kept = $this->createAttribute($this->createAsset(), $definition);
+        $filteredOut = $this->createAttribute($this->createAsset(), $definition);
+
+        $crawler = $this->client->request('GET', '/admin/attribute', ['filters' => [
+            'asset' => $kept->getAsset()->getId(),
         ]]);
         $this->assertResponseIsSuccessful();
+        $this->assertCount(1, $crawler->filter(sprintf('tr[data-id="%s"]', $kept->getId())));
+        $this->assertCount(0, $crawler->filter(sprintf('tr[data-id="%s"]', $filteredOut->getId())));
+    }
+
+    private function createAttribute(Asset $asset, AttributeDefinition $definition): Attribute
+    {
+        $attribute = new Attribute();
+        $attribute->setAsset($asset);
+        $attribute->setDefinition($definition);
+        $attribute->setValue('value');
+        $attribute->setOrigin(Attribute::ORIGIN_HUMAN);
+
+        $em = $this->getEntityManager();
+        $em->persist($attribute);
+        $em->flush();
+
+        return $attribute;
     }
 }

@@ -55,7 +55,7 @@ class MessengerMessage
         return $this->availableAt;
     }
 
-    public function getDeliveredAt(): \DateTimeImmutable
+    public function getDeliveredAt(): ?\DateTimeImmutable
     {
         return $this->deliveredAt;
     }

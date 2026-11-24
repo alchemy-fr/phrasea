@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class WebhookCrudController extends AbstractAdminCrudController
@@ -40,6 +41,8 @@ class WebhookCrudController extends AbstractAdminCrudController
         return $filters
             ->add(BooleanFilter::new('active'))
             ->add(TextFilter::new('url'))
+            ->add(BooleanFilter::new('verifySSL', 'Verify SSL'))
+            ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 
@@ -51,9 +54,9 @@ class WebhookCrudController extends AbstractAdminCrudController
         yield EventsChoiceField::new('events')
             ->hideOnIndex();
         yield BooleanField::new('verifySSL', 'Verify SSL')
-            ->hideOnIndex();
+            ->renderAsSwitch(false);
         yield TextField::new('secret')
-            ->hideOnIndex();
+            ->onlyOnForms();
         yield Field::new('timeout')
             ->onlyOnForms();
         yield JsonField::new('options')

@@ -16,13 +16,21 @@ class ObjectTypeChoiceField
 
     public function create(string $propertyName, ?string $label = null)
     {
+        return ChoiceField::new($propertyName, $label)
+            ->setChoices($this->getChoices())
+        ;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getChoices(): array
+    {
         $choices = [];
         foreach ($this->objectMapping->getObjectTypes() as $name) {
             $choices[$name] = $name;
         }
 
-        return ChoiceField::new($propertyName, $label)
-            ->setChoices($choices)
-        ;
+        return $choices;
     }
 }

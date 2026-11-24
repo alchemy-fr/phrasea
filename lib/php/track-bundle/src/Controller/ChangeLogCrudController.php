@@ -5,6 +5,8 @@ namespace Alchemy\TrackBundle\Controller;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use Alchemy\CoreBundle\Mapping\ObjectMapping;
 use Alchemy\TrackBundle\Admin\Field\ObjectTypeChoiceField;
 use Alchemy\TrackBundle\Entity\ChangeLog;
@@ -17,12 +19,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 
 class ChangeLogCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly ObjectMapping $objectMapping,
         private readonly ObjectTypeChoiceField $objectTypeChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
     ) {
     }
 
@@ -45,10 +49,11 @@ class ChangeLogCrudController extends AbstractAdminCrudController
         }
 
         return $filters
-            ->add('userId')
+            ->add(DateTimeFilter::new('date'))
+            ->add($this->userChoiceFilter->createFilter('userId', 'User'))
             ->add(ChoiceFilter::new('objectType')
                 ->setChoices($objectTypeChoices))
-            ->add('objectId')
+            ->add(AssociationIdentifierFilter::new('objectId', 'Object ID'))
             ->add(ChoiceFilter::new('action')
             ->setChoices(TrackActionTypeEnum::getChoices()))
         ;
@@ -57,8 +62,7 @@ class ChangeLogCrudController extends AbstractAdminCrudController
     #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
-            ->showEntityActionsInlined()
+        return parent::configureCrud($crud)
             ->setDefaultSort(['date' => 'DESC'])
         ;
     }
@@ -77,6 +81,6 @@ class ChangeLogCrudController extends AbstractAdminCrudController
         yield $this->objectTypeChoiceField->create('objectType', 'Object Type');
         yield TextField::new('objectId', 'Object ID');
         yield JsonField::new('meta')->hideOnIndex();
-        yield JsonField::new('changes');
+        yield JsonField::new('changes')->hideOnIndex();
     }
 }

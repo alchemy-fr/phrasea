@@ -14,12 +14,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -149,6 +153,17 @@ class MessengerMessageCrudController extends AbstractCrudController
             ]);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(TextFilter::new('queueName', 'Queue'))
+            ->add(TextFilter::new('headers', 'Type'))
+            ->add(DateTimeFilter::new('createdAt'))
+            ->add(DateTimeFilter::new('availableAt'))
+            ->add(NullFilter::new('deliveredAt', 'Retried')->setChoiceLabels('Not retried', 'Retried'))
+        ;
+    }
+
     public static function getEntityFqcn(): string
     {
         return MessengerMessage::class;
@@ -159,6 +174,7 @@ class MessengerMessageCrudController extends AbstractCrudController
         return [
             IdField::new(),
             DateTimeField::new('createdAt'),
+            TextField::new('queueName', 'Queue'),
             JsonField::new('body')
                 ->hideOnIndex(),
             CodeField::new('type'),

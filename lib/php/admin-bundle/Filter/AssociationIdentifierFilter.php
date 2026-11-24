@@ -42,27 +42,28 @@ class AssociationIdentifierFilter implements FilterInterface
         $comparison = $filterDataDto->getComparison();
         $parameterName = $filterDataDto->getParameterName();
         $value = $filterDataDto->getValue();
-        $isMultiple = $filterDataDto->getFormTypeOption('value_type_options.multiple');
+        $isEmpty = null === $value || '' === $value;
+        $classMetadata = ($filterDataDto->getEntityDto() ?? $entityDto)->getClassMetadata();
 
-        if ($entityDto->getClassMetadata()->isCollectionValuedAssociation($property)) {
+        if ($classMetadata->isCollectionValuedAssociation($property)) {
             // the 'ea_' prefix is needed to avoid errors when using reserved words as assocAlias ('order', 'group', etc.)
             // see https://github.com/EasyCorp/EasyAdminBundle/pull/4344
-            $assocAlias = 'ea_'.$filterDataDto->getParameterName();
+            $assocAlias = 'ea_'.$parameterName;
             $queryBuilder->leftJoin(sprintf('%s.%s', $alias, $property), $assocAlias);
 
-            if (0 === \count($value)) {
-                $queryBuilder->andWhere(sprintf('%s %s', $assocAlias, $comparison));
+            $targetIdentifier = $queryBuilder->getEntityManager()
+                ->getClassMetadata($classMetadata->getAssociationTargetClass($property))
+                ->getSingleIdentifierFieldName();
+
+            if ($isEmpty) {
+                $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $assocAlias, $targetIdentifier));
             } else {
-                $orX = new Orx();
-                $orX->add(sprintf('%s %s (:%s)', $assocAlias, $comparison, $parameterName));
-                if ('NOT IN' === $comparison) {
-                    $orX->add(sprintf('%s IS NULL', $assocAlias));
-                }
-                $queryBuilder->andWhere($orX)
-                    ->setParameter($parameterName, $this->processParameterValue($queryBuilder, $value));
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s IN (:%s)', $assocAlias, $targetIdentifier, $parameterName))
+                    ->setParameter($parameterName, [$this->processParameterValue($queryBuilder, $value)]);
             }
-        } elseif (null === $value || ($isMultiple && 0 === \count($value))) {
-            $queryBuilder->andWhere(sprintf('%s.%s %s', $alias, $property, $comparison));
+        } elseif ($isEmpty) {
+            $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $alias, $property));
         } else {
             $orX = new Orx();
             $orX->add(sprintf('%s.%s %s (:%s)', $alias, $property, $comparison, $parameterName));

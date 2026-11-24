@@ -15,9 +15,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,11 +38,18 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
-            ->showEntityActionsInlined()
+        return parent::configureCrud($crud)
             ->setDefaultSort([
                 'createdAt' => 'DESC',
             ]);
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(TextFilter::new('name'))
+            ->add(DateTimeFilter::new('updatedAt'))
+        ;
     }
 
     public function configureActions(Actions $actions): Actions

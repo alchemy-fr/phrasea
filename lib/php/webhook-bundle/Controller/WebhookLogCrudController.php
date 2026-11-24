@@ -4,6 +4,7 @@ namespace Alchemy\WebhookBundle\Controller;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -14,6 +15,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class WebhookLogCrudController extends AbstractAdminCrudController
 {
@@ -37,6 +40,8 @@ class WebhookLogCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
+            ->add(TextFilter::new('event'))
+            ->add(EntityFilter::new('webhook')->setFormTypeOption('value_type_options.choice_label', 'url'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
@@ -45,13 +50,12 @@ class WebhookLogCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->onlyOnDetail();
-        yield TextField::new('event')
-            ->hideOnIndex();
-        yield TextField::new('payload')
+        yield TextField::new('event');
+        yield JsonField::new('payload')
             ->onlyOnDetail();
         yield TextareaField::new('response')
             ->hideOnIndex();
-        yield TextareaField::new('webhook.url', 'URL')
+        yield TextField::new('webhook.url', 'URL')
             ->onlyOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();

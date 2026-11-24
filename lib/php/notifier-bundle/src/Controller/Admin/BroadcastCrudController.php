@@ -24,7 +24,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -81,8 +83,9 @@ class BroadcastCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(TextFilter::new('topic'))
-            ->add(TextFilter::new('directory'))
+            ->add(ChoiceFilter::new('directory', 'Audience')->setChoices(array_flip($this->directoryRegistry->getChoices())))
             ->add(DateTimeFilter::new('createdAt'))
+            ->add(NullFilter::new('completedAt', 'Completed')->setChoiceLabels('In progress', 'Completed'))
             ->add($this->userChoiceFilter->createFilter('initiatorUserId', 'Sent by'))
         ;
     }
@@ -144,7 +147,7 @@ class BroadcastCrudController extends AbstractAdminCrudController
         yield TextField::new('topic')->hideOnForm();
 
         yield ChoiceField::new('channels')
-            ->setChoices($this->channelChoices())
+            ->setChoices(ChannelType::getValueChoices())
             ->allowMultipleChoices()
             ->renderExpanded()
             ->setFormTypeOption('constraints', [new Count(min: 1, minMessage: 'Pick at least one channel.')])
@@ -162,21 +165,8 @@ class BroadcastCrudController extends AbstractAdminCrudController
         yield IntegerField::new('deliveredCount', 'Delivered')->hideOnForm();
         yield IntegerField::new('failedCount', 'Failed')->hideOnForm();
         yield DateTimeField::new('startedAt')->onlyOnDetail();
-        yield DateTimeField::new('completedAt')->onlyOnDetail();
+        yield DateTimeField::new('completedAt')->hideOnForm();
         yield $this->userChoiceField->create('excludeUserId', 'Excluded user')->onlyOnDetail();
         yield JsonField::new('payload')->onlyOnDetail();
-    }
-
-    /**
-     * @return array<string, string> label => channel value
-     */
-    private function channelChoices(): array
-    {
-        $choices = [];
-        foreach (ChannelType::cases() as $channel) {
-            $choices[$channel->label()] = $channel->value;
-        }
-
-        return $choices;
     }
 }

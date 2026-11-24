@@ -6,21 +6,31 @@ namespace Alchemy\NotifierBundle\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use Alchemy\NotifierBundle\Channel\ChannelType;
 use Alchemy\NotifierBundle\Entity\NotificationPreference;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_ADMIN')]
 class NotificationPreferenceCrudController extends AbstractAdminCrudController
 {
+    public function __construct(private readonly UserChoiceFilter $userChoiceFilter)
+    {
+    }
+
     public static function getEntityFqcn(): string
     {
         return NotificationPreference::class;
@@ -43,6 +53,17 @@ class NotificationPreferenceCrudController extends AbstractAdminCrudController
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_DETAIL, Action::EDIT)
+        ;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add($this->userChoiceFilter->createFilter('subscriber.userId', 'User'))
+            ->add(TextFilter::new('topic'))
+            ->add(ChoiceFilter::new('channel')->setChoices(ChannelType::getChoices()))
+            ->add(BooleanFilter::new('enabled'))
+            ->add(DateTimeFilter::new('updatedAt'))
         ;
     }
 
