@@ -11,6 +11,7 @@
         "typecheck": "turbo run typecheck",
         "format:check": "turbo run format:check --parallel",
         "test:quick": "pnpm lint && pnpm typecheck && pnpm test",
+        "brand": "node brand/deploy.mjs",
         "prepare": "husky"
     },
     "devDependencies": {
@@ -25,6 +26,7 @@
         "husky": "^9.1.7",
         "lint-staged": "^16.4.0",
         "prettier": "^3.9.10",
+        "sharp": "^0.35.5",
         "turbo": "^2.11.10",
         "typescript-eslint": "^8.72.0"
     },

@@ -38,6 +38,7 @@ The applications:
 - `lib/js/*` — shared React/TS packages published under the **`@alchemy/*`** scope (e.g. `@alchemy/core`, `@alchemy/auth`, `@alchemy/api`, `@alchemy/storage`). Consumed via pnpm `workspace:*`.
 - `lib/js/next-*` — the packages shared by the Next.js clients (every `*/client`), shipped as TypeScript sources (`transpilePackages`) and imported by subpath (`@alchemy/next-ui/ui/button`): `next-ui` (design system, modals, top bar menus, MIME types and file family icons, base stylesheet), `next-theme` (palettes, presets, organisation theme, theme menu), `next-i18n` (languages, i18next setup, translations common to every client — a client's own file overrides them key by key), `next-core` (OIDC client, stack/runtime config, Matomo, auth callback). Code needed by more than one Next.js client goes there rather than being copied; each package's stylesheet declares `@source '../src'` so that Tailwind sees its classes.
 - `bin/` — orchestration scripts (setup, build, migrate, test); `bin/dev/` — developer helpers.
+- `brand/` — the app logos as SVG, the single source of every favicon, manifest icon, Open Graph image and dashboard tile of the apps. Edit the SVG there, then run `bin/dev/deploy-brand.sh [logo…]` and commit the generated files (see `brand/README.md`); never edit those files in the apps directly.
 - `infra/`, `docker-compose*.yml` — deployment and local stack.
 - `doc/tech/` — the authoritative setup/dev docs (`01_setup.md`, `02_dev.md`, and per-app folders).
 
