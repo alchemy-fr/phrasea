@@ -1,6 +1,7 @@
 // @vitest-environment node
 import {describe, expect, it} from 'vitest';
 import {NextRequest} from 'next/server';
+import {getScriptNonceFromHeaders} from 'next/dist/server/app-render/get-script-nonce-from-header';
 import {cspResponse, NONCE_HEADER} from './cspProxy';
 
 const DSN = 'https://key@sentry.test/42';
@@ -12,6 +13,28 @@ function request(headers: Record<string, string> = {}): NextRequest {
 /** The request headers Next is given, as `NextResponse.next()` encodes them */
 function forwarded(response: Response, name: string): string | null {
     return response.headers.get(`x-middleware-request-${name.toLowerCase()}`);
+}
+
+/**
+ * The nonce Next puts on its scripts: it reads it from the request headers
+ * once the response headers of the proxy have been copied onto them.
+ */
+function nonceSeenByNext(response: Response): string | undefined {
+    const headers: Record<string, string> = {};
+    for (const name of [
+        'Content-Security-Policy',
+        'Content-Security-Policy-Report-Only',
+    ]) {
+        const value =
+            response.headers.get(name) ??
+            forwarded(response, name) ??
+            undefined;
+        if (value) {
+            headers[name.toLowerCase()] = value;
+        }
+    }
+
+    return getScriptNonceFromHeaders(headers);
 }
 
 describe('cspResponse', () => {
@@ -31,10 +54,10 @@ describe('cspResponse', () => {
             `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
         );
         expect(response.headers.get('Content-Security-Policy')).toBe(
-            "frame-src 'self' https://k.test; frame-ancestors 'self'"
+            "frame-src 'self' https://k.test; frame-ancestors 'self'; " +
+                `script-src * data: blob: 'unsafe-inline' 'unsafe-eval' 'nonce-${nonce}'`
         );
-        // Next finds the nonce in the policy of the request
-        expect(forwarded(response, 'Content-Security-Policy')).toBe(policy);
+        expect(nonceSeenByNext(response)).toBe(nonce);
         expect(policy).not.toContain('report-');
         expect(response.headers.get('Reporting-Endpoints')).toBeNull();
     });
@@ -46,6 +69,9 @@ describe('cspResponse', () => {
         expect(
             response.headers.get('Content-Security-Policy-Report-Only')
         ).toBeTruthy();
+        expect(nonceSeenByNext(response)).toBe(
+            forwarded(response, NONCE_HEADER)
+        );
     });
 
     it('enforces the policy when CSP_REPORT_ONLY is false, and reports to the relay', () => {
@@ -69,6 +95,7 @@ describe('cspResponse', () => {
         const nonce = forwarded(response, NONCE_HEADER);
         expect(nonce).not.toBe('forged');
         expect(forwarded(response, 'Content-Security-Policy')).toBe(policy);
+        expect(nonceSeenByNext(response)).toBe(nonce);
     });
 
     it('generates a new nonce for every request', () => {

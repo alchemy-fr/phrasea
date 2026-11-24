@@ -77,7 +77,7 @@ header. The other sources come from the environment
 pages). Styles stay allowed inline.
 
 The policy is only reported (`Content-Security-Policy-Report-Only`) unless
-`CSP_REPORT_ONLY` is false: `frame-src` and `frame-ancestors` (`ALLOWED_FRAME_ANCESTORS`) stay enforced meanwhile. The violations show in the browser
+`CSP_REPORT_ONLY` is false: `frame-src` and `frame-ancestors` (`ALLOWED_FRAME_ANCESTORS`) stay enforced meanwhile, along with a `script-src` allowing any source that carries the nonce for Next: inline scripts and event handlers without it are blocked. The violations show in the browser
 console and, when `SENTRY_DSN` is set, are relayed to its project by the same
 origin route `/api/relay/csp` (same rate limits as `/api/relay`; the DSN
 never reaches the browser). `/silent-check-sso.html` has no policy: a static
