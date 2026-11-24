@@ -668,6 +668,13 @@ migration deletes every "everyone" row (NULL user) of `collection_access`, which
 the former recomputation never purged, and only the recomputation brings back
 the valid ones.
 
+A migration repairs the `date` and `date_time` attributes stored as invalid
+because their value carried fractional seconds (ISO 8601 extended, e.g.
+`2026-04-26T00:00:00.000Z`): they are rewritten in the ATOM format and marked
+valid. A deployment already running a 5.0 pre-release must then run
+`bin/console fos:elastica:populate --index=asset` in `databox-api-php` to make
+them searchable.
+
 The three Day-0 baselines (databox, expose, uploader) detect the existing schema
 and register themselves without running any SQL. Expect the warning
 "Base schema already present, nothing to do." for each of them.
