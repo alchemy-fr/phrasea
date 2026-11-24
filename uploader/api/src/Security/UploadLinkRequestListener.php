@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Controller\UploadConfigAction;
 use App\Entity\UploadLink;
 use App\Repository\UploadLinkRepository;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -33,6 +34,7 @@ final readonly class UploadLinkRequestListener
      */
     private const array ALLOWED_ROUTES = [
         UploadLink::ROUTE_CURRENT => ['GET'],
+        UploadConfigAction::ROUTE_NAME => ['GET'],
         '_api_/targets/{id}{._format}_get' => ['GET'],
         'get_target_form' => ['GET'],
         'form_field_options' => ['GET'],

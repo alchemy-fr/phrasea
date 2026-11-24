@@ -38,9 +38,11 @@ final class FileValidator
     }
 
     /**
+     * The allowed types: extensions (lower case, without dot) by type mask, empty when every file is accepted.
+     *
      * @return array<string, string[]>
      */
-    private function getAllowedTypes(): array
+    public function getAllowedTypes(): array
     {
         return $this->parsedTypes ??= $this->normalizeTypes($this->allowedTypes);
     }

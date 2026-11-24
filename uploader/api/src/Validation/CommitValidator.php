@@ -13,6 +13,16 @@ class CommitValidator
     {
     }
 
+    public function getMaxCommitSize(): ?int
+    {
+        return $this->maxCommitSize;
+    }
+
+    public function getMaxFileCount(): ?int
+    {
+        return $this->maxFileCount;
+    }
+
     public function validate(Commit $commit): void
     {
         if (null !== $this->maxFileCount && count($commit->getFiles()) > $this->maxFileCount) {
