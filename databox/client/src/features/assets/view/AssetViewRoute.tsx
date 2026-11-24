@@ -64,6 +64,7 @@ import {
     AssetViewerNavigationContext,
 } from './AssetViewerNavigation';
 import {useActiveViewer} from './viewerStack';
+import {AssetWorkflowProgress} from '@/features/workflows/AssetWorkflowProgress';
 
 /** Best file to display for a story item standing in for its story */
 function standInFile(asset: Asset | undefined) {
@@ -692,6 +693,13 @@ export function AssetViewRoute({
                                 <div className="relative flex min-h-0 flex-1 items-center justify-center bg-media-bg">
                                     {query.isLoading ? (
                                         <FullPageLoader />
+                                    ) : null}
+                                    {asset ? (
+                                        <AssetWorkflowProgress
+                                            asset={asset}
+                                            interactive
+                                            className="absolute top-3 left-3 z-10 w-72 max-w-[calc(100%-1.5rem)]"
+                                        />
                                     ) : null}
                                     {exitHint ? (
                                         <div

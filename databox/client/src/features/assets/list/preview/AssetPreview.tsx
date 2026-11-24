@@ -8,6 +8,7 @@ import {cn} from '@alchemy/next-ui/utils/cn';
 import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
 import {getContentTracking} from '@/lib/analytics/useContentTracking';
 import {effectiveClip} from '@/features/clip/clip';
+import {AssetWorkflowProgress} from '@/features/workflows/AssetWorkflowProgress';
 
 /**
  * Player and pinned attributes of an asset, side by side as set in the
@@ -53,6 +54,12 @@ export function AssetPreview({
                                 : undefined
                         }
                     />
+                    {/* Clear of the unlock button and of the video controls */}
+                    <AssetWorkflowProgress
+                        asset={asset}
+                        interactive={interactive}
+                        className="absolute top-2 left-2 z-10 w-64 max-w-[calc(100%-3rem)]"
+                    />
                 </div>
             ) : null}
             {showAttrs ? (
@@ -71,6 +78,13 @@ export function AssetPreview({
                     <h3 className="mb-2 truncate pr-6 text-sm font-semibold">
                         {asset.name}
                     </h3>
+                    {showFile ? null : (
+                        <AssetWorkflowProgress
+                            asset={asset}
+                            interactive={interactive}
+                            className="mb-2 border"
+                        />
+                    )}
                     <AttributeList asset={asset} pinnedOnly dense />
                 </div>
             ) : null}
