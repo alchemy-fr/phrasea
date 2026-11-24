@@ -52,7 +52,7 @@ workspace), stored in `automation_share`, and fills it run after run: the permal
 same from one file to the next. Assets leaving the results are not removed from it. Another
 workspace chosen for the automation gets a new share at the next run; the previous one stays.
 
-- Created at the first run as "{saved search} Automation {automation}", owned by the owner of
+- Created at the first run as `{saved search} Automation {automation}`, owned by the owner of
   the saved search, without expiration: it can then be renamed, expired or disabled like any
   share. Deleted, it is created again at the next run (with new links).
 - It only delivers the chosen renditions whose policy is public. A rendition which is not
