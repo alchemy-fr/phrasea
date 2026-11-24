@@ -91,13 +91,20 @@ final class BasketListTest extends AbstractSearchTestCase
         $this->assertFalse($shared['capabilities']['delete']);
     }
 
-    public function testAdminListsAllBaskets(): void
+    public function testAdminListsOnlyOwnAndSharedBaskets(): void
     {
         $this->createBasket(['name' => 'U', 'ownerId' => self::USER]);
         $this->createBasket(['name' => 'O', 'ownerId' => self::OTHER]);
+        $own = $this->createBasket(['name' => 'A', 'ownerId' => self::ADMIN]);
+        $shared = $this->createBasket(['name' => 'Shared', 'ownerId' => self::USER]);
+        $this->grantUserOnObject(self::ADMIN, $shared, PermissionInterface::VIEW);
         self::populateSearchIndices();
 
-        $this->assertCount(2, $this->members($this->apiJson('GET', '/baskets', self::ADMIN)));
+        $ids = $this->memberIds($this->apiJson('GET', '/baskets', self::ADMIN));
+        sort($ids);
+        $expected = [$own->getId(), $shared->getId()];
+        sort($expected);
+        $this->assertSame($expected, $ids);
     }
 
     public function testQueryMatchesNameAndDescriptionWithHighlights(): void

@@ -39,12 +39,9 @@ class BasketSearch extends AbstractSearch
         array $options = [],
         ?Operation $operation = null,
     ): Pagerfanta {
-        $filterQueries = [];
-
-        $aclBoolQuery = $this->createBasketACLBoolQuery($userId, $groupIds);
-        if (null !== $aclBoolQuery) {
-            $filterQueries[] = $aclBoolQuery;
-        }
+        $filterQueries = [
+            $this->createBasketACLBoolQuery($userId, $groupIds),
+        ];
 
         $isArchived = filter_var($options['archived'] ?? null, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
 
@@ -143,12 +140,12 @@ class BasketSearch extends AbstractSearch
         ]);
     }
 
-    private function createBasketACLBoolQuery(string $userId, array $groupIds): ?Query\BoolQuery
+    /**
+     * Admins included: they only list their own baskets and the ones shared with them,
+     * even though AdminVoter still grants them any basket by its id.
+     */
+    private function createBasketACLBoolQuery(string $userId, array $groupIds): Query\BoolQuery
     {
-        if ($this->isAdmin()) {
-            return null;
-        }
-
         $aclBoolQuery = new Query\BoolQuery();
 
         $aclBoolQuery->addShould(new Query\Term(['ownerId' => $userId]));

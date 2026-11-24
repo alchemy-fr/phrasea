@@ -24,6 +24,10 @@ is granted. Creating baskets, saved searches and display profiles stays open to 
 authenticated user (including the implicit creation of the default profile,
 `POST /profiles/default/items`).
 
+Admins do not list the baskets of others, though: `GET /baskets` only returns their own
+baskets and the ones shared with them (user or group), like for any user. `AdminVoter` still
+opens any basket to them by its id, and the administration (EasyAdmin) lists them all.
+
 What already exists is kept: profiles made public, baskets shared and searches published
 before a user lost the capability stay as they are. The owner of a public profile may still
 rename it or edit its items, or make it private, but not make it public again; likewise,
