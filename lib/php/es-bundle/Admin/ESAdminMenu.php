@@ -14,7 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
  */
 final class ESAdminMenu
 {
-    public static function createMenuItem(string $label = 'ES Indices & Aliases', string $icon = 'fa fa-magnifying-glass', string $dashboardRouteName = 'easyadmin'): RouteMenuItem
+    public static function createMenuItem(string $label = 'ES Indices & Aliases', string $icon = 'fa-solid fa-magnifying-glass-chart', string $dashboardRouteName = 'easyadmin'): RouteMenuItem
     {
         return MenuItem::linkToRoute($label, $icon, ESIndexAdminController::routeName(ESIndexAdminController::ROUTE_INDEX, $dashboardRouteName));
     }

@@ -52,7 +52,7 @@ class CommitCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Commit')
-            ->setEntityLabelInPlural('Commit')
+            ->setEntityLabelInPlural('Commits')
             ->setDefaultSort(['createdAt' => 'DESC'])
             ->setSearchFields(['id', 'totalSize', 'formData', 'options', 'userId', 'token', 'notify', 'locale']);
     }

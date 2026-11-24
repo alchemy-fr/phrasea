@@ -40,8 +40,8 @@ class NotificationDigestCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('Pending digest')
-            ->setEntityLabelInPlural('Pending digests')
+            ->setEntityLabelInSingular('Pending Digest')
+            ->setEntityLabelInPlural('Pending Digests')
             ->setDefaultSort(['lastEventAt' => 'DESC'])
         ;
     }

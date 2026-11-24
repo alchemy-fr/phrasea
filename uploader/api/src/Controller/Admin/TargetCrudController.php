@@ -29,7 +29,7 @@ class TargetCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Target')
-            ->setEntityLabelInPlural('Target')
+            ->setEntityLabelInPlural('Targets')
             ->setDefaultSort(['createdAt' => 'DESC'])
             ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'authorizationKey', 'authorizationScheme', 'allowedGroups']);
     }

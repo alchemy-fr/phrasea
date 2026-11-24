@@ -34,8 +34,8 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('SubDefinition')
-            ->setEntityLabelInPlural('SubDefinition');
+            ->setEntityLabelInSingular('Sub-definition')
+            ->setEntityLabelInPlural('Sub-definitions');
     }
 
     public function configureFilters(Filters $filters): Filters

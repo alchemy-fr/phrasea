@@ -13,7 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 
 /**
- * The "Notification" admin submenu, shared by every application dashboard so
+ * The "Notifications" admin submenu, shared by every application dashboard so
  * a new notifier screen only has to be added here.
  *
  * Requires easycorp/easyadmin-bundle in the application (like the CRUD
@@ -23,12 +23,12 @@ final class NotifierAdminMenu
 {
     public static function createMenuItem(): SubMenuItem
     {
-        return MenuItem::subMenu('Notification', 'fas fa-bell')->setSubItems([
-            MenuItem::linkTo(BroadcastCrudController::class, 'Broadcasts'),
-            MenuItem::linkTo(SubscriberCrudController::class, 'Subscribers'),
-            MenuItem::linkTo(NotificationCrudController::class, 'In-app notifications'),
-            MenuItem::linkTo(NotificationDigestCrudController::class, 'Pending digests'),
-            MenuItem::linkTo(NotificationPreferenceCrudController::class, 'Preferences'),
+        return MenuItem::subMenu('Notifications', 'fa-solid fa-bell')->setSubItems([
+            MenuItem::linkTo(BroadcastCrudController::class, 'Broadcasts', 'fa-solid fa-bullhorn'),
+            MenuItem::linkTo(SubscriberCrudController::class, 'Subscribers', 'fa-solid fa-user-check'),
+            MenuItem::linkTo(NotificationCrudController::class, 'In-app Notifications', 'fa-solid fa-inbox'),
+            MenuItem::linkTo(NotificationDigestCrudController::class, 'Pending Digests', 'fa-solid fa-envelope-open-text'),
+            MenuItem::linkTo(NotificationPreferenceCrudController::class, 'Preferences', 'fa-solid fa-user-gear'),
         ]);
     }
 }

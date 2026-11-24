@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
-use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
 use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -24,25 +23,22 @@ class DashboardController extends AbstractAdminDashboardController
 
     public function configureMenuItems(): iterable
     {
-        $submenu1 = [
-            MenuItem::linkToRoute('Target params permissions', '', GlobalPermissionsController::ROUTE_TARGET_DATA),
-            MenuItem::linkToRoute('Form schema permissions', '', GlobalPermissionsController::ROUTE_FORM_SCHEMA),
-            MenuItem::linkToRoute('Upload link permissions', '', GlobalPermissionsController::ROUTE_UPLOAD_LINK),
-            MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)', ''),
-        ];
+        yield MenuItem::subMenu('Permissions', 'fa-solid fa-shield-halved')->setSubItems([
+            MenuItem::linkToRoute('Target params permissions', 'fa-solid fa-sliders', GlobalPermissionsController::ROUTE_TARGET_DATA),
+            MenuItem::linkToRoute('Form schema permissions', 'fa-solid fa-table-list', GlobalPermissionsController::ROUTE_FORM_SCHEMA),
+            MenuItem::linkToRoute('Upload link permissions', 'fa-solid fa-link', GlobalPermissionsController::ROUTE_UPLOAD_LINK),
+            MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)', 'fa-solid fa-user-shield'),
+        ]);
 
-        $submenu2 = [
-            MenuItem::linkTo(TargetCrudController::class, 'Target', ''),
-            MenuItem::linkTo(CommitCrudController::class, 'Commit', ''),
-            MenuItem::linkTo(AssetCrudController::class, 'Asset', ''),
-            MenuItem::linkTo(MultipartUploadCrudController::class, 'MultipartUpload', ''),
-        ];
+        yield MenuItem::subMenu('Uploads', 'fa-solid fa-cloud-arrow-up')->setSubItems([
+            MenuItem::linkTo(TargetCrudController::class, 'Targets', 'fa-solid fa-bullseye'),
+            MenuItem::linkTo(CommitCrudController::class, 'Commits', 'fa-solid fa-code-commit'),
+            MenuItem::linkTo(AssetCrudController::class, 'Assets', 'fa-solid fa-image'),
+            MenuItem::linkTo(MultipartUploadCrudController::class, 'Multipart Uploads', 'fa-solid fa-upload'),
+        ]);
 
-        yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
-        yield MenuItem::subMenu('Uploads', 'fas fa-folder-open')->setSubItems($submenu2);
         yield NotifierAdminMenu::createMenuItem();
-        yield $this->createRealtimeMenuItem();
-        yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
+        yield $this->createSettingsMenu();
         yield $this->createDevMenu();
     }
 }

@@ -35,8 +35,8 @@ class AttributeFilterRuleCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('AttributeFilterRule')
-            ->setEntityLabelInPlural('AttributeFilterRule')
+            ->setEntityLabelInSingular('Attribute Filter Rule')
+            ->setEntityLabelInPlural('Attribute Filter Rules')
             ->setSearchFields(['id', 'condition'])
             ->setPaginatorPageSize(100);
     }

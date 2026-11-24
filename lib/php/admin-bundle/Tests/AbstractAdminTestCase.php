@@ -48,6 +48,16 @@ abstract class AbstractAdminTestCase extends WebTestCase
         }
         $this->assertEquals(200, $response->getStatusCode());
 
+        // Every menu entry, submenu toggles included, has a Font Awesome icon
+        $crawler->filter('nav#main-menu .ea-sidebar-item-link')
+            ->each(function (Crawler $node): void {
+                $this->assertCount(
+                    1,
+                    $node->filter('.ea-sidebar-item-icon i[class*="fa-"]'),
+                    sprintf('No icon on the admin menu entry "%s"', trim($node->filter('.ea-sidebar-item-label')->text(''))),
+                );
+            });
+
         $menuLinks = $crawler->filter('nav#main-menu a.ea-sidebar-item-link');
         $this->assertGreaterThan(0, $menuLinks->count(), 'No link found in the admin menu');
         $menuLinks

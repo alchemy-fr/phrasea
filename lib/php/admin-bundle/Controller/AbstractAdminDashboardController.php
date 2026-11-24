@@ -6,6 +6,7 @@ namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\AdminConfigRegistry;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
 use Alchemy\MessengerBundle\Controller\MessengerMessageCrudController;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -14,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\RouteMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Menu\MenuItemInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -60,20 +62,36 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
 
     protected function createRealtimeMenuItem(): RouteMenuItem
     {
-        return MenuItem::linkToRoute('Realtime', 'fa fa-tower-broadcast', RealtimeStatusController::ROUTE_NAME)
+        return MenuItem::linkToRoute('Realtime', 'fa-solid fa-tower-broadcast', RealtimeStatusController::ROUTE_NAME)
             ->setPermission(JwtUser::ROLE_ADMIN);
+    }
+
+    /**
+     * The "Settings" submenu: the settings of the application, then those
+     * shared by every application.
+     *
+     * @param MenuItemInterface[] $items
+     */
+    protected function createSettingsMenu(array $items = []): SubMenuItem
+    {
+        if (class_exists(ConfiguratorEntryCrudController::class)) {
+            $items[] = MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa-solid fa-sliders');
+        }
+        $items[] = $this->createRealtimeMenuItem();
+
+        return MenuItem::subMenu('Settings', 'fa-solid fa-gear')->setSubItems($items);
     }
 
     protected function createDevMenu(): SubMenuItem
     {
         $subMenu = [];
         if (class_exists(MessengerMessage::class)) {
-            $subMenu[] = MenuItem::linkTo(MessengerMessageCrudController::class, 'Messenger Failed Event', 'fa fa-bug');
+            $subMenu[] = MenuItem::linkTo(MessengerMessageCrudController::class, 'Messenger Failed Events', 'fa-solid fa-bug');
         }
-        $subMenu[] = MenuItem::linkToRoute('PHP Info', 'fa fa-info', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
-        $subMenu[] = MenuItem::linkToRoute('Queues', 'fa fa-prescription-bottle', QueuesListController::ROUTE_LIST)->setPermission(JwtUser::ROLE_TECH);
+        $subMenu[] = MenuItem::linkToRoute('Queues', 'fa-solid fa-layer-group', QueuesListController::ROUTE_LIST)->setPermission(JwtUser::ROLE_TECH);
+        $subMenu[] = MenuItem::linkToRoute('PHP Info', 'fa-solid fa-circle-info', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
 
-        return MenuItem::subMenu('Dev', 'fa fa-code')->setSubItems($subMenu)->setPermission(JwtUser::ROLE_TECH);
+        return MenuItem::subMenu('Dev', 'fa-solid fa-code')->setSubItems($subMenu)->setPermission(JwtUser::ROLE_TECH);
     }
 
     #[Required]

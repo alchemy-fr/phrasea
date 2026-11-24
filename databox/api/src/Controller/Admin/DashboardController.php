@@ -7,7 +7,6 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
-use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
 use Alchemy\ESBundle\Admin\ESAdminMenu;
 use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
 use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
@@ -36,114 +35,95 @@ class DashboardController extends AbstractAdminDashboardController
     #[\Override]
     public function configureMenuItems(): iterable
     {
-        $submenuPerms = [
-            MenuItem::linkTo(AssetCrudController::class, 'Asset permissions')->setAction('globalPermissions'),
-            MenuItem::linkTo(CollectionCrudController::class, 'Collection permissions')->setAction('globalPermissions'),
-            MenuItem::linkTo(WorkspaceCrudController::class, 'Workspace permissions')->setAction('globalPermissions'),
-            MenuItem::linkTo(BasketCrudController::class, 'Basket permissions')->setAction('globalPermissions'),
-            MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)'),
-        ];
+        yield MenuItem::subMenu('Permissions', 'fa-solid fa-shield-halved')->setSubItems([
+            MenuItem::linkTo(WorkspaceCrudController::class, 'Workspace permissions', 'fa-solid fa-briefcase')->setAction('globalPermissions'),
+            MenuItem::linkTo(CollectionCrudController::class, 'Collection permissions', 'fa-solid fa-folder')->setAction('globalPermissions'),
+            MenuItem::linkTo(AssetCrudController::class, 'Asset permissions', 'fa-solid fa-image')->setAction('globalPermissions'),
+            MenuItem::linkTo(BasketCrudController::class, 'Basket permissions', 'fa-solid fa-basket-shopping')->setAction('globalPermissions'),
+            MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)', 'fa-solid fa-user-shield'),
+        ]);
 
-        $submenuCore = [
-            MenuItem::linkTo(WorkspaceCrudController::class, 'Workspace'),
-            MenuItem::linkTo(CollectionCrudController::class, 'Collection'),
-            MenuItem::linkTo(CollectionAccessCrudController::class, 'Collection Access'),
-            MenuItem::linkTo(AssetCrudController::class, 'Asset'),
-            MenuItem::linkTo(FileCrudController::class, 'File'),
-            MenuItem::linkTo(AssetAttachmentCrudController::class, 'Attachment'),
-            MenuItem::linkTo(MultipartUploadCrudController::class, 'Multipart Upload'),
-            MenuItem::linkTo(AttributeCrudController::class, 'Attribute'),
-            MenuItem::linkTo(AttributeEntityCrudController::class, 'Attribute Entity'),
-            MenuItem::linkTo(EntityListCrudController::class, 'Entity List'),
-            MenuItem::linkTo(AttributeDefinitionCrudController::class, 'Attribute Definition'),
-            MenuItem::linkTo(AssetPolicyCrudController::class, 'Asset Policy'),
-            MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policy'),
-            MenuItem::linkTo(AttributeFilterRuleCrudController::class, 'Attribute Filter Rule'),
-            MenuItem::linkTo(AssetRenditionCrudController::class, 'Asset Rendition'),
-            MenuItem::linkTo(AssetEmbeddingCrudController::class, 'Asset Embedding'),
-            MenuItem::linkTo(RenditionDefinitionCrudController::class, 'Rendition Definition'),
-            MenuItem::linkTo(RenditionPolicyCrudController::class, 'Rendition Policy'),
-            MenuItem::linkTo(AlternateUrlCrudController::class, 'Alternate URL'),
-            MenuItem::linkTo(ShareCrudController::class, 'Share'),
-        ];
+        yield MenuItem::subMenu('Assets', 'fa-solid fa-photo-film')->setSubItems([
+            MenuItem::linkTo(WorkspaceCrudController::class, 'Workspaces', 'fa-solid fa-briefcase'),
+            MenuItem::linkTo(CollectionCrudController::class, 'Collections', 'fa-solid fa-folder'),
+            MenuItem::linkTo(CollectionAccessCrudController::class, 'Collection Access', 'fa-solid fa-door-open'),
+            MenuItem::linkTo(AssetCrudController::class, 'Assets', 'fa-solid fa-image'),
+            MenuItem::linkTo(FileCrudController::class, 'Files', 'fa-solid fa-file'),
+            MenuItem::linkTo(AssetAttachmentCrudController::class, 'Attachments', 'fa-solid fa-paperclip'),
+            MenuItem::linkTo(AlternateUrlCrudController::class, 'Alternate URLs', 'fa-solid fa-link'),
+            MenuItem::linkTo(AssetEmbeddingCrudController::class, 'Asset Embeddings', 'fa-solid fa-brain'),
+            MenuItem::linkTo(AssetPolicyCrudController::class, 'Asset Policies', 'fa-solid fa-scale-balanced'),
+            MenuItem::linkTo(AssetExportCrudController::class, 'Asset Exports', 'fa-solid fa-file-export'),
+            MenuItem::linkTo(MultipartUploadCrudController::class, 'Multipart Uploads', 'fa-solid fa-upload'),
+        ]);
 
-        $exports = [
-            MenuItem::linkTo(AssetExportCrudController::class, 'Asset Export', 'fa fa-file'),
-        ];
+        yield MenuItem::subMenu('Attributes', 'fa-solid fa-tags')->setSubItems([
+            MenuItem::linkTo(AttributeDefinitionCrudController::class, 'Attribute Definitions', 'fa-solid fa-tag'),
+            MenuItem::linkTo(AttributeCrudController::class, 'Attributes', 'fa-solid fa-pen-to-square'),
+            MenuItem::linkTo(AttributeEntityCrudController::class, 'Attribute Entities', 'fa-solid fa-cubes'),
+            MenuItem::linkTo(EntityListCrudController::class, 'Entity Lists', 'fa-solid fa-list-ul'),
+            MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policies', 'fa-solid fa-scale-balanced'),
+            MenuItem::linkTo(AttributeFilterRuleCrudController::class, 'Attribute Filter Rules', 'fa-solid fa-filter'),
+        ]);
 
-        $pages = [
-            MenuItem::linkTo(PageCrudController::class, 'Page', 'fa fa-file'),
-        ];
+        yield MenuItem::subMenu('Renditions', 'fa-solid fa-images')->setSubItems([
+            MenuItem::linkTo(RenditionDefinitionCrudController::class, 'Rendition Definitions', 'fa-solid fa-wand-magic-sparkles'),
+            MenuItem::linkTo(RenditionPolicyCrudController::class, 'Rendition Policies', 'fa-solid fa-scale-balanced'),
+            MenuItem::linkTo(AssetRenditionCrudController::class, 'Asset Renditions', 'fa-solid fa-images'),
+        ]);
 
-        $basket = [
-            MenuItem::linkTo(BasketCrudController::class, 'Basket'),
-            MenuItem::linkTo(BasketAssetCrudController::class, 'Basket Assets'),
-        ];
+        yield MenuItem::subMenu('Templates', 'fa-solid fa-clone')->setSubItems([
+            MenuItem::linkTo(WorkspaceTemplateCrudController::class, 'Workspace Templates', 'fa-solid fa-briefcase'),
+            MenuItem::linkTo(AssetDataTemplateCrudController::class, 'Data Templates', 'fa-solid fa-file-lines'),
+            MenuItem::linkTo(TemplateAttributeCrudController::class, 'Template Attributes', 'fa-solid fa-table-list'),
+        ]);
 
-        $lists = [
-            MenuItem::linkTo(ProfileCrudController::class, 'Profiles'),
-            MenuItem::linkTo(ProfileItemCrudController::class, 'Lists Items'),
-            MenuItem::linkTo(SavedSearchCrudController::class, 'Saved Searches'),
-            MenuItem::linkTo(SavedSearchAutomationCrudController::class, 'Saved Search Automations'),
-            MenuItem::linkTo(AutomationRunCrudController::class, 'Automation Runs'),
-        ];
+        yield MenuItem::subMenu('Sharing', 'fa-solid fa-share-nodes')->setSubItems([
+            MenuItem::linkTo(ShareCrudController::class, 'Shares', 'fa-solid fa-share-nodes'),
+            MenuItem::linkTo(BasketCrudController::class, 'Baskets', 'fa-solid fa-basket-shopping'),
+            MenuItem::linkTo(BasketAssetCrudController::class, 'Basket Assets', 'fa-solid fa-boxes-stacked'),
+            MenuItem::linkTo(ThreadCrudController::class, 'Threads', 'fa-solid fa-comments'),
+            MenuItem::linkTo(PageCrudController::class, 'Pages', 'fa-solid fa-newspaper'),
+        ]);
 
-        $submenuTemplates = [
-            MenuItem::linkTo(AssetDataTemplateCrudController::class, 'Asset Data Template'),
-            MenuItem::linkTo(TemplateAttributeCrudController::class, 'Template Attribute'),
-            MenuItem::linkTo(WorkspaceTemplateCrudController::class, 'Workspace Templates'),
-        ];
+        yield MenuItem::subMenu('Searches', 'fa-solid fa-magnifying-glass')->setSubItems([
+            MenuItem::linkTo(ProfileCrudController::class, 'Profiles', 'fa-solid fa-address-card'),
+            MenuItem::linkTo(ProfileItemCrudController::class, 'Profile Items', 'fa-solid fa-list-ol'),
+            MenuItem::linkTo(SavedSearchCrudController::class, 'Saved Searches', 'fa-solid fa-bookmark'),
+            MenuItem::linkTo(SavedSearchAutomationCrudController::class, 'Saved Search Automations', 'fa-solid fa-robot'),
+            MenuItem::linkTo(AutomationRunCrudController::class, 'Automation Runs', 'fa-solid fa-play'),
+        ]);
 
-        $submenuAdmin = [
-            MenuItem::linkTo(OperationTaskCrudController::class, 'Operation Task'),
-            MenuItem::linkTo(PopulatePassCrudController::class, 'Populate Pass'),
+        yield MenuItem::subMenu('Workflows', 'fa-solid fa-diagram-project')->setSubItems([
+            MenuItem::linkTo(WorkflowStateCrudController::class, 'Workflow States', 'fa-solid fa-diagram-project'),
+            MenuItem::linkTo(JobStateCrudController::class, 'Job States', 'fa-solid fa-gears'),
+        ]);
+
+        yield MenuItem::subMenu('Integrations', 'fa-solid fa-plug')->setSubItems([
+            MenuItem::linkTo(WorkspaceIntegrationCrudController::class, 'Integrations', 'fa-solid fa-puzzle-piece'),
+            MenuItem::linkTo(IntegrationDataCrudController::class, 'Integration Data', 'fa-solid fa-database'),
+            MenuItem::linkTo(IntegrationTokenCrudController::class, 'Integration Tokens', 'fa-solid fa-key'),
+            MenuItem::linkTo(WorkspaceEnvCrudController::class, 'Env Vars', 'fa-solid fa-terminal'),
+            MenuItem::linkTo(WorkspaceSecretCrudController::class, 'Secrets', 'fa-solid fa-lock'),
+            MenuItem::linkToRoute('Help', 'fa-solid fa-circle-question', 'admin_integrations_help'),
+            MenuItem::section('Webhooks'),
+            MenuItem::linkTo(WebhookCrudController::class, 'Webhooks', 'fa-solid fa-satellite-dish'),
+            MenuItem::linkTo(WebhookLogCrudController::class, 'Webhook Errors', 'fa-solid fa-triangle-exclamation'),
+        ]);
+
+        yield MenuItem::subMenu('Logs', 'fa-solid fa-clock-rotate-left')->setSubItems([
+            MenuItem::linkTo(AuditLogCrudController::class, 'Audit Log', 'fa-solid fa-user-clock'),
+            MenuItem::linkTo(ChangeLogCrudController::class, 'Change Log', 'fa-solid fa-code-compare'),
+        ]);
+
+        yield MenuItem::subMenu('Maintenance', 'fa-solid fa-screwdriver-wrench')->setSubItems([
+            MenuItem::linkTo(OperationTaskCrudController::class, 'Operation Tasks', 'fa-solid fa-hourglass-half'),
+            MenuItem::linkTo(PopulatePassCrudController::class, 'Populate Passes', 'fa-solid fa-arrows-rotate'),
             ESAdminMenu::createMenuItem(),
-        ];
+        ]);
 
-        $submenuIntegration = [
-            MenuItem::linkTo(WorkspaceIntegrationCrudController::class, 'Integration', 'fa fa-gear'),
-            MenuItem::linkTo(IntegrationDataCrudController::class, 'Integration Data', 'fa fa-database'),
-            MenuItem::linkTo(IntegrationTokenCrudController::class, 'Integration Token', 'fa fa-fingerprint'),
-            MenuItem::linkTo(WorkspaceEnvCrudController::class, 'Env', 'fa fa-database'),
-            MenuItem::linkTo(WorkspaceSecretCrudController::class, 'Secret', 'fa fa-lock'),
-            MenuItem::linkToRoute('Help', 'fa fa-question', 'admin_integrations_help'),
-        ];
-
-        $webhookSubMenu = [
-            MenuItem::linkTo(WebhookCrudController::class, 'Webhook'),
-            MenuItem::linkTo(WebhookLogCrudController::class, 'Webhook Error'),
-        ];
-
-        $workflows = [
-            MenuItem::linkTo(WorkflowStateCrudController::class, 'Workflows State'),
-            MenuItem::linkTo(JobStateCrudController::class, 'Job State'),
-        ];
-
-        $discussions = [
-            MenuItem::linkTo(ThreadCrudController::class, 'Threads'),
-        ];
-
-        $logs = [
-            MenuItem::linkTo(AuditLogCrudController::class, 'Audit Log'),
-            MenuItem::linkTo(ChangeLogCrudController::class, 'Change Log'),
-        ];
-
-        yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenuPerms);
-        yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenuCore);
-        yield MenuItem::subMenu('Export', 'fas fa-file')->setSubItems($exports);
-        yield MenuItem::subMenu('Page', 'fas fa-file')->setSubItems($pages);
-        yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
-        yield MenuItem::subMenu('Lists', 'fas fa-list')->setSubItems($lists);
-        yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenuAdmin);
-        yield MenuItem::subMenu('Template', 'fas fa-align-justify')->setSubItems($submenuTemplates);
-        yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenuIntegration);
-        yield MenuItem::subMenu('Workflow', 'fas fa-gears')->setSubItems($workflows);
-        yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
-        yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
-        yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
         yield NotifierAdminMenu::createMenuItem();
-        yield $this->createRealtimeMenuItem();
-        yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
+        yield $this->createSettingsMenu();
         yield $this->createDevMenu();
     }
 }

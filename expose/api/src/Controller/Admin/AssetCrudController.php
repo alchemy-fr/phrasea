@@ -37,7 +37,7 @@ class AssetCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Asset')
-            ->setEntityLabelInPlural('Asset');
+            ->setEntityLabelInPlural('Assets');
     }
 
     public function configureFilters(Filters $filters): Filters

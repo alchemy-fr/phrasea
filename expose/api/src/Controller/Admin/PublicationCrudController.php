@@ -41,7 +41,7 @@ class PublicationCrudController extends AbstractAclAdminCrudController
                 'date',
             ])
             ->setEntityLabelInSingular('Publication')
-            ->setEntityLabelInPlural('Publication');
+            ->setEntityLabelInPlural('Publications');
     }
 
     public function configureFilters(Filters $filters): Filters

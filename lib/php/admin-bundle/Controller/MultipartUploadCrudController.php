@@ -33,8 +33,8 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('MultipartUpload')
-            ->setEntityLabelInPlural('MultipartUpload');
+            ->setEntityLabelInSingular('Multipart Upload')
+            ->setEntityLabelInPlural('Multipart Uploads');
     }
 
     public function configureFilters(Filters $filters): Filters

@@ -29,8 +29,8 @@ class NotificationCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('In-app notification')
-            ->setEntityLabelInPlural('In-app notifications')
+            ->setEntityLabelInSingular('In-app Notification')
+            ->setEntityLabelInPlural('In-app Notifications')
             ->setDefaultSort(['createdAt' => 'DESC'])
         ;
     }
