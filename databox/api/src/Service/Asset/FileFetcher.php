@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Asset;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Storage\ObjectDownloader;
 use Alchemy\StorageBundle\Upload\FileValidator;
 use App\Border\Exception\UnsupportedUriException;
 use App\Border\UriDownloader;
@@ -41,6 +42,7 @@ class FileFetcher implements ResetInterface
         private readonly UriDownloader $fileDownloader,
         private readonly FileStorageManager $fileStorageManager,
         private readonly FileValidator $fileValidator,
+        private readonly ObjectDownloader $objectDownloader,
     ) {
     }
 
@@ -104,6 +106,62 @@ class FileFetcher implements ResetInterface
         $this->validateDownloadedContent($file, $path);
 
         return $file->localTmpPath = $path;
+    }
+
+    /**
+     * Fetches several files at once, at most $concurrency transfers in flight (the files of the
+     * main storage first, then the remote ones), each one into the path given by the caller.
+     * A failure only concerns its own file: nothing is left at its path.
+     *
+     * @param array<string, File> $files keyed by destination path
+     *
+     * @return array<string, \Throwable> the failures, keyed by destination path
+     */
+    public function getFiles(array $files, int $concurrency): array
+    {
+        $failures = [];
+        $objects = [];
+        $uris = [];
+        foreach ($files as $path => $file) {
+            if (!$this->isFetchable($file)) {
+                $failures[$path] = new PrivateFileException($file);
+            } elseif (File::STORAGE_S3_MAIN === $file->getStorage()) {
+                $objects[$path] = $file->getPath();
+            } else {
+                try {
+                    $uris[$path] = $this->getRemoteUrl($file);
+                } catch (UnsupportedUriException $e) {
+                    $failures[$path] = $e;
+                }
+            }
+        }
+
+        if ([] !== $objects) {
+            $failures += $this->objectDownloader->downloadMany($objects, $concurrency);
+        }
+
+        if ([] !== $uris) {
+            $failures += $this->fileDownloader->downloadMany($uris, $concurrency);
+            foreach (array_keys($uris) as $path) {
+                if (isset($failures[$path])) {
+                    continue;
+                }
+
+                try {
+                    $this->validateDownloadedContent($files[$path], $path);
+                } catch (RefusedFileContentException $e) {
+                    $failures[$path] = $e;
+                }
+            }
+        }
+
+        foreach ($files as $path => $file) {
+            if (!isset($failures[$path])) {
+                $file->localTmpPath = $path;
+            }
+        }
+
+        return $failures;
     }
 
     /**

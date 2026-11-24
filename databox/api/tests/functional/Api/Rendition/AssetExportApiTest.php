@@ -12,6 +12,7 @@ use App\Consumer\Handler\Asset\AssetExportProcessHandler;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetExport;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
@@ -409,6 +410,46 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
             'renditions' => [$main->getId()],
             'ignoreRoi' => true,
         ]));
+    }
+
+    public function testEveryFileIsExportedAcrossTheDownloadBatches(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::OWNER);
+        $main = $defaults->renditionDefinitions['main'];
+        $em = self::getEntityManager();
+
+        // One file downloaded at once: batches of 4 items
+        $_SERVER['EXPORT_DOWNLOAD_CONCURRENCY'] = $_ENV['EXPORT_DOWNLOAD_CONCURRENCY'] = '1';
+        try {
+            $assetIds = [];
+            for ($i = 0; $i < 6; ++$i) {
+                $assetIds[] = $this->createImageAsset($ws, $main, 0 === $i % 2 ? ['crop' => self::HALF_CROP] : null)->getId();
+            }
+
+            $attachment = new AssetAttachment();
+            $attachment->setAsset($em->find(Asset::class, $assetIds[5]));
+            $attachment->setAttachment($this->createImageAsset($ws, $main));
+            $attachment->setName('attached');
+            $em->persist($attachment);
+            $em->flush();
+
+            $handler = self::getService(AssetExportProcessHandler::class);
+            $this->assertSame(1, new \ReflectionProperty($handler, 'downloadConcurrency')->getValue($handler));
+
+            $sizes = $this->export([
+                'assets' => $assetIds,
+                'renditions' => [$main->getId()],
+            ]);
+        } finally {
+            unset($_SERVER['EXPORT_DOWNLOAD_CONCURRENCY'], $_ENV['EXPORT_DOWNLOAD_CONCURRENCY']);
+        }
+
+        // The cropped renditions, the whole ones, and the attachment
+        $this->assertEqualsCanonicalizing([
+            [100, 50], [100, 50], [100, 50],
+            [200, 100], [200, 100], [200, 100],
+            [200, 100],
+        ], $sizes);
     }
 
     public function testClipOfTheBasketItemReplacesTheRoi(): void

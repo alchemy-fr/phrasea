@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Service\Asset;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use Alchemy\StorageBundle\Cdn\CloudFrontUrlGenerator;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Storage\ObjectDownloader;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use Alchemy\StorageBundle\Upload\ContentTypeDetector;
 use Alchemy\StorageBundle\Upload\FileValidator;
@@ -14,16 +15,20 @@ use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Border\Exception\UnsupportedUriException;
 use App\Border\UriDownloader;
 use App\Entity\Core\File;
+use App\Service\Asset\Exception\PrivateFileException;
 use App\Service\Asset\Exception\RefusedFileContentException;
 use App\Service\Asset\FileFetcher;
 use App\Service\Asset\FileUrlResolver;
+use App\Tests\Functional\Storage\LocalS3Handler;
 use Aws\CloudFront\CloudFrontClient;
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
+use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -35,12 +40,14 @@ class FileFetcherTest extends TestCase
 
     private string $dir;
     private FileStorageManager $storageManager;
+    private Filesystem $storage;
 
     protected function setUp(): void
     {
         $this->dir = sys_get_temp_dir().'/'.uniqid('file-fetcher-test');
         mkdir($this->dir);
-        $this->storageManager = new FileStorageManager(new Filesystem(new LocalFilesystemAdapter($this->dir.'/storage')));
+        $this->storage = new Filesystem(new LocalFilesystemAdapter($this->dir.'/storage'));
+        $this->storageManager = new FileStorageManager($this->storage);
     }
 
     protected function tearDown(): void
@@ -230,6 +237,80 @@ class FileFetcherTest extends TestCase
         $fetcher->getFile($this->createRemoteFile('javascript:alert(1)'));
     }
 
+    public function testManyFilesAreFetchedFromTheStorageAndFromUrls(): void
+    {
+        $fetcher = $this->createFetcher(new MockHttpClient(static fn (string $method, string $url): MockResponse => new MockResponse('remote '.basename($url))));
+        $stored = $this->createStoredFile('a/b/foo.txt', 'foo content');
+        $otherStored = $this->createStoredFile('a/c/bar.txt', 'bar content');
+        $remote = $this->createRemoteFile('https://example.com/a.txt');
+
+        $files = [
+            $this->dir.'/foo.txt' => $stored,
+            $this->dir.'/remote.txt' => $remote,
+            $this->dir.'/bar.txt' => $otherStored,
+            $this->dir.'/foo-again.txt' => $stored,
+        ];
+        $this->assertSame([], $fetcher->getFiles($files, 2));
+
+        $this->assertSame('foo content', file_get_contents($this->dir.'/foo.txt'));
+        $this->assertSame('foo content', file_get_contents($this->dir.'/foo-again.txt'));
+        $this->assertSame('bar content', file_get_contents($this->dir.'/bar.txt'));
+        $this->assertSame('remote a.txt', file_get_contents($this->dir.'/remote.txt'));
+        $this->assertSame($this->dir.'/remote.txt', $remote->localTmpPath);
+        $this->assertSame($this->dir.'/bar.txt', $otherStored->localTmpPath);
+
+        $fetcher->reset();
+        $this->assertFileExists($this->dir.'/foo.txt', 'the paths of the caller are not temporary');
+        $this->assertFileExists($this->dir.'/remote.txt', 'the paths of the caller are not temporary');
+    }
+
+    public function testFailuresOfManyFilesAreReturnedWithoutStoppingTheOthers(): void
+    {
+        $fetcher = $this->createFetcher(new MockHttpClient(static fn (string $method, string $url): MockResponse => match (parse_url($url, PHP_URL_PATH)) {
+            '/pixel.png' => new MockResponse(self::HTML),
+            '/missing.png' => new MockResponse('', ['http_code' => 404]),
+            default => new MockResponse('remote content'),
+        }));
+        $stored = $this->createStoredFile('a/b/foo.txt', 'foo content');
+        $missingStored = new File();
+        $missingStored->setStorage(File::STORAGE_S3_MAIN);
+        $missingStored->setPath('a/b/missing.txt');
+        $private = $this->createRemoteFile('https://example.com/private.png');
+        $private->setPathPublic(false);
+        $refused = $this->createRemoteFile('https://example.com/pixel.png');
+        $refused->setType('image/png');
+        $refused->setOriginalName('pixel.png');
+        $missingRemote = $this->createRemoteFile('https://example.com/missing.png');
+        $unsupported = $this->createRemoteFile('javascript:alert(1)');
+        $remote = $this->createRemoteFile('https://example.com/a.txt');
+
+        $failures = $fetcher->getFiles([
+            $this->dir.'/foo.txt' => $stored,
+            $this->dir.'/missing.txt' => $missingStored,
+            $this->dir.'/private.png' => $private,
+            $this->dir.'/refused.png' => $refused,
+            $this->dir.'/missing.png' => $missingRemote,
+            $this->dir.'/unsupported' => $unsupported,
+            $this->dir.'/remote.txt' => $remote,
+        ], 3);
+
+        $this->assertInstanceOf(S3Exception::class, $failures[$this->dir.'/missing.txt']);
+        $this->assertInstanceOf(PrivateFileException::class, $failures[$this->dir.'/private.png']);
+        $this->assertInstanceOf(RefusedFileContentException::class, $failures[$this->dir.'/refused.png']);
+        $this->assertInstanceOf(ClientException::class, $failures[$this->dir.'/missing.png']);
+        $this->assertInstanceOf(UnsupportedUriException::class, $failures[$this->dir.'/unsupported']);
+        $this->assertCount(5, $failures);
+
+        foreach (array_keys($failures) as $path) {
+            $this->assertFileDoesNotExist($path);
+        }
+        $this->assertNull($refused->localTmpPath, 'the refused copy is not reused');
+        $this->assertNull($missingStored->localTmpPath);
+
+        $this->assertSame('foo content', file_get_contents($this->dir.'/foo.txt'));
+        $this->assertSame('remote content', file_get_contents($this->dir.'/remote.txt'));
+    }
+
     private function createFetcher(?MockHttpClient $httpClient = null): FileFetcher
     {
         return new FileFetcher(
@@ -238,6 +319,11 @@ class FileFetcherTest extends TestCase
             new UriDownloader($httpClient ?? new MockHttpClient(), 'dev', new MultipartUploadPlanner(1, 1024, 1024, 1024 * 1024), 900),
             $this->storageManager,
             new FileValidator(''),
+            new ObjectDownloader(LocalS3Handler::install(new S3Client([
+                'version' => 'latest',
+                'region' => 'us-east-1',
+                'credentials' => ['key' => 'key', 'secret' => 'secret'],
+            ]), $this->storage, ''), 'databox'),
         );
     }
 

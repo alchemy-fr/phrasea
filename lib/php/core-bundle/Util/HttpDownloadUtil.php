@@ -26,49 +26,82 @@ final readonly class HttpDownloadUtil
         string $path,
         int $maxSize,
     ): void {
-        // The query string of a signed URL is a credential: it is kept out of the messages
-        $uri = UrlUtil::getUriWithoutQuery((string) $response->getInfo('url'));
-
-        $fileHandler = null;
-        $opened = false;
-        try {
-            // Throws on an error status, as streaming the response would
-            $declaredSize = $response->getHeaders()['content-length'][0] ?? null;
-            if (is_numeric($declaredSize) && (int) $declaredSize > $maxSize) {
-                $response->cancel();
-
-                throw new DownloadTooLargeException($uri, $maxSize, (int) $declaredSize);
-            }
-
-            $fileHandler = fopen($path, 'w');
-            if (false === $fileHandler) {
-                throw new \RuntimeException(sprintf('Unable to open "%s" for writing', $path));
-            }
-            $opened = true;
-
-            $received = 0;
-            foreach ($client->stream($response) as $chunk) {
-                $content = $chunk->getContent();
-                $received += strlen($content);
-                if ($received > $maxSize) {
-                    $response->cancel();
-
-                    throw new DownloadTooLargeException($uri, $maxSize);
-                }
-                fwrite($fileHandler, $content);
-            }
-
-            fclose($fileHandler);
-            $fileHandler = null;
-        } catch (\Throwable $e) {
-            if ($opened) {
-                if (is_resource($fileHandler)) {
-                    fclose($fileHandler);
-                }
-                @unlink($path);
-            }
-
-            throw $e;
+        $failures = self::streamAllToFiles($client, [$path => static fn (): ResponseInterface => $response], 1, $maxSize);
+        if (isset($failures[$path])) {
+            throw $failures[$path];
         }
+    }
+
+    /**
+     * Streams the bodies of several responses into their files, with the guarantees of streamToFile(),
+     * at most $concurrency at once: a request is only sent once another one has ended.
+     *
+     * A failure only ends its own response: it is cancelled, its file removed and the error returned.
+     *
+     * @param array<string, \Closure(): ResponseInterface> $requests sending each request (the requests of $client), keyed by destination path
+     *
+     * @return array<string, \Throwable> the failures, keyed by destination path
+     */
+    public static function streamAllToFiles(
+        HttpClientInterface $client,
+        array $requests,
+        int $concurrency,
+        int $maxSize,
+    ): array {
+        $concurrency = max(1, $concurrency);
+        $failures = [];
+        /** @var array<int, HttpFileDownload> $active */
+        $active = [];
+
+        $fill = static function () use (&$requests, &$active, &$failures, $concurrency): void {
+            while (count($active) < $concurrency && [] !== $requests) {
+                $path = (string) array_key_first($requests);
+                $send = $requests[$path];
+                unset($requests[$path]);
+
+                try {
+                    $response = $send();
+                } catch (\Throwable $e) {
+                    $failures[$path] = $e;
+                    continue;
+                }
+                $active[spl_object_id($response)] = new HttpFileDownload($path, $response);
+            }
+        };
+
+        $fill();
+        while ([] !== $active) {
+            $responses = array_map(static fn (HttpFileDownload $download): ResponseInterface => $download->response, $active);
+            $ended = null;
+            foreach ($client->stream($responses) as $response => $chunk) {
+                $download = $active[spl_object_id($response)];
+                try {
+                    if (!$download->write($chunk, $maxSize)) {
+                        continue;
+                    }
+                } catch (\Throwable $e) {
+                    $download->fail();
+                    $failures[$download->path] = $e;
+                }
+
+                $ended = spl_object_id($response);
+                // The set of the streamed responses is fixed: stream again with the next request
+                break;
+            }
+
+            if (null === $ended) {
+                foreach ($active as $download) {
+                    $download->fail();
+                    $failures[$download->path] = new \RuntimeException(sprintf('The response for "%s" ended without its last chunk', $download->path));
+                }
+                $active = [];
+            } else {
+                unset($active[$ended]);
+            }
+
+            $fill();
+        }
+
+        return $failures;
     }
 }

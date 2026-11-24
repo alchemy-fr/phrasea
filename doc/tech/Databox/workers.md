@@ -29,6 +29,10 @@ the asset copies, the file analyses reevaluation, the indexing of a collection
 (`DeleteCollection`, `AssetsDelete`, `CollectionsMoveToTrash`, `CollectionsRestore`,
 `AssetsRestore`). They all stay on `heavy`: only workflow jobs go to `heavy_low`.
 
+An export (`AssetExportProcess`) downloads up to `EXPORT_DOWNLOAD_CONCURRENCY` files at once
+(8 by default, `1` downloads them one by one); the rest of its processing (clipping, metadata
+writing, archive, upload) stays sequential.
+
 A message of `App\…` declares its transport with `#[MessengerMessage('…')]`; a message of a
 shared bundle is routed in `databox/api/config/packages/messenger.yaml`. An external call
 only goes to `heavy` when it is long (a file download, a slow AI API); a webhook stays on

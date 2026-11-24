@@ -11,6 +11,7 @@ use App\Border\Exception\UnsupportedUriException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 readonly class UriDownloader
 {
@@ -54,6 +55,36 @@ readonly class UriDownloader
     }
 
     /**
+     * Downloads several resources at once, at most $concurrency in flight: a failure (an unsupported
+     * URI included) only stops its own download, whose partial file is removed.
+     *
+     * @param array<string, string> $uris                URI keyed by destination path
+     * @param bool                  $allowPrivateNetwork see download()
+     *
+     * @return array<string, \Throwable> the failures, keyed by destination path
+     */
+    public function downloadMany(array $uris, int $concurrency, bool $allowPrivateNetwork = false): array
+    {
+        $failures = [];
+        $requests = [];
+        $client = $this->getClient($allowPrivateNetwork);
+        foreach ($uris as $path => $uri) {
+            try {
+                self::assertSupportedUri($uri);
+            } catch (UnsupportedUriException $e) {
+                $failures[$path] = $e;
+                continue;
+            }
+
+            $requests[$path] = fn (): ResponseInterface => $client->request('GET', $uri, [
+                'max_duration' => $this->maxDuration,
+            ]);
+        }
+
+        return $failures + HttpDownloadUtil::streamAllToFiles($client, $requests, $concurrency, $this->uploadPlanner->getMaxObjectSize());
+    }
+
+    /**
      * Downloads the first $length bytes of the resource, at most.
      *
      * @throws UnsupportedUriException when $uri is not an HTTP(S) URL
@@ -93,11 +124,24 @@ readonly class UriDownloader
 
     private function createClient(string $uri, bool $allowPrivateNetwork): HttpClientInterface
     {
+        self::assertSupportedUri($uri);
+
+        return $this->getClient($allowPrivateNetwork);
+    }
+
+    private function getClient(bool $allowPrivateNetwork): HttpClientInterface
+    {
+        return $allowPrivateNetwork || 'dev' === $this->kernelEnv ? $this->client : new NoPrivateNetworkHttpClient($this->client);
+    }
+
+    /**
+     * @throws UnsupportedUriException
+     */
+    private static function assertSupportedUri(string $uri): void
+    {
         $scheme = parse_url($uri, PHP_URL_SCHEME);
         if (!\is_string($scheme) || !\in_array(strtolower($scheme), self::SUPPORTED_SCHEMES, true)) {
             throw new UnsupportedUriException($uri);
         }
-
-        return $allowPrivateNetwork || 'dev' === $this->kernelEnv ? $this->client : new NoPrivateNetworkHttpClient($this->client);
     }
 }

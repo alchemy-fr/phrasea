@@ -12,6 +12,8 @@ parameters:
     env(AUDIT_LOG_RETENTION_DAYS): '365'
     # Seconds a download from a URL may last (files to ingest, transcripts…)
     app.download.max_duration: 900
+    # Files downloaded at once by an export worker
+    env(EXPORT_DOWNLOAD_CONCURRENCY): '8'
     # Each attribute definition adds fields to the asset index mapping, shared by every workspace
     env(ATTRIBUTE_DEFINITIONS_MAX_PER_WORKSPACE): '500'
     stof_doctrine_extensions.listener.softdeleteable.class: App\Doctrine\Listener\SoftDeleteableListener

@@ -70,6 +70,12 @@ services:
         $ttl: '%env(int:S3_REQUEST_SIGNATURE_TTL)%'
         $pathPrefix: '%env(S3_PATH_PREFIX)%'
 
+    Alchemy\StorageBundle\Storage\ObjectDownloader:
+        arguments:
+            $client: '@alchemy_storage.s3_client'
+            $bucketName: '%env(S3_BUCKET_NAME)%'
+            $pathPrefix: '%env(S3_PATH_PREFIX)%'
+
     Alchemy\StorageBundle\Upload\FileValidator:
         $allowedTypes: '%alchemy_storage.upload.allowed_types%'
 
