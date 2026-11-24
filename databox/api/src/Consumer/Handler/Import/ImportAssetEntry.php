@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Import;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
+use App\Consumer\WorkerQueue;
 
-#[MessengerMessage('task')]
+/**
+ * Creates the asset of one entry of an asset import
+ * (queue choice: doc/tech/Databox/workers.md).
+ */
+#[MessengerMessage(WorkerQueue::BULK)]
 final readonly class ImportAssetEntry
 {
     /**

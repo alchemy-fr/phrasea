@@ -9,16 +9,16 @@ while it still gets every idle process.
 
 ## Queues
 
-| Transport        | Content                                                                                                                                                                            |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `p1`             | Real time: indexing (`ESIndex`), live updates (Pusher), `AttributeChanged`, ACL and search updates, `Notify*Topic`, `AssetMove`…                                                   |
-| `p2`             | Standard: the light workflow jobs (default routing of `JobConsumer`), webhooks, notifications, e-mails, `DeployConfig`, `BasketUpdate`, `SyncBasket`, file deletions…              |
-| `heavy`          | Computation, file transfers and slow external APIs: the jobs of the renditions built first, watermark, metadata reading, file analysis, blurhash, source downloads; heavy messages |
-| `heavy_low`      | The heavy jobs that are not urgent: the jobs of the other renditions, faces, similarity, Rekognition, Remove.bg, Happyscribe, Transcribe                                           |
-| `bulk`           | The light jobs of the workflows started by a bulk processing, the start of each workflow of a workspace ingestion (`IngestWorkspaceAsset`)                                         |
-| `bulk_heavy`     | The heavy jobs (`queue: heavy`) of the workflows started by a bulk processing                                                                                                      |
-| `bulk_heavy_low` | The non urgent heavy jobs (`queue: heavy_low`) of the workflows started by a bulk processing                                                                                       |
-| `task`           | Bulk orchestrations (workspace ingestion, asset imports, automations, operation tasks), `ESPopulate`, `IndexAllAssets`, `IndexAllCollections`, `DeleteWorkspace`                   |
+| Transport        | Content                                                                                                                                                                                                        |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `p1`             | Real time: indexing (`ESIndex`), live updates (Pusher), `AttributeChanged`, ACL and search updates, `Notify*Topic`, `AssetMove`…                                                                               |
+| `p2`             | Standard: the light workflow jobs (default routing of `JobConsumer`), webhooks, notifications, e-mails, `DeployConfig`, `BasketUpdate`, `SyncBasket`, file deletions…                                          |
+| `heavy`          | Computation, file transfers and slow external APIs: the jobs of the renditions built first, watermark, metadata reading, file analysis, blurhash, source downloads; heavy messages                             |
+| `heavy_low`      | The heavy jobs that are not urgent: the jobs of the other renditions, faces, similarity, Rekognition, Remove.bg, Happyscribe, Transcribe                                                                       |
+| `bulk`           | The light jobs of the workflows started by a bulk processing, the start of each workflow of a workspace ingestion (`IngestWorkspaceAsset`), the asset creation of each asset import entry (`ImportAssetEntry`) |
+| `bulk_heavy`     | The heavy jobs (`queue: heavy`) of the workflows started by a bulk processing                                                                                                                                  |
+| `bulk_heavy_low` | The non urgent heavy jobs (`queue: heavy_low`) of the workflows started by a bulk processing                                                                                                                   |
+| `task`           | Bulk orchestrations (workspace ingestion, asset import dispatch, automations, operation tasks), `ESPopulate`, `IndexAllAssets`, `IndexAllCollections`, `DeleteWorkspace`                                       |
 
 The heavy messages outside of the workflows are the dynamic renditions
 (`BuildDynamicRendition`), the story contact sheets, the image processing (`ProcessImageSet`),
@@ -74,6 +74,10 @@ which starts the workflow of its asset: every process but `p1` and `task` starts
 in parallel, before any `bulk_heavy` job, and the jobs of every asset are queued before a
 `bulk_heavy_low` one is taken. Only the last workflows still running may let a worker start a
 low priority job before their thumbnail.
+
+The asset import follows the same split: `DispatchAssetImport` reads the instructions file on
+`task` and dispatches one `ImportAssetEntry` per entry, on `bulk`, so that the assets are
+created in parallel and an import never waits behind a long `task` orchestration (`ESPopulate`).
 
 ### Bulk origin
 

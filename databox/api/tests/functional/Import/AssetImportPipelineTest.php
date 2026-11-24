@@ -65,7 +65,7 @@ final class AssetImportPipelineTest extends AbstractDataboxTestCase
 
         // Reading the file
         $this->consumeImportMessages(DispatchAssetImport::class);
-        $entries = $this->getQueuedMessages($this->taskQueue, ImportAssetEntry::class);
+        $entries = $this->getQueuedMessages($this->bulkQueue, ImportAssetEntry::class);
         $this->assertSame([1, 3], array_map(static fn (ImportAssetEntry $entry): int => $entry->line, $entries));
         $import = $this->findImport($importId);
         $this->assertSame(AssetImportStatusEnum::Processing, $import->getStatus());
@@ -228,7 +228,7 @@ final class AssetImportPipelineTest extends AbstractDataboxTestCase
         $this->assertSame(AssetImportStatusEnum::Failed, $import->getStatus());
         $this->assertStringStartsWith('Invalid JSON', $import->getError());
         $this->assertNotNull($import->getEndedAt());
-        $this->assertSame([], $this->getQueuedMessages($this->taskQueue, ImportAssetEntry::class));
+        $this->assertSame([], $this->getQueuedMessages($this->bulkQueue, ImportAssetEntry::class));
 
         $data = $this->apiRequest('GET', '/asset-imports/'.$importId, self::OWNER)->toArray();
         $this->assertSame('failed', $data['status']);

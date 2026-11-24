@@ -28,6 +28,7 @@ trait AssetImportTestTrait
     private const string OTHER = KeycloakClientTestMock::OTHER_USER_UID;
 
     private InMemoryTransport $taskQueue;
+    private InMemoryTransport $bulkQueue;
     private InMemoryTransport $p2Queue;
     private InMemoryTransport $heavyQueue;
     /**
@@ -41,6 +42,9 @@ trait AssetImportTestTrait
         /** @var TestTransport $task */
         $task = self::getContainer()->get('messenger.transport.task');
         $this->taskQueue = $task->intercept();
+        /** @var TestTransport $bulk */
+        $bulk = self::getContainer()->get('messenger.transport.bulk');
+        $this->bulkQueue = $bulk->intercept();
         /** @var TestTransport $p2 */
         $p2 = self::getContainer()->get('messenger.transport.p2');
         $this->p2Queue = $p2->intercept();
@@ -100,7 +104,7 @@ trait AssetImportTestTrait
     {
         do {
             $handled = false;
-            foreach ($this->taskQueue->getSent() as $envelope) {
+            foreach ([...$this->taskQueue->getSent(), ...$this->bulkQueue->getSent()] as $envelope) {
                 $message = $envelope->getMessage();
                 $id = spl_object_id($message);
                 if (isset($this->consumedTaskMessages[$id]) || (null !== $only && !$message instanceof $only)) {
