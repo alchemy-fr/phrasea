@@ -30,7 +30,6 @@ position from 1 in the JSON list.
   "name": "Sunset",
   "collection": "<collection ID or /collections/<ID>>",
   "path": "Sport/Football",
-  "tags": ["<tag ID or exact name>"],
   "privacy": 2,
   "attributes": {"title": "Sunset", "keywords": ["sea", "sky"], "description:fr": "Coucher de soleil"},
   "sourceUrl": "https://cdn.example.com/a.jpg",
@@ -56,9 +55,10 @@ Every field is optional, but an entry needs at least one of `sourceUrl`, `previe
   to), once for all the entries of the file.
 - `privacy`: an integer (`0` secret … `5` public) or a label (`private_in_workspace`,
   `public`…); the privacy of the import by default.
-- `tags`: existing tags of the workspace, by ID or exact name.
 - `attributes`: by attribute definition slug, with an optional `:<locale>` suffix; a list
-  gives several values to a multiple attribute.
+  gives several values to a multiple attribute. An attribute of type `entity` takes the IDs
+  of entities of its list (e.g. `"tags": ["<entity ID>"]`). The former `tags` field is
+  refused: the tags are now the values of an entity list attribute.
 - `sourceUrl`, `sourceName`, `sourceType`: the source file, its original name and MIME type.
 - `previewUrl`, `thumbnailUrl`: the file of the first rendition definition used as preview
   (resp. thumbnail) of the workspace; `renditions`: files by rendition definition (its
@@ -117,6 +117,8 @@ Create an **Asset import** integration (`core.asset_import`) on the workspace. I
 configuration:
 
 - `securityKey`: generated at creation (and renewed when the integration is duplicated);
+  checked by the API itself, it cannot refer to a secret (see
+  [Keys read by the API](integration/01_integrations.md#keys-read-by-the-api));
 - `collectionId`: the default destination (the workspace root otherwise);
 - `privacy`: the default privacy of the entries.
 

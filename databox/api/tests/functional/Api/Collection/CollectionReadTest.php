@@ -189,9 +189,40 @@ final class CollectionReadTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(200);
         $data = $response->toArray();
         $this->assertNull($data['parentId'] ?? null);
-        // The absolute path still exposes the full branch
-        $this->assertSame('/'.$parent->getId().'/'.$child->getId(), $data['absolutePath']);
-        $this->assertSame('Parent'.self::SEP.'Child', $data['absoluteName']);
+        // Nor the absolute path discloses it
+        $this->assertSame('/'.$child->getId(), $data['absolutePath']);
+        $this->assertSame('Child', $data['absoluteName']);
+        $this->assertSame('Child', $data['absoluteDisplayName']);
+        $this->assertStringNotContainsString($parent->getId(), $response->getContent());
+        $this->assertStringNotContainsString('Parent', $response->getContent());
+    }
+
+    public function testAbsolutePathStartsAtTheHighestReadableAncestor(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
+        $secret = $this->createCollection(['workspace' => $workspace, 'name' => 'Acquisition Foo']);
+        $shared = $this->createCollection(['workspace' => $workspace, 'name' => 'Shared', 'parent' => $secret]);
+        $sub = $this->createCollection(['workspace' => $workspace, 'name' => 'Sub', 'parent' => $shared]);
+        $sub->setTranslations(['name' => ['fr' => 'Sous']]);
+        self::getEntityManager()->flush();
+        $this->grantUserOnObject(self::USER, $shared, PermissionInterface::VIEW);
+
+        $response = $this->request('GET', '/collections/'.$sub->getId(), self::USER, [
+            'headers' => ['Accept-Language' => 'fr'],
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $data = $response->toArray();
+        $this->assertSame($shared->getId(), $data['parentId']);
+        $this->assertSame('/'.$shared->getId().'/'.$sub->getId(), $data['absolutePath']);
+        $this->assertSame('Shared'.self::SEP.'Sub', $data['absoluteName']);
+        $this->assertSame('Shared'.self::SEP.'Sous', $data['absoluteDisplayName']);
+        $this->assertStringNotContainsString($secret->getId(), $response->getContent());
+        $this->assertStringNotContainsString('Acquisition Foo', $response->getContent());
+
+        // Those who can read the whole branch still get it
+        $response = $this->request('GET', '/collections/'.$sub->getId(), self::ADMIN);
+        $this->assertSame('/'.$secret->getId().'/'.$shared->getId().'/'.$sub->getId(), $response->toArray()['absolutePath']);
+        $this->assertSame('Acquisition Foo'.self::SEP.'Shared'.self::SEP.'Sub', $response->toArray()['absoluteName']);
     }
 
     public function testNotFound(): void

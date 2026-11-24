@@ -10,10 +10,10 @@ use App\Api\Traits\ParameterValuesTrait;
 use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\CollectionSearch;
 use App\Elasticsearch\NoWorkspaceAllowedException;
+use App\Entity\Core\Collection;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\CollectionVoter;
 use App\Service\Collection\CollectionSorter;
 
 class CollectionProvider extends AbstractCollectionProvider
@@ -40,11 +40,10 @@ class CollectionProvider extends AbstractCollectionProvider
             empty($filters['parent'])
             && empty($filters['parents'])
             && empty($filters['query'])
-            && !$this->hasScope(AbstractVoter::LIST, CollectionVoter::SCOPE_PREFIX)
-            && !$this->isAdmin()
+            && !$this->isGranted(AbstractVoter::LIST, new Collection())
         ) {
             if ($context['userId']) {
-                $allowedWorkspaces = $this->workspaceRepository->getAllowedWorkspaceIds($context['userId'], $context['groupIds'], $this->isAdmin());
+                $allowedWorkspaces = $this->workspaceRepository->getReadableWorkspaceIds($context['userId'], $context['groupIds'], $this->isAdmin());
             } else {
                 $allowedWorkspaces = $this->workspaceRepository->getPublicWorkspaceIds();
             }
@@ -52,9 +51,13 @@ class CollectionProvider extends AbstractCollectionProvider
                 $allowedWorkspaces = array_values(array_intersect($allowedWorkspaces, $workspaceIds));
             }
 
-            return $this->collectionSorter->sort(
-                $this->collectionRepository->getRootCollections($allowedWorkspaces, $context['userId'], $context['groupIds'])
-            );
+            // The voter has the last word: a stale collection_access row must not expose a collection
+            $collections = array_values(array_filter(
+                $this->collectionRepository->getRootCollections($allowedWorkspaces, $context['userId'], $context['groupIds']),
+                fn (Collection $collection): bool => $this->isGranted(AbstractVoter::READ, $collection),
+            ));
+
+            return $this->collectionSorter->sort($collections);
         }
 
         try {

@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Search;
 
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractSearchTestCase;
+use Elastica\Document;
+use Ramsey\Uuid\Uuid;
 
 class SuggestionSearchTest extends AbstractSearchTestCase
 {
@@ -80,9 +84,8 @@ class SuggestionSearchTest extends AbstractSearchTestCase
         $items = array_map(fn (array $suggestion): array => [$suggestion['t'], $suggestion['name']], $suggestions);
         // The value shared by the most assets comes first
         $this->assertSame([$keywords->getId(), 'Paris'], $items[0]);
-        // Attribute values come before the names
+        // Attribute values come before the collection names (an asset has no name of its own)
         $this->assertSame([
-            ['asset', 'Party'],
             ['collection', 'Parking'],
         ], array_slice($items, 3));
 
@@ -99,6 +102,59 @@ class SuggestionSearchTest extends AbstractSearchTestCase
             $this->assertArrayNotHasKey('locale', $suggestion);
         }
         $this->assertSame('Keywords', $suggestions[0]['tName']);
+    }
+
+    /**
+     * Neither the collections in the trash, nor the documents granting more than the database
+     * (stale index), nor the documents of purged collections.
+     */
+    public function testOnlyReadableCollectionNamesAreSuggested(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $parking = $this->createCollection([
+            'workspace' => $workspace,
+            'name' => 'Parking',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $trashed = $this->createCollection([
+            'workspace' => $workspace,
+            'name' => 'Parasol',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $secret = $this->createCollection([
+            'workspace' => $workspace,
+            'name' => 'Paradise',
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $this->assertSame(['Parasol', 'Parking'], $this->suggestedCollectionNames('par'));
+
+        $trashed->setDeletedAt(new \DateTimeImmutable());
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $index = self::$documentIndices['collection'];
+        $data = $index->getDocument($secret->getId())->getData();
+        $data['privacy'] = WorkspaceItemPrivacyInterface::PUBLIC;
+        $index->addDocument(new Document($secret->getId(), $data));
+        $orphanId = Uuid::uuid4()->toString();
+        $data = $index->getDocument($parking->getId())->getData();
+        $data['name'] = $data['suggestion'] = 'Parachute';
+        $data['id'] = $orphanId;
+        $index->addDocument(new Document($orphanId, $data));
+        self::waitForESIndex('collection');
+
+        $this->assertSame(['Parking'], $this->suggestedCollectionNames('par'));
+        $this->assertSame(['Paradise', 'Parking'], $this->suggestedCollectionNames('par', [
+            'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+        ]));
     }
 
     public function testAttributeDefinitionPermissionsAreApplied(): void
@@ -382,6 +438,20 @@ class SuggestionSearchTest extends AbstractSearchTestCase
         ]);
 
         return $this->getDataFromResponse($response, 200)['member'];
+    }
+
+    /**
+     * @return string[] the suggested collection names, sorted
+     */
+    private function suggestedCollectionNames(string $query, array $headers = []): array
+    {
+        $names = array_column(array_filter(
+            $this->suggest($query, $headers),
+            fn (array $suggestion): bool => 'collection' === $suggestion['t'],
+        ), 'name');
+        sort($names);
+
+        return $names;
     }
 
     /**

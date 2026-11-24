@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Delete;
 
+use Alchemy\ESBundle\Indexer\Operation;
+use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Doctrine\Listener\CollectionListener;
 use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAsset;
 use App\Entity\Template\AssetDataTemplate;
 use App\Model\AuditLogActionEnum;
 use App\Service\Log\AuditLogManager;
@@ -25,6 +28,7 @@ final readonly class CollectionDelete
         private PostFlushStack $postFlushStack,
         private LoggerInterface $logger,
         private AuditLogManager $auditLogManager,
+        private SearchIndexer $searchIndexer,
     ) {
     }
 
@@ -132,13 +136,28 @@ final readonly class CollectionDelete
 
         $this->deleteDependencies(AssetDataTemplate::class, $collectionId);
 
+        // The links are removed with the collection, without reindexing the linked assets
+        $linkedAssetIds = array_map(fn (array $row): string => (string) $row['id'], $this->em->createQueryBuilder()
+            ->select('IDENTITY(ca.asset) AS id')
+            ->from(CollectionAsset::class, 'ca')
+            ->andWhere('ca.collection = :c')
+            ->setParameter('c', $collectionId)
+            ->getQuery()
+            ->getArrayResult());
+
         $collection = $this->em->find(Collection::class, $collectionId);
         if ($collection instanceof Collection) {
             $this->em->remove($collection);
             $this->em->flush();
         }
 
-        $this->postFlushStack->addCallback(fn () => $this->indexCleaner->removeCollectionFromIndex($collectionId));
+        $this->postFlushStack->addCallback(function () use ($collectionId, $linkedAssetIds): void {
+            $this->indexCleaner->removeCollectionFromIndex($collectionId);
+            // An asset purged later in the branch is removed from the index by the indexer
+            foreach (array_chunk($linkedAssetIds, 1000) as $ids) {
+                $this->searchIndexer->scheduleObjectsIndex(Asset::class, $ids, Operation::Upsert);
+            }
+        });
     }
 
     private function deleteDependencies(string $entityClass, string $collectionId): void

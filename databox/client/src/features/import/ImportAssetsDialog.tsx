@@ -57,7 +57,6 @@ const exampleLine = JSON.stringify({
     key: 'photo-001',
     name: 'Sunset',
     path: 'Travel/2024',
-    tags: ['beach'],
     attributes: {'description:en': 'A sunset over the sea'},
     sourceUrl: 'https://example.com/sunset.jpg',
 });
@@ -223,7 +222,7 @@ export function ImportAssetsDialog({
             title={t('import.title', 'Import assets')}
             description={t(
                 'import.description',
-                'Create assets from a JSON or NDJSON file describing them (source URLs, attributes, tags…).'
+                'Create assets from a JSON or NDJSON file describing them (source URLs, collections, attributes…).'
             )}
             submitLabel={t('import.submit', 'Import')}
             canSubmit={canSubmit}
@@ -476,7 +475,7 @@ function ImportHelp() {
                 <p>
                     {t(
                         'import.help.fields',
-                        'Each entry needs at least one of sourceUrl, previewUrl, thumbnailUrl, renditions or name. Optional: key, externalId, collection or path, tags, privacy, attributes ("slug" or "slug:locale"), sourceName, sourceType. Unknown fields are ignored.'
+                        'Each entry needs at least one of sourceUrl, previewUrl, thumbnailUrl, renditions or name. Optional: key, externalId, collection or path, privacy, attributes ("slug" or "slug:locale"), sourceName, sourceType. Unknown fields are ignored.'
                     )}
                 </p>
                 <p>

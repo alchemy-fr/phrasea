@@ -49,8 +49,8 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $config = $this->processConfiguration(new Configuration(), $configs);
         $this->loadExternalConfig($container, $config['service']);
 
-        $container->setParameter('alchemy_admin.worker_queues', $config['worker']['queues']);
         $container->setParameter('alchemy_admin.worker_rabbitmq', $config['worker']['rabbitmq']);
+        $container->setParameter('alchemy_admin.worker_inspect_limit', $config['worker']['inspect_limit']);
 
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [

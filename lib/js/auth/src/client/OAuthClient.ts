@@ -2,6 +2,7 @@ import axios, {
     AxiosError,
     AxiosHeaders,
     AxiosInstance,
+    AxiosRequestConfig,
     InternalAxiosRequestConfig,
 } from 'axios';
 import {jwtDecode} from 'jwt-decode';
@@ -531,6 +532,7 @@ export function configureClientCredentials401Retry<
                 error.config &&
                 !error.config.anonymous &&
                 !error.config.retryAfterNewToken &&
+                targetsBaseUrl(error.config) &&
                 error.response &&
                 401 === error.response.status
             ) {
@@ -553,13 +555,35 @@ export function configureClientCredentials401Retry<
     );
 }
 
+const absoluteUrlPattern = /^([a-z][a-z\d+\-.]*:)?\/\//i;
+
+/**
+ * Whether the request goes to the origin of the client's `baseURL` (to a
+ * relative URL without `baseURL`): an absolute URL to another host (S3,
+ * presigned URL, third-party service) must never receive the access token.
+ */
+function targetsBaseUrl(config: AxiosRequestConfig): boolean {
+    const url = config.url ?? '';
+    if (!config.baseURL) {
+        return !absoluteUrlPattern.test(url);
+    }
+
+    try {
+        const base = new URL(config.baseURL, globalThis.location?.href);
+
+        return new URL(url, base).origin === base.origin;
+    } catch {
+        return false;
+    }
+}
+
 function createAxiosInterceptor<UIR extends UserInfoResponse>(
     oauthClient: OAuthClient<UIR>,
     refreshMethod: GrantTypeRefreshMethod,
     onTokenError?: OnTokenError
 ) {
     return async (config: InternalAxiosRequestConfig) => {
-        if (config.anonymous) {
+        if (config.anonymous || !targetsBaseUrl(config)) {
             return config;
         }
 

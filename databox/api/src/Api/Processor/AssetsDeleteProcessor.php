@@ -13,6 +13,7 @@ use App\Consumer\Handler\Asset\AssetsDelete;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Repository\Core\AssetRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ class AssetsDeleteProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly AssetRepository $assetRepository,
         private readonly MessageBusInterface $bus,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -44,7 +46,8 @@ class AssetsDeleteProcessor implements ProcessorInterface
         }
 
         if (!$isUnlink) {
-            $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $data->ids);
+            $assets = [...DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $data->ids)];
+            $this->attributeFilterChecker->preloadForCurrentUser($assets);
             foreach ($assets as $asset) {
                 $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
             }

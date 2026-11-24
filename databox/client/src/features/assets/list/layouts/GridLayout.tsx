@@ -11,7 +11,7 @@ import {SelectableCard} from '../SelectableCard';
 import {assetKey} from '../SelectionProvider';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {Highlight} from '@/components/ui/highlight';
-import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
+import {CollectionChip, PrivacyIcon} from '@/components/chips';
 import {GridCardZones, useGridProfileItems} from './GridCardZones';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {Masonry} from '@/components/ui/masonry';
@@ -172,18 +172,6 @@ const GridItem = memo(function GridItem({
                                 />
                             ) : null}
                         </div>
-                        {asset.tags && asset.tags.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                                {asset.tags.slice(0, 2).map(tag => (
-                                    <TagChip key={tag.id} tag={tag} />
-                                ))}
-                                {asset.tags.length > 2 ? (
-                                    <span className="text-[11px] text-muted-foreground">
-                                        +{asset.tags.length - 2}
-                                    </span>
-                                ) : null}
-                            </div>
-                        ) : null}
                         {asset.collections && asset.collections.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
                                 {asset.collections.slice(0, 1).map(c => (

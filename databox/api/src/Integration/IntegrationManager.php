@@ -8,10 +8,13 @@ use App\Documentation\ConfigurationReferenceDumper;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Config\ConfigSchemaCustomizerInterface;
 use App\Integration\Config\ConfigSchemaDumper;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\Env\EnvResolver;
 use App\Security\Voter\WorkspaceIntegrationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Config\Definition\ArrayNode;
+use Symfony\Component\Config\Definition\BaseNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\NodeInterface;
@@ -99,7 +102,11 @@ readonly class IntegrationManager
             $integration
         );
 
+        $config->validateReferences();
         $integration->validateConfiguration($config);
+
+        // Resolves the rendition names the configuration refers to: an unknown one is invalid
+        $integration->normalizeConfiguration($workspaceIntegration->getConfig(), $workspaceIntegration->getWorkspace());
     }
 
     public function getIntegrationConfigInfo(WorkspaceIntegration $workspaceIntegration): array
@@ -150,11 +157,34 @@ readonly class IntegrationManager
         $processor = new Processor();
         $config = $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
 
+        $urlDefaults = $defaults = $secretKeys = $apiReadKeys = [];
+        foreach ($node instanceof ArrayNode ? $node->getChildren() : [] as $name => $child) {
+            if ($child->hasDefaultValue()) {
+                $defaults[$name] = $child->getDefaultValue();
+            }
+            if (!$child instanceof BaseNode) {
+                continue;
+            }
+            if ($child->getAttribute(ConfigWidget::ATTR_URL)) {
+                $urlDefaults[$name] = $defaults[$name] ?? null;
+            }
+            if ($child->getAttribute(ConfigWidget::ATTR_SECRET)) {
+                $secretKeys[] = $name;
+            }
+            if ($child->getAttribute(ConfigWidget::ATTR_READ_BY_API)) {
+                $apiReadKeys[] = $name;
+            }
+        }
+
         return new IntegrationConfig(
             $config,
             $workspaceIntegration,
             $integration,
             $this->envResolver,
+            $urlDefaults,
+            $defaults,
+            $secretKeys,
+            $apiReadKeys,
         );
     }
 }

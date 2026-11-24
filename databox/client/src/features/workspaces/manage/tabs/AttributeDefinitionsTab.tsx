@@ -93,6 +93,7 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<AttributeDefinition>
+            fill
             items={definitions.items}
             loading={definitions.loading}
             error={definitions.error}
@@ -108,13 +109,13 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
             getItem={getAttributeDefinition}
             itemQueryKey={['attribute-definitions', 'item']}
             renderItem={d => (
-                <span className="flex items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate">
-                        {d.displayName ?? d.name}
-                        <span className="ml-1 font-mono text-[11px] text-muted-foreground">
-                            {d.slug}
-                        </span>
-                    </span>
+                <span className="block truncate">
+                    {d.displayName ?? d.name}
+                </span>
+            )}
+            renderItemDetails={d => (
+                <>
+                    <span className="font-mono text-[11px]">{d.slug}</span>
                     <Badge variant="muted">{d.type}</Badge>
                     {d.multiple ? (
                         <Badge variant="secondary">
@@ -126,10 +127,8 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
                             {t('common.disabled', 'disabled')}
                         </Badge>
                     ) : null}
-                    {!d.editable ? (
-                        <LockIcon className="size-3.5 text-muted-foreground" />
-                    ) : null}
-                </span>
+                    {!d.editable ? <LockIcon className="size-3.5" /> : null}
+                </>
             )}
             onDuplicate={d => duplicateAttributeDefinition(d.id)}
             onDelete={d => deleteAttributeDefinition(d.id)}
@@ -210,6 +209,7 @@ function DefinitionForm({
             d.writeMetadataRenditions.length === 0,
         writeMetadataRenditions: d?.writeMetadataRenditions ?? [],
         fillFromName: d?.fillFromName ?? false,
+        useAsName: d?.useAsName ?? false,
         namePriority: d?.namePriority?.toString() ?? '',
         searchBoost: d?.searchBoost?.toString() ?? '1',
     });
@@ -255,8 +255,9 @@ function DefinitionForm({
                     ? []
                     : form.writeMetadataRenditions,
                 fillFromName: form.fillFromName,
+                useAsName: form.useAsName,
                 namePriority:
-                    form.fillFromName && form.namePriority
+                    form.useAsName && form.namePriority !== ''
                         ? Number(form.namePriority)
                         : null,
                 searchBoost: Number(form.searchBoost) || 1,
@@ -454,7 +455,9 @@ function DefinitionForm({
                     'multiple',
                     t('attribute_def.multiple_values', 'Multiple values'),
                     {
-                        disabled: form.fillFromName && !form.multiple,
+                        disabled:
+                            (form.fillFromName || form.useAsName) &&
+                            !form.multiple,
                         description: t(
                             'attribute_def.multiple_fill_from_name_help',
                             'Not available for an attribute used as name'
@@ -475,10 +478,7 @@ function DefinitionForm({
                 )}
                 {flag(
                     'fillFromName',
-                    t(
-                        'attribute_def.fill_from_name',
-                        'Fill from asset name / use as name'
-                    ),
+                    t('attribute_def.fill_from_name', 'Fill from asset name'),
                     {
                         disabled: form.multiple && !form.fillFromName,
                         description: t(
@@ -487,8 +487,19 @@ function DefinitionForm({
                         ),
                     }
                 )}
+                {flag(
+                    'useAsName',
+                    t('attribute_def.use_as_name', 'Use as name'),
+                    {
+                        disabled: form.multiple && !form.useAsName,
+                        description: t(
+                            'attribute_def.fill_from_name_multiple_help',
+                            'Not available for multiple values attributes'
+                        ),
+                    }
+                )}
             </div>
-            {form.fillFromName ? (
+            {form.useAsName ? (
                 <FormRow
                     label={t('attribute_def.name_priority', 'Name priority')}
                 >

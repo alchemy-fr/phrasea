@@ -11,6 +11,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Target;
 use App\Entity\UploadLink;
 use App\Security\Acl\UploadLinkAclObject;
+use App\Security\UploadLinkUser;
 use App\Tests\Functional\AbstractUploaderTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -19,6 +20,11 @@ abstract class AbstractUploadLinkTestCase extends AbstractUploaderTestCase
 {
     protected const string FIXTURE = __DIR__.'/../../fixtures/32x32.jpg';
     protected const int FIXTURE_SIZE = 846;
+
+    /**
+     * Holds the `upload_link` permission: the creators of the links made by createLink() are in it.
+     */
+    protected const string CREATOR_GROUP = 'upload-link-creators';
 
     protected function createTarget(string $slug = 'link-target'): Target
     {
@@ -36,20 +42,27 @@ abstract class AbstractUploadLinkTestCase extends AbstractUploaderTestCase
     }
 
     /**
-     * @param array{enabled?: bool, expiresAt?: ?\DateTimeImmutable, maxAssets?: ?int, maxTotalSize?: ?int, name?: ?string} $options
+     * By default, the creator got the permission to create it from a group (CREATOR_GROUP) they were in.
+     *
+     * @param array{enabled?: bool, expiresAt?: \DateTimeImmutable, maxAssets?: ?int, maxTotalSize?: ?int, name?: ?string, creatorGroups?: string[], creatorRoles?: string[]} $options
      */
     protected function createLink(Target $target, string $ownerId = KeycloakClientTestMock::USER_UID, array $options = []): UploadLink
     {
+        $this->grantUploadLinkToGroup(self::CREATOR_GROUP);
+        $em = self::getEntityManager();
+
         $link = new UploadLink();
-        $link->setTarget($target);
+        // A request made since may have detached it
+        $link->setTarget($em->contains($target) ? $target : $em->find(Target::class, $target->getId()));
         $link->setOwnerId($ownerId);
+        $link->setCreatorGroups($options['creatorGroups'] ?? [self::CREATOR_GROUP]);
+        $link->setCreatorRoles($options['creatorRoles'] ?? []);
         $link->setName($options['name'] ?? 'Photographer');
         $link->setEnabled($options['enabled'] ?? true);
-        $link->setExpiresAt($options['expiresAt'] ?? null);
+        $link->setExpiresAt($options['expiresAt'] ?? new \DateTimeImmutable('+30 days'));
         $link->setMaxAssets($options['maxAssets'] ?? null);
         $link->setMaxTotalSize($options['maxTotalSize'] ?? null);
 
-        $em = self::getEntityManager();
         $em->persist($link);
         $em->flush();
 
@@ -75,13 +88,30 @@ abstract class AbstractUploadLinkTestCase extends AbstractUploaderTestCase
         );
     }
 
-    protected function linkRequest(string $token, string $method, string $url, ?array $data = null): ResponseInterface
+    protected function grantUploadLinkToGroup(string $groupId): void
+    {
+        self::getContainer()->get(PermissionManager::class)->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_GROUP_VALUE,
+            $groupId,
+            UploadLinkAclObject::OBJECT_KEY,
+            null,
+            PermissionInterface::EDIT,
+        );
+    }
+
+    /**
+     * @param string|null $session the browser session of the holder of the link (X-Upload-Session)
+     */
+    protected function linkRequest(string $token, string $method, string $url, ?array $data = null, ?string $session = null): ResponseInterface
     {
         $options = [
             'headers' => [
                 'Authorization' => 'UploadLink '.$token,
             ],
         ];
+        if (null !== $session) {
+            $options['headers'][UploadLinkUser::SESSION_HEADER] = $session;
+        }
         if (null !== $data) {
             $options['json'] = $data;
         }
@@ -90,7 +120,7 @@ abstract class AbstractUploadLinkTestCase extends AbstractUploaderTestCase
     }
 
     /**
-     * @param array<string, string> $parameters
+     * @param array<string, mixed> $parameters
      */
     protected function uploadFile(string $token, array $parameters = []): ResponseInterface
     {

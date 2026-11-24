@@ -19,6 +19,7 @@ import {Toaster} from '@alchemy/next-ui/ui/toaster';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
 import {SentryInit} from '@alchemy/next-core/monitoring/SentryInit';
 import {SentryUser} from '@/lib/monitoring/SentryUser';
+import {redactUrl} from '@/lib/privacy/redactUrl';
 
 function createQueryClient(): QueryClient {
     return new QueryClient({
@@ -41,9 +42,11 @@ function createQueryClient(): QueryClient {
 type Props = PropsWithChildren<{
     config: AppConfig;
     language: LanguageCode;
+    /** Of the Content Security Policy, for the inline scripts */
+    nonce?: string;
 }>;
 
-export function Providers({config, language, children}: Props) {
+export function Providers({config, language, nonce, children}: Props) {
     const [queryClient] = useState(createQueryClient);
 
     return (
@@ -52,6 +55,7 @@ export function Providers({config, language, children}: Props) {
                 sentry={config.sentry}
                 appId={config.appId}
                 appName={config.appName}
+                redactUrl={redactUrl}
             />
             <I18nProvider language={language}>
                 <ThemeProvider
@@ -59,8 +63,9 @@ export function Providers({config, language, children}: Props) {
                     defaultTheme="system"
                     enableSystem
                     disableTransitionOnChange
+                    nonce={nonce}
                 >
-                    <ThemeManager meta={config.theme} />
+                    <ThemeManager meta={config.theme} nonce={nonce} />
                     <QueryClientProvider client={queryClient}>
                         <Suspense fallback={<FullPageLoader />}>
                             <AuthProvider>

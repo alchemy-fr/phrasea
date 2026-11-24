@@ -8,3 +8,6 @@ parameters:
         - tests/
     excludePaths:
         - src/Elasticsearch/AQL/AQLGrammar.php
+    # The migrations are not autoloaded: some tests require one
+    scanDirectories:
+        - migrations/

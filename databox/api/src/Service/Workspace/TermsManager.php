@@ -11,6 +11,7 @@ use App\Entity\Core\TermsVersion;
 use App\Entity\Core\Workspace;
 use App\Repository\Core\TermsSignatureRepository;
 use App\Repository\Core\TermsVersionRepository;
+use App\Service\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -21,6 +22,7 @@ final readonly class TermsManager
         private TermsVersionRepository $termsVersionRepository,
         private TermsSignatureRepository $termsSignatureRepository,
         private FileStorageManager $fileStorageManager,
+        private FileManager $fileManager,
     ) {
     }
 
@@ -95,7 +97,9 @@ final readonly class TermsManager
         if (null !== $current && $checksum === $current->getChecksum()) {
             // Identical content: keep the current version, drop the duplicate upload
             if ($file->getId() !== $current->getFile()?->getId()) {
-                $this->fileStorageManager->delete($file->getPath());
+                if (!$this->fileManager->isPathReferenced($file->getPath(), $file->getId())) {
+                    $this->fileStorageManager->delete($file->getPath());
+                }
                 $this->em->remove($file);
             }
 

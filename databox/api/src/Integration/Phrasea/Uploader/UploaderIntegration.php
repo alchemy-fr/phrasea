@@ -30,6 +30,7 @@ class UploaderIntegration extends AbstractIntegration
                 ->defaultValue('${UPLOADER_API_URL}')
                 ->cannotBeEmpty()
                 ->info('The Uploader API base URL')
+                ->attribute(ConfigWidget::ATTR_URL, true)
             ->end()
             ->scalarNode('collectionId')
                 ->info('The collection target')
@@ -39,6 +40,7 @@ class UploaderIntegration extends AbstractIntegration
                 ->cannotBeEmpty()
                 ->info('The security key to authenticate Uploader requests')
                 ->attribute(ConfigWidget::ATTR_SECRET, true)
+                ->attribute(ConfigWidget::ATTR_READ_BY_API, true)
             ->end()
         ;
     }
@@ -88,7 +90,7 @@ class UploaderIntegration extends AbstractIntegration
             [
                 'label' => 'Security Key',
                 'description' => 'The security key to set in the Uploader Target configuration to authenticate requests.',
-                'value' => $config['securityKey'] ?? 'Not set',
+                'value' => $config->getClientValue('securityKey') ?? 'Not set',
             ],
         ];
     }

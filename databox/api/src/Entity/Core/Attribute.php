@@ -173,7 +173,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
 
     /**
      * Signature of the annotated region ({m: model, v: float[]}), e.g. the face embedding behind a
-     * person value. Never exposed by the API nor indexed.
+     * person value. Never exposed by the API, only indexed in the "face" index (FaceIndex).
      *
      * @var array{m: string, v: float[]}|null
      */

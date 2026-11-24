@@ -10,11 +10,15 @@ use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\Hierarchy\EntityHierarchyValueValidator;
 use App\Attribute\Type\AttributeTypeInterface;
+use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Repository\Core\AttributeEntityRepository;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\DBAL\Types\ConversionException;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -25,8 +29,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class AttributeValidator
 {
-    final public const string TAGS = 'tags';
-
     public function __construct(
         private ValidatorInterface $validator,
         private TranslatorInterface $translator,
@@ -35,6 +37,7 @@ final readonly class AttributeValidator
         private AttributeRepository $attributeRepository,
         private AttributeTypeRegistry $typeRegistry,
         private EntityHierarchyValueValidator $hierarchyValueValidator,
+        private AttributeEntityRepository $attributeEntityRepository,
     ) {
     }
 
@@ -79,6 +82,7 @@ final readonly class AttributeValidator
                         $normalized = $type->normalizeValue($v);
                         if (null !== $normalized) {
                             $this->addErrorsToContext($definition, $attributeInput, $validationContext, $this->validateValue($definition, $type, $normalized));
+                            $this->validateEntityOfList($definition, $type, $normalized, $validationContext);
                         }
                     }
                 }
@@ -88,6 +92,7 @@ final readonly class AttributeValidator
 
                 if (null !== $normalized) {
                     $this->addErrorsToContext($definition, $attributeInput, $validationContext, $this->validateValue($definition, $type, $normalized));
+                    $this->validateEntityOfList($definition, $type, $normalized, $validationContext);
                 }
             }
         }
@@ -96,6 +101,27 @@ final readonly class AttributeValidator
     private function validateValue(AttributeDefinition $definition, AttributeTypeInterface $type, mixed $normalized): ?array
     {
         return $type->validate($normalized) ?? $this->hierarchyValueValidator->validate($definition, $normalized);
+    }
+
+    /**
+     * An entity value must be an entity of the list of the definition, whatever "allowInvalid":
+     * the label of an entity of another list (possibly of another workspace) would be indexed with the asset.
+     */
+    private function validateEntityOfList(AttributeDefinition $definition, AttributeTypeInterface $type, mixed $normalized, ExecutionContextInterface $validationContext): void
+    {
+        if (!$type instanceof EntityAttributeType || null === $listId = $definition->getEntityList()?->getId()) {
+            return;
+        }
+
+        $id = \is_array($normalized) ? ($normalized['id'] ?? null) : $normalized;
+        if (!\is_string($id) || !Uuid::isValid($id)) {
+            return;
+        }
+
+        $entity = $this->attributeEntityRepository->find($id);
+        if (!$entity instanceof AttributeEntity || $entity->getListId() !== $listId) {
+            $validationContext->addViolation(sprintf('Entity "%s" not found in the list of the attribute', $id));
+        }
     }
 
     private function addErrorsToContext(AttributeDefinition $definition, AbstractBaseAttributeInput $attributeInput, ExecutionContextInterface $validationContext, ?array $errors): void
@@ -132,11 +158,7 @@ final readonly class AttributeValidator
             if ($attributeInput->definition) {
                 $definition = $attributeInput->definition;
             } elseif ($attributeInput->definitionId) {
-                if (self::TAGS !== $attributeInput->definitionId) {
-                    $definition = $this->getAttributeDefinition($workspaceId, $attributeInput->definitionId);
-                } else {
-                    $definition = self::TAGS;
-                }
+                $definition = $this->getAttributeDefinition($workspaceId, $attributeInput->definitionId);
             } elseif ($attributeInput->name) {
                 $definition = $this->getAttributeDefinitionBySlug($workspaceId, $attributeInput->name);
             }
@@ -154,10 +176,6 @@ final readonly class AttributeValidator
                         throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in %s #%d', $attributeInput->id, $contextName, $i), $e);
                     }
                 }
-            }
-
-            if (self::TAGS === $definition) {
-                continue;
             }
 
             if (!$definition) {

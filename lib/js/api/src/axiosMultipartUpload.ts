@@ -8,6 +8,7 @@ import {
     MultipartUploadOptions,
     MultipartUploadPlan,
     MultipartUploadTransport,
+    parseRetryAfter,
 } from './multiPartUpload';
 
 export type OnRetry = (retryCount: number, retryDelay: number) => void;
@@ -72,6 +73,12 @@ export function createAxiosMultipartTransport(
         },
         isExpiredUrlError: e =>
             axios.isAxiosError(e) && e.response?.status === 403,
+        getRetryDelay: e =>
+            axios.isAxiosError(e) && e.response?.status === 429
+                ? parseRetryAfter(
+                      e.response.headers?.['retry-after'] as string | undefined
+                  )
+                : undefined,
         // Callers tell a cancelled upload apart with axios.isCancel()
         createAbortError: () => new axios.CanceledError('Upload aborted'),
     };

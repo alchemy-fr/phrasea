@@ -38,7 +38,40 @@ run (`unit` + `functional`, with the SQLite and Elasticsearch reset of
 `pre-phpunit`). Then the libs as in quick.
 
 Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
-`bin/setup.sh test` and loads the expose fixtures first.
+`bin/setup.sh test` and loads the expose fixtures first. The CI stack runs with
+`APP_ENV=prod` and the default secrets of `.env`: `ci.yaml` and
+`bin/dev/run-tests-in-ci-conditions.sh` set `PHRASEA_ALLOW_DEFAULT_SECRETS=1`,
+otherwise `bin/setup.sh` refuses them (`check_default_secrets` in `bin/functions.sh`).
+They also set the `*_POSTGRES_USER`/`*_POSTGRES_PASSWORD` pairs, so that the
+APIs, Keycloak and report-api connect with a role of their own, as a hardened
+production would (see [Database roles](../01_setup.md#database-roles));
+`bin/dev/test-migrations.sh` replays the migrations as the superuser, which
+creates and drops the scratch databases. Likewise, the `*_S3_ACCESS_KEY`/
+`*_S3_SECRET_KEY` pairs give the APIs, the clients and the indexer a MinIO user
+restricted to their bucket (see [MinIO users](../01_setup.md#minio-users)),
+created by `minio-setup` in `bin/setup.sh` and `bin/test.sh standard`.
+
+### Image builds
+
+`ci.yaml` builds the images with `docker buildx bake` and
+[`docker-bake.hcl`](../../../docker-bake.hcl), one runner per group (`php`:
+configurator and the three APIs; `node`: the Next.js clients and
+`databox/indexer`). Each job first builds and pushes the base images of its
+group (`php-base`, `node-base`: `infra/docker/*`), then the images built FROM
+them, on the same builder. Each image is pushed to GHCR tagged with the commit
+sha, next to its registry cache (`:build-cache-1`).
+
+The bases are not passed as `target:` named contexts: a base inlined that way
+gets a new cache key in every BuildKit session from its first step reading its
+local context (`COPY entrypoint.sh`), so every image built on it would be
+rebuilt on each run.
+
+Always pass `-f docker-bake.hcl`: without it, bake also reads
+`docker-compose.yml`, whose services share some target names.
+
+```bash
+docker buildx bake -f docker-bake.hcl --print          # resolved configuration
+```
 
 ### Keycloak and report-api in CI
 
@@ -54,6 +87,15 @@ Outside the CI, a stack can still run without them:
 explicitly) and the `report` profile, and the configurator skip its Keycloak
 configuration and migrations (`KeycloakMigrationTrait`). The PHP suites pass
 that way, but Cypress and the indexer end-to-end log in through Keycloak.
+
+### Image push
+
+The ECR Public push of `ci.yaml` and the Docker Hub pushes of `release.yaml`
+go through `bin/ci-push-images.sh`: one image at a time, with up to 5 attempts
+(30, 60, 90 then 120 s apart), because a parallel push exceeds the request rate
+limit of ECR Public (`Rate exceeded`). A new attempt skips the layers already
+pushed. If the failures go on: `max-concurrent-uploads` in the dockerd
+configuration, or the ECR Public quotas in Service Quotas (us-east-1).
 
 ### release — `bin/test.sh release`
 

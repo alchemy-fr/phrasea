@@ -21,6 +21,7 @@ use Alchemy\Workflow\State\Repository\MemoryStateRepository;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\Tests\State\TestStateStateRepository;
 use Alchemy\Workflow\Tests\Trigger\QueuedJobTrigger;
+use Alchemy\Workflow\Trigger\JobQueueResolverInterface;
 use Alchemy\Workflow\Trigger\RuntimeJobTrigger;
 use Alchemy\Workflow\Validator\EventValidator;
 use Alchemy\Workflow\WorkflowOrchestrator;
@@ -44,6 +45,7 @@ abstract class AbstractWorkflowTestCase extends TestCase
         array $actions = [],
         ?EventDispatcher $eventDispatcher = null,
         bool $asynchronous = false,
+        ?JobQueueResolverInterface $queueResolver = null,
     ): array {
         $actionRegistry = new ArrayActionRegistry($actions);
 
@@ -83,6 +85,7 @@ abstract class AbstractWorkflowTestCase extends TestCase
             $jobTrigger,
             new EventValidator(),
             $eventDispatcher ?? new EventDispatcher(),
+            $queueResolver,
         ), $stateRepository, $logger, $runner, $jobStateManager, $jobTrigger];
     }
 

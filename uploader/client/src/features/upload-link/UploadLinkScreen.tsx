@@ -18,6 +18,7 @@ import {useConfig} from '@/lib/config/ConfigProvider';
 import {languages} from '@/i18n';
 import {
     getUploadLinkSession,
+    getUploadSessionId,
     uploadLinkRequestOptions,
     type UploadLinkErrorCode,
 } from '@/lib/api/uploadLinks';
@@ -63,6 +64,11 @@ function UploadLinkShell({
 }
 
 function errorCode(error: unknown): UploadLinkErrorCode | undefined {
+    if (isApiError(error, 403)) {
+        const code = (error.data as {code?: unknown} | undefined)?.code;
+
+        return code === 'upload_link_revoked' ? code : undefined;
+    }
     if (!isApiError(error, 401)) {
         return undefined;
     }
@@ -84,7 +90,12 @@ function LinkError({error}: {error: unknown}) {
               ? t('upload_link.error.disabled', 'This link has been disabled')
               : code === 'upload_link_invalid'
                 ? t('upload_link.error.invalid', 'This link is invalid')
-                : getErrorMessage(error);
+                : code === 'upload_link_revoked'
+                  ? t(
+                        'upload_link.error.revoked',
+                        'This link is no longer valid'
+                    )
+                  : getErrorMessage(error);
 
     return (
         <Page>
@@ -135,7 +146,8 @@ export function UploadLinkScreen({token}: {token: string}) {
                 ? {
                       requestOptions,
                       link,
-                      userKey: `link:${link.id}`,
+                      // The uploads of another tab belong to its own session
+                      userKey: `link:${link.id}:${getUploadSessionId()}`,
                       onCommit,
                   }
                 : undefined,

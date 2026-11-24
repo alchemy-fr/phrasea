@@ -122,8 +122,9 @@ final class PageApiTest extends AbstractDataboxTestCase
     {
         $page = $this->createPage('Private', 'private', self::ADMIN, public: false, enabled: true);
 
-        $this->assertStatus(401, 'GET', '/page-by-slug/private', null);
-        $this->assertStatus(403, 'GET', '/page-by-slug/private', self::USER);
+        // Answers as an unknown slug: slugs can be guessed
+        $this->assertStatus(404, 'GET', '/page-by-slug/private', null);
+        $this->assertStatus(404, 'GET', '/page-by-slug/private', self::USER);
         $this->grantUserOnObject(self::USER, $page, PermissionInterface::VIEW);
         $this->assertStatus(200, 'GET', '/page-by-slug/private', self::USER);
     }

@@ -45,6 +45,8 @@ final class TriggerWorkflowActionTest extends AbstractDataboxTestCase
 
         // The jobs of the workflow are not run
         self::interceptTransport('p2');
+        self::interceptTransport('heavy');
+        self::interceptTransport('heavy_low');
         $state = $this->processAction(self::getService(TriggerWorkflowAction::class), [], [$asset]);
 
         $this->assertSame(1, $state->getProcessed(), json_encode($state->getErrors()));
@@ -62,6 +64,8 @@ final class TriggerWorkflowActionTest extends AbstractDataboxTestCase
         $asset = $this->createAsset(['workspace' => $this->workspace, 'ownerId' => self::OWNER]);
 
         self::interceptTransport('p2');
+        self::interceptTransport('heavy');
+        self::interceptTransport('heavy_low');
         $state = $this->processAction(self::getService(TriggerWorkflowAction::class), [], [$asset], self::OTHER);
 
         $this->assertSame(0, $state->getProcessed());

@@ -118,8 +118,8 @@ class AssetOutputMapper implements OutputMapperInterface
             $highlights = $data->getElasticHighlights();
 
             if ($fullOutput) {
-                $assetPolicyFilter = $this->assetPolicyManager->getPolicyApplicationFilter($data);
-                $attributes = array_values(array_filter($attributesIndex->getFlattenAttributes(), fn (Attribute $attribute): bool => !in_array($attribute->getDefinition()->getId(), $assetPolicyFilter->getFilteredAttributes(), true)));
+                // The index already leaves out the definitions hidden by the asset policies
+                $attributes = $attributesIndex->getFlattenAttributes();
 
                 if (!empty($highlights)) {
                     $this->attributesResolver->assignHighlight($attributes, $highlights);
@@ -143,14 +143,13 @@ class AssetOutputMapper implements OutputMapperInterface
 
         if ($fullOutput) {
             $output->setPrivacy($data->getPrivacy());
-            $output->setTags($data->getTags()->getValues());
             $output->setWorkspace($data->getWorkspace());
 
             $renditions = $this->em
                 ->getRepository(AssetRendition::class)
                 ->getCachedAssetRenditions($data->getId(), [
                     AssetRenditionRepository::OPT_USED_AS => true,
-                    AssetRenditionRepository::OPT_EXCLUDE_DEFINITIONS => $assetPolicyFilter->getFilteredRenditions(),
+                    AssetRenditionRepository::OPT_EXCLUDE_DEFINITIONS => $this->assetPolicyManager->getPolicyApplicationFilter($data)->getFilteredRenditions(),
                 ]);
 
             // A share link is opened with its token by viewers who may not read the asset

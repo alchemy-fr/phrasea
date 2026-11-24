@@ -240,7 +240,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         if (isset($options['description'])) {
             $asset->setDescription($options['description']);
         }
-        $asset->setOriginalName('Foo.jpeg');
+        $asset->setOriginalName($options['originalName'] ?? 'Foo.jpeg');
         $asset->setSize(42);
         $asset->setMimeType('image/jpeg');
 

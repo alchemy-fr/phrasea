@@ -7,8 +7,10 @@ namespace App\Tests\Functional\Api;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\Rendition\BuildDynamicRendition;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractSearchTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 class DynamicRenditionTest extends AbstractSearchTestCase
@@ -34,7 +36,7 @@ YAML;
         $assetId = $this->createAssetWithSource($client);
 
         // Intercept the queue so that the build is not performed synchronously
-        $transport = $this->interceptQueue('p2');
+        $transport = $this->interceptQueue('heavy');
 
         $response = $client->request('POST', '/renditions', [
             'headers' => [
@@ -154,6 +156,54 @@ YAML;
         ]);
 
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    /**
+     * @param \Closure(Asset): void $refuse
+     */
+    #[DataProvider('getRefusedSources')]
+    public function testCreateDynamicRenditionOfARefusedSourceIsRejected(\Closure $refuse, string $reason): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $client->disableReboot();
+        $assetId = $this->createAssetWithSource($client);
+
+        $em = self::getEntityManager();
+        $refuse($em->find(Asset::class, $assetId));
+        $em->flush();
+
+        $transport = $this->interceptQueue('heavy');
+
+        $response = $client->request('POST', '/renditions', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'assetId' => $assetId,
+                'name' => 'my-custom-crop',
+                'buildDefinition' => self::BUILD_DEFINITION,
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString($reason, $response->toArray(false)['detail'] ?? '');
+        $this->assertSame([], array_values(array_filter(
+            $transport->getSent(),
+            fn ($envelope): bool => $envelope->getMessage() instanceof BuildDynamicRendition
+        )));
+    }
+
+    public static function getRefusedSources(): iterable
+    {
+        yield 'content rejected' => [
+            static fn (Asset $asset) => $asset->getSource()->rejectContent('Declared type "image/jpeg", content is "text/html"'),
+            'its content was rejected',
+        ];
+        yield 'analysis pending while required' => [
+            static fn (Asset $asset) => $asset->getWorkspace()->setFileAnalysisRequired(true),
+            'its analysis is pending',
+        ];
     }
 
     private function interceptQueue(string $queueName): InMemoryTransport

@@ -46,6 +46,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         private ModuleOptionsResolver $optionsResolver,
         private ImagineInterface $imagine,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
+        private int $ffmpegMaxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
     ) {
     }
 
@@ -134,9 +135,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                         ->defaultValue(2)
                         ->info('Change the number of ffmpeg passes')
                     ->end()
-                    ->scalarNode('timeout')
-                        ->info('Change the default timeout used by ffmpeg (defaults to symphony process timeout)')
-                    ->end()
+                    ->append(FFMpegHelper::createTimeoutNode($this->ffmpegMaxTimeout))
                     ->scalarNode('threads')
                         ->info('Change the default number of threads used by ffmpeg')
                     ->end()
@@ -382,7 +381,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     {
         $context->log("Applying '".self::getName()."' module");
 
-        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver, $this->ffmpegMaxTimeout);
 
         if (FamilyEnum::Video === $inputFile->getFamily()) {
             $videoTransformer = new VideoTransformer($this->optionsResolver, $this->imagine);

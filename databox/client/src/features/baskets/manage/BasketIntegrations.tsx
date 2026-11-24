@@ -1,6 +1,7 @@
 'use client';
 
 import {useState} from 'react';
+import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
@@ -9,6 +10,7 @@ import {
     PlugIcon,
     RefreshCwIcon,
     Square,
+    TriangleAlertIcon,
     UploadCloudIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
@@ -20,16 +22,53 @@ import {
     runIntegrationAction,
 } from '@/lib/api/integrations';
 import {InlineLoader} from '@alchemy/next-ui/ui/loader';
-import {Badge, Progress} from '@alchemy/next-ui/ui/misc';
+import {Alert, Badge, Progress} from '@alchemy/next-ui/ui/misc';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
 import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {basketChannel} from '@/lib/realtime/channels';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 import {useIntegrationData} from '@/features/integrations/useIntegrationData';
 import {useIntegrationAuth} from '@/features/integrations/useIntegrationAuth';
+import {routes} from '@/lib/routes';
+import {StopExposeSyncDialog} from './StopExposeSyncDialog';
+
+type SyncStatus = 'progress' | 'cleaning' | 'complete' | 'failed';
+
+type SyncProgress = {
+    status: SyncStatus;
+    done?: number;
+    total?: number;
+};
+
+/**
+ * An asset that Expose refused during the last synchronization: it is not published.
+ */
+type SkippedAsset = {
+    assetId?: string;
+    basketAssetId?: string;
+    title?: string;
+    reason?: string;
+};
+
+/**
+ * The status of a synchronization from the `action` of its realtime events.
+ */
+function syncStatusOf(action: unknown): SyncStatus {
+    switch (action) {
+        case 'sync-complete':
+            return 'complete';
+        case 'sync-clean':
+            return 'cleaning';
+        case 'sync-failed':
+            return 'failed';
+        default:
+            return 'progress';
+    }
+}
 
 /**
  * Basket integrations (context `basket`), notably Phrasea Expose: OAuth
@@ -93,6 +132,7 @@ function ExposeIntegration({
 }) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
+    const {openModal} = useModals();
     const {authorized, authorize, loading} = useIntegrationAuth(integration);
     const queryKey = ['integration-data', integration.id, basket.id];
     const data = useIntegrationData(
@@ -110,9 +150,7 @@ function ExposeIntegration({
         profile: '',
         ignoreRoi: false,
     });
-    const [progress, setProgress] = useState<
-        Record<string, {status: string; done?: number; total?: number}>
-    >({});
+    const [progress, setProgress] = useState<Record<string, SyncProgress>>({});
 
     useChannelEvent(
         basketChannel(basket.id),
@@ -122,9 +160,10 @@ function ExposeIntegration({
                 setProgress(p => ({
                     ...p,
                     [e.id]: {
-                        status: e.status ?? e.type ?? 'progress',
-                        done: e.done ?? e.count,
-                        total: e.total,
+                        status: syncStatusOf(e.action),
+                        // Only the progress events carry the counts
+                        done: e.done ?? p[e.id]?.done,
+                        total: e.total ?? p[e.id]?.total,
                     },
                 }));
             }
@@ -132,21 +171,28 @@ function ExposeIntegration({
         }
     );
 
+    const perform = async (
+        action: string,
+        payload: Record<string, unknown>
+    ) => {
+        await runIntegrationAction(integration.id, action, {
+            basketId: basket.id,
+            ...payload,
+        });
+        track(EventCategory.Integration, IntegrationEvent.Run, {
+            name: `${integration.integration}:${action}`,
+        });
+        void queryClient.invalidateQueries({queryKey});
+        toast.success(
+            t('integrations.action_done', 'Action "{{action}}" started', {
+                action,
+            })
+        );
+    };
+
     const run = async (action: string, payload: Record<string, unknown>) => {
         try {
-            await runIntegrationAction(integration.id, action, {
-                basketId: basket.id,
-                ...payload,
-            });
-            track(EventCategory.Integration, IntegrationEvent.Run, {
-                name: `${integration.integration}:${action}`,
-            });
-            void queryClient.invalidateQueries({queryKey});
-            toast.success(
-                t('integrations.action_done', 'Action "{{action}}" started', {
-                    action,
-                })
-            );
+            await perform(action, payload);
         } catch (e: any) {
             toast.error(e?.message);
         }
@@ -171,6 +217,15 @@ function ExposeIntegration({
                     typeof s.value === 'object' && s.value ? s.value : {}
                 ) as Record<string, any>;
                 const p = progress[s.id];
+                const name =
+                    v.title ?? (v.id ? `#${v.id.substring(0, 6)}` : s.keyId);
+                const skipped: SkippedAsset[] = Array.isArray(v.skipped)
+                    ? v.skipped
+                    : [];
+                const skippedTotal = Math.max(
+                    skipped.length,
+                    typeof v.skippedTotal === 'number' ? v.skippedTotal : 0
+                );
 
                 return (
                     <div
@@ -178,9 +233,7 @@ function ExposeIntegration({
                         className="space-y-2 rounded-md bg-muted/50 p-2"
                     >
                         <div className="flex items-center gap-2">
-                            <span className="flex-1 font-medium">
-                                {v.title ?? v.slug ?? s.keyId}
-                            </span>
+                            <span className="flex-1 font-medium">{name}</span>
                             {v.ignoreRoi ? (
                                 <Badge
                                     variant="muted"
@@ -209,26 +262,38 @@ function ExposeIntegration({
                             ) : null}
                         </div>
                         {p ? (
-                            <div className="text-xs text-muted-foreground">
-                                {p.status === 'complete' || p.status === 'done'
-                                    ? t(
-                                          'integrations.expose.sync_complete',
-                                          'Sync complete!'
-                                      )
-                                    : p.status === 'cleaning'
-                                      ? t(
-                                            'integrations.expose.cleaning',
-                                            'Cleaning assets…'
-                                        )
-                                      : t(
-                                            'integrations.expose.syncing',
-                                            'Sync in progress… {{done}}/{{total}}',
-                                            {
-                                                done: p.done ?? 0,
-                                                total: p.total ?? '?',
-                                            }
+                            <div
+                                className="text-xs text-muted-foreground"
+                                data-testid="expose-sync-status"
+                            >
+                                {p.status === 'complete' ? (
+                                    t(
+                                        'integrations.expose.sync_complete',
+                                        'Sync complete!'
+                                    )
+                                ) : p.status === 'cleaning' ? (
+                                    t(
+                                        'integrations.expose.cleaning',
+                                        'Cleaning assets…'
+                                    )
+                                ) : p.status === 'failed' ? (
+                                    <span className="text-destructive">
+                                        {t(
+                                            'integrations.expose.sync_failed',
+                                            'Sync failed'
                                         )}
-                                {p.total ? (
+                                    </span>
+                                ) : (
+                                    t(
+                                        'integrations.expose.syncing',
+                                        'Sync in progress… {{done}}/{{total}}',
+                                        {
+                                            done: p.done ?? 0,
+                                            total: p.total ?? '?',
+                                        }
+                                    )
+                                )}
+                                {p.total && p.status !== 'failed' ? (
                                     <Progress
                                         value={Math.round(
                                             ((p.done ?? 0) / p.total) * 100
@@ -237,6 +302,59 @@ function ExposeIntegration({
                                     />
                                 ) : null}
                             </div>
+                        ) : null}
+                        {skippedTotal > 0 ? (
+                            <Alert
+                                variant="warning"
+                                icon={<TriangleAlertIcon />}
+                                className="px-3 py-2 text-xs"
+                                data-testid="expose-skipped"
+                                title={t(
+                                    'integrations.expose.skipped_title',
+                                    '{{count}} asset(s) not published',
+                                    {count: skippedTotal}
+                                )}
+                            >
+                                <ul className="space-y-0.5">
+                                    {skipped.map((a, i) => (
+                                        <li key={a.basketAssetId ?? i}>
+                                            {a.assetId ? (
+                                                <Link
+                                                    href={routes.assetView(
+                                                        a.assetId
+                                                    )}
+                                                    className="font-medium hover:underline"
+                                                >
+                                                    {a.title || a.assetId}
+                                                </Link>
+                                            ) : (
+                                                <span className="font-medium">
+                                                    {a.title}
+                                                </span>
+                                            )}
+                                            {a.reason ? (
+                                                <span className="text-muted-foreground">
+                                                    {' — '}
+                                                    {a.reason}
+                                                </span>
+                                            ) : null}
+                                        </li>
+                                    ))}
+                                </ul>
+                                {skippedTotal > skipped.length ? (
+                                    <p className="mt-1 text-muted-foreground">
+                                        {t(
+                                            'integrations.expose.skipped_more',
+                                            'And {{count}} more',
+                                            {
+                                                count:
+                                                    skippedTotal -
+                                                    skipped.length,
+                                            }
+                                        )}
+                                    </p>
+                                ) : null}
+                            </Alert>
                         ) : null}
                         <div className="flex flex-wrap gap-1">
                             <Button
@@ -255,14 +373,13 @@ function ExposeIntegration({
                                 size="sm"
                                 className="text-destructive"
                                 onClick={() =>
-                                    run('stop', {
-                                        id: s.id,
-                                        deletePublication: window.confirm(
-                                            t(
-                                                'integrations.expose.also_delete',
-                                                'Also delete the publication?'
-                                            )
-                                        ),
+                                    openModal(StopExposeSyncDialog, {
+                                        name,
+                                        onConfirm: deletePublication =>
+                                            perform('stop', {
+                                                id: s.id,
+                                                deletePublication,
+                                            }),
                                     })
                                 }
                             >

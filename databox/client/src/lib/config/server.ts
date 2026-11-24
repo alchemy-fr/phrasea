@@ -20,6 +20,15 @@ function int(value: string | undefined): number | undefined {
 }
 
 /**
+ * Smallest of the limits set (above 0), undefined when none is.
+ */
+function minLimit(...values: (number | undefined)[]): number | undefined {
+    const limits = values.filter((v): v is number => v !== undefined && v > 0);
+
+    return limits.length > 0 ? Math.min(...limits) : undefined;
+}
+
+/**
  * Parses the `ALLOWED_FILE_TYPES` env format:
  * `image/*(.jpg,.png),application/pdf,video/*(.mp4)`
  */
@@ -88,7 +97,11 @@ export function getServerConfig(): AppConfig {
                 : {},
         sentry: sentryClientConfigFromEnv(env),
         upload: {
-            maxFileSize: int(env.S3_MAX_OBJECT_SIZE),
+            // The API refuses a larger file (see alchemy_storage.upload.max_file_size)
+            maxFileSize: minLimit(
+                int(env.MAX_UPLOAD_FILE_SIZE),
+                int(env.S3_MAX_OBJECT_SIZE)
+            ),
             allowedTypes: parseAllowedTypes(env.ALLOWED_FILE_TYPES),
         },
         ticketing: {

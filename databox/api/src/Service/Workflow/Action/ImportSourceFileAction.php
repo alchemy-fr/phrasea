@@ -6,8 +6,12 @@ namespace App\Service\Workflow\Action;
 
 use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
+use Alchemy\Workflow\State\JobState;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetStatusEnum;
 use App\Integration\IfActionInterface;
+use App\Service\Asset\Exception\FileImportRefusedException;
+use App\Service\Asset\Exception\RemoteFileNotFoundException;
 use App\Service\Asset\FileImporter;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -38,9 +42,25 @@ readonly class ImportSourceFileAction implements IfActionInterface
 
     public function handle(RunContext $context): void
     {
-        $source = $this->em->find(Asset::class, $context->getInputs()['assetId'])?->getSource();
-        if (null !== $source && $source->isImportPending()) {
+        $asset = $this->em->find(Asset::class, $context->getInputs()['assetId']);
+        $source = $asset?->getSource();
+        if (null === $source || !$source->isImportPending()) {
+            return;
+        }
+
+        try {
             $this->fileImporter->importFile($source);
+        } catch (FileImportRefusedException $e) {
+            // The file is rejected: the integrations depending on this job never run
+            $asset->setStatus(AssetStatusEnum::Quarantined);
+            $this->em->persist($asset);
+            $this->em->flush();
+            $context->setOutput('refusal', $e->getMessage());
+            $context->setEndStatus(JobState::STATUS_FAILURE);
+        } catch (RemoteFileNotFoundException $e) {
+            // Nothing to analyze: the integrations depending on this job never run
+            $context->setOutput('error', $e->getMessage());
+            $context->setEndStatus(JobState::STATUS_FAILURE);
         }
     }
 }

@@ -30,4 +30,12 @@ class Knn extends AbstractQuery
     {
         return $this->setParam('similarity', $similarity);
     }
+
+    /**
+     * Number of nearest neighbors returned (at most num_candidates), the size of the search by default.
+     */
+    public function setK(int $k): self
+    {
+        return $this->setParam('k', $k);
+    }
 }

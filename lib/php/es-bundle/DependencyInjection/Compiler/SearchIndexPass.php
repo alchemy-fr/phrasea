@@ -31,7 +31,13 @@ class SearchIndexPass implements CompilerPassInterface
 
             $class = $def->getArgument('index_2');
             $persisters[$class] ??= [];
-            $persisters[$class][] = new Reference($id);
+            // Keyed by the logical index name, for the write journal (see IndexWriteJournalInterface)
+            $indexName = $tags[0]['index'] ?? null;
+            if (\is_string($indexName)) {
+                $persisters[$class][$indexName] = new Reference($id);
+            } else {
+                $persisters[$class][] = new Reference($id);
+            }
         }
 
         $service->setArgument('$persisters', $persisters);

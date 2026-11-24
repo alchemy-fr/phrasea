@@ -15,6 +15,8 @@ final readonly class RenditionTools
 
     private const string DEFINITION = 'YAML build configuration, used with buildMode 2: one section per file family (image, video, audio, document…) listing "transformations" of modules with their options. Call get_rendition_build_reference first for the modules and options.';
 
+    private const string BUILD_FIRST = 'Whether the workers build this rendition (and the ones it is built from) before the other renditions, e.g. the thumbnails';
+
     public function __construct(
         private ApiClient $client,
     ) {
@@ -102,6 +104,8 @@ final readonly class RenditionTools
         ?bool $useAsThumbnail = null,
         #[Schema(description: 'Whether this rendition is used as animated thumbnail')]
         ?bool $useAsAnimatedThumbnail = null,
+        #[Schema(description: self::BUILD_FIRST)]
+        ?bool $buildFirst = null,
         #[Schema(description: 'Whether the rendition can be downloaded')]
         ?bool $download = null,
         #[Schema(description: 'Whether a user can replace the rendition file')]
@@ -129,6 +133,7 @@ final readonly class RenditionTools
             'useAsPreview' => $useAsPreview,
             'useAsThumbnail' => $useAsThumbnail,
             'useAsAnimatedThumbnail' => $useAsAnimatedThumbnail,
+            'buildFirst' => $buildFirst,
             'download' => $download,
             'substitutable' => $substitutable,
             'writeMetadata' => $writeMetadata,
@@ -163,6 +168,8 @@ final readonly class RenditionTools
         ?bool $useAsPreview = null,
         ?bool $useAsThumbnail = null,
         ?bool $useAsAnimatedThumbnail = null,
+        #[Schema(description: self::BUILD_FIRST)]
+        ?bool $buildFirst = null,
         #[Schema(description: 'Whether the rendition can be downloaded')]
         ?bool $download = null,
         #[Schema(description: 'Whether a user can replace the rendition file')]
@@ -187,6 +194,7 @@ final readonly class RenditionTools
             'useAsPreview' => $useAsPreview,
             'useAsThumbnail' => $useAsThumbnail,
             'useAsAnimatedThumbnail' => $useAsAnimatedThumbnail,
+            'buildFirst' => $buildFirst,
             'download' => $download,
             'substitutable' => $substitutable,
             'writeMetadata' => $writeMetadata,

@@ -11,7 +11,6 @@ use App\Automation\Action\AddToCollectionAction;
 use App\Automation\Action\AttributeAction;
 use App\Automation\Action\AutomationActionInterface;
 use App\Automation\Action\MoveToCollectionAction;
-use App\Automation\Action\TagsAction;
 use App\Automation\AutomationActionState;
 use App\Automation\AutomationBatch;
 use App\Automation\AutomationRunContext;
@@ -266,11 +265,12 @@ final class AutomationActionsTest extends AbstractDataboxTestCase
         }
     }
 
-    public function testTags(): void
+    public function testAttributeAddsAndRemovesEntityValues(): void
     {
-        $keep = $this->findOrCreateTagByName('Keep', $this->workspace);
-        $add = $this->findOrCreateTagByName('Add', $this->workspace);
-        $remove = $this->findOrCreateTagByName('Remove', $this->workspace);
+        $definitionId = $this->getOrCreateTagsDefinition($this->workspace)->getId();
+        $keep = $this->findOrCreateTagEntity('Keep', $this->workspace);
+        $add = $this->findOrCreateTagEntity('Add', $this->workspace);
+        $remove = $this->findOrCreateTagEntity('Remove', $this->workspace);
         $asset = $this->createAsset([
             'workspace' => $this->workspace,
             'ownerId' => self::OWNER,
@@ -279,50 +279,49 @@ final class AutomationActionsTest extends AbstractDataboxTestCase
         ]);
         $otherWorkspace = $this->createOwnedAsset('Elsewhere', workspace: $this->createSecondWorkspace());
 
-        $config = ['add' => [$add->getId()], 'remove' => [$remove->getId()]];
-        $state = $this->process(TagsAction::class, $config, [$asset, $otherWorkspace]);
+        $addConfig = ['definitionId' => $definitionId, 'action' => 'add', 'value' => $add->getId()];
+        $removeConfig = ['definitionId' => $definitionId, 'action' => 'delete', 'value' => [$remove->getId()]];
+        $state = $this->process(AttributeAction::class, $addConfig, [$asset, $otherWorkspace]);
         $this->assertSame(1, $state->getProcessed(), json_encode($state->getErrors()));
         $this->assertSame(1, $state->getSkipped());
+        $this->assertSame(1, $this->process(AttributeAction::class, $removeConfig, [$asset])->getProcessed());
 
-        $tagNames = fn (): array => array_values(array_map(
-            fn ($tag): string => $tag->getName(),
-            self::getEntityManager()->find(Asset::class, $asset->getId())->getTags()->toArray(),
-        ));
-        $names = $tagNames();
-        sort($names);
-        $this->assertSame(['Add', 'Keep'], $names);
+        $values = fn (): array => array_map(
+            fn (Attribute $attribute): string => $attribute->getValue(),
+            self::getEntityManager()->getRepository(Attribute::class)->findBy(['asset' => $asset->getId(), 'definition' => $definitionId]),
+        );
+        $this->assertEqualsCanonicalizing([$keep->getId(), $add->getId()], $values());
 
         // Idempotent
-        $this->assertSame(1, $this->process(TagsAction::class, $config, [$asset])->getProcessed());
-        $names = $tagNames();
-        sort($names);
-        $this->assertSame(['Add', 'Keep'], $names);
+        $this->assertSame(1, $this->process(AttributeAction::class, $addConfig, [$asset])->getProcessed());
+        $this->assertSame(1, $this->process(AttributeAction::class, $removeConfig, [$asset])->getProcessed());
+        $this->assertEqualsCanonicalizing([$keep->getId(), $add->getId()], $values());
     }
 
-    public function testTagsAreSkippedWithoutPermission(): void
+    public function testAttributeDeleteValuesAreValidated(): void
     {
-        $tag = $this->findOrCreateTagByName('Add', $this->workspace);
-        $asset = $this->createOwnedAsset('Asset');
-        $config = $this->validate(TagsAction::class, ['add' => [$tag->getId()]]);
+        $definitionId = $this->getOrCreateTagsDefinition($this->workspace)->getId();
+        $tag = $this->findOrCreateTagEntity('Remove', $this->workspace);
+        $foreignTag = $this->findOrCreateTagEntity('Foreign', $this->createSecondWorkspace());
 
-        $state = new AutomationActionState(TagsAction::TYPE);
-        $asset = self::getEntityManager()->find(Asset::class, $asset->getId());
-        self::getService(UserContextSwitcher::class)->runAs(self::OTHER, function () use ($config, $asset, $state): void {
-            $state->beginBatch();
-            self::getService(TagsAction::class)->processBatch(new AutomationBatch([$asset], $config, $state, new AutomationRunContext(
-                runId: 'run',
-                automationId: 'automation',
-                automationName: 'Test',
-                savedSearchId: 'search',
-                savedSearchName: null,
-                ownerId: self::OTHER,
-                trigger: AutomationTriggerEnum::Schedule,
-                dryRun: false,
-            )));
-        });
+        $this->assertSame([
+            'definitionId' => $definitionId,
+            'action' => 'delete',
+            'locale' => null,
+            'value' => [$tag->getId()],
+        ], $this->validate(AttributeAction::class, ['definitionId' => $definitionId, 'action' => 'delete', 'value' => $tag->getId()]));
 
-        $this->assertSame(0, $state->getProcessed());
-        $this->assertSame(1, $state->getSkipped());
-        $this->assertCount(0, self::getEntityManager()->find(Asset::class, $asset->getId())->getTags());
+        foreach ([
+            'empty list' => [],
+            'entity of another list' => [$foreignTag->getId()],
+            'unknown entity' => ['00000000-0000-4000-8000-000000000000'],
+        ] as $case => $value) {
+            try {
+                $this->validate(AttributeAction::class, ['definitionId' => $definitionId, 'action' => 'delete', 'value' => $value]);
+                $this->fail(sprintf('Expected a validation error for "%s"', $case));
+            } catch (ValidationException $e) {
+                $this->assertSame('value', $e->getConstraintViolationList()->get(0)->getPropertyPath(), $case);
+            }
+        }
     }
 }

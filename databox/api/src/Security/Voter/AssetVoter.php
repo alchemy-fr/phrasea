@@ -9,8 +9,10 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Security\AssetAttributeFilterChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class AssetVoter extends AbstractVoter
 {
@@ -20,6 +22,14 @@ class AssetVoter extends AbstractVoter
     final public const string QUARANTINE_BYPASS = 'QUARANTINE_BYPASS';
 
     final public const string SCOPE_PREFIX = 'asset:';
+
+    private AssetAttributeFilterChecker $attributeFilterChecker;
+
+    #[Required]
+    public function setAttributeFilterChecker(AssetAttributeFilterChecker $attributeFilterChecker): void
+    {
+        $this->attributeFilterChecker = $attributeFilterChecker;
+    }
 
     #[\Override]
     protected function getScopeHierarchy(): array
@@ -61,7 +71,7 @@ class AssetVoter extends AbstractVoter
         $isWorkspaceOwnerSlow = fn (): bool => $this->security->isGranted(AbstractVoter::OWNER, $workspace);
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        return match ($attribute) {
+        $granted = match ($attribute) {
             AbstractVoter::CREATE => $isWorkspaceOwnerFast()
                 || $this->voteOnContainer($subject, AssetContainerVoterInterface::ASSET_CREATE)
                 || $isWorkspaceOwnerSlow(),
@@ -132,6 +142,16 @@ class AssetVoter extends AbstractVoter
                 || $isWorkspaceOwnerSlow(),
             default => false,
         };
+
+        // An asset hidden by the attribute filter rules can be neither read nor acted upon, whatever
+        // the role, as in the asset search, except for the admins: AdminVoter grants them anyway.
+        // CREATE votes on an asset being created, whose values are not stored yet.
+        return $granted
+            && (AbstractVoter::CREATE === $attribute || $this->attributeFilterChecker->isReadable(
+                $subject,
+                $userId ?: null,
+                $user instanceof JwtUser ? $user->getGroups() : [],
+            ));
     }
 
     private function voteOnContainer(Asset $asset, string|int $attribute): bool

@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\AddAssetsToCollectionInput;
 use App\Entity\Core\Asset;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\CollectionVoter;
 use App\Service\Collection\AssetCollectionAdder;
@@ -25,6 +26,7 @@ class AddAssetsToCollectionProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly CollectionDestinationResolver $destinationResolver,
         private readonly AssetCollectionAdder $assetCollectionAdder,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -37,6 +39,7 @@ class AddAssetsToCollectionProcessor implements ProcessorInterface
         $this->denyAccessUnlessGranted(CollectionVoter::ASSET_CREATE, $collection);
 
         $assets = $this->em->getRepository(Asset::class)->findByIds($data->ids);
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);

@@ -7,7 +7,6 @@ namespace App\Api\Model\Input;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 use App\Entity\Core\Collection;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -27,11 +26,6 @@ class AssetInput extends AbstractOwnerIdInput
     public ?int $sequence = null;
 
     public ?string $privacyLabel = null;
-
-    /**
-     * @var Tag[]
-     */
-    public ?array $tags = null;
 
     /**
      * @var Workspace
@@ -56,6 +50,7 @@ class AssetInput extends AbstractOwnerIdInput
     /**
      * @var AssetRenditionInput[]
      */
+    #[Assert\Valid]
     public ?array $renditions = null;
 
     #[Groups(['_'])]

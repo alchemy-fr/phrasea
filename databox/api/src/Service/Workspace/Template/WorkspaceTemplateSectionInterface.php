@@ -8,7 +8,7 @@ use App\Entity\Core\Workspace;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
- * One part of a workspace template (e.g. the tags, the attribute definitions).
+ * One part of a workspace template (e.g. the entity lists, the attribute definitions).
  *
  * Sections are imported by decreasing priority (#[AsTaggedItem]): a section may only
  * reference entities registered in the import context by a section of higher priority.

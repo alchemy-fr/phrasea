@@ -27,7 +27,7 @@ The Uploader service is a core component of the Alchemy ecosystem, designed to s
 
 ## Upload Links
 
-Users with the `upload_link` permission create upload links: secret URLs letting someone without an account send files to one target, within a number of files, a total size and an expiration date. See [Upload Links](./upload_links.md).
+Users with the `upload_link` permission create upload links: secret URLs letting someone without an account send files to one target, within a number of files, a total size and a mandatory expiration date, and only while their creator could still create them. See [Upload Links](./upload_links.md).
 
 ## Integration
 

@@ -72,6 +72,7 @@ use Doctrine\ORM\Mapping as ORM;
 )]
 #[ORM\Entity]
 #[ORM\Index(columns: ['workspace_id', 'created_at'], name: 'asset_import_ws_created_idx')]
+#[ORM\Index(columns: ['source_path'], name: 'asset_import_source_path_idx')]
 class AssetImport extends AbstractUuidEntity
 {
     use OwnerIdTrait;

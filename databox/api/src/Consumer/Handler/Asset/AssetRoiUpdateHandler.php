@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Asset;
 
 use App\Consumer\Handler\Basket\BasketUpdate;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Basket\BasketAsset;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -36,7 +37,7 @@ final readonly class AssetRoiUpdateHandler
             ->getArrayResult();
 
         foreach ($rows as $row) {
-            $this->bus->dispatch(new BasketUpdate((string) $row['id']));
+            $this->bus->dispatch(MessageDeduplication::coalesce(new BasketUpdate((string) $row['id']), 900));
         }
     }
 }

@@ -22,7 +22,7 @@ for pid in "${pids[@]}"; do
 done
 
 # The expose specs rely on the "test-pub" publication of expose/api/fixtures/Tests.yaml
-docker compose exec -T expose-api-php bin/console hautelook:fixtures:load -n
+docker compose exec -T expose-api-php su app -c "bin/console hautelook:fixtures:load -n"
 docker compose restart expose-api-nginx
 
 docker compose run --rm cypress

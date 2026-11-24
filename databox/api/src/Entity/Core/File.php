@@ -53,6 +53,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: FileRepository::class)]
 #[ORM\Index(columns: ['workspace_id', 'checksum'])]
 #[ORM\Index(columns: ['workspace_id', 'doc_unique_id'])]
+#[ORM\Index(name: 'file_path_idx', columns: ['path'], options: ['where' => '(length(path) < '.self::INDEXED_PATH_MAX_LENGTH.')'])]
 class File extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
@@ -65,6 +66,13 @@ class File extends AbstractUuidEntity implements \Stringable
     final public const string GROUP_WRITE = 'file:w';
     final public const string STORAGE_S3_MAIN = 's3_main';
     final public const string STORAGE_URL = 'url';
+
+    /**
+     * Only paths shorter than this are indexed: URL files carry external URLs of arbitrary length,
+     * which a PostgreSQL btree entry cannot hold. A query must repeat the condition literally
+     * for the planner to pick the partial index.
+     */
+    final public const int INDEXED_PATH_MAX_LENGTH = 512;
 
     final public const string ANALYSIS_SUCCESS = 'success';
     final public const string ANALYSIS_FAILED = 'failed';
@@ -84,6 +92,20 @@ class File extends AbstractUuidEntity implements \Stringable
      */
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $type = null;
+
+    /**
+     * The MIME type detected from the content by the asset ingest. Null until checked.
+     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    private ?string $detectedType = null;
+
+    /**
+     * Refused by the content check (content inconsistent with the declared type,
+     * type not allowed or forbidden format): later analyses cannot accept the
+     * file, only an admin bypass does.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $contentRejected = false;
 
     #[ORM\Column(type: Types::BIGINT, nullable: true)]
     private string|int|null $size = null;
@@ -181,6 +203,40 @@ class File extends AbstractUuidEntity implements \Stringable
     public function setType(?string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getDetectedType(): ?string
+    {
+        return $this->detectedType;
+    }
+
+    public function setDetectedType(?string $detectedType): void
+    {
+        $this->detectedType = $detectedType;
+    }
+
+    public function isContentRejected(): bool
+    {
+        return $this->contentRejected;
+    }
+
+    /**
+     * Refuses the file, whatever its analysis says until an admin bypasses it.
+     */
+    public function rejectContent(string $message): void
+    {
+        $this->contentRejected = true;
+        $this->setAnalysisResult(self::ANALYSIS_FAILED, message: $message);
+    }
+
+    /**
+     * Lifts a refusal of the content check, the file has to be analyzed again.
+     */
+    public function clearContentRejection(): void
+    {
+        if ($this->contentRejected) {
+            $this->resetAnalysis();
+        }
     }
 
     public function getFamily(): FileFamilyEnum
@@ -449,11 +505,11 @@ class File extends AbstractUuidEntity implements \Stringable
     }
 
     /**
-     * A file is accepted unless its analysis rejected it (a pending file is displayable).
+     * A file is accepted unless its content or its analysis was rejected (a pending file is displayable).
      */
     public function isAccepted(): bool
     {
-        return false !== $this->accepted;
+        return !$this->contentRejected && false !== $this->accepted;
     }
 
     /**
@@ -491,11 +547,13 @@ class File extends AbstractUuidEntity implements \Stringable
 
     public function bypassAnalysis(): void
     {
+        $this->contentRejected = false;
         $this->setAnalysisStatus(self::ANALYSIS_BYPASSED);
     }
 
     public function resetAnalysis(): void
     {
+        $this->contentRejected = false;
         $this->analysis = null;
         $this->analyzedAt = null;
         $this->accepted = null;

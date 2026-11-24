@@ -3,7 +3,11 @@
 import {Fragment, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {EyeIcon, PinIcon, PinOffIcon} from 'lucide-react';
-import type {Asset, AttributeDefinitionOrBuiltIn} from '@/types/api';
+import type {
+    Asset,
+    AttributeDefinitionOrBuiltIn,
+    ProfileItem,
+} from '@/types/api';
 import {ProfileItemSection, ProfileItemType} from '@/types/api';
 import {
     AttributeValue,
@@ -17,6 +21,7 @@ import {
     builtInTypes,
     builtInValueResolvers,
     useDefinitionsById,
+    type DefinitionsIndex,
 } from './definitionsStore';
 import {BuiltInAttribute} from '@/features/search/searchState';
 import {CopyButton} from '@/components/ui/copy-button';
@@ -27,7 +32,7 @@ import {useProfileStore} from '@/features/profiles/profileStore';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {AttributeType} from '@/types/api';
 
-type Item = {
+export type Item = {
     id: string;
     kind: 'definition' | 'builtin' | 'divider' | 'spacer';
     definition?: AttributeDefinitionOrBuiltIn;
@@ -47,7 +52,10 @@ type Props = {
      * display profile neither orders the attributes nor can be pinned to.
      */
     ignoreProfile?: boolean;
-    /** only show attributes pinned in the current display profile */
+    /**
+     * only show the attributes pinned in the current display profile, when
+     * it pins some; all of them otherwise
+     */
     pinnedOnly?: boolean;
     dense?: boolean;
     className?: string;
@@ -71,10 +79,7 @@ export function AttributeList({
     const profile = ignoreProfile ? null : currentProfile;
     const toggleDefinition = useProfileStore(s => s.toggleDefinition);
     const pinnedItems = useMemo(
-        () =>
-            (profile?.items ?? []).filter(
-                i => i.section === ProfileItemSection.Attributes
-            ),
+        () => attributeSectionItems(profile?.items),
         [profile]
     );
     const pinnedIds = useMemo(
@@ -86,83 +91,17 @@ export function AttributeList({
     );
     const definitionsIndex = useDefinitionsById({ids: pinnedIds});
 
-    const items = useMemo<Item[]>(() => {
-        const groups = groupAttributes(asset.attributes);
-        if (pinnedItems.length === 0) {
-            return pinnedOnly
-                ? []
-                : groups.map(g => ({
-                      id: g.definition.id,
-                      kind: 'definition',
-                      definition: g.definition,
-                      attribute: g.attribute,
-                  }));
-        }
-        const out: Item[] = [];
-        const used = new Set<string>();
-        for (const item of pinnedItems) {
-            if (item.type === ProfileItemType.Definition && item.definition) {
-                const group = groups.find(
-                    g => g.definition.id === item.definition
-                );
-                used.add(item.definition);
-                if (group) {
-                    out.push({
-                        id: item.id,
-                        kind: 'definition',
-                        definition: group.definition,
-                        attribute: group.attribute,
-                        format: item.format,
-                    });
-                } else if (
-                    item.displayEmpty &&
-                    definitionsIndex[item.definition]
-                ) {
-                    out.push({
-                        id: item.id,
-                        kind: 'definition',
-                        definition: definitionsIndex[item.definition],
-                        format: item.format,
-                    });
-                }
-            } else if (item.type === ProfileItemType.BuiltIn && item.key) {
-                const resolver =
-                    builtInValueResolvers[item.key as BuiltInAttribute];
-                const def = definitionsIndex[item.key];
-                const value = resolver?.(asset);
-                const hasValue = Array.isArray(value)
-                    ? value.length > 0
-                    : value !== undefined && value !== null && value !== '';
-                if (def && (hasValue || item.displayEmpty)) {
-                    out.push({
-                        id: item.id,
-                        kind: 'builtin',
-                        definition: def,
-                        builtInValue: value,
-                        format: item.format,
-                    });
-                }
-            } else if (item.type === ProfileItemType.Divider) {
-                out.push({id: item.id, kind: 'divider', title: item.key});
-            } else if (item.type === ProfileItemType.Spacer) {
-                out.push({id: item.id, kind: 'spacer'});
-            }
-        }
-        if (!pinnedOnly && !profile?.exclusive) {
-            groups
-                .filter(g => !used.has(g.definition.id))
-                .forEach(g =>
-                    out.push({
-                        id: g.definition.id,
-                        kind: 'definition',
-                        definition: g.definition,
-                        attribute: g.attribute,
-                    })
-                );
-        }
-
-        return out;
-    }, [asset, pinnedItems, pinnedOnly, definitionsIndex, profile?.exclusive]);
+    const items = useMemo<Item[]>(
+        () =>
+            buildAttributeItems({
+                asset,
+                pinnedItems,
+                pinnedOnly,
+                exclusive: profile?.exclusive,
+                definitionsIndex,
+            }),
+        [asset, pinnedItems, pinnedOnly, definitionsIndex, profile?.exclusive]
+    );
 
     if (items.length === 0) {
         return (
@@ -228,6 +167,102 @@ export function AttributeList({
             })}
         </dl>
     );
+}
+
+/** Items of the display profile that order the attribute list */
+export function attributeSectionItems(items?: ProfileItem[]): ProfileItem[] {
+    return (items ?? []).filter(
+        i => i.section === ProfileItemSection.Attributes
+    );
+}
+
+/**
+ * Items displayed by the attribute list: the pinned ones first, then, unless
+ * `pinnedOnly` or `exclusive`, the remaining attributes of the asset.
+ * Without any pinned item, every attribute of the asset is listed.
+ */
+export function buildAttributeItems({
+    asset,
+    pinnedItems,
+    pinnedOnly,
+    exclusive,
+    definitionsIndex,
+}: {
+    asset: Asset;
+    /** Of the Attributes section, see `attributeSectionItems` */
+    pinnedItems: ProfileItem[];
+    pinnedOnly: boolean;
+    exclusive?: boolean;
+    definitionsIndex: DefinitionsIndex;
+}): Item[] {
+    const groups = groupAttributes(asset.attributes);
+    if (pinnedItems.length === 0) {
+        return groups.map(g => ({
+            id: g.definition.id,
+            kind: 'definition',
+            definition: g.definition,
+            attribute: g.attribute,
+        }));
+    }
+    const out: Item[] = [];
+    const used = new Set<string>();
+    for (const item of pinnedItems) {
+        if (item.type === ProfileItemType.Definition && item.definition) {
+            const group = groups.find(g => g.definition.id === item.definition);
+            used.add(item.definition);
+            if (group) {
+                out.push({
+                    id: item.id,
+                    kind: 'definition',
+                    definition: group.definition,
+                    attribute: group.attribute,
+                    format: item.format,
+                });
+            } else if (item.displayEmpty && definitionsIndex[item.definition]) {
+                out.push({
+                    id: item.id,
+                    kind: 'definition',
+                    definition: definitionsIndex[item.definition],
+                    format: item.format,
+                });
+            }
+        } else if (item.type === ProfileItemType.BuiltIn && item.key) {
+            const resolver =
+                builtInValueResolvers[item.key as BuiltInAttribute];
+            const def = definitionsIndex[item.key];
+            const value = resolver?.(asset);
+            const hasValue = Array.isArray(value)
+                ? value.length > 0
+                : value !== undefined && value !== null && value !== '';
+            if (def && (hasValue || item.displayEmpty)) {
+                out.push({
+                    id: item.id,
+                    kind: 'builtin',
+                    definition: def,
+                    builtInValue: value,
+                    format: item.format,
+                });
+            }
+        } else if (item.type === ProfileItemType.Divider) {
+            out.push({id: item.id, kind: 'divider', title: item.key});
+        } else if (item.type === ProfileItemType.Spacer) {
+            out.push({id: item.id, kind: 'spacer'});
+        }
+    }
+    if (!pinnedOnly && !exclusive) {
+        groups
+            .filter(g => !used.has(g.definition.id))
+            .forEach(g =>
+                out.push({
+                    id: g.definition.id,
+                    kind: 'definition',
+                    definition: g.definition,
+                    attribute: g.attribute,
+                })
+            );
+    }
+
+    return out;
 }
 
 function AttributeRow({

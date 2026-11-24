@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Consumer\Handler\Basket\BasketUpdate;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Basket\BasketAsset;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -35,7 +36,7 @@ final class UpdateBasketAssetProcessor implements ProcessorInterface
 
         // The integrations (Expose) publish the clipped files: synchronize them when the clip changes
         if ($basketAsset instanceof BasketAsset && $basketAsset->getMediaClip()?->getHash() !== $previousHash) {
-            $this->bus->dispatch(new BasketUpdate($basketAsset->getBasket()->getId()));
+            $this->bus->dispatch(MessageDeduplication::coalesce(new BasketUpdate($basketAsset->getBasket()->getId()), 900));
         }
 
         return $basketAsset;

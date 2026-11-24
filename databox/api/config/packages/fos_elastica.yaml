@@ -20,6 +20,17 @@ fos_elastica:
                     # instead of a static number_of_replicas, to avoid keeping it in sync
                     # manually with the Elasticsearch Helm chart node count.
                     auto_expand_replicas: "0-2"
+                    # The attribute fields are mapped dynamically (attributes.<locale>.<slug>_<type>_<s|m>)
+                    # in this index shared by every workspace. Beyond the limit, the new fields of a
+                    # document are left unindexed (listed in its "_ignored" field) but the document itself
+                    # is still indexed: its permissions and other fields stay up to date. Without
+                    # ignore_dynamic_beyond_limit, the whole document would be rejected.
+                    # They are applied when the index is created: an existing index gets them from a
+                    # reset and populate (or a PUT _settings, both settings being dynamic).
+                    mapping:
+                        total_fields:
+                            limit: 5000
+                            ignore_dynamic_beyond_limit: true
                     analysis:
                         analyzer:
                             collection_path:
@@ -123,6 +134,12 @@ fos_elastica:
                     fields:
                         raw:
                             type: keyword
+                # Collections of the stories the asset belongs to: only used to propagate collection ACL
+                storyCollectionPaths:
+                    property_path: false
+                    type: text
+                    analyzer: collection_path
+                    search_analyzer: keyword
                 privacy:
                     property_path: false
                     type: byte
@@ -169,9 +186,6 @@ fos_elastica:
                     type: keyword
                 quarantineGroups:
                     property_path: false
-                    type: keyword
-                tags:
-                    property_path: tagIds
                     type: keyword
                 hasSourceFile:
                     type: boolean
@@ -420,6 +434,11 @@ fos_elastica:
                     property_path: hierarchyDepth
                 placeholder:
                     type: boolean
+                # status and creatorId: the visibility of the pending and rejected values (AttributeEntitySearch)
+                status:
+                    type: keyword
+                creatorId:
+                    type: keyword
             persistence:
                 driver: orm
                 model: App\Entity\Core\AttributeEntity
@@ -427,41 +446,34 @@ fos_elastica:
                 provider:
                     query_builder_method: getESQueryBuilder
 
-        tag:
+        # The faces (attribute values carrying an embedding) of the face recognition, searched by
+        # similarity (FaceIndex). Internal to the recognition: never searched on behalf of a user.
+        face:
             settings:
                 index:
                     auto_expand_replicas: "0-2"
-                    analysis:
-                        analyzer:
-                            text: *text_analyzer
-                        filter:
-                            worddelimiter: *worddelimiter_filter
             use_alias: '%elastica.use_alias%'
-            index_name: "%es_index_prefix%tag_%kernel.environment%"
+            index_name: "%es_index_prefix%face_%kernel.environment%"
             properties:
-                name:
-                    type: text
-                    analyzer: text
-                    fields:
-                        suggest:
-                            type: search_as_you_type
-                            doc_values: false
-                            max_shingle_size: 3
-                        raw:
-                            type: keyword
-                translatedNames:
-                    type: text
-                    analyzer: text
-                    fields:
-                        suggest:
-                            type: search_as_you_type
-                            doc_values: false
-                            max_shingle_size: 3
-                workspaceId:
+                definitionId:
                     type: keyword
+                assetId:
+                    type: keyword
+                    property_path: asset.id
+                origin:
+                    type: byte
+                embedding:
+                    type: dense_vector
+                    property_path: 'embedding[v]'
+                    dims: 512
+                    index: true
+                    similarity: cosine
+                    # Full precision: the similarity is compared to a threshold
+                    index_options:
+                        type: hnsw
             persistence:
                 driver: orm
-                model: App\Entity\Core\Tag
+                model: App\Entity\Core\Attribute
                 listener: { enabled: false }
                 provider:
                     query_builder_method: getESQueryBuilder

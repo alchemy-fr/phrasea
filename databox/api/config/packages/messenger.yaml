@@ -7,12 +7,28 @@ framework:
                     - App\Consumer\Middleware\QuietContextMiddleware
                     - App\Consumer\Middleware\AuditContextMiddleware
                     - Alchemy\MessengerBundle\Middleware\RetryCountMiddleware
+                    - App\Consumer\Middleware\BulkOriginMiddleware
         transports:
             p1:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/p1'
                 options: '%alchemy_messenger.amqp_transport_options%'
             p2:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/p2'
+                options: '%alchemy_messenger.amqp_transport_options%'
+            heavy:
+                dsn: '%alchemy_messenger.amqp_transport_dsn%/heavy'
+                options: '%alchemy_messenger.amqp_transport_options%'
+            heavy_low:
+                dsn: '%alchemy_messenger.amqp_transport_dsn%/heavy_low'
+                options: '%alchemy_messenger.amqp_transport_options%'
+            bulk:
+                dsn: '%alchemy_messenger.amqp_transport_dsn%/bulk'
+                options: '%alchemy_messenger.amqp_transport_options%'
+            bulk_heavy:
+                dsn: '%alchemy_messenger.amqp_transport_dsn%/bulk_heavy'
+                options: '%alchemy_messenger.amqp_transport_options%'
+            bulk_heavy_low:
+                dsn: '%alchemy_messenger.amqp_transport_dsn%/bulk_heavy_low'
                 options: '%alchemy_messenger.amqp_transport_options%'
             task:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/task'
@@ -21,8 +37,6 @@ framework:
         routing:
             Alchemy\ESBundle\Message\ESIndex: p1
             Alchemy\CoreBundle\Message\PusherMessage: p1
-            Alchemy\WorkflowBundle\Message\JobUpdatePusherMessage: p1
-            Alchemy\WorkflowBundle\Message\WorkflowUpdatePusherMessage: p1
             Alchemy\Workflow\Message\JobConsumer: p2
             Alchemy\WebhookBundle\Consumer\WebhookTriggerMessage: p2
             Alchemy\WebhookBundle\Consumer\WebhookEvent: p2
@@ -37,9 +51,14 @@ when@dev:
     framework:
         messenger:
             transports:
-                p1: 'sync://'
-                p2: 'sync://'
-                task: 'sync://'
+                p1: '%alchemy_messenger.dev_transport_dsn%/p1'
+                p2: '%alchemy_messenger.dev_transport_dsn%/p2'
+                heavy: '%alchemy_messenger.dev_transport_dsn%/heavy'
+                heavy_low: '%alchemy_messenger.dev_transport_dsn%/heavy_low'
+                bulk: '%alchemy_messenger.dev_transport_dsn%/bulk'
+                bulk_heavy: '%alchemy_messenger.dev_transport_dsn%/bulk_heavy'
+                bulk_heavy_low: '%alchemy_messenger.dev_transport_dsn%/bulk_heavy_low'
+                task: '%alchemy_messenger.dev_transport_dsn%/task'
 
 when@test:
     framework:
@@ -47,4 +66,9 @@ when@test:
             transports:
                 p1: 'test://'
                 p2: 'test://'
+                heavy: 'test://'
+                heavy_low: 'test://'
+                bulk: 'test://'
+                bulk_heavy: 'test://'
+                bulk_heavy_low: 'test://'
                 task: 'test://'

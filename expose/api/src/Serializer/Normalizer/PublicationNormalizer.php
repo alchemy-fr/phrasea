@@ -8,7 +8,6 @@ use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -40,7 +39,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             }
         }
 
-        $object->setChildren(new ArrayCollection($object->getChildren()->filter(fn (Publication $child): bool => $this->security->isGranted(PublicationVoter::READ, $child))->getValues()));
+        $object->setVisibleChildren($object->getChildren()->filter(fn (Publication $child): bool => $this->security->isGranted(PublicationVoter::READ, $child))->getValues());
 
         if ($object->getPackage() instanceof Asset && $this->getDownloadMode($object)->exposesFiles()) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
@@ -49,10 +48,14 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         $object->setArchiveDownloadUrl($this->generateArchiveDownloadUrl($object));
 
         if (!empty($css = $object->getCss())) {
-            $object->setCssLink($this->urlGenerator->generate('publication_css', [
+            $cssLink = $this->urlGenerator->generate('publication_css', [
                 'id' => $object->getId(),
                 'hash' => md5($css),
-            ], UrlGeneratorInterface::ABSOLUTE_URL));
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            // The stylesheet is loaded by a <link> tag, without the reader's credentials:
+            // the CSS of a publication hidden from anonymous readers is served on a signed URL only.
+            $object->setCssLink($object->isVisible() ? $cssLink : $this->uriJwtManager->signUri($cssLink));
         }
 
         $object->setSecurityContainerId($object->getSecurityContainer()->getId());

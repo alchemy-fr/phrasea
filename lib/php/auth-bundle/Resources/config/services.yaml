@@ -3,7 +3,6 @@ parameters:
   env(KEYCLOAK_REALM_NAME): phrasea
   env(KEYCLOAK_URL): 'http://define-me'
   env(URI_JWT_TTL): 86400
-  env(ALLOWED_CLIENT_IDS): ''
 
 services:
   _defaults:
@@ -27,7 +26,7 @@ services:
   Alchemy\AuthBundle\Security\JwtUserProvider: ~
   Alchemy\AuthBundle\Security\JwtValidator:
     arguments:
-      $allowedClientIdsProviders: !tagged_iterator alchemy_auth.allowed_client_ids_provider
+      $appName: '%alchemy_core.app_name%'
   Alchemy\AuthBundle\Security\JwtValidatorInterface: '@Alchemy\AuthBundle\Security\JwtValidator'
   Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator: ~
   Alchemy\AuthBundle\Security\OneTimeTokenAuthenticator: ~

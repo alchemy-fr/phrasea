@@ -109,6 +109,24 @@ class PublicationArchiveTest extends AbstractExposeTestCase
         $this->assertSame(302, $this->request(null, 'GET', $archiveUrl, [], [], self::HTML)->getStatusCode());
     }
 
+    public function testEntryNamesStayInTheArchiveDirectory(): void
+    {
+        $publication = $this->createPublication(['downloadEnabled' => true]);
+        $id = $publication->getId();
+        $this->createAsset($publication, ['originalName' => '..\\..\\Startup\\evil.exe']);
+        $this->createAsset($publication, ['originalName' => "a/b\\..\x01"]);
+        $this->createAsset($publication, ['originalName' => '../evil.exe']);
+        $this->clearEmBeforeApiCall();
+
+        $this->buildArchive($id);
+
+        $this->assertSame([
+            'evil (2).exe',
+            'evil.exe',
+            'file',
+        ], $this->getArchiveEntries($this->reloadPublication($id)->getArchivePath()));
+    }
+
     public function testAnObsoleteBuildDoesNotReplaceAMoreRecentArchive(): void
     {
         $publication = $this->createPublication(['downloadEnabled' => true]);

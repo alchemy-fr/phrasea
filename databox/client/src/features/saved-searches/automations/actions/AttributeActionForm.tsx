@@ -3,13 +3,19 @@
 import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PencilLineIcon} from 'lucide-react';
-import type {AttributeDefinition} from '@/types/api';
 import {
-    useDefinitionsById,
-    workspaceIdOf,
-} from '@/features/attributes/definitionsStore';
+    AttributeType,
+    type AttributeDefinition,
+    type AutomationActionConfig,
+} from '@/types/api';
+import {useDefinitionsById} from '@/features/attributes/definitionsStore';
 import {AttributeWidget} from '@/features/attributes/widgets/AttributeWidget';
-import {AttributeDefinitionSelect} from '@/components/form/selects';
+import {
+    AttributeDefinitionSelect,
+    AttributeEntitySelect,
+} from '@/components/form/selects';
+import {TagsInput} from '@/components/form/TagsInput';
+import {idFromIri} from '@/lib/utils/iri';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
@@ -21,6 +27,28 @@ const DEFINITION_FILTERS = {enabled: true};
 
 const isEditable = (d: AttributeDefinition) =>
     !!d.editable && d.canEdit !== false;
+
+/**
+ * Values a `delete` removes: only the attribute values equal to one of them
+ * (AttributeEntity ids for an entity attribute), all of them when empty.
+ */
+export function deleteValuesOf(config: AutomationActionConfig): string[] {
+    const value = config.value;
+    if (Array.isArray(value)) {
+        return value.filter(v => typeof v === 'string' && v !== '');
+    }
+
+    return typeof value === 'string' && value !== '' ? [value] : [];
+}
+
+function entityListIdOf(definition: AttributeDefinition): string | undefined {
+    const list = definition.entityList;
+    if (!list) {
+        return undefined;
+    }
+
+    return typeof list === 'string' ? idFromIri(list) : list.id;
+}
 
 export function AttributeActionForm({
     value,
@@ -97,7 +125,7 @@ export function AttributeActionForm({
             >
                 <SimpleSelect<AttributeActionType>
                     value={action}
-                    onValueChange={a => set({action: a})}
+                    onValueChange={a => set({action: a, value: undefined})}
                     options={actions}
                 />
             </FormRow>
@@ -123,7 +151,6 @@ export function AttributeActionForm({
                     <AttributeWidget
                         id={`automation-attr-${definition.id}`}
                         definition={definition}
-                        workspaceId={workspaceIdOf(definition)}
                         value={
                             Array.isArray(value.value)
                                 ? value.value[0]
@@ -142,6 +169,48 @@ export function AttributeActionForm({
                             })
                         }
                     />
+                </FormRow>
+            ) : null}
+            {definition && action === 'delete' && definition.multiple ? (
+                <FormRow
+                    label={t(
+                        'automation.action.attribute.delete_values',
+                        'Values to remove'
+                    )}
+                    error={errors?.value}
+                    help={t(
+                        'automation.action.attribute.delete_values_help',
+                        'Leave empty to remove all the values.'
+                    )}
+                >
+                    {definition.type === AttributeType.Entity ? (
+                        <AttributeEntitySelect
+                            id={`automation-attr-${definition.id}`}
+                            multiple
+                            listId={entityListIdOf(definition)}
+                            value={deleteValuesOf(value)}
+                            onChange={v =>
+                                set({value: v.length > 0 ? v : undefined})
+                            }
+                            placeholder={t(
+                                'automation.action.attribute.delete_values_all',
+                                'All the values'
+                            )}
+                        />
+                    ) : (
+                        <TagsInput
+                            id={`automation-attr-${definition.id}`}
+                            splitOn={/\n+/}
+                            value={deleteValuesOf(value)}
+                            onChange={v =>
+                                set({value: v.length > 0 ? v : undefined})
+                            }
+                            placeholder={t(
+                                'automation.action.attribute.delete_values_all',
+                                'All the values'
+                            )}
+                        />
+                    )}
                 </FormRow>
             ) : null}
             {action === 'replace' ? (
@@ -198,11 +267,20 @@ export const attributeAction: ActionDefinition = {
                     'automation.action.attribute.summary_add',
                     'Add an attribute value'
                 );
-            case 'delete':
-                return t(
-                    'automation.action.attribute.summary_delete',
-                    'Remove attribute values'
-                );
+            case 'delete': {
+                const count = deleteValuesOf(config).length;
+
+                return count > 0
+                    ? t(
+                          'automation.action.attribute.summary_delete_values',
+                          'Remove {{count}} attribute values',
+                          {count}
+                      )
+                    : t(
+                          'automation.action.attribute.summary_delete',
+                          'Remove attribute values'
+                      );
+            }
             case 'replace':
                 return t(
                     'automation.action.attribute.summary_replace',

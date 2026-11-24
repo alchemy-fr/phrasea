@@ -13,12 +13,18 @@ import {cn} from '@alchemy/next-ui/utils/cn';
 import type {ServiceStatus} from '@/features/status/types';
 import type {ActionId, CardId, ServiceCard} from './services';
 
-const logos: Record<CardId, string> = {
+/** The image of each card, or an icon when there is no logo */
+const logos: Record<CardId, string | LucideIcon> = {
     iam: '/images/keycloak.png',
-    databox: '/images/databox.png',
-    expose: '/images/expose.png',
-    uploader: '/images/uploader.png',
-    dashboard: '/images/dashboard.png',
+    databox: '/images/databox.svg',
+    expose: '/images/expose.svg',
+    uploader: '/images/uploader.svg',
+    parade: '/images/parade.svg',
+    consent: '/images/consent.svg',
+    lend: '/images/lend.svg',
+    order: '/images/order.svg',
+    documentation: BookOpenIcon,
+    dashboard: '/images/dashboard.svg',
 };
 
 const actionIcons: Record<ActionId, LucideIcon> = {
@@ -48,6 +54,32 @@ function useCardTexts(): Record<CardId, {title: string; description: string}> {
             description: t(
                 'service.uploader.description',
                 'Standalone asset deposit'
+            ),
+        },
+        parade: {
+            title: 'Parade',
+            description: t('service.parade.description', 'Public showcase'),
+        },
+        consent: {
+            title: 'Consent',
+            description: t(
+                'service.consent.description',
+                'Image rights consent'
+            ),
+        },
+        lend: {
+            title: 'Lend',
+            description: t('service.lend.description', 'Asset lending'),
+        },
+        order: {
+            title: 'Order',
+            description: t('service.order.description', 'Media orders'),
+        },
+        documentation: {
+            title: t('service.documentation.title', 'Documentation'),
+            description: t(
+                'service.documentation.description',
+                'Phrasea user guide'
             ),
         },
         dashboard: {
@@ -109,6 +141,7 @@ export function ServiceCardView({
         'api-doc': t('service.action.api_doc', 'API documentation'),
     };
     const unavailable = status === 'down';
+    const Logo = logos[card.id];
 
     return (
         <li
@@ -120,15 +153,25 @@ export function ServiceCardView({
             )}
         >
             <div className="flex h-16 items-center justify-center bg-muted/60 p-3 sm:h-20 md:h-32 embedded:h-16">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={logos[card.id]}
-                    alt=""
-                    className={cn(
-                        'max-h-full max-w-full object-contain',
-                        unavailable && 'opacity-50 grayscale'
-                    )}
-                />
+                {typeof Logo === 'string' ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                        src={Logo}
+                        alt=""
+                        className={cn(
+                            'max-h-full max-w-full object-contain',
+                            unavailable && 'opacity-50 grayscale'
+                        )}
+                    />
+                ) : (
+                    <Logo
+                        aria-hidden
+                        className={cn(
+                            'size-10 text-muted-foreground md:size-16 embedded:size-10',
+                            unavailable && 'opacity-50 grayscale'
+                        )}
+                    />
+                )}
             </div>
             <div className="flex flex-1 flex-col gap-1 p-3">
                 <h2 className="text-base font-semibold">

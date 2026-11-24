@@ -30,7 +30,8 @@ class AttributePolicyCollectionProvider extends AbstractCollectionProvider
 
         $queryBuilder = $this->em->getRepository(AttributePolicy::class)
             ->createQueryBuilder('t')
-            ->innerJoin('t.workspace', 'w');
+            ->innerJoin('t.workspace', 'w')
+            ->andWhere('w.deletedAt IS NULL');
 
         if (null !== $workspaceId = self::getParameterId($operation, 'workspaceId')) {
             $queryBuilder

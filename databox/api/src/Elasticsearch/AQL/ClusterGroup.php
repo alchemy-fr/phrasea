@@ -6,11 +6,28 @@ namespace App\Elasticsearch\AQL;
 
 final class ClusterGroup
 {
+    /**
+     * The locale of the translatable field read by a script, null when it reads none: the fields of
+     * an expression are read in the same locale.
+     */
+    private ?string $fieldLocale = null;
+
+    /**
+     * The Elasticsearch fields read by a script: it matches no asset missing one of them.
+     *
+     * @var list<string>
+     */
+    private array $scriptFields = [];
+
+    /**
+     * @param list<array{w: string, p: string[]}> $hiddenScopes the assets on which asset policies hide the field (see HiddenAttributeScope)
+     */
     public function __construct(
         private mixed $item,
         private readonly bool $isConstant = false,
         private readonly array $workspaceIds = [],
         private readonly ?array $locales = null,
+        private array $hiddenScopes = [],
     ) {
     }
 
@@ -27,9 +44,46 @@ final class ClusterGroup
         return $this->item;
     }
 
+    public function withFieldLocale(?string $fieldLocale): self
+    {
+        $new = clone $this;
+        $new->fieldLocale = $fieldLocale;
+
+        return $new;
+    }
+
+    public function getFieldLocale(): ?string
+    {
+        return $this->fieldLocale;
+    }
+
+    public function withScriptField(string $fieldName): self
+    {
+        $new = clone $this;
+        $new->scriptFields = array_values(array_unique([...$this->scriptFields, $fieldName]));
+
+        return $new;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getScriptFields(): array
+    {
+        return $this->scriptFields;
+    }
+
     public function getWorkspaceIds(): array
     {
         return $this->workspaceIds;
+    }
+
+    /**
+     * @return list<array{w: string, p: string[]}>
+     */
+    public function getHiddenScopes(): array
+    {
+        return $this->hiddenScopes;
     }
 
     public function hasSameWorkspaceIds(self $other): bool
@@ -55,6 +109,9 @@ final class ClusterGroup
 
         foreach ($left as $l) {
             foreach ($right as $r) {
+                if (null !== $l->fieldLocale && null !== $r->fieldLocale && $l->fieldLocale !== $r->fieldLocale) {
+                    continue;
+                }
                 if (
                     $l->isConstant
                     || $r->isConstant
@@ -63,7 +120,12 @@ final class ClusterGroup
                     || $l->hasSameWorkspaceIds($r)
                 ) {
                     $ref = $l->isConstant ? $r : (!empty($l->getWorkspaceIds()) ? $l : $r);
-                    $groups[] = $ref->convert($merge($l->getItem(), $r->getItem()));
+                    $group = $ref->convert($merge($l->getItem(), $r->getItem()));
+                    // An expression reading two fields must ignore the assets where either is hidden
+                    $group->hiddenScopes = array_values(array_unique([...$l->hiddenScopes, ...$r->hiddenScopes], SORT_REGULAR));
+                    $group->fieldLocale = $l->fieldLocale ?? $r->fieldLocale;
+                    $group->scriptFields = array_values(array_unique([...$l->scriptFields, ...$r->scriptFields]));
+                    $groups[] = $group;
                 }
             }
         }

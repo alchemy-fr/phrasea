@@ -5,18 +5,15 @@ import {useTranslation} from 'react-i18next';
 import {useQueryClient} from '@tanstack/react-query';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import {AssetTypeFilter, EntityName, Privacy} from '@/types/api';
+import {AssetTypeFilter, Privacy} from '@/types/api';
 import type {AssetTabProps} from '../types';
 import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow} from '@alchemy/next-ui/ui/input';
-import {TagSelect} from '@/components/form/selects';
 import {PrivacyField} from '@/components/form/PrivacyField';
 import {AttributesEditor} from '@/features/attributes/editor/AttributesEditor';
 import {useAttributeEditor} from '@/features/attributes/editor/useAttributeEditor';
 import {attributeBatchUpdate, patchAsset} from '@/lib/api/assets';
 import {useHierarchyConflictConfirm} from '@/features/attributes/hierarchy/useHierarchyConflictConfirm';
 import {useAssetStore} from '@/features/assets/assetStore';
-import {iri} from '@/lib/utils/iri';
 import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
@@ -25,9 +22,6 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
     const update = useAssetStore(s => s.update);
-    const [tags, setTags] = useState<string[]>(
-        (asset.tags ?? []).map(tg => tg.id)
-    );
     const [privacy, setPrivacy] = useState<Privacy | undefined>(asset.privacy);
     const [saving, setSaving] = useState(false);
     const editor = useAttributeEditor({
@@ -38,15 +32,11 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
             : AssetTypeFilter.Asset,
     });
 
-    const tagsDirty =
-        JSON.stringify(tags) !==
-        JSON.stringify((asset.tags ?? []).map(tg => tg.id));
     const privacyDirty = privacy !== asset.privacy;
-    const dirty = editor.dirty || tagsDirty || privacyDirty;
+    const dirty = editor.dirty || privacyDirty;
     useUnsavedChangesPrompt(dirty);
 
     useEffect(() => {
-        setTags((asset.tags ?? []).map(tg => tg.id));
         setPrivacy(asset.privacy);
     }, [asset]);
 
@@ -55,13 +45,8 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
     const save = async () => {
         setSaving(true);
         try {
-            if (tagsDirty || privacyDirty) {
-                const updated = await patchAsset(asset.id, {
-                    tags: tagsDirty
-                        ? tags.map(id => iri(EntityName.Tag, id))
-                        : undefined,
-                    privacy: privacyDirty ? privacy : undefined,
-                });
+            if (privacyDirty) {
+                const updated = await patchAsset(asset.id, {privacy});
                 update(updated);
             }
             const actions = editor.getActions();
@@ -94,15 +79,6 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
     return (
         <div className="max-w-3xl space-y-6">
             <div className="grid gap-4 md:grid-cols-2">
-                <FormRow label={t('common.tags', 'Tags')}>
-                    <TagSelect
-                        multiple
-                        workspaceId={asset.workspace.id}
-                        value={tags}
-                        onChange={setTags}
-                        disabled={!asset.capabilities.edit}
-                    />
-                </FormRow>
                 <PrivacyField
                     value={privacy}
                     onChange={setPrivacy}
@@ -128,7 +104,6 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
                             ? AssetTypeFilter.Story
                             : AssetTypeFilter.Asset
                     }
-                    workspaceId={asset.workspace.id}
                     workspaceLocales={asset.workspace.enabledLocales}
                 />
             )}
@@ -138,7 +113,6 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
                     disabled={!dirty || saving}
                     onClick={() => {
                         editor.reset();
-                        setTags((asset.tags ?? []).map(tg => tg.id));
                         setPrivacy(asset.privacy);
                     }}
                 >

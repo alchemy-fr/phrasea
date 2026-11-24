@@ -8,8 +8,16 @@ export const UNKNOWN_RENDITION = '_';
 export const routes = {
     home: () => '/',
     assets: () => '/assets',
-    assetView: (id: string, renditionId = UNKNOWN_RENDITION, hash = '') =>
-        `/assets/${id}/${renditionId}${hash}`,
+    /** `storyId`: the story an item is browsed in, restored by the viewer */
+    assetView: (
+        id: string,
+        renditionId = UNKNOWN_RENDITION,
+        hash = '',
+        storyId?: string
+    ) =>
+        `/assets/${id}/${renditionId}${
+            storyId ? `?story=${encodeURIComponent(storyId)}` : ''
+        }${hash}`,
     fileManage: (id: string, tab = 'info') => `/files/${id}/manage/${tab}`,
     collectionManage: (id: string, tab = 'info') =>
         `/collections/${id}/manage/${tab}`,
@@ -39,8 +47,8 @@ export const routes = {
         assetId ? `/quarantine?asset=${assetId}` : '/quarantine',
     operationTasks: () => '/admin/tasks',
     operationTaskNew: () => '/admin/tasks/new',
-    operationTaskRun: (task: string) => `/admin/tasks/${task}/run`,
-    operationTaskDetails: (id: string) => `/admin/tasks/${id}/details`,
+    operationTaskRun: (task: string) => `/admin/tasks/new/${task}`,
+    operationTaskDetails: (id: string) => `/admin/tasks/${id}`,
     themeSettings: () => '/admin/theme',
     instanceIntegrations: () => '/admin/integrations',
     /** Capabilities granted outside any workspace (admins) */
@@ -54,7 +62,6 @@ export type WorkspaceTab =
     | 'info'
     | 'edit'
     | 'permissions'
-    | 'tags'
     | 'entities'
     | 'attributes'
     | 'attribute-policies'

@@ -27,7 +27,6 @@
         "source": "AssetOutput/source",
         "status": "AssetOutput/status",
         "storyCollection": "AssetOutput/storyCollection",
-        "tags": "AssetOutput/tags",
         "thread": "AssetOutput/thread",
         "threadKey": "AssetOutput/threadKey",
         "thumbnail": "AssetOutput/thumbnail",
@@ -229,15 +228,6 @@
         "url": "https://example.com/photo.jpg"
     },
     "status": 0,
-    "tags": [
-        {
-            "@id": "/tags/<tag>",
-            "@type": "tag",
-            "displayName": "Nature",
-            "id": "<tag>",
-            "name": "Nature"
-        }
-    ],
     "threadKey": "asset:<asset>",
     "topicSubscriptions": [],
     "updatedAt": "<date>",

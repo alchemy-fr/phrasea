@@ -10,6 +10,7 @@ use Alchemy\MessengerBundle\Controller\MessengerMessageCrudController;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\RouteMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
@@ -38,6 +39,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
             ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ->overrideTemplate('crud/detail', '@AlchemyAdmin/detail.html.twig')
+            ->overrideTemplate('flash_messages', '@AlchemyAdmin/flash_messages.html.twig')
         ;
     }
 
@@ -56,6 +58,12 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
         ;
     }
 
+    protected function createRealtimeMenuItem(): RouteMenuItem
+    {
+        return MenuItem::linkToRoute('Realtime', 'fa fa-tower-broadcast', RealtimeStatusController::ROUTE_NAME)
+            ->setPermission(JwtUser::ROLE_ADMIN);
+    }
+
     protected function createDevMenu(): SubMenuItem
     {
         $subMenu = [];
@@ -63,7 +71,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             $subMenu[] = MenuItem::linkTo(MessengerMessageCrudController::class, 'Messenger Failed Event', 'fa fa-bug');
         }
         $subMenu[] = MenuItem::linkToRoute('PHP Info', 'fa fa-info', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
-        $subMenu[] = MenuItem::linkToRoute('Queues', 'fa fa-prescription-bottle', 'alchemy_admin_queues_list')->setPermission(JwtUser::ROLE_TECH);
+        $subMenu[] = MenuItem::linkToRoute('Queues', 'fa fa-prescription-bottle', QueuesListController::ROUTE_LIST)->setPermission(JwtUser::ROLE_TECH);
 
         return MenuItem::subMenu('Dev', 'fa fa-code')->setSubItems($subMenu)->setPermission(JwtUser::ROLE_TECH);
     }

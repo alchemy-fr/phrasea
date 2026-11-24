@@ -63,8 +63,8 @@ class CollectionInputMapper extends AbstractInputMapper implements InputMapperIn
                 $object->setWorkspace($workspace);
             }
 
-            if ($data->getOwnerId()) {
-                $object->setOwnerId($data->getOwnerId());
+            if (null !== $ownerId = $this->getInputOwnerId($data)) {
+                $object->setOwnerId($ownerId);
             }
         }
 

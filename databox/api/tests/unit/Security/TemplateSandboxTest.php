@@ -13,6 +13,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Validation;
 use Twig\Error\Error;
+use Twig\Sandbox\SecurityNotAllowedMethodError;
+use Twig\Sandbox\SecurityNotAllowedPropertyError;
 
 /**
  * Attribute initial values/fallbacks and rendition options are Twig templates written by
@@ -36,6 +38,55 @@ class TemplateSandboxTest extends TestCase
             ['{{ ["a", "b"]|merge(["c"])|join(" ; ") }}', 'a ; b ; c'],
             ['{% if asset.ownerId is empty %}none{% else %}{{ asset.ownerId|lower }}{% endif %}', 'owner'],
             ['{{ [3, 1, 2]|filter(v => v > 1)|join(",") }}', '3,2'],
+            ['{% for i in 1..3 %}{{ i }}{% endfor %}', '123'],
+            ['{{ range(10, 0, 5)|join(",") }}', '10,5,0'],
+            ['{{ range("a", "c")|join }}', 'abc'],
+            ['{{ (1..10000)|length }}', '10000'],
+            ['{{ file.filename }} {{ file.extension }} {{ file.extensionWithDot }}', 'photo.jpg jpg .jpg'],
+            ['{{ file.getMetadata("IPTC:City") ?? "none" }}', 'none'],
+            ['{{ rawFile.originalName }} ({{ rawFile.size }})', 'photo.jpg (42)'],
+            ['{{ asset.source.originalName }} {{ asset.sourceFileName }}', 'photo.jpg photo.jpg'],
+            ['{{ asset.name ?? "unnamed" }}', 'unnamed'],
+            ['{{ asset.createdAt|date("Y") == asset.createdAt.format("Y") ? "ok" }}', 'ok'],
+            ['{{ asset.storyCollection ?? "hidden" }}', 'hidden'],
+        ];
+    }
+
+    /**
+     * Template outputs may leave the platform (stamp text, watermark URL…): only the
+     * listed methods and properties of the entities can be read.
+     */
+    #[DataProvider('getLeakingTemplates')]
+    public function testLeakingTemplatesAreRejected(string $template, string $expectedError): void
+    {
+        $this->expectException($expectedError);
+
+        new TemplateResolver()->resolve($template, $this->createValues());
+    }
+
+    public static function getLeakingTemplates(): array
+    {
+        // `a.b` reads the property first, then the getter: refusing both reports the property
+        return [
+            'asset ACL owner' => ['{{ asset.aclOwnerId }}', SecurityNotAllowedPropertyError::class],
+            'asset ACL owner getter' => ['{{ asset.getAclOwnerId() }}', SecurityNotAllowedMethodError::class],
+            'asset workspace' => ['{{ asset.workspace.integrations|length }}', SecurityNotAllowedPropertyError::class],
+            'asset workspace getter' => ['{{ asset.getWorkspace().integrations|length }}', SecurityNotAllowedMethodError::class],
+            'asset collections' => ['{{ asset.collections|length }}', SecurityNotAllowedPropertyError::class],
+            'asset reference collection' => ['{{ asset.referenceCollection.title }}', SecurityNotAllowedPropertyError::class],
+            'asset extra metadata' => ['{{ asset.extraMetadata|json_encode }}', SecurityNotAllowedPropertyError::class],
+            'asset attributes index' => ['{{ asset.attributesIndex }}', SecurityNotAllowedPropertyError::class],
+            'file path through the wrapper' => ['{{ file.path }}', SecurityNotAllowedPropertyError::class],
+            'file path through the wrapper getter' => ['{{ file.getPath() }}', SecurityNotAllowedMethodError::class],
+            'file storage through the wrapper' => ['{{ file.storage }}', SecurityNotAllowedPropertyError::class],
+            'file path' => ['{{ rawFile.path }}', SecurityNotAllowedPropertyError::class],
+            'file path getter' => ['{{ rawFile.getPath() }}', SecurityNotAllowedMethodError::class],
+            'file path through the asset' => ['{{ asset.source.path }}', SecurityNotAllowedPropertyError::class],
+            'file public path flag' => ['{{ rawFile.pathPublic }}', SecurityNotAllowedPropertyError::class],
+            'file alternate URLs' => ['{{ rawFile.alternateUrls|join }}', SecurityNotAllowedPropertyError::class],
+            'file analysis' => ['{{ rawFile.analysis }}', SecurityNotAllowedPropertyError::class],
+            'file workspace' => ['{{ rawFile.workspace }}', SecurityNotAllowedPropertyError::class],
+            'file local path' => ['{{ rawFile.localTmpPath }}', SecurityNotAllowedPropertyError::class],
         ];
     }
 
@@ -68,6 +119,9 @@ class TemplateSandboxTest extends TestCase
             'source' => ['{{ source("/etc/passwd") }}'],
             'constant' => ['{{ constant("PHP_VERSION") }}'],
             'macro' => ['{% macro x() %}{% endmacro %}'],
+            'huge range' => ['{{ range(1, 1000000000)|length }}'],
+            'huge range with a tiny step' => ['{{ range(0, 1, 0.00000001)|length }}'],
+            'huge range operator' => ['{% for i in 0..1000000000 %}{% endfor %}'],
         ];
     }
 
@@ -87,6 +141,7 @@ class TemplateSandboxTest extends TestCase
         $file->setPath('/files/photo.jpg');
         $file->setOriginalName('photo.jpg');
         $file->setSize(42);
+        $file->setExtension('jpg');
 
         $asset = new Asset();
         $asset->setOwnerId('owner');

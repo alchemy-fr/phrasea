@@ -366,10 +366,21 @@ The build settings will be generated from the phraseanet to match the subdef.
 
 ## `importStatusBits`
 
-Controls whether to import Phraseanet status bits as tags in the Phrasea workspace.
+Controls whether to import Phraseanet status bits in the Phrasea workspace, as the values of an entity list attribute.
 
-By default, all status bits from the Phraseanet databox are imported as tags (unless `importStatusBits` is set to `false`).
+By default, all status bits from the Phraseanet databox are imported (unless `importStatusBits` is set to `false`).
 Status bits with empty `label_on` and `label_off` are automatically skipped to prevent errors.
+
+The status bits are imported as follows:
+- an entity list named `Tags` holds one value per status bit, named after its `label_on` (or its `label_off` when
+  `label_on` is empty);
+- a multi-valued `entity` attribute named `Tags` (slug `tags`, faceted, for the assets and the stories) is bound to this
+  list. When another attribute of the workspace already uses the slug `tags`, it is named `Tags (Phraseanet)` instead;
+- every record or story receives, in this attribute, the values of its raised status bits.
+
+The list, the attribute and the values that already exist in the workspace (found by name, the attribute by its list)
+are reused: running the indexer again, or on a workspace whose former tags were migrated to the `Tags` list, creates no
+duplicate. Status bits sharing the same label share the same value.
 
 To **completely disable** the import of status bits for a databox mapping, set:
 ```json

@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ReportBundle\ReportUserService;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Consumer\Handler\AssetConsumerNotify;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
@@ -17,6 +18,7 @@ use App\Report\UploaderLogActionInterface;
 use App\Security\UploadLinkUser;
 use App\Security\Voter\TargetVoter;
 use App\Storage\AssetManager;
+use App\Storage\CommitManager;
 use App\Validation\CommitValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
@@ -25,15 +27,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * The commit is not persisted here: it is dispatched as a message and stored by its handler.
+ * The commit is stored with its files right away: committing files that another commit took meanwhile is a
+ * conflict (409), not an empty commit.
  */
 final readonly class CommitProcessor implements ProcessorInterface
 {
     public function __construct(
         private AssetManager $assetManager,
+        private CommitManager $commitManager,
         private MessageBusInterface $bus,
         private FormValidator $formValidator,
         private CommitValidator $commitValidator,
@@ -116,18 +121,22 @@ final readonly class CommitProcessor implements ProcessorInterface
         if (null !== $link) {
             $data->setNotify(false);
             $data->setUploadLink($link);
-            // Before Target.data is merged by the handler: only what was entered
-            $link->setLastFormData([] !== $data->getFormData() ? $data->getFormData() : null);
+            // Flushed with the commit
             $link->setLastCommitAt(new \DateTimeImmutable());
-            $this->em->flush();
         }
 
-        $this->bus->dispatch($data->toMessage());
+        // Rebuilt from what was checked only
+        $commit = Commit::fromMessage($data->toMessage(), $this->em);
+        if (!$this->commitManager->store($commit)) {
+            throw new ConflictHttpException('These files have been committed meanwhile');
+        }
+
+        $this->bus->dispatch(new AssetConsumerNotify($commit->getId()));
 
         $this->reportClient->pushHttpRequestLog(
             $request,
             UploaderLogActionInterface::UPLOAD_COMMIT,
-            $data->getId(),
+            $commit->getId(),
             [
                 'userId' => $userId,
                 'username' => $username,
@@ -144,6 +153,10 @@ final readonly class CommitProcessor implements ProcessorInterface
      */
     private function assertFilesCanBeCommitted(Commit $commit, string $userId, ?UploadLink $link): void
     {
+        if (count($commit->getFiles()) > Commit::MAX_FILES) {
+            throw new BadRequestHttpException(sprintf('Too many files (%d > %d)', count($commit->getFiles()), Commit::MAX_FILES));
+        }
+
         $files = array_values(array_unique($commit->getFiles()));
         if (empty($files) || array_any($files, fn ($id): bool => !is_string($id) || !Uuid::isValid($id))) {
             throw new BadRequestHttpException('Invalid files');

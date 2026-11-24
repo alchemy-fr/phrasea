@@ -3,7 +3,7 @@ import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {createI18n} from '@/i18n';
-import type {Asset} from '@/types/api';
+import type {Asset, QuarantineBatchPrepareItem} from '@/types/api';
 import {AssetStatus} from '@/types/api';
 import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
 import {QuarantineScreen} from './QuarantineScreen';
@@ -39,6 +39,8 @@ const {api} = vi.hoisted(() => ({
         searchAssets: vi.fn(),
         getAssetDuplicates: vi.fn(),
         bypassQuarantine: vi.fn(),
+        prepareQuarantineBatch: vi.fn(),
+        runQuarantineBatch: vi.fn(),
     },
 }));
 
@@ -57,7 +59,6 @@ function quarantined(i: number): Asset {
         'createdAt': `2026-01-0${i}T10:00:00+00:00`,
         'capabilities': {},
         'attributes': [],
-        'tags': [],
         'collections': [],
         'workspace': {id: 'ws', name: 'Workspace'},
         'source': {
@@ -94,6 +95,23 @@ function renderScreen() {
             </I18nextProvider>
         </QueryClientProvider>
     );
+}
+
+function eligibility(
+    id: string,
+    eligible: Partial<Record<'bypass' | 'trash' | 'delete', boolean>>
+): QuarantineBatchPrepareItem {
+    return {
+        id,
+        bypass: false,
+        trash: false,
+        delete: false,
+        mergeAsVersion: false,
+        mergeDiscard: false,
+        ...eligible,
+        reasons: {},
+        duplicates: [],
+    };
 }
 
 const queueItems = () =>
@@ -173,6 +191,73 @@ describe('QuarantineScreen', () => {
         expect(screen.getByTestId('quarantine-details').textContent).toContain(
             'Quarantined 2'
         );
+    });
+
+    it('counts, for each batch action, the selected assets it applies to', async () => {
+        const assets = [quarantined(1), quarantined(2), quarantined(3)];
+        api.searchAssets.mockResolvedValue({
+            items: assets,
+            total: assets.length,
+            facets: {},
+        });
+        api.getAssetDuplicates.mockResolvedValue([]);
+        // q-3 cannot be accepted
+        api.prepareQuarantineBatch.mockImplementation(async (ids: string[]) =>
+            ids.map(id =>
+                eligibility(id, {
+                    bypass: id !== 'q-3',
+                    trash: true,
+                    delete: true,
+                })
+            )
+        );
+
+        renderScreen();
+        await waitFor(() => expect(queueItems()).toBe(3));
+        expect(screen.queryByTestId('quarantine-batch-bar')).toBeNull();
+
+        const boxes = screen.getAllByTestId('quarantine-queue-checkbox');
+        boxes.forEach(box => fireEvent.click(box));
+
+        expect(
+            screen.getByTestId('quarantine-batch-selected').textContent
+        ).toBe('3 selected');
+        await waitFor(() =>
+            expect(
+                screen.getByTestId('quarantine-batch-bypass').textContent
+            ).toBe('Bypass (2 of 3)')
+        );
+        expect(screen.getByTestId('quarantine-batch-trash').textContent).toBe(
+            'Move to trash (3 of 3)'
+        );
+        const merge = screen.getByTestId(
+            'quarantine-batch-merge'
+        ) as HTMLButtonElement;
+        expect(merge.textContent).toBe('Merge duplicates (0 of 3)');
+        expect(merge.disabled).toBe(true);
+        expect(api.prepareQuarantineBatch).toHaveBeenCalledTimes(1);
+        expect(api.prepareQuarantineBatch).toHaveBeenCalledWith([
+            'q-1',
+            'q-2',
+            'q-3',
+        ]);
+        // Checking assets does not change the one being reviewed
+        expect(screen.getByTestId('quarantine-details').textContent).toContain(
+            'Quarantined 1'
+        );
+
+        // Unchecking recounts without asking the server again
+        fireEvent.click(boxes[0]);
+        expect(
+            screen.getByTestId('quarantine-batch-selected').textContent
+        ).toBe('2 selected');
+        expect(screen.getByTestId('quarantine-batch-bypass').textContent).toBe(
+            'Bypass (1 of 2)'
+        );
+        expect(screen.getByTestId('quarantine-batch-trash').textContent).toBe(
+            'Move to trash (2 of 2)'
+        );
+        expect(api.prepareQuarantineBatch).toHaveBeenCalledTimes(1);
     });
 
     it('tells the user when nothing is quarantined', async () => {

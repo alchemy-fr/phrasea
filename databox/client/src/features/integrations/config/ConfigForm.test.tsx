@@ -80,6 +80,11 @@ const schema: ConfigObjectSchema = {
     properties: {
         apiKey: {type: 'string', secret: true, label: 'API key'},
         baseUrl: {type: 'string', label: 'Base URL'},
+        clientUrl: {
+            type: 'string',
+            label: 'Client URL',
+            default: '${EXPOSE_CLIENT_URL}',
+        },
         maxImageSize: {
             type: 'integer',
             min: 256,
@@ -748,28 +753,56 @@ describe('ConfigForm secret references', () => {
     });
 
     it('offers the system variables of the instance last, by name only', async () => {
-        secretsApi.getSystemEnvs.mockResolvedValue(['EXPOSE_API_URL']);
-        const {last} = renderForm({initial: {baseUrl: '${NONE}'}});
+        secretsApi.getSystemEnvs.mockResolvedValue(['EXPOSE_API_KEY']);
+        const {last} = renderForm({initial: {apiKey: '${NONE}'}});
 
-        fireEvent.click(row('baseUrl').getByTestId('secret-ref-choose'));
+        fireEvent.click(row('apiKey').getByTestId('secret-ref-choose'));
         const item = await screen.findByTestId(
-            'secret-ref-system-EXPOSE_API_URL'
+            'secret-ref-system-EXPOSE_API_KEY'
         );
-        expect(item.textContent).toBe('EXPOSE_API_URL');
-        expect(groupHeadings()).toEqual(['Variables', 'Secrets', 'System']);
+        expect(item.textContent).toBe('EXPOSE_API_KEY');
+        expect(groupHeadings()).toEqual(['Secrets', 'Variables', 'System']);
         expect(secretsApi.getSystemEnvs).toHaveBeenCalledWith(
             {workspaceId: 'ws'},
             expect.anything()
         );
 
         fireEvent.click(item);
-        expect(last()).toEqual({baseUrl: '${EXPOSE_API_URL}'});
+        expect(last()).toEqual({apiKey: '${EXPOSE_API_KEY}'});
         await waitFor(() =>
-            expect(status('baseUrl')).toBe('System variable of the instance')
+            expect(status('apiKey')).toBe('System variable of the instance')
         );
-        expect(row('baseUrl').getByTestId('secret-ref-chip').dataset.kind).toBe(
+        expect(row('apiKey').getByTestId('secret-ref-chip').dataset.kind).toBe(
             'system'
         );
+    });
+
+    it('warns that a field which is not secret does not resolve the system variables', async () => {
+        secretsApi.getSystemEnvs.mockResolvedValue(['PHRASEANET_API_TOKEN']);
+        renderForm({initial: {baseUrl: '${PHRASEANET_API_TOKEN}'}});
+
+        await waitFor(() =>
+            expect(status('baseUrl')).toBe(
+                'System variable of the instance: only resolved in a secret field, or as the default value of the field'
+            )
+        );
+        fireEvent.click(row('baseUrl').getByTestId('secret-ref-choose'));
+        await screen.findByTestId('secret-ref-create-variable');
+        expect(groupHeadings()).not.toContain('System');
+    });
+
+    it('offers a field which is not secret the system variable of its default', async () => {
+        secretsApi.getSystemEnvs.mockResolvedValue([
+            'EXPOSE_CLIENT_URL',
+            'PHRASEANET_API_TOKEN',
+        ]);
+        renderForm({initial: {clientUrl: '${NONE}'}});
+
+        fireEvent.click(row('clientUrl').getByTestId('secret-ref-choose'));
+        await screen.findByTestId('secret-ref-system-EXPOSE_CLIENT_URL');
+        expect(
+            screen.queryByTestId('secret-ref-system-PHRASEANET_API_TOKEN')
+        ).toBeNull();
     });
 
     it('does not warn of a system variable referenced by a secret field', async () => {

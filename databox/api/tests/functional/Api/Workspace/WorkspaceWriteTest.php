@@ -423,7 +423,7 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         $client = static::createClient();
         $client->getKernelBrowser()->disableReboot();
         /** @var TestTransport $transport */
-        $transport = static::getContainer()->get('messenger.transport.p2');
+        $transport = static::getContainer()->get('messenger.transport.task');
         $inMemory = $transport->intercept();
 
         $client->request('DELETE', self::iri($ws), [

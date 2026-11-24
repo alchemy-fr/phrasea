@@ -103,13 +103,18 @@ export function GlobalToasts() {
                                   t('export.toast.failed', 'Export failed'))
                                 : ready
                                   ? t('export.toast.ready', 'Export ready!')
-                                  : t(
-                                        'export.toast.progress',
-                                        'Preparing export… {{progress}}%',
-                                        {
-                                            progress,
-                                        }
-                                    )}
+                                  : exp.progress
+                                    ? t(
+                                          'export.toast.progress',
+                                          'Preparing export… {{progress}}%',
+                                          {
+                                              progress,
+                                          }
+                                      )
+                                    : t(
+                                          'export.toast.preparing',
+                                          'Preparing export…'
+                                      )}
                         </div>
                         {ready && exp.downloadUrl ? (
                             <Button asChild size="sm">

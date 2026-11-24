@@ -10,7 +10,6 @@ import {
     getEntityList,
     getEntityLists,
 } from '@/lib/api/metadata';
-import {Badge} from '@alchemy/next-ui/ui/misc';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityGrid} from './EntityGrid';
@@ -35,6 +34,7 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<EntityList>
+            fill
             items={lists.items}
             loading={lists.loading}
             error={lists.error}
@@ -50,27 +50,14 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
             onReachEnd={lists.loadMore}
             getItem={getEntityList}
             itemQueryKey={['entity-lists', workspace.id, 'item']}
-            renderItem={l => (
-                <span className="flex items-center gap-2">
-                    <span className="flex-1 truncate">{l.name}</span>
-                    {l.allowNewValues ? (
-                        <Badge variant="muted">
-                            {t('entity_list.open', 'open')}
-                        </Badge>
-                    ) : null}
-                </span>
-            )}
+            renderItem={l => <span className="block truncate">{l.name}</span>}
             onDelete={l => deleteEntityList(l.id)}
             createLabel={t('entity_list.create', 'New list')}
             manageLabel={t('entity_list.manage', 'Values')}
-            // The rows carry several actions: a wide list, a narrow form
-            columnsClassName="lg:grid-cols-[minmax(0,2fr)_minmax(16rem,1fr)]"
             renderRowActions={l => (
-                <ExploreEntityListButton
-                    listId={l.id}
-                    className="h-7 text-xs"
-                />
+                <ExploreEntityListButton listId={l.id} iconOnly />
             )}
+            narrowPanel
             renderManage={(l, back) => (
                 <EntityGrid list={l} workspace={workspace} onBack={back} />
             )}

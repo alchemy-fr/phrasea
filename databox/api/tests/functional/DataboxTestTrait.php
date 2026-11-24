@@ -10,18 +10,21 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\EntityAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Basket\Basket;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAccess;
 use App\Entity\Core\CollectionAsset;
-use App\Entity\Core\Tag;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Model\AssetTypeEnum;
 use App\Security\AttributeFilterManager;
 use App\Service\Workspace\WorkspaceCreator;
 use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
@@ -47,22 +50,18 @@ trait DataboxTestTrait
             $asset->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC);
         }
 
-        foreach ($options['tags'] ?? [] as $tagName) {
-            $repo = $em->getRepository(Tag::class);
-            if (Uuid::isValid($tagName)) {
-                $tag = $repo->find($tagName);
-            } else {
-                if (null === $tag = $repo->findOneBy([
-                    'workspace' => $workspace->getId(),
-                    'name' => $tagName,
-                ])) {
-                    $tag = new Tag();
-                    $tag->setName($tagName);
-                    $tag->setWorkspace($workspace);
-                    $em->persist($tag);
-                }
-            }
-            $asset->addTag($tag);
+        // Resolved before the asset is attached to anything: their creation flushes
+        $tags = array_map(fn (string $tagName): AttributeEntity => Uuid::isValid($tagName)
+            ? $em->find(AttributeEntity::class, $tagName)
+            : $this->findOrCreateTagEntity($tagName, $workspace), array_values($options['tags'] ?? []));
+        foreach ($tags as $position => $tag) {
+            $a = new Attribute();
+            $a->setAsset($asset);
+            $a->setDefinition($this->getOrCreateTagsDefinition($workspace));
+            $a->setPosition($position);
+            $a->setOrigin(Attribute::ORIGIN_HUMAN);
+            $a->setValue($tag->getId());
+            $em->persist($a);
         }
 
         if (isset($options['collectionId'])) {
@@ -176,6 +175,7 @@ trait DataboxTestTrait
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
         $definition->setSortable($options['sortable'] ?? false);
+        $definition->setFacetEnabled($options['facet_enabled'] ?? false);
         $definition->setName($options['name'] ?? null);
         $definition->setSlug($options['slug'] ?? null);
         $definition->setEntityList($options['list'] ?? null);
@@ -333,19 +333,67 @@ trait DataboxTestTrait
         return $asset;
     }
 
-    protected function findOrCreateTagByName(string $name, ?Workspace $workspace): ?Tag
+    /**
+     * The "Tags" attribute of the workspace (slug "tags"): a multi-valued entity attribute, public and
+     * editable, of the "Tags" entity list. Created on first use.
+     */
+    protected function getOrCreateTagsDefinition(?Workspace $workspace = null): AttributeDefinition
     {
         $em = self::getEntityManager();
-        /** @var Tag $tag */
-        $tag = $em->getRepository(Tag::class)->findOneBy([
-            'workspace' => $workspace ?? $this->getOrCreateDefaultWorkspace(),
-            'name' => $name,
+        $workspace ??= $this->getOrCreateDefaultWorkspace();
+
+        $definition = $em->getRepository(AttributeDefinition::class)->findOneBy([
+            'workspace' => $workspace->getId(),
+            'slug' => 'tags',
+        ]);
+        if ($definition instanceof AttributeDefinition) {
+            return $definition;
+        }
+
+        $list = new EntityList();
+        $list->setWorkspace($workspace);
+        $list->setName('Tags');
+        $list->setWithColors(true);
+        $em->persist($list);
+
+        $definition = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'policy' => $this->createAttributePolicy([
+                'workspace' => $workspace,
+                'name' => 'Tags',
+                'no_flush' => true,
+            ]),
+            'name' => 'Tags',
+            'slug' => 'tags',
+            'type' => EntityAttributeType::NAME,
+            'list' => $list,
+            'multiple' => true,
+            'facet_enabled' => true,
+            'no_flush' => true,
+        ]);
+        $definition->setTarget(AssetTypeEnum::Both);
+        $em->flush();
+
+        return $definition;
+    }
+
+    /**
+     * A value of the "Tags" entity list of the workspace (see getOrCreateTagsDefinition()).
+     */
+    protected function findOrCreateTagEntity(string $name, ?Workspace $workspace = null): AttributeEntity
+    {
+        $em = self::getEntityManager();
+        $list = $this->getOrCreateTagsDefinition($workspace)->getEntityList();
+
+        $tag = $em->getRepository(AttributeEntity::class)->findOneBy([
+            'list' => $list->getId(),
+            'value' => $name,
         ]);
 
-        if (null === $tag) {
-            $tag = new Tag();
-            $tag->setWorkspace($workspace ?? $this->getOrCreateDefaultWorkspace());
-            $tag->setName($name);
+        if (!$tag instanceof AttributeEntity) {
+            $tag = new AttributeEntity();
+            $tag->setList($list);
+            $tag->setValue($name);
 
             $em->persist($tag);
             $em->flush();

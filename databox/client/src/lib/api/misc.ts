@@ -759,3 +759,14 @@ export function runOperationTask(data: {
 }): Promise<OperationTask> {
     return api.post<OperationTask>(`/${EntityName.OperationTask}`, data);
 }
+
+export function cancelOperationTask(id: string): Promise<OperationTask> {
+    return api.post<OperationTask>(
+        `/${EntityName.OperationTask}/${id}/cancel`,
+        {}
+    );
+}
+
+export async function deleteOperationTask(id: string): Promise<void> {
+    await api.delete(`/${EntityName.OperationTask}/${id}`);
+}

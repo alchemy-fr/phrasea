@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Core\Workspace;
 use App\Repository\Core\WorkspaceRepository;
+use App\Security\Voter\WorkspaceVoter;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final readonly class WorkspaceBySlugProvider implements ProviderInterface
+final class WorkspaceBySlugProvider implements ProviderInterface
 {
+    use SecurityAwareTrait;
+
     public function __construct(
-        private WorkspaceRepository $workspaceRepository,
+        private readonly WorkspaceRepository $workspaceRepository,
     ) {
     }
 
@@ -25,7 +29,8 @@ final readonly class WorkspaceBySlugProvider implements ProviderInterface
             'deletedAt' => null,
         ]);
 
-        if (!$workspace instanceof Workspace) {
+        // A workspace the user may not read answers as an unknown one: slugs can be guessed.
+        if (!$workspace instanceof Workspace || !$this->isGranted(WorkspaceVoter::READ_NO_TERMS, $workspace)) {
             throw new NotFoundHttpException(sprintf('Workspace with slug "%s" not found', $slug));
         }
 

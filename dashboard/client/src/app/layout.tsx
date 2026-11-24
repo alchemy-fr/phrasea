@@ -1,11 +1,12 @@
 import type {Metadata, Viewport} from 'next';
 import {connection} from 'next/server';
-import {cookies} from 'next/headers';
+import {cookies, headers} from 'next/headers';
 import './globals.css';
 import {getServerConfig} from '@/lib/config/server';
 import {getStackConfig} from '@alchemy/next-core/config/stackConfig';
 import {compileStackTheme} from '@alchemy/next-theme/compile';
 import {Providers} from './providers';
+import {NONCE_HEADER} from '@alchemy/next-core/security/csp';
 import {languages} from '@/i18n/config';
 import {embeddedScript} from '@/lib/embedded';
 import {fontVariables} from '@alchemy/next-theme/googleFonts';
@@ -16,7 +17,13 @@ export const metadata: Metadata = {
         template: '%s · Dashboard',
     },
     description: 'Phrasea Dashboard',
-    icons: {icon: '/favicon.svg'},
+    icons: {
+        icon: [
+            {url: '/favicon.ico', sizes: 'any'},
+            {url: '/favicon.svg', type: 'image/svg+xml'},
+        ],
+        apple: '/apple-touch-icon.png',
+    },
 };
 
 export const viewport: Viewport = {
@@ -45,6 +52,8 @@ export default async function RootLayout({
     const language = languages.resolveLanguage(
         (await cookies()).get(languages.cookie)?.value
     );
+    // Set by the proxy (src/proxy.ts) with the Content Security Policy
+    const nonce = (await headers()).get(NONCE_HEADER) ?? undefined;
 
     return (
         <html
@@ -54,7 +63,12 @@ export default async function RootLayout({
             suppressHydrationWarning
         >
             <body className="min-h-[100dvh]">
-                <script dangerouslySetInnerHTML={{__html: embeddedScript}} />
+                <script
+                    nonce={nonce}
+                    // The browser hides the nonce from the DOM once parsed
+                    suppressHydrationWarning
+                    dangerouslySetInnerHTML={{__html: embeddedScript}}
+                />
                 {/* Rendered in the body: a <head> written by hand in the
                     root layout does not hydrate (Next manages it). */}
                 {compiledTheme ? (
@@ -73,7 +87,7 @@ export default async function RootLayout({
                         href={`/api/theme-fonts?v=${compiledTheme.fontsHash}`}
                     />
                 ) : null}
-                <Providers config={config} language={language}>
+                <Providers config={config} language={language} nonce={nonce}>
                     {children}
                 </Providers>
             </body>

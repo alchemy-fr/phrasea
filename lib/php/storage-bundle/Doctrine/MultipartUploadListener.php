@@ -20,6 +20,11 @@ use Symfony\Bundle\SecurityBundle\Security;
 #[AsDoctrineListener(Events::prePersist)]
 final readonly class MultipartUploadListener
 {
+    /**
+     * URLs signed per response: the following ones are asked to "/uploads/{id}/parts".
+     */
+    final public const int MAX_SIGNED_URLS = 1000;
+
     public function __construct(
         private UploadManager $uploadManager,
         private PathGeneratorInterface $pathGenerator,
@@ -65,7 +70,7 @@ final readonly class MultipartUploadListener
                 $uploadId,
                 $path,
                 1,
-                $this->planner->getPartCount($entity->getSize(), $chunkSize),
+                min(self::MAX_SIGNED_URLS, $this->planner->getPartCount($entity->getSize(), $chunkSize)),
             ));
         }
     }

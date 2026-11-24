@@ -22,6 +22,11 @@ final readonly class FileAnalyzer
 
     public function shouldAnalyze(File $file, array $config, bool $force = false): bool
     {
+        // The analysis would replace the refusal of the content check
+        if ($file->isContentRejected()) {
+            return false;
+        }
+
         if ($force || !$file->isAnalyzed()) {
             return true;
         }

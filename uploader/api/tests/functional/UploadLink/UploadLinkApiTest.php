@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\UploadLink;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Entity\Target;
 use App\Entity\UploadLink;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -21,6 +23,7 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/me');
         $this->assertFalse($response->toArray()['permissions']['upload_link']);
+        $this->assertSame(90, $response->toArray()['upload_link_max_ttl']);
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/me');
         $this->assertTrue($response->toArray()['permissions']['upload_link']);
@@ -37,7 +40,7 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'POST', '/upload-links', [
             'target' => '/targets/'.$target->getId(),
             'name' => 'John',
-            'expiresAt' => '2099-01-01T00:00:00+00:00',
+            'expiresAt' => self::inDays(10),
             'maxAssets' => 3,
             'maxTotalSize' => 1000,
             'ownerId' => KeycloakClientTestMock::OTHER_USER_UID,
@@ -58,6 +61,169 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
         $this->assertSame($target->getId(), $data['target']['id']);
         $this->assertSame($target->getName(), $data['target']['name']);
         $this->assertArrayNotHasKey('lastFormData', $data);
+        $this->assertArrayNotHasKey('creatorGroups', $data);
+
+        $link = self::getEntityManager()->find(UploadLink::class, $data['id']);
+        $this->assertSame([], $link->getCreatorGroups(), 'The user is in no group');
+        $this->assertSame([], $link->getCreatorRoles());
+    }
+
+    public function testWhatTheLinkRecordsOfItsCreator(): void
+    {
+        $target = $this->createTarget();
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID, groups: ['photographers']), 'POST', '/upload-links', [
+            'target' => '/targets/'.$target->getId(),
+            'expiresAt' => self::inDays(1),
+        ]);
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
+
+        $link = self::getEntityManager()->find(UploadLink::class, $response->toArray()['id']);
+        $this->assertSame(['photographers'], $link->getCreatorGroups());
+        $this->assertSame([JwtUser::ROLE_ADMIN], $link->getCreatorRoles());
+    }
+
+    public function testALinkMustExpire(): void
+    {
+        $target = $this->createTarget();
+        $adminJwt = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
+
+        $response = $this->request($adminJwt, 'POST', '/upload-links', [
+            'target' => '/targets/'.$target->getId(),
+        ]);
+        $this->assertSame(422, $response->getStatusCode());
+        $this->assertSame(['expiresAt'], array_column($response->toArray(false)['violations'], 'propertyPath'));
+
+        $response = $this->request($adminJwt, 'POST', '/upload-links', [
+            'target' => '/targets/'.$target->getId(),
+            'expiresAt' => self::inDays(91),
+        ]);
+        $this->assertSame(422, $response->getStatusCode(), 'Over the maximum lifetime');
+        $this->assertSame(['expiresAt'], array_column($response->toArray(false)['violations'], 'propertyPath'));
+
+        $link = $this->createLink($target);
+        $response = $this->request($adminJwt, 'PATCH', '/upload-links/'.$link->getId(), [
+            'expiresAt' => null,
+        ]);
+        $this->assertSame(422, $response->getStatusCode());
+        $response = $this->request($adminJwt, 'PATCH', '/upload-links/'.$link->getId(), [
+            'expiresAt' => self::inDays(91),
+        ]);
+        $this->assertSame(422, $response->getStatusCode());
+    }
+
+    public function testALinkBeyondTheMaximumLifetimeCanStillBeDisabled(): void
+    {
+        $link = $this->createLink($this->createTarget(), options: ['expiresAt' => new \DateTimeImmutable('+200 days')]);
+        $this->grantUploadLink(KeycloakClientTestMock::USER_UID);
+        $userJwt = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID);
+
+        $response = $this->request($userJwt, 'PATCH', '/upload-links/'.$link->getId(), [
+            'enabled' => false,
+        ]);
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+
+        $response = $this->request($userJwt, 'PATCH', '/upload-links/'.$link->getId(), [
+            'enabled' => true,
+        ]);
+        $this->assertSame(422, $response->getStatusCode(), 'Enabled again: within the maximum lifetime');
+    }
+
+    public function testTheCreatorCanAlwaysDisableTheirLink(): void
+    {
+        $target = $this->createTarget();
+        $link = $this->createLink($target);
+        $theirs = $this->createLink($target, KeycloakClientTestMock::OTHER_USER_UID);
+        // No `upload_link` permission any more
+        $userJwt = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID);
+
+        $response = $this->request($userJwt, 'PATCH', '/upload-links/'.$link->getId(), ['name' => 'Renamed']);
+        $this->assertSame(403, $response->getStatusCode());
+        $response = $this->request($userJwt, 'PATCH', '/upload-links/'.$link->getId(), ['enabled' => false, 'maxAssets' => 3]);
+        $this->assertSame(403, $response->getStatusCode(), 'Disabling only');
+        $response = $this->request($userJwt, 'PATCH', '/upload-links/'.$theirs->getId(), ['enabled' => false]);
+        $this->assertSame(403, $response->getStatusCode(), 'Not the link of someone else');
+
+        $response = $this->request($userJwt, 'PATCH', '/upload-links/'.$link->getId(), ['enabled' => false]);
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(UploadLink::STATUS_DISABLED, $response->toArray()['status']);
+        $this->assertFalse($this->reloadLink($link)->isEnabled());
+
+        $response = $this->request($userJwt, 'PATCH', '/upload-links/'.$link->getId(), ['enabled' => true]);
+        $this->assertSame(403, $response->getStatusCode(), 'Not enabling it again');
+        $response = $this->request($userJwt, 'DELETE', '/upload-links/'.$link->getId());
+        $this->assertSame(403, $response->getStatusCode());
+    }
+
+    public function testRegenerateTheToken(): void
+    {
+        $target = $this->createTarget();
+        $link = $this->createLink($target);
+        $theirs = $this->createLink($target, KeycloakClientTestMock::OTHER_USER_UID);
+        $former = $link->getToken();
+        $userJwt = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID);
+
+        $response = $this->request($userJwt, 'POST', '/upload-links/'.$link->getId().'/regenerate-token');
+        $this->assertSame(403, $response->getStatusCode(), 'Without the permission');
+
+        $this->grantUploadLink(KeycloakClientTestMock::USER_UID);
+        $response = $this->request($userJwt, 'POST', '/upload-links/'.$theirs->getId().'/regenerate-token');
+        $this->assertSame(403, $response->getStatusCode(), 'The link of someone else');
+        $response = $this->request($userJwt, 'POST', '/upload-links/00000000-0000-4000-8000-000000000000/regenerate-token');
+        $this->assertSame(404, $response->getStatusCode());
+
+        $response = $this->request($userJwt, 'POST', '/upload-links/'.$link->getId().'/regenerate-token');
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        $token = $response->toArray()['token'];
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $token);
+        $this->assertNotSame($former, $token);
+
+        $response = $this->linkRequest($former, 'GET', '/upload-links/current');
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame('upload_link_invalid', $response->toArray(false)['code']);
+
+        $response = $this->linkRequest($token, 'GET', '/upload-links/current');
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
+    public function testALinkStopsWhenItsCreatorLosesThePermission(): void
+    {
+        $target = $this->createTarget();
+        $link = $this->createLink($target, options: ['creatorGroups' => ['another-group']]);
+
+        $response = $this->uploadFile($link->getToken());
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertSame('upload_link_revoked', $response->toArray(false)['code']);
+
+        $response = $this->linkRequest($link->getToken(), 'GET', '/upload-links/current');
+        $this->assertSame(403, $response->getStatusCode());
+
+        $this->grantUploadLink(KeycloakClientTestMock::USER_UID);
+        $response = $this->linkRequest($link->getToken(), 'GET', '/upload-links/current');
+        $this->assertSame(200, $response->getStatusCode(), 'Granted to the creator directly');
+
+        $admin = $this->createLink($target, KeycloakClientTestMock::ADMIN_UID, ['creatorGroups' => [], 'creatorRoles' => [JwtUser::ROLE_ADMIN]]);
+        $response = $this->linkRequest($admin->getToken(), 'GET', '/upload-links/current');
+        $this->assertSame(200, $response->getStatusCode(), 'Created by an admin');
+    }
+
+    public function testALinkStopsWhenItsCreatorCannotUploadToTheTargetAnyMore(): void
+    {
+        $target = $this->createTarget();
+        $target->setAllowedGroups(['photographers']);
+        self::getEntityManager()->flush();
+        $link = $this->createLink($target, options: ['creatorGroups' => [self::CREATOR_GROUP, 'photographers']]);
+
+        $this->assertSame(201, $this->uploadFile($link->getToken())->getStatusCode());
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $em->find(Target::class, $target->getId())->setAllowedGroups(['editors']);
+        $em->flush();
+
+        $response = $this->uploadFile($link->getToken());
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertSame('upload_link_revoked', $response->toArray(false)['code']);
     }
 
     public function testInvalidLimitsAreRefused(): void
@@ -66,6 +232,7 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/upload-links', [
             'target' => '/targets/'.$target->getId(),
+            'expiresAt' => self::inDays(1),
             'maxAssets' => 0,
         ]);
         $this->assertSame(422, $response->getStatusCode());
@@ -81,6 +248,7 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'POST', '/upload-links', [
             'target' => '/targets/'.$target->getId(),
+            'expiresAt' => self::inDays(1),
         ]);
         $this->assertSame(403, $response->getStatusCode());
     }
@@ -170,8 +338,6 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
         $target = $this->createTarget();
         $target->setDescription('Send your pictures');
         $link = $this->createLink($target, options: ['maxAssets' => 10, 'maxTotalSize' => 5000, 'expiresAt' => new \DateTimeImmutable('+1 day')]);
-        $link->setLastFormData(['title' => 'Previous']);
-        self::getEntityManager()->flush();
 
         $response = $this->linkRequest($link->getToken(), 'GET', '/upload-links/current');
 
@@ -185,7 +351,7 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
         $this->assertSame(0, $data['usedAssets']);
         $this->assertSame(0, $data['usedSize']);
         $this->assertNotNull($data['expiresAt']);
-        $this->assertSame(['title' => 'Previous'], $data['lastFormData']);
+        $this->assertArrayNotHasKey('lastFormData', $data, 'What another holder of the link entered');
         $this->assertArrayNotHasKey('token', $data);
         $this->assertArrayNotHasKey('ownerId', $data);
 
@@ -203,6 +369,8 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
         yield 'link list' => ['GET', '/upload-links', null];
         yield 'link' => ['GET', '/upload-links/{link}', null];
         yield 'link edition' => ['PATCH', '/upload-links/{link}', ['maxAssets' => 1000]];
+        yield 'link disabling' => ['PATCH', '/upload-links/{link}', ['enabled' => false]];
+        yield 'token regeneration' => ['POST', '/upload-links/{link}/regenerate-token', null];
         yield 'databox' => ['GET', '/databox/workspaces', null];
         yield 'commits' => ['GET', '/commits', null];
     }
@@ -241,5 +409,16 @@ class UploadLinkApiTest extends AbstractUploadLinkTestCase
 
         $response = $this->linkRequest($link->getToken(), 'GET', '/targets/'.$other->getId().'/form');
         $this->assertSame(403, $response->getStatusCode());
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/form/validate', ['target' => '/targets/'.$target->getId(), 'data' => []]);
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+
+        $response = $this->linkRequest($link->getToken(), 'POST', '/form/validate', ['target' => '/targets/'.$other->getId(), 'data' => []]);
+        $this->assertSame(403, $response->getStatusCode());
+    }
+
+    private static function inDays(int $days): string
+    {
+        return new \DateTimeImmutable(sprintf('+%d days', $days))->format(\DateTimeInterface::ATOM);
     }
 }

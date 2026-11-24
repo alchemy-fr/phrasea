@@ -25,6 +25,7 @@ use App\DataProvider\TargetDataProvider;
 use App\Form\Builder\FormDefinition;
 use App\Form\Builder\InvalidFormDefinitionException;
 use App\Security\Voter\FormDataEditorVoter;
+use App\Validation\SecureTargetUrl;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -69,6 +70,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             processor: TargetDataProcessor::class,
         ),
         new GetCollection(
+            paginationEnabled: false,
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             provider: TargetDataProvider::class,
             parameters: [
@@ -123,6 +125,7 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\Url]
+    #[SecureTargetUrl]
     #[Groups([self::GROUP_WRITE])]
     private ?string $targetUrl = null;
 
@@ -219,6 +222,16 @@ class Target extends AbstractUuidEntity implements \Stringable
     public function setAllowedGroups(?array $allowedGroups): void
     {
         $this->allowedGroups = $allowedGroups;
+    }
+
+    /**
+     * Whether someone in these groups may use the target: anyone when no group is set.
+     *
+     * @param string[] $groups
+     */
+    public function isAllowedFor(array $groups): bool
+    {
+        return empty($this->allowedGroups) || !empty(array_intersect($groups, $this->allowedGroups));
     }
 
     public function getDescription(): ?string

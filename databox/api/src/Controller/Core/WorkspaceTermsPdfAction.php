@@ -8,8 +8,10 @@ use App\Entity\Core\Workspace;
 use App\Security\Voter\WorkspaceVoter;
 use App\Service\Workspace\TermsManager;
 use App\Service\Workspace\TermsPdfGenerator;
+use App\Util\ContentDispositionUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -41,9 +43,16 @@ class WorkspaceTermsPdfAction extends AbstractController
 
         $pdf = $this->termsManager->getPdfContent($terms) ?? $this->termsPdfGenerator->generatePdf($terms);
 
+        // Served inline from the API origin: the content must never be sniffed
+        // as something else, nor run anything in that origin.
         return new Response($pdf, Response::HTTP_OK, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => sprintf('inline; filename="terms-%s-v%d.pdf"', $workspace->getSlug(), $terms->getVersion()),
+            'Content-Disposition' => ContentDispositionUtil::make(
+                HeaderUtils::DISPOSITION_INLINE,
+                sprintf('terms-%s-v%d.pdf', $workspace->getSlug(), $terms->getVersion()),
+            ),
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Security-Policy' => 'sandbox',
         ]);
     }
 }

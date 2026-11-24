@@ -5,7 +5,7 @@ Elasticsearch integration shared by the Phrasea APIs (indexing, deferred index l
 ## Console commands
 
 - `alchemy:es:debug-index [-i <index>]` — print settings, mappings and aliases of the physical index behind each logical FOS Elastica index (read-only).
-- `alchemy:es:delete-index [-i <index>] [--remove-olds|--olds-only] [--force-prefix] [--force]` — remove physical indices. The plan is displayed and must be confirmed (`--force` skips the prompt and is required in non-interactive mode).
+- `alchemy:es:delete-index [-i <index>] [--remove-olds|--olds-only] [--force-prefix] [--force]` — remove physical indices (`--force-prefix`: every physical index of the logical index, named after its configured name, dated or not, whatever its alias). The plan is displayed and must be confirmed (`--force` skips the prompt and is required in non-interactive mode).
 
 ## EasyAdmin screens
 
@@ -15,9 +15,9 @@ When `easycorp/easyadmin-bundle` is installed, the bundle registers an admin pag
 - physical indices: health, status, docs, size, shards, aliases; **refresh**, **close/open**, **delete**;
 - aliases: **add**, **remove**, and **switch** (atomically point an alias to a single index, e.g. to roll back to a previous generation).
 
-Every mutation is a CSRF-protected POST confirmed through a modal.
+Every mutation is a CSRF-protected POST confirmed through a modal. Every index or alias name received must be a single concrete name (`^[a-z0-9][a-z0-9._-]*$`: no list, wildcard, date math, `_all` or hidden index) within the prefix below.
 
-Restrict the screens to the indices/aliases of the current deployment (recommended when several apps or environments share the cluster):
+Restrict the screens to the indices/aliases of the current deployment (required when several apps or environments share the cluster: without a prefix, every index of the cluster is listed and manageable):
 
 ```yaml
 # config/packages/alchemy_es.yaml

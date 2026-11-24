@@ -17,10 +17,10 @@ export const PREFIX = 'e2e';
 
 /** Files that must end up indexed. */
 export const FILES_INDEXED = [
-    'root.txt',
-    'level1/visible.txt',
-    'level1/level2/deep.txt',
-    'Dossier Accentué/Été 2024.txt',
+    'root.svg',
+    'level1/visible.svg',
+    'level1/level2/deep.svg',
+    'Dossier Accentué/Été 2024.svg',
 ];
 
 /**
@@ -29,8 +29,12 @@ export const FILES_INDEXED = [
  */
 export const FILES_BLACKLISTED = ['.hidden-file.txt', '.hidden/ignored.txt'];
 
+/**
+ * A real SVG: the databox API only accepts the types of ALLOWED_FILE_TYPES and
+ * checks the content of a file against the type guessed from its extension.
+ */
 export function fileContent(relativePath: string): string {
-    return `e2e fixture ${relativePath}\n`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><desc>e2e fixture ${relativePath}</desc></svg>\n`;
 }
 
 function dirOf(relativePath: string): string {

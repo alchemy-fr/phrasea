@@ -34,6 +34,8 @@ use App\Api\Model\Input\FollowInput;
 use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
+use App\Api\Model\Input\QuarantineBatchInput;
+use App\Api\Model\Input\QuarantineBatchPrepareInput;
 use App\Api\Model\Input\ResolveEntitiesInput;
 use App\Api\Model\Input\StoryCoverInput;
 use App\Api\Model\Output\AssetDuplicateOutput;
@@ -41,6 +43,8 @@ use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
+use App\Api\Model\Output\QuarantineBatchOutput;
+use App\Api\Model\Output\QuarantineBatchPrepareOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
 use App\Api\Processor\AddAsAssetVersionProcessor;
@@ -59,6 +63,8 @@ use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
+use App\Api\Processor\QuarantineBatchPrepareProcessor;
+use App\Api\Processor\QuarantineBatchProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\SetAssetPositionProcessor;
@@ -354,14 +360,6 @@ use Symfony\Component\Validator\Constraints as Assert;
                     schema: ['type' => 'array<string>'],
                     description: 'Attribute slug or @built-in to group the sorted results by',
                 ),
-                'tags_must' => new QueryParameter(
-                    schema: ['type' => 'array<string>'],
-                    description: 'Tags ID the assets must have',
-                ),
-                'tags_must_not' => new QueryParameter(
-                    schema: ['type' => 'array<string>'],
-                    description: 'Tags ID the assets must not have',
-                ),
                 'context' => new QueryParameter(
                     schema: ['type' => 'object', 'properties' => ['position' => ['type' => 'string']]],
                     description: 'Search context: context[position]=<collection or story ID> for the @position sort',
@@ -409,6 +407,30 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: PrepareDeleteAssetsOutput::class,
             name: 'prepare_delete',
             processor: PrepareDeleteAssetProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/quarantine/prepare-batch',
+            description: 'Tell which batch action each quarantined asset is eligible to',
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST, 'dates'],
+            ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: QuarantineBatchPrepareInput::class,
+            output: QuarantineBatchPrepareOutput::class,
+            name: 'quarantine_prepare_batch',
+            processor: QuarantineBatchPrepareProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/quarantine/batch',
+            description: 'Resolve a batch of quarantined assets with the same action, asset by asset',
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: QuarantineBatchInput::class,
+            output: QuarantineBatchOutput::class,
+            name: 'quarantine_batch',
+            processor: QuarantineBatchProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/move',
@@ -550,9 +572,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
     #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $collections = null;
 
-    #[ORM\ManyToMany(targetEntity: Tag::class)]
-    private ?DoctrineCollection $tags = null;
-
     #[ORM\OneToOne(targetEntity: Collection::class)]
     private ?Collection $storyCollection = null;
 
@@ -593,13 +612,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected ?\DateTimeImmutable $attributesEditedAt = null;
 
-    /**
-     * Last update time of tags.
-     */
-    #[Groups(['dates'])]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    protected ?\DateTimeImmutable $tagsEditedAt = null;
-
     #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: AssetStatusEnum::class)]
     private ?AssetStatusEnum $status = null;
 
@@ -621,7 +633,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         parent::__construct();
         $this->collections = new ArrayCollection();
         $this->renditions = new ArrayCollection();
-        $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
         $this->attachments = new ArrayCollection();
         $this->fileVersions = new ArrayCollection();
@@ -634,7 +645,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         $this->microseconds = ($now * 1_000_000) % 1_000_000;
 
         $this->attributesEditedAt = $createdAt;
-        $this->tagsEditedAt = $createdAt;
 
         if (null !== $sequence) {
             $this->sequence = $sequence;
@@ -741,30 +751,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         $collection->getAssets()->add($assetCollection);
 
         return $assetCollection;
-    }
-
-    /**
-     * @return Tag[]
-     */
-    public function getTags(): DoctrineCollection
-    {
-        return $this->tags;
-    }
-
-    public function addTag(Tag $tag): void
-    {
-        if ($tag->getWorkspace() !== $this->workspace) {
-            throw new \LogicException('Cannot add a tag that comes from a different workspace');
-        }
-
-        if (!$this->tags->contains($tag)) {
-            $this->tags->add($tag);
-        }
-    }
-
-    public function getTagIds(): array
-    {
-        return $this->tags->map(fn (Tag $tag): string => $tag->getId())->getValues();
     }
 
     /**
@@ -875,7 +861,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
     {
         $date = max(
             $this->attributesEditedAt,
-            $this->tagsEditedAt,
             $this->updatedAt,
         );
 
@@ -884,16 +869,6 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
         }
 
         return $date;
-    }
-
-    public function getTagsEditedAt(): ?\DateTimeImmutable
-    {
-        return $this->tagsEditedAt;
-    }
-
-    public function setTagsEditedAt(?\DateTimeImmutable $tagsEditedAt): void
-    {
-        $this->tagsEditedAt = $tagsEditedAt;
     }
 
     public function getAttributesEditedAt(): ?\DateTimeImmutable

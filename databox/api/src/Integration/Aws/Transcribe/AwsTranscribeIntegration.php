@@ -11,6 +11,7 @@ use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
 use App\Border\UriDownloader;
+use App\Consumer\WorkerQueue;
 use App\Entity\Core\Attribute;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\Config\ConfigWidget;
@@ -95,6 +96,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         yield WorkflowHelper::createIntegrationJob(
             $config,
             TranscribeAction::class,
+            queue: WorkerQueue::HEAVY_LOW,
         );
     }
 

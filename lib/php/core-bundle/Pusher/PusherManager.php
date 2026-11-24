@@ -20,10 +20,18 @@ final readonly class PusherManager
     ) {
     }
 
+    /**
+     * A stack deployed without a real-time server has no Sockudo host, as the clients assume.
+     */
+    public static function isConfigured(Pusher $pusher): bool
+    {
+        return '' !== ($pusher->getSettings()['host'] ?? '');
+    }
+
     public function trigger(string $channel, string $event, array $payload, bool $direct = false): void
     {
         if ($direct) {
-            if (!$this->disabled) {
+            if (!$this->disabled && self::isConfigured($this->pusher)) {
                 $this->pusher->trigger($this->normalizeChannel($channel), $event, $payload);
             }
 
@@ -44,6 +52,11 @@ final readonly class PusherManager
     }
 
     public function normalizeChannel(string $channel): string
+    {
+        return self::normalizeChannelName($channel);
+    }
+
+    public static function normalizeChannelName(string $channel): string
     {
         return preg_replace('/[^a-z0-9_\-=@,.;]/i', '.', $channel);
     }

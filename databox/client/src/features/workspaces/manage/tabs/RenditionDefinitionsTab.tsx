@@ -23,7 +23,7 @@ import {
 import {Button} from '@alchemy/next-ui/ui/button';
 import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {Badge} from '@alchemy/next-ui/ui/misc';
 import {ReferenceDetails} from '@/components/form/ReferenceDetails';
@@ -55,6 +55,7 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<RenditionDefinition>
+            fill
             items={definitions.items}
             loading={definitions.loading}
             error={definitions.error}
@@ -74,24 +75,35 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
             getItem={getRenditionDefinition}
             itemQueryKey={['rendition-definitions', 'item']}
             renderItem={d => (
-                <span className="flex items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate">
-                        {d.displayName ?? d.name}
-                    </span>
-                    {d.useAsMain ? (
-                        <Badge variant="secondary">main</Badge>
-                    ) : null}
-                    {d.useAsPreview ? (
-                        <Badge variant="secondary">preview</Badge>
-                    ) : null}
-                    {d.useAsThumbnail ? (
-                        <Badge variant="secondary">thumb</Badge>
-                    ) : null}
-                    {d.useAsAnimatedThumbnail ? (
-                        <Badge variant="secondary">animated thumb</Badge>
-                    ) : null}
+                <span className="block truncate">
+                    {d.displayName ?? d.name}
                 </span>
             )}
+            renderItemDetails={d =>
+                d.useAsMain ||
+                d.useAsPreview ||
+                d.useAsThumbnail ||
+                d.useAsAnimatedThumbnail ||
+                d.buildFirst ? (
+                    <>
+                        {d.useAsMain ? (
+                            <Badge variant="secondary">main</Badge>
+                        ) : null}
+                        {d.useAsPreview ? (
+                            <Badge variant="secondary">preview</Badge>
+                        ) : null}
+                        {d.useAsThumbnail ? (
+                            <Badge variant="secondary">thumb</Badge>
+                        ) : null}
+                        {d.useAsAnimatedThumbnail ? (
+                            <Badge variant="secondary">animated thumb</Badge>
+                        ) : null}
+                        {d.buildFirst ? (
+                            <Badge variant="outline">build first</Badge>
+                        ) : null}
+                    </>
+                ) : null
+            }
             onDuplicate={d => duplicateRenditionDefinition(d.id)}
             onDelete={d => deleteRenditionDefinition(d.id)}
             createLabel={t('rendition_def.create', 'New rendition')}
@@ -139,6 +151,7 @@ function DefinitionForm({
         useAsPreview: d?.useAsPreview ?? false,
         useAsThumbnail: d?.useAsThumbnail ?? false,
         useAsAnimatedThumbnail: d?.useAsAnimatedThumbnail ?? false,
+        buildFirst: d?.buildFirst ?? false,
     });
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState(form);
@@ -166,6 +179,7 @@ function DefinitionForm({
                 useAsPreview: form.useAsPreview,
                 useAsThumbnail: form.useAsThumbnail,
                 useAsAnimatedThumbnail: form.useAsAnimatedThumbnail,
+                buildFirst: form.buildFirst,
             };
             const saved = d
                 ? await putRenditionDefinition(d.id, data)
@@ -305,6 +319,18 @@ function DefinitionForm({
                     </LabeledControl>
                 ))}
             </div>
+            <LabeledControl
+                label={t('rendition_def.build_first', 'Build first')}
+                description={t(
+                    'rendition_def.build_first_help',
+                    'Built by the workers before the other renditions, with the renditions it is built from (e.g. the thumbnails)'
+                )}
+            >
+                <Switch
+                    checked={form.buildFirst}
+                    onCheckedChange={v => set('buildFirst', v)}
+                />
+            </LabeledControl>
             {Number(form.buildMode) === RenditionBuildMode.Custom ? (
                 <div className="space-y-2">
                     <FormRow

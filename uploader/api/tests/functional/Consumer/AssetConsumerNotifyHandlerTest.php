@@ -7,10 +7,13 @@ namespace App\Tests\Functional\Consumer;
 use Alchemy\ApiTest\ApiTestCase;
 use App\Consumer\Handler\AssetConsumerNotify;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
+use App\Consumer\TargetPrivateOrigins;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -32,6 +35,8 @@ class AssetConsumerNotifyHandlerTest extends ApiTestCase
                 $this->assertMatchesUuid($postBody['commit_id']);
                 $this->assertEquals('http://localhost:8080', $postBody['base_url']);
                 $this->assertSame('POST', $method);
+                $this->assertSame(60.0, $options['max_duration']);
+                $this->assertSame(0, $options['max_redirects']);
 
                 return new MockResponse('{"meta":{"api_version":"1.4.1","request":"POST \/api\/v1\/upload\/enqueue\/","response_time":"2019-06-05T16:28:24+02:00","http_code":200,"error_type":null,"error_message":null,"error_details":null,"charset":"UTF-8"},"response":{"data":{"assets":["4c097077-a26b-4af4-9a5d-b13fd4c77b3d","a134145e-9461-4f0a-8bd8-7025d31a6b8e"],"publisher":"d03fc9f6-3c6b-4428-8d6f-ba07c7c6e856","token":"a_token"}}}', [
                     'response_headers' => [
@@ -43,6 +48,50 @@ class AssetConsumerNotifyHandlerTest extends ApiTestCase
 
         $clientStub = new MockHttpClient($expectedRequests);
 
+        $handler = new AssetConsumerNotifyHandler(
+            $clientStub,
+            $this->createEntityManager('http://localhost/api/v1/upload/enqueue/', $accessToken),
+            $uploaderUrl,
+            new TargetPrivateOrigins('http://localhost', null),
+        );
+
+        $message = new AssetConsumerNotify('an_ID');
+        $handler($message);
+
+        $this->assertSame(1, $clientStub->getRequestsCount());
+    }
+
+    #[DataProvider('getPrivateTargets')]
+    public function testPrivateTargetIsNotNotified(string $targetUrl): void
+    {
+        $clientStub = new MockHttpClient(fn (): MockResponse => new MockResponse('{}'));
+
+        $handler = new AssetConsumerNotifyHandler(
+            $clientStub,
+            $this->createEntityManager($targetUrl, 'secret_token'),
+            'http://localhost:8080',
+            new TargetPrivateOrigins(null, null),
+        );
+
+        try {
+            $handler(new AssetConsumerNotify('an_ID'));
+            $this->fail('A target on the private network must not be notified');
+        } catch (TransportException) {
+        }
+
+        $this->assertSame(0, $clientStub->getRequestsCount());
+    }
+
+    public static function getPrivateTargets(): array
+    {
+        return [
+            'Private IP' => ['https://10.0.0.1/enqueue'],
+            'Loopback host' => ['http://localhost/api/v1/upload/enqueue/'],
+        ];
+    }
+
+    private function createEntityManager(string $targetUrl, string $accessToken): EntityManagerInterface
+    {
         $em = $this->createMock(EntityManagerInterface::class);
 
         $target = new Target();
@@ -56,7 +105,7 @@ class AssetConsumerNotifyHandlerTest extends ApiTestCase
         $commit->getAssets()->add(new Asset());
         $commit->setToken('a_token');
         $target->setAuthorizationKey($accessToken);
-        $target->setTargetUrl('http://localhost/api/v1/upload/enqueue/');
+        $target->setTargetUrl($targetUrl);
         $target->setAuthorizationScheme('OAuth');
         $commit->setTarget($target);
 
@@ -64,13 +113,6 @@ class AssetConsumerNotifyHandlerTest extends ApiTestCase
             ->method('find')
             ->willReturn($commit);
 
-        $handler = new AssetConsumerNotifyHandler(
-            $clientStub,
-            $em,
-            $uploaderUrl
-        );
-
-        $message = new AssetConsumerNotify('an_ID');
-        $handler($message);
+        return $em;
     }
 }

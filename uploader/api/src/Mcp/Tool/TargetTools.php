@@ -20,28 +20,24 @@ final readonly class TargetTools
     }
 
     /**
-     * @return array{items: list<array>, page: int}
+     * @return array{items: list<array>, totalItems: int|null}
      */
     #[McpTool(
         name: 'list_targets',
-        description: 'List the upload targets the current user can upload to. Targets come by pages of 30 from which those the user cannot use are removed: ask for the next page until one comes back empty.',
+        description: 'List every upload target the current user can upload to, in one call.',
         annotations: new ToolAnnotations(readOnlyHint: true),
     )]
     public function list(
         #[Schema(description: 'Case-insensitive search on the name')]
         ?string $query = null,
-        #[Schema(minimum: 1)]
-        int $page = 1,
     ): array {
         $result = $this->client->getCollection('/targets', ApiClient::withoutNulls([
             'query' => $query,
-            'page' => $page,
         ]));
 
-        // Computed by the API on the filtered page only: they would mislead.
         return [
             'items' => $result['items'],
-            'page' => $result['page'],
+            'totalItems' => $result['totalItems'],
         ];
     }
 

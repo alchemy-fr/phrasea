@@ -23,7 +23,9 @@ use Symfony\Component\Mime\MimeTypes;
  * sent with the request ("file") or a file descriptor ("upload") for which a
  * signed PUT URL is generated. The (type, extension) couple of the last two is
  * checked against the allowed file types (the multipart upload checked it when
- * it was created).
+ * it was created), and the content of the file sent with the request too. The
+ * content of a completed multipart upload is checked when it is completed, the
+ * one sent to a signed PUT URL once the URL expired (CheckPresignedUpload).
  */
 final readonly class UploadRequestResolver
 {
@@ -63,7 +65,11 @@ final readonly class UploadRequestResolver
                 throw new BadRequestHttpException('Empty file');
             }
 
-            $this->fileValidator->validateFile($uploadedFile->getClientOriginalName(), $uploadedFile->getMimeType());
+            $this->fileValidator->validateFileContent(
+                $uploadedFile->getRealPath(),
+                $uploadedFile->getClientOriginalName(),
+                $uploadedFile->getMimeType(),
+            );
 
             $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
             $path = $this->pathGenerator->generatePath($extension);
@@ -83,31 +89,41 @@ final readonly class UploadRequestResolver
         if ($request->request->has('upload')) {
             $upload = $request->request->all('upload');
 
-            $originalFilename = $upload['name'] ?? null;
-            $contentType = $upload['type'] ?? null;
-            if (null === $contentType && !empty($originalFilename)) {
-                $extension = pathinfo((string) $originalFilename, PATHINFO_EXTENSION);
-                $contentType = (new MimeTypes())->getMimeTypes($extension)[0];
+            $originalFilename = self::getString($upload, 'name');
+            $contentType = self::getString($upload, 'type');
+            if (null === $contentType && null !== $originalFilename) {
+                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+                $contentType = (new MimeTypes())->getMimeTypes($extension)[0] ?? null;
             }
 
             $contentType ??= 'application/octet-stream';
 
             if (null === $originalFilename) {
-                $extension = (new MimeTypes())->getExtensions($contentType)[0];
+                $extension = (new MimeTypes())->getExtensions($contentType)[0] ?? null;
             } else {
-                $extension = pathinfo((string) $originalFilename, PATHINFO_EXTENSION);
+                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
             }
-            $path = $this->pathGenerator->generatePath($extension);
+            $path = $this->pathGenerator->generatePath('' === $extension ? null : $extension);
 
             return new ResolvedUpload(
                 $path,
                 $contentType,
                 $originalFilename ?? 'file',
-                (int) ($upload['size'] ?? 0),
+                is_numeric($upload['size'] ?? null) ? (int) $upload['size'] : 0,
                 $this->uploadManager->createPutObjectSignedURL($path, $contentType),
             );
         }
 
         throw new BadRequestHttpException('Missing file or contentType');
+    }
+
+    private static function getString(array $upload, string $key): ?string
+    {
+        $value = $upload[$key] ?? null;
+        if (null !== $value && !is_string($value)) {
+            throw new BadRequestHttpException(sprintf('"upload.%s" must be a string', $key));
+        }
+
+        return '' === $value ? null : $value;
     }
 }

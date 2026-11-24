@@ -300,3 +300,55 @@ describe('useCollectionStore order', () => {
         ).toBeUndefined();
     });
 });
+
+describe('useCollectionStore load failures', () => {
+    beforeEach(() => {
+        api.getWorkspaces.mockReset();
+        api.getCollections.mockReset();
+        useCollectionStore.setState({
+            workspaces: [],
+            workspacesLoaded: false,
+            workspacesLoading: false,
+            workspacesError: undefined,
+            collections: {},
+            pagers: {},
+        });
+    });
+
+    it('keeps the failure of the workspaces load until the next one', async () => {
+        api.getWorkspaces.mockRejectedValueOnce(
+            new Error('Internal Server Error')
+        );
+        await useCollectionStore.getState().loadWorkspaces();
+
+        expect(useCollectionStore.getState()).toMatchObject({
+            workspacesError: 'Internal Server Error',
+            workspacesLoaded: false,
+            workspacesLoading: false,
+        });
+
+        api.getWorkspaces.mockResolvedValueOnce({
+            items: [workspace('ws')],
+            total: 1,
+        });
+        await useCollectionStore.getState().loadWorkspaces(true);
+
+        expect(useCollectionStore.getState().workspacesError).toBeUndefined();
+    });
+
+    it('keeps the failure of a children load on its pager', async () => {
+        api.getCollections.mockRejectedValueOnce(new Error('Invalid token.'));
+        await useCollectionStore.getState().loadChildren('ws');
+
+        expect(
+            useCollectionStore.getState().pagers[pagerKey('ws')]
+        ).toMatchObject({error: 'Invalid token.', loading: false});
+
+        api.getCollections.mockResolvedValueOnce({items: [], total: 0});
+        await useCollectionStore.getState().loadChildren('ws', undefined, true);
+
+        expect(
+            useCollectionStore.getState().pagers[pagerKey('ws')].error
+        ).toBeUndefined();
+    });
+});

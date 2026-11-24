@@ -1,0 +1,15 @@
+name: Queues
+
+jobs:
+  download:
+    queue: heavy
+    steps:
+      - run: |
+          echo "download"
+
+  notify:
+    needs:
+      - download
+    steps:
+      - run: |
+          echo "notify"

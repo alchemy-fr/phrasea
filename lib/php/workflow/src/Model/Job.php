@@ -22,6 +22,7 @@ class Job
     private bool $disabled = false;
     private ?string $disabledReason = null;
     private array $metadata = [];
+    private ?string $queue = null;
 
     public function __construct(private readonly string $id)
     {
@@ -150,6 +151,20 @@ class Job
     public function setMetadata(array $metadata): void
     {
         $this->metadata = $metadata;
+    }
+
+    /**
+     * Name of the Messenger transport the job is triggered on;
+     * null keeps the default routing of the job messages.
+     */
+    public function getQueue(): ?string
+    {
+        return $this->queue;
+    }
+
+    public function setQueue(?string $queue): void
+    {
+        $this->queue = $queue;
     }
 
     public function __clone(): void

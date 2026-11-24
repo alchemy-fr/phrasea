@@ -12,17 +12,20 @@ use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\EsFieldTrait;
 use App\Elasticsearch\Filter\SearchQuery;
 use Doctrine\ORM\QueryBuilder;
 use Elastica\Query;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * The canonical PartialSearchFilter ("contains" match, `LIKE %value%`), also applied on Elasticsearch.
  *
  * On Elasticsearch, the match is a `*value*` wildcard on the `es_field` of the parameter, which
  * must be a keyword field (e.g. `value.raw`), case-insensitive unless the filter is case-sensitive.
+ * A value is limited to AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH characters, like the AQL "contains".
  */
 final class PartialSearchFilter implements FilterInterface, OpenApiParameterFilterInterface, ElasticsearchFilterInterface
 {
@@ -58,6 +61,11 @@ final class PartialSearchFilter implements FilterInterface, OpenApiParameterFilt
         ));
         if (empty($values)) {
             return;
+        }
+        foreach ($values as $value) {
+            if (mb_strlen($value) > AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH) {
+                throw new BadRequestHttpException(sprintf('The value of "%s" is limited to %d characters', $parameter->getKey(), AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH));
+            }
         }
 
         $field = self::getEsField($parameter);

@@ -125,7 +125,7 @@ Documentation and example [form](../../tech/Uploader/form_config.md)
    
 Click on a Target: the list shows which targets have a form.
 
-Each target has one form, for every language: its labels, help texts and placeholders are translated in the form itself. The form editor builds the form by dragging the attributes of a Databox workspace (entity lists included), Databox values (name, tags, story), custom fields and sections, and shows its rendering. "Delete the form" removes it: the target then accepts no indexing data from the user.
+Each target has one form, for every language: its labels, help texts and placeholders are translated in the form itself. The form editor builds the form by dragging the attributes of a Databox workspace (entity lists included), Databox values (name, story), custom fields and sections, and shows its rendering. "Delete the form" removes it: the target then accepts no indexing data from the user.
 
 Forms described in JSON (LiForm) before version 5 were converted to the form builder on upgrade; see the [technical documentation](../../tech/Uploader/form_config.md#migration-from-liform) for what the conversion keeps.
 

@@ -6,6 +6,7 @@ namespace App\Service\Image;
 
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Service\Storage\FileManager;
 use enshrined\svgSanitize\Sanitizer;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -21,11 +22,13 @@ final readonly class InlineSvg
 
     public function __construct(
         private FileStorageManager $fileStorageManager,
+        private FileManager $fileManager,
     ) {
     }
 
     /**
-     * Reads and sanitizes the uploaded SVG, then deletes the uploaded object.
+     * Reads and sanitizes the uploaded SVG, then deletes the uploaded object
+     * unless something else still points to it.
      */
     public function readUpload(MultipartUpload $upload): string
     {
@@ -48,7 +51,9 @@ final readonly class InlineSvg
         }
 
         $svg = self::sanitize($content);
-        $this->fileStorageManager->delete($upload->getPath());
+        if (!$this->fileManager->isPathReferenced($upload->getPath())) {
+            $this->fileStorageManager->delete($upload->getPath());
+        }
 
         return $svg;
     }

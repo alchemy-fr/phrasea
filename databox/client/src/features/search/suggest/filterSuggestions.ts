@@ -182,7 +182,7 @@ export function suggestFields(
     return needle === '' ? items : items.slice(0, limit);
 }
 
-/** The field references entities (tags, workspaces, entity lists...): values are ids */
+/** The field references entities (workspaces, users, entity lists...): values are ids */
 export function isEntityField(
     definition: AttributeDefinitionOrBuiltIn
 ): boolean {
@@ -396,9 +396,26 @@ export function mergeValueSuggestions(
     return merged.slice(0, limit);
 }
 
+/** The suggested value whose label or value is exactly the typed text (case-insensitive) */
+export function findExactValue(
+    values: ValueSuggestion[],
+    prefix: string
+): ValueSuggestion | undefined {
+    const lower = prefix.trim().toLowerCase();
+    if (lower === '') {
+        return undefined;
+    }
+
+    return values.find(
+        v =>
+            v.label.toLowerCase() === lower ||
+            String(v.value).toLowerCase() === lower
+    );
+}
+
 /**
  * The typed text as a value, for fields whose values are typed rather than
- * picked (text, numbers, dates); none when a suggested value already matches.
+ * picked (text, numbers, dates, ids); none when a suggested value already matches.
  */
 export function rawSuggestionFor(
     definition: AttributeDefinitionOrBuiltIn,
@@ -410,12 +427,11 @@ export function rawSuggestionFor(
         return null;
     }
     const raw = rawTypeMap[definition.type];
-    if (
-        !raw ||
-        raw === RawType.Boolean ||
-        raw === RawType.GeoPoint ||
-        raw === RawType.Id
-    ) {
+    if (!raw || raw === RawType.Boolean || raw === RawType.GeoPoint) {
+        return null;
+    }
+    // The API rejects ids containing whitespace
+    if (raw === RawType.Id && /\s/.test(text)) {
         return null;
     }
     if (
@@ -424,14 +440,7 @@ export function rawSuggestionFor(
     ) {
         return null;
     }
-    const lower = text.toLowerCase();
-    if (
-        values.some(
-            v =>
-                v.label.toLowerCase() === lower ||
-                String(v.value).toLowerCase() === lower
-        )
-    ) {
+    if (findExactValue(values, text)) {
         return null;
     }
     const query = buildFilterCondition(definition, text);

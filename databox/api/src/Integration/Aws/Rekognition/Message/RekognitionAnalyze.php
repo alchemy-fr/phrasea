@@ -7,7 +7,7 @@ namespace App\Integration\Aws\Rekognition\Message;
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 use App\Integration\Message\AbstractFileActionMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class RekognitionAnalyze extends AbstractFileActionMessage
 {
     public function __construct(

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
+use App\Util\UrlPattern;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AlternateUrlInput
@@ -11,7 +12,14 @@ class AlternateUrlInput
     #[Assert\NotBlank]
     public ?string $type = null;
 
+    /**
+     * Any URI scheme is accepted (e.g. "indexer:///path/to/file.jpg"), except
+     * those that run code when opened by a browser. Clients only open http(s) ones.
+     */
     #[Assert\NotBlank]
-    #[Assert\Url(requireTld: false)]
+    #[Assert\Regex(
+        pattern: UrlPattern::NON_EXECUTABLE_URI,
+        message: 'This value is not a valid URL.',
+    )]
     public ?string $url = null;
 }

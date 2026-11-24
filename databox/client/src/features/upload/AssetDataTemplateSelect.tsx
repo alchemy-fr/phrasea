@@ -11,7 +11,7 @@ import {Chip} from '@alchemy/next-ui/ui/misc';
 import {AsyncCombobox} from '@alchemy/next-ui/form/AsyncCombobox';
 
 /**
- * Applies value templates (privacy, tags, attributes) to the upload form.
+ * Applies value templates (privacy, attributes) to the upload form.
  */
 export function AssetDataTemplateSelect({
     workspaceId,

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Tests;
 
+use Alchemy\AdminBundle\Controller\QueuesListController;
+use Alchemy\AdminBundle\Controller\RealtimeStatusController;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -55,6 +57,40 @@ abstract class AbstractAdminTestCase extends WebTestCase
                     $this->explore($href);
                 }
             });
+    }
+
+    protected function doTestRealtimePage(): void
+    {
+        $this->client->loginUser($this->getAuthAdminUser(), 'admin');
+        $this->client->followRedirects();
+        $path = static::getContainer()->get('router')->generate(RealtimeStatusController::ROUTE_NAME);
+        $this->assertSame('/admin/realtime', $path);
+
+        $crawler = $this->client->request('GET', '/admin');
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(1, $crawler->filter(sprintf('nav#main-menu a.ea-sidebar-item-link[href$="%s"]', $path)), 'No Realtime link in the admin menu');
+
+        $crawler = $this->loadPage($path);
+        $this->assertStringContainsString('Realtime (Sockudo)', $crawler->filter('title')->text());
+        $this->assertStringContainsString('Disabled', (string) $this->client->getResponse()->getContent());
+    }
+
+    protected function doTestQueuesPage(): void
+    {
+        $router = static::getContainer()->get('router');
+        // The test environment has no AMQP transport: no queue is listed nor can be inspected
+        $inspectPath = $router->generate(QueuesListController::ROUTE_INSPECT, ['queue' => 'p1']);
+
+        $this->client->loginUser($this->getAuthAdminUser(), 'admin');
+        $this->client->request('GET', $router->generate(QueuesListController::ROUTE_LIST));
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString('No RabbitMQ transport is configured', (string) $this->client->getResponse()->getContent());
+
+        $this->client->request('POST', $inspectPath, ['token' => 'invalid']);
+        $this->assertResponseStatusCodeSame(404);
+
+        $this->client->request('GET', $inspectPath);
+        $this->assertResponseStatusCodeSame(405);
     }
 
     private function explore(string $path): void

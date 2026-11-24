@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiProperty;
@@ -35,6 +36,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -106,6 +108,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         new GetCollection(
             uriTemplate: '/publications/slug-availability/{slug}',
             uriVariables: [],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             output: false,
             provider: PublicationSlugAvailabilityProvider::class,
             openapi: new OpenApiOperation(
@@ -119,7 +122,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     ),
                 ],
                 summary: 'Check whether a slug is available or not.',
-                description: 'Check whether a slug is available or not.',
+                description: 'Check whether a slug is available or not. Requires the right to create publications.',
                 parameters: [
                     new OpenApiParameter(
                         name: 'slug',
@@ -239,11 +242,17 @@ class Publication implements AclObjectInterface, \Stringable
     #[ORM\JoinTable(name: 'publication_children')]
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
     #[ORM\InverseJoinColumn(name: 'child_id', referencedColumnName: 'id')]
-    #[Groups([self::GROUP_READ])]
-    #[MaxDepth(1)]
     #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'parent', cascade: ['remove'])]
     #[ORM\OrderBy(['title' => 'ASC'])]
     private Collection $children;
+
+    /**
+     * The children the reader may see, set at serialization: the managed $children stays whole
+     * (cascade remove, cache invalidation).
+     *
+     * @var list<Publication>|null
+     */
+    private ?array $visibleChildren = null;
 
     /**
      * @var PublicationShare[]|Collection
@@ -514,15 +523,29 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->children;
     }
 
-    public function setChildren(Collection $children): void
+    /**
+     * @param list<Publication> $visibleChildren
+     */
+    public function setVisibleChildren(array $visibleChildren): void
     {
-        $this->children = $children;
+        $this->visibleChildren = $visibleChildren;
+    }
+
+    /**
+     * @return list<Publication>
+     */
+    #[Groups([self::GROUP_READ])]
+    #[MaxDepth(1)]
+    #[SerializedName('children')]
+    public function getVisibleChildren(): array
+    {
+        return $this->visibleChildren ?? [];
     }
 
     #[Groups([self::GROUP_INDEX])]
     public function getChildrenCount(): int
     {
-        return $this->children->count();
+        return null !== $this->visibleChildren ? count($this->visibleChildren) : $this->children->count();
     }
 
     public function getParent(): ?self

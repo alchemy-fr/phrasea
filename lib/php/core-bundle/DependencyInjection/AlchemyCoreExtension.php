@@ -10,6 +10,7 @@ use Alchemy\CoreBundle\Message\PusherHandler;
 use Alchemy\CoreBundle\Pusher\ChannelAuthorizerInterface;
 use Alchemy\CoreBundle\Pusher\PusherFactory;
 use Alchemy\CoreBundle\Pusher\PusherManager;
+use Alchemy\CoreBundle\Pusher\RealtimeStatusProvider;
 use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Validator\Exception\ValidationException;
 use Doctrine\DBAL\Types\ConversionException;
@@ -91,6 +92,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             }
 
             $def = $container->getDefinition(PusherManager::class);
+            $def->setArgument('$disabled', $config['pusher']['disabled']);
+            $def = $container->getDefinition(RealtimeStatusProvider::class);
             $def->setArgument('$disabled', $config['pusher']['disabled']);
 
             $container->setParameter('alchemy_core.pusher.channel_prefix', $config['pusher']['channel_prefix']);

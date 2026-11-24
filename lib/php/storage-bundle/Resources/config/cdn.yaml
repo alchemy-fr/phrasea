@@ -3,7 +3,7 @@ parameters:
     env(CLOUD_FRONT_URL): ~
     env(CLOUD_FRONT_PRIVATE_KEY): ~
     env(CLOUD_FRONT_KEY_PAIR_ID): ~
-    env(CLOUD_FRONT_TTL): 86400
+    env(CLOUD_FRONT_TTL): 3600
 
 services:
     _defaults:

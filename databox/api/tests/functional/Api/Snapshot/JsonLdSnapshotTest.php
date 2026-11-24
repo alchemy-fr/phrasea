@@ -14,7 +14,6 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceCreator;
 use App\Tests\Functional\AbstractSearchTestCase;
@@ -39,7 +38,6 @@ final class JsonLdSnapshotTest extends AbstractSearchTestCase
         'asset' => '5a000000-0000-4000-8000-000000000004',
         'other' => '5a000000-0000-4000-8000-000000000005',
         'file' => '5a000000-0000-4000-8000-000000000006',
-        'tag' => '5a000000-0000-4000-8000-000000000007',
         'basket' => '5a000000-0000-4000-8000-000000000008',
         'basketAsset' => '5a000000-0000-4000-8000-000000000009',
         'titleDef' => '5a000000-0000-4000-8000-00000000000a',
@@ -57,7 +55,6 @@ final class JsonLdSnapshotTest extends AbstractSearchTestCase
         yield 'basket assets' => ['/baskets/{basket}/assets'];
         yield 'workspace item' => ['/workspaces/{workspace}'];
         yield 'attribute definition list' => ['/attribute-definitions?workspaceId={workspace}'];
-        yield 'tag list' => ['/tags?workspace={workspace}'];
         yield 'file item' => ['/files/{file}'];
         yield 'asset item as json' => ['/assets/{asset}', 'application/json'];
     }
@@ -114,12 +111,6 @@ final class JsonLdSnapshotTest extends AbstractSearchTestCase
         $title = $this->createDefinition('titleDef', 'Title', $policy, false);
         $keywords = $this->createDefinition('keywordsDef', 'Keywords', $policy, true);
 
-        $tag = new Tag();
-        self::forceEntityId($tag, self::IDS['tag']);
-        $tag->setName('Nature');
-        $tag->setWorkspace($workspace);
-        $em->persist($tag);
-
         $root = $this->createCollection(['id' => self::IDS['root'], 'name' => 'Root', 'workspace' => $workspace, 'ownerId' => self::USER, 'no_flush' => true]);
         $this->createCollection(['id' => self::IDS['child'], 'name' => 'Child', 'workspace' => $workspace, 'ownerId' => self::USER, 'parent' => $root, 'no_flush' => true]);
         $em->flush();
@@ -139,7 +130,6 @@ final class JsonLdSnapshotTest extends AbstractSearchTestCase
 
         $asset = $this->createPinnedAsset('asset', 'Photo', $workspace, $em->find(Collection::class, self::IDS['child']));
         $asset->setSource($file);
-        $asset->addTag($tag);
         $this->addAttribute($asset, $title, 'Hello');
         $this->addAttribute($asset, $keywords, 'first', 0);
         $this->addAttribute($asset, $keywords, 'second', 1);

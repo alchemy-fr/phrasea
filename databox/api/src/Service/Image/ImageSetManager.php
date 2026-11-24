@@ -203,6 +203,10 @@ final readonly class ImageSetManager
 
     private function deleteUploadedObject(MultipartUpload $upload): void
     {
+        if ($this->fileManager->isPathReferenced($upload->getPath())) {
+            return;
+        }
+
         if ($this->fileStorageManager->has($upload->getPath())) {
             $this->fileStorageManager->delete($upload->getPath());
         }

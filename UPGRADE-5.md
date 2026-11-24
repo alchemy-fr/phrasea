@@ -13,14 +13,25 @@ Follow these steps in order. Each one is detailed in the sections below.
    new `similarity` and `face-recognition` profiles. Sockudo replaces Soketi:
    rename the `SOKETI_*` variables and the `soketi` profile (see
    [Sockudo replaces Soketi](#sockudo-replaces-soketi)). Rewrite
-   `*_ALLOWED_FILE_TYPES` as type/extension couples, without `*/*` (see
+   `*_ALLOWED_FILE_TYPES` as type/extension couples, without `*/*`, and pass
+   `ALLOWED_FILE_TYPES` to the Expose API (see
    [Allowed file types and file serving](#allowed-file-types-and-file-serving)).
-   Declare in `*_API_ALLOWED_CLIENT_IDS` the custom Keycloak clients calling the
-   APIs (see [Access tokens: allowed clients](#access-tokens-allowed-clients)).
-4. Start Elasticsearch 9:
+   Give the custom Keycloak clients calling the APIs the client scope of each
+   API they call, once `bin/migrate.sh` has created them (see
+   [Access tokens: audiences](#access-tokens-audiences)).
+   Set `ELASTIC_PASSWORD` and `ELASTICSEARCH_PASSWORD`: the bundled
+   Elasticsearch now requires authentication (see
+   [Elasticsearch authentication](#elasticsearch-authentication)).
+   With Docker Compose, run `dc down` (volumes kept) before starting the new
+   stack: the containers move to new networks (see
+   [Docker networks split](#docker-networks-split)).
+   Give the configurator a bucket of its own and review `*_CLOUD_FRONT_TTL` (see
+   [Static bucket and signed URLs](#static-bucket-and-signed-urls)).
+4. Start Elasticsearch 9 and create the user of the applications:
 
     ```bash
     dc up -d elasticsearch
+    dc run --rm elasticsearch-setup
     ```
 
 5. Run the migrations, and nothing else (no `doctrine:migrations:version --add`):
@@ -29,29 +40,46 @@ Follow these steps in order. Each one is detailed in the sections below.
     bin/migrate.sh
     ```
 
-6. Rebuild every Elasticsearch index, in `databox-api-php`:
+6. Recompute the collection access table, in `databox-api-php` (the migrations
+   purge its stale "everyone" rows: until then, the collections shared with
+   everyone are missing from the root collection tree of the users who do not
+   reach them otherwise):
+
+    ```bash
+    bin/console app:collection:recompute-access
+    ```
+
+7. Rebuild every Elasticsearch index, in `databox-api-php`, then delete the
+   former `tag` index (the tags became entity lists, see
+   [Tags replaced by entity lists](#tags-replaced-by-entity-lists)):
 
     ```bash
     bin/console fos:elastica:populate
     ```
 
-7. Deploy the new `databox-scheduler` and `uploader-scheduler` services, with a
-   single replica each, and remove the host crons (see
+8. Deploy the new `databox-scheduler`, `expose-scheduler` and `uploader-scheduler`
+   services, with a single replica each (add `expose-scheduler` to any custom
+   `COMPOSE_PROFILES`), and remove the host crons (see
    [Scheduler containers replace the cron jobs](#scheduler-containers-replace-the-cron-jobs)).
    Remove the Zippy containers, volume and settings (see
    [Zippy service removed](#zippy-service-removed)).
-8. Optionally, if the integration is enabled and its service deployed:
+   If your databox workers set `WORKER_PRIORITIES`, make them consume the new
+   `heavy`, `heavy_low`, `bulk`, `bulk_heavy` and `bulk_heavy_low` transports
+   (see [Worker queues of databox](#worker-queues-of-databox)).
+9. Optionally, if the integration is enabled and its service deployed:
 
     ```bash
     bin/console app:similarity:index
     bin/console app:face-recognition:index
     ```
 
-9. Audit what this release may break: Twig templates in attribute definitions
-   and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
-   replaced by `PATCH`), shared rendition links, the Databox theme, and the
-   image formats ImageMagick still reads (SVG and EPS get no thumbnail any
-   more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)).
+10. Audit what this release may break: Twig templates in attribute definitions
+    and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
+    replaced by `PATCH`), shared rendition links, the Databox theme, and the
+    image formats ImageMagick still reads (SVG and EPS get no thumbnail any
+    more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)),
+    and the rendition definitions asking ffmpeg for a `timeout` above 3600
+    seconds (see [Resource limits of the databox workers](#resource-limits-of-the-databox-workers)).
 
 ## Stack and deployment
 
@@ -68,12 +96,62 @@ Elasticsearch moves from 7.17 to 9.1.4.
 - The `asset` index now holds a `dense_vector` field (`embedding`, 512 dims,
   indexed, cosine) and `fileFamily`: Elasticsearch older than 8.12 cannot create
   it. Upgrade any external cluster.
-- An external cluster protected by basic authentication is supported through
-  `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD` (empty by default: no
-  authentication). The bundled `elasticsearch` service keeps its security
-  disabled.
+- The bundled `elasticsearch` service requires authentication (see
+  [Elasticsearch authentication](#elasticsearch-authentication)). An external
+  cluster protected by basic authentication is supported through the same
+  `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD`.
 
 See [Elasticsearch 9 and index rebuild](#elasticsearch-9-and-index-rebuild).
+
+### Elasticsearch authentication
+
+The asset rights are applied inside Elasticsearch (the `users` and `groups` of
+each document): anyone reaching the cluster could read every workspace, or
+rewrite those fields. The bundled `elasticsearch` service now runs with its
+security enabled (`xpack.security.enabled=true`, without TLS: it is only
+reachable from the internal `data` network, see
+[Docker networks split](#docker-networks-split)).
+
+- `ELASTIC_PASSWORD` (new, `@change-me`) is the password of the `elastic`
+  superuser. Only the new `elasticsearch-setup` service uses it.
+- `elasticsearch-setup` (profile `elasticsearch`, same image) creates or updates
+  at every `dc up` the user of the applications, `ELASTICSEARCH_USERNAME` (now
+  `databox` by default) with `ELASTICSEARCH_PASSWORD` (`@change-me`), and its
+  role of the same name: every privilege on the indices starting with
+  `ELASTICSEARCH_INDEX_PREFIX`, `monitor` on the cluster. With an empty prefix
+  (the default), the role covers every index of the cluster.
+  `bin/setup.sh`, `bin/migrate.sh` and `bin/test.sh standard` run it in the
+  foreground before using Elasticsearch.
+- `dockerize` waits for the TCP port of Elasticsearch (an HTTP wait now gets a
+  401).
+- With the development port (`DEV_ELASTICSEARCH_PORT`), pass the credentials:
+  `curl -u "databox:${ELASTICSEARCH_PASSWORD}" localhost:9200/_cat/indices`.
+
+To upgrade a running stack, the indices of the `elasticsearch9` volume are kept
+(enabling the security of an existing node is supported):
+
+1. Set `ELASTIC_PASSWORD` and `ELASTICSEARCH_PASSWORD` in `.env.local` (outside a
+   dev stack, `bin/setup.sh` and `bin/migrate.sh` refuse their `__CHANGE_ME_`
+   defaults). Keep `ELASTICSEARCH_USERNAME` to its new default `databox`, or set
+   your own (not `elastic`).
+2. Recreate Elasticsearch and the services using it, then create the user:
+
+    ```bash
+    dc up -d
+    dc run --rm elasticsearch-setup
+    ```
+
+    (`bin/migrate.sh` does both.) Until `elasticsearch-setup` has run, the API
+    and the workers get a 401 from Elasticsearch.
+
+The `elastic` password is only read from `ELASTIC_PASSWORD` as long as it has not
+been changed through the API (`_security/user/elastic/_password`); then set
+`ELASTIC_PASSWORD` to the new one.
+
+With an external cluster (no `elasticsearch` profile), nothing is created:
+provide `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD` yourself, and empty
+both for a cluster without authentication (`ELASTICSEARCH_USERNAME` now defaults
+to `databox`).
 
 ### Keycloak image
 
@@ -107,6 +185,16 @@ once started.
 The `elastichq` service, its profile, `ELASTICHQ_URL` and its dashboard link are
 removed.
 
+### Report ELK stack removed
+
+`docker-compose.report-elk.yml` (`report-elasticsearch`, `report-logstash`,
+`report-kibana`), `infra/docker/report-elk`, the `report-logstash` image and
+`ELK_VERSION` are removed. The report API still writes its `logs` table in the
+report database; read it there, or feed it to your own tooling. Drop
+`docker-compose.report-elk.yml` from any custom `COMPOSE_FILE`, stop and remove
+the three containers (`docker rm -f`), then the orphaned `report_elasticsearch`
+volume, and the `report-kibana.<domain>` DNS entry.
+
 ### Databox client is a Next.js server
 
 The Databox client is no longer static files served by nginx.
@@ -122,13 +210,20 @@ The Databox client is no longer static files served by nginx.
   runtime.
 - The headers formerly set by nginx (`Content-Security-Policy: frame-ancestors`,
   HSTS, `X-Robots-Tag`, `X-Content-Type-Options`) and `robots.txt` are no longer
-  emitted: set them on your reverse proxy. `phrasea-manifest.json` is no longer
-  served.
+  emitted: set them on your reverse proxy. `phrasea-manifest.json` is still
+  served, by a route of the Next.js server.
 - Sentry (`CLIENT_SENTRY_DSN`) only reports the browser errors: no tracing, no
   replay, no source maps uploaded. The SDK sends them to the same origin route
   `/api/relay`, which relays them to the project of the DSN behind a rate limit
   per client process (`SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, 30 per minute and per
   IP; `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL`, 300 per minute).
+- The clients send a Content Security Policy restricting the scripts to those
+  bearing the nonce of the response, only reported
+  (`Content-Security-Policy-Report-Only`) while `CSP_REPORT_ONLY` is true, the
+  default; violations reach Sentry through `/api/relay/csp` when
+  `CLIENT_SENTRY_DSN` is set. List any host serving files to the pages that is
+  not part of the stack (CDN other than `*_CLOUD_FRONT_URL`, external logo…) in
+  `CSP_EXTRA_SOURCES` before enforcing it (`CSP_REPORT_ONLY=false`).
 - Theme: the global `theme` entry (MUI theme options) no longer applies to
   Databox, which reads `databox.theme` (JSON, edited from the admin "Customize
   theme" screen or `PUT /client-theme`). The global `logo` is still honoured.
@@ -171,12 +266,14 @@ The three clients follow the Databox client (see above): same images
 
 ### Scheduler containers replace the cron jobs
 
-The periodic tasks of databox and uploader are now planned by Symfony Scheduler
-and consumed by two new services, built from the worker images (no new image):
+The periodic tasks of databox, expose and uploader are now planned by Symfony
+Scheduler and consumed by three new services, built from the worker images (no
+new image), each in the profile of the same name:
 
 | Service              | `WORKER_PRIORITIES` | Replicas |
 | -------------------- | ------------------- | -------- |
 | `databox-scheduler`  | `scheduler_main`    | 1        |
+| `expose-scheduler`   | `scheduler_main`    | 1        |
 | `uploader-scheduler` | `scheduler_main`    | 1        |
 
 Run them with **exactly one replica** and never scale them: scale the
@@ -195,6 +292,10 @@ Run them with **exactly one replica** and never scale them: scale the
 - The uploader now removes its expired assets daily
   (`app:asset:clean-expired`, retention `ASSET_DAYS_RETENTION`, 31 days by
   default), which was not scheduled before.
+- The three APIs now prune their abandoned multipart uploads daily
+  (`alchemy:storage:prune-multipart-uploads`, see
+  [Abandoned multipart uploads](#abandoned-multipart-uploads)), which was not
+  scheduled before.
 
 The commands are kept for manual runs; `bin/console app:automation:run-due`
 triggers the due automations once, for development.
@@ -280,7 +381,7 @@ published ones.
 
 ### ImageMagick restricted to an allow list of formats
 
-The databox API and worker images now start with a deny-by-default
+The databox and expose API and worker images now start with a deny-by-default
 ImageMagick policy (`databox/api/docker/entrypoint.d/01-imagick.sh`): a crafted
 upload could otherwise read local files (container environment included) or
 reach the network through ImageMagick coders and Ghostscript. Only JPEG, PNG,
@@ -297,6 +398,64 @@ resource variables are unchanged.
 See [Formats read by ImageMagick](doc/tech/Databox/Renditions.mdx#formats-read-by-imagemagick)
 to re-enable a format.
 
+Expose only uses ImageMagick to load its fixtures: the policy changes nothing
+for its users.
+
+### Resource limits of the databox workers
+
+Uploaded files, the URLs they come from and the rendition definitions are
+untrusted: the workers now bound what they spend on them.
+
+- ImageMagick: new `IMAGEMAGICK_POLICY_TIME` (120 seconds),
+  `IMAGEMAGICK_POLICY_LIST_LENGTH` (128 images per file: animation frames,
+  document pages) and `IMAGEMAGICK_POLICY_HEIGHT` (the width when unset)
+  variables. A longer animation or a slower conversion now fails: raise them if
+  needed.
+- Downloads from a URL (files to ingest, transcripts, remote files of the
+  renditions) last 900 seconds at most and are refused above `S3_MAX_OBJECT_SIZE`.
+- The `timeout` of the ffmpeg modules is 3600 seconds at most (and by
+  default); a definition asking for more is refused. The maximum is the
+  `alchemy_rendition_factory.ffmpeg.max_timeout` configuration.
+- `video_summary` extracts 100 clips at most (`max_clips` option, up to 1000),
+  and refuses a video announcing more than 24 hours.
+
+### Worker queues of databox
+
+Databox has five new Messenger transports, so that long jobs no longer delay the
+fast messages (see [Databox workers](doc/tech/Databox/workers.md)):
+
+- `heavy`: the renditions built first, metadata reading, file analysis,
+  downloads, exports, bulk deletions…;
+- `heavy_low`: the heavy workflow jobs that are not urgent, the other
+  renditions (animated thumbnails, custom renditions…) and the AI integrations;
+- `bulk`, `bulk_heavy` and `bulk_heavy_low`: the light, heavy and non urgent
+  heavy jobs of the workflows started by a bulk processing (workspace
+  ingestion, asset import, automation).
+
+A rendition definition has a new "Build first" setting (`buildFirst`): its
+jobs, and those of the definitions it is built from, go to `heavy`, the other
+renditions to `heavy_low`, so that the thumbnails of a large ingestion are all
+built before the other renditions. The migration sets it on the existing
+definitions used as thumbnail; review it on your other definitions.
+
+`ESPopulate`, `IndexAllAssets`, `IndexAllCollections` and `DeleteWorkspace` move
+to `task`. `IngestWorkspaceAsset`, which starts the workflow of one asset of a
+workspace ingestion, moves from `task` to `bulk`: the workflows of every asset
+are started by all the worker processes before the non urgent jobs.
+
+`WORKER_PRIORITIES` accepts several receivers per process, in priority order,
+separated by `,`, and a number of processes with a `:N` suffix. The databox
+worker image now defaults to
+`p1 p1,p2,bulk p1,p2,heavy,heavy_low,bulk,bulk_heavy,bulk_heavy_low task`:
+each process takes the most urgent message waiting among its receivers, so the
+bulk processings use every idle process while the interactive messages keep the
+priority. A deployment that sets `WORKER_PRIORITIES` itself (Helm values…)
+**must consume `heavy`, `heavy_low`, `bulk`, `bulk_heavy` and
+`bulk_heavy_low`**, in the same deployment or in
+a dedicated one: otherwise their messages pile up in RabbitMQ and the assets are
+never processed. Each process has its own `PHP_MEMORY_LIMIT`: give
+`DATABOX_WORKER_MEMORY_LIMIT` room for the new one.
+
 ### Indexer
 
 The example `config/config.json` now sets `createNewWorkspace` to `false`: the
@@ -310,51 +469,185 @@ act on behalf of another user by sending the `X-Impersonate-User` header. This
 role is part of `realm-admin`, granted to the default admin. There is no switch
 to disable it: review who holds these roles.
 
-### Access tokens: allowed clients
+### Access tokens: audiences
 
 The APIs used to accept any token signed by the realm. They now only accept
-the access tokens (`typ: Bearer`, so no more ID tokens) of the OAuth clients
-allowed on each of them, matched against the `azp` claim (else `client_id`),
-and check `nbf` and `iat` besides `exp` (30 seconds of clock skew tolerated).
-See [Access tokens and allowed clients](doc/tech/Authentication/clients.md).
+the access tokens (`typ: Bearer`, so no more ID tokens) whose audience (`aud`
+claim) includes the name of the application (`databox`, `expose`,
+`uploader`), and check `nbf` and `iat` besides `exp` (30 seconds of clock skew
+tolerated). The tokens of the admin client of the API itself
+(`*_ADMIN_CLIENT_ID`) are accepted without audience. See
+[Access tokens and audiences](doc/tech/Authentication/clients.md).
 
-- New variables, passed to the APIs as `ALLOWED_CLIENT_IDS` (comma separated):
-  `DATABOX_API_ALLOWED_CLIENT_IDS` (default: Databox, Dashboard and Uploader
-  clients, Databox indexer), `EXPOSE_API_ALLOWED_CLIENT_IDS` (Expose client,
-  `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`) and `UPLOADER_API_ALLOWED_CLIENT_IDS`
-  (Uploader client). The admin client of each API (`*_ADMIN_CLIENT_ID`) is
-  always allowed. The defaults are built from the existing `*_CLIENT_ID`
-  variables: a stack with the standard clients has nothing to change.
+- Keycloak gives the audiences: `bin/migrate.sh` (Keycloak synchronization)
+  creates a client scope per API (`databox-api`, `expose-api`, `uploader-api`,
+  with an audience mapper giving the name of the application as "Included
+  Custom Audience") and adds them to the default scopes of the clients
+  of the stack: Databox, Expose, Uploader (Uploader and Databox) and Dashboard
+  clients, Databox indexer, `DATABOX_EXPOSE_INTEGRATION_CLIENT_ID`, `postman`
+  when it exists, and every client created from Databox for its integrations
+  (Keycloak attribute `phrasea.created_by=databox`). No variable to set.
+- Until it has run, and for the tokens issued before, the APIs answer
+  `401 Invalid token.`: users log in again (the Expose integrations of
+  Databox are authorized again by their users).
 - Deployments with custom clients (scripts, MCP clients, integrations whose
-  Keycloak client was created by hand, the `postman` client of the `dev`
-  preset…) must declare them, or their calls answer `401 Invalid token.` (the
-  API logs the refused client ID).
-- The clients created from Databox for its integrations stay accepted by
-  Expose: its admin client's service account now gets the `view-clients` role
-  of `realm-management`, granted by the configurator at the next
-  `bin/migrate.sh` (Keycloak synchronization). Until it has run, Expose refuses
-  them (`401`, shown in Databox as "Expose refused the access token of the
-  OAuth client…").
-- Expose also accepts the public clients (standard flow only) whose redirect
-  URIs all lead to `<DATABOX_API_URL>/integrations/`: the Expose API now reads
-  `DATABOX_API_URL` (empty: rule disabled). The Databox API reads
-  `EXPOSE_ALLOWED_CLIENT_IDS` (the `EXPOSE_API_ALLOWED_CLIENT_IDS` of the
-  stack) to flag the clients Expose refuses in the client picker of the Expose
-  integration.
-- Helm: pass `ALLOWED_CLIENT_IDS` to the three APIs (and the workers) when the
-  client IDs differ from the defaults (`databox-app`, `expose-app`…),
-  `DATABOX_API_URL` to the Expose API and `EXPOSE_ALLOWED_CLIENT_IDS` to the
-  Databox API.
+  Keycloak client was created by hand…) must give them the scope of each API
+  they call, as a default client scope (Clients › `<client>` › Client scopes ›
+  Add client scope), or their calls answer `401 Invalid token.` (the API logs
+  the refused client and the scope it lacks).
+- No `ALLOWED_CLIENT_IDS` / `*_API_ALLOWED_CLIENT_IDS` /
+  `EXPOSE_ALLOWED_CLIENT_IDS` variables (they briefly existed on the 5.0
+  development branch): remove them from `.env.local` and the deployment
+  values if you added them. The Expose API does not read `DATABOX_API_URL`.
+- The `view-clients` role of `realm-management` that a development version of
+  the configurator granted to the service account of the Expose admin client is
+  no longer needed; it is left in place, without effect, and can be removed.
+
+### Docker networks split
+
+The single `internal` network shared by every container is replaced by four
+networks, so that a compromised container (a client, a console…) no longer
+reaches the databases, Redis, Elasticsearch, RabbitMQ or php-fpm, and the data
+services have no Internet access (see
+[Networks and trusted proxies](doc/tech/01_setup.md#networks-and-trusted-proxies)):
+
+- `proxy` (bridge, `PS_SUBNET`, gateway `PS_GATEWAY_IP`): Traefik and the
+  services it routes from the front;
+- `app` (`internal`): the API nginx and their php-fpm;
+- `data` (`internal`): databases, queues, storage, internal services, and
+  their clients;
+- `egress` (bridge): Internet and the host for php, the workers and the
+  configurator.
+
+To upgrade a running stack:
+
+- recreate it, since `proxy` takes the `PS_SUBNET` still held by
+  `<project>_internal` (`Pool overlaps with other one on this address space`):
+
+    ```bash
+    dc down    # the volumes are kept
+    dc up -d
+    ```
+
+    or `docker network rm <project>_internal` once its containers are stopped;
+
+- services added to the stack by an override file must be given the networks
+  they need instead of `internal`, and a routed service that is not on `proxy`
+  the label `traefik.docker.network=${COMPOSE_PROJECT_NAME}_data`. A service
+  only on `app`/`data` gets no published port, no Internet and no
+  `extra_hosts` route to the host;
+- `TRAEFIK_PROVIDERS_DOCKER_NETWORK` is now `${COMPOSE_PROJECT_NAME}_proxy`;
+- the Expose API nginx no longer reads `PS_SUBNET`: `/purge` only refuses the
+  requests relayed by a proxy. The variable can stay in the Helm values,
+  without effect;
+- `similarity-embedder` runs with `HF_HUB_OFFLINE=1` and
+  `TRANSFORMERS_OFFLINE=1` (its models are in the image), `face-recognition`
+  with `NO_ALBUMENTATIONS_UPDATE=1` (no version check at startup);
+- the default `PS_SUBNET` moves from `172.30.0.0/16` to `10.230.0.0/16`
+  (gateway `10.230.0.1`, Traefik `10.230.255.254`), out of the Docker address
+  pools. Nothing to do without an override (the `dc down` above applies it).
+  A `PS_SUBNET` overridden in `.env.local` needs `PS_GATEWAY_IP` and
+  `PS_TRAEFIK_IP` changed along with it, and an explicit `TRUSTED_PROXIES`
+  holding `172.30.255.254` must be updated. To keep `172.30.0.0/16`, set
+  `PS_SUBNET=172.30.0.0/16`, `PS_GATEWAY_IP=172.30.0.1` and
+  `PS_TRAEFIK_IP=172.30.255.254` in `.env.local`;
+- the networks other than `proxy` take their subnet from the Docker address
+  pools (`172.17.0.0/16` to `172.31.0.0/16`, then `192.168.0.0/16`, by
+  default), which may grab the `PS_SUBNET` of a stopped stack: choose every
+  `PS_SUBNET` outside of them (e.g. `10.231.0.0/16` for a second stack). To
+  keep a `PS_SUBNET` in `172.16.0.0/12`, move the pools out of it
+  (`default-address-pools` in `/etc/docker/daemon.json`, e.g.
+  `{"base": "10.210.0.0/16", "size": 24}`, with a base that overlaps no
+  stack's `PS_SUBNET`).
+
+### PostgreSQL role per application (optional)
+
+The APIs, their workers, Keycloak and the report services can now connect with
+a role of their own, owner of their database only, instead of the superuser
+`POSTGRES_USER` (see
+[Database roles](doc/tech/01_setup.md#database-roles)). Nothing changes while
+the new `*_POSTGRES_USER`/`*_POSTGRES_PASSWORD` variables are empty. To switch
+an existing install:
+
+1. back up the databases;
+2. set the pairs in `.env.local` (`DATABOX_`, `EXPOSE_`, `UPLOADER_`,
+   `KEYCLOAK_`, `REPORT_`; `KEYCLOAK_` also serves `keycloak2`);
+3. run the `database` step of the configurator, which creates the roles and
+   hands them the databases and their objects (add `--preset dev` if
+   `keycloak2` is deployed):
+
+    ```bash
+    dc run --rm configurator bin/console configure --filter database
+    ```
+
+4. recreate the services, so that they connect with their role:
+
+    ```bash
+    dc up -d
+    ```
+
+Run step 3 again after changing a password (then `dc up -d`), or after
+creating objects in an application database as the superuser: it is
+idempotent, and `bin/setup.sh` runs it as well. Emptying a pair switches the
+application back to the superuser, which keeps access to every database.
+
+### MinIO user per consumer (optional)
+
+The APIs (with their workers and schedulers), the Next.js clients and
+databox-indexer can now sign their requests to the bundled MinIO with a user of
+their own, restricted to their bucket, instead of the root user `S3_ACCESS_KEY`
+(see [MinIO users](doc/tech/01_setup.md#minio-users)). Nothing changes while
+the new `*_S3_ACCESS_KEY`/`*_S3_SECRET_KEY` variables are empty. To switch an
+existing install:
+
+1. set the pairs in `.env.local` (`DATABOX_`, `EXPOSE_`, `UPLOADER_`,
+   `CONFIG_READER_` for the clients, `INDEXER_`);
+2. create the users and their policies with the new `minio-setup` service
+   (profile `setup`, image `MINIO_MC_IMAGE`):
+
+    ```bash
+    dc run --rm minio-setup
+    ```
+
+3. recreate the services, so that they use their keys:
+
+    ```bash
+    dc up -d
+    ```
+
+`bin/setup.sh`, `bin/migrate.sh` and `bin/test.sh standard` run step 2 as well
+(idempotent: run it again after changing a secret key). The configurator and
+`dev` keep the root user.
+
+### Static bucket and signed URLs
+
+- The configurator makes the whole `CONFIGURATOR_S3_BUCKET_NAME` bucket public:
+  it now refuses to run (`setup`, `s3` step) when this bucket is also the one of
+  an application (`DATABOX_S3_BUCKET_NAME`, `EXPOSE_S3_BUCKET_NAME`,
+  `UPLOADER_S3_BUCKET_NAME`, `INDEXER_BUCKET_NAME`), whose files would all be
+  readable without signature. Move the configuration to a bucket of its own if
+  so (and remove the public policy left on the shared bucket).
+- `DATABOX_CLOUD_FRONT_TTL` and `EXPOSE_CLOUD_FRONT_TTL` (and the
+  `CLOUD_FRONT_TTL` default of `alchemy/storage-bundle`) go from 86400 to 3600
+  seconds, like the S3 signatures: a signed URL stays valid for its whole TTL,
+  even once its user has lost access to the file (removed from a workspace,
+  share or publication password revoked). Keep a value set in `.env.local` or
+  the deployment values only if you accept that delay.
+- Databox hands the same signed URL to every user reading a file for 5 minutes
+  at most (half of the signature TTL before).
 
 ### Helm
 
-This repository has no Helm chart for the stack (`infra/helm/report-elk` is
-unchanged). Apply the same changes in `alchemy-fr/phrasea-helm-charts`: in
-particular, replace the databox `CronJob`s with `databox-scheduler` and
-`uploader-scheduler` Deployments (worker image, `WORKER_PRIORITIES` as above,
+This repository no longer has any Helm chart: the unmaintained
+`infra/helm/report-elk` chart (archived elastic/helm-charts 7.11.2 charts) is
+removed. Apply the same changes in `alchemy-fr/phrasea-helm-charts`: in
+particular, replace the databox `CronJob`s with `databox-scheduler`,
+`expose-scheduler` and `uploader-scheduler` Deployments (worker image, `WORKER_PRIORITIES` as above,
 `replicas: 1`, `Recreate` strategy so that two pods never overlap), and swap
 Soketi for Sockudo (image, `SOCKUDO_*` variables, hosts, `/usage` on port 6001,
-see [Sockudo replaces Soketi](#sockudo-replaces-soketi)).
+see [Sockudo replaces Soketi](#sockudo-replaces-soketi)), and enable the security
+of the Elasticsearch it deploys, with a dedicated user for the applications (see
+[Elasticsearch authentication](#elasticsearch-authentication)).
 
 ## Database migrations
 
@@ -369,6 +662,11 @@ bin/migrate.sh
 Note that `bin/migrate.sh` starts the whole stack (`docker compose up -d`)
 before migrating: searches will return incomplete results until the indexes
 are rebuilt.
+
+Then run `bin/console app:collection:recompute-access` in `databox-api-php`: a
+migration deletes every "everyone" row (NULL user) of `collection_access`, which
+the former recomputation never purged, and only the recomputation brings back
+the valid ones.
 
 The three Day-0 baselines (databox, expose, uploader) detect the existing schema
 and register themselves without running any SQL. Expect the warning
@@ -414,7 +712,8 @@ ramsey/uuid-doctrine 1 to 2. No action is needed.
 ## Elasticsearch 9 and index rebuild
 
 All the databox indexes (`asset`, `collection`, `asset_data_template`, `basket`,
-`attribute_entity`, `tag`, `message`) must be repopulated on the new cluster.
+`attribute_entity`, `message`) must be repopulated on the new cluster. The former
+`tag` index is gone (see [Tags replaced by entity lists](#tags-replaced-by-entity-lists)).
 `bin/migrate.sh` does not do it. In `databox-api-php`:
 
 ```bash
@@ -462,7 +761,7 @@ Item `PUT` operations are removed from every resource. Send `PATCH` with
   `/attributes`, `/attribute-definitions`, `/attribute-entities`,
   `/attribute-filter-rules`, `/attribute-policies`, `/collections`,
   `/entity-lists`, `/rendition-definitions`, `/rendition-policies`, `/shares`,
-  `/tags`, `/workspaces`, `/integrations`, `/integration-data`, `/pages`,
+  `/workspaces`, `/integrations`, `/integration-data`, `/pages`,
   `/profiles`, `/saved-searches`, `/asset-data-templates`,
   `/template-attributes`, `/baskets`, `/messages`;
 - expose: `/assets`, `/publications`, `/publication_profiles`,
@@ -565,8 +864,20 @@ run in a sandbox:
 - allowed tags: `apply`, `autoescape`, `for`, `if`, `set`, `verbatim`, `with`;
 - forbidden functions: `attribute`, `block`, `constant`, `dump`, `enum`,
   `enum_cases`, `include`, `parent`, `source`, `template_from_string`;
-- on entities, only `get*`, `is*`, `has*` methods and `__toString` can be
-  called.
+- on entities, only an allow list of accessors can be read: `asset.id`,
+  `name`, `ownerId`, `workspaceId`, `locale`, `externalId`, `createdAt`,
+  `updatedAt`, `editedAt`, `story`, `source` and the `sourceFile*`,
+  `sourceChecksum`, `sourceDocUniqueId` shortcuts; `file.id`, `filename`,
+  `originalName`, `extension`, `extensionWithDot`, `type`, `size`, `checksum`,
+  `docUniqueId`, `createdAt`, `metadataValues` and `getMetadata()`; `attr.*`
+  is unchanged (see `doc/tech/Databox/metadata.md`). The other getters are
+  gone, among which `file.path`, `file.pathPublic`, `file.storage`,
+  `file.analysis`, `file.alternateUrls`, `file.workspace`, `asset.workspace`,
+  `asset.collections`, `asset.referenceCollection`, `asset.storyCollection`,
+  `asset.tags`, `asset.attributes`, `asset.renditions`, `asset.extraMetadata`:
+  a template still using one of them fails to render with a "not allowed"
+  error (`?? default` and `is defined` treat them as undefined);
+- `range()` and the `..` operator produce 10,000 elements at most.
 
 The validation constraint also rejects such templates on save: audit your
 existing definitions.
@@ -608,6 +919,14 @@ Integrations:
 - Publishing a basket to Expose requires READ on the basket.
 - The AWS Transcribe SNS endpoint only accepts
   `https://sns.<region>.amazonaws.com` URLs.
+- The Phraseanet `events` webhook (`phraseanet.renditions` integration,
+  `enqueue` method) requires the `webhookSecret` of the integration in its
+  `token` query parameter, and answers 401 otherwise. New integrations get a
+  generated secret; an existing one refuses the Phraseanet events, and its
+  renditions stay pending, until a `webhookSecret` is added to its
+  configuration (e.g. `openssl rand -hex 32`) and the new Webhook URL shown in
+  its information is copied into Phraseanet. The type and size sent by the
+  event are ignored: they are taken from the downloaded rendition.
 
 Workflows and files:
 
@@ -615,6 +934,15 @@ Workflows and files:
 - Copying a file through `sourceFileId` requires READ on that file.
 - `GET /attachments` requires `assetId` and READ on the asset.
 - Creating an attachment requires READ on the asset.
+- On `POST /assets`, the `relationship` source asset, file and integration
+  must be readable and belong to the workspace of the new asset (an
+  instance-wide integration is accepted); otherwise 400.
+- A rendition definition (`definitionId`, `name`, nested `renditions` of
+  `POST /assets`, `targetRendition` of an upload) must belong to the workspace
+  of the asset; `POST /renditions` with a definition of another workspace
+  answers 400 (it used to answer 422), as for an unknown one.
+- The `ownerId` of `POST /assets` and `POST /collections` can only name another
+  user for an admin or a token without user (OAuth client): otherwise 403.
 
 Other reads:
 
@@ -623,7 +951,6 @@ Other reads:
 - READ on rendition definitions follows the collection ACL.
 - Listing asset policies requires EDIT on the workspace.
 - Attribute filter rules are listed for editable workspaces only.
-- `GET /tags/{id}` requires READ on the workspace.
 - Profiles and profile items require READ.
 - Pages require READ, and their `ownerId` is not writable.
 - Asset data templates require READ on the workspace, both to read and to
@@ -634,6 +961,86 @@ Anonymous users:
 - Only PUBLIC assets and collections are visible, even in a public workspace.
 - `POST /assets/entities` no longer resolves users.
 - `/uploads*` requires an authenticated user (in the three APIs).
+
+## Tags replaced by entity lists
+
+Databox tags are removed: entity lists do the same (colours, translations,
+facets, AQL, list permissions) and more. A migration converts them.
+
+What the migration does, for each workspace having tags or an attribute
+filter rule on `@tag` (nothing is created in the other workspaces):
+
+- creates an attribute policy "Tags" (public and editable: whoever reads the
+  asset reads its tags, `EDIT_ATTRIBUTES` edits them, as before), an entity
+  list "Tags" (colours and translations enabled, readable by the readers of
+  the workspace) and a multi-valued attribute definition of type `entity`
+  "Tags", slug `tags`, facet enabled, for the assets and the stories;
+- turns each tag into an entity of the list **with the same UUID** (name →
+  value, colour → colour, name translations → translations; the tag locale is
+  dropped), each asset tag into a value of the attribute, each tag of an asset
+  data template into a template attribute value;
+- replaces `@tag` in the AQL conditions: with the slug of the workspace
+  definition in the attribute filter rules, with `tags` in the saved searches
+  and in the default queries of the pinned filters. The tag UUIDs being kept,
+  `@tag = "<uuid>"` becomes `tags = "<uuid>"` and still matches;
+- replaces each `@tag` profile item (grid, facets, filters, attributes) by one
+  item per migrated definition: a profile is not bound to a workspace and
+  resolves its items by definition ID;
+- converts the automation actions `tags` into `attribute` actions on the
+  "Tags" definition of the workspace of each tag: one `add` per added tag, one
+  `delete` of the removed tags (`value`: their IDs). Unknown tags are left out;
+  an automation left without action is disabled;
+- removes the `tag:*` events from the webhook subscriptions;
+- drops the `tag`, `asset_tag` and `asset_data_template_tag` tables and the
+  `asset.tags_edited_at` column. Its `down()` recreates them empty and removes
+  what `up()` created, without converting anything back.
+
+Fallback slug: when a workspace already has an attribute definition named
+"Tags" or with the slug `tags`, the migrated one is named "Tags (migrated)",
+slug `tagsmigrated` (and the list or the policy "Tags (migrated)" when the name
+is taken). The filter rules of that workspace use `tagsmigrated`, but saved
+searches, which may cover several workspaces, use `tags`: review the saved
+searches and pinned filters on such workspaces.
+
+After the migration, **repopulate** the `asset` and `attribute_entity` indexes,
+then delete the former `tag` index (`<prefix>tag_<env>` and its aliases), which
+nothing uses any more:
+
+```bash
+bin/console fos:elastica:populate --index=asset
+bin/console fos:elastica:populate --index=attribute_entity
+```
+
+API changes and their replacement:
+
+- `/tags` (and the MCP tool `list_tags`) → the entities of the "Tags" list:
+  `/attribute-entities?list=<list id>`;
+- `tags` of `POST`/`PATCH /assets`, of the stories and of the asset data
+  templates, and `tags` of the asset output → the values of the "Tags"
+  attribute (`attributes`, or `POST /assets/{id}/attributes`);
+- `tags_must` / `tags_must_not` of `GET /assets` (and `tagsMust` /
+  `tagsMustNot` of the MCP tool `search_assets`) → AQL conditions:
+  `tags HAS ALL OF ("<id>", …)`, `tags IS NONE OF ("<id>", …)`;
+- `withTags` of `POST /assets/copy` → `withAttributes`;
+- the `@tag` AQL field and the `tags` facet → the `tags` attribute and its
+  facet;
+- the attribute batch action on the pseudo definition `tags` → the `add` and
+  `delete` actions on the "Tags" definition. The `delete` action now takes an
+  optional `value` (a value or a list): only these values are removed (without
+  it, every value of the definition still is), and `add` keeps a single copy
+  of a value the asset already has;
+- the `tags` field of an import entry is refused: use
+  `"attributes": {"tags": ["<entity id>"]}`;
+- an imported workspace template ignores a former `Tag` section, and refuses an
+  attribute filter rule whose condition still uses `@tag`.
+
+The Uploader forms using the built-in `databox_tags` field are converted to an
+attribute field by a separate migration of the Uploader, to deploy together
+(Databox no longer reads `databox_tags`): see
+[Tags field of the forms](#tags-field-of-the-forms). The Phraseanet indexer
+(`databox/indexer`) must write the status bits as values of an entity list
+instead of tags. The Rust indexer (`alchemy-fr/databox-indexer`), which calls `/tags`, must be
+upgraded separately.
 
 ## Expose API
 
@@ -667,6 +1074,9 @@ Anonymous users:
   `POST /logs/publication-view/{id}` and `/logs/asset-view/{id}` answer `403`
   unless the publication, or the asset, can be read (`X-Passwords` included).
 - CORS no longer allows credentials, and `/admin` sends no CORS header.
+- In publication archives, the entries are named after the last segment of the
+  original file name, `\` counting as a separator, without control characters
+  nor trailing dots and spaces (`..\..\evil.exe` becomes `evil.exe`).
 
 ## Uploader API
 
@@ -674,6 +1084,85 @@ Routes, methods and bodies of `POST /assets`, `/assets/{id}/ack`, `/commit`,
 `/commits/{id}/ack`, `/form/validate` and `GET /targets/{id}/form-schema` are
 unchanged. Only `PUT` → `PATCH`, the `hydra:` prefix and filter typing change:
 `acknowledged` is a strict boolean, `target` accepts an id or an IRI.
+
+### Upload links
+
+- A link must expire: `expiresAt` is required, at most
+  `UPLOADER_UPLOAD_LINK_MAX_TTL` days ahead (90 by default, `UPLOAD_LINK_MAX_TTL`
+  in the API container). The migration gives the links without expiration one
+  90 days after it runs, whatever the configured maximum.
+- A link works only while its creator could still create it: the `upload_link`
+  permission and the allowed groups of the target are checked on each request,
+  against the groups (and admin role) the creator had when they last saved the
+  link. Otherwise the requests made with it answer `403` with the code
+  `upload_link_revoked`. The links created before the migration recorded no
+  group: the ones whose creator gets the permission or the target through a
+  group, or is an admin, stop working until their creator saves them again
+  (editing the link or regenerating its token records them).
+- `POST /upload-links/{id}/regenerate-token` gives a link a new token: the
+  former URL stops working.
+- The creator of a link can always disable it (`PATCH` with
+  `{"enabled": false}` only), even without the `upload_link` permission.
+- The holders of a link send their own session id in `X-Upload-Session` (a
+  UUID): the multipart uploads they start belong to that session only.
+- `GET /upload-links/current` no longer gives `lastFormData`: what was entered
+  in the form of the last commit is kept by the browser that entered it
+  (`localStorage`), not by the link, whose other holders could read it. The
+  migration drops `upload_link.last_form_data`.
+
+### Hardening
+
+- `POST /form/validate` answers `403` for a target the user may not read, like
+  `GET /targets/{id}/form`.
+- `POST /commit` stores the commit right away (it was stored by a worker): files
+  committed twice at once go with the first commit, the second answers `409`.
+- `POST /downloads` is rate limited per user: `UPLOADER_DOWNLOAD_RATE_LIMIT`
+  downloads per hour (30 by default, `DOWNLOAD_RATE_LIMIT` in the API
+  container), `429` with `Retry-After` beyond. A download lasts 600 seconds at
+  most (`app.download.max_duration`), however slow the server is; the name of
+  the file is the last segment of its name (`Content-Disposition` or URL),
+  without control characters, 255 bytes at most.
+- The names of the uploaded files are cut to 255 bytes (their extension kept).
+- The target URL (`targetUrl`) must use `https`: the authorization key is sent
+  to it. `http` is accepted for a host of the stack, without dot
+  (`http://databox-api/…`), and in the dev and test environments. The existing
+  targets are not checked until they are edited.
+- The notification of a target reaches the private network only for the origin
+  (scheme, host and port) of `DATABOX_API_URL` and the ones listed in
+  `UPLOADER_TARGET_PRIVATE_ORIGINS` (comma separated, empty by default,
+  `TARGET_PRIVATE_ORIGINS` in the API container): any other host resolving to a
+  private address is refused, and the commit fails after its retries. A target
+  on a host of the stack (`http://databox-api/…`) must use the URL of
+  `DATABOX_API_URL` (the target URL shown by the Databox Uploader integration)
+  or be listed. A notification lasts 60 seconds at most, and does not follow
+  redirections when it targets one of these origins.
+
+### Tags field of the forms
+
+Databox has no tags any more (see
+[Tags replaced by entity lists](#tags-replaced-by-entity-lists)): the built-in
+form field `databox_tags`, the field type `tag` and
+`GET /databox/workspaces/{id}/tags` are removed. The tags are the values of
+the `tags` entity attribute, added to a form like any other attribute. A
+migration of the Uploader, to run with the one of Databox:
+
+- turns the `databox_tags` field of each form into a field of the `tags`
+  attribute of the form's workspace (multiple, labels, default values and
+  widget kept: the tag UUIDs are the entity UUIDs). The attribute and list IDs
+  are the deterministic ones the Databox migration gives them. A form that
+  already has a `tags` field gets the key `tagsmigrated` instead (with a
+  warning); a form without workspace loses the field (with a warning);
+- renames the `databox_tags` key of the target data and of the commits not
+  yet acknowledged to the key of that field, merging their values.
+
+It cannot be reverted. To review afterwards, in the form builder:
+
+- the forms of a workspace where Databox took the fallback slug
+  `tagsmigrated` while the form had no `tags` field: their field keeps the key
+  `tags`, which now names the other attribute. Replace it by the
+  "Tags (migrated)" attribute;
+- the forms of a workspace that had no tag: Databox created no "Tags" list,
+  the field has no value to offer. Remove it.
 
 ## Allowed file types and file serving
 
@@ -692,6 +1181,20 @@ See `doc/tech/Storage/03_file_types.md`.
   these changes in your `.env.local` or deployment values if you override them.
 - The expose `file` and `upload` modes (asset and sub-definition creation) and
   every presigned `PUT` URL are checked too.
+- The list now applies to the Databox and Expose APIs, and to every way a file
+  enters them (files sent in the request, URLs and imports, uploader, Phraseanet).
+  `docker-compose.yml` passes `DATABOX_ALLOWED_FILE_TYPES` to `databox-api-php`
+  (and its workers), and the new `EXPOSE_ALLOWED_FILE_TYPES` to
+  `expose-api-php`: the Databox types plus the output formats of the renditions.
+  Helm: set `ALLOWED_FILE_TYPES` on the Expose API too (the chart only sets it
+  on the Databox API).
+- The content of the files is checked against their declared type (libmagic, on
+  the first 64 KiB): HLS playlists and ffconcat scripts are refused, and so is
+  a file whose content is not of the family of its declared type (an HTML page
+  declared `image/jpeg`). Legitimate files declared with a wrong type are
+  refused too. A refused Databox asset source is quarantined and never
+  processed; bypassing the quarantine accepts it. Files stored before the
+  upgrade are not checked again until their asset is ingested again.
 - Signed URLs force the response `Content-Type` from the type known in the
   database. Only `image/*` (except SVG), `video/*`, `audio/*` and
   `application/pdf` are displayed inline; anything else (SVG, HTML, XML,
@@ -717,6 +1220,54 @@ renews the URLs from part `n` (expired URLs, resumed uploads).
 `POST /uploads/{id}/part` still works for clients of the previous version but is
 deprecated and will be removed.
 
+### Upload limits
+
+The limits are applied when the upload is created, before anything is opened
+on the storage (see "Upload limits" in `doc/tech/Storage/01_s3.md`):
+
+- `POST /uploads` and `POST /uploads/{id}/parts` answer at most 1 000 part URLs:
+  a client asks `/parts` with `from` for the following ones.
+- A maximum file size per application, within `S3_MAX_OBJECT_SIZE`: new
+  `MAX_UPLOAD_FILE_SIZE` variable of Databox and Expose (100 GiB by default, set
+  by `DATABOX_MAX_UPLOAD_FILE_SIZE` and `EXPOSE_MAX_UPLOAD_FILE_SIZE` with Docker
+  Compose), the stack configuration `uploader.max_upload_file_size` for the
+  uploader. Raise them before the upgrade if larger files are sent.
+- The default of `S3_MAX_OBJECT_SIZE` is now 5 TiB, the largest object of S3
+  (it was 48 TiB, which no storage accepts).
+- New `MULTIPART_UPLOAD_RATE_LIMIT` (60 upload requests per minute and per
+  user, 429 with `Retry-After` beyond) and `MULTIPART_UPLOAD_MAX_PENDING` (20
+  uploads in progress per user, 429 beyond) variables. A script creating many
+  uploads at once has to wait for `Retry-After` and to complete or cancel its
+  uploads.
+- Through an upload link, an exhausted link or a file larger than what remains
+  of its total size is refused at creation (400 `upload_link_quota_exceeded`).
+  The `AssetToken` of a commit can no longer use `/uploads` (403).
+- New index on `multipart_upload` (migration of databox, expose and uploader).
+- `POST /uploads` refuses (422) a `filename` longer than 255 characters or a
+  `type` longer than 150, before anything is opened on the storage.
+- Databox checks the right to create the asset (`POST /assets`,
+  `POST /assets/multiple`) before completing its multipart upload: without it,
+  the request still answers 403, but the upload is left untouched (neither
+  completed nor used), to be sent again elsewhere, cancelled or pruned.
+
+### Abandoned multipart uploads
+
+`alchemy:storage:prune-multipart-uploads`, now run daily by the scheduler of
+each API, aborts the S3 multipart uploads initiated more than 24 hours ago
+(`--min-age` in hours, 3 at least) and deletes the `multipart_upload` rows of
+that age never used by a resource. It only lists the uploads under
+`S3_PATH_PREFIX`; it used to abort the uploads of the whole bucket, and with a
+non-empty `S3_PATH_PREFIX` it failed on the first one.
+
+With an empty `S3_PATH_PREFIX`, it aborts every multipart upload of the bucket:
+do not share the bucket of an application with anything else, or give it a
+prefix.
+
+On AWS S3, also add a lifecycle rule aborting the incomplete multipart uploads
+after 7 days to each application bucket (see "Abandoned uploads" in
+`doc/tech/Storage/01_s3.md`). MinIO does not support it, but removes them by
+itself after 24 hours.
+
 ## Collections and stories are ordered
 
 This change shipped in 4.5.0: it is only relevant when upgrading from 4.4 or
@@ -738,6 +1289,24 @@ bin/console fos:elastica:populate --index=asset
 `@position` sorting requires the search to be narrowed down with `collection`
 (exact membership) or `story`: `parent`, which spans the sub-collections, is
 rejected.
+
+## Story members are no longer assets of the story's collections
+
+The members of a story used to be indexed under the collections of the story
+asset: browsing a collection, or filtering on it (`parent`, `parents`,
+`collection`, `directCollections`, `@collection`, `@directCollection`), also
+returned the members of the stories it contains. They now only belong to the
+collections they are directly attached to; use `story` / `@story` to list the
+members of a story. The permissions granted on a collection still reach the
+members of its stories.
+
+Re-populate the `asset` index: until then the members keep their former
+collections, and the new `storyCollectionPaths` field, which propagates the
+permissions granted on a collection to the members of its stories, is missing.
+
+```bash
+bin/console fos:elastica:populate --index=asset
+```
 
 ## Notification emails
 

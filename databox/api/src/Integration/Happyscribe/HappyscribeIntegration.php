@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Happyscribe;
 
 use Alchemy\Workflow\Model\Workflow;
+use App\Consumer\WorkerQueue;
 use App\Integration\AbstractIntegration;
 use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
@@ -29,6 +30,7 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
         yield WorkflowHelper::createIntegrationJob(
             $config,
             HappyscribeAction::class,
+            queue: WorkerQueue::HEAVY_LOW,
         );
     }
 

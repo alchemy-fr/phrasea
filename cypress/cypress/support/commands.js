@@ -48,6 +48,8 @@ Cypress.Commands.add('selectOption', {prevSubject: 'element'}, (subject, optionT
         .find('[data-slot=select-item], [role=option]', {timeout: 10000})
         .contains(optionText)
         .click();
+    // Closing the listbox gives the focus back to the trigger: typing elsewhere before would lose keystrokes
+    cy.document().its('body').find('[role=listbox]').should('not.exist');
 });
 
 /**

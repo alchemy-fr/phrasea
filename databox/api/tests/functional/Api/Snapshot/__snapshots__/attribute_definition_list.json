@@ -48,6 +48,7 @@
             "translatable": false,
             "type": "text",
             "updatedAt": "<date>",
+            "useAsName": false,
             "workspace": {
                 "@id": "/workspaces/<workspace>",
                 "@type": "workspace",
@@ -105,6 +106,7 @@
             "translatable": false,
             "type": "text",
             "updatedAt": "<date>",
+            "useAsName": true,
             "workspace": {
                 "@id": "/workspaces/<workspace>",
                 "@type": "workspace",
@@ -161,6 +163,7 @@
             "translatable": false,
             "type": "text",
             "updatedAt": "<date>",
+            "useAsName": false,
             "workspace": {
                 "@id": "/workspaces/<workspace>",
                 "@type": "workspace",

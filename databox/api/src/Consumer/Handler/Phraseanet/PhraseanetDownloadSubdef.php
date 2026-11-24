@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Phraseanet;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class PhraseanetDownloadSubdef
 {
     public function __construct(
@@ -15,8 +15,6 @@ final readonly class PhraseanetDownloadSubdef
         private string $recordId,
         private string $subdefName,
         private string $permalink,
-        private ?string $type = null,
-        private ?int $size = null,
     ) {
     }
 
@@ -43,15 +41,5 @@ final readonly class PhraseanetDownloadSubdef
     public function getSubdefName(): string
     {
         return $this->subdefName;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function getSize(): ?int
-    {
-        return $this->size;
     }
 }

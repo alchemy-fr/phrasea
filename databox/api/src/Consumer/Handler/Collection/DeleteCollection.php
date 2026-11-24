@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Collection;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p1')]
+#[MessengerMessage('heavy')]
 final readonly class DeleteCollection
 {
     public function __construct(

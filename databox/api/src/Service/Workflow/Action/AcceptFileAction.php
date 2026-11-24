@@ -7,14 +7,15 @@ namespace App\Service\Workflow\Action;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
+use Alchemy\Workflow\State\Inputs;
 use App\Automation\UserContextSwitcher;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,6 +46,11 @@ readonly class AcceptFileAction implements ActionInterface
         $formLocale = $assetData['formLocale'] ?? null;
         $renditionDefId = $data['targetRendition'] ?? null;
 
+        // A link uploads on behalf of its creator, for anyone holding it: never onto an existing asset
+        if (($assetData['fromUploadLink'] ?? false) && (null !== $assetId || null !== $renditionDefId)) {
+            throw new \InvalidArgumentException('A file sent through an upload link cannot replace an asset rendition');
+        }
+
         if ($renditionDefId) {
             if (null === $assetId) {
                 throw new \InvalidArgumentException('Missing "targetAsset" when "targetRendition" is set');
@@ -54,7 +60,7 @@ readonly class AcceptFileAction implements ActionInterface
             if (!$this->userContextSwitcher->runAs($userId, fn (): bool => $this->security->isGranted(AssetVoter::EDIT, $asset))) {
                 throw new \InvalidArgumentException(sprintf('User "%s" cannot edit the asset "%s"', $userId, $asset->getId()));
             }
-            $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
+            $renditionDefinition = $this->renditionManager->getRenditionDefinitionById($asset->getWorkspaceId(), $renditionDefId);
 
             $this->renditionManager->validateSubstitution(
                 $asset,
@@ -80,8 +86,11 @@ readonly class AcceptFileAction implements ActionInterface
             $asset = new Asset();
             $asset->setOwnerId($userId);
             $asset->setWorkspace($workspace);
+            $asset->setReferenceCollection($collection);
+            if (!$this->userContextSwitcher->runAs($userId, fn (): bool => $this->security->isGranted(AbstractVoter::CREATE, $asset))) {
+                throw new \InvalidArgumentException(sprintf('User "%s" cannot create an asset in %s', $userId, null !== $collection ? sprintf('the collection "%s"', $collection->getId()) : sprintf('the workspace "%s"', $workspace->getId())));
+            }
             if (null !== $collection) {
-                $asset->setReferenceCollection($collection);
                 $asset->addToCollection($collection);
             }
         }
@@ -107,7 +116,7 @@ readonly class AcceptFileAction implements ActionInterface
      * The uploaded file's data and form data are set by the uploading user: they cannot
      * reach outside the workspace the integration is bound to.
      */
-    private function assertInIntegrationWorkspace(string $workspaceId, array $inputs): void
+    private function assertInIntegrationWorkspace(string $workspaceId, Inputs $inputs): void
     {
         $integrationWorkspaceId = $inputs['workspaceId'] ?? null;
         if (null !== $integrationWorkspaceId && $workspaceId !== $integrationWorkspaceId) {

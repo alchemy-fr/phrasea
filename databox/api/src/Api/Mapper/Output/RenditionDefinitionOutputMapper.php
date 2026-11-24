@@ -50,6 +50,7 @@ class RenditionDefinitionOutputMapper implements OutputMapperInterface
             $output->useAsPreview = $data->isUseAsPreview();
             $output->useAsThumbnail = $data->isUseAsThumbnail();
             $output->useAsAnimatedThumbnail = $data->isUseAsAnimatedThumbnail();
+            $output->buildFirst = $data->isBuildFirst();
             $output->definition = $data->getDefinition();
             $output->priority = $data->getPriority();
         }

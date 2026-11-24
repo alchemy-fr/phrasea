@@ -10,6 +10,9 @@ describe('getServerConfig', () => {
                 DATABOX_CLIENT_URL: 'https://databox.test',
                 EXPOSE_CLIENT_URL: 'https://expose.test',
                 PGADMIN_URL: 'https://pgadmin.test',
+                PARADE_CLIENT_URL: 'https://parade.test/',
+                LEND_CLIENT_URL: '',
+                DASHBOARD_DOCUMENTATION_URL: 'https://docs.test',
                 MATOMO_URL: 'https://matomo.test',
                 STACK_NAME: 'phrasea',
                 STACK_VERSION: '1.2.3',
@@ -26,6 +29,10 @@ describe('getServerConfig', () => {
         expect(config.tools).toEqual({
             pgadmin: 'https://pgadmin.test',
             matomo: 'https://matomo.test',
+        });
+        expect(config.links).toEqual({
+            parade: 'https://parade.test',
+            documentation: 'https://docs.test',
         });
         expect(config.stack).toEqual({name: 'phrasea', version: '1.2.3'});
         expect(config.devMode).toBe(true);

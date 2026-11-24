@@ -7,16 +7,19 @@ namespace App\Integration\Phrasea\Uploader\Message;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Attribute\AttributeDataImporter;
+use App\Automation\UserContextSwitcher;
 use App\Border\UploaderClient;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationManager;
+use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\AssetManager;
 use App\Service\Workflow\Action\AcceptFileAction;
 use App\Service\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -29,6 +32,8 @@ final readonly class IngestUploaderCommitHandler
         private AssetManager $assetManager,
         private EntityManagerInterface $em,
         private AttributeDataImporter $attributeDataImporter,
+        private UserContextSwitcher $userContextSwitcher,
+        private Security $security,
     ) {
     }
 
@@ -43,14 +48,19 @@ final readonly class IngestUploaderCommitHandler
             $message->token,
         );
 
+        // The uploading user, as told by the Uploader: it acts only within its own permissions
+        $userId = $commit['userId'] ?? null;
+        if (!is_string($userId) || '' === $userId) {
+            throw new \InvalidArgumentException(sprintf('Missing user of the Uploader commit "%s"', $message->commitId));
+        }
+
         $formData = $commit['formData'] ?? [];
         $formLocale = $commit['formLocale'] ?? null;
         $storyAsset = null;
         if ($formData[AttributeDataImporter::BUILT_IN_ATTRIBUTE_PREFIX.'is_story'] ?? false) {
-            $storyAsset = $this->createStory($commit['userId'], $formData, $formLocale, $config);
+            $storyAsset = $this->createStory($userId, $formData, $formLocale, $config);
         }
 
-        $userId = $commit['userId'];
         foreach ($commit['assets'] as $asset) {
             $assetId = is_array($asset) ? $asset['id'] : $asset;
             $this->workflowOrchestrator->dispatchEvent(IncomingUploaderFileWorkflowEvent::createEvent(
@@ -90,8 +100,11 @@ final readonly class IngestUploaderCommitHandler
         $storyAsset = new Asset();
         $storyAsset->setOwnerId($userId);
         $storyAsset->setWorkspace($workspace);
+        $storyAsset->setReferenceCollection($collection);
+        if (!$this->userContextSwitcher->runAs($userId, fn (): bool => $this->security->isGranted(AbstractVoter::CREATE, $storyAsset))) {
+            throw new \InvalidArgumentException(sprintf('User "%s" cannot create an asset in %s', $userId, null !== $collection ? sprintf('the collection "%s"', $collection->getId()) : sprintf('the workspace "%s"', $workspace->getId())));
+        }
         if (null !== $collection) {
-            $storyAsset->setReferenceCollection($collection);
             $storyAsset->addToCollection($collection);
         }
         $this->assetManager->turnIntoStory($storyAsset);

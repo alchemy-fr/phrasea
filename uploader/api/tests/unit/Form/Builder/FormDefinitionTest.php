@@ -20,7 +20,7 @@ class FormDefinitionTest extends TestCase
             'workspaceId' => 'ws',
             'fields' => [
                 ['id' => 'l', 'source' => 'layout', 'kind' => 'text', 'label' => ['en' => 'Hello']],
-                ['id' => 't', 'source' => 'builtin', 'key' => 'databox_tags', 'type' => 'text'],
+                ['id' => 'n', 'source' => 'builtin', 'key' => 'databox_name', 'type' => 'number', 'multiple' => true],
                 ['id' => 'c', 'source' => 'custom', 'key' => 'dest', 'type' => 'choice', 'choices' => [['value' => 'a'], ['value' => 'b']], 'label' => ['fr' => 'Destination']],
                 ['id' => 'k', 'source' => 'attribute', 'key' => 'title:fr', 'type' => 'text', 'attribute' => ['slug' => 'title']],
             ],
@@ -30,10 +30,10 @@ class FormDefinitionTest extends TestCase
         $this->assertCount(4, $definition->fields);
         $this->assertCount(3, $definition->getInputFields());
 
-        $tags = $definition->getField('databox_tags');
-        $this->assertSame(FieldSource::Builtin, $tags?->source);
-        $this->assertSame(FieldType::Tag, $tags->type, 'A built-in field has its own type');
-        $this->assertTrue($tags->multiple);
+        $name = $definition->getField('databox_name');
+        $this->assertSame(FieldSource::Builtin, $name?->source);
+        $this->assertSame(FieldType::Text, $name->type, 'A built-in field has its own type');
+        $this->assertFalse($name->multiple);
 
         $choice = $definition->getField('dest');
         $this->assertSame(['a', 'b'], $choice?->choices);
@@ -64,7 +64,9 @@ class FormDefinitionTest extends TestCase
             'key' => [$def(['id' => 'a', 'source' => 'custom', 'key' => 'a b', 'type' => 'text']), 'fields.0.key'],
             'type' => [$def(['id' => 'a', 'source' => 'custom', 'key' => 'a', 'type' => 'entity']), 'fields.0.type'],
             'builtin' => [$def(['id' => 'a', 'source' => 'builtin', 'key' => 'databox_nope']), 'fields.0.key'],
-            'custom builtin key' => [$def(['id' => 'a', 'source' => 'custom', 'key' => 'databox_tags', 'type' => 'text']), 'fields.0.key'],
+            'former tags builtin' => [$def(['id' => 'a', 'source' => 'builtin', 'key' => 'databox_tags']), 'fields.0.key'],
+            'custom builtin key' => [$def(['id' => 'a', 'source' => 'custom', 'key' => 'databox_name', 'type' => 'text']), 'fields.0.key'],
+            'tag type' => [$def(['id' => 'a', 'source' => 'attribute', 'key' => 'tags', 'type' => 'tag', 'attribute' => []]), 'fields.0.type'],
             'entity list' => [$def(['id' => 'a', 'source' => 'attribute', 'key' => 'a', 'type' => 'entity', 'attribute' => []]), 'fields.0.attribute.entityListId'],
             'choices' => [$def(['id' => 'a', 'source' => 'custom', 'key' => 'a', 'type' => 'choice', 'choices' => []]), 'fields.0.choices'],
             'duplicate choice' => [$def(['id' => 'a', 'source' => 'custom', 'key' => 'a', 'type' => 'choice', 'choices' => [['value' => 'x'], ['value' => 'x']]]), 'fields.0.choices.1.value'],

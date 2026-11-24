@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Functional\ElasticSearch;
 
 use Alchemy\ApiTest\ApiTestTrait;
-use Alchemy\ESBundle\Service\IndexRemover;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use App\Elasticsearch\Listener\PopulatePassListener;
 use App\Elasticsearch\Mapping\IndexSyncState;
+use App\Elasticsearch\PopulateIndexGuard;
 use App\Elasticsearch\PopulateLockManager;
 use App\Elasticsearch\PopulatePageTracker;
+use App\Elasticsearch\PopulateWriteJournal;
+use App\Elasticsearch\PopulateWriteReplayer;
 use App\Entity\Admin\PopulatePass;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetEmbedding;
@@ -34,7 +36,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Lock\LockFactory;
 
 /**
  * The memory of a populate must not grow with the number of indexed pages: once a page
@@ -72,7 +73,7 @@ final class PopulateMemoryTest extends KernelTestCase
     protected function tearDown(): void
     {
         $this->deletePasses();
-        static::getContainer()->get(PopulateLockManager::class)->forceRelease(self::INDEX);
+        static::getContainer()->get(PopulateLockManager::class)->forceRelease(self::INDEX, evenIfAlive: true);
         $this->defaultWorkspace = null;
         $this->defaultAttributePolicy = null;
         parent::tearDown();
@@ -305,9 +306,12 @@ final class PopulateMemoryTest extends KernelTestCase
         $guardedListener = new PopulatePassListener(
             $container->get(EntityManagerInterface::class),
             $container->get(IndexSyncState::class),
-            $container->get(IndexRemover::class),
-            $container->get(LockFactory::class),
+            $container->get('lock.populate.factory'),
             $container->get(PopulatePageTracker::class),
+            $container->get(PopulateLockManager::class),
+            $container->get(PopulateIndexGuard::class),
+            $container->get(PopulateWriteJournal::class),
+            $container->get(PopulateWriteReplayer::class),
             memoryGuardRatio: 0.0001,
         );
         $dispatcher->removeSubscriber($listener);

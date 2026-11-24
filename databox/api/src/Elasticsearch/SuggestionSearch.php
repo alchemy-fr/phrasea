@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Aggregation\MultiTerms;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Repository\Core\CollectionRepository;
+use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Elastica\Aggregation;
 use Elastica\Collapse;
 use Elastica\Multi;
@@ -27,13 +33,13 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Search-as-you-type suggestions: distinct attribute values first, then collection and asset names.
+ * Search-as-you-type suggestions: distinct attribute values first, then collection names.
  *
  * Attribute values come from the "suggestions" nested field of the asset documents
  * (see AssetPostTransformListener). A nested aggregation returns each (definition, value) pair once,
  * counting only the assets the user is allowed to see (same filters as AssetSearch), only for the
- * attribute definitions the user is allowed to read and only in the locales relevant to the user
- * (see getSuggestedDefinitions()).
+ * attribute definitions the user is allowed to read, except on the assets where an asset policy
+ * hides them from the user, and only in the locales relevant to the user (see getSuggestedDefinitions()).
  *
  * Scoped to attribute definitions (the "definition" option, comma-separated IDs), only their values
  * are suggested, whatever their "suggest" flag, and an empty query lists them: the search bar uses
@@ -47,10 +53,11 @@ class SuggestionSearch extends AbstractSearch
     private const string SUGGEST_SUB_FIELD = 'suggest';
     private const int MAX_RESULTS = 15;
     /**
-     * Leaves room for the collection and asset names in the result list.
+     * Leaves room for the collection names in the result list.
      */
     private const int MAX_ATTRIBUTE_VALUES = 10;
     private const int MAX_SCOPED_VALUES = 15;
+    private const string VALUES_AGG_PREFIX = 'values_';
     private const array HIGHLIGHT_TAGS = [
         'pre_tags' => ['[hl]'],
         'post_tags' => ['[/hl]'],
@@ -64,11 +71,10 @@ class SuggestionSearch extends AbstractSearch
         private readonly AssetSearch $assetSearch,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
-        private readonly string $kernelEnv,
+        private readonly CollectionRepository $collectionRepository,
         private readonly TranslatorInterface $translator,
-        #[Autowire(param: 'es_index_prefix')]
-        private readonly ?string $indexPrefix,
         private readonly LoggerInterface $logger,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
@@ -106,7 +112,7 @@ class SuggestionSearch extends AbstractSearch
             : null;
 
         $multiSearch = new Multi\Search($this->assetIndex->getClient());
-        $multiSearch->addSearch($this->collectionIndex->createSearch($namesQuery)->addIndex($this->assetIndex), 'names');
+        $multiSearch->addSearch($this->collectionIndex->createSearch($namesQuery), 'names');
         if (null !== $valuesQuery) {
             $multiSearch->addSearch($this->assetIndex->createSearch($valuesQuery), 'values');
         }
@@ -122,7 +128,7 @@ class SuggestionSearch extends AbstractSearch
             unset($resultSets['values']);
         }
 
-        $items = isset($resultSets['values']) ? $this->createAttributeValueItems($resultSets['values'], $definitions) : [];
+        $items = isset($resultSets['values']) ? $this->createAttributeValueItems($resultSets['values'], $definitions, self::MAX_ATTRIBUTE_VALUES) : [];
         array_push($items, ...$this->createNameItems($resultSets['names']));
         $items = array_slice($items, 0, self::MAX_RESULTS);
 
@@ -167,7 +173,7 @@ class SuggestionSearch extends AbstractSearch
         $resultSet = $this->executeSearch(fn (): ResultSet => $this->assetIndex->search($valuesQuery));
         $searchTime = microtime(true) - $start;
 
-        $items = $this->createAttributeValueItems($resultSet, $definitions);
+        $items = $this->createAttributeValueItems($resultSet, $definitions, self::MAX_SCOPED_VALUES);
 
         return [new Pagerfanta(new ArrayAdapter($items)), ['values' => $valuesQuery->toArray()], $searchTime];
     }
@@ -180,7 +186,10 @@ class SuggestionSearch extends AbstractSearch
      * - translatable text or keyword: the best workspace locale plus the untranslated values;
      * - other definitions: the untranslated values only.
      *
-     * @return array<string, array{name: string, locales: string[], locale: ?string}> indexed by definition ID
+     * "hidden" holds the assets of the workspace on which asset policies hide the definition from
+     * the user (see HiddenAttributeScope); a definition hidden on every asset is left out.
+     *
+     * @return array<string, array{name: string, locales: string[], locale: ?string, hidden: list<array{w: string, p: string[]}>}> indexed by definition ID
      */
     private function getSuggestedDefinitions(?string $userId, array $groupIds, ?array $definitionIds = null): array
     {
@@ -188,12 +197,18 @@ class SuggestionSearch extends AbstractSearch
             ? [AttributeDefinitionRepository::OPT_IDS => $definitionIds]
             : [AttributeDefinitionRepository::OPT_SUGGEST_ENABLED => true];
 
+        $hiddenScopes = $this->assetPolicyManager->getHiddenAttributeScopes($userId, $groupIds);
         $bestLocales = [];
         $definitions = [];
         foreach ($this->attributeDefinitionRepository->getSearchableAttributes($userId, $groupIds, $repositoryOptions) as $definition) {
             $workspace = $definition->getWorkspace();
             $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
             if (!$type->supportsSuggest()) {
+                continue;
+            }
+
+            $hidden = HiddenAttributeScope::ofDefinition($hiddenScopes, $definition->getId(), $workspace->getId());
+            if (HiddenAttributeScope::coversWorkspace($hidden, $workspace->getId())) {
                 continue;
             }
 
@@ -214,6 +229,7 @@ class SuggestionSearch extends AbstractSearch
                 ),
                 'locales' => $locales,
                 'locale' => $locale,
+                'hidden' => $hidden,
             ];
         }
 
@@ -228,17 +244,21 @@ class SuggestionSearch extends AbstractSearch
     }
 
     /**
-     * Collection and asset names: one hit per distinct name.
+     * Collection names: one hit per distinct name.
+     *
+     * Assets have no name of their own (their title is an attribute, suggested as an attribute
+     * value), so the asset index is not searched.
      */
     private function createNamesQuery(?string $userId, array $groupIds, array $options, string $queryString): Query
     {
         $filterQuery = new Query\BoolQuery();
-        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds)) {
+        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds, WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)) {
             $filterQuery->addFilter($aclBoolQuery);
         }
         if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
             $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
         }
+        $filterQuery->addFilter(new Query\Term(['deleted' => false]));
         $filterQuery->addMust(new Query\MatchQuery(self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD, $queryString));
 
         $query = new Query($filterQuery);
@@ -257,18 +277,15 @@ class SuggestionSearch extends AbstractSearch
         $collapse->setFieldname(self::SUGGEST_FIELD.'.raw');
         $query->setCollapse($collapse);
         $query->setSource(false);
-        $query->setIndicesBoost([
-            $this->assetIndex->getName() => 1.1,
-        ]);
 
         return $query;
     }
 
     /**
      * Distinct attribute values matching the query (all of them when the query is empty): no hit,
-     * only a nested aggregation.
+     * only nested aggregations.
      *
-     * @param array<string, array{name: string, locales: string[], locale: ?string}> $definitions see getSuggestedDefinitions()
+     * @param array<string, array{name: string, locales: string[], locale: ?string, hidden: list<array{w: string, p: string[]}>}> $definitions see getSuggestedDefinitions()
      */
     private function createAttributeValuesQuery(
         ?string $userId,
@@ -281,15 +298,20 @@ class SuggestionSearch extends AbstractSearch
         $suggestionsField = AttributeInterface::SUGGESTIONS_FIELD;
         $valueField = sprintf('%s.value.%s', $suggestionsField, self::SUGGEST_SUB_FIELD);
 
-        // Applies to the nested "suggestion" documents: it selects the assets, then filters the
-        // aggregated values again because an asset matched through one value of a multi-valued
-        // attribute must not contribute its other values.
-        $suggestionQuery = new Query\BoolQuery();
-        $suggestionQuery->addFilter($this->createScopeQuery($suggestionsField, $definitions));
-        $suggestionQuery->addMust('' !== $queryString
-            ? new Query\MatchQuery($valueField, $queryString)
-            : new Query\MatchAll()
-        );
+        // Applies to the nested "suggestion" documents: it selects the assets, then each group
+        // filters the aggregated values again because an asset matched through one value of a
+        // multi-valued attribute must not contribute its other values.
+        $createSuggestionQuery = function (array $definitions) use ($suggestionsField, $valueField, $queryString): Query\BoolQuery {
+            $suggestionQuery = new Query\BoolQuery();
+            $suggestionQuery->addFilter($this->createScopeQuery($suggestionsField, $definitions));
+            $suggestionQuery->addMust('' !== $queryString
+                ? new Query\MatchQuery($valueField, $queryString)
+                : new Query\MatchAll()
+            );
+
+            return $suggestionQuery;
+        };
+        $suggestionQuery = $createSuggestionQuery($definitions);
 
         $nestedQuery = new Query\Nested();
         $nestedQuery->setPath($suggestionsField);
@@ -308,35 +330,48 @@ class SuggestionSearch extends AbstractSearch
         $query->setSize(0);
         $query->setTrackTotalHits(false);
 
-        // Entities are keyed by their ID too: two entities may share a label, and the client
-        // filters by ID. Plain values have no entity ID and get an empty one.
-        $values = new MultiTerms('values', [
-            $suggestionsField.'.definitionId',
-            $suggestionsField.'.value',
-            ['field' => $suggestionsField.'.entityId', 'missing' => ''],
-        ]);
-        $values->setSize($size);
+        // One aggregation per group of definitions hidden on the same assets: a nested aggregation
+        // cannot filter on the asset, a filter aggregation wraps it (see createAttributeValueItems()).
+        $groups = HiddenAttributeScope::groupDefinitions(
+            array_map(strval(...), array_keys($definitions)),
+            array_map(static fn (array $definition): array => $definition['hidden'], $definitions),
+        );
+        foreach ($groups as $i => $group) {
+            $groupSuggestionQuery = $createSuggestionQuery(array_intersect_key($definitions, array_flip($group['definitionIds'])));
 
-        if ('' !== $queryString) {
-            $highlight = new Aggregation\TopHits('highlight');
-            $highlight->setSize(1);
-            $highlight->setSource(false);
-            $highlight->setHighlight(self::HIGHLIGHT_TAGS + [
-                'fields' => [
-                    $valueField => [
-                        'highlight_query' => $suggestionQuery->toArray(),
-                    ],
-                ],
+            // Entities are keyed by their ID too: two entities may share a label, and the client
+            // filters by ID. Plain values have no entity ID and get an empty one.
+            $values = new MultiTerms('values', [
+                $suggestionsField.'.definitionId',
+                $suggestionsField.'.value',
+                ['field' => $suggestionsField.'.entityId', 'missing' => ''],
             ]);
-            $values->addAggregation($highlight);
+            $values->setSize($size);
+
+            if ('' !== $queryString) {
+                $highlight = new Aggregation\TopHits('highlight');
+                $highlight->setSize(1);
+                $highlight->setSource(false);
+                $highlight->setHighlight(self::HIGHLIGHT_TAGS + [
+                    'fields' => [
+                        $valueField => [
+                            'highlight_query' => $groupSuggestionQuery->toArray(),
+                        ],
+                    ],
+                ]);
+                $values->addAggregation($highlight);
+            }
+
+            $matching = new Aggregation\Filter('matching', $groupSuggestionQuery);
+            $matching->addAggregation($values);
+
+            $suggestions = new Aggregation\Nested($suggestionsField, $suggestionsField);
+            $suggestions->addAggregation($matching);
+
+            $visible = new Aggregation\Filter(self::VALUES_AGG_PREFIX.$i, HiddenAttributeScope::createExclusionQuery($group['scopes']) ?? new Query\MatchAll());
+            $visible->addAggregation($suggestions);
+            $query->addAggregation($visible);
         }
-
-        $matching = new Aggregation\Filter('matching', $suggestionQuery);
-        $matching->addAggregation($values);
-
-        $suggestions = new Aggregation\Nested($suggestionsField, $suggestionsField);
-        $suggestions->addAggregation($matching);
-        $query->addAggregation($suggestions);
 
         return $query;
     }
@@ -345,7 +380,7 @@ class SuggestionSearch extends AbstractSearch
      * Restricts the nested documents to the allowed definitions, each in the locales to suggest.
      * Definitions sharing the same locales are grouped to keep the query short.
      *
-     * @param array<string, array{name: string, locales: string[], locale: ?string}> $definitions
+     * @param array<string, array{name: string, locales: string[], locale: ?string, hidden: list<array{w: string, p: string[]}>}> $definitions
      */
     private function createScopeQuery(string $suggestionsField, array $definitions): Query\AbstractQuery
     {
@@ -381,12 +416,21 @@ class SuggestionSearch extends AbstractSearch
     }
 
     /**
-     * @param array<string, array{name: string, locales: string[], locale: ?string}> $definitions see getSuggestedDefinitions()
+     * The most frequent values of every group of definitions (see createAttributeValuesQuery()).
+     *
+     * @param array<string, array{name: string, locales: string[], locale: ?string, hidden: list<array{w: string, p: string[]}>}> $definitions see getSuggestedDefinitions()
      */
-    private function createAttributeValueItems(ResultSet $resultSet, array $definitions): array
+    private function createAttributeValueItems(ResultSet $resultSet, array $definitions, int $size): array
     {
         $valueField = sprintf('%s.value.%s', AttributeInterface::SUGGESTIONS_FIELD, self::SUGGEST_SUB_FIELD);
-        $buckets = $resultSet->getAggregation(AttributeInterface::SUGGESTIONS_FIELD)['matching']['values']['buckets'] ?? [];
+        $buckets = [];
+        foreach ($resultSet->getAggregations() as $name => $aggregation) {
+            if (str_starts_with((string) $name, self::VALUES_AGG_PREFIX)) {
+                array_push($buckets, ...$aggregation[AttributeInterface::SUGGESTIONS_FIELD]['matching']['values']['buckets'] ?? []);
+            }
+        }
+        usort($buckets, static fn (array $a, array $b): int => $b['doc_count'] <=> $a['doc_count']);
+        $buckets = array_slice($buckets, 0, $size);
 
         return array_map(function (array $bucket) use ($valueField, $definitions): array {
             [$definitionId, $value, $entityId] = $bucket['key'];
@@ -409,27 +453,38 @@ class SuggestionSearch extends AbstractSearch
         }, $buckets);
     }
 
+    /**
+     * The hits whose collection the user may read: a stale document (collection moved, trashed
+     * or purged since its indexing) must not leak its name.
+     */
     private function createNameItems(ResultSet $resultSet): array
     {
         $highlightField = self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD;
-        $indexNames = [
-            'asset_'.$this->kernelEnv => 'asset',
-            'collection_'.$this->kernelEnv => 'collection',
-        ];
+        $results = $resultSet->getResults();
+        $collections = DoctrineUtil::getIndexFromIds(
+            $this->collectionRepository,
+            array_map(static fn (Result $result): string => (string) $result->getId(), $results),
+        );
+        $typeName = $this->translator->trans('search.suggestion.type.collection');
 
-        return array_map(function (Result $result) use ($highlightField, $indexNames): array {
+        $items = [];
+        foreach ($results as $result) {
+            $collection = $collections[$result->getId()] ?? null;
+            if (!$collection instanceof Collection || !$this->isGranted(AbstractVoter::READ, $collection)) {
+                continue;
+            }
+
             $hl = $result->getHighlights()[$highlightField][0] ?? '';
-            $indexName = substr((string) preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex()), strlen($this->indexPrefix ?? ''));
-            $type = $indexNames[$indexName];
-
-            return [
+            $items[] = [
                 'id' => $result->getId(),
                 'name' => preg_replace('#\[/?hl]#', '', $hl),
                 'hl' => $hl,
-                't' => $type,
-                'tName' => $this->translator->trans(sprintf('search.suggestion.type.%s', $type)),
+                't' => 'collection',
+                'tName' => $typeName,
                 'tId' => $result->getId(),
             ];
-        }, $resultSet->getResults());
+        }
+
+        return $items;
     }
 }

@@ -15,6 +15,7 @@ abstract class WorkflowHelper
         ?string $idSuffix = null,
         ?string $nameSuffix = null,
         array $metadata = [],
+        ?string $queue = null,
     ): Job {
         $workspaceIntegration = $config->getWorkspaceIntegration();
         $integration = $config->getIntegration();
@@ -29,6 +30,7 @@ abstract class WorkflowHelper
 
         $job = new Job($id);
         $job->setMetadata($metadata);
+        $job->setQueue($queue);
         $job->setName($name);
         if (is_subclass_of($action, IfActionInterface::class)) {
             $job->setIf($action.'::evaluateIf');

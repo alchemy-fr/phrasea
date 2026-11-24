@@ -1,5 +1,6 @@
 parameters:
     keycloak_url: '%env(KEYCLOAK_URL)%'
+    rabbitmq_console_url: '%env(RABBITMQ_CONSOLE_URL)%'
     env(VERIFY_SSL): 'true'
     env(VERIFY_HOST): 'true'
 
@@ -26,7 +27,7 @@ framework:
             keycloak.client:
                 base_uri: '%env(default:keycloak_url:KEYCLOAK_INTERNAL_URL)%/admin/realms/'
             rabbitmq.client:
-                base_uri: '%env(RABBITMQ_CONSOLE_URL)%/api/'
+                base_uri: '%env(default:rabbitmq_console_url:RABBITMQ_MANAGEMENT_URL)%/api/'
                 auth_basic: '%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%'
 
     php_errors:

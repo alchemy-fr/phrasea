@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Integration\Phrasea\Expose;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\UuidUtil;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\AbstractIntegration;
@@ -25,6 +27,7 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
@@ -59,9 +62,10 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 ->defaultValue('${EXPOSE_API_URL}')
                 ->cannotBeEmpty()
                 ->info('The Expose API base URL')
+                ->attribute(ConfigWidget::ATTR_URL, true)
             ->end();
         ConfigWidget::apply($builder->scalarNode('clientId'), ConfigWidget::OAuthClient)
-                ->isRequired()
+                ->defaultValue('${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}')
                 ->cannotBeEmpty()
                 ->info('Keycloak OAuth client (public, standard flow) used to authorize users on Expose')
             ->end()
@@ -69,6 +73,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 ->defaultValue('${EXPOSE_CLIENT_URL}')
                 ->cannotBeEmpty()
                 ->info('The Expose Client base URL')
+                ->attribute(ConfigWidget::ATTR_URL, true)
             ->end()
         ;
     }
@@ -87,47 +92,50 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 }
 
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-                $basket = DoctrineUtil::findStrict($this->em, Basket::class, $data['basketId']);
+                $basket = DoctrineUtil::findStrict($this->em, Basket::class, UuidUtil::assertValid($data['basketId'] ?? null, 'basketId'), throw404: true);
                 // The basket assets are published: it must be one the user can read
                 $this->denyAccessUnlessGranted(AbstractVoter::READ, $basket);
 
-                // Fixed for the life of the publication. Not an Expose property: the body is sent as is.
+                $publication = $data['publication'] ?? null;
+                if (!is_array($publication)) {
+                    throw new BadRequestHttpException('Missing "publication"');
+                }
+                // Fixed for the life of the publication
                 $ignoreRoi = filter_var($data['ignoreRoi'] ?? false, FILTER_VALIDATE_BOOL);
-                unset($data['ignoreRoi']);
 
-                $response = $this->exposeClient->createPublication($config, $integrationToken, $data);
-
-                $publicationId = $response['id'];
+                $created = $this->exposeClient->createPublicationFromInput($config, $integrationToken, $publication);
 
                 $integrationData = $this->integrationDataManager->storeData(
                     $config->getWorkspaceIntegration(),
                     $userId,
                     $basket,
                     self::DATA_PUBLICATION_ID,
-                    json_encode([
-                        'id' => $publicationId,
+                    self::encodePublicationData([
+                        'id' => $created['id'],
                         'ignoreRoi' => $ignoreRoi,
-                    ], JSON_THROW_ON_ERROR),
+                        // As created: a later renaming in Expose is not reflected
+                        'title' => $created['title'],
+                    ]),
                     multiple: true,
                 );
 
-                $this->bus->dispatch(new SyncBasket($integrationData->getId()));
+                $this->bus->dispatch(MessageDeduplication::coalesce(new SyncBasket($integrationData->getId()), 900));
 
                 return $this->createNewDataResponse($integrationData);
             case 'force-sync':
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 $intData = $this->integrationDataManager->getById(
                     $config->getWorkspaceIntegration(),
-                    $data['id'],
+                    UuidUtil::assertValid($data['id'] ?? null, 'id'),
                     $userId,
                 );
 
-                $this->bus->dispatch(new SyncBasket($intData->getId()));
+                $this->bus->dispatch(MessageDeduplication::coalesce(new SyncBasket($intData->getId()), 900));
 
                 return null;
             case 'stop':
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-                $id = $data['id'] ?? throw new \InvalidArgumentException('Missing "id"');
+                $id = UuidUtil::assertValid($data['id'] ?? null, 'id');
                 $deletePublication = !empty($data['deletePublication']);
 
                 if ($deletePublication) {
@@ -161,18 +169,22 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
     public function handleBasketUpdate(IntegrationData $data, IntegrationConfig $config): void
     {
-        $this->bus->dispatch(new SyncBasket($data->getId()));
+        $this->bus->dispatch(MessageDeduplication::coalesce(new SyncBasket($data->getId()), 900));
     }
 
     public function transformData(IntegrationData $data, IntegrationConfig $config): void
     {
-        ['id' => $publicationId, 'ignoreRoi' => $ignoreRoi] = self::readPublicationData($data);
+        $publication = self::readPublicationData($data);
+        $publicationId = $publication['id'];
 
         $data->setValue([
             'id' => $publicationId,
+            'title' => $publication['title'],
             'url' => $config['clientUrl'].'/'.$publicationId,
             'editUrl' => $config['clientUrl'].'/publications/'.$publicationId.'/edit',
-            'ignoreRoi' => $ignoreRoi,
+            'ignoreRoi' => $publication['ignoreRoi'],
+            'skipped' => $publication['skipped'],
+            'skippedTotal' => $publication['skippedTotal'],
         ]);
         $data->setName(self::DATA_PUBLICATION);
     }
@@ -180,8 +192,11 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
     /**
      * The publication of a basket synchronization: stored as JSON, or as the bare publication ID
      * by the synchronizations created before the option to publish the whole files.
+     * The title is only known for the synchronizations created since it is stored.
+     * The assets refused by Expose during the last synchronization are listed in "skipped"
+     * (the first ones only, "skippedTotal" counts them all).
      *
-     * @return array{id: string, ignoreRoi: bool}
+     * @return array{id: string, ignoreRoi: bool, title: string|null, skipped: list<array<string, mixed>>, skippedTotal: int}
      */
     public static function readPublicationData(IntegrationData $data): array
     {
@@ -189,9 +204,16 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         if (is_string($value) && str_starts_with($value, '{')) {
             $decoded = json_decode($value, true);
             if (is_array($decoded) && is_string($decoded['id'] ?? null)) {
+                $skipped = is_array($decoded['skipped'] ?? null)
+                    ? array_values(array_filter($decoded['skipped'], is_array(...)))
+                    : [];
+
                 return [
                     'id' => $decoded['id'],
                     'ignoreRoi' => true === ($decoded['ignoreRoi'] ?? false),
+                    'title' => is_string($decoded['title'] ?? null) ? $decoded['title'] : null,
+                    'skipped' => $skipped,
+                    'skippedTotal' => max(count($skipped), is_int($decoded['skippedTotal'] ?? null) ? $decoded['skippedTotal'] : 0),
                 ];
             }
         }
@@ -199,7 +221,34 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         return [
             'id' => (string) $value,
             'ignoreRoi' => false,
+            'title' => null,
+            'skipped' => [],
+            'skippedTotal' => 0,
         ];
+    }
+
+    /**
+     * @param array{id: string, ignoreRoi: bool, title: string|null, skipped?: list<array<string, mixed>>, skippedTotal?: int} $publication
+     */
+    public static function writePublicationData(IntegrationData $data, array $publication): void
+    {
+        $data->setValue(self::encodePublicationData($publication));
+    }
+
+    /**
+     * @param array{id: string, ignoreRoi: bool, title: string|null, skipped?: list<array<string, mixed>>, skippedTotal?: int} $publication
+     */
+    private static function encodePublicationData(array $publication): string
+    {
+        $skipped = $publication['skipped'] ?? [];
+
+        return json_encode([
+            'id' => $publication['id'],
+            'ignoreRoi' => $publication['ignoreRoi'],
+            'title' => $publication['title'],
+            'skipped' => $skipped,
+            'skippedTotal' => $publication['skippedTotal'] ?? count($skipped),
+        ], JSON_THROW_ON_ERROR);
     }
 
     public function supportData(string $integrationName, string $dataName, IntegrationConfig $config): bool

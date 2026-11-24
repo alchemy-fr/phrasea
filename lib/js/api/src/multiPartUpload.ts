@@ -6,7 +6,11 @@
  * created, so the file is then sent straight to the storage, several parts in
  * parallel, without asking the API for each part. Expired URLs are renewed
  * from the first unfinished part (`POST /uploads/{id}/parts`), which also
- * serves resuming an interrupted upload.
+ * serves resuming an interrupted upload and getting the URLs past the first
+ * ones (the API signs a limited number of URLs per answer).
+ *
+ * The API limits the upload requests of a user: a call refused for now
+ * (HTTP 429 with a `Retry-After` header) is sent again once the delay elapsed.
  *
  * This module has no runtime dependency on purpose: each client plugs its own
  * HTTP stack through a {@link MultipartUploadTransport} (see
@@ -32,7 +36,7 @@ export type MultipartUploadProgress = {
 
 /**
  * Answer of `POST /uploads`: the part size decided by the server and the
- * presigned PUT URL of every part, keyed by part number.
+ * presigned PUT URLs of the first parts, keyed by part number.
  */
 export type MultipartUploadInit = {
     id: string;
@@ -67,6 +71,12 @@ export type MultipartUploadTransport = {
     ): Promise<string>;
     /** Whether a `putPart` failure means the presigned URL expired (HTTP 403) */
     isExpiredUrlError(error: unknown): boolean;
+    /**
+     * Delay in milliseconds before sending again an API call the server
+     * refused for now (HTTP 429, see {@link parseRetryAfter}), undefined when
+     * the error is not to be retried.
+     */
+    getRetryDelay?(error: unknown): number | undefined;
     /** Error thrown when the upload is aborted from outside */
     createAbortError?(): Error;
 };
@@ -97,6 +107,57 @@ export type MultipartUploadOptions = {
 };
 
 export const DEFAULT_UPLOAD_CONCURRENCY = 3;
+
+/** Number of times an API call refused for now (HTTP 429) is sent again */
+export const MAX_RATE_LIMIT_RETRIES = 5;
+
+const MAX_RETRY_DELAY = 60_000;
+
+/**
+ * Delay in milliseconds of a `Retry-After` header (seconds or HTTP date),
+ * capped to a minute. Undefined without a valid header: the refusal is not
+ * temporary (e.g. too many uploads in progress).
+ */
+export function parseRetryAfter(
+    value: string | null | undefined,
+    now: number = Date.now()
+): number | undefined {
+    if (!value) {
+        return undefined;
+    }
+
+    let delay: number;
+    if (/^\s*\d+\s*$/.test(value)) {
+        delay = parseInt(value, 10) * 1000;
+    } else {
+        const date = Date.parse(value);
+        if (isNaN(date)) {
+            return undefined;
+        }
+        delay = date - now;
+    }
+
+    return Math.min(MAX_RETRY_DELAY, Math.max(0, delay));
+}
+
+function sleep(ms: number, signal: AbortSignal): Promise<void> {
+    return new Promise((resolve, reject) => {
+        if (signal.aborted) {
+            reject(signal.reason);
+
+            return;
+        }
+        const onAbort = () => {
+            clearTimeout(timer);
+            reject(signal.reason);
+        };
+        const timer = setTimeout(() => {
+            signal.removeEventListener('abort', onAbort);
+            resolve();
+        }, ms);
+        signal.addEventListener('abort', onAbort, {once: true});
+    });
+}
 
 export function getPartCount(size: number, chunkSize: number): number {
     if (chunkSize < 1) {
@@ -175,6 +236,25 @@ export async function multipartUpload(
         }
     };
 
+    const callApi = async <T>(call: () => Promise<T>): Promise<T> => {
+        for (let attempt = 1; ; attempt++) {
+            try {
+                return await call();
+            } catch (e) {
+                const delay =
+                    attempt <= MAX_RATE_LIMIT_RETRIES && !signal.aborted
+                        ? transport.getRetryDelay?.(e)
+                        : undefined;
+                if (delay === undefined) {
+                    throw e;
+                }
+                await sleep(delay, signal).catch(() => {
+                    throw createAbortError();
+                });
+            }
+        }
+    };
+
     let uploadId: string;
     let chunkSize: number;
     let partCount: number;
@@ -185,11 +265,10 @@ export async function multipartUpload(
         if (parts.length === 0) {
             throw new Error('uploadParts are required when resuming an upload');
         }
-        uploadId = initialUploadId;
-        const plan = await transport.getPartUrls(
-            uploadId,
-            getResumeFrom(parts),
-            signal
+        const resumedId = initialUploadId;
+        uploadId = resumedId;
+        const plan = await callApi(() =>
+            transport.getPartUrls(resumedId, getResumeFrom(parts), signal)
         );
         chunkSize = plan.chunkSize;
         partCount = plan.partCount;
@@ -206,10 +285,8 @@ export async function multipartUpload(
             );
         }
 
-        const init = await transport.createUpload(
-            {filename: file.name, type, size},
-            signal
-        );
+        const input = {filename: file.name, type, size};
+        const init = await callApi(() => transport.createUpload(input, signal));
         uploadId = init.id;
         chunkSize = init.chunkSize;
         partCount = getPartCount(size, chunkSize);
@@ -227,15 +304,18 @@ export async function multipartUpload(
     let refreshing: Promise<void> | undefined;
 
     /**
-     * Presigned URLs expire during long transfers. Refreshing from the
-     * smallest part not yet completed renews every remaining URL at once, so
-     * concurrent workers share a single request.
+     * Presigned URLs expire during long transfers, and the API hands out a
+     * limited number of them at once. Refreshing from the smallest part not
+     * yet completed renews the following URLs at once, so concurrent workers
+     * share a single request.
      */
-    const refreshUrls = (): Promise<void> => {
+    const refreshUrls = (
+        from: number = Math.min(...inFlight, ...pending)
+    ): Promise<void> => {
         if (!refreshing) {
-            const from = Math.min(...inFlight, ...pending);
-            refreshing = transport
-                .getPartUrls(uploadId, from, signal)
+            refreshing = callApi(() =>
+                transport.getPartUrls(uploadId, from, signal)
+            )
                 .then(plan => {
                     Object.assign(urls, plan.urls);
                 })
@@ -248,8 +328,11 @@ export async function multipartUpload(
     };
 
     const getUrl = async (partNumber: number): Promise<string> => {
-        if (!urls[partNumber]) {
-            await refreshUrls();
+        // Past the first attempt, the part is too far from the smallest one
+        // in progress to come in the same answer (or another worker's
+        // refresh was joined): ask from the part itself.
+        for (let attempt = 0; !urls[partNumber] && attempt < 3; attempt++) {
+            await refreshUrls(attempt === 0 ? undefined : partNumber);
         }
         const url = urls[partNumber];
         if (!url) {

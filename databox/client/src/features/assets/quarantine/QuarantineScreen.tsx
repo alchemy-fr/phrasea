@@ -13,11 +13,13 @@ import {
     ShieldAlertIcon,
     ShieldCheckIcon,
 } from 'lucide-react';
-import type {Asset, DuplicateAsset} from '@/types/api';
+import type {Asset, DuplicateAsset, QuarantineBatchAction} from '@/types/api';
 import {getAsset, getAssetDuplicates, searchAssets} from '@/lib/api/assets';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Checkbox} from '@alchemy/next-ui/ui/controls';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {InlineLoader} from '@alchemy/next-ui/ui/loader';
 import {CollectionChip, WorkspaceChip} from '@/components/chips';
 import {FileTypeChip} from '@alchemy/next-ui/ui/file-icon';
@@ -33,6 +35,10 @@ import {
 import {AnalysisReport} from './AnalysisReport';
 import {DuplicatesList} from './DuplicatesList';
 import {QuarantineActions} from './QuarantineActions';
+import {QuarantineBatchBar} from './QuarantineBatchBar';
+import {QuarantineBatchDialog} from './QuarantineBatchDialog';
+import {useQuarantineSelection} from './useQuarantineSelection';
+import {useQuarantineEligibility} from './useQuarantineEligibility';
 import {fileAnalysis, hasAnalysisReport, quarantineCondition} from './analysis';
 import {quarantineQueueKey, useQuarantineQueueStore} from './quarantineQueue';
 import {
@@ -66,6 +72,7 @@ export function QuarantineScreen() {
     const resolved = useQuarantineQueueStore(s => s.resolved);
     const queuePanel = useResizablePanel('quarantine');
     const resetResolved = useQuarantineQueueStore(s => s.reset);
+    const {openModal} = useModals();
 
     // Where the user is, shown in the top bar with the way back to the
     // assets. An asset opened from here stacks over it.
@@ -120,6 +127,9 @@ export function QuarantineScreen() {
         (queue.data?.pages[0]?.total ?? 0) - (loaded.length - assets.length),
         0
     );
+
+    const selection = useQuarantineSelection(assets);
+    const eligibility = useQuarantineEligibility(selection.ids);
 
     const select = useCallback((id: string | undefined) => {
         setSelectedId(id);
@@ -181,6 +191,31 @@ export function QuarantineScreen() {
         select(next?.id);
     };
 
+    // The batch dialog ran: the processed assets left the queue (see
+    // `QuarantineBatchDialog`), the others stay selected.
+    const onBatchComplete = (processed: string[]) => {
+        selection.remove(processed);
+        eligibility.invalidate();
+        if (selectedId && processed.includes(selectedId)) {
+            const left = (list: Asset[]) =>
+                list.find(a => !processed.includes(a.id));
+            const next =
+                index >= 0
+                    ? (left(assets.slice(index + 1)) ??
+                      left(assets.slice(0, index).reverse()))
+                    : undefined;
+            select(next?.id);
+        }
+    };
+
+    const runBatch = (action: QuarantineBatchAction) =>
+        openModal(QuarantineBatchDialog, {
+            action,
+            assets: selection.selected,
+            eligibility: eligibility.items,
+            onComplete: onBatchComplete,
+        });
+
     return (
         <RequireAuth>
             <div className="flex h-full min-h-0 flex-col">
@@ -205,6 +240,7 @@ export function QuarantineScreen() {
                         variant="ghost"
                         onClick={() => {
                             resetResolved();
+                            eligibility.invalidate();
                             void queue.refetch();
                         }}
                         loading={queue.isRefetching}
@@ -222,6 +258,16 @@ export function QuarantineScreen() {
                     </Button>
                 </header>
 
+                {selection.ids.length > 0 ? (
+                    <QuarantineBatchBar
+                        total={selection.ids.length}
+                        counts={eligibility.counts}
+                        loading={eligibility.loading}
+                        onClear={selection.clear}
+                        onRun={runBatch}
+                    />
+                ) : null}
+
                 <div className="flex min-h-0 flex-1">
                     <aside
                         style={{width: queuePanel.width}}
@@ -235,17 +281,54 @@ export function QuarantineScreen() {
                                 ))}
                             </div>
                         ) : null}
+                        {assets.length > 0 ? (
+                            <label className="flex items-center gap-2 border-b px-2 py-1.5 text-xs text-muted-foreground">
+                                <Checkbox
+                                    data-testid="quarantine-queue-select-all"
+                                    checked={
+                                        selection.allSelected
+                                            ? true
+                                            : selection.ids.length > 0
+                                              ? 'indeterminate'
+                                              : false
+                                    }
+                                    onCheckedChange={() =>
+                                        selection.allSelected
+                                            ? selection.clear()
+                                            : selection.selectAll()
+                                    }
+                                />
+                                {t('quarantine.batch.select_all', 'Select all')}
+                            </label>
+                        ) : null}
                         <ul>
                             {assets.map(a => (
-                                <li key={a.id}>
+                                <li
+                                    key={a.id}
+                                    className={cn(
+                                        'flex items-center border-b hover:bg-accent',
+                                        a.id === selectedId && 'bg-primary/10'
+                                    )}
+                                >
+                                    {/* Checking an asset does not open it:
+                                        Shift+click checks a whole range. */}
+                                    <Checkbox
+                                        className="ml-2"
+                                        data-testid="quarantine-queue-checkbox"
+                                        aria-label={t(
+                                            'quarantine.batch.select_item',
+                                            'Select'
+                                        )}
+                                        checked={selection.isSelected(a.id)}
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            selection.toggle(a, e);
+                                        }}
+                                    />
                                     <button
                                         type="button"
                                         data-testid="quarantine-queue-item"
-                                        className={cn(
-                                            'flex w-full items-center gap-2 border-b px-2 py-1.5 text-left hover:bg-accent',
-                                            a.id === selectedId &&
-                                                'bg-primary/10'
-                                        )}
+                                        className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
                                         onClick={() => select(a.id)}
                                     >
                                         <span className="size-10 shrink-0 overflow-hidden rounded bg-media-bg">

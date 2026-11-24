@@ -42,6 +42,7 @@ final class RenditionDefinitionSection extends AbstractTemplateSection
             'useAsPreview' => $item->isUseAsPreview(),
             'useAsThumbnail' => $item->isUseAsThumbnail(),
             'useAsAnimatedThumbnail' => $item->isUseAsAnimatedThumbnail(),
+            'buildFirst' => $item->isBuildFirst(),
             'labels' => $item->getLabels(),
             'translations' => $item->getTranslations(),
             'definition' => $item->getDefinition(),
@@ -84,6 +85,7 @@ final class RenditionDefinitionSection extends AbstractTemplateSection
             $o->setUseAsPreview($item['useAsPreview']);
             $o->setUseAsThumbnail($item['useAsThumbnail']);
             $o->setUseAsAnimatedThumbnail($item['useAsAnimatedThumbnail']);
+            $o->setBuildFirst($item['buildFirst'] ?? $item['useAsThumbnail']);
             $o->setLabels($item['labels']);
             if (array_key_exists('translations', $item)) {
                 $o->setTranslations($item['translations']);

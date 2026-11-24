@@ -121,7 +121,6 @@ export enum AttributeType {
     Story = 'story',
     /** Client-side type of the `@similar` built-in: an asset ID */
     Asset = 'asset',
-    Tag = 'tag',
     Text = 'text',
     Textarea = 'textarea',
     User = 'user',
@@ -147,7 +146,6 @@ export enum EntityName {
     BuiltInAttribute = 'built-in-attributes',
     AttributeEntity = 'attribute-entities',
     User = 'users',
-    Tag = 'tags',
     AssetDataTemplate = 'asset-data-templates',
     OperationTask = 'operation-tasks',
     EntityList = 'entity-lists',
@@ -249,6 +247,7 @@ export interface RenditionDefinition extends HydraObject, Entity {
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
     useAsAnimatedThumbnail?: boolean;
+    buildFirst?: boolean;
     priority: number;
     target: AssetType;
 }
@@ -266,7 +265,7 @@ export interface AssetRendition extends HydraObject, Entity {
 }
 
 // ---------------------------------------------------------------------------
-// Workspaces, collections, tags
+// Workspaces, collections
 
 export interface Workspace
     extends
@@ -305,14 +304,6 @@ export type WorkspaceTerms = {
     attachToExports: boolean;
     pdfUrl?: string | null;
 };
-
-export interface Tag extends HydraObject, Entity {
-    name: string;
-    displayName: string;
-    color: string | null;
-    translations?: Record<string, Translations>;
-    workspace: Workspace | string;
-}
 
 export interface Collection
     extends
@@ -389,6 +380,7 @@ export interface AttributeDefinition
     locales?: string[];
     allowInvalid: boolean;
     fillFromName: boolean;
+    useAsName: boolean;
     namePriority?: number | null;
     canEdit: boolean;
     searchBoost: number;
@@ -592,7 +584,6 @@ export interface Asset
     roi?: MediaClip | null;
     description?: string;
     privacy: Privacy;
-    tags?: Tag[];
     owner?: User;
     threadKey: string;
     thread?: Thread;
@@ -638,6 +629,40 @@ export type ESDocumentState = {
 export type DuplicateAsset = {
     asset: Asset;
     analyzers: string[];
+};
+
+export type QuarantineBatchAction = 'bypass' | 'merge' | 'trash' | 'delete';
+
+/** Eligibility keys of a prepared item: merge splits on its mode */
+export type QuarantineBatchEligibility =
+    'bypass' | 'trash' | 'delete' | 'mergeAsVersion' | 'mergeDiscard';
+
+export type QuarantineBatchPrepareItem = {
+    id: string;
+    /** Why the asset is not eligible, for each action it is not */
+    reasons: Partial<Record<QuarantineBatchEligibility, string>>;
+    /** `validTarget`: the incoming file can be added to it as a new version */
+    duplicates: (DuplicateAsset & {validTarget: boolean})[];
+} & Record<QuarantineBatchEligibility, boolean>;
+
+export type QuarantineBatchInput = {
+    action: QuarantineBatchAction;
+    items: {id: string; targetId?: string}[];
+    /** Merge only: keep the incoming file as a new version, or discard it */
+    addAsVersion?: boolean;
+};
+
+export type QuarantineBatchResultStatus = 'processed' | 'skipped' | 'failed';
+
+export type QuarantineBatchResult = {
+    results: {
+        id: string;
+        status: QuarantineBatchResultStatus;
+        reason?: string;
+    }[];
+    processed: number;
+    skipped: number;
+    failed: number;
 };
 
 export type MatomoMediaMetrics = Record<string, string | number>;
@@ -1031,7 +1056,6 @@ export type AssetDataTemplate = Entity & {
     attributes?: Attribute[] | AttributeBatchAction[];
     privacy?: Privacy | null;
     public: boolean;
-    tags?: Tag[];
     assetName?: string;
 };
 

@@ -4,27 +4,17 @@ declare(strict_types=1);
 
 namespace App\Api\Extension;
 
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\AttributeEntity;
-use App\Entity\Core\EntityList;
-use App\Entity\Core\Workspace;
-use App\Security\Voter\AssetContainerVoterInterface;
-use App\Security\Voter\EntityListVoter;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Security\AttributeEntityVisibilityResolver;
 use Doctrine\ORM\QueryBuilder;
 
 class AttributeEntityExtension implements QueryCollectionExtensionInterface
 {
-    use ParameterValuesTrait;
-    use SecurityAwareTrait;
-
     public function __construct(
-        private EntityManagerInterface $em,
+        private readonly AttributeEntityVisibilityResolver $visibilityResolver,
     ) {
     }
 
@@ -39,51 +29,31 @@ class AttributeEntityExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        // The editors of the requested list(s) also see the pending values
-        $listIds = null !== $operation ? (array) self::getParameterValue($operation, 'list', []) : [];
-        if (!empty($listIds)) {
-            $editsEveryList = true;
-            foreach ($listIds as $listId) {
-                $list = DoctrineUtil::findStrict($this->em, EntityList::class, basename((string) $listId), throw404: true);
-                $editsEveryList = $editsEveryList && $this->isGranted(EntityListVoter::EDIT_VALUES, $list);
-            }
-            if ($editsEveryList) {
-                return;
-            }
-        }
-
         $rootAlias = $queryBuilder->getRootAliases()[0];
+        $visibility = $this->visibilityResolver->resolve($operation);
 
-        $userIdentifier = $this->getUserOrOAuthClient()?->getUserIdentifier();
-
-        if ($userIdentifier) {
-            // Whoever may set attribute values in a workspace may pick its pending values too
-            $editableWorkspaces = [];
-            $workspaceIds = null !== $operation ? (array) self::getParameterValue($operation, 'workspace', []) : [];
-            foreach (array_unique(array_filter(array_map(static fn (mixed $id): string => basename((string) $id), $workspaceIds))) as $workspaceId) {
-                $workspace = $this->em->find(Workspace::class, $workspaceId);
-                if ($workspace instanceof Workspace && $this->isGranted(AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES, $workspace)) {
-                    $editableWorkspaces[] = $workspaceId;
-                }
-            }
-
-            $visible = sprintf('%1$s.status = :approved OR %1$s.creatorId = :uid', $rootAlias);
-            if (!empty($editableWorkspaces)) {
-                $visible .= sprintf(' OR (%1$s.status = :pending AND %1$s.workspace IN (:editableWorkspaces))', $rootAlias);
-                $queryBuilder
-                    ->setParameter('pending', AttributeEntity::STATUS_PENDING)
-                    ->setParameter('editableWorkspaces', $editableWorkspaces);
-            }
+        if (null !== $visibility->listIds) {
+            // Restricted on the checked IDs themselves: the "list" filter skips the values with a non-integer key (`?list[x]=`)
+            $parameterName = $queryNameGenerator->generateParameterName('editableLists');
             $queryBuilder
-                ->andWhere($visible)
-                ->setParameter('approved', AttributeEntity::STATUS_APPROVED)
-                ->setParameter('uid', $userIdentifier)
-            ;
-        } else {
-            $queryBuilder
-                ->andWhere(sprintf('%1$s.status = :approved', $rootAlias))
-                ->setParameter('approved', AttributeEntity::STATUS_APPROVED)
-            ;
+                ->andWhere(sprintf('%s.list IN (:%s)', $rootAlias, $parameterName))
+                ->setParameter($parameterName, $visibility->listIds);
+
+            return;
         }
+
+        $visible = sprintf('%1$s.status = :approved', $rootAlias);
+        $queryBuilder->setParameter('approved', AttributeEntity::STATUS_APPROVED);
+        if (null !== $visibility->userId) {
+            $visible .= sprintf(' OR %1$s.creatorId = :uid', $rootAlias);
+            $queryBuilder->setParameter('uid', $visibility->userId);
+        }
+        if (!empty($visibility->pendingWorkspaceIds)) {
+            $visible .= sprintf(' OR (%1$s.status = :pending AND %1$s.workspace IN (:editableWorkspaces))', $rootAlias);
+            $queryBuilder
+                ->setParameter('pending', AttributeEntity::STATUS_PENDING)
+                ->setParameter('editableWorkspaces', $visibility->pendingWorkspaceIds);
+        }
+        $queryBuilder->andWhere($visible);
     }
 }

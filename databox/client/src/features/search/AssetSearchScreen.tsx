@@ -24,7 +24,6 @@ import {AssetDropzone} from '@/features/upload/AssetDropzone';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {UploadDialog} from '@/features/upload/UploadDialog';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
-import {ExportWatcher} from '@/features/assets/ExportWatcher';
 import {useDisplayPreferences} from '@/features/preferences/store';
 import {useConfig} from '@/lib/config/ConfigProvider';
 
@@ -169,7 +168,6 @@ function SearchScreenContent() {
                     </Button>
                 </Tooltip>
             ) : null}
-            <ExportWatcher />
         </AssetDropzone>
     );
 }

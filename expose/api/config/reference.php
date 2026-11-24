@@ -134,6 +134,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type AlchemyStorageConfig = array{
  *     upload?: array{
  *         allowed_types?: scalar|Param|null, // comma separated values of MIME types, optionally including their extensions // Default: "%env(ALLOWED_FILE_TYPES)%"
+ *         max_file_size?: mixed, // maximum size of an uploaded file in bytes, within S3_MAX_OBJECT_SIZE (null or below 1: S3_MAX_OBJECT_SIZE only); checked when the multipart upload is created and when it is completed // Default: "%env(int:MAX_UPLOAD_FILE_SIZE)%"
  *     },
  * }
  * @psalm-type AlchemyCoreConfig = array{
@@ -492,7 +493,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     scheduler?: bool|array{ // Scheduler configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *     },
  *     disallow_search_engine_index?: bool|Param, // Enabled by default when debug is enabled. // Default: true
  *     http_client?: bool|array{ // HTTP Client configuration
@@ -1741,7 +1742,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     client_id?: scalar|Param|null, // Default: "%env(ADMIN_CLIENT_ID)%"
  *     client_secret?: scalar|Param|null, // Default: "%env(ADMIN_CLIENT_SECRET)%"
- *     allowed_client_ids?: mixed, // OAuth clients whose access tokens the API accepts besides "client_id", matched against the "azp" claim (else "client_id"): a list, or a comma separated env var through the "csv" processor // Default: "%env(csv:ALLOWED_CLIENT_IDS)%"
  *     token_leeway?: int|Param, // Clock skew tolerated on the "exp", "nbf" and "iat" claims of the tokens, in seconds // Default: 30
  *     required_roles?: list<scalar|Param|null>,
  *     role_mapping?: array<string, scalar|Param|null>,
@@ -1752,7 +1752,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         name?: scalar|Param|null, // The name of the service hosting the admin (in order to access the config node)
  *     },
  *     worker?: array{
- *         queues?: list<scalar|Param|null>,
+ *         inspect_limit?: int|Param, // Maximum number of pending messages read from each queue to summarize them // Default: 1000
  *         rabbitmq?: array{
  *             host?: scalar|Param|null, // Default: "%env(RABBITMQ_HOST)%"
  *             port?: scalar|Param|null, // Default: "%env(RABBITMQ_PORT)%"

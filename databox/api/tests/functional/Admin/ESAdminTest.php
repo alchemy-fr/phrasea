@@ -55,6 +55,45 @@ class ESAdminTest extends AbstractDataboxAdminTestCase
         $this->assertStringContainsString('does not exist', $crawler->filter('#flash-messages')->text());
     }
 
+    public function testDetailOfAnInvalidNameIsNotFound(): void
+    {
+        foreach (['x%3Cimg%3E', 'asset_test,'.self::TMP_INDEX, '_all', '-asset_test', 'asset_%2A'] as $name) {
+            $this->client->request('GET', '/admin/elasticsearch/index/'.$name);
+            $this->assertResponseStatusCodeSame(404, $name);
+        }
+    }
+
+    public function testFlashMessagesAreEscaped(): void
+    {
+        $this->client->request('POST', '/admin/elasticsearch/alias/add', [
+            'token' => $this->getCsrfToken(),
+            'index' => 'x<img src=x onerror=alert(1)>',
+            'alias' => self::TMP_ALIAS,
+        ]);
+        $this->assertResponseRedirects('/admin/elasticsearch');
+        $crawler = $this->client->followRedirect();
+
+        $this->assertStringContainsString('x<img src=x onerror=alert(1)>', $crawler->filter('#flash-messages')->text());
+        $this->assertSame(0, $crawler->filter('#flash-messages img')->count());
+        $html = (string) $this->client->getResponse()->getContent();
+        $this->assertStringContainsString('x&lt;img', $html);
+        $this->assertStringNotContainsString('<img src=x', $html);
+    }
+
+    public function testMutationsRefuseListsAndWildcards(): void
+    {
+        $token = $this->getCsrfToken();
+
+        foreach ([self::TMP_INDEX.',asset_test', self::TMP_INDEX.'*', '_all'] as $name) {
+            $this->client->request('POST', '/admin/elasticsearch/index/'.rawurlencode($name).'/close', ['token' => $token]);
+            $this->assertResponseRedirects('/admin/elasticsearch');
+            $crawler = $this->client->followRedirect();
+            $this->assertStringContainsString('is not a valid index or alias name', $crawler->filter('#flash-messages')->text());
+        }
+        $this->assertSame('open', $this->getIndexStatus(self::TMP_INDEX));
+        $this->assertSame('open', $this->getIndexStatus('asset_test'));
+    }
+
     public function testAliasLifecycle(): void
     {
         $token = $this->getCsrfToken();

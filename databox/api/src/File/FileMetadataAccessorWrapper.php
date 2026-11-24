@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\File;
 
 use App\Entity\Core\File;
+use App\Twig\Sandbox\TemplateSecurityPolicy;
 use Twig\Error\SyntaxError;
 
 /**
  * Allows calling File methods from AttributeDefinition fallback (twig), even if (asset.)file is null.
+ * Only the File methods allowed by TemplateSecurityPolicy are reachable.
  */
 final readonly class FileMetadataAccessorWrapper
 {
@@ -25,7 +27,39 @@ final readonly class FileMetadataAccessorWrapper
             return isset($args[0]) ? $this->getMetadata((string) $args[0]) : null;
         }
 
-        // Templates may only read the file: its setters are never reachable
+        $resolved = self::resolveFileMethod($method);
+        if (null === $resolved || !TemplateSecurityPolicy::isEntityMethodAllowed(File::class, $resolved)) {
+            throw new SyntaxError(sprintf('Unknown method "%s" on file', $method));
+        }
+
+        if ($this->file) {
+            return call_user_func_array([$this->file, $resolved], $args);
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether a template may call this method on the wrapper: the File methods
+     * it forwards to are restricted by the template sandbox policy.
+     */
+    public static function isMethodAllowed(string $method): bool
+    {
+        if (in_array(strtolower($method), ['metadata', 'getmetadata'], true)) {
+            return true;
+        }
+
+        $resolved = self::resolveFileMethod($method);
+
+        return null !== $resolved && TemplateSecurityPolicy::isEntityMethodAllowed(File::class, $resolved);
+    }
+
+    /**
+     * The File method a template name resolves to, with the Twig precedence
+     * (`size` → getSize(), then isSize()).
+     */
+    private static function resolveFileMethod(string $method): ?string
+    {
         $methods = [
             'get'.ucfirst($method),
             'is'.ucfirst($method),
@@ -34,20 +68,10 @@ final readonly class FileMetadataAccessorWrapper
             array_unshift($methods, $method);
         }
 
-        $resolved = null;
         foreach ($methods as $m) {
             if (method_exists(File::class, $m)) {
-                $resolved = $m;
-                break;
+                return $m;
             }
-        }
-
-        if (null === $resolved) {
-            throw new SyntaxError(sprintf('Unknown method "%s" on file', $method));
-        }
-
-        if ($this->file) {
-            return call_user_func_array([$this->file, $resolved], $args);
         }
 
         return null;

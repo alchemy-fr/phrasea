@@ -79,6 +79,9 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     public ?bool $useAsAnimatedThumbnail = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    public ?bool $buildFirst = null;
+
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?string $definition = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]

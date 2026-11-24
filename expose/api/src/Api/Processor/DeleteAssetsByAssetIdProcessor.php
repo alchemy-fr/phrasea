@@ -28,10 +28,18 @@ final readonly class DeleteAssetsByAssetIdProcessor implements ProcessorInterfac
 
         $this->assetManager->deleteByAssetId(
             (string) $request->attributes->get('assetId'),
-            function (Asset $asset): void {
-                if (!$this->security->isGranted(AssetVoter::DELETE, $asset)) {
+            function (Asset $asset): bool {
+                if ($this->security->isGranted(AssetVoter::DELETE, $asset)) {
+                    return true;
+                }
+
+                // An asset the user may not read is left out as if it did not exist:
+                // refusing it would tell whether the asset is published elsewhere.
+                if ($this->security->isGranted(AssetVoter::READ, $asset)) {
                     throw new AccessDeniedHttpException(sprintf('Cannot delete asset "%s"', $asset->getId()));
                 }
+
+                return false;
             },
         );
 

@@ -15,8 +15,6 @@ facet:
     name: Renditions
   relevance:
     name: Relevanz
-  tags:
-    name: Tags
   is_story:
     name: Story
   stories:
@@ -93,8 +91,6 @@ built_in_attribute:
     name: Ist eine Story
   stories:
     name: Stories
-  tags:
-    name: Tag
   renditions:
     name: Rendition
   editedAt:

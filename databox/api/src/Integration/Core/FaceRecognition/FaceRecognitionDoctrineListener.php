@@ -6,6 +6,7 @@ namespace App\Integration\Core\FaceRecognition;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
 use App\Integration\Core\FaceRecognition\Message\FaceRecognitionPhoto;
@@ -24,6 +25,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * The persons whose faces change (named, approved, moved or deleted face) are given the photo of
  * their best face again (FaceRecognitionPhoto).
+ *
+ * The named and deleted faces are sent to the face index here: the attribute batch updates
+ * disable the DeferredIndexListener.
  */
 #[AsDoctrineListener(Events::onFlush)]
 final class FaceRecognitionDoctrineListener
@@ -36,6 +40,7 @@ final class FaceRecognitionDoctrineListener
         private readonly PostFlushStack $postFlushStack,
         private readonly Security $security,
         private readonly MessageBusInterface $bus,
+        private readonly FaceIndex $faceIndex,
     ) {
     }
 
@@ -65,6 +70,10 @@ final class FaceRecognitionDoctrineListener
 
         /** @var array<string, array{0: \App\Integration\IntegrationConfig, 1: string[]}> $orphanCandidates */
         $orphanCandidates = [];
+        /** @var Attribute[] $namedFaces */
+        $namedFaces = [];
+        /** @var string[] $deletedFaceIds */
+        $deletedFaceIds = [];
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             if ($entity instanceof Attribute && null !== $entity->getEmbedding()) {
                 $changeSet = $uow->getEntityChangeSet($entity);
@@ -78,13 +87,14 @@ final class FaceRecognitionDoctrineListener
                 [$previous] = $changeSet['value'];
                 $this->faceManager->confirm($entity, $userId);
                 $uow->recomputeSingleEntityChangeSet($em->getClassMetadata(Attribute::class), $entity);
+                $namedFaces[] = $entity;
                 $orphanCandidates[$config->getIntegrationId()] ??= [$config, []];
                 $orphanCandidates[$config->getIntegrationId()][1][] = (string) $previous;
                 $this->postFlushStack->addBusMessage(new FaceRecognitionPropagate($entity->getId(), $config->getIntegrationId()));
-                $this->postFlushStack->addBusMessage(new FaceRecognitionPhoto((string) $entity->getValue(), $config->getIntegrationId()));
+                $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new FaceRecognitionPhoto((string) $entity->getValue(), $config->getIntegrationId()), 900));
                 if (!empty($previous)) {
                     // Its photo may have been cropped from this face
-                    $this->postFlushStack->addBusMessage(new FaceRecognitionPhoto((string) $previous, $config->getIntegrationId()));
+                    $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new FaceRecognitionPhoto((string) $previous, $config->getIntegrationId()), 900));
                 }
             } elseif ($entity instanceof AttributeEntity) {
                 $changeSet = $uow->getEntityChangeSet($entity);
@@ -101,20 +111,27 @@ final class FaceRecognitionDoctrineListener
                     if (null !== $reference) {
                         $this->bus->dispatch(new FaceRecognitionPropagate($reference->getId(), $config->getIntegrationId()));
                     }
-                    $this->bus->dispatch(new FaceRecognitionPhoto($entity->getId(), $config->getIntegrationId()));
+                    $this->bus->dispatch(MessageDeduplication::coalesce(new FaceRecognitionPhoto($entity->getId(), $config->getIntegrationId()), 900));
                 });
             }
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             if ($entity instanceof Attribute && null !== $entity->getEmbedding()) {
+                $deletedFaceIds[] = $entity->getId();
                 $config = $this->configResolver->getConfigOfDefinition($entity->getDefinition());
                 if (null !== $config) {
                     $orphanCandidates[$config->getIntegrationId()] ??= [$config, []];
                     $orphanCandidates[$config->getIntegrationId()][1][] = (string) $entity->getValue();
-                    $this->postFlushStack->addBusMessage(new FaceRecognitionPhoto((string) $entity->getValue(), $config->getIntegrationId()));
+                    $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new FaceRecognitionPhoto((string) $entity->getValue(), $config->getIntegrationId()), 900));
                 }
             }
+        }
+
+        if (!empty($namedFaces) || !empty($deletedFaceIds)) {
+            $this->postFlushStack->addCallback(function () use ($namedFaces, $deletedFaceIds): void {
+                $this->faceIndex->update($namedFaces, $deletedFaceIds);
+            });
         }
 
         foreach ($orphanCandidates as [$config, $values]) {

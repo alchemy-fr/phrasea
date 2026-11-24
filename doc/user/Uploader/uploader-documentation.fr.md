@@ -125,7 +125,7 @@ Documentation et exemple de [formulaire](../../tech/Uploader/form_config.md)
    
 Cliquer sur une Target : la liste indique les targets qui ont un formulaire.
 
-Chaque target a un seul formulaire, pour toutes les langues : ses libellés, aides et placeholders sont traduits dans le formulaire lui-même. L’éditeur de formulaire permet de construire le formulaire en glissant les attributs d’un workspace Databox (dont les listes d’entités), des valeurs Databox (nom, tags, story), des champs personnalisés et des sections, puis d’en voir le rendu. « Supprimer le formulaire » le retire : la target n’accepte alors plus de données d’indexation de l’utilisateur.
+Chaque target a un seul formulaire, pour toutes les langues : ses libellés, aides et placeholders sont traduits dans le formulaire lui-même. L’éditeur de formulaire permet de construire le formulaire en glissant les attributs d’un workspace Databox (dont les listes d’entités), des valeurs Databox (nom, story), des champs personnalisés et des sections, puis d’en voir le rendu. « Supprimer le formulaire » le retire : la target n’accepte alors plus de données d’indexation de l’utilisateur.
 
 Les formulaires décrits en JSON (LiForm) avant la version 5 ont été convertis vers le constructeur lors de la mise à jour ; voir la [documentation technique](../../tech/Uploader/form_config.md#migration-from-liform) pour ce que garde la conversion.
 

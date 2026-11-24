@@ -11,6 +11,7 @@ use App\Api\Filter\ExactSearchFilter;
 use App\Api\Filter\InIdsFilter;
 use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SortFilter;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SearchQuery;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
@@ -84,6 +85,17 @@ class ElasticsearchFiltersTest extends TestCase
 
         $this->assertEmpty((array) $this->apply(new PartialSearchFilter(), $parameter, ['gte' => 'operator map'])->bool->toArray()['bool']);
         $this->assertEmpty((array) $this->apply(new PartialSearchFilter(), $parameter, '')->bool->toArray()['bool']);
+    }
+
+    public function testPartialSearchFilterRefusesAValueLongerThanTheWildcardLimit(): void
+    {
+        $parameter = new QueryParameter(key: 'value', property: 'value', extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw']);
+
+        $this->assertCount(1, $this->apply(new PartialSearchFilter(), $parameter, str_repeat('é', AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH))->bool->toArray()['bool']['filter']);
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage(sprintf('The value of "value" is limited to %d characters', AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH));
+        $this->apply(new PartialSearchFilter(), $parameter, ['a', str_repeat('a', AQLToESQuery::MAX_WILDCARD_VALUE_LENGTH + 1)]);
     }
 
     public function testSortFilterAddsASortClauseOnTheEsField(): void

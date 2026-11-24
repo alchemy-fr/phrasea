@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Rendition;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\Workflow\Model\Workflow;
 use App\Consumer\Handler\Asset\BuildStoryContactSheet;
@@ -32,7 +31,7 @@ use App\Service\Vector\AssetEmbeddingManager;
 use App\Service\Workspace\WorkspaceDefaults;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Rendition\RenditionTestTrait;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use App\Tests\Functional\InterceptedTransports;
 
 /**
  * The "generate" rendition of a story (default "StoryContactSheet" definition):
@@ -418,18 +417,15 @@ YAML,
     /**
      * Keeps the BuildStoryContactSheet messages (and the workflows) from being handled.
      */
-    private function interceptBuilds(): InMemoryTransport
+    private function interceptBuilds(): InterceptedTransports
     {
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-
-        return $transport->intercept();
+        return InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy', 'heavy_low');
     }
 
     /**
      * @return BuildStoryContactSheet[]
      */
-    private function getScheduledMessages(InMemoryTransport $transport): array
+    private function getScheduledMessages(InterceptedTransports $transport): array
     {
         $messages = [];
         foreach ($transport->getSent() as $envelope) {
@@ -444,7 +440,7 @@ YAML,
     /**
      * @return string[]
      */
-    private function getScheduledStoryIds(InMemoryTransport $transport): array
+    private function getScheduledStoryIds(InterceptedTransports $transport): array
     {
         return array_map(fn (BuildStoryContactSheet $m): string => $m->getStoryAssetId(), $this->getScheduledMessages($transport));
     }

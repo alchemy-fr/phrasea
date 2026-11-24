@@ -10,6 +10,7 @@ use App\Entity\Core\AssetPolicy\AssetPolicyUser;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * /asset-policies (complements AssetPolicyTest): rights, update/delete, and
@@ -76,6 +77,27 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
 
         $this->jsonRequest('GET', '/asset-policies', self::READER, options: ['query' => ['workspaceId' => $ws->getId()]]);
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testListScopes(): void
+    {
+        [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $policy = $this->createAssetPolicy($ws, 'Hide', [self::READER], [['action' => 'hide_rendition', 'definitionId' => 'x']]);
+
+        $list = fn (string $scope): ResponseInterface => $this->jsonRequest('GET', '/asset-policies', null, options: [
+            'query' => ['workspaceId' => $ws->getId()],
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getClientCredentialJwt($scope)],
+        ]);
+
+        $list('workspace:read');
+        $this->assertResponseStatusCodeSame(403);
+
+        $list('workspace:read workspace:list');
+        $this->assertResponseStatusCodeSame(403);
+
+        $response = $list('workspace:read asset-policy:list');
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([$policy->getId()], $this->memberIds($response));
     }
 
     public function testGetItemIsRestrictedToWorkspaceEditors(): void
@@ -238,6 +260,34 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
 
         $this->assertEqualsCanonicalizing([$mainRendition->getId(), $previewRendition->getId()], $renditionIds(self::EDITOR));
         $this->assertContains($preview->getId(), $definitionIds(self::EDITOR));
+    }
+
+    public function testAssetIdRequiresAReadableAsset(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $preview = $defaults->renditionDefinitions['preview'];
+        $asset = $this->createAsset(['workspace' => $ws, 'ownerId' => self::EDITOR]);
+        $this->createAssetPolicy($ws, 'Hide preview', [self::EDITOR, self::READER], [['action' => 'hide_rendition', 'definitionId' => $preview->getId()]]);
+
+        $list = fn (string $userId, string $query): ResponseInterface => $this->jsonRequest('GET', '/rendition-definitions?'.$query, $userId);
+
+        // Not a member of the workspace: answered as if the asset did not exist
+        $response = $list(self::READER, 'assetId='.$asset->getId());
+        $this->assertResponseStatusCodeSame(404);
+        $notFoundDetail = $response->toArray(false)['detail'];
+
+        $response = $list(self::READER, 'assetId=f1b4b4a8-0000-4000-8000-000000000000');
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertSame($notFoundDetail, $response->toArray(false)['detail']);
+
+        $list(self::READER, 'assetId=not-a-uuid');
+        $this->assertResponseStatusCodeSame(400);
+
+        $list(self::READER, 'assetId[]='.$asset->getId());
+        $this->assertResponseStatusCodeSame(400);
+
+        $this->assertNotContains($preview->getId(), $this->memberIds($list(self::EDITOR, 'assetId='.$asset->getId())));
+        $this->assertContains($preview->getId(), $this->memberIds($list(self::EDITOR, 'workspaceId='.$ws->getId())));
     }
 
     public function testDisabledOrNonMatchingPolicyHasNoEffect(): void

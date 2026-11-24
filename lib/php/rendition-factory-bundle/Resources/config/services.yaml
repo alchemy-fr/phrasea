@@ -2,6 +2,8 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            int $ffmpegMaxTimeout: '%alchemy_rendition_factory.ffmpeg.max_timeout%'
 
     Alchemy\RenditionFactory\Command\CreateCommand: ~
     Alchemy\RenditionFactory\Command\ConfigurationValidateCommand: ~
@@ -9,11 +11,15 @@ services:
     Alchemy\RenditionFactory\Context\TransformationContextFactory:
         arguments:
             $allowPrivateNetwork: "@=parameter('kernel.environment') === 'dev'"
+            $maxDownloadSize: '%alchemy_rendition_factory.download.max_size%'
+            $maxDownloadDuration: '%alchemy_rendition_factory.download.max_duration%'
 
     Alchemy\RenditionFactory\FileFamilyGuesser: ~
     Alchemy\RenditionFactory\RenditionCreator: ~
     Alchemy\RenditionFactory\Config\YamlLoader: ~
     Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineFilterFactory: ~
+    Alchemy\RenditionFactory\Transformer\Document\Libreoffice\PdfConverter: ~
+    Alchemy\RenditionFactory\Transformer\Document\Libreoffice\DocumentFormatDetector: ~
 
     # Modules
     Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineTransformerModule:

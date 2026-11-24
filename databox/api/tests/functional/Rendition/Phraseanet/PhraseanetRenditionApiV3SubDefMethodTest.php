@@ -39,6 +39,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
 
         $queueName = 'p2';
         $inMemoryTransport = $this->interceptMessengerEvents($queueName);
+        $heavyTransport = $this->interceptMessengerEvents('heavy');
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
@@ -98,9 +99,15 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         // The ingest starts with the source import, skipped: nothing to import.
-        $importEnvelope = $inMemoryTransport->get()[0];
+        $importEnvelope = $heavyTransport->get()[0];
         self::assertEquals('import_source', $importEnvelope->getMessage()->getJobId());
-        $this->consumeEvent($importEnvelope, $queueName);
+        $this->consumeEvent($importEnvelope, 'heavy');
+
+        // Then the check of the source content
+        $sent = $inMemoryTransport->getSent();
+        $checkEnvelope = end($sent);
+        self::assertEquals('check_content', $checkEnvelope->getMessage()->getJobId());
+        $this->consumeEvent($checkEnvelope, $queueName);
 
         $sent = $inMemoryTransport->getSent();
         $envelope = end($sent);

@@ -69,6 +69,7 @@ class YamlLoader implements FileLoaderInterface
         $job->setIf($data['if'] ?? null);
         $job->setContinueOnError($data['continue-on-error'] ?? false);
         $job->setContinueOnSkip($data['continue-on-skip'] ?? false);
+        $job->setQueue($data['queue'] ?? null);
         $job->setOutputs($data['outputs'] ?? []);
         $job->setWith(new With($data['with'] ?? []));
 

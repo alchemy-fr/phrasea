@@ -56,8 +56,22 @@ App\Entity\Core\EntityList:
     nb_el_people:
         workspace: '@w_northbeam'
         name: People
+    nb_el_tags:
+        workspace: '@w_northbeam'
+        name: Tags
+        withTranslations: true
+        withColors: true
 
 App\Entity\Core\AttributeEntity:
+    nb_tpl_tag (template):
+        list: '@nb_el_tags'
+        workspace: '@w_northbeam'
+    nb_tag_breaking (extends nb_tpl_tag): { value: Breaking, color: '#E53935', translations: { fr: Urgent } }
+    nb_tag_exclusive (extends nb_tpl_tag): { value: Exclusive, color: '#8E24AA', translations: { fr: Exclusif } }
+    nb_tag_embargo (extends nb_tpl_tag): { value: Embargo, color: '#FB8C00' }
+    nb_tag_online (extends nb_tpl_tag): { value: Online, color: '#7EF284', translations: { fr: En ligne } }
+    nb_tag_offline (extends nb_tpl_tag): { value: Offline, color: '#9E9E9E', translations: { fr: Hors ligne } }
+
     nb_tpl_desk (template):
         list: '@nb_el_desk'
         workspace: '@w_northbeam'
@@ -248,29 +262,15 @@ App\Entity\Core\AttributeDefinition:
         annotationsEnabled: true
         position: 21
         translations: { name: { fr: Personnes } }
-
-App\Entity\Core\Tag:
-    nb_tpl_tag (template):
-        workspace: '@w_northbeam'
-    nb_tag_breaking (extends nb_tpl_tag):
-        name: Breaking
-        color: '#E53935'
-        translations: { name: { fr: Urgent } }
-    nb_tag_exclusive (extends nb_tpl_tag):
-        name: Exclusive
-        color: '#8E24AA'
-        translations: { name: { fr: Exclusif } }
-    nb_tag_embargo (extends nb_tpl_tag):
-        name: Embargo
-        color: '#FB8C00'
-    nb_tag_online (extends nb_tpl_tag):
-        name: Online
-        color: '#7EF284'
-        translations: { name: { fr: En ligne } }
-    nb_tag_offline (extends nb_tpl_tag):
-        name: Offline
-        color: '#9E9E9E'
-        translations: { name: { fr: Hors ligne } }
+    nb_ad_tags (extends nb_tpl_ad):
+        name: Tags
+        type: entity
+        entityList: '@nb_el_tags'
+        multiple: true
+        facetEnabled: true
+        target: '<(App\Model\AssetTypeEnum::Both)>'
+        position: 22
+        translations: { name: { fr: Étiquettes } }
 
 # Collections (privacy):
 # Desks (1)
@@ -372,10 +372,6 @@ App\Entity\Core\Asset:
             - addToCollection (25%?): ['@nb_c_wirefeed', true]
             - addToCollection (20%?): ['@nb_c_archives_*', true]
             - addToCollection (5%?): ['@nb_c_special_chars', true]
-            - addTag (15%?): ['@nb_tag_breaking']
-            - addTag (15%?): ['@nb_tag_exclusive']
-            # Online or Offline
-            - addTag (70%?): ['@nb_tag_o*']
 
     nb_a_v_p{1..40} (extends nb_tpl_a): { source: '@nb_f_m<current()>' }
     # Set before the calls, so that Embargoed stays the reference collection
@@ -386,7 +382,6 @@ App\Entity\Core\Asset:
         __calls:
             - addToCollection: ['@nb_c_embargoed', true]
             - addToCollection: ['@nb_c_archives_2026', true]
-            - addTag: ['@nb_tag_embargo']
     # Two photos in each story
     nb_a_v_s{47..56} (extends nb_tpl_a):
         source: '@nb_f_m<current()>'
@@ -435,6 +430,14 @@ App\Entity\Core\Attribute:
     nb_at_name_e{41..46} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_e<current()>', value: 'Image #<current()>' }
     nb_at_name_s{47..66} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_s<current()>', value: 'Image #<current()>' }
     nb_at_name_release{1..10} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_d_release<current()>', value: 'Press release #<current()>' }
+    # Tags: Online or Offline on most of the photos, Embargo on the embargoed ones
+    nb_at_tag_breaking_p{1..6} (extends nb_tpl_at): { definition: '@nb_ad_tags', asset: '@nb_a_v_p<current()>', value: '@nb_tag_breaking->id' }
+    nb_at_tag_exclusive_p{5..10} (extends nb_tpl_at): { definition: '@nb_ad_tags', asset: '@nb_a_v_p<current()>', value: '@nb_tag_exclusive->id' }
+    nb_at_tag_online_p{1..24} (extends nb_tpl_at): { definition: '@nb_ad_tags', asset: '@nb_a_v_p<current()>', value: '@nb_tag_online->id' }
+    nb_at_tag_offline_p{25..34} (extends nb_tpl_at): { definition: '@nb_ad_tags', asset: '@nb_a_v_p<current()>', value: '@nb_tag_offline->id' }
+    nb_at_tag_online_s{47..60} (extends nb_tpl_at): { definition: '@nb_ad_tags', asset: '@nb_a_v_s<current()>', value: '@nb_tag_online->id' }
+    nb_at_tag_offline_release{1..3} (extends nb_tpl_at): { definition: '@nb_ad_tags', asset: '@nb_a_d_release<current()>', value: '@nb_tag_offline->id' }
+    nb_at_tag_embargo_e{41..46} (extends nb_tpl_at): { definition: '@nb_ad_tags', asset: '@nb_a_v_e<current()>', value: '@nb_tag_embargo->id' }
     # The headline and the caption describe the same scene, in the city where the asset was taken
     nb_at_headline_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_headline', asset: <current()>, value: '<newsHeadline(<current()>, <geoPlaceCity(<current()>)>)>' }
     nb_at_headline_release_{@nb_a_d_release*} (extends nb_tpl_at): { definition: '@nb_ad_headline', asset: <current()>, value: '<newsTitle("release")>' }
@@ -537,7 +540,7 @@ Alchemy\AclBundle\Entity\AccessControlEntry:
 App\Entity\Core\AttributeFilterRule:
     nb_afr_embargo:
         workspace: '@w_northbeam'
-        condition: '<aqlTagIsNot(@nb_tag_embargo->id)>'
+        condition: '<aqlAttributeIsNot("tags", @nb_tag_embargo->id)>'
         __calls:
             - addTarget: [0, '<keycloakUser("carol")>']
 

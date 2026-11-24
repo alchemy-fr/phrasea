@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Elasticsearch\Exception\PopulateOwnerAliveException;
 use App\Elasticsearch\PopulateLockManager;
 use FOS\ElasticaBundle\Index\IndexManager;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -32,15 +33,18 @@ final class ESPopulateUnlockCommand extends Command
         $this
             ->addArgument('index', InputArgument::OPTIONAL, 'Logical index name (e.g. "asset"); defaults to every locked index')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation')
+            ->addOption('even-if-alive', null, InputOption::VALUE_NONE, 'Also release the lock of a populate that gave a sign of life recently')
             ->setHelp(<<<'HELP'
 Each populate takes a lock on its index so that two processes never populate the same index at once.
-The lock is released at the end of the run, or expires by itself 30 minutes after the last inserted page.
+The lock is released at the end of the run, or expires by itself 30 minutes after the last heartbeat of its
+populate (renewed while it indexes).
 
 Use this command when a worker was killed mid-populate and you cannot wait: the lock is removed and the
-populate passes still open for the index are closed with an error.
+populate passes still open for the index are closed with an error. The lock of a populate whose last
+heartbeat is less than 5 minutes old is kept, unless --even-if-alive is given.
 
-<error>Never release the lock of a populate that is actually still running</error>: the next populate of the same
-index would delete its pass and its half-built physical index.
+<error>Never release the lock of a populate that is actually still running</error>: another populate of the same
+index could then run alongside it.
 HELP
             );
     }
@@ -80,8 +84,16 @@ HELP
             }
         }
 
+        $released = 0;
         foreach ($locked as $index) {
-            $result = $this->lockManager->forceRelease($index);
+            try {
+                $result = $this->lockManager->forceRelease($index, evenIfAlive: true === $input->getOption('even-if-alive'));
+            } catch (PopulateOwnerAliveException $e) {
+                $io->error($e->getMessage().' Use --even-if-alive to release it anyway.');
+
+                continue;
+            }
+            ++$released;
             $io->text(\sprintf(
                 'Index <comment>%s</comment>: lock %s, %d open pass(es) closed',
                 $index,
@@ -90,7 +102,13 @@ HELP
             ));
         }
 
-        $io->success(\sprintf('%d lock(s) released.', \count($locked)));
+        if ($released < \count($locked)) {
+            $io->warning(\sprintf('%d lock(s) released, %d kept.', $released, \count($locked) - $released));
+
+            return Command::FAILURE;
+        }
+
+        $io->success(\sprintf('%d lock(s) released.', $released));
 
         return Command::SUCCESS;
     }

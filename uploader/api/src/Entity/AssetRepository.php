@@ -8,9 +8,14 @@ use Doctrine\ORM\EntityRepository;
 
 class AssetRepository extends EntityRepository
 {
-    public function attachCommit(array $files, string $commitId): void
+    /**
+     * Only the files not committed yet.
+     *
+     * @return int the number of files attached
+     */
+    public function attachCommit(array $files, string $commitId): int
     {
-        $this
+        return (int) $this
             ->createQueryBuilder('a')
             ->update(Asset::class, 'a')
             ->set('a.commit', ':commit')

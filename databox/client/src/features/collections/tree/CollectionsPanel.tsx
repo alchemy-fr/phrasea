@@ -34,6 +34,7 @@ import {
 import {useDropTarget} from '@/features/dnd/useDropTarget';
 import {useCollectionDrag} from '@/features/dnd/useCollectionDrag';
 import {useHoverExpand} from '@/features/dnd/useHoverExpand';
+import {isOnlyChildPager, mayHaveChildren, useAutoExpand} from './autoExpand';
 import {mergeRefs} from '@alchemy/next-ui/utils/refs';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {BuiltInAttribute, quoteAQL} from '@/features/search/searchState';
@@ -79,6 +80,7 @@ export function CollectionsPanel() {
     const workspaces = useCollectionStore(s => s.workspaces);
     const workspacesLoaded = useCollectionStore(s => s.workspacesLoaded);
     const workspacesLoading = useCollectionStore(s => s.workspacesLoading);
+    const workspacesError = useCollectionStore(s => s.workspacesError);
     const workspacesNext = useCollectionStore(s => s.workspacesNext);
     const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
     const loadMoreWorkspaces = useCollectionStore(s => s.loadMoreWorkspaces);
@@ -184,7 +186,20 @@ export function CollectionsPanel() {
                 </ul>
             ) : (
                 <div className="pb-2">
-                    {!workspacesLoaded ? (
+                    {workspacesError ? (
+                        <div className="flex flex-col items-center gap-1 px-3 py-4 text-center text-xs">
+                            <p className="text-destructive">
+                                {workspacesError}
+                            </p>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => void loadWorkspaces(true)}
+                            >
+                                {t('common.retry', 'Retry')}
+                            </Button>
+                        </div>
+                    ) : !workspacesLoaded ? (
                         <div className="space-y-2 px-3 py-2">
                             {[...Array(3)].map((_, i) => (
                                 <Skeleton key={i} className="h-6" />
@@ -472,6 +487,11 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                             <Skeleton className="h-5 w-1/2" />
                         </div>
                     ) : null}
+                    {pager?.error ? (
+                        <p className="px-3 py-1 text-xs text-destructive">
+                            {pager.error}
+                        </p>
+                    ) : null}
                     {pager?.ids.map(
                         id =>
                             collections[id] && (
@@ -479,6 +499,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                                     key={id}
                                     collection={collections[id]}
                                     depth={1}
+                                    onlyChild={isOnlyChildPager(pager)}
                                 />
                             )
                     )}
@@ -502,9 +523,11 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
 function CollectionItem({
     collection,
     depth,
+    onlyChild,
 }: {
     collection: CollectionNode;
     depth: number;
+    onlyChild: boolean;
 }) {
     const {t} = useTranslation();
     const router = useRouter();
@@ -521,11 +544,8 @@ function CollectionItem({
     const drag = useCollectionDrag(collection);
     const expand = useCallback(() => setExpanded(true), []);
     useHoverExpand(drop.isOver, expanded, expand);
-    // The list endpoint ships the first children along with each collection,
-    // so an empty `children` means a leaf. Without that hint (search results,
-    // ascendants…) we can't tell, and the chevron stays.
-    const childrenKnown = !!pager?.loaded || Array.isArray(collection.children);
-    const hasChildren = childrenKnown ? (pager?.ids.length ?? 0) > 0 : true;
+    const hasChildren = mayHaveChildren(collection, pager);
+    useAutoExpand(onlyChild && hasChildren, expand);
 
     useEffect(() => {
         if (expanded) {
@@ -762,6 +782,14 @@ function CollectionItem({
                             style={{marginLeft: (depth + 1) * 12 + 28}}
                         />
                     ) : null}
+                    {pager?.error ? (
+                        <p
+                            className="my-1 text-xs text-destructive"
+                            style={{marginLeft: (depth + 1) * 12 + 28}}
+                        >
+                            {pager.error}
+                        </p>
+                    ) : null}
                     {pager?.ids.map(
                         id =>
                             collections[id] && (
@@ -769,6 +797,7 @@ function CollectionItem({
                                     key={id}
                                     collection={collections[id]}
                                     depth={depth + 1}
+                                    onlyChild={isOnlyChildPager(pager)}
                                 />
                             )
                     )}

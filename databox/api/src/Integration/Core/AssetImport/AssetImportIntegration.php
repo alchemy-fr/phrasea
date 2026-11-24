@@ -38,6 +38,7 @@ class AssetImportIntegration extends AbstractIntegration
                 ->cannotBeEmpty()
                 ->info('The key to send in the "Authorization: ApiKey <key>" header of the webhook requests')
                 ->attribute(ConfigWidget::ATTR_SECRET, true)
+                ->attribute(ConfigWidget::ATTR_READ_BY_API, true)
             ->end()
             ->scalarNode('collectionId')
                 ->info('The collection receiving the imported assets (the workspace root otherwise)')
@@ -107,7 +108,7 @@ class AssetImportIntegration extends AbstractIntegration
             [
                 'label' => 'Security Key',
                 'description' => 'The key of the Authorization header.',
-                'value' => $config['securityKey'] ?? 'Not set',
+                'value' => $config->getClientValue('securityKey') ?? 'Not set',
             ],
             [
                 'label' => 'Formats',

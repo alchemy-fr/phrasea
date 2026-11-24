@@ -4,7 +4,7 @@ import {s3AmqpIterator} from './handlers/s3_amqp/indexer';
 import {fsIndexer} from './handlers/fs/indexer';
 import {phraseanetIndexer} from './handlers/phraseanet/indexer';
 import {DataboxClient} from './databox/client';
-import {AttributeInput, RenditionInput, TagInput} from './databox/types';
+import {AttributeInput, RenditionInput} from './databox/types';
 import {IndexOptions} from './command';
 
 export type Asset = {
@@ -19,7 +19,6 @@ export type Asset = {
     sourcePath?: string;
     importFile?: boolean;
     attributes?: AttributeInput[];
-    tags?: TagInput[];
     renditions?: RenditionInput[];
     shortcutIntoCollections?: {id: string; path: string}[];
     isStory?: boolean;

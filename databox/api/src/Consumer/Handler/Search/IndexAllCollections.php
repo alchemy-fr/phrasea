@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Search;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p1')]
+#[MessengerMessage('task')]
 final readonly class IndexAllCollections
 {
     public function __construct(public ?string $workspaceId = null)

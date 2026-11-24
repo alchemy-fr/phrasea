@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\File;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class ImportFile
 {
     public function __construct(

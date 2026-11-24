@@ -60,8 +60,8 @@ Operational notes:
 
 OAuth client (`clientId`):
 
-- `clientId` is the client ID of a **public** Keycloak client with the **standard flow** (the one provisioned by the configurator is `expose-integration`). Its redirect URIs must allow `<Databox API URL>/integrations/{id}/code` (shown as "Redirect URI" once the integration is saved).
-- When the Keycloak account of the user has the `view-clients` role of the `realm-management` client, the form lists the compatible clients (enabled, public, standard flow, the built-in Keycloak clients excepted): the ones allowing the redirect URI of the integration come first, the others are flagged "Redirect URI not allowed". The clients whose access tokens Expose refuses are flagged "Refused by Expose" (and listed after the accepted ones): Expose only accepts the clients created from Databox, the public ones (standard flow only) whose redirect URIs all lead to `<Databox API URL>/integrations/`, and the ones listed in `EXPOSE_API_ALLOWED_CLIENT_IDS` (passed to the Databox API as `EXPOSE_ALLOWED_CLIENT_IDS`), see [Allowed clients](../../Authentication/clients.md#allowed-clients). When Expose refuses the token anyway (e.g. its service account lacks the `view-clients` role, granted by `bin/migrate.sh`), Databox answers `400` with a message naming the client, both when creating a publication and through the proxies. With `manage-clients`, the form also creates a client. `realm-admin` includes both roles. Without them, the field stays a plain text field.
+- `clientId` is the client ID of a **public** Keycloak client with the **standard flow** (the one provisioned by the configurator, `expose-integration`, by default: `${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}`). Its redirect URIs must allow `<Databox API URL>/integrations/{id}/code` (shown as "Redirect URI" once the integration is saved).
+- When the Keycloak account of the user has the `view-clients` role of the `realm-management` client, the form lists the compatible clients (enabled, public, standard flow, the built-in Keycloak clients excepted): the ones allowing the redirect URI of the integration come first, the others are flagged "Redirect URI not allowed". The clients whose access tokens Expose refuses are flagged "Refused by Expose" (and listed after the accepted ones): Expose only accepts the clients having the `expose-api` default client scope, which puts Expose in the audience of their tokens, see [Audiences](../../Authentication/clients.md#audiences). When Expose refuses the token anyway (e.g. the scope was added after the user authorized the integration), Databox answers `400` with a message naming the client and the scope, both when creating a publication and through the proxies. With `manage-clients`, the form also creates a client, with the `expose-api` scope. `realm-admin` includes both roles. Without them, the field stays a plain text field.
 - A client created from the form is public, with the standard flow only (no implicit flow, direct access grants nor service account), `rootUrl` the Databox API URL and the redirect URI `<Databox API URL>/integrations/*`, so that it can be created before the integration is saved and shared by several integrations. It carries the attribute `phrasea.created_by: databox`.
 - Databox calls the Keycloak admin API (`GET`/`POST /oauth-clients`) with **the token of the user**: Keycloak applies the user's own `realm-management` roles, there is no service account involved. While an admin impersonates another user, neither listing nor creating is allowed.
 
@@ -103,7 +103,10 @@ Operational notes:
 
 - Requires a valid base URL for the uploader API.
 - Uses an ApiKey authorization scheme.
-- Security key must match on both Phrasea and uploader configurations.
+- Security key must match on both Phrasea and uploader configurations. The API checks it itself: it is written in full (or refers to a variable), never to a secret (see [Keys read by the API](#keys-read-by-the-api)).
+- The target endpoint answers 404 when the integration is disabled.
+- Only the Uploader of the instance (`UPLOADER_API_URL`) and its storage (`S3_ENDPOINT`) may be reached on the private network: any other base URL, and the file URLs it answers, must be public.
+- The user sent with a commit (the uploading user) becomes the owner of the assets, and must be allowed to create assets in the destination collection or workspace (and to edit the asset for a rendition substitution); otherwise the ingestion fails.
 
 ## Asset import integration (core.asset_import)
 
@@ -123,6 +126,7 @@ Operational notes:
 
 - Requires a workspace; the `collectionId` must belong to it.
 - 401 without the ApiKey header, 403 on a wrong key, 404 for an unknown or disabled integration, 415 on an unsupported Content-Type.
+- The API checks the `securityKey` itself: it is written in full (or refers to a variable), never to a secret (see [Keys read by the API](#keys-read-by-the-api)).
 
 ## Toast UI Photo Editor integration (tui.photo-editor)
 
@@ -170,19 +174,19 @@ Display name: Face Recognition
 This integration detects the faces of image assets and recognizes the persons that users have already named, through a self-hosted service (no data leaves the platform).
 It is the self-hosted counterpart of the "faces" category of AWS Rekognition, with recognition on top of detection.
 
-There is no face-specific data model nor API: **a face is a value of the configured entity attribute** of the asset (`attribute`), and **a person is an entity** of the list that attribute is bound to. Each face value carries the person (the entity ID), the box of the face as a `face` annotation (an oval drawn by the client), the detection or recognition confidence, and the face embedding (`attribute.embedding`, never exposed by the API nor indexed). Everything else goes through the generic attribute and entity APIs.
+There is no face-specific data model nor API: **a face is a value of the configured entity attribute** of the asset (`attribute`), and **a person is an entity** of the list that attribute is bound to. Each face value carries the person (the entity ID), the box of the face as a `face` annotation (an oval drawn by the client), the detection or recognition confidence, and the face embedding (`attribute.embedding`, never exposed by the API; only indexed in the internal `face` index, see below). Everything else goes through the generic attribute and entity APIs.
 
 Main behavior:
 
 - Sends the configured rendition (optional, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence and a 512-d ArcFace embedding.
 - Runs on asset ingest when `processIncoming` is enabled (workflow job depending on the rendition job), or on demand from the asset view ("Detect faces", user action `analyze`).
-- Each detected face is recognized among the faces of the workspace (cosine similarity, `matchThreshold`): it joins the person of the closest face a user named, or else the closest face of a person nobody has named yet. Otherwise it starts a new **pending entity** ("Unknown person · 3f2a", `unknownLabel`): the pending persons are the groups of look-alikes still to be named; being pending, they never show up in the search facets, and they are removed as soon as no face references them any more. Only the faces named by users (`origin: human`) are references: a recognized face never becomes one, so that the recognition cannot drift.
+- Each detected face is recognized among the faces of the workspace (cosine similarity, `matchThreshold`), searched in the `face` Elasticsearch index (kNN, `FaceIndex`) rather than compared one by one: its nearest faces and its nearest faces named by a user, whose person and origin are then read from the database. It joins the person of the closest face a user named, or else the closest face of a person nobody has named yet. Otherwise it starts a new **pending entity** ("Unknown person · 3f2a", `unknownLabel`): the pending persons are the groups of look-alikes still to be named; being pending, they never show up in the search facets, and they are removed as soon as no face references them any more. Only the faces named by users (`origin: human`) are references: a recognized face never becomes one, so that the recognition cannot drift.
 - Users name a face by changing the value of its attribute (`PATCH /attributes/{id}`, `/attributes/batch-update`), to an existing entity or to one they create (`POST /attribute-entities`): the face becomes a reference of the person (`origin: human`, `originUserId`, confidence 1) and, when `autoPropagate` is enabled, the person is propagated asynchronously to the similar faces of the workspace that no user named. Deleting the value (`DELETE /attributes/{id}`) forgets the face.
 - Users name a whole unknown group by renaming and approving its pending entity (`PATCH /attribute-entities/{id}` with `value`, `note` and `status: 0`): its most confident face becomes the reference and is propagated. Attaching the group to an existing person is the entities merge (`PUT /attribute-entities/{id}/merge`), which re-points its faces. Two persons with the same name are told apart by their `note` (the same value may appear twice in a list).
 - In the client, faces are named from the asset view (face recognition panel). The persons are managed from the exploration page of their entity list (`/entity-lists/{id}/explore`, "Explore" on the list in the workspace entities, under an entity facet or in an entity pinned filter): each person with a few of the assets showing it, renamed (`value`, `note`) or merged into another one by the list editors; the values grid of the list (workspace management, entities) covers the rest (approval, bulk edits). Both are built on `GET /attribute-entities?list=…&status=…&usage=1` (with the number of faces, `usage`) and, for the pending persons, which are not indexed, `GET /attributes?definition[]=…&value=…`. Pending persons are listed to the users who may edit the attributes of the workspace, so that they can name them. In the values of an asset, the name of a pending person is only sent to the managers of the entity list and to its creator (the users who may edit the entity); the others get a null value, shown as "Pending".
 - Permissions are those of the attributes and the entity lists: reading the faces of an asset requires reading its face attribute (asset readable, attribute policy public or granted), naming requires editing it, creating or renaming a person requires the rights on the list.
 - Re-running the detection on an asset keeps the person of the faces that overlap a previous detection (what users said included). Replay the recognition after a change of `matchThreshold` with `bin/console app:face-recognition:relink` (no detection involved).
-- When `autoPhoto` is enabled, every person with a face, unknown and pending ones included, gets the photo of its best face (the entity image shown by the chips, the exploration cards and the facets): the most confident face, so a face named by a user first, cropped on the server from the file the detection ran on (configured rendition or source, EXIF-oriented) with the framing of the client (a square centered on the box, 1.8 times its longest side, shifted inside the image at its edges), then processed like an uploaded image. It is asked for asynchronously (`FaceRecognitionPhoto` message, p2) after a detection, when a user names, moves or deletes a face, approves a pending person, after a merge and after a relink.
+- When `autoPhoto` is enabled, every person with a face, unknown and pending ones included, gets the photo of its best face (the entity image shown by the chips, the exploration cards and the facets): the most confident face, so a face named by a user first, cropped on the server from the file the detection ran on (configured rendition or source, EXIF-oriented) with the framing of the client (a square centered on the box, 1.8 times its longest side, shifted inside the image at its edges), then processed like an uploaded image. It is asked for asynchronously (`FaceRecognitionPhoto` message, `heavy` transport) after a detection, when a user names, moves or deletes a face, approves a pending person, after a merge and after a relink.
 - An automatic photo remembers the face it was cropped from (`image_set.source_attribute_id`). It is replaced only when that face no longer shows the person (deleted, moved to another person, or its asset deleted), or when it comes from a recognized face and the person now has a face named by a user: a more confident recognized face alone does not replace it. A photo uploaded by a user is never replaced; once a user deletes it, the next of these events gives the person an automatic one. Disabling `autoPhoto` keeps the existing automatic photos.
 
 Configuration:
@@ -203,7 +207,28 @@ Operational notes:
 
 - Requires the `face-recognition` service (maintained in [alchemy-fr/phrasea-face-recognition](https://github.com/alchemy-fr/phrasea-face-recognition), InsightFace `buffalo_l` model pack on CPU; image `FACE_RECOGNITION_IMAGE`, `face-recognition` Docker Compose profile). Databox reaches it through `FACE_RECOGNITION_URL`.
 - Backfill existing assets with `bin/console app:face-recognition:index` (add `--sync` to run in the foreground).
+- The faces are indexed in the `face` Elasticsearch index (definition, asset, origin and embedding: 512 dimensions, HNSW in full precision) by the detection itself, which refreshes it so that the next detection recognizes them, and by the naming and the deletion of faces, the deletion of their asset included. The faces of the trashed assets stay in it and keep recognizing their person (but a person never gets its reference nor its photo from them). A face deleted by a DQL query (`delete` action of `/attributes/batch-update`, deleted workspace) may stay in it: the recognition ignores the faces the database no longer has, and a populate (`bin/console fos:elastica:populate --index=face`) rebuilds the index from the database, as after an upgrade. Until this index exists, nothing is written to it and the detections that have to recognize a face fail.
+- The propagation of a named person also searches the similar faces in this index, and scans every face of the workspace only when more than 10,000 of them are similar. The relink (`app:face-recognition:relink`) still compares every face to every face processed before it.
 - Give the existing persons their photo with `bin/console app:face-recognition:photos` (`--workspace` to limit it to a workspace): it queues the persons that have no photo or an automatic one, in the integrations having `autoPhoto` enabled.
+
+## Phraseanet Renditions integration (phraseanet.renditions)
+
+Display name: Phraseanet Renditions
+
+This workflow integration has the renditions of incoming assets built by a Phraseanet instance (`baseUrl`, API key `token`).
+
+Main behavior:
+
+- `api` method: the source file is submitted to the subdefinition service of the Phraseanet API (`databoxId`), and each rendition comes back on `POST /integrations/phraseanet/{integrationId}/renditions/incoming/{assetId}`, authenticated by a token signed for the asset.
+- `enqueue` method: Phraseanet fetches the asset (`collectionId`) with a token signed for the asset, then notifies each generated sub definition (`record.subdef.created` event) on the **Webhook URL** shown in the integration information. The rendition is then downloaded from the permalink of the event.
+- The Webhook URL carries the `webhookSecret` of the integration in its `token` query parameter: `POST /integrations/phraseanet/{integrationId}/events?token=<webhookSecret>`. The secret is generated when the integration is created, and a new one when it is duplicated.
+
+Operational notes:
+
+- Set the Webhook URL as is in Phraseanet, and keep it private: whoever holds it can replace the renditions of the assets being processed.
+- 401 without the `token` or with a wrong one, and for an integration without `webhookSecret` (add one to its configuration, e.g. `openssl rand -hex 32`, then copy the new Webhook URL into Phraseanet); 404 for an unknown integration.
+- The API checks the `webhookSecret` itself: it is written in full (or refers to a variable), never to a secret (see [Keys read by the API](#keys-read-by-the-api)).
+- Only permalinks on the host and port of `baseUrl` are downloaded. The type and size given by the event are ignored: they come from the downloaded file, whose content is checked like any imported file.
 
 ## Configuration form & schema
 
@@ -232,7 +257,9 @@ ConfigWidget::apply($builder->scalarNode('attribute'), ConfigWidget::Attribute, 
 ```
 
 - `widget` (`ConfigWidget`): `attribute` (slug of an attribute definition of the workspace, with `widgetOptions` restricting its `type`, `multiple` and `entityList`; the picker offers to **create** the attribute, and the entity list it needs, right from the form), `rendition` (name of a rendition definition), `collection` (collection ID), `email`, `language`, `oauth_client` (client ID of a Keycloak OAuth client, public with the standard flow: the text field gets "Choose…" and "Create…" buttons when the Keycloak account of the user can list or create the clients, see the Expose integration). On a prototype (`scalarPrototype()`), the widget applies to the items of the list (multiple picker, chips).
-- `secret`: the form masks a value typed in clear (with a "show" button) and offers to **save it as a secret** (see [Secrets & variables](#secrets--variables)). The API does not redact a value stored in clear: `configYaml` and `configValues` are only given to who may edit the integration. Prefer a reference to a secret.
+- `secret`: the form masks a value typed in clear (with a "show" button) and offers to **save it as a secret** (see [Secrets & variables](#secrets--variables)). The API does not redact a value stored in clear: `configYaml` and `configValues` are only given to who may edit the integration. Prefer a reference to a secret, except in a key read by the API.
+- `url` (`ConfigWidget::ATTR_URL`, first-level keys only, not shown to the form): the value is a URL the integration calls or gives to the users (`baseUrl` of `phrasea.uploader`, `phraseanet.renditions` and `phrasea.expose`, `clientUrl` of `phrasea.expose`, `url` of `core.webhook`). In a workspace integration, it keeps the instance variables away from a host chosen by an editor (see [Secrets & variables](#secrets--variables)).
+- `readByApi` (`ConfigWidget::ATTR_READ_BY_API`, first-level keys only, not shown to the form): the API reads the value itself, e.g. the key a webhook compares to its requests (`securityKey` of `phrasea.uploader` and `core.asset_import`, `webhookSecret` of `phraseanet.renditions`). It cannot refer to a secret (see [Keys read by the API](#keys-read-by-the-api)).
 - An integration whose tree does not tell the whole story implements `ConfigSchemaCustomizerInterface::customizeConfigSchema(array $schema): array`: `core.file_analyzer` replaces the items of `analyzers` by `{type: object, discriminator: name, variants: {<analyzer>: …}}`, one variant per registered analyzer.
 
 `GET /integrations/{id}` returns the stored configuration twice to its editors: `configYaml` and `configValues` (the same values, structured), so that an integration written in YAML reopens in the form with its values. A configuration refused by the tree (or by `validateConfiguration()` when it sets the path of its `InvalidConfigurationException`, e.g. `root.attribute`) answers a 422 whose violation `propertyPath` points to the option (`config.minConfidence`, `config.analyzers.0.name`), reported under the matching field.
@@ -245,6 +272,20 @@ A string value of the configuration can refer to a named value instead of holdin
 2. a **variable** (`WorkspaceEnv`) of that name;
 3. the environment variable `PWI_<NAME>` of the instance;
 4. an empty string otherwise.
+
+The references are resolved in a single pass: a resolved value holding `$` is kept as is.
+
+The `PWI_<NAME>` variables are shared by every workspace (instance keys of AWS, Phraseanet…): in a **workspace** integration, they never leave for a host chosen by an editor of the workspace. So, for the URL keys (`url` attribute, see [Configuration form & schema](#configuration-form--schema)):
+
+- a URL set to another value than its default refers to nothing: it is used as written, and saving a value holding `$` is refused (422 on `config.<key>`, "write it in full");
+- a URL left to its default (e.g. `${UPLOADER_API_URL}`) still resolves its references, from the three sources;
+- as soon as one URL is not its default, or its default refers to a secret or a variable of the workspace (which would redirect it), the other keys no longer resolve the `PWI_<NAME>` variables: such a reference gives an empty string, with a `warning` log. The secrets and variables of the workspace still resolve: an integration calling its own endpoint uses its own keys, saved as secrets of the workspace.
+
+Any other key may end up where the editor reads it (a validation message, an error of the integration, a value written to an asset…). So, even with the URLs of the instance, the `PWI_<NAME>` variables only resolve in a `secret` key (a credential, e.g. `token` of `phraseanet.renditions`, `apiKey` of `remove.bg`) or in a key left to its default (e.g. `accessKeyId: ${AWS_ACCESS_KEY_ID}` of the AWS integrations, `clientId` of `phrasea.expose`); elsewhere they give an empty string, with a `warning` log. A workspace needing such a value in another key saves it as a variable of the workspace.
+
+The API never returns a resolved reference: what it shows of the configuration (`configInfo`, the client configuration `config`, the validation messages) holds the values as written, e.g. the "Security Key" of `phrasea.uploader` reads `${UPLOADER_KEY}` when it refers to a variable; the references only resolve server-side, where the integration runs (`IntegrationConfig::getClientValue()` gives a value as written). The client configuration of `core.face_recognition` gives the slug of the attribute definition it found (`attribute`), null when there is none.
+
+The instance-wide integrations (no workspace, administrators only) are not restricted.
 
 A secret is encrypted with a libsodium sealed box: the API only has the public key (it encrypts, never decrypts, and never returns the value), the workers hold the secret key and decrypt it when they run the integration. A variable is stored in clear and returned with its value to the same users: it never holds a sensitive value.
 
@@ -265,10 +306,19 @@ The listings need `workspace` or `global` (400 otherwise), sort by name and acce
 In the configuration form, every plain text field switches between **Value** and **Reference**:
 
 - a value which is a reference as a whole opens as a Reference, any other (mixed ones included) as a Value; switching to Value keeps the reference as text (neither masked nor offered to be saved as a secret), switching to Reference keeps a value which is a reference as a whole, empties any other and opens the picker;
-- in Reference mode, the name is shown as a chip (removable), picked among the secrets and variables of the scope, typed (a name missing from the listing), or created: a `secret` field lists the secrets first and creates a secret, any other field lists the variables first (with their values) and creates a variable or a secret. A line under the field tells whether the name is a secret, a variable (with its value, or a warning on a `secret` field), or defined nowhere in the scope. The picker also lists the names of the `PWI_<NAME>` variables of the instance (`/system-envs`, without the prefix nor the value) in a last **System** group, and the line reads "System variable of the instance" when no secret nor variable of the scope has this name (no warning on a `secret` field: the value is not stored in clear in the database). An editor of the integration (ACL) who cannot edit the workspace gets the free typing only;
+- in Reference mode, the name is shown as a chip (removable), picked among the secrets and variables of the scope, typed (a name missing from the listing), or created: a `secret` field lists the secrets first and creates a secret, any other field lists the variables first (with their values) and creates a variable or a secret. A line under the field tells whether the name is a secret, a variable (with its value, or a warning on a `secret` field), or defined nowhere in the scope. The picker also lists the names of the `PWI_<NAME>` variables of the instance (`/system-envs`, without the prefix nor the value) in a last **System** group, and the line reads "System variable of the instance" when no secret nor variable of the scope has this name (no warning on a `secret` field: the value is not stored in clear in the database). In a workspace, as the API only resolves them in a `secret` field or as the default value of the field, the group of another field only lists the name its default refers to, and a reference to another one is flagged "only resolved in a secret field, or as the default value of the field". An editor of the integration (ACL) who cannot edit the workspace gets the free typing only;
 - in Value mode, a `secret` field offers **Save as secret**: the typed value becomes a secret (named after the key, `apiKey` → `API_KEY`), and the field its reference.
 
 The secrets and variables are managed in the **Secrets & variables** tab of the workspace (`/workspaces/:id/manage/secrets`: names, the integrations referring to them, value of a secret replaced but never shown, value of a variable edited in clear, deletion), and in the **Instance secrets & variables** tab of the instance integrations screen for the administrators. The admin still manages both, every workspace included.
+
+### Keys read by the API
+
+Without the secret key, `SecretsManager::decryptSecret()` throws `SecretKeyUnavailableException` (never a placeholder, which a request could send back), and so does a reference to a secret resolved in the API. A key the API reads itself, such as the key a webhook compares to its requests (`readByApi` attribute), therefore cannot refer to a secret:
+
+- saving such a key with a reference to a secret of the workspace (`${NAME}` or `$NAME`, alone or within a text) is refused: 422 on `config.<key>`, "write the value in full". A reference to a variable is accepted;
+- a reference that only becomes a secret afterwards (a secret created later under that name) matches no request: the webhook answers as for a wrong key (`IntegrationConfig::matches()`, which also refuses an empty key). A webhook comparing a value without `matches()` fails on the exception, never on a placeholder.
+
+The dev stack gives the secret key to the API container (`docker-compose.dev.yml`): the refusal on save does not depend on it. The tests run with a test key pair; `WithoutSecretKeyTrait` runs a test as the API container.
 
 ## Exhaustive integration list
 

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset, AttributeDefinition} from '@/types/api';
-import {AttributeBatchActionEnum, AttributeType, EntityName} from '@/types/api';
+import {AttributeBatchActionEnum, AttributeType} from '@/types/api';
 import {
     attributeBatchUpdate,
     isAssetEligibleForDefinition,
@@ -72,8 +72,6 @@ type EditorState = {
     currentDefinition: string | undefined;
 };
 
-const TAGS_DEFINITION_ID = '__tags';
-
 function keyOf(v: unknown): string {
     return typeof v === 'object' ? JSON.stringify(v) : String(v);
 }
@@ -83,7 +81,7 @@ type ValueFormatter = (
     value: unknown
 ) => string;
 
-/** IRI of the entity a relation value (entity, tag, user...) refers to */
+/** IRI of the entity a relation value (entity, user...) refers to */
 function entityIriOf(
     definition: {type: AttributeType | string},
     value: unknown
@@ -169,35 +167,15 @@ export function AttributeBatchEditorRoute() {
     const {hasMore: moreDefinitions, loadMore: loadMoreDefinitions} =
         definitionList;
 
-    const definitions = useMemo<AttributeDefinition[]>(() => {
-        const defs = definitionList.items.filter(
-            d => d.editable && d.editableInGui
-        );
-        const tagsDef = {
-            id: TAGS_DEFINITION_ID,
-            name: 'tags',
-            displayName: t('common.tags', 'Tags'),
-            type: AttributeType.Tag,
-            multiple: true,
-            editable: true,
-            editableInGui: true,
-            canEdit: true,
-            translatable: false,
-            target: 0,
-            workspace: workspaceId ?? '',
-        } as unknown as AttributeDefinition;
-
-        return [tagsDef, ...defs];
-    }, [definitionList.items, workspaceId, t]);
+    const definitions = useMemo<AttributeDefinition[]>(
+        () => definitionList.items.filter(d => d.editable && d.editableInGui),
+        [definitionList.items]
+    );
 
     const remote = useMemo<ValueMap>(() => {
         const map: ValueMap = {};
         assets.forEach(a => {
-            map[a.id] = {
-                [TAGS_DEFINITION_ID]: {
-                    [NO_LOCALE]: (a.tags ?? []).map(tg => tg.id),
-                },
-            };
+            map[a.id] = {};
         });
         assets.forEach(a =>
             (a.attributes ?? []).forEach(attr => {
@@ -221,12 +199,6 @@ export function AttributeBatchEditorRoute() {
     const storeEntities = useEntitiesStore(s => s.storeMany);
     useEffect(() => {
         const entities: Record<string, ResolvedEntity> = {};
-        assets.forEach(a =>
-            (a.tags ?? []).forEach(tg => {
-                entities[iri(EntityName.Tag, tg.id)] =
-                    tg as unknown as ResolvedEntity;
-            })
-        );
         assets.forEach(a =>
             (a.attributes ?? []).forEach(attr => {
                 const entry = relationEntry(attr.definition, attr.value);
@@ -390,11 +362,10 @@ export function AttributeBatchEditorRoute() {
                 ? state.subSelection.filter(
                       id =>
                           assets.find(a => a.id === id) &&
-                          (currentDef.id === TAGS_DEFINITION_ID ||
-                              isAssetEligibleForDefinition(
-                                  assets.find(a => a.id === id)!,
-                                  currentDef
-                              ))
+                          isAssetEligibleForDefinition(
+                              assets.find(a => a.id === id)!,
+                              currentDef
+                          )
                   )
                 : [],
         [currentDef, state.subSelection, assets]
@@ -611,17 +582,11 @@ export function AttributeBatchEditorRoute() {
             actions,
             assetCount: assets.length,
             onConfirm: async () => {
-                const tagActions = actions.filter(
-                    a => a.definition.id === TAGS_DEFINITION_ID
-                );
-                const attrActions = actions.filter(
-                    a => a.definition.id !== TAGS_DEFINITION_ID
-                );
-                if (attrActions.length > 0) {
+                if (actions.length > 0) {
                     const saved = await runWithHierarchyConfirm(strategy =>
                         attributeBatchUpdate(
                             assets.map(a => a.id),
-                            attrActions.map(a => ({
+                            actions.map(a => ({
                                 action: a.action,
                                 definitionId: a.definition.id,
                                 value:
@@ -646,22 +611,6 @@ export function AttributeBatchEditorRoute() {
                     if (undefined === saved) {
                         return;
                     }
-                }
-                if (tagActions.length > 0) {
-                    const {patchAsset} = await import('@/lib/api/assets');
-                    await Promise.all(
-                        assets.map(a =>
-                            tagActions.some(ta => ta.assets.includes(a.id))
-                                ? patchAsset(a.id, {
-                                      tags: (
-                                          state.values[a.id]?.[
-                                              TAGS_DEFINITION_ID
-                                          ]?.[NO_LOCALE] ?? []
-                                      ).map(id => `/${EntityName.Tag}/${id}`),
-                                  })
-                                : Promise.resolve()
-                        )
-                    );
                 }
                 track(EventCategory.Asset, AssetEvent.BatchEdit, {
                     value: assets.length,
@@ -838,9 +787,10 @@ export function AttributeBatchEditorRoute() {
                 <div className="flex min-w-0 flex-1 flex-wrap content-start gap-2 overflow-y-auto p-2 select-none">
                     {assets.map(a => {
                         const selected = state.subSelection.includes(a.id);
-                        const notEligible =
-                            currentDef.id !== TAGS_DEFINITION_ID &&
-                            !isAssetEligibleForDefinition(a, currentDef);
+                        const notEligible = !isAssetEligibleForDefinition(
+                            a,
+                            currentDef
+                        );
                         const assetValues = valuesFor(
                             a.id,
                             currentDef.id,
@@ -1049,7 +999,6 @@ export function AttributeBatchEditorRoute() {
                             onRemove={removeFromAll}
                             onItem={rememberItem}
                             formatValue={formatValue}
-                            workspaceId={workspaceId}
                         />
                     ) : (
                         <SingleValueEditor
@@ -1059,7 +1008,6 @@ export function AttributeBatchEditorRoute() {
                             onChange={debouncedSetSingle}
                             onCommit={setSingle}
                             onItem={rememberItem}
-                            workspaceId={workspaceId}
                         />
                     )}
                 </section>
@@ -1270,7 +1218,6 @@ function SingleValueEditor({
     onChange,
     onCommit,
     onItem,
-    workspaceId,
 }: {
     definition: AttributeDefinition;
     distinct: Distinct;
@@ -1278,7 +1225,6 @@ function SingleValueEditor({
     onChange: (v: unknown) => void;
     onCommit: (v: unknown) => void;
     onItem: (definition: AttributeDefinition, item: unknown) => void;
-    workspaceId?: string;
 }) {
     const {t} = useTranslation();
     const indeterminate =
@@ -1301,7 +1247,6 @@ function SingleValueEditor({
                     indeterminate && (local === '' || local === undefined)
                 }
                 disabled={!definition.canEdit}
-                workspaceId={workspaceId}
                 onChange={(v, item) => {
                     onItem(definition, item);
                     setLocal(v);
@@ -1336,7 +1281,6 @@ function MultiValueEditor({
     onRemove,
     onItem,
     formatValue,
-    workspaceId,
 }: {
     definition: AttributeDefinition;
     distinct: Distinct;
@@ -1345,7 +1289,6 @@ function MultiValueEditor({
     onRemove: (v: unknown) => void;
     onItem: (definition: AttributeDefinition, item: unknown) => void;
     formatValue: ValueFormatter;
-    workspaceId?: string;
 }) {
     const {t} = useTranslation();
     const [draft, setDraft] = useState<unknown>('');
@@ -1405,7 +1348,6 @@ function MultiValueEditor({
                         onChange={(v, item) => {
                             onItem(definition, item);
                             if (
-                                definition.type === AttributeType.Tag ||
                                 definition.type === AttributeType.Entity ||
                                 definition.type === AttributeType.User
                             ) {
@@ -1426,7 +1368,6 @@ function MultiValueEditor({
                                 setDraft('');
                             }
                         }}
-                        workspaceId={workspaceId}
                     />
                 </div>
                 <Button

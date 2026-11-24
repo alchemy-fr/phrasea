@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Action;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Core\Asset;
@@ -12,6 +13,7 @@ use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\IntegrationConfig;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\FileProcessingGuard;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,12 +31,29 @@ trait FileUserActionsTrait
     protected FileManager $fileManager;
     protected UploadManager $uploadManager;
     protected FileUrlResolver $fileUrlResolver;
+    protected FileProcessingGuard $fileProcessingGuard;
 
     protected function getFile(Request $request): File
     {
         $fileId = $request->request->get('fileId');
-        $file = DoctrineUtil::findStrict($this->em, File::class, $fileId);
+        if (null === $fileId || '' === $fileId) {
+            throw new BadRequestHttpException('Missing "fileId"');
+        }
+        $file = DoctrineUtil::findStrict($this->em, File::class, UuidUtil::assertValid($fileId, 'fileId'), throw404: true);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $file);
+
+        return $file;
+    }
+
+    /**
+     * The file of the request, for an action reading its content.
+     */
+    protected function getProcessableFile(Request $request): File
+    {
+        $file = $this->getFile($request);
+        if (null !== $refusal = $this->fileProcessingGuard->getRefusal($file)) {
+            throw new BadRequestHttpException(sprintf('File cannot be processed: %s', $refusal));
+        }
 
         return $file;
     }
@@ -46,7 +65,7 @@ trait FileUserActionsTrait
             throw new BadRequestHttpException('Missing assetId');
         }
         $asset = $this->em->getRepository(Asset::class)
-            ->find($assetId);
+            ->find(UuidUtil::assertValid($assetId, 'assetId'));
         if (!$asset instanceof Asset) {
             throw new BadRequestHttpException(sprintf('Asset "%s" not found', $assetId));
         }
@@ -97,6 +116,12 @@ trait FileUserActionsTrait
     public function setFileUrlResolver(FileUrlResolver $fileUrlResolver): void
     {
         $this->fileUrlResolver = $fileUrlResolver;
+    }
+
+    #[Required]
+    public function setFileProcessingGuard(FileProcessingGuard $fileProcessingGuard): void
+    {
+        $this->fileProcessingGuard = $fileProcessingGuard;
     }
 
     #[Required]

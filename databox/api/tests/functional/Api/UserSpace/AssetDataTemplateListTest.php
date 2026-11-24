@@ -10,6 +10,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
 use App\Tests\Functional\AbstractSearchTestCase;
+use Ramsey\Uuid\Uuid;
 
 /**
  * GET /asset-data-templates (served by Elasticsearch).
@@ -49,13 +50,18 @@ final class AssetDataTemplateListTest extends AbstractSearchTestCase
 
         self::forceNewEntitiesToBeIndexed();
         self::waitForESIndex('asset_data_template');
-        // Templates must be re-hydrated by the request (tags are only initialized by Doctrine)
+        // Templates must be re-hydrated by the request (collections are only initialized by Doctrine)
         self::getEntityManager()->clear();
     }
 
     public function testWorkspaceFilterIsMandatory(): void
     {
         $this->assertStatus(400, 'GET', '/asset-data-templates', self::USER);
+    }
+
+    public function testUnknownWorkspaceIsABadRequest(): void
+    {
+        $this->assertStatus(400, 'GET', '/asset-data-templates?workspace='.Uuid::uuid4()->toString(), self::USER);
     }
 
     public function testWorkspaceLevelTemplates(): void

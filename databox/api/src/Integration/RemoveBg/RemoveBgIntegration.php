@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\RemoveBg;
 
 use Alchemy\Workflow\Model\Workflow;
+use App\Consumer\WorkerQueue;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\Config\ConfigWidget;
@@ -64,13 +65,14 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
             yield WorkflowHelper::createIntegrationJob(
                 $config,
                 RemoveBgAction::class,
+                queue: WorkerQueue::HEAVY_LOW,
             );
         }
     }
 
     public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
-        $file = $this->getFile($request);
+        $file = $this->getProcessableFile($request);
 
         match ($action) {
             self::ACTION_PROCESS => $this->bus->dispatch(new RemoveBgCall($file->getId(), $config->getIntegrationId())),

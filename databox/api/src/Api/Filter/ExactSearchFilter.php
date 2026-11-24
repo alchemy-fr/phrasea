@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Filter;
 
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\BackwardCompatibleFilterDescriptionTrait;
@@ -19,6 +20,7 @@ use App\Elasticsearch\Filter\SearchQuery;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use Elastica\Query;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * The "exact" strategy of the legacy SearchFilter, as a parameter filter.
@@ -63,6 +65,15 @@ final class ExactSearchFilter implements FilterInterface, OpenApiParameterFilter
         if ($metadata->hasAssociation($property)) {
             $targetMetadata = $em->getClassMetadata($metadata->getAssociationTargetClass($property));
             $values = array_map(fn (string|int $value): string|int => $this->getIdFromValue($value, $targetMetadata), $values);
+            $type = $targetMetadata->isIdentifierComposite ? null : $targetMetadata->getTypeOfField($targetMetadata->getSingleIdentifierFieldName());
+        } else {
+            $type = $metadata->getTypeOfField($property);
+        }
+        // The values are bound untyped: a malformed UUID would make Postgres fail
+        if (UuidType::NAME === $type) {
+            foreach ($values as $value) {
+                UuidUtil::assertValid($value, $parameter->getKey());
+            }
         }
 
         $alias = $queryBuilder->getRootAliases()[0];

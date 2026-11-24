@@ -18,10 +18,16 @@ final readonly class SecretsManager
         return $this->encryptionManager->encryptDataWithPublicKey($secret, $this->publicKey);
     }
 
+    /**
+     * Never returns a placeholder without the secret key: a value compared to a request (a
+     * webhook key…) would then match whoever sends the placeholder.
+     *
+     * @throws SecretKeyUnavailableException in a process without the secret key (the API)
+     */
     public function decryptSecret(string $secret): string
     {
-        if (empty($this->secretKey)) {
-            return '***';
+        if ('' === $this->secretKey) {
+            throw new SecretKeyUnavailableException('Secrets can only be decrypted by the workers, holding the secret key');
         }
 
         return $this->encryptionManager->decryptDataWithKeyPair($secret, new SodiumKeyPair(

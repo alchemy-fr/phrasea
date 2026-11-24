@@ -7,6 +7,7 @@ namespace App\Integration\Core\FileAnalyzer;
 use Alchemy\Workflow\Model\Workflow;
 use App\Border\FileAnalyzer\FileAnalyzerConfigHelper;
 use App\Border\FileAnalyzerRegistry;
+use App\Consumer\WorkerQueue;
 use App\Documentation\ConfigurationReferenceDumper;
 use App\Integration\AbstractIntegration;
 use App\Integration\Config\ConfigSchemaCustomizerInterface;
@@ -66,6 +67,7 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
         $job = WorkflowHelper::createIntegrationJob(
             $config,
             FileAnalyzerAction::class,
+            queue: WorkerQueue::HEAVY,
         );
         $job->setOutputs([
             'analysis' => '${{ steps._.outputs.analysis }}',

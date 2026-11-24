@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Blurhash;
 
 use Alchemy\Workflow\Model\Workflow;
+use App\Consumer\WorkerQueue;
 use App\Integration\AbstractIntegration;
 use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
@@ -49,6 +50,7 @@ class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegra
         yield WorkflowHelper::createIntegrationJob(
             $config,
             BlurhashAction::class,
+            queue: WorkerQueue::HEAVY,
         );
     }
 

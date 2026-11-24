@@ -9,6 +9,7 @@ use App\Attribute\AttributeInterface;
 use App\Consumer\Handler\Search\AttributeEntityDelete;
 use App\Consumer\Handler\Search\AttributeEntityStatusChanged;
 use App\Consumer\Handler\Search\AttributeEntityUpdate;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Core\AttributeEntity;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -59,10 +60,10 @@ final class AttributeEntityListener
                     }
                 }
                 if (!empty($locales)) {
-                    $this->postFlushStack->addBusMessage(new AttributeEntityUpdate(
+                    $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new AttributeEntityUpdate(
                         $entityUpdate->getId(),
                         array_keys($locales),
-                    ));
+                    )));
                 }
             }
         }

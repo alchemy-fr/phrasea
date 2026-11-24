@@ -5,33 +5,31 @@ declare(strict_types=1);
 namespace App\Elasticsearch\AQL;
 
 use App\Attribute\AttributeInterface;
-use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\BooleanAttributeType;
-use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\EntityAttributeType;
-use App\Attribute\Type\GeoPointAttributeType;
-use App\Attribute\Type\KeywordAttributeType;
-use App\Attribute\Type\NumberAttributeType;
-use App\Attribute\Type\TextAttributeType;
-use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
-use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
-use App\Elasticsearch\AQL\Function\Argument;
-use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeInterface;
-use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInAttribute\CustomFilterQueryBuiltInAttributeInterface;
+use App\Elasticsearch\HiddenAttributeScope;
 use Elastica\Query;
+use Elastica\Script\Script;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class AQLToESQuery
 {
+    /**
+     * Marks conditions written by an administrator (attribute filter rules) rather than by the
+     * user running the search: the built-in attributes disabled for this user stay usable in them.
+     */
+    final public const string OPT_TRUSTED_CONDITIONS = 'trustedConditions';
+
+    /**
+     * Longest value of a wildcard match ("contains", "ends with"): each one is scanned
+     * against every term of the field, in every locale.
+     */
+    final public const int MAX_WILDCARD_VALUE_LENGTH = 100;
+
     public function __construct(
-        private BuiltInAttributeRegistry $builtInAttributeRegistry,
-        private AQLFunctionRegistry $functionRegistry,
-        private AttributeTypeRegistry $attributeTypeRegistry,
-        private DateNormalizer $dateNormalizer,
+        private AQLConditionResolver $resolver,
     ) {
     }
 
@@ -45,7 +43,7 @@ final readonly class AQLToESQuery
         return match ($data['type']) {
             'expression' => $this->visitExpression($fieldClusters, $data, $options),
             'criteria' => $this->visitCriteria($fieldClusters, $data, $options),
-            default => throw new \Exception(sprintf('Unsupported node type "%s"', $data['type'])),
+            default => throw new InvalidAQLException(sprintf('Unsupported node type "%s"', $data['type'])),
         };
     }
 
@@ -70,12 +68,12 @@ final readonly class AQLToESQuery
         $queries = [];
         $leftOperand = $data['leftOperand'];
         if (!isset($leftOperand['field'])
-            || (isset($data['rightOperand']) && !$this->isResolvableValue($data['rightOperand']))
+            || (isset($data['rightOperand']) && !$this->resolver->isResolvableValue($data['rightOperand']))
         ) {
-            return $this->visitCriteriaWithScripting($fieldClusters, $data);
+            return $this->visitCriteriaWithScripting($fieldClusters, $data, $options);
         }
 
-        $fields = $this->getFieldNames($fieldClusters, $leftOperand['field']);
+        $fields = $this->resolver->getFieldNames($fieldClusters, $leftOperand['field'], $options);
         foreach ($fields as $fieldGroup) {
             $field = $fieldGroup->getItem();
             $query = $this->createCriteria($field, $data, $options);
@@ -100,22 +98,17 @@ final readonly class AQLToESQuery
         return $boolQuery;
     }
 
-    private function normalizeBooleanValue(BooleanAttributeType $type, mixed $value): bool
-    {
-        $normalized = $type->normalizeValue($value);
-        if (!is_bool($normalized)) {
-            throw new BadRequestHttpException(sprintf('Invalid boolean value "%s"', is_scalar($value) ? $value : get_debug_type($value)));
-        }
-
-        return $normalized;
-    }
-
     private function wrapCluster(Query\AbstractQuery $query, ClusterGroup $group): Query\AbstractQuery
     {
-        if (!empty($group->getWorkspaceIds())) {
+        if (!empty($group->getWorkspaceIds()) || !empty($group->getHiddenScopes())) {
             $boolQuery = new Query\BoolQuery();
             $boolQuery->addMust($query);
-            $boolQuery->addMust(new Query\Terms('workspaceId', $group->getWorkspaceIds()));
+            if (!empty($group->getWorkspaceIds())) {
+                $boolQuery->addMust(new Query\Terms('workspaceId', $group->getWorkspaceIds()));
+            }
+            foreach ($group->getHiddenScopes() as $scope) {
+                $boolQuery->addMustNot(HiddenAttributeScope::createQuery($scope));
+            }
             $query = $boolQuery;
         }
 
@@ -124,100 +117,26 @@ final readonly class AQLToESQuery
 
     private function createCriteria(array $field, array $data, array $options): Query\AbstractQuery
     {
-        $locale = $options['locale'] ?? '*';
-        /** @var BuiltInAttributeInterface $builtInAttribute */
-        $builtInAttribute = $field['builtInAttribute'] ?? null;
-
-        $fieldName = str_replace('{l}', $locale, $field['field']);
-        /** @var AttributeTypeInterface $type */
-        $type = $field['type'];
-        $fieldRaw = $fieldName.($type->getElasticSearchRawField() ? '.'.$type->getElasticSearchRawField() : '');
-
-        $strictOperators = [ConditionOperatorEnum::EQUALS, ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::IN, ConditionOperatorEnum::NOT_IN, ConditionOperatorEnum::HAS_ALL_OF];
-
-        $operator = ConditionOperatorEnum::tryFrom($data['operator']);
-        if (null === $operator) {
-            throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $data['operator']));
+        $criteria = $this->resolver->resolveCriteria($field, $data, $options);
+        if ($criteria->builtInAttribute instanceof CustomFilterQueryBuiltInAttributeInterface) {
+            return $criteria->builtInAttribute->createFilterQuery($criteria->value, $criteria->operator, $options);
         }
 
-        $this->validateOperator($operator, $type->getName());
+        $fieldName = $criteria->getFieldName();
+        $fieldRaw = $criteria->getRawFieldName();
+        $operator = $criteria->operator;
+        $value = $criteria->value;
+        $type = $criteria->type;
+        $caseInsensitive = $criteria->caseInsensitive;
 
-        $caseSensitive = $data['caseSensitive'] ?? false;
-        if ($caseSensitive && !in_array($operator, [
-            ConditionOperatorEnum::CONTAINS,
-            ConditionOperatorEnum::NOT_CONTAINS,
-            ConditionOperatorEnum::STARTS_WITH,
-            ConditionOperatorEnum::NOT_STARTS_WITH,
-            ConditionOperatorEnum::ENDS_WITH,
-            ConditionOperatorEnum::NOT_ENDS_WITH,
+        if ($type instanceof EntityAttributeType && null !== $value && in_array($operator, [
+            ConditionOperatorEnum::EQUALS,
+            ConditionOperatorEnum::NOT_EQUALS,
+            ConditionOperatorEnum::IN,
+            ConditionOperatorEnum::NOT_IN,
+            ConditionOperatorEnum::HAS_ALL_OF,
         ], true)) {
-            throw new BadRequestHttpException(sprintf('CASE SENSITIVE is not supported with operator "%s"', $operator->value));
-        }
-        // Dates are switched to STARTS_WITH below, case is irrelevant for them.
-        $caseInsensitive = !$caseSensitive && in_array($type->getName(), [TextAttributeType::NAME, KeywordAttributeType::NAME], true);
-
-        if (null !== $type->getElasticSearchRawField() && in_array($operator, $strictOperators, true)) {
-            $fieldName .= '.'.$type->getElasticSearchRawField();
-        } elseif (null !== $type->getElasticSearchTextSubField() && in_array($operator, [
-            ...$strictOperators,
-            ConditionOperatorEnum::MATCHES,
-            ConditionOperatorEnum::NOT_MATCHES,
-            ConditionOperatorEnum::CONTAINS,
-            ConditionOperatorEnum::NOT_CONTAINS,
-            ConditionOperatorEnum::STARTS_WITH,
-            ConditionOperatorEnum::NOT_STARTS_WITH,
-            ConditionOperatorEnum::ENDS_WITH,
-            ConditionOperatorEnum::NOT_ENDS_WITH,
-        ], true)) {
-            $fieldName .= '.'.$type->getElasticSearchTextSubField();
-        }
-
-        if (isset($data['rightOperand'])) {
-            $value = $this->resolveValue($data['rightOperand'], $builtInAttribute);
-        } else {
-            $value = null;
-        }
-
-        if ($builtInAttribute instanceof CustomFilterQueryBuiltInAttributeInterface) {
-            return $builtInAttribute->createFilterQuery($value, $operator, $options);
-        }
-
-        if ($type instanceof EntityAttributeType && null !== $value && in_array($operator, $strictOperators, true)) {
             return $this->createEntityBranchQuery($fieldName, $field['locales'], $operator, $value);
-        }
-
-        if ($type instanceof DateTimeAttributeType && null !== $value) {
-            $operatorSwitches = [
-                ConditionOperatorEnum::EQUALS->value => ConditionOperatorEnum::STARTS_WITH,
-                ConditionOperatorEnum::NOT_EQUALS->value => ConditionOperatorEnum::NOT_STARTS_WITH,
-            ];
-
-            $switchOperator = $operatorSwitches[$operator->value] ?? null;
-            $value = $this->dateNormalizer->normalizeDate(
-                $value,
-                allowPartialDate: null !== $switchOperator,
-                withTimeZone: null === $switchOperator,
-            );
-
-            if (null !== $switchOperator) {
-                $operator = $switchOperator;
-            }
-        }
-
-        if ($type instanceof BooleanAttributeType) {
-            if (null === $value) {
-                $operatorSwitches = [
-                    ConditionOperatorEnum::EQUALS->value => ConditionOperatorEnum::MISSING,
-                    ConditionOperatorEnum::NOT_EQUALS->value => ConditionOperatorEnum::EXISTS,
-                ];
-
-                $operator = $operatorSwitches[$operator->value] ?? $operator;
-            } else {
-                // Facet buckets of boolean fields are keyed 1/0, which ES refuses in a term query.
-                $value = is_array($value)
-                    ? array_map(fn (mixed $v): bool => $this->normalizeBooleanValue($type, $v), $value)
-                    : $this->normalizeBooleanValue($type, $value);
-            }
         }
 
         return match ($operator) {
@@ -263,55 +182,6 @@ final readonly class AQLToESQuery
         };
     }
 
-    private function validateOperator(ConditionOperatorEnum $operator, string $type): void
-    {
-        $gt = [
-            NumberAttributeType::NAME,
-            DateAttributeType::NAME,
-            DateTimeAttributeType::getName(),
-        ];
-
-        $text = [
-            TextAttributeType::NAME,
-            KeywordAttributeType::NAME,
-        ];
-
-        $geo = [
-            GeoPointAttributeType::NAME,
-        ];
-
-        $operatorSupportedTypes = [
-            ConditionOperatorEnum::EQUALS->value => null,
-            ConditionOperatorEnum::NOT_EQUALS->value => null,
-            ConditionOperatorEnum::GT->value => $gt,
-            ConditionOperatorEnum::GTE->value => $gt,
-            ConditionOperatorEnum::LT->value => $gt,
-            ConditionOperatorEnum::LTE->value => $gt,
-            ConditionOperatorEnum::IN->value => null,
-            ConditionOperatorEnum::NOT_IN->value => null,
-            ConditionOperatorEnum::HAS_ALL_OF->value => null,
-            ConditionOperatorEnum::EXISTS->value => null,
-            ConditionOperatorEnum::MISSING->value => null,
-            ConditionOperatorEnum::BETWEEN->value => $gt,
-            ConditionOperatorEnum::NOT_BETWEEN->value => $gt,
-            ConditionOperatorEnum::MATCHES->value => $text,
-            ConditionOperatorEnum::NOT_MATCHES->value => $text,
-            ConditionOperatorEnum::CONTAINS->value => $text,
-            ConditionOperatorEnum::NOT_CONTAINS->value => $text,
-            ConditionOperatorEnum::STARTS_WITH->value => $text,
-            ConditionOperatorEnum::NOT_STARTS_WITH->value => $text,
-            ConditionOperatorEnum::ENDS_WITH->value => $text,
-            ConditionOperatorEnum::NOT_ENDS_WITH->value => $text,
-            ConditionOperatorEnum::WITHIN_CIRCLE->value => $geo,
-            ConditionOperatorEnum::WITHIN_RECTANGLE->value => $geo,
-        ];
-
-        $supportedTypes = $operatorSupportedTypes[$operator->value] ?? null;
-        if (null !== $supportedTypes && !in_array($type, $supportedTypes, true)) {
-            throw new BadRequestHttpException(sprintf('Operator "%s" not supported for field type "%s"', $operator->value, $type));
-        }
-    }
-
     private function createRangeParams(array $values, AttributeTypeInterface $attributeType): array
     {
         $range = [
@@ -332,93 +202,6 @@ final readonly class AQLToESQuery
             'lat' => $lat,
             'lon' => $lon,
         ];
-    }
-
-    private function isResolvableValue(mixed $node): bool
-    {
-        if (is_array($node)) {
-            $type = $node['type'] ?? null;
-
-            return match ($type) {
-                'parentheses' => $this->isResolvableValue($node['expression']),
-                'function_call' => $this->hasResolvableArguments($node),
-                'value_expression' => $this->isResolvableValue($node['leftOperand'])
-                    && $this->isResolvableValue($node['rightOperand']),
-                default => isset($node['literal'])
-                    || (!isset($node['field']) && !array_any($node, fn ($m) => !$this->isResolvableValue($m))),
-            };
-        }
-
-        return null === $node
-            || is_numeric($node)
-            || is_bool($node)
-        ;
-    }
-
-    private function resolveFunctionValue(array $functionNode): mixed
-    {
-        $functionHandle = $this->getFunctionHandle($functionNode['function']);
-        $args = $functionNode['arguments'] ?? [];
-
-        $argCount = count($args);
-        $functionArguments = $functionHandle->getArguments();
-        $requiredArgs = array_filter($functionArguments, fn (Argument $arg) => $arg->isRequired());
-        if ($argCount < count($requiredArgs)) {
-            throw new BadRequestHttpException(sprintf('Function "%s" requires at least %d argument(s)', $functionNode['function'], count($requiredArgs)));
-        }
-        if ($argCount > count($functionArguments)) {
-            throw new BadRequestHttpException(sprintf('Function "%s" expects maximum %d argument(s), got %d', $functionNode['function'], count($functionArguments), $argCount));
-        }
-
-        $args = array_map(
-            fn (mixed $arg) => $this->resolveValue($arg),
-            $args
-        );
-
-        $result = $functionHandle->resolve($args);
-        if (is_string($result)) {
-            return ['literal' => $result];
-        }
-
-        return $result;
-    }
-
-    public function resolveValueExpression(array $exprNode): mixed
-    {
-        $operator = ExpressionOperatorEnum::tryFrom($exprNode['operator']);
-        if (null === $operator) {
-            throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $exprNode['operator']));
-        }
-        $left = $this->resolveValue($exprNode['leftOperand']);
-        $right = $this->resolveValue($exprNode['rightOperand']);
-
-        return match ($operator) {
-            ExpressionOperatorEnum::PLUS => $left + $right,
-            ExpressionOperatorEnum::MINUS => $left - $right,
-            ExpressionOperatorEnum::MULTIPLY => $left * $right,
-            ExpressionOperatorEnum::DIVIDE => $left / $right,
-        };
-    }
-
-    private function getFunctionHandle(string $functionName): AQLFunctionInterface
-    {
-        $functionHandle = $this->functionRegistry->getFunction(strtolower($functionName));
-        if (null === $functionHandle) {
-            throw new BadRequestHttpException(sprintf('Function "%s" not found', $functionName));
-        }
-
-        return $functionHandle;
-    }
-
-    private function hasResolvableArguments(array $functionNode): bool
-    {
-        foreach ($functionNode['arguments'] as $arg) {
-            if (!$this->isResolvableValue($arg)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private function yieldShouldQuery(string $fieldName, array $locales, \Closure $createQuery): Query\AbstractQuery
@@ -530,18 +313,23 @@ final readonly class AQLToESQuery
         return $not;
     }
 
-    private function visitCriteriaWithScripting(array $fieldClusters, array $data): Query\AbstractQuery
+    private function visitCriteriaWithScripting(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
-        $queries = $this->expressionToScript($data, $fieldClusters);
+        $params = new ScriptParams();
+        $queries = $this->expressionToScript($data, $fieldClusters, $options, $params);
 
         $queries = array_map(
-            function (ClusterGroup $q): Query\AbstractQuery {
-                $script = new Query\Script($q->getItem());
+            function (ClusterGroup $q) use ($params): Query\AbstractQuery {
+                $script = new Query\Script(new Script($this->createScriptSource($q, $params), $params->all() ?: null));
 
                 return $this->wrapCluster($script, $q);
             },
             $queries
         );
+
+        if (empty($queries)) {
+            throw new InvalidAQLException('The fields of the condition cannot be compared');
+        }
 
         if (1 === count($queries)) {
             return $queries[0];
@@ -556,55 +344,95 @@ final readonly class AQLToESQuery
         return $boolQuery;
     }
 
-    private function expressionToScript(mixed $node, array $fieldClusters): array
+    /**
+     * The functions called by the expression are declared first. An asset missing a value read by
+     * the expression matches no operator, "!=" included, rather than failing on a null value.
+     */
+    private function createScriptSource(ClusterGroup $group, ScriptParams $params): string
+    {
+        $statements = $params->getDeclarations();
+        if (!empty($group->getScriptFields())) {
+            $statements[] = sprintf('if (%s) { return false; }', implode(' || ', array_map(
+                static fn (string $fieldName): string => sprintf('doc["%s"].empty', $fieldName),
+                $group->getScriptFields(),
+            )));
+        }
+        $statements[] = sprintf('return %s;', $group->getItem());
+
+        return implode(' ', $statements);
+    }
+
+    /**
+     * @return ClusterGroup[] the script expression, per group of fields it reads
+     */
+    private function expressionToScript(mixed $node, array $fieldClusters, array $options, ScriptParams $params): array
     {
         $scripts = [];
+
+        // A value that does not depend on the asset is computed here and passed as a parameter
+        if ($this->resolver->isResolvableValue($node)) {
+            return [new ClusterGroup($params->add($this->resolver->resolveValue($node)), true)];
+        }
 
         if (is_array($node)) {
             $type = $node['type'] ?? null;
             if (null !== $type) {
                 switch ($type) {
                     case 'criteria':
-                        if (!in_array($node['operator'], [
-                            ConditionOperatorEnum::EQUALS->value,
-                            ConditionOperatorEnum::NOT_EQUALS->value,
-                            ConditionOperatorEnum::GT->value,
-                            ConditionOperatorEnum::GTE->value,
-                            ConditionOperatorEnum::LT->value,
-                            ConditionOperatorEnum::LTE->value,
-                        ], true)) {
-                            throw new BadRequestHttpException(sprintf('Unsupported operator "%s" in script conditions', $node['operator']));
-                        }
-                        $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
-                        $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
+                        $operator = ConditionOperatorEnum::tryFrom($node['operator']);
+                        $scriptOperator = match ($operator) {
+                            // "=" is an assignment in Painless
+                            ConditionOperatorEnum::EQUALS => '==',
+                            ConditionOperatorEnum::NOT_EQUALS,
+                            ConditionOperatorEnum::GT,
+                            ConditionOperatorEnum::GTE,
+                            ConditionOperatorEnum::LT,
+                            ConditionOperatorEnum::LTE => $operator->value,
+                            default => throw new BadRequestHttpException(sprintf('Unsupported operator "%s" in script conditions', $node['operator'])),
+                        };
+                        $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters, $options, $params);
+                        $rights = $this->expressionToScript($node['rightOperand'] ?? null, $fieldClusters, $options, $params);
 
                         $scripts = ClusterGroup::mix(
                             $lefts,
                             $rights,
-                            fn (string $l, string $r) => sprintf('%s %s %s', $l, $node['operator'], $r)
+                            fn (string $l, string $r): string => sprintf('%s %s %s', $l, $scriptOperator, $r)
                         );
                         break;
                     case 'value_expression':
-                        if (
-                            null !== ExpressionOperatorEnum::tryFrom($node['operator'])
-                            && $this->isResolvableValue($node['leftOperand'])
-                            && $this->isResolvableValue($node['rightOperand'])
-                        ) {
-                            $scripts = [new ClusterGroup($this->resolveValueExpression($node), true)];
-                        } else {
-                            $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
-                            $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
-
-                            $scripts = ClusterGroup::mix(
-                                $lefts,
-                                $rights,
-                                fn (string|int|float $l, string|int|float $r): string => sprintf('(%s %s %s)', $l, $node['operator'], $r)
-                            );
+                        $operator = ExpressionOperatorEnum::tryFrom($node['operator']);
+                        if (null === $operator) {
+                            throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $node['operator']));
                         }
+                        if (ExpressionOperatorEnum::DIVIDE === $operator
+                            && $this->resolver->isResolvableValue($node['rightOperand'])
+                            && 0 == $this->resolver->resolveValue($node['rightOperand'])
+                        ) {
+                            throw new InvalidAQLException('Division by zero');
+                        }
+                        $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters, $options, $params);
+                        $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters, $options, $params);
+
+                        $scripts = ClusterGroup::mix(
+                            $lefts,
+                            $rights,
+                            // Painless divides integers as integers, a constant division gives a decimal number
+                            fn (string $l, string $r): string => ExpressionOperatorEnum::DIVIDE === $operator
+                                ? sprintf('(%s * 1.0 / %s)', $l, $r)
+                                : sprintf('(%s %s %s)', $l, $operator->value, $r)
+                        );
                         break;
                     case 'function_call':
-                        $functionHandle = $this->getFunctionHandle($node['function']);
-                        $args = array_map(fn (mixed $arg) => $this->expressionToScript($arg, $fieldClusters), $node['arguments']);
+                        $functionHandle = $this->resolver->getCheckedFunctionHandle($node);
+                        if (null !== $declaration = $functionHandle->getScriptDeclaration()) {
+                            $params->addDeclaration($functionHandle::getName(), $declaration);
+                        }
+                        $args = [];
+                        foreach ($node['arguments'] as $i => $arg) {
+                            $args[] = $this->resolver->isResolvableValue($arg)
+                                ? [new ClusterGroup($params->add($this->resolver->resolveArgument($functionHandle, $node['function'], $i, $arg)), true)]
+                                : $this->expressionToScript($arg, $fieldClusters, $options, $params);
+                        }
 
                         $mixedArguments = [new ClusterGroup([], true)];
                         foreach ($args as $arg) {
@@ -617,109 +445,32 @@ final readonly class AQLToESQuery
                         }
                         break;
                     case 'parentheses':
-                        $scripts = $this->expressionToScript($node['expression'], $fieldClusters);
+                        $scripts = $this->expressionToScript($node['expression'], $fieldClusters, $options, $params);
                         break;
                     default:
-                        throw new \RuntimeException(sprintf('Unsupported node type "%s"', $type));
+                        throw new InvalidAQLException(sprintf('Unsupported node type "%s" in script conditions', is_scalar($type) ? $type : get_debug_type($type)));
                 }
             } elseif (isset($node['field'])) {
-                $fields = $this->getFieldNames($fieldClusters, $node['field']);
+                $fields = $this->resolver->getFieldNames($fieldClusters, $node['field'], $options);
                 if (empty($fields)) {
                     throw new BadRequestHttpException(sprintf('Field "%s" not found', $node['field']));
                 }
 
                 foreach ($fields as $field) {
-                    $scripts[] = $field->convert(sprintf('(!doc["%1$s"].empty ? doc["%1$s"].value : null)', $field->getItem()['field']));
+                    foreach ($this->resolver->resolveScriptFieldNames($field, $options) as $locale => $fieldName) {
+                        $scripts[] = $field
+                            ->convert(sprintf('doc["%s"].value', $fieldName))
+                            ->withFieldLocale(is_string($locale) ? $locale : null)
+                            ->withScriptField($fieldName);
+                    }
                 }
             } else {
-                throw new \RuntimeException(sprintf('Unsupported node "%s"', print_r($node, true)));
+                throw new InvalidAQLException('Unsupported value in script conditions');
             }
         } else {
-            $scripts[] = new ClusterGroup((string) $node, true);
+            throw new InvalidAQLException('Unsupported value in script conditions');
         }
 
         return $scripts;
-    }
-
-    private function resolveValue(mixed $data, ?BuiltInAttributeInterface $builtInAttribute = null): mixed
-    {
-        if (is_array($data)) {
-            $type = $data['type'] ?? null;
-
-            if ('function_call' === $type) {
-                $data = $this->resolveFunctionValue($data);
-            } elseif ('parentheses' === $type) {
-                $data = $this->resolveValue($data['expression']);
-            } elseif ('value_expression' === $type) {
-                $data = $this->resolveValueExpression($data);
-            } elseif (isset($data[0])) {
-                return array_map(fn (mixed $data) => $this->resolveValue($data, $builtInAttribute), $data);
-            }
-        }
-
-        if ($data instanceof \DateTimeInterface) {
-            return $data->getTimestamp();
-        }
-
-        $v = $data['literal'] ?? $data;
-
-        if (null !== $builtInAttribute) {
-            try {
-                $v = $builtInAttribute->normalizeValueForSearch($v);
-            } catch (NotFoundHttpException $e) {
-                throw new BadRequestHttpException(sprintf('Invalid value for built-in field "%s": %s', $builtInAttribute::getName(), $e->getMessage()), $e);
-            }
-        }
-
-        return $v;
-    }
-
-    /**
-     * @return ClusterGroup[]
-     */
-    private function getFieldNames(array $fieldClusters, string $fieldSlug): array
-    {
-        if (str_starts_with($fieldSlug, '@')) {
-            $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($fieldSlug);
-            if (null !== $builtInAttribute) {
-                return [
-                    new ClusterGroup([
-                        'field' => $builtInAttribute::getName(),
-                        'builtInAttribute' => $builtInAttribute,
-                        'type' => $this->attributeTypeRegistry->getStrictType($builtInAttribute->getType()),
-                        'locales' => [],
-                    ], true),
-                ];
-            }
-
-            throw new BadRequestHttpException(sprintf('Built-in field "%s" not found', $fieldSlug));
-        }
-
-        $nameCandidates = [
-            sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, '_', $fieldSlug),
-            sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, '{l}', $fieldSlug),
-        ];
-        $fields = [];
-        foreach ($fieldClusters as $cluster) {
-            $locales = $cluster['locales'] ?? [];
-            foreach ($cluster['fields'] as $cField => $fieldConf) {
-                foreach ($nameCandidates as $nameCandidate) {
-                    if (str_starts_with((string) $cField, $nameCandidate.'_')) {
-                        $fields[] = new ClusterGroup(
-                            [
-                                'field' => $cField,
-                                'type' => $fieldConf['type'],
-                                'locales' => $locales,
-                            ],
-                            false,
-                            $cluster['w'] ?? [],
-                            $cluster['locales'] ?? null
-                        );
-                    }
-                }
-            }
-        }
-
-        return $fields;
     }
 }

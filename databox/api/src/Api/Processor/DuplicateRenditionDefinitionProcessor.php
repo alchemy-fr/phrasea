@@ -58,6 +58,7 @@ final class DuplicateRenditionDefinitionProcessor implements ProcessorInterface
         $copy->setUseAsPreview($data->isUseAsPreview());
         $copy->setUseAsThumbnail($data->isUseAsThumbnail());
         $copy->setUseAsAnimatedThumbnail($data->isUseAsAnimatedThumbnail());
+        $copy->setBuildFirst($data->isBuildFirst());
         $copy->setLabels($data->getLabels());
         $copy->setTarget($data->getTarget());
 

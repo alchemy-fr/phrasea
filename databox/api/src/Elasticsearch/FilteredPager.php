@@ -24,6 +24,8 @@ final readonly class FilteredPager implements AdapterInterface
             $arr = iterator_to_array($arr);
         }
 
-        return array_filter($arr, $this->filter);
+        // A list: a page embedded in another resource (e.g. the children of a collection) is
+        // normalized with its keys, and a gap would turn the JSON array into an object.
+        return array_values(array_filter($arr, $this->filter));
     }
 }

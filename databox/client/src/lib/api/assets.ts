@@ -18,6 +18,9 @@ import {
     MatomoMediaMetrics,
     MediaClip,
     Page,
+    QuarantineBatchInput,
+    QuarantineBatchPrepareItem,
+    QuarantineBatchResult,
     SearchSuggestion,
 } from '@/types/api';
 import {multipartUpload, MultipartUpload, type UploadProgress} from './upload';
@@ -224,7 +227,7 @@ export async function getSearchSuggestions(
     return {...toPage(res), debug: res['debug:es']?.query};
 }
 
-/** A resolved entity, or `{notAllowed: true}` when the user cannot read it */
+/** A resolved entity, or `{notAllowed: true}` when the user may not read users */
 export type ResolvedEntityValue = Record<string, unknown> & {
     notAllowed?: boolean;
 };
@@ -402,7 +405,6 @@ export type SourceFileInput = {
 export type AssetInput = {
     name?: string;
     privacy?: number;
-    tags?: string[];
     collection?: string;
     workspace?: string;
     isStory?: boolean;
@@ -495,7 +497,6 @@ export async function importAssetsFromUrls(
     options: CreateOptions & {
         story?: {
             name?: string;
-            tags?: string[];
             attributes?: AttributeBatchAction[];
         };
     } = {}
@@ -529,7 +530,7 @@ export function copyAssets(
     ids: string[],
     destination: string,
     byReference: boolean,
-    options: {withAttributes?: boolean; withTags?: boolean} = {}
+    options: {withAttributes?: boolean} = {}
 ): Promise<void> {
     return api.post(`/${EntityName.Asset}/copy`, {
         ids,
@@ -604,6 +605,60 @@ export function addAsAssetVersion(
         `/${EntityName.Asset}/${quarantinedAssetId}/add-as-version`,
         {targetAssetId}
     );
+}
+
+/** Server-side limit of the quarantine batch endpoints */
+const quarantineBatchSize = 100;
+
+function chunk<T>(list: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < list.length; i += size) {
+        chunks.push(list.slice(i, i + size));
+    }
+
+    return chunks;
+}
+
+export async function prepareQuarantineBatch(
+    ids: string[]
+): Promise<QuarantineBatchPrepareItem[]> {
+    const pages = await Promise.all(
+        chunk(ids, quarantineBatchSize).map(page =>
+            api.post<{items?: QuarantineBatchPrepareItem[]}>(
+                `/${EntityName.Asset}/quarantine/prepare-batch`,
+                {ids: page}
+            )
+        )
+    );
+
+    return pages.flatMap(p => p.items ?? []);
+}
+
+/**
+ * Runs the action slice by slice (the server takes up to 100 assets at once),
+ * one slice after the other.
+ */
+export async function runQuarantineBatch(
+    input: QuarantineBatchInput
+): Promise<QuarantineBatchResult> {
+    const total: QuarantineBatchResult = {
+        results: [],
+        processed: 0,
+        skipped: 0,
+        failed: 0,
+    };
+    for (const items of chunk(input.items, quarantineBatchSize)) {
+        const res = await api.post<QuarantineBatchResult>(
+            `/${EntityName.Asset}/quarantine/batch`,
+            {...input, items}
+        );
+        total.results.push(...res.results);
+        total.processed += res.processed;
+        total.skipped += res.skipped;
+        total.failed += res.failed;
+    }
+
+    return total;
 }
 
 export function getAssetMetrics(assetId: string): Promise<MatomoMediaMetrics> {

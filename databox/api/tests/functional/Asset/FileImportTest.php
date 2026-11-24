@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Asset;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
@@ -13,6 +12,7 @@ use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use App\Consumer\Handler\File\ImportFile;
+use App\Consumer\WorkerQueue;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
@@ -21,13 +21,14 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Workflow\WorkflowState;
 use App\Integration\Core\FileAnalyzer\FileAnalyzerIntegration;
 use App\Integration\Core\ReadMetadata\ReadMetadataIntegration;
+use App\Service\Asset\Exception\RemoteFileNotFoundException;
 use App\Service\Asset\FileImporter;
 use App\Service\Asset\WorkspaceAssetIngester;
 use App\Service\Workflow\Action\ImportSourceFileAction;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Rendition\RenditionTestTrait;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use App\Tests\Functional\InterceptedTransports;
 
 /**
  * Files created from a URL with "importFile": the source of an asset is imported
@@ -39,17 +40,17 @@ final class FileImportTest extends AbstractDataboxTestCase
 
     private const string EDITOR = KeycloakClientTestMock::USER_UID;
     private const string IMPORT_JOB_ID = 'import_source';
+    private const string CHECK_CONTENT_JOB_ID = 'check_content';
 
-    private InMemoryTransport $queue;
+    private InterceptedTransports $queue;
 
     protected function setUp(): void
     {
         parent::setUp();
         self::bootKernel();
-        // Keep the workflow jobs queued: running them would download the URLs.
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $this->queue = $transport->intercept();
+        // Keep the workflow jobs (p2, heavy for the source import, heavy_low) and the ImportFile messages (heavy)
+        // queued: running them would download the URLs.
+        $this->queue = InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy', 'heavy_low');
     }
 
     public function testAssetSourceIsFlaggedAndLeftToTheIngestWorkflow(): void
@@ -117,7 +118,13 @@ final class FileImportTest extends AbstractDataboxTestCase
                 $this->assertNotEmpty($job->getNeeds()->getArrayCopy(), $jobId);
             }
         }
-        $this->assertSame([self::IMPORT_JOB_ID], $jobs->offsetGet($this->getAnalyzerJobId($integration))->getNeeds()->getArrayCopy());
+        $this->assertSame([self::IMPORT_JOB_ID], $jobs->offsetGet(self::CHECK_CONTENT_JOB_ID)->getNeeds()->getArrayCopy());
+        $this->assertSame([self::IMPORT_JOB_ID, self::CHECK_CONTENT_JOB_ID], $jobs->offsetGet($this->getAnalyzerJobId($integration))->getNeeds()->getArrayCopy());
+
+        // The download and the analysis run on their own worker queue, the content check on the default one
+        $this->assertSame(WorkerQueue::HEAVY, $importJob->getQueue());
+        $this->assertSame(WorkerQueue::HEAVY, $jobs->offsetGet($this->getAnalyzerJobId($integration))->getQueue());
+        $this->assertNull($jobs->offsetGet(self::CHECK_CONTENT_JOB_ID)->getQueue());
     }
 
     public function testIntegrationsRunWhenThereIsNothingToImport(): void
@@ -128,9 +135,7 @@ final class FileImportTest extends AbstractDataboxTestCase
         $asset->setSource($this->createUrlFile($ws));
         self::getEntityManager()->flush();
 
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $transport->intercept(false);
+        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy', 'heavy_low');
         self::getService(WorkspaceAssetIngester::class)->ingestAsset($asset, null);
 
         $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);
@@ -146,9 +151,7 @@ final class FileImportTest extends AbstractDataboxTestCase
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $asset = $this->createAsset(['workspace' => $ws]);
 
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $transport->intercept(false);
+        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy', 'heavy_low');
         self::getService(WorkspaceAssetIngester::class)->ingestAsset($asset, null);
 
         $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);
@@ -196,6 +199,26 @@ final class FileImportTest extends AbstractDataboxTestCase
         $runContext = $this->createMock(RunContext::class);
         $runContext->method('getInputs')->willReturn($inputs($pendingAsset));
         $action->handle($runContext);
+    }
+
+    public function testASourceRemovedAtItsUrlFailsTheImportJob(): void
+    {
+        [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $em = self::getEntityManager();
+        $source = $this->createUrlFile($ws);
+        $source->setImportPending(true);
+        $asset = $this->createAsset(['workspace' => $ws, 'no_flush' => true]);
+        $asset->setSource($source);
+        $em->flush();
+
+        $importer = $this->createMock(FileImporter::class);
+        $importer->method('importFile')
+            ->willThrowException(new RemoteFileNotFoundException($source, new \RuntimeException('HTTP/2 404')));
+        $runContext = $this->createMock(RunContext::class);
+        $runContext->method('getInputs')->willReturn(new Inputs(['assetId' => $asset->getId()]));
+        $runContext->expects($this->once())->method('setEndStatus')->with(JobState::STATUS_FAILURE);
+
+        new ImportSourceFileAction($importer, $em)->handle($runContext);
     }
 
     private function createAnalyzerIntegration(Workspace $workspace): WorkspaceIntegration

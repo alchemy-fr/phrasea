@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Asset\Attribute;
 
 use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
+use App\Twig\Sandbox\BoundedRangeExtension;
 use App\Twig\Sandbox\TemplateSecurityPolicy;
 use Twig\Environment;
 use Twig\Extension\SandboxExtension;
@@ -28,6 +29,7 @@ final readonly class TemplateResolver implements TemplateResolverInterface
             'autoescape' => false,
         ]);
         $twig->addExtension(new SandboxExtension(new TemplateSecurityPolicy(), true));
+        $twig->addExtension(new BoundedRangeExtension());
 
         return $twig;
     }

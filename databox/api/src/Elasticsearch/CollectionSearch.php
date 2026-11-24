@@ -11,9 +11,9 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\CollectionVoter;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
@@ -126,7 +126,13 @@ class CollectionSearch extends AbstractSearch
             ]);
         }
 
-        $data = $this->finder->findPaginated($query);
+        // The voter has the last word: a stale document must not expose the collection, and
+        // a collection in the trash is only readable with the DELETE permission (the index
+        // has no field for it). As for the other indices, the total is the one of Elasticsearch.
+        $data = new Pagerfanta(new FilteredPager(
+            fn (Collection $collection): bool => $this->isGranted(AbstractVoter::READ, $collection),
+            $this->finder->findPaginated($query)->getAdapter(),
+        ));
         self::applyPagination($data, $options, $maxLimit);
         $this->executeSearch($data->getCurrentPageResults(...));
 
@@ -188,7 +194,7 @@ class CollectionSearch extends AbstractSearch
         array $groupIds,
         array $options = [],
     ): array {
-        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
+        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds, WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE);
 
         $queryString = trim((string) ($options['query'] ?? ''));
         $parsed = $this->queryStringParser->parseQuery($queryString);
@@ -275,8 +281,8 @@ class CollectionSearch extends AbstractSearch
         return $match;
     }
 
-    protected function getAdminScope(): ?string
+    protected function createListedSubject(): Collection
     {
-        return CollectionVoter::SCOPE_PREFIX.AbstractVoter::LIST;
+        return new Collection();
     }
 }

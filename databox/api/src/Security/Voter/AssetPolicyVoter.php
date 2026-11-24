@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 class AssetPolicyVoter extends AbstractVoter
 {
     final public const string READ_ADMIN = 'READ_ADMIN';
-    final public const string SCOPE_PREFIX = 'asset-policy:';
+    private const string SCOPE_PREFIX = 'asset-policy:';
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -25,6 +25,8 @@ class AssetPolicyVoter extends AbstractVoter
     }
 
     /**
+     * LIST is voted on a new AssetPolicy carrying the workspace whose policies are listed.
+     *
      * @param AssetPolicy $subject
      */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -36,7 +38,7 @@ class AssetPolicyVoter extends AbstractVoter
         $isWorkspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::READ, self::CREATE, self::EDIT, self::DELETE => $isWorkspaceEditor(),
+            self::LIST, self::READ, self::CREATE, self::EDIT, self::DELETE => $isWorkspaceEditor(),
             default => false,
         };
     }

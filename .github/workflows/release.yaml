@@ -141,11 +141,11 @@ jobs:
             fi
           done
 
-          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
+          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} bin/ci-push-images.sh
 
           # If latest, also push latest tag
           if [ "$IS_LATEST" = true ]; then
-            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker compose push
+            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest bin/ci-push-images.sh
           fi
 
       - name: Generate GitHub App token for documentation dispatch

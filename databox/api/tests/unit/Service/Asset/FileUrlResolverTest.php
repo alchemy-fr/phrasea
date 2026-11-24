@@ -14,6 +14,7 @@ use Aws\S3\S3Client;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\MockClock;
 
 class FileUrlResolverTest extends TestCase
 {
@@ -56,6 +57,42 @@ class FileUrlResolverTest extends TestCase
         $this->assertSame($imageUrl, $resolver->resolveUrl($image));
     }
 
+    #[DataProvider('getSharedTtls')]
+    public function testSignedUrlsAreSharedForALimitedTime(int $signatureTtl, int $maxSharedTtl, ?int $expectedSharedTtl): void
+    {
+        $clock = new MockClock();
+        $cache = new ArrayAdapter(clock: $clock);
+        $file = $this->createFile('a/b/foo.jpg', 'image/jpeg');
+
+        $url = $this->createResolver($cache, $signatureTtl, $maxSharedTtl)->resolveUrl($file);
+
+        $keys = array_keys($cache->getValues());
+        if (null === $expectedSharedTtl) {
+            $this->assertSame([], $keys);
+
+            return;
+        }
+        $this->assertCount(1, $keys);
+
+        $clock->sleep($expectedSharedTtl - 1);
+        $this->assertTrue($cache->hasItem($keys[0]));
+        $this->assertSame($url, $this->createResolver($cache, $signatureTtl, $maxSharedTtl)->resolveUrl($file));
+
+        $clock->sleep(2);
+        $this->assertFalse($cache->hasItem($keys[0]));
+    }
+
+    public static function getSharedTtls(): array
+    {
+        return [
+            'capped by the shared TTL' => [3600, 300, 300],
+            'default cap' => [86400, FileUrlResolver::DEFAULT_MAX_SHARED_TTL, 300],
+            'half of a short validity' => [400, 300, 200],
+            'validity too short' => [100, 300, null],
+            'sharing disabled' => [3600, 0, null],
+        ];
+    }
+
     public function testExternalUrlIsUntouched(): void
     {
         $file = $this->createFile('https://example.com/foo.svg', 'image/svg+xml');
@@ -64,8 +101,32 @@ class FileUrlResolverTest extends TestCase
         $this->assertSame('https://example.com/foo.svg', $this->createResolver()->resolveUrl($file));
     }
 
-    private function createResolver(): FileUrlResolver
+    #[DataProvider('getUnsafeExternalUrls')]
+    public function testExternalUrlWithAnotherSchemeIsNeverResolved(string $url): void
     {
+        $file = $this->createFile($url, 'image/jpeg');
+        $file->setStorage(File::STORAGE_URL);
+
+        $this->assertNull($this->createResolver()->resolveUrl($file));
+    }
+
+    public static function getUnsafeExternalUrls(): array
+    {
+        return [
+            'javascript' => ['javascript:alert(1)'],
+            'javascript, mixed case' => ['JavaScript://example.com/%0Aalert(1)'],
+            'data' => ['data:text/html,<script>alert(1)</script>'],
+            'leading space' => [' https://example.com/foo.jpg'],
+            'other scheme' => ['indexer:///foo.jpg'],
+            'relative' => ['/foo.jpg'],
+        ];
+    }
+
+    private function createResolver(
+        ?ArrayAdapter $cache = null,
+        int $signatureTtl = 3600,
+        int $maxSharedTtl = FileUrlResolver::DEFAULT_MAX_SHARED_TTL,
+    ): FileUrlResolver {
         $s3Client = new S3Client([
             'endpoint' => 'https://minio.phrasea.test',
             'region' => 'eu-central-1',
@@ -83,9 +144,10 @@ class FileUrlResolverTest extends TestCase
         ]), 3600);
 
         return new FileUrlResolver(
-            new UrlSigner($s3Client, 'databox', 3600, $cloudFront),
-            new ArrayAdapter(),
+            new UrlSigner($s3Client, 'databox', $signatureTtl, $cloudFront),
+            $cache ?? new ArrayAdapter(),
             new TemporaryCacheFactory(),
+            $maxSharedTtl,
         );
     }
 

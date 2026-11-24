@@ -20,6 +20,7 @@ final readonly class MultipartUploadPlanner
         private int $maxChunkSize,
         private int $maxPartNumber,
         private int $maxObjectSize,
+        private ?int $maxFileSize = null,
     ) {
         if ($minChunkSize < 1 || $maxChunkSize < $minChunkSize || $maxPartNumber < 1 || $maxObjectSize < 1) {
             throw new \InvalidArgumentException('Invalid multipart upload limits');
@@ -35,8 +36,9 @@ final readonly class MultipartUploadPlanner
         if ($size < 0) {
             throw new BadRequestHttpException('File size must be positive');
         }
-        if ($size > $this->maxObjectSize) {
-            throw new BadRequestHttpException(sprintf('File size %d exceeds the maximum allowed size of %d bytes', $size, $this->maxObjectSize));
+        $maxFileSize = $this->getMaxFileSize();
+        if ($size > $maxFileSize) {
+            throw new BadRequestHttpException(sprintf('File size %d exceeds the maximum allowed size of %d bytes', $size, $maxFileSize));
         }
 
         $chunkSize = max($this->minChunkSize, (int) ceil($size / $this->maxPartNumber));
@@ -47,9 +49,25 @@ final readonly class MultipartUploadPlanner
         return $chunkSize;
     }
 
+    /**
+     * Largest object the storage accepts.
+     */
     public function getMaxObjectSize(): int
     {
         return $this->maxObjectSize;
+    }
+
+    /**
+     * Largest file the application accepts: its own limit, if any, within the one of the storage.
+     * A limit below 1 means none.
+     */
+    public function getMaxFileSize(): int
+    {
+        if (null === $this->maxFileSize || $this->maxFileSize < 1) {
+            return $this->maxObjectSize;
+        }
+
+        return min($this->maxFileSize, $this->maxObjectSize);
     }
 
     /**

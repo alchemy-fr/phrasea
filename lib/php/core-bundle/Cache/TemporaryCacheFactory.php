@@ -8,7 +8,6 @@ use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
-use Symfony\Contracts\Cache\CacheInterface;
 
 #[AsEventListener(KernelEvents::TERMINATE, method: 'reset', priority: -5)]
 #[AsEventListener(ConsoleEvents::TERMINATE, method: 'reset', priority: -5)]
@@ -20,7 +19,7 @@ class TemporaryCacheFactory implements ResettableInterface
      */
     private array $caches = [];
 
-    public function createCache(): CacheInterface
+    public function createCache(): ArrayAdapter
     {
         $arrayAdapter = new ArrayAdapter(deepClone: false);
         $this->caches[] = $arrayAdapter;

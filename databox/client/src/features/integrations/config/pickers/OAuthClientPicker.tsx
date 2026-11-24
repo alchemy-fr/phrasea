@@ -238,7 +238,7 @@ function OAuthClientItem({client}: {client: OAuthClient}) {
                     variant="warning"
                     title={t(
                         'integration.config.oauth_client.not_accepted_by_expose_help',
-                        'Expose only accepts the clients created from Databox, those whose redirect URIs all lead to the Databox integrations, or those listed in its allowed clients'
+                        'The client lacks the "expose-api" client scope, which Expose requires: add it to the client in Keycloak, as a default scope'
                     )}
                 >
                     <TriangleAlertIcon />

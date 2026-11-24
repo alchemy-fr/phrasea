@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Rendition;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('heavy')]
 final readonly class BuildDynamicRendition
 {
     public function __construct(

@@ -17,5 +17,4 @@ class CopyAssetInput extends AbstractOwnerIdInput
     public ?string $destination = null;
     public bool $byReference = false;
     public bool $withAttributes = false;
-    public bool $withTags = false;
 }

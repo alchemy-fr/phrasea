@@ -161,11 +161,10 @@ describe('createAsset', () => {
         expect(logger.messages('warn')).toHaveLength(1);
     });
 
-    it('forwards attributes, tags, renditions and the story flag', async () => {
+    it('forwards attributes, renditions and the story flag', async () => {
         await client.createAsset({
             workspaceId: 'ws-1',
             attributes: [{definition: '/d/1', value: 'v'} as any],
-            tags: ['/tags/1'],
             renditions: [{name: 'preview'}],
             isStory: true,
             generateRenditions: false,
@@ -173,7 +172,6 @@ describe('createAsset', () => {
 
         expect(lastBody()).toMatchObject({
             attributes: [{definition: '/d/1', value: 'v'}],
-            tags: ['/tags/1'],
             renditions: [{name: 'preview'}],
             isStory: true,
             generateRenditions: false,
@@ -190,7 +188,6 @@ describe('copyAsset', () => {
             ids: ['asset-1'],
             byReference: true,
             withAttributes: false,
-            withTags: false,
         });
 
         expect(lastBody()).toEqual({
@@ -199,7 +196,6 @@ describe('copyAsset', () => {
             ids: ['asset-1'],
             byReference: true,
             withAttributes: false,
-            withTags: false,
         });
     });
 });
@@ -356,13 +352,35 @@ describe('idempotent sub-resource creation', () => {
         expect(mock.history.post).toHaveLength(1);
     });
 
-    it('creates a tag once per key', async () => {
-        mock.onPost('/tags').reply(200, {id: 'tag-1'});
+    it('creates an entity list once per key', async () => {
+        mock.onPost('/entity-lists').reply(200, {id: 'list-1'});
 
-        await client.createTag('k', {name: 'Tag'});
-        await client.createTag('k', {name: 'Tag'});
+        await client.createEntityList('k', {name: 'Tags'});
+        expect(await client.createEntityList('k', {name: 'Tags'})).toEqual({
+            id: 'list-1',
+        });
 
         expect(mock.history.post).toHaveLength(1);
+        expect(lastBody()).toEqual({name: 'Tags'});
+    });
+
+    it('creates an attribute entity once per key', async () => {
+        mock.onPost('/attribute-entities').reply(200, {id: 'ent-1'});
+
+        await client.createAttributeEntity('k', {
+            list: '/entity-lists/list-1',
+            value: 'Online',
+        });
+        await client.createAttributeEntity('k', {
+            list: '/entity-lists/list-1',
+            value: 'Online',
+        });
+
+        expect(mock.history.post).toHaveLength(1);
+        expect(lastBody()).toEqual({
+            list: '/entity-lists/list-1',
+            value: 'Online',
+        });
     });
 
     it('creates an attribute policy once per key', async () => {
@@ -389,13 +407,58 @@ describe('idempotent sub-resource creation', () => {
 });
 
 describe('collection endpoints returning hydra collections', () => {
-    it('unwraps member for tags', async () => {
-        mock.onGet('/tags').reply(200, {
-            member: [{id: 't1'}, {id: 't2'}],
+    it('unwraps member for entity lists, filtered by workspace and name', async () => {
+        mock.onGet('/entity-lists').reply(200, {
+            member: [{id: 'l1', name: 'Tags'}],
         });
 
-        expect(await client.getTags('ws-1')).toEqual([{id: 't1'}, {id: 't2'}]);
-        expect(mock.history.get[0].params).toEqual({workspaceId: 'ws-1'});
+        expect(await client.getEntityLists('ws-1', 'Tags')).toEqual([
+            {id: 'l1', name: 'Tags'},
+        ]);
+        expect(mock.history.get[0].params).toEqual({
+            workspace: 'ws-1',
+            name: 'Tags',
+            limit: 100,
+        });
+    });
+
+    it('unwraps member for attribute definitions', async () => {
+        mock.onGet('/attribute-definitions').reply(200, {
+            member: [{id: 'd1'}],
+        });
+
+        expect(
+            await client.getAttributeDefinitions({
+                workspaceId: 'ws-1',
+                entityListId: 'l1',
+            })
+        ).toEqual([{id: 'd1'}]);
+        expect(mock.history.get[0].params).toEqual({
+            limit: 1000,
+            workspaceId: 'ws-1',
+            entityListId: 'l1',
+        });
+    });
+
+    it('reads every page of the attribute entities of a list', async () => {
+        const firstPage = Array.from({length: 100}, (_, i) => ({
+            id: `e${i}`,
+            value: `v${i}`,
+        }));
+        mock.onGet('/attribute-entities').reply(config =>
+            config.params.page === 1
+                ? [200, {member: firstPage}]
+                : [200, {member: [{id: 'e100', value: 'v100'}]}]
+        );
+
+        const entities = await client.getAttributeEntities('l1');
+
+        expect(entities).toHaveLength(101);
+        expect(entities[100]).toEqual({id: 'e100', value: 'v100'});
+        expect(mock.history.get.map(r => r.params)).toEqual([
+            {'list': 'l1', 'order[createdAt]': 'asc', 'limit': 100, 'page': 1},
+            {'list': 'l1', 'order[createdAt]': 'asc', 'limit': 100, 'page': 2},
+        ]);
     });
 
     it('unwraps member for rendition policies', async () => {

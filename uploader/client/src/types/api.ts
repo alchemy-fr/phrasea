@@ -37,6 +37,8 @@ export type UploaderUser = {
         /** Creating upload links, and managing one's own */
         upload_link: boolean;
     };
+    /** In days: how far the expiration of an upload link can be set */
+    upload_link_max_ttl?: number;
 };
 
 export type Target = HydraObject & {
@@ -80,7 +82,7 @@ export type UploadLink = HydraObject & {
     name?: string | null;
     token: string;
     enabled: boolean;
-    expiresAt?: string | null;
+    expiresAt: string;
     maxAssets?: number | null;
     /** In bytes */
     maxTotalSize?: number | null;
@@ -109,11 +111,9 @@ export type UploadLinkSession = {
     id: string;
     name: string | null;
     target: {id: string; name: string; description: string | null};
-    expiresAt: string | null;
+    expiresAt: string;
     maxAssets: number | null;
     maxTotalSize: number | null;
     usedAssets: number;
     usedSize: number;
-    /** What was entered in the form of the last commit made with the link */
-    lastFormData: Record<string, unknown> | null;
 };

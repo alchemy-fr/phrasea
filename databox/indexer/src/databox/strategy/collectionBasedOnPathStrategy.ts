@@ -42,6 +42,9 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             sourceFile: asset.publicUrl
                 ? {
                       url: asset.publicUrl,
+                      // The public URL carries the path in its query string:
+                      // the API guesses the type from this name instead.
+                      originalName: p.basename(path),
                       isPrivate: asset.isPrivate,
                       alternateUrls,
                       importFile: asset.importFile,
@@ -52,7 +55,6 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             key: asset.key,
             name: asset.name || p.basename(path),
             attributes: asset.attributes,
-            tags: asset.tags,
             renditions: asset.renditions,
             isStory: asset.isStory,
         });
@@ -65,7 +67,6 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
                 ids: [assetId],
                 byReference: true,
                 withAttributes: false,
-                withTags: false,
             });
         }
     } catch (e: any) {

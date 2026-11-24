@@ -118,6 +118,25 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTestCase
         ], $this->getType()->normalizeElasticsearchValue('17e9152c-fa5f-4f53-83ac-62674f6f6f8d'));
     }
 
+    public function testNormalizeElasticsearchValueLeavesOutTheUnknownLocales(): void
+    {
+        $workspace = new Workspace();
+        $workspace->setEnabledLocales(['en', 'fr_FR']);
+        $entity = new AttributeEntity();
+        $entity->setWorkspace($workspace);
+        $entity->setValue('Red');
+        // Stored before the locale validation
+        $entity->setTranslations(['fr' => 'Rouge', 'fr_FR' => 'Rouge (FR)', 'zz' => 'Spam', 'xx_YY' => 'Spam']);
+        $entity->setSynonyms(['_' => ['Crimson'], 'zz' => ['Spam']]);
+        $this->repository->method('find')->with(self::ENTITY_ID)->willReturn($entity);
+
+        $this->assertEquals([
+            'fr' => ['id' => $entity->getId(), 'value' => 'Rouge'],
+            'fr_FR' => ['id' => $entity->getId(), 'value' => 'Rouge (FR)'],
+            AttributeInterface::NO_LOCALE => ['id' => $entity->getId(), 'value' => 'Red', 'synonyms' => ['Crimson']],
+        ], $this->getType()->normalizeElasticsearchValue(self::ENTITY_ID));
+    }
+
     public function testDenormalizeValueShowsApprovedValue(): void
     {
         $this->createEntity(AttributeEntity::STATUS_APPROVED);

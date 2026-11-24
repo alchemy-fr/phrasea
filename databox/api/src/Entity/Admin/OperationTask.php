@@ -9,11 +9,15 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Input\OperationTaskInput;
 use App\Api\Model\Output\UserOutput;
+use App\Api\Processor\CancelOperationTaskProcessor;
+use App\Api\Processor\DeleteOperationTaskProcessor;
 use App\Api\Processor\RunOperationTaskProcessor;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Util\Time;
@@ -29,6 +33,18 @@ use Doctrine\ORM\Mapping as ORM;
             input: OperationTaskInput::class,
             processor: RunOperationTaskProcessor::class
         ),
+        new Post(
+            uriTemplate: '/operation-tasks/{id}/cancel',
+            throwOnNotFound: true,
+            uriVariables: [
+                'id' => new Link(fromClass: self::class, identifiers: ['id']),
+            ],
+            status: 200,
+            input: false,
+            processor: CancelOperationTaskProcessor::class,
+            name: 'cancel_operation_task',
+        ),
+        new Delete(processor: DeleteOperationTaskProcessor::class),
     ],
     order: ['createdAt' => 'DESC'],
     security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")',
@@ -161,6 +177,24 @@ class OperationTask extends AbstractUuidEntity
     public function setStatus(?int $status): void
     {
         $this->status = $status;
+    }
+
+    /**
+     * Whether the task can still be cancelled: it has not run yet or is running.
+     */
+    #[ApiProperty(readable: false, writable: false)]
+    public function isCancellable(): bool
+    {
+        return in_array($this->status, [self::STATUS_PENDING, self::STATUS_IN_PROGRESS], true);
+    }
+
+    /**
+     * Whether the task has reached a final state (successful or not) and can be deleted.
+     */
+    #[ApiProperty(readable: false, writable: false)]
+    public function isTerminated(): bool
+    {
+        return in_array($this->status, [self::STATUS_COMPLETED, self::STATUS_FAILED, self::STATUS_CANCELLED], true);
     }
 
     public function getStartedAt(): ?\DateTimeImmutable

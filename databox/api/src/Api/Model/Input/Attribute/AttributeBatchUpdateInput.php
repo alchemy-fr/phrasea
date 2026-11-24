@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input\Attribute;
 
-use Symfony\Component\Validator\Constraints\NotNull;
+use App\Api\Model\Input\InputLimits;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class AttributeBatchUpdateInput extends AssetAttributeBatchUpdateInput
 {
@@ -13,8 +14,14 @@ class AttributeBatchUpdateInput extends AssetAttributeBatchUpdateInput
      *
      * @var string[]
      */
+    #[Assert\Count(max: InputLimits::MAX_IDS)]
     public ?array $assets = null;
 
-    #[NotNull]
+    #[Assert\NotNull]
     public ?string $workspaceId = null;
+
+    protected function getBatchAssetIds(): ?array
+    {
+        return $this->assets;
+    }
 }

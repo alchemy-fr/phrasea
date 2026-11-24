@@ -16,6 +16,7 @@ use App\Elasticsearch\Mapping\FieldInfoDto;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Aggregation\Missing;
@@ -39,6 +40,7 @@ class AttributeSearch
         private readonly AttributeTypeRegistry $typeRegistry,
         private readonly AQLParser $AQLParser,
         private readonly AQLToESQuery $AQLToESQuery,
+        private readonly AssetPolicyManager $assetPolicyManager,
         TemporaryCacheFactory $cacheFactory,
     ) {
         $this->cache = $cacheFactory->createCache();
@@ -47,8 +49,14 @@ class AttributeSearch
     public function buildSearchableAttributeDefinitionsGroups(?string $userId, array $groupIds): array
     {
         return $this->cache->get('sa_'.$userId, function () use ($userId, $groupIds) {
-            $definitions = $this->em->getRepository(AttributeDefinition::class)
-                ->getSearchableAttributesWithPermission($userId, $groupIds);
+            $definitions = [];
+            foreach ($this->getDefinitionsWithPermission($userId, $groupIds) as $d) {
+                // An unreadable definition, even a non-searchable one, writes into the ES field
+                // of the searchable definitions sharing its key: they must not match its values.
+                if ($d['searchable'] || !$d['allowed']) {
+                    $definitions[] = $d;
+                }
+            }
 
             return $this->createClustersFromDefinitions($definitions);
         });
@@ -89,18 +97,123 @@ class AttributeSearch
      */
     public function isReadableAttributeKey(?string $userId, array $groupIds, string $key): bool
     {
-        $keys = $this->cache->get('rk_'.$userId, function () use ($userId, $groupIds): array {
-            $keys = [];
-            foreach ($this->em->getRepository(AttributeDefinition::class)->getAttributesWithPermission($userId, $groupIds) as $row) {
+        return [] !== $this->getReadableWorkspaceIds($userId, $groupIds, $key);
+    }
+
+    /**
+     * The workspaces in which the indexed values of an attribute key may be used for the user
+     * (matched, aggregated, sorted). The ES field of a key holds the values of the definitions
+     * of every workspace, whereas the user may only read some of them.
+     *
+     * @return string[]|null null when the user may read every definition producing the key,
+     *                       an empty list when they may read none
+     */
+    public function getReadableWorkspaceIds(?string $userId, array $groupIds, string $key): ?array
+    {
+        $index = $this->getKeyVisibilityIndex($userId, $groupIds);
+
+        return array_key_exists($key, $index) ? $index[$key]['w'] : [];
+    }
+
+    /**
+     * Within the readable workspaces of an attribute key, the assets on which asset policies
+     * hide its definition from the user (see HiddenAttributeScope).
+     *
+     * @return list<array{w: string, p: string[]}>
+     */
+    public function getHiddenScopes(?string $userId, array $groupIds, string $key): array
+    {
+        return $this->getKeyVisibilityIndex($userId, $groupIds)[$key]['x'] ?? [];
+    }
+
+    /**
+     * @return array<string, array{w: string[]|null, x: list<array{w: string, p: string[]}>}>
+     */
+    private function getKeyVisibilityIndex(?string $userId, array $groupIds): array
+    {
+        return $this->cache->get('rk_'.$userId, function () use ($userId, $groupIds): array {
+            $readable = [];
+            $restricted = [];
+            $hidden = [];
+            foreach ($this->getDefinitionsWithPermission($userId, $groupIds) as $row) {
+                $k = $this->fieldNameResolver->getFieldName($row['slug'], $row['type'], $row['multiple']);
+                $readable[$k] ??= [];
                 if ($row['allowed']) {
-                    $keys[$this->fieldNameResolver->getFieldName($row['slug'], $row['type'], $row['multiple'])] = true;
+                    $readable[$k][(string) $row['workspaceId']] = true;
+                    foreach ($row['hidden'] ?? [] as $paths) {
+                        $hidden[$k][] = ['w' => (string) $row['workspaceId'], 'p' => $paths];
+                    }
+                } else {
+                    $restricted[$k] = true;
                 }
             }
 
-            return $keys;
-        });
+            $index = [];
+            foreach ($readable as $k => $workspaceIds) {
+                $index[$k] = [
+                    'w' => isset($restricted[$k]) ? array_map(strval(...), array_keys($workspaceIds)) : null,
+                    'x' => $hidden[$k] ?? [],
+                ];
+            }
 
-        return isset($keys[$key]);
+            return $index;
+        });
+    }
+
+    /**
+     * Restricts the documents whose values of an attribute key may be used to the workspaces
+     * where the user may read it, minus the assets on which asset policies hide it.
+     *
+     * @return Query\AbstractQuery|null null when the values may be used wherever they are indexed
+     */
+    public function createVisibilityQuery(?string $userId, array $groupIds, string $key): ?Query\AbstractQuery
+    {
+        $workspaceIds = $this->getReadableWorkspaceIds($userId, $groupIds, $key);
+        if ([] === $workspaceIds) {
+            return new Query\MatchNone();
+        }
+
+        $workspaceQuery = null !== $workspaceIds ? new Query\Terms('workspaceId', $workspaceIds) : null;
+        $exclusionQuery = HiddenAttributeScope::createExclusionQuery($this->getHiddenScopes($userId, $groupIds, $key));
+        if (null === $exclusionQuery) {
+            return $workspaceQuery;
+        }
+        if (null !== $workspaceQuery) {
+            $exclusionQuery->addFilter($workspaceQuery);
+        }
+
+        return $exclusionQuery;
+    }
+
+    /**
+     * Every definition with whether the user may read its values ("allowed"): a definition that
+     * an asset policy hides from every asset of its workspace is not, and "hidden" lists, for
+     * each other policy hiding it, the collection paths the policy applies to (see
+     * AssetPolicyManager::getHiddenAttributeScopes()).
+     *
+     * @return array<array<string, mixed>>
+     */
+    private function getDefinitionsWithPermission(?string $userId, array $groupIds): array
+    {
+        return $this->cache->get('dp_'.$userId, function () use ($userId, $groupIds): array {
+            $hiddenScopes = $this->assetPolicyManager->getHiddenAttributeScopes($userId, $groupIds);
+
+            $rows = [];
+            foreach ($this->em->getRepository(AttributeDefinition::class)->getAttributesWithPermission($userId, $groupIds) as $row) {
+                $workspaceId = (string) $row['workspaceId'];
+                $scopes = HiddenAttributeScope::ofDefinition($hiddenScopes, (string) ($row['id'] ?? ''), $workspaceId);
+                if ($row['allowed'] && !empty($scopes)) {
+                    if (HiddenAttributeScope::coversWorkspace($scopes, $workspaceId)) {
+                        $row['allowed'] = false;
+                    } else {
+                        $row['hidden'] = array_column($scopes, 'p');
+                    }
+                }
+                $rows[] = $row;
+            }
+
+            return $rows;
+        });
     }
 
     public function createClustersFromDefinitions(iterable $definitions): array
@@ -139,6 +252,9 @@ class AttributeSearch
                     $searchType->value => [],
                 ];
                 $groups[$fieldName]['w'][$boost][$trIndex][$searchType->value][] = $d['workspaceId'];
+                if (!empty($d['hidden'])) {
+                    $groups[$fieldName]['x'][(string) $d['workspaceId']] = $d['hidden'];
+                }
             } else {
                 $groups[$fieldName]['f'] = true;
             }
@@ -170,6 +286,18 @@ class AttributeSearch
                             sort($wsSt);
                             $uk = $st.':'.$boost.':'.$tr.':'.implode(';', $wsSt);
 
+                            // A field that asset policies hide on some assets only shares its
+                            // cluster with the fields hidden on the same assets.
+                            $hidden = [];
+                            foreach ($wsSt as $workspaceId) {
+                                foreach ($group['x'][(string) $workspaceId] ?? [] as $paths) {
+                                    $hidden[] = ['w' => (string) $workspaceId, 'p' => $paths];
+                                }
+                            }
+                            if (!empty($hidden)) {
+                                $uk .= ':'.json_encode($hidden, JSON_THROW_ON_ERROR);
+                            }
+
                             $clusters[$uk] ??= [
                                 'w' => $wsSt,
                                 'b' => $boost,
@@ -182,6 +310,9 @@ class AttributeSearch
                                     return [];
                                 }, $wsSt)),
                             ];
+                            if (!empty($hidden)) {
+                                $clusters[$uk]['x'] = $hidden;
+                            }
                             $fieldName = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $tr ? '{l}' : '_', $f);
                             $clusters[$uk]['fields'][$fieldName] = [
                                 'b' => $boost,
@@ -209,7 +340,7 @@ class AttributeSearch
 
     private function hasDiversity(array $group): bool
     {
-        if ($group['f'] ?? false) {
+        if (($group['f'] ?? false) || !empty($group['x'])) {
             return true;
         }
 
@@ -308,6 +439,9 @@ class AttributeSearch
             if (!empty($cluster['w'])) {
                 $clusterQuery->addMust(new Query\Terms('workspaceId', $cluster['w']));
             }
+            foreach ($cluster['x'] ?? [] as $scope) {
+                $clusterQuery->addMustNot(HiddenAttributeScope::createQuery($scope));
+            }
 
             $boolQuery->addShould($clusterQuery);
         }
@@ -405,26 +539,31 @@ class AttributeSearch
             $subField = $type->getAggregationField();
             $fullFieldName = $field.($subField ? '.'.$subField : '');
 
+            // Values of the workspaces where the user cannot read the key must not be counted:
+            // the aggregations are then nested in a filter aggregation, unwrapped by FacetHandler.
+            $visibility = $this->createVisibilityQuery($userId, $groupIds, $fieldName);
+            $aggName = null !== $visibility ? FacetHandler::VISIBLE_AGG : $fieldName;
+
             switch ($type->getFacetType()) {
                 case ESFacetInterface::TYPE_TEXT:
-                    $agg = new Aggregation\Terms($fieldName);
+                    $agg = new Aggregation\Terms($aggName);
                     $agg->setField($fullFieldName);
                     $agg->setSize(20);
                     break;
                 case ESFacetInterface::TYPE_ENTITY:
-                    $agg = new Aggregation\Terms($fieldName);
+                    $agg = new Aggregation\Terms($aggName);
                     $agg->setField($fullFieldName);
                     // The ancestors of the entities of a hierarchy take their place in the buckets
                     $agg->setSize(100);
                     break;
                 case ESFacetInterface::TYPE_BOOLEAN:
-                    $agg = new Aggregation\Terms($fieldName);
+                    $agg = new Aggregation\Terms($aggName);
                     $agg->setField($fullFieldName);
                     $agg->setSize(2);
                     break;
                 case ESFacetInterface::TYPE_DATE_RANGE:
                     $agg = new Aggregation\AutoDateHistogram(
-                        $fieldName,
+                        $aggName,
                         $fullFieldName
                     );
                     $agg->setBuckets(20);
@@ -435,7 +574,7 @@ class AttributeSearch
                     }
                     $geoPoint = array_map(fn (string $c): float => (float) $c, explode(',', (string) $position));
                     $agg = new Aggregation\GeoDistance(
-                        $fieldName,
+                        $aggName,
                         $fullFieldName,
                         implode(',', $geoPoint)
                     );
@@ -466,9 +605,14 @@ class AttributeSearch
             }
 
             $agg->setMeta($meta);
-            $query->addAggregation($agg);
+            $missingAgg = new Missing(null !== $visibility ? FacetHandler::VISIBLE_AGG : $fieldName.FacetHandler::MISSING_SUFFIX, $fullFieldName);
 
-            $missingAgg = new Missing($fieldName.FacetHandler::MISSING_SUFFIX, $fullFieldName);
+            if (null !== $visibility) {
+                $agg = (new Aggregation\Filter($fieldName, $visibility))->addAggregation($agg);
+                $missingAgg = (new Aggregation\Filter($fieldName.FacetHandler::MISSING_SUFFIX, $visibility))->addAggregation($missingAgg);
+            }
+
+            $query->addAggregation($agg);
             $query->addAggregation($missingAgg);
         }
     }

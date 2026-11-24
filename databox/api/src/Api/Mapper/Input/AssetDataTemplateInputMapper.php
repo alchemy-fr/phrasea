@@ -7,7 +7,6 @@ namespace App\Api\Mapper\Input;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Template\AssetDataTemplate;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -55,9 +54,6 @@ class AssetDataTemplateInputMapper extends AbstractInputMapper implements InputM
         }
         if (null !== $data->public) {
             $object->setPublic($data->public);
-        }
-        if (null !== $data->tags) {
-            $object->setTags(new ArrayCollection($data->tags));
         }
         if (null !== $data->collection) {
             $object->setCollection($data->collection);

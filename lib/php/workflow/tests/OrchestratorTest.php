@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\Tests;
 
 use Alchemy\Workflow\Executor\EnvContainer;
+use Alchemy\Workflow\Message\JobConsumer;
+use Alchemy\Workflow\Message\JobConsumerHandler;
+use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 use Alchemy\Workflow\Tests\Action\SkippingAction;
+use Alchemy\Workflow\Tests\Trigger\QueuedJobTrigger;
+use Alchemy\Workflow\Trigger\JobQueueResolverInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -160,5 +165,59 @@ EOF, $output->fetch());
             'content_bis' => null,
             'outro' => null,
         ], $stateRepository, $workflowState->getId());
+    }
+
+    public function testJobsAreTriggeredOnTheirQueue(): void
+    {
+        [$orchestrator, , , $runner, $jobStateManager, $trigger] = $this->createOrchestrator(['queues.yaml'], null, asynchronous: true);
+        $handler = new JobConsumerHandler($runner, $orchestrator, $jobStateManager);
+
+        $orchestrator->startWorkflow('Queues');
+
+        $this->assertSame(['download' => 'heavy', 'notify' => null], $this->consumeQueues($trigger, $handler));
+    }
+
+    public function testCustomQueueResolverIsUsed(): void
+    {
+        $resolver = new class implements JobQueueResolverInterface {
+            public function resolveQueue(WorkflowState $state, Job $job): ?string
+            {
+                return 'bulk';
+            }
+        };
+        [$orchestrator, , , $runner, $jobStateManager, $trigger] = $this->createOrchestrator(['queues.yaml'], null, asynchronous: true, queueResolver: $resolver);
+        $handler = new JobConsumerHandler($runner, $orchestrator, $jobStateManager);
+
+        $orchestrator->startWorkflow('Queues');
+
+        $this->assertSame(['download' => 'bulk', 'notify' => 'bulk'], $this->consumeQueues($trigger, $handler));
+    }
+
+    public function testRerunJobIsTriggeredOnItsQueue(): void
+    {
+        [$orchestrator, $stateRepository, , $runner, $jobStateManager, $trigger] = $this->createOrchestrator(['queues.yaml'], null, asynchronous: true);
+        $handler = new JobConsumerHandler($runner, $orchestrator, $jobStateManager);
+
+        $workflowState = $orchestrator->startWorkflow('Queues');
+        $this->consumeQueues($trigger, $handler);
+        $this->assertSame(WorkflowState::STATUS_SUCCESS, $stateRepository->getWorkflowState($workflowState->getId())->getStatus());
+
+        $orchestrator->rerunJobs($workflowState->getId(), 'download');
+
+        $this->assertSame(['download' => 'heavy'], $this->consumeQueues($trigger, $handler));
+    }
+
+    /**
+     * @return array<string, string|null> the queue of each triggered job, by job ID
+     */
+    private function consumeQueues(QueuedJobTrigger $trigger, JobConsumerHandler $handler): array
+    {
+        $queues = [];
+        while (null !== $jobTrigger = $trigger->shift()) {
+            $queues[$jobTrigger->getJobId()] = $jobTrigger->getQueue();
+            $handler(new JobConsumer($jobTrigger->getWorkflowId(), $jobTrigger->getJobId(), $jobTrigger->getJobStateId()), 0);
+        }
+
+        return $queues;
     }
 }

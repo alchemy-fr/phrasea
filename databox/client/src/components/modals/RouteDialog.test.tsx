@@ -86,7 +86,7 @@ describe('useCloseRoute', () => {
 
         navigate(rerender, '/assets/1/manage/info', true, onReady);
         // Switching tab rewrites the URL under the open dialog
-        navigate(rerender, '/assets/1/manage/tags', true, onReady);
+        navigate(rerender, '/assets/1/manage/edit', true, onReady);
         act(() => close());
 
         expect(nav.push).toHaveBeenCalledWith('/assets', {scroll: false});

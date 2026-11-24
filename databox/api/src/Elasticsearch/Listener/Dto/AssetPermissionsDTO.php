@@ -10,6 +10,7 @@ final readonly class AssetPermissionsDTO
         public int $privacy,
         public PermissionsDTO $permissions,
         public array $collectionPaths,
+        public array $storyCollectionPaths,
         public array $stories,
     ) {
     }
@@ -25,6 +26,7 @@ final readonly class AssetPermissionsDTO
             'quarantineGroups' => $this->permissions->quarantineGroups,
             'quarantineUsers' => $this->permissions->quarantineUsers,
             'collectionPaths' => $this->collectionPaths,
+            'storyCollectionPaths' => $this->storyCollectionPaths,
             'stories' => $this->stories,
         ];
     }

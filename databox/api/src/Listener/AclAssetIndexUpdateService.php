@@ -37,9 +37,15 @@ final readonly class AclAssetIndexUpdateService
             return;
         }
 
+        $path = $collection->getAbsolutePath();
+
         $this->addAllowedUserOrGroup($userType, $userId, [
-            'term' => [
-                'collectionPaths' => $collection->getAbsolutePath(),
+            'bool' => [
+                'should' => [
+                    ['term' => ['collectionPaths' => $path]],
+                    ['term' => ['storyCollectionPaths' => $path]],
+                ],
+                'minimum_should_match' => 1,
             ],
         ]);
     }

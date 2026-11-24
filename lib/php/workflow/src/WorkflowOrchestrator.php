@@ -18,6 +18,8 @@ use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\TransactionalStateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
+use Alchemy\Workflow\Trigger\JobQueueResolver;
+use Alchemy\Workflow\Trigger\JobQueueResolverInterface;
 use Alchemy\Workflow\Trigger\JobTrigger;
 use Alchemy\Workflow\Trigger\JobTriggerInterface;
 use Alchemy\Workflow\Validator\EventValidatorInterface;
@@ -38,13 +40,17 @@ final class WorkflowOrchestrator
      */
     private array $updatedWorkflows = [];
 
+    private readonly JobQueueResolverInterface $queueResolver;
+
     public function __construct(
         private readonly WorkflowRepositoryInterface $workflowRepository,
         private readonly StateRepositoryInterface $stateRepository,
         private readonly JobTriggerInterface $trigger,
         private readonly EventValidatorInterface $eventValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
+        ?JobQueueResolverInterface $queueResolver = null,
     ) {
+        $this->queueResolver = $queueResolver ?? new JobQueueResolver();
     }
 
     /**
@@ -186,16 +192,16 @@ final class WorkflowOrchestrator
         $planner = new WorkflowPlanner([$this->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
-        [$nextJobId, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
-        if (null !== $nextJobId) {
+        [$nextJob, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
+        if (null !== $nextJob) {
             $continue = $this->trigger->shouldContinue();
 
             do {
-                $this->triggerJob($workflowState, $nextJobId);
+                $this->triggerJob($workflowState, $nextJob);
 
                 if ($continue) {
-                    [$nextJobId, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
-                    if (null === $nextJobId) {
+                    [$nextJob, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
+                    if (null === $nextJob) {
                         $continue = false;
                     }
                 }
@@ -255,7 +261,8 @@ final class WorkflowOrchestrator
 
         foreach ($plan->getStages() as $stage) {
             foreach ($stage->getRuns() as $run) {
-                $jobId = $run->getJob()->getId();
+                $job = $run->getJob();
+                $jobId = $job->getId();
 
                 if (null !== $jobIdFilter && $jobIdFilter !== $jobId) {
                     continue;
@@ -263,8 +270,8 @@ final class WorkflowOrchestrator
 
                 $jobState = $this->stateRepository->getLastJobState($workflowId, $jobId);
                 if (null !== $jobState && (null === $expectedStatuses || in_array($jobState->getStatus(), $expectedStatuses, true))) {
-                    if (!$run->getJob()->isDisabled()) {
-                        $jobsToTrigger[] = $jobId;
+                    if (!$job->isDisabled()) {
+                        $jobsToTrigger[] = $job;
                     }
                 }
 
@@ -280,8 +287,8 @@ final class WorkflowOrchestrator
             $this->notifyWorkflowUpdate($workflowState);
 
             $jobInputs['rerun'] = true;
-            foreach ($jobsToTrigger as $jobId) {
-                $this->triggerJob($workflowState, $jobId, $jobInputs);
+            foreach ($jobsToTrigger as $job) {
+                $this->triggerJob($workflowState, $job, $jobInputs);
             }
         }
 
@@ -301,7 +308,7 @@ final class WorkflowOrchestrator
     }
 
     /**
-     * @return [?string, ?int] [the next job ID, The Workflow Status]
+     * @return array{?Job, ?int} [the next job, the workflow end status]
      */
     private function getNextJob(Plan $plan, WorkflowState $state): array
     {
@@ -323,7 +330,7 @@ final class WorkflowOrchestrator
                 $jobState = $this->stateRepository->getLastJobState($state->getId(), $jobId);
                 if (null === $jobState) {
                     if ($this->satisfiesAllNeeds($satisfiedNeeds, $job)) {
-                        return [$jobId, null];
+                        return [$job, null];
                     }
                     continue;
 
@@ -373,9 +380,10 @@ final class WorkflowOrchestrator
         return true;
     }
 
-    private function triggerJob(WorkflowState $workflowState, string $jobId, ?array $jobInputs = null): void
+    private function triggerJob(WorkflowState $workflowState, Job $job, ?array $jobInputs = null): void
     {
         $workflowId = $workflowState->getId();
+        $jobId = $job->getId();
 
         $jobState = $this->stateRepository->createJobState($workflowId, $jobId);
         if (null !== $jobInputs) {
@@ -384,7 +392,12 @@ final class WorkflowOrchestrator
         }
         $this->stateRepository->persistJobState($jobState);
 
-        $jobTrigger = new JobTrigger($workflowId, $jobId, $jobState->getId());
+        $jobTrigger = new JobTrigger(
+            $workflowId,
+            $jobId,
+            $jobState->getId(),
+            $this->queueResolver->resolveQueue($workflowState, $job),
+        );
         if ($this->trigger->isSynchronous()) {
             $this->trigger->triggerJob($jobTrigger);
         } else {

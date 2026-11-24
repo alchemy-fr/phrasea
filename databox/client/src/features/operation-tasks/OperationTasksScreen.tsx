@@ -2,8 +2,14 @@
 
 import {getUserDisplayName} from '@/lib/users';
 import {useState} from 'react';
+import Link from 'next/link';
+import {useParams, useRouter} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
-import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
+import {
+    useInfiniteQuery,
+    useQuery,
+    useQueryClient,
+} from '@tanstack/react-query';
 import {
     ArrowLeftIcon,
     CheckCircle2Icon,
@@ -12,12 +18,15 @@ import {
     PlayIcon,
     PlusIcon,
     RefreshCwIcon,
+    Trash2Icon,
     XCircleIcon,
     BanIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
-import {OperationTaskStatus} from '@/types/api';
+import {OperationTask, OperationTaskStatus} from '@/types/api';
 import {
+    cancelOperationTask,
+    deleteOperationTask,
     getOperationTask,
     getOperationTasks,
     runOperationTask,
@@ -25,6 +34,7 @@ import {
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {Button} from '@alchemy/next-ui/ui/button';
+import {useConfirm} from '@alchemy/next-ui/ui/confirm';
 import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
 import {FormRow, Input} from '@alchemy/next-ui/ui/input';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
@@ -39,6 +49,7 @@ import {cn} from '@alchemy/next-ui/utils/cn';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {routes} from '@/lib/routes';
 import {ScrollablePage} from '@/components/layout/ScrollablePage';
+import {parseTaskPath, TaskView} from './parseTaskPath';
 
 type TaskField = {
     name: string;
@@ -223,25 +234,34 @@ function StatusBadge({status}: {status: OperationTaskStatus}) {
     }
 }
 
+const listQueryKey = ['operation-tasks'];
+
+function backRoute(view: TaskView): string | undefined {
+    switch (view.type) {
+        case 'list':
+            return undefined;
+        case 'run':
+            return routes.operationTaskNew();
+        default:
+            return routes.operationTasks();
+    }
+}
+
 /**
- * Operation tasks (databox-admin): history, catalog, run form and details.
+ * Operation tasks (databox-admin): history, catalog, run form and details,
+ * each one at its own URL (see `parseTaskPath`).
  */
 export function OperationTasksScreen() {
-    const {t, i18n} = useTranslation();
+    const {t} = useTranslation();
     const {hasRole} = useAuth();
-    const [view, setView] = useState<
-        | {type: 'list'}
-        | {type: 'catalog'}
-        | {type: 'run'; task: TaskType}
-        | {type: 'details'; id: string}
-    >({type: 'list'});
-    const tasks = useInfiniteQuery({
-        queryKey: ['operation-tasks'],
-        queryFn: ({pageParam}) => getOperationTasks(pageParam),
-        initialPageParam: undefined as string | undefined,
-        getNextPageParam: last => last.next,
-    });
+    const params = useParams<{path?: string[]}>();
+    const view = parseTaskPath(params?.path);
     const types = useTaskTypes();
+    const back = backRoute(view);
+    const runType =
+        view.type === 'run'
+            ? types.find(tp => tp.id === view.taskType)
+            : undefined;
 
     // Where the user is, shown in the top bar with the way back to the assets
     usePageTrail(t('tasks.title', 'Operation tasks'), routes.operationTasks());
@@ -259,159 +279,38 @@ export function OperationTasksScreen() {
             ) : (
                 <ScrollablePage className="max-w-4xl">
                     <div className="flex items-center gap-2">
-                        {view.type !== 'list' ? (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setView({type: 'list'})}
-                            >
-                                <ArrowLeftIcon /> {t('common.back', 'Back')}
+                        {back ? (
+                            <Button asChild variant="ghost" size="sm">
+                                <Link href={back}>
+                                    <ArrowLeftIcon /> {t('common.back', 'Back')}
+                                </Link>
                             </Button>
                         ) : null}
                         <h1 className="flex-1 text-lg font-semibold">
                             {t('tasks.title', 'Operation tasks')}
                         </h1>
-                        {view.type === 'list' ? (
-                            <>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => tasks.refetch()}
-                                >
-                                    <RefreshCwIcon />{' '}
-                                    {t('common.refresh', 'Refresh')}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    onClick={() => setView({type: 'catalog'})}
-                                >
-                                    <PlusIcon /> {t('tasks.new', 'New task')}
-                                </Button>
-                            </>
-                        ) : null}
+                        {view.type === 'list' ? <ListActions /> : null}
                     </div>
 
-                    {view.type === 'list' ? (
-                        <div className="space-y-2">
-                            {tasks.isLoading
-                                ? [...Array(3)].map((_, i) => (
-                                      <Skeleton key={i} className="h-16" />
-                                  ))
-                                : null}
-                            {tasks.data?.pages
-                                .flatMap(p => p.items)
-                                .map(task => (
-                                    <button
-                                        key={task.id}
-                                        type="button"
-                                        className="flex w-full items-center gap-3 rounded-md border bg-card p-3 text-left text-sm hover:bg-accent/40"
-                                        onClick={() =>
-                                            setView({
-                                                type: 'details',
-                                                id: task.id,
-                                            })
-                                        }
-                                    >
-                                        {task.status ===
-                                        OperationTaskStatus.InProgress ? (
-                                            <ProgressRing
-                                                value={task.progression ?? 0}
-                                            />
-                                        ) : null}
-                                        <div className="min-w-0 flex-1">
-                                            <div className="font-medium">
-                                                {types.find(
-                                                    tp => tp.id === task.task
-                                                )?.label ?? task.task}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground">
-                                                {typeof task.owner === 'object'
-                                                    ? getUserDisplayName(
-                                                          task.owner
-                                                      )
-                                                    : ''}{' '}
-                                                ·{' '}
-                                                {formatDateTime(
-                                                    task.createdAt,
-                                                    'medium',
-                                                    i18n.language
-                                                )}
-                                                {task.startedAt && task.endedAt
-                                                    ? ` · ${formatDuration((new Date(task.endedAt).getTime() - new Date(task.startedAt).getTime()) / 1000, 'humanized')}`
-                                                    : ''}
-                                                {task.remaining
-                                                    ? ` · ${t('tasks.remaining', 'remaining')}: ${task.remaining}`
-                                                    : ''}
-                                            </div>
-                                        </div>
-                                        <StatusBadge status={task.status} />
-                                    </button>
-                                ))}
-                            {tasks.data?.pages[0]?.items.length === 0 ? (
-                                <EmptyState
-                                    title={t('tasks.empty', 'No task yet')}
-                                />
-                            ) : null}
-                            {tasks.hasNextPage ? (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => tasks.fetchNextPage()}
-                                    loading={tasks.isFetchingNextPage}
-                                >
-                                    {t('common.load_more', 'Load more')}
-                                </Button>
-                            ) : null}
-                        </div>
-                    ) : null}
+                    {view.type === 'list' ? <TaskList types={types} /> : null}
 
                     {view.type === 'catalog' ? (
-                        <div className="space-y-3">
-                            <div data-testid="task-catalog-intro">
-                                <h2 className="font-semibold">
-                                    {t('tasks.new', 'New task')}
-                                </h2>
-                                <p className="text-sm text-muted-foreground">
-                                    {t(
-                                        'tasks.catalog.intro',
-                                        'You are about to start a new task. Choose the one to run from the catalog below.'
-                                    )}
-                                </p>
-                            </div>
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                {types.map(tp => (
-                                    <button
-                                        key={tp.id}
-                                        type="button"
-                                        className="rounded-md border bg-card p-4 text-left hover:border-primary hover:bg-accent/40"
-                                        onClick={() =>
-                                            setView({type: 'run', task: tp})
-                                        }
-                                    >
-                                        <div className="mb-1 font-medium">
-                                            {tp.label}
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                            {tp.description}
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                        <TaskCatalog types={types} />
                     ) : null}
 
-                    {view.type === 'run' ? (
-                        <RunTaskForm
-                            task={view.task}
-                            onRun={() => {
-                                void tasks.refetch();
-                                setView({type: 'list'});
-                            }}
-                        />
+                    {view.type === 'run' && runType ? (
+                        <RunTaskForm key={runType.id} task={runType} />
                     ) : null}
 
                     {view.type === 'details' ? (
-                        <TaskDetails id={view.id} types={types} />
+                        <TaskDetails key={view.id} id={view.id} types={types} />
+                    ) : null}
+
+                    {view.type === 'not_found' ||
+                    (view.type === 'run' && !runType) ? (
+                        <EmptyState
+                            title={t('tasks.not_found', 'Task not found')}
+                        />
                     ) : null}
                 </ScrollablePage>
             )}
@@ -419,8 +318,136 @@ export function OperationTasksScreen() {
     );
 }
 
+function useTaskList() {
+    return useInfiniteQuery({
+        queryKey: listQueryKey,
+        queryFn: ({pageParam}) => getOperationTasks(pageParam),
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: last => last.next,
+    });
+}
+
+function ListActions() {
+    const {t} = useTranslation();
+    const tasks = useTaskList();
+
+    return (
+        <>
+            <Button variant="outline" size="sm" onClick={() => tasks.refetch()}>
+                <RefreshCwIcon /> {t('common.refresh', 'Refresh')}
+            </Button>
+            <Button asChild size="sm">
+                <Link href={routes.operationTaskNew()}>
+                    <PlusIcon /> {t('tasks.new', 'New task')}
+                </Link>
+            </Button>
+        </>
+    );
+}
+
+function TaskList({types}: {types: TaskType[]}) {
+    const {t, i18n} = useTranslation();
+    const tasks = useTaskList();
+
+    return (
+        <div className="space-y-2">
+            {tasks.isLoading
+                ? [...Array(3)].map((_, i) => (
+                      <Skeleton key={i} className="h-16" />
+                  ))
+                : null}
+            {tasks.data?.pages
+                .flatMap(p => p.items)
+                .map(task => (
+                    <Link
+                        key={task.id}
+                        href={routes.operationTaskDetails(task.id)}
+                        data-testid="task-row"
+                        className="flex w-full items-center gap-3 rounded-md border bg-card p-3 text-left text-sm hover:bg-accent/40"
+                    >
+                        {task.status === OperationTaskStatus.InProgress ? (
+                            <ProgressRing value={task.progression ?? 0} />
+                        ) : null}
+                        <div className="min-w-0 flex-1">
+                            <div className="font-medium">
+                                {types.find(tp => tp.id === task.task)?.label ??
+                                    task.task}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                                {typeof task.owner === 'object'
+                                    ? getUserDisplayName(task.owner)
+                                    : ''}{' '}
+                                ·{' '}
+                                {formatDateTime(
+                                    task.createdAt,
+                                    'medium',
+                                    i18n.language
+                                )}
+                                {task.startedAt && task.endedAt
+                                    ? ` · ${formatDuration((new Date(task.endedAt).getTime() - new Date(task.startedAt).getTime()) / 1000, 'humanized')}`
+                                    : ''}
+                                {task.remaining
+                                    ? ` · ${t('tasks.remaining', 'remaining')}: ${task.remaining}`
+                                    : ''}
+                            </div>
+                        </div>
+                        <StatusBadge status={task.status} />
+                    </Link>
+                ))}
+            {tasks.data?.pages[0]?.items.length === 0 ? (
+                <EmptyState title={t('tasks.empty', 'No task yet')} />
+            ) : null}
+            {tasks.hasNextPage ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => tasks.fetchNextPage()}
+                    loading={tasks.isFetchingNextPage}
+                >
+                    {t('common.load_more', 'Load more')}
+                </Button>
+            ) : null}
+        </div>
+    );
+}
+
+function TaskCatalog({types}: {types: TaskType[]}) {
+    const {t} = useTranslation();
+
+    return (
+        <div className="space-y-3">
+            <div data-testid="task-catalog-intro">
+                <h2 className="font-semibold">{t('tasks.new', 'New task')}</h2>
+                <p className="text-sm text-muted-foreground">
+                    {t(
+                        'tasks.catalog.intro',
+                        'You are about to start a new task. Choose the one to run from the catalog below.'
+                    )}
+                </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+                {types.map(tp => (
+                    <Link
+                        key={tp.id}
+                        href={routes.operationTaskRun(tp.id)}
+                        className="rounded-md border bg-card p-4 text-left hover:border-primary hover:bg-accent/40"
+                    >
+                        <div className="mb-1 font-medium">{tp.label}</div>
+                        <div className="text-sm text-muted-foreground">
+                            {tp.description}
+                        </div>
+                    </Link>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+/**
+ * @param value progression in percent (0–100)
+ */
 function ProgressRing({value}: {value: number}) {
-    const pct = Math.round(value * 100);
+    const pct = Math.min(100, Math.max(0, Math.round(value)));
 
     return (
         <div className="relative size-10 shrink-0">
@@ -449,8 +476,10 @@ function ProgressRing({value}: {value: number}) {
     );
 }
 
-function RunTaskForm({task, onRun}: {task: TaskType; onRun: () => void}) {
+function RunTaskForm({task}: {task: TaskType}) {
     const {t} = useTranslation();
+    const router = useRouter();
+    const queryClient = useQueryClient();
     const [payload, setPayload] = useState<Record<string, string>>({});
     const [running, setRunning] = useState(false);
     const workspace = useWorkspace(payload.workspaceId);
@@ -459,9 +488,10 @@ function RunTaskForm({task, onRun}: {task: TaskType; onRun: () => void}) {
     const run = async () => {
         setRunning(true);
         try {
-            await runOperationTask({task: task.id, payload});
+            const created = await runOperationTask({task: task.id, payload});
             toast.success(t('tasks.started', 'Task started'));
-            onRun();
+            void queryClient.invalidateQueries({queryKey: listQueryKey});
+            router.push(routes.operationTaskDetails(created.id));
         } catch (e: any) {
             toast.error(e?.message);
         } finally {
@@ -543,27 +573,97 @@ function RunTaskForm({task, onRun}: {task: TaskType; onRun: () => void}) {
 
 function TaskDetails({id, types}: {id: string; types: TaskType[]}) {
     const {t, i18n} = useTranslation();
+    const confirm = useConfirm();
+    const router = useRouter();
+    const queryClient = useQueryClient();
     const task = useQuery({
         queryKey: ['operation-task', id],
         queryFn: () => getOperationTask(id),
         refetchInterval: q =>
-            q.state.data?.status === OperationTaskStatus.InProgress
-                ? 3000
-                : false,
+            q.state.data && isCancellable(q.state.data) ? 3000 : false,
     });
     const d = task.data;
+    if (task.isError) {
+        return <EmptyState title={t('tasks.not_found', 'Task not found')} />;
+    }
     if (!d) {
         return <Skeleton className="h-40" />;
     }
+
+    const cancel = async () => {
+        if (
+            await confirm({
+                title: t('tasks.cancel', 'Cancel the task'),
+                description: t(
+                    'tasks.cancel_confirm',
+                    'The task stops at its next step: what it already did is kept.'
+                ),
+                confirmLabel: t('tasks.cancel', 'Cancel the task'),
+                onConfirm: async () => {
+                    queryClient.setQueryData<OperationTask>(
+                        ['operation-task', id],
+                        await cancelOperationTask(id)
+                    );
+                },
+            })
+        ) {
+            void queryClient.invalidateQueries({queryKey: listQueryKey});
+            toast.success(t('tasks.cancelled_toast', 'Task cancelled'));
+        }
+    };
+
+    const remove = async () => {
+        if (
+            await confirm({
+                title: t('tasks.delete', 'Delete the task'),
+                description: t(
+                    'tasks.delete_confirm',
+                    'The task and its output will be removed from the history.'
+                ),
+                confirmLabel: t('common.delete', 'Delete'),
+                destructive: true,
+                onConfirm: () => deleteOperationTask(id),
+            })
+        ) {
+            queryClient.removeQueries({queryKey: ['operation-task', id]});
+            void queryClient.invalidateQueries({queryKey: listQueryKey});
+            toast.success(t('tasks.deleted_toast', 'Task deleted'));
+            router.push(routes.operationTasks());
+        }
+    };
+
     const payload = JSON.stringify(d.payload, null, 2);
 
     return (
         <div className="space-y-3 rounded-md border bg-card p-4 text-sm">
             <div className="flex items-center gap-3">
+                {d.status === OperationTaskStatus.InProgress ? (
+                    <ProgressRing value={d.progression ?? 0} />
+                ) : null}
                 <h2 className="flex-1 font-semibold">
                     {types.find(tp => tp.id === d.task)?.label ?? d.task}
                 </h2>
                 <StatusBadge status={d.status} />
+                {isCancellable(d) ? (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={cancel}
+                        data-testid="task-cancel"
+                    >
+                        <BanIcon /> {t('tasks.cancel', 'Cancel the task')}
+                    </Button>
+                ) : null}
+                {isTerminated(d) ? (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={remove}
+                        data-testid="task-delete"
+                    >
+                        <Trash2Icon /> {t('tasks.delete', 'Delete the task')}
+                    </Button>
+                ) : null}
             </div>
             <dl className="grid gap-2 sm:grid-cols-2">
                 <Row label={t('asset.info.owner', 'Owner')}>
@@ -596,6 +696,9 @@ function TaskDetails({id, types}: {id: string; types: TaskType[]}) {
                 </Row>
                 <Row label={t('tasks.items', 'Items')}>
                     {d.progress ?? '—'} / {d.itemTotal ?? '—'}
+                </Row>
+                <Row label={t('tasks.progression', 'Progression')}>
+                    {d.progression != null ? `${d.progression}%` : '—'}
                 </Row>
             </dl>
             <div>
@@ -635,4 +738,19 @@ function Row({label, children}: {label: string; children: React.ReactNode}) {
             <dd>{children}</dd>
         </div>
     );
+}
+
+function isCancellable(task: OperationTask): boolean {
+    return [
+        OperationTaskStatus.Pending,
+        OperationTaskStatus.InProgress,
+    ].includes(task.status);
+}
+
+function isTerminated(task: OperationTask): boolean {
+    return [
+        OperationTaskStatus.Completed,
+        OperationTaskStatus.Failed,
+        OperationTaskStatus.Cancelled,
+    ].includes(task.status);
 }

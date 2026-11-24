@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\ToastUi;
 
+use Alchemy\CoreBundle\Util\UuidUtil;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\IntegrationCategory;
@@ -57,6 +58,7 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActio
                 if (!$dataId) {
                     throw new BadRequestHttpException('Missing "id"');
                 }
+                $dataId = UuidUtil::assertValid($dataId, 'id');
                 $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId, $this->getStrictUserOrOAuthClient()->getUserIdentifier());
 
                 $this->triggerFilePush(self::getName(), $file, [

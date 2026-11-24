@@ -4,8 +4,10 @@ services:
         autowire: true
         autoconfigure: true
 
-    Alchemy\AclBundle\Repository\UserRepositoryInterface: '@Alchemy\AuthBundle\Repository\UserRepository'
-    Alchemy\AclBundle\Repository\GroupRepositoryInterface: '@Alchemy\AuthBundle\Repository\GroupRepository'
+    Alchemy\AuthBundle\Repository\AclUserRepository: ~
+    Alchemy\AuthBundle\Repository\AclGroupRepository: ~
+    Alchemy\AclBundle\Repository\UserRepositoryInterface: '@Alchemy\AuthBundle\Repository\AclUserRepository'
+    Alchemy\AclBundle\Repository\GroupRepositoryInterface: '@Alchemy\AuthBundle\Repository\AclGroupRepository'
 
     Alchemy\AuthBundle\Controller\PermissionsController:
         public: true

@@ -85,6 +85,10 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             }
         }
 
+        if ($withConditions) {
+            $queryBuilder->andWhere('acl_w.deletedAt IS NULL');
+        }
+
         return $queryBuilder;
     }
 
@@ -109,19 +113,11 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return iterable<array<string, mixed>>
-     */
-    public function getSearchableAttributesWithPermission(?string $userId, array $groupIds): iterable
-    {
-        return $this->getAttributesWithPermission($userId, $groupIds, searchableOnly: true);
-    }
-
-    /**
-     * Every definition, with whether the user may read its values ("allowed").
+     * Every definition, searchable or not, with whether the user may read its values ("allowed").
      *
      * @return iterable<array<string, mixed>>
      */
-    public function getAttributesWithPermission(?string $userId, array $groupIds, bool $searchableOnly = false): iterable
+    public function getAttributesWithPermission(?string $userId, array $groupIds): iterable
     {
         $queryBuilder = $this
             ->createQueryBuilderAcl(
@@ -129,20 +125,18 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 $groupIds,
                 withConditions: false
             )
-            ->select('t.type')
+            ->select('t.id')
+            ->addSelect('t.type')
             ->addSelect('t.slug')
             ->addSelect('t.multiple')
             ->addSelect('t.searchBoost')
             ->addSelect('t.translatable')
+            ->addSelect('t.searchable')
             ->addSelect('acl_w.public AS wPublic')
             ->addSelect('acl_c.public AS cPublic')
             ->addSelect('acl_w.id AS workspaceId')
             ->addSelect('acl_w.enabledLocales AS enabledLocales')
         ;
-
-        if ($searchableOnly) {
-            $queryBuilder->andWhere('t.searchable = true');
-        }
 
         if (null !== $userId) {
             $queryBuilder->addSelect('acl_w.ownerId AS w_ownerId');
@@ -373,6 +367,17 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->setParameter('workspace', $workspaceId)
             ->getQuery()
             ->getResult();
+    }
+
+    public function countWorkspaceDefinitions(string $workspaceId): int
+    {
+        return (int) $this
+            ->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->andWhere('d.workspace = :workspace')
+            ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**

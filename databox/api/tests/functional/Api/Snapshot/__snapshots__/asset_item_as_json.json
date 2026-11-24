@@ -165,13 +165,6 @@
         "url": "https://example.com/photo.jpg"
     },
     "status": 0,
-    "tags": [
-        {
-            "displayName": "Nature",
-            "id": "<tag>",
-            "name": "Nature"
-        }
-    ],
     "threadKey": "asset:<asset>",
     "topicSubscriptions": [],
     "updatedAt": "<date>",

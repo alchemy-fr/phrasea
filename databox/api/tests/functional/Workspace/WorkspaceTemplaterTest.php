@@ -25,7 +25,6 @@ use App\Entity\Core\File;
 use App\Entity\Core\ImageSet;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
-use App\Entity\Core\Tag;
 use App\Entity\Core\TermsVersion;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceEnv;
@@ -40,7 +39,6 @@ use App\Service\Workspace\TermsManager;
 use App\Service\Workspace\WorkspaceDuplicateManager;
 use App\Service\Workspace\WorkspaceTemplater;
 use App\Tests\Functional\AbstractDataboxTestCase;
-use Doctrine\Common\Collections\ArrayCollection;
 use Ramsey\Uuid\Uuid;
 
 class WorkspaceTemplaterTest extends AbstractDataboxTestCase
@@ -71,7 +69,6 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         EntityList::class,
         RenditionDefinition::class,
         RenditionPolicy::class,
-        Tag::class,
         TermsVersion::class,
         WorkspaceEnv::class,
         WorkspaceIntegration::class,
@@ -117,10 +114,11 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
 
         // references are remapped to the imported entities
         $newRd = $em->getRepository(RenditionDefinition::class)->findOneBy(['workspace' => $target, 'key' => 'custom']);
-        $newTag = $em->getRepository(Tag::class)->findOneBy(['workspace' => $target, 'name' => 'foo']);
         $newList = $em->getRepository(EntityList::class)->findOneBy(['workspace' => $target, 'name' => 'Colors']);
         $newEntity = $em->getRepository(AttributeEntity::class)->findOneBy(['list' => $newList, 'value' => 'Red']);
+        $newGreen = $em->getRepository(AttributeEntity::class)->findOneBy(['list' => $newList, 'value' => 'Green']);
         $this->assertNotSame($refs['rendition']->getId(), $newRd->getId());
+        $this->assertTrue($newRd->isBuildFirst());
 
         /** @var AttributeDefinition $newAd */
         $newAd = $em->getRepository(AttributeDefinition::class)->findOneBy(['workspace' => $target, 'name' => 'Description']);
@@ -134,7 +132,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
 
         /** @var AttributeFilterRule $rule */
         $rule = $em->getRepository(AttributeFilterRule::class)->findOneBy(['workspace' => $target]);
-        $this->assertSame(sprintf('@tag = "%s" OR description = "%s"', $newTag->getId(), $newEntity->getId()), $rule->getCondition());
+        $this->assertSame(sprintf('description = "%s" OR description = "%s"', $newGreen->getId(), $newEntity->getId()), $rule->getCondition());
         $this->assertSame([KeycloakClientTestMock::USER_UID], $rule->getUserIds());
 
         /** @var AssetPolicy $assetPolicy */
@@ -222,7 +220,8 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
             'substituable' => true,
             'useAsMain' => $main,
             'useAsPreview' => false,
-            'useAsThumbnail' => false,
+            // No "buildFirst" in the older templates
+            'useAsThumbnail' => 'thumbnail' === $name,
             'useAsAnimatedThumbnail' => false,
             'labels' => null,
             'definition' => '',
@@ -258,6 +257,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
                 'target' => 1,
                 'guiEdit' => true,
             ]],
+            // A section no templater reads (the tags of older templates): ignored
             'Tag' => [['name' => 'foo', 'color' => null, 'translations' => null, 'locale' => 'en']],
         ];
 
@@ -268,11 +268,24 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         /** @var RenditionDefinition $thumbnail */
         $thumbnail = $em->getRepository(RenditionDefinition::class)->findOneBy(['workspace' => $ws->getId(), 'name' => 'thumbnail']);
         $this->assertSame('main', $thumbnail->getParent()->getName());
+        $this->assertTrue($thumbnail->isBuildFirst(), 'a thumbnail of an older template is built first');
+        $this->assertFalse($thumbnail->getParent()->isBuildFirst());
         /** @var AttributeDefinition $ad */
         $ad = $em->getRepository(AttributeDefinition::class)->findOneBy(['workspace' => $ws->getId(), 'name' => 'Color']);
         $this->assertSame('entity', $ad->getType());
         $this->assertSame('Colors', $ad->getEntityList()->getName());
         $this->assertSame(['main'], $ad->getWriteMetadataRenditions()->map(fn (RenditionDefinition $rd) => $rd->getName())->getValues());
+    }
+
+    public function testImportRefusesAFilterRuleOnTags(): void
+    {
+        $target = $this->createEmptyWorkspace('Copy', 'copy');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('uses "@tag"');
+        $this->getTemplater()->importToWorkspace($target, [
+            'AttributeFilterRule' => [['condition' => '@tag != "6f1c2f0e-5b3a-4c1e-9d6a-0b8e2a7c4d11"']],
+        ]);
     }
 
     public function testDuplicateWorkspaceCopiesTheConfiguration(): void
@@ -403,6 +416,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         $rendition->setWriteMetadata(true);
         $rendition->setMetadata(['XMP-dc:Rights' => 'Me']);
         $rendition->setDefinition('foo: bar');
+        $rendition->setBuildFirst(true);
         $em->persist($rendition);
 
         $ad = new AttributeDefinition();
@@ -420,11 +434,12 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
         $ad->setMaxLength(42);
         $em->persist($ad);
 
-        $foo = new Tag();
-        $foo->setWorkspace($workspace);
-        $foo->setName('foo');
-        $foo->setColor('00ff00');
-        $em->persist($foo);
+        $green = new AttributeEntity();
+        $green->setWorkspace($workspace);
+        $green->setList($list);
+        $green->setValue('Green');
+        $green->setColor('#00ff00');
+        $em->persist($green);
 
         $env = new WorkspaceEnv();
         $env->setWorkspace($workspace);
@@ -484,7 +499,6 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
             $dataTemplate->setPublic($public);
             $dataTemplate->setOwnerId(KeycloakClientTestMock::OTHER_USER_UID);
             $dataTemplate->setPrivacy(2);
-            $dataTemplate->setTags(new ArrayCollection([$foo]));
             $templateAttribute = new TemplateAttribute();
             $templateAttribute->setDefinition($ad);
             $templateAttribute->setValue($entity->getId());
@@ -498,7 +512,7 @@ class WorkspaceTemplaterTest extends AbstractDataboxTestCase
             $workspace,
             [KeycloakClientTestMock::USER_UID],
             [],
-            sprintf('@tag = "%s" OR description = "%s"', $foo->getId(), $entity->getId()),
+            sprintf('description = "%s" OR description = "%s"', $green->getId(), $entity->getId()),
         );
         self::getService(TermsManager::class)->updateTerms($workspace, 'Be nice', ['fr' => 'Soyez sympa']);
         $em->flush();

@@ -139,7 +139,6 @@ async function dropAssets(
             }
             await copyAssets(ids, destination, false, {
                 withAttributes: true,
-                withTags: true,
             });
             toast.success(
                 t(
@@ -204,7 +203,6 @@ async function dropAssets(
                 }
                 await copyAssets(ids, destination, false, {
                     withAttributes: true,
-                    withTags: true,
                 });
                 toast.success(
                     t(

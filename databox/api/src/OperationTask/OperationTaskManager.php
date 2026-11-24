@@ -5,6 +5,7 @@ namespace App\OperationTask;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Consumer\Handler\RunOperationTask;
 use App\Entity\Admin\OperationTask;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -45,6 +46,13 @@ final readonly class OperationTaskManager
 
     public function handleTask(OperationTask $task): void
     {
+        if (!$this->start($task)) {
+            // Cancelled (or already run) before the worker picked it up
+            $this->logger->info(sprintf('Skipping task "%s" (%s): it is no longer pending', $task->getTask(), $task->getId()));
+
+            return;
+        }
+
         $output = new BufferedOutput();
         $context = new RunContext(
             $task,
@@ -54,30 +62,35 @@ final readonly class OperationTaskManager
         );
         $taskHandler = $this->taskRegistry->getTask($task->getTask());
 
-        $task->setStartedAt(new \DateTimeImmutable());
-        $task->setStatus(OperationTask::STATUS_IN_PROGRESS);
-        $this->em->persist($task);
-        $this->em->flush();
-
         try {
-            $taskHandler->handle($task->getPayload(), $context);
-        } catch (\Throwable $e) {
-            $task = $this->reload($task);
-            $task->setStatus(OperationTask::STATUS_FAILED);
-            $task->setEndedAt(new \DateTimeImmutable());
-            $output->writeln($e->getMessage());
-            $task->appendOutput($output->fetch());
-            $this->em->persist($task);
-            $this->em->flush();
+            try {
+                $taskHandler->handle($task->getPayload(), $context);
+            } catch (OperationTaskCancelledException $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+                $task = self::reloadTask($this->em, $task);
+                $task->setStatus(OperationTask::STATUS_FAILED);
+                $task->setEndedAt(new \DateTimeImmutable());
+                $output->writeln($e->getMessage());
+                $task->appendOutput($output->fetch());
+                $this->em->persist($task);
+                $this->em->flush();
 
-            $this->logger->error(sprintf('Failed running task "%s" (%s): %s', $task->getTask(), $task->getId(), $e->getMessage()), [
-                'exception' => $e,
-            ]);
+                $this->logger->error(sprintf('Failed running task "%s" (%s): %s', $task->getTask(), $task->getId(), $e->getMessage()), [
+                    'exception' => $e,
+                ]);
+
+                return;
+            }
+
+            $task = self::reloadTask($this->em, $task);
+        } catch (OperationTaskCancelledException) {
+            // Cancellation is not an error: the task row already holds its final state
+            $this->logger->info(sprintf('Task "%s" (%s) has been cancelled', $task->getTask(), $task->getId()));
 
             return;
         }
 
-        $task = $this->reload($task);
         $task->appendOutput($output->fetch());
 
         if ($context->isCompletionDeferred()) {
@@ -95,15 +108,45 @@ final readonly class OperationTaskManager
         $this->em->flush();
     }
 
-    private function reload(OperationTask $task): OperationTask
+    /**
+     * Atomically moves the task from PENDING to IN_PROGRESS, so that a cancellation
+     * requested meanwhile is never overwritten.
+     */
+    private function start(OperationTask $task): bool
     {
-        $task = $this->em->find(OperationTask::class, $task->getId());
-        if (!$task) {
-            throw new \RuntimeException('Task not found');
+        $updated = $this->em->createQuery(
+            sprintf(
+                'UPDATE %s t SET t.status = :inProgress, t.startedAt = :now WHERE t.id = :id AND t.status = :pending',
+                OperationTask::class
+            )
+        )
+            ->setParameter('inProgress', OperationTask::STATUS_IN_PROGRESS)
+            ->setParameter('pending', OperationTask::STATUS_PENDING)
+            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
+            ->setParameter('id', $task->getId())
+            ->execute();
+
+        $this->em->refresh($task);
+
+        return $updated > 0;
+    }
+
+    /**
+     * Reads the task state from the database: the entity manager of a long-running
+     * worker would otherwise keep serving the state it loaded before a cancellation.
+     *
+     * @throws OperationTaskCancelledException
+     */
+    public static function reloadTask(EntityManagerInterface $em, OperationTask $task): OperationTask
+    {
+        if ($em->contains($task)) {
+            $em->refresh($task);
+        } else {
+            $task = $em->find(OperationTask::class, $task->getId()) ?? throw new \RuntimeException(sprintf('Task "%s" not found', $task->getId()));
         }
 
         if (OperationTask::STATUS_CANCELLED === $task->getStatus()) {
-            throw new \RuntimeException('Task cancelled');
+            throw new OperationTaskCancelledException($task->getId());
         }
 
         return $task;

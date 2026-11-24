@@ -5,50 +5,18 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Consumer\Handler\Image\ProcessImageSet;
 use App\Entity\Core\File;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use App\Tests\Functional\InterceptedTransports;
 
 /**
  * Uploads of images (entity list value photos, workspace logos) and their processing.
  */
 trait ImageUploadTestTrait
 {
-    /**
-     * Simulates a finished S3 multipart upload of $ownerId (see WorkspaceTermsTest).
-     */
-    private function createUpload(string $content, string $name, string $type, ?int $size = null, string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
-    {
-        $em = self::getEntityManager();
-
-        $upload = new MultipartUpload();
-        $upload->setOwnerId($ownerId);
-        $upload->setFilename($name);
-        $upload->setType($type);
-        $upload->setSize($size ?? strlen($content));
-        $upload->setPath(sprintf('test-uploads/%s.%s', uniqid(), pathinfo($name, PATHINFO_EXTENSION)));
-        $upload->setUploadId('test-'.uniqid());
-        $upload->setComplete(true);
-        $em->persist($upload);
-        $em->flush();
-
-        self::getService(FileStorageManager::class)->store($upload->getPath(), $content);
-
-        return $upload;
-    }
-
-    private static function multipartPayload(MultipartUpload $upload): array
-    {
-        return [
-            'uploadId' => $upload->getId(),
-            'parts' => [
-                ['ETag' => 'test-etag', 'PartNumber' => 1],
-            ],
-        ];
-    }
+    use MultipartUploadTestTrait;
 
     private function createPngUpload(int $width = 1, int $height = 1, string $name = 'image.png', string $ownerId = KeycloakClientTestMock::USER_UID): MultipartUpload
     {
@@ -97,28 +65,23 @@ trait ImageUploadTestTrait
     }
 
     /**
-     * Keeps the p2 messages (ProcessImageSet) in memory instead of handling them right away.
+     * Keeps the p2 and heavy messages (ProcessImageSet, DeleteFilesIfOrphan…) in memory instead of handling them right away.
      * The client must not reboot the kernel (disableReboot()), which would drop the interception.
      */
-    private static function interceptP2(): InMemoryTransport
+    private static function interceptImageMessages(): InterceptedTransports
     {
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-
-        return $transport->intercept();
+        return InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy');
     }
 
-    private static function stopInterceptingP2(): void
+    private static function stopInterceptingImageMessages(): void
     {
-        /** @var TestTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.p2');
-        $transport->intercept(false);
+        InterceptedTransports::stop(self::getContainer(), 'p2', 'heavy');
     }
 
     /**
      * @return ProcessImageSet[]
      */
-    private static function sentProcessImageSetMessages(InMemoryTransport $transport): array
+    private static function sentProcessImageSetMessages(InterceptedTransports $transport): array
     {
         return array_values(array_filter(
             array_map(static fn ($envelope): object => $envelope->getMessage(), $transport->getSent()),

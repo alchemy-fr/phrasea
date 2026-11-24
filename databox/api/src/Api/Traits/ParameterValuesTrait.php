@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\Traits;
 
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ParameterNotFound;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Reads the query parameters declared on the operation, as cast and validated by API Platform.
@@ -50,6 +52,8 @@ trait ParameterValuesTrait
 
     /**
      * The ID a parameter carries, given as an ID or an IRI, once (`?x=a`) or as a list (`?x[]=a`: its first value).
+     *
+     * @throws BadRequestHttpException when the ID is not an UUID
      */
     protected static function getParameterId(Operation $operation, string $key): ?string
     {
@@ -58,19 +62,24 @@ trait ParameterValuesTrait
             $value = reset($value);
         }
 
-        return \is_string($value) && '' !== $value ? basename($value) : null;
+        return \is_string($value) && '' !== $value ? UuidUtil::assertValid(basename($value), $key) : null;
     }
 
     /**
      * The IDs a parameter carries, each given as an ID or an IRI, once (`?x=a`) or as a list (`?x[]=a&x[]=b`).
      *
      * @return string[]
+     *
+     * @throws BadRequestHttpException when an ID is not an UUID
      */
     protected static function getParameterIds(Operation $operation, string $key): array
     {
         $value = self::getParameterValue($operation, $key);
         $values = \is_array($value) ? $value : [$value];
 
-        return array_values(array_unique(array_map(basename(...), array_filter($values, static fn (mixed $v): bool => \is_string($v) && '' !== $v))));
+        return array_values(array_unique(array_map(
+            static fn (string $v): string => UuidUtil::assertValid(basename($v), $key),
+            array_filter($values, static fn (mixed $v): bool => \is_string($v) && '' !== $v),
+        )));
     }
 }

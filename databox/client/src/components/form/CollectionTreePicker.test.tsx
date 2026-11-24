@@ -64,6 +64,7 @@ describe('CollectionTreePicker', () => {
             workspacesLoaded: true,
             collections: {},
             pagers: {},
+            loadChildren: vi.fn(async () => undefined),
         });
     });
 
@@ -192,6 +193,110 @@ describe('CollectionTreePicker', () => {
             expect(
                 screen.getByTestId('tree-picker-toggle').className
             ).toContain('invisible');
+        });
+    });
+
+    describe('only child collections', () => {
+        beforeEach(() => {
+            useCollectionStore.setState({
+                workspaces: [workspace('w1')],
+                workspacesById: {w1: workspace('w1')},
+            });
+        });
+
+        function visibleCollections() {
+            return screen
+                .queryAllByTestId('tree-picker-collection')
+                .map(e => e.textContent);
+        }
+
+        function isExpanded(toggle: HTMLElement) {
+            return toggle.innerHTML.includes('rotate-90');
+        }
+
+        it('expands in cascade down to the first level without a single child', () => {
+            useCollectionStore.setState({
+                collections: {
+                    c1: node('c1'),
+                    c2: node('c2', 'c1'),
+                    c3: node('c3', 'c2'),
+                },
+                pagers: {
+                    [pagerKey('w1')]: pager(['c1']),
+                    [pagerKey('w1', 'c1')]: pager(['c2']),
+                    [pagerKey('w1', 'c2')]: pager(['c3']),
+                    [pagerKey('w1', 'c3')]: pager([]),
+                },
+            });
+            renderPicker({value: undefined, allowCreate: true});
+
+            expect(visibleCollections()).toEqual([
+                'Col c1',
+                'Col c2',
+                'Col c3',
+            ]);
+            expect(
+                screen.getAllByTestId('tree-picker-toggle').map(isExpanded)
+            ).toEqual([true, true, false]);
+            // The workspace, c1 and c2 entries; not c3's
+            expect(screen.getAllByText('New collection')).toHaveLength(3);
+        });
+
+        it('does not expand a collection that has siblings', () => {
+            useCollectionStore.setState({
+                collections: {
+                    c1: node('c1'),
+                    c2: node('c2', 'c1'),
+                    c4: node('c4'),
+                },
+                pagers: {
+                    [pagerKey('w1')]: pager(['c1', 'c4']),
+                    [pagerKey('w1', 'c1')]: pager(['c2']),
+                },
+            });
+            renderPicker({value: undefined});
+
+            expect(visibleCollections()).toEqual(['Col c1', 'Col c4']);
+            expect(screen.queryByText('Col c2')).toBeNull();
+        });
+
+        it('does not expand a collection whose siblings are not all loaded', () => {
+            useCollectionStore.setState({
+                collections: {c1: node('c1'), c2: node('c2', 'c1')},
+                pagers: {
+                    [pagerKey('w1')]: {
+                        ...pager(['c1']),
+                        next: '/collections?page=2',
+                    },
+                    [pagerKey('w1', 'c1')]: pager(['c2']),
+                },
+            });
+            renderPicker({value: undefined});
+
+            expect(visibleCollections()).toEqual(['Col c1']);
+        });
+
+        it('stays collapsed once the user collapses it', () => {
+            useCollectionStore.setState({
+                collections: {c1: node('c1'), c2: node('c2', 'c1')},
+                pagers: {
+                    [pagerKey('w1')]: pager(['c1']),
+                    [pagerKey('w1', 'c1')]: pager(['c2']),
+                    [pagerKey('w1', 'c2')]: pager([]),
+                },
+            });
+            renderPicker({value: undefined});
+            expect(visibleCollections()).toEqual(['Col c1', 'Col c2']);
+
+            act(() => {
+                fireEvent.click(screen.getAllByTestId('tree-picker-toggle')[0]);
+            });
+            expect(visibleCollections()).toEqual(['Col c1']);
+
+            act(() => {
+                useCollectionStore.setState(s => ({pagers: {...s.pagers}}));
+            });
+            expect(visibleCollections()).toEqual(['Col c1']);
         });
     });
 });

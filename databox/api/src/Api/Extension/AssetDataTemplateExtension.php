@@ -8,13 +8,13 @@ use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Template\AssetDataTemplate;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetDataTemplateVoter;
 use Doctrine\ORM\QueryBuilder;
 
 class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
@@ -40,7 +40,7 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        if (!$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::SCOPE_PREFIX)) {
+        if (!$this->isGranted(AbstractVoter::LIST, new AssetDataTemplate())) {
             $user = $this->security->getUser();
             if ($user instanceof JwtUser) {
                 $queryBuilder->addGroupBy($rootAlias.'.id');
@@ -63,7 +63,7 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
         if (\is_string($collectionId) && '' !== $collectionId) {
             $queryBuilder
                 ->andWhere(sprintf('%1$s.collection = :colId OR %1$s.collection IS NULL', $rootAlias))
-                ->setParameter('colId', basename($collectionId))
+                ->setParameter('colId', UuidUtil::assertValid(basename($collectionId), 'collection'))
             ;
         } else {
             $queryBuilder->andWhere(sprintf('%1$s.collection IS NULL', $rootAlias));

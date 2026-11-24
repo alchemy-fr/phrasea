@@ -9,6 +9,7 @@ use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Alchemy\RenditionFactory\RenditionCreator;
+use Alchemy\RenditionFactory\Transformer\Video\FFMpegHelper;
 use App\Model\MediaClip;
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
@@ -146,7 +147,7 @@ final class MediaClipper
         $outputPath = $dir.'/clip'.('' !== $extension ? '.'.$extension : '');
 
         // The parts share their codecs and settings: their streams are copied as is
-        FFMpeg::create(['timeout' => self::FFMPEG_TIMEOUT], null, $this->getFFProbe())
+        FFMpegHelper::restrict(FFMpeg::create(['timeout' => self::FFMPEG_TIMEOUT], null, $this->getFFProbe()))
             ->open($parts[0])
             ->concat($parts)
             ->saveFromSameCodecs($outputPath, true);
@@ -160,7 +161,7 @@ final class MediaClipper
 
     private function getFFProbe(): FFProbe
     {
-        return $this->ffprobe ??= FFProbe::create();
+        return $this->ffprobe ??= FFMpegHelper::restrictProbe(FFProbe::create());
     }
 
     private function probeDuration(string $path): ?float

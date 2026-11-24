@@ -60,6 +60,11 @@ import {useBatchIssueMessage, useFileDrop} from './useFileDrop';
 import {useUploadErrorMessage, useUploadQueue} from './useUploadQueue';
 import {useUploadAccess} from './UploadAccessContext';
 import {useUploadLimits} from './useUploadLimits';
+import {
+    clearLastFormData,
+    readLastFormData,
+    saveLastFormData,
+} from './lastFormData';
 
 export type WizardStep = 'select' | 'form' | 'progress' | 'done';
 
@@ -148,6 +153,15 @@ export function UploadScreen({targetId}: {targetId: string}) {
     // Remounts the form with other initial values
     const [formKey, setFormKey] = useState(0);
     const [formInitialValues, setFormInitialValues] = useState<FormValues>();
+    // Bumped when what this browser kept for the link changes
+    const [lastFormVersion, setLastFormVersion] = useState(0);
+    const linkId = link?.id;
+    const lastFormData = useMemo(
+        () => (linkId ? readLastFormData(linkId) : null),
+        // Read again from the storage when the version is bumped
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [linkId, lastFormVersion]
+    );
     const committing = useRef(false);
     // The assets belong to the commit once it is sent (it attaches them later)
     const committed = useRef(false);
@@ -265,6 +279,10 @@ export function UploadScreen({targetId}: {targetId: string}) {
                 requestOptions
             );
             committed.current = true;
+            if (linkId) {
+                saveLastFormData(linkId, formData);
+                setLastFormVersion(v => v + 1);
+            }
             onCommit?.();
             setSent({
                 files: items.map(i => ({name: i.file.name, size: i.file.size})),
@@ -279,7 +297,7 @@ export function UploadScreen({targetId}: {targetId: string}) {
         } finally {
             committing.current = false;
         }
-    }, [formData, queue, targetId, requestOptions, onCommit]);
+    }, [formData, queue, targetId, requestOptions, onCommit, linkId]);
 
     // Committed as soon as both the files and the form are there
     useEffect(() => {
@@ -450,17 +468,15 @@ export function UploadScreen({targetId}: {targetId: string}) {
                         </div>
                         {showFiles ? batchFiles : null}
                         <div className="mt-2 border-t pt-6">
-                            {link?.lastFormData ? (
-                                <div className="mb-4 flex justify-end">
+                            {linkId && lastFormData ? (
+                                <div className="mb-4 flex flex-wrap justify-end gap-2">
                                     <Button
                                         type="button"
                                         size="sm"
                                         variant="outline"
                                         data-testid="reuse-last-commit"
                                         onClick={() => {
-                                            setFormInitialValues(
-                                                link.lastFormData ?? undefined
-                                            );
+                                            setFormInitialValues(lastFormData);
                                             setFormKey(k => k + 1);
                                         }}
                                     >
@@ -468,6 +484,21 @@ export function UploadScreen({targetId}: {targetId: string}) {
                                         {t(
                                             'upload_link.reuse_last_commit',
                                             'Reuse my previous information'
+                                        )}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="ghost"
+                                        data-testid="forget-last-commit"
+                                        onClick={() => {
+                                            clearLastFormData(linkId);
+                                            setLastFormVersion(v => v + 1);
+                                        }}
+                                    >
+                                        {t(
+                                            'upload_link.forget_last_commit',
+                                            'Forget my previous information'
                                         )}
                                     </Button>
                                 </div>

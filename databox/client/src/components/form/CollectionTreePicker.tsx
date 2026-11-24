@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     ChevronRightIcon,
@@ -17,6 +17,11 @@ import {
     pagerKey,
     CollectionNode,
 } from '@/features/collections/collectionStore';
+import {
+    isOnlyChildPager,
+    mayHaveChildren,
+    useAutoExpand,
+} from '@/features/collections/tree/autoExpand';
 import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Input} from '@alchemy/next-ui/ui/input';
@@ -314,6 +319,7 @@ function WorkspaceNode({
                                 key={id}
                                 node={collections[id]}
                                 depth={1}
+                                onlyChild={isOnlyChildPager(pager)}
                                 value={value}
                                 onChange={onChange}
                                 requireCapability={requireCapability}
@@ -363,6 +369,7 @@ function toSelection(c: Collection, workspaceId: string): TreeSelection {
 function CollectionTreeNode({
     node,
     depth,
+    onlyChild,
     value,
     onChange,
     requireCapability,
@@ -374,6 +381,7 @@ function CollectionTreeNode({
 }: {
     node: CollectionNode;
     depth: number;
+    onlyChild: boolean;
     value: TreeSelection | undefined;
     onChange: (s: TreeSelection | undefined) => void;
     requireCapability?: Capability;
@@ -412,6 +420,8 @@ function CollectionTreeNode({
     const canCreateHere =
         !!allowCreate && !!node.capabilities.createCollection && !disabled;
     const expandable = hasChildren || canCreateHere;
+    const expand = useCallback(() => setExpanded(true), []);
+    useAutoExpand(onlyChild && mayHaveChildren(node, pager), expand);
 
     useEffect(() => {
         if (expanded) {
@@ -477,6 +487,7 @@ function CollectionTreeNode({
                                 key={id}
                                 node={collections[id]}
                                 depth={depth + 1}
+                                onlyChild={isOnlyChildPager(pager)}
                                 value={value}
                                 onChange={onChange}
                                 requireCapability={requireCapability}

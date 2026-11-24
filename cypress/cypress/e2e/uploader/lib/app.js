@@ -48,8 +48,17 @@ export function selectFiles(files) {
 }
 
 /** A PNG file built in the test; its preview is not decoded, only listed */
+/** A 1x1 PNG, the type its content is checked against once uploaded */
+const PNG_1X1 =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+/** A valid PNG of `size` bytes: bytes after its IEND chunk are ignored by readers */
 export function pngFile(fileName, size = 2048) {
-    return {contents: Cypress.Buffer.alloc(size, 'x'), fileName, mimeType: 'image/png'};
+    const png = Cypress.Buffer.from(PNG_1X1, 'base64');
+    const contents = Cypress.Buffer.alloc(Math.max(size, png.length), 'x');
+    png.copy(contents);
+
+    return {contents, fileName, mimeType: 'image/png'};
 }
 
 export function fileTile(name) {

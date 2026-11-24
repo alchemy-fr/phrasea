@@ -50,7 +50,7 @@ final readonly class BuilderFormHandler
             $key = (string) $field->key;
             $violations = $this->validator->validate(
                 $data[$key] ?? null,
-                FieldConstraintFactory::create($field, $definition->workspaceId),
+                FieldConstraintFactory::create($field),
             );
             foreach ($violations as $violation) {
                 $errors[$key][] = (string) $violation->getMessage();

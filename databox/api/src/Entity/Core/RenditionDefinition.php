@@ -102,6 +102,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                     filter: AssetTypeTargetFilter::class,
                     property: 'target',
                 ),
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Hides the definitions an asset policy hides for this asset (READ required on the asset)',
+                    castToArray: false,
+                    hydra: false,
+                ),
             ],
         ),
         new Post(
@@ -249,6 +255,12 @@ class RenditionDefinition extends AbstractUuidEntity implements AuditableInterfa
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $useAsAnimatedThumbnail = false;
 
+    /**
+     * Built by the workers before the other renditions (their heavy jobs go to the high priority queue).
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $buildFirst = false;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[CustomAssert\ValidRenditionDefinitionConstraint]
     private ?string $definition = null;
@@ -364,6 +376,16 @@ class RenditionDefinition extends AbstractUuidEntity implements AuditableInterfa
     public function setUseAsAnimatedThumbnail(bool $useAsAnimatedThumbnail): void
     {
         $this->useAsAnimatedThumbnail = $useAsAnimatedThumbnail;
+    }
+
+    public function isBuildFirst(): bool
+    {
+        return $this->buildFirst;
+    }
+
+    public function setBuildFirst(bool $buildFirst): void
+    {
+        $this->buildFirst = $buildFirst;
     }
 
     public function getDefinition(): ?string

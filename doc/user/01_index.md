@@ -23,7 +23,7 @@ It offers everything you expect from a DAM: import with or without pre-indexing,
 * Modern, responsive, and multilingual interface.  
 * Massive, fast, and reliable import.  
 * Powerful search with the Elastic engine: Faceted search, advanced filters on all types of metadata, suggestions, and sorting.  
-* Manual or automatic batch indexing, tags.
+* Manual or automatic batch indexing, entity lists (controlled vocabularies).
 * Collaboration tools (annotation, integrated chat) and asset sharing.  
 * Numerous integrations available for assets (simple retouching, background removal, text detection, etc.).  
 * Asset versioning, rendition generation.  

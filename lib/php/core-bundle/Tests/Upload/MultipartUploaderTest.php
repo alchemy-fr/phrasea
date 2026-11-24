@@ -46,13 +46,26 @@ class MultipartUploaderTest extends TestCase
         return $urls;
     }
 
-    private function createApiClient(int $size): MockHttpClient
+    /**
+     * @param int         $rateLimited number of API calls refused by the rate limit first
+     * @param string|null $retryAfter  Retry-After header of these refusals
+     */
+    private function createApiClient(int $size, int $rateLimited = 0, ?string $retryAfter = '0'): MockHttpClient
     {
         $partCount = max(1, (int) ceil($size / self::CHUNK));
 
-        return new MockHttpClient(function (string $method, string $url, array $options) use ($partCount): ResponseInterface {
+        return new MockHttpClient(function (string $method, string $url, array $options) use ($partCount, &$rateLimited, $retryAfter): ResponseInterface {
             $path = parse_url($url, PHP_URL_PATH);
             $this->apiCalls[] = $method.' '.$path.(isset($options['body']) && is_string($options['body']) && '' !== $options['body'] ? ' '.$options['body'] : '');
+
+            if ('POST' === $method && $rateLimited > 0) {
+                --$rateLimited;
+
+                return new MockResponse('{}', [
+                    'http_code' => 429,
+                    'response_headers' => null !== $retryAfter ? ['Retry-After: '.$retryAfter] : [],
+                ]);
+            }
 
             return match (true) {
                 'POST' === $method && '/uploads' === $path => new MockResponse(json_encode([
@@ -179,5 +192,35 @@ class MultipartUploaderTest extends TestCase
 
         $this->assertSame('DELETE /uploads/up-1', end($this->apiCalls));
         $this->assertCount(2, $this->puts, 'Client errors are not retried');
+    }
+
+    public function testCallsRefusedByTheRateLimitAreSentAgain(): void
+    {
+        $this->writeFile('0123456789abc');
+        $uploader = new MultipartUploader($this->createStorageClient());
+
+        $result = $uploader->upload($this->createApiClient(13, rateLimited: 2), $this->file, 'file.bin', null);
+
+        $this->assertCount(2, $result['parts']);
+        $this->assertSame(['POST /uploads', 'POST /uploads', 'POST /uploads'], array_map(
+            fn (string $call): string => explode(' {', $call, 2)[0],
+            $this->apiCalls,
+        ));
+    }
+
+    public function testARefusalWithoutDelayIsNotRetried(): void
+    {
+        $this->writeFile('0123456789abc');
+        $uploader = new MultipartUploader($this->createStorageClient());
+
+        try {
+            $uploader->upload($this->createApiClient(13, rateLimited: 1, retryAfter: null), $this->file, 'file.bin', null);
+            $this->fail('The upload should have failed');
+        } catch (ClientExceptionInterface $e) {
+            $this->assertSame(429, $e->getResponse()->getStatusCode());
+        }
+
+        $this->assertCount(1, $this->apiCalls);
+        $this->assertSame([], $this->puts);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Phrasea\Expose;
 
+use Alchemy\AuthBundle\Security\ApiAudience;
 use Alchemy\CoreBundle\Upload\MultipartUploader;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
@@ -11,6 +12,7 @@ use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationToken;
 use App\Http\LocaleContext;
 use App\Integration\IntegrationConfig;
@@ -20,13 +22,16 @@ use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
 use App\Service\Clip\MediaClipper;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
 {
     public function __construct(
         private PhraseaClientFactory $clientFactory,
-        private HttpClientInterface $uploadClient,
         private FileFetcher $fileFetcher,
         private AssetNameResolver $assetNameResolver,
         private AttributesResolver $attributesResolver,
@@ -64,6 +69,101 @@ final readonly class ExposeClient
                 'json' => $data,
             ])
             ->toArray();
+    }
+
+    /**
+     * Creates a publication owned by the user of the token from a user input: only the main properties
+     * are accepted, the parent and the profile by ID or IRI.
+     *
+     * @return array{id: string, title: string}
+     */
+    public function createPublicationFromInput(
+        IntegrationConfig $config,
+        IntegrationToken $integrationToken,
+        array $input,
+    ): array {
+        $title = $input['title'] ?? null;
+        if (!is_string($title) || '' === trim($title)) {
+            throw new BadRequestHttpException('The title is required');
+        }
+        $data = ['title' => trim($title)];
+        foreach (['slug', 'description'] as $key) {
+            if (null !== $value = self::getOptionalString($input, $key)) {
+                $data[$key] = $value;
+            }
+        }
+        if (array_key_exists('enabled', $input)) {
+            if (!is_bool($input['enabled'])) {
+                throw new BadRequestHttpException('"enabled" must be a boolean');
+            }
+            // A setting of the publication, inherited from its profile when absent
+            $data['config'] = ['enabled' => $input['enabled']];
+        }
+        if (null !== $parent = self::getOptionalString($input, 'parent')) {
+            $data['parent'] = '/publications/'.self::normalizeId($parent);
+        }
+        if (null !== $profile = self::getOptionalString($input, 'profile')) {
+            $data['profile'] = '/publication-profiles/'.self::normalizeId($profile);
+        }
+
+        try {
+            $publication = $this->createPublication($config, $integrationToken, $data);
+        } catch (ClientExceptionInterface $e) {
+            throw $this->createExposeError($e, $config);
+        }
+
+        return [
+            'id' => $publication['id'],
+            'title' => $publication['title'] ?? $data['title'],
+        ];
+    }
+
+    private static function getOptionalString(array $input, string $key): ?string
+    {
+        $value = $input[$key] ?? null;
+        if (null === $value) {
+            return null;
+        }
+        if (!is_string($value)) {
+            throw new BadRequestHttpException(sprintf('"%s" must be a string', $key));
+        }
+        $value = trim($value);
+
+        return '' === $value ? null : $value;
+    }
+
+    /**
+     * Accepts an ID or an IRI.
+     */
+    private static function normalizeId(string $value): string
+    {
+        $pos = strrpos($value, '/');
+
+        return false === $pos ? $value : substr($value, $pos + 1);
+    }
+
+    /**
+     * The refusal of Expose, as shown to the user: the reason given by Expose (e.g. a slug already used),
+     * or what to fix when Expose refuses the access token of the OAuth client of the integration.
+     */
+    public function createExposeError(ClientExceptionInterface $e, IntegrationConfig $config): HttpException
+    {
+        $response = $e->getResponse();
+        if (Response::HTTP_UNAUTHORIZED === $response->getStatusCode()) {
+            return new BadRequestHttpException(sprintf(
+                'Expose refused the access token of the OAuth client "%1$s": the client must have the "%2$s" client scope, which puts Expose in the audience of its tokens (in Keycloak: Clients › %1$s › Client scopes › Add client scope › %2$s, as Default), then the users must authorize the integration again. See doc/tech/Authentication/clients.md.',
+                $config['clientId'] ?? '',
+                ApiAudience::getScopeName('expose'),
+            ), $e);
+        }
+
+        try {
+            $detail = $response->toArray(false)['detail'] ?? null;
+        } catch (\Throwable) {
+            $detail = null;
+        }
+
+        return new BadRequestHttpException(is_string($detail) ? $detail : $e->getMessage(), $e);
     }
 
     public function deletePublication(IntegrationConfig $config, IntegrationToken $integrationToken, string $id): void
@@ -201,7 +301,7 @@ final readonly class ExposeClient
             $multipart = $this->multipartUploader->upload(
                 $this->create($config, $integrationToken),
                 $file->path,
-                $file->renameFile($source->getOriginalName() ?? 'file'),
+                $file->renameFile(self::uploadFilename($source)),
                 $file->mimeType,
             );
 
@@ -222,6 +322,25 @@ final readonly class ExposeClient
         }
 
         return $pubAsset['id'];
+    }
+
+    /**
+     * The name of an uploaded file: Expose only accepts a file whose extension matches its type,
+     * so the extension of the file is added to a name which has none (or to "file" when it has no name).
+     */
+    private static function uploadFilename(File $file): string
+    {
+        $name = $file->getOriginalName();
+        if (null === $name || '' === $name) {
+            $name = 'file';
+        }
+
+        $extension = $file->getExtension();
+        if (null !== $extension && '' !== $extension && '' === pathinfo($name, PATHINFO_EXTENSION)) {
+            $name = rtrim($name, '.').'.'.$extension;
+        }
+
+        return $name;
     }
 
     public function putAsset(
@@ -253,7 +372,14 @@ final readonly class ExposeClient
         $subDefFetchedFile = $this->fileFetcher->getFile($file);
         try {
             $clipped = $this->mediaClipper->apply($subDefFetchedFile, $file->getType(), $clip);
-            $size = $clipped->transformed ? filesize($clipped->path) : $file->getSize();
+
+            // A multipart upload rather than a presigned PUT: Expose checks the file when the upload is completed
+            $multipart = $this->multipartUploader->upload(
+                $this->create($config, $integrationToken),
+                $clipped->path,
+                $clipped->renameFile(self::uploadFilename($file)),
+                $clipped->mimeType,
+            );
 
             $subDefResponse = $this->create($config, $integrationToken)
                 ->request('POST', '/sub-definitions', [
@@ -263,23 +389,11 @@ final readonly class ExposeClient
                         'use_as_preview' => 'preview' === $renditionName,
                         'use_as_thumbnail' => 'thumbnail' === $renditionName,
                         'use_as_poster' => 'poster' === $renditionName,
-                        'upload' => [
-                            'type' => $clipped->mimeType,
-                            'size' => $size,
-                            'name' => $clipped->renameFile($file->getOriginalName()),
-                        ],
+                        'multipart' => $multipart,
                         ...$extraData,
                     ],
                 ])
                 ->toArray();
-
-            $this->uploadClient->request('PUT', $subDefResponse['uploadURL'], [
-                'headers' => [
-                    'Content-Type' => $clipped->mimeType,
-                    'Content-Length' => filesize($clipped->path),
-                ],
-                'body' => fopen($clipped->path, 'r'),
-            ]);
         } finally {
             @unlink($subDefFetchedFile);
             $this->mediaClipper->cleanUp();

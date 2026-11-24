@@ -14,6 +14,7 @@ use App\Service\Clip\ClipException;
 use App\Service\Clip\ClipFamily;
 use App\Service\Storage\RenditionManager;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 
 /**
  * Publishes Databox assets to an Expose publication, keeping the published ones in sync:
@@ -31,6 +32,12 @@ final readonly class ExposeAssetPublisher
         'preview',
         'thumbnail',
     ];
+
+    /**
+     * The answers of Expose refusing the file or the properties of an asset: the other errors
+     * (expired token, rate limit, server or network failures) would make every asset fail.
+     */
+    private const array REFUSAL_STATUSES = [400, 413, 415, 422];
 
     public function __construct(
         private ExposeClient $exposeClient,
@@ -99,6 +106,9 @@ final readonly class ExposeAssetPublisher
      * @param ExposeAsset|null $existing    the published version of the asset
      *
      * @return ExposeAsset|null the published asset, null when its source could not be clipped (nothing is published then)
+     *
+     * @throws ExposeAssetRefusedException when Expose refuses the asset (nothing is published then, and its former
+     *                                     version is deleted when its file changed)
      */
     public function publish(
         IntegrationConfig $config,
@@ -242,6 +252,8 @@ final readonly class ExposeAssetPublisher
 
     /**
      * @return string|null the Expose asset id, null when the clipped file could not be produced
+     *
+     * @throws ExposeAssetRefusedException
      */
     private function postAsset(
         IntegrationConfig $config,
@@ -263,6 +275,12 @@ final readonly class ExposeAssetPublisher
             ]);
 
             return null;
+        } catch (ClientExceptionInterface $e) {
+            if (!in_array($e->getResponse()->getStatusCode(), self::REFUSAL_STATUSES, true)) {
+                throw $e;
+            }
+
+            throw new ExposeAssetRefusedException((string) $assetProperties['title'], $this->exposeClient->createExposeError($e, $config)->getMessage(), $e);
         }
     }
 

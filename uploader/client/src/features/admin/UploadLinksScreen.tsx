@@ -10,6 +10,7 @@ import {
     PencilIcon,
     PlayIcon,
     PlusIcon,
+    RefreshCwIcon,
     Trash2Icon,
 } from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
@@ -31,15 +32,19 @@ import {
     deleteUploadLink,
     getUploadLinks,
     getUploadLinkUrl,
+    regenerateUploadLinkToken,
     updateUploadLink,
 } from '@/lib/api/uploadLinks';
+import {useUploaderUser} from '@/features/user/useUploaderUser';
 import {formatFileSize} from '@/lib/utils/format';
 import type {UploadLink, UploadLinkStatus} from '@/types/api';
 import {RequirePermission} from './RequirePermission';
 import {TargetSelect} from './TargetSelect';
 import {violationsByField} from './violations';
 import {
+    DEFAULT_MAX_VALIDITY_DAYS,
     initialFormValues,
+    maxExpiresAt,
     toInput,
     type SizeUnit,
     type UploadLinkFormValues,
@@ -173,6 +178,39 @@ function UploadLinkRow({link}: {link: UploadLink}) {
         onSuccess: refresh,
         onError: e => toast.error(getErrorMessage(e)),
     });
+    const regenerate = async () => {
+        if (
+            await confirm({
+                title: t(
+                    'upload_links.regenerate_title',
+                    'Replace the URL of the link'
+                ),
+                description: t(
+                    'upload_links.regenerate_confirm',
+                    'The current URL stops working at once: whoever holds it can no longer send anything. What was already sent stays.'
+                ),
+                confirmLabel: t(
+                    'upload_links.regenerate_submit',
+                    'Replace the URL'
+                ),
+                destructive: true,
+            })
+        ) {
+            try {
+                const regenerated = await regenerateUploadLinkToken(link.id);
+                await refresh();
+                openModal(UploadLinkCreatedDialog, {
+                    link: regenerated,
+                    title: t(
+                        'upload_links.regenerated_title',
+                        'The new URL is ready'
+                    ),
+                });
+            } catch (e) {
+                toast.error(getErrorMessage(e));
+            }
+        }
+    };
     const remove = async () => {
         if (
             await confirm({
@@ -268,6 +306,16 @@ function UploadLinkRow({link}: {link: UploadLink}) {
                 <Button
                     size="icon-sm"
                     variant="ghost"
+                    data-testid="upload-link-regenerate"
+                    aria-label={t('upload_links.regenerate', 'New URL')}
+                    title={t('upload_links.regenerate', 'New URL')}
+                    onClick={regenerate}
+                >
+                    <RefreshCwIcon />
+                </Button>
+                <Button
+                    size="icon-sm"
+                    variant="ghost"
                     data-testid="upload-link-edit"
                     aria-label={t('upload_links.edit', 'Edit')}
                     onClick={() => openModal(UploadLinkDialog, {link})}
@@ -297,9 +345,12 @@ function UploadLinkDialog({
 }: ModalProps<UploadLink> & {link?: UploadLink}) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
+    const maxDays =
+        useUploaderUser().data?.upload_link_max_ttl ??
+        DEFAULT_MAX_VALIDITY_DAYS;
     const creating = !link;
     const [values, setValues] = useState<UploadLinkFormValues>(() =>
-        initialFormValues(link)
+        initialFormValues(link, new Date(), maxDays)
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
     const set = (patch: Partial<UploadLinkFormValues>) =>
@@ -348,7 +399,7 @@ function UploadLinkDialog({
                     ? t('upload_links.create_submit', 'Create the link')
                     : undefined
             }
-            canSubmit={!!values.target}
+            canSubmit={!!values.target && !!values.expiresAt}
             onSubmit={submit}
         >
             <div data-testid="upload-link-form">
@@ -386,7 +437,8 @@ function UploadLinkDialog({
                     htmlFor="upload-link-expires"
                     help={t(
                         'upload_links.expires_help',
-                        'Leave empty for a link that never expires.'
+                        'At most {{days}} days from now.',
+                        {days: maxDays}
                     )}
                     error={errors.expiresAt}
                 >
@@ -394,6 +446,8 @@ function UploadLinkDialog({
                         id="upload-link-expires"
                         data-testid="upload-link-expires-input"
                         type="datetime-local"
+                        required
+                        max={maxExpiresAt(maxDays)}
                         value={values.expiresAt}
                         onChange={e => set({expiresAt: e.target.value})}
                     />
@@ -457,12 +511,13 @@ function UploadLinkDialog({
     );
 }
 
-/** The URL of a link just created, to hand out */
+/** The URL of a link just created, or given a new token, to hand out */
 function UploadLinkCreatedDialog({
     open,
     onOpenChange,
     link,
-}: ModalProps & {link: UploadLink}) {
+    title,
+}: ModalProps & {link: UploadLink; title?: string}) {
     const {t} = useTranslation();
     const copy = useCopyLink();
 
@@ -471,7 +526,9 @@ function UploadLinkCreatedDialog({
             open={open}
             onOpenChange={onOpenChange}
             size="md"
-            title={t('upload_links.created_title', 'The link is ready')}
+            title={
+                title ?? t('upload_links.created_title', 'The link is ready')
+            }
             description={t(
                 'upload_links.created_description',
                 'Send it to whoever must upload: anyone holding it can send files to {{target}}.',

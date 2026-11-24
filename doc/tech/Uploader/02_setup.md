@@ -36,6 +36,16 @@ ASSET_CONSUMER_ACCESS_TOKEN=avoid
 
 This prevents actual asset consumption and is useful for testing.
 
+## 4. Targets on the Private Network
+
+The URL of a target is set by an Uploader admin: on each commit, the worker notifies it with a `POST`.
+It reaches the private network only for the origin (scheme, host and port) of `DATABOX_API_URL` and for the origins listed in `UPLOADER_TARGET_PRIVATE_ORIGINS`, comma separated and empty by default.
+A target on any other host resolving to a private address (another service of the stack, an internal Phraseanet…) is refused unless its origin is listed:
+
+```bash
+UPLOADER_TARGET_PRIVATE_ORIGINS=https://phraseanet.local,http://phraseanet-internal:8080
+```
+
 ## Further Reading
 
 - [Uploader Configuration](./configuration.md)

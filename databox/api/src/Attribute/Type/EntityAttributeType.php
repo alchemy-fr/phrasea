@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeInterface;
+use App\Attribute\IndexableLocales;
 use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
@@ -64,7 +65,10 @@ final class EntityAttributeType extends TextAttributeType
             return null;
         }
 
-        $locales = array_merge($entity->getTranslations() ?? [], [
+        // Keys stored before the locale validation (AttributeEntity::validateLocales()) are left
+        // out: each one would add fields to the mapping shared by every workspace.
+        $workspaceLocales = $entity->getWorkspaceLocales();
+        $locales = array_merge(IndexableLocales::filter($entity->getTranslations() ?? [], $workspaceLocales), [
             AttributeInterface::NO_LOCALE => $entity->getValue(),
         ]);
         $entityId = $entity->getId();
@@ -86,7 +90,7 @@ final class EntityAttributeType extends TextAttributeType
 
         $synonyms = $entity->getSynonyms();
         if (!empty($synonyms)) {
-            foreach ($synonyms as $locale => $synonym) {
+            foreach (IndexableLocales::filter($synonyms, $workspaceLocales) as $locale => $synonym) {
                 if (empty($synonym)) {
                     continue;
                 }

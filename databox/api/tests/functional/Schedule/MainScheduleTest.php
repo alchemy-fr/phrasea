@@ -44,6 +44,7 @@ final class MainScheduleTest extends KernelTestCase
             'app:file:unblock-analyses',
             'app:trash:empty',
             'app:audit-log:purge',
+            'alchemy:storage:prune-multipart-uploads',
         ];
         sort($expected);
         sort($tasks);

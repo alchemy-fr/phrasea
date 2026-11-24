@@ -1,0 +1,11 @@
+parameters:
+    # Downloads from a URL (POST /downloads) accepted per hour and per user
+    env(DOWNLOAD_RATE_LIMIT): 30
+
+framework:
+    rate_limiter:
+        # See App\Api\Processor\DownloadUrlProcessor::RATE_LIMITER
+        download_url:
+            policy: sliding_window
+            limit: '%env(int:DOWNLOAD_RATE_LIMIT)%'
+            interval: '1 hour'

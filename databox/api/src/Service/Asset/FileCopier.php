@@ -53,6 +53,10 @@ final readonly class FileCopier
         $copy->setOriginalName($file->getOriginalName());
         $copy->setExtension($file->getExtension());
         $copy->setPath($file->getPath());
+        $copy->setDetectedType($file->getDetectedType());
+        if ($file->isContentRejected()) {
+            $copy->rejectContent($file->getAnalysis()?->getMessage() ?? 'Content rejected');
+        }
 
         return $copy;
     }

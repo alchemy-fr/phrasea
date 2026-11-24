@@ -13,10 +13,12 @@ use App\Api\Mapper\Input\BasketAssetInputMapper;
 use App\Api\Model\Input\AddToBasketInput;
 use App\Api\Model\Input\AssetToBasketInput;
 use App\Consumer\Handler\Basket\BasketUpdate;
+use App\Consumer\MessageDeduplication;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Repository\Basket\BasketRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -30,6 +32,7 @@ class AddToBasketProcessor implements ProcessorInterface
         private readonly BasketRepository $basketRepository,
         private readonly IriConverterInterface $iriConverter,
         private readonly MessageBusInterface $bus,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -69,6 +72,7 @@ class AddToBasketProcessor implements ProcessorInterface
 
         $assets = $this->em->getRepository(Asset::class)
             ->findByIds($ids);
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
@@ -86,7 +90,7 @@ class AddToBasketProcessor implements ProcessorInterface
 
         $this->em->flush();
 
-        $this->bus->dispatch(new BasketUpdate($basket->getId()));
+        $this->bus->dispatch(MessageDeduplication::coalesce(new BasketUpdate($basket->getId()), 900));
 
         return $basket;
     }

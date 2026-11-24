@@ -63,6 +63,11 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
 
     private function doVote(string $attribute, Workspace $subject, TokenInterface $token): bool
     {
+        // A soft-deleted workspace waits for its asynchronous deletion: nobody may reach it any more.
+        if (null !== $subject->getDeletedAt()) {
+            return false;
+        }
+
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isCreator = fn (): bool => $userId && $subject->getOwnerId() === $userId;

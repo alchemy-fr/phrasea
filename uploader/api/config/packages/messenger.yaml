@@ -24,9 +24,9 @@ when@dev:
     framework:
         messenger:
             transports:
-                p1: 'sync://'
-                p2: 'sync://'
-                p3: 'sync://'
+                p1: '%alchemy_messenger.dev_transport_dsn%/p1'
+                p2: '%alchemy_messenger.dev_transport_dsn%/p2'
+                p3: '%alchemy_messenger.dev_transport_dsn%/p3'
 
 when@test:
     framework:

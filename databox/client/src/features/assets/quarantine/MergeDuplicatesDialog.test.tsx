@@ -29,7 +29,6 @@ function asset(id: string, thumbnailUrl: string, rejected: boolean): Asset {
         'createdAt': '2026-01-01T10:00:00+00:00',
         'capabilities': {},
         'attributes': [],
-        'tags': [],
         'collections': [],
         'workspace': {id: 'ws', name: 'Workspace'},
         'thumbnail': {

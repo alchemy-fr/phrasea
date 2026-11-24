@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Border;
 
+use Alchemy\CoreBundle\Exception\DownloadTooLargeException;
+use Alchemy\CoreBundle\Util\HttpDownloadUtil;
+use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Border\Exception\UnsupportedUriException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
@@ -17,6 +20,12 @@ readonly class UriDownloader
         private HttpClientInterface $client,
         #[Autowire(param: 'kernel.environment')]
         private string $kernelEnv,
+        private MultipartUploadPlanner $uploadPlanner,
+        /**
+         * In seconds, for the whole transfer: a slow server must not hold a worker.
+         */
+        #[Autowire(param: 'app.download.max_duration')]
+        private float $maxDuration,
     ) {
     }
 
@@ -26,27 +35,69 @@ readonly class UriDownloader
      *
      * @return string The temporary file path
      *
-     * @throws UnsupportedUriException when $uri is not an HTTP(S) URL
+     * @throws UnsupportedUriException   when $uri is not an HTTP(S) URL
+     * @throws DownloadTooLargeException when the content would not fit in the storage
      */
     public function download(string $uri, array &$headers = [], ?string $path = null, bool $allowPrivateNetwork = false): string
+    {
+        $client = $this->createClient($uri, $allowPrivateNetwork);
+        $response = $client->request('GET', $uri, [
+            'max_duration' => $this->maxDuration,
+        ]);
+
+        $path ??= sys_get_temp_dir().'/'.uniqid('download-file');
+        HttpDownloadUtil::streamToFile($client, $response, $path, $this->uploadPlanner->getMaxObjectSize());
+
+        $headers = $response->getHeaders();
+
+        return $path;
+    }
+
+    /**
+     * Downloads the first $length bytes of the resource, at most.
+     *
+     * @throws UnsupportedUriException when $uri is not an HTTP(S) URL
+     */
+    public function downloadHead(string $uri, int $length, bool $allowPrivateNetwork = false): string
+    {
+        $client = $this->createClient($uri, $allowPrivateNetwork);
+        // Servers ignoring the range send the whole content: the transfer is cut once the head is received.
+        $response = $client->request('GET', $uri, [
+            'headers' => [
+                'Range' => sprintf('bytes=0-%d', $length - 1),
+            ],
+            'max_duration' => $this->maxDuration,
+        ]);
+        if (416 === $response->getStatusCode()) {
+            // A range starting at 0 is only refused for an empty resource, or by a server mishandling ranges
+            $response->cancel();
+            $response = $client->request('GET', $uri, [
+                'max_duration' => $this->maxDuration,
+            ]);
+        }
+        // Reading the status code consumed the first chunk, whose arrival is where stream() checks the status:
+        // without this check, an error page would pass for the head of the content.
+        $response->getHeaders();
+
+        $head = '';
+        foreach ($client->stream($response) as $chunk) {
+            $head .= $chunk->getContent();
+            if (strlen($head) >= $length) {
+                $response->cancel();
+                break;
+            }
+        }
+
+        return substr($head, 0, $length);
+    }
+
+    private function createClient(string $uri, bool $allowPrivateNetwork): HttpClientInterface
     {
         $scheme = parse_url($uri, PHP_URL_SCHEME);
         if (!\is_string($scheme) || !\in_array(strtolower($scheme), self::SUPPORTED_SCHEMES, true)) {
             throw new UnsupportedUriException($uri);
         }
 
-        $client = $allowPrivateNetwork || 'dev' === $this->kernelEnv ? $this->client : new NoPrivateNetworkHttpClient($this->client);
-        $response = $client->request('GET', $uri);
-
-        $path ??= sys_get_temp_dir().'/'.uniqid('download-file');
-        $fileHandler = fopen($path, 'w');
-        foreach ($client->stream($response) as $chunk) {
-            fwrite($fileHandler, $chunk->getContent());
-        }
-        fclose($fileHandler);
-
-        $headers = $response->getHeaders();
-
-        return $path;
+        return $allowPrivateNetwork || 'dev' === $this->kernelEnv ? $this->client : new NoPrivateNetworkHttpClient($this->client);
     }
 }

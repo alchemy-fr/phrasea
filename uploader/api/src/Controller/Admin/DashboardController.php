@@ -41,6 +41,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Uploads', 'fas fa-folder-open')->setSubItems($submenu2);
         yield NotifierAdminMenu::createMenuItem();
+        yield $this->createRealtimeMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }

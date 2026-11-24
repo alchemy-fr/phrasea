@@ -53,7 +53,6 @@ final class AuditLogListener
         'updatedAt',
         'editedAt',
         'attributesEditedAt',
-        'tagsEditedAt',
         'position',
     ];
 

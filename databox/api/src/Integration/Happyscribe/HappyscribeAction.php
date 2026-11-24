@@ -56,7 +56,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $attrDef = $this->attributeDefinitionRepository
                 ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $config['attribute'])
-                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['attribute'], $asset->getWorkspaceId()));
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config->getClientValue('attribute'), $asset->getWorkspaceId()));
 
         $toTranscript = false;
         foreach ($allEnabledLocales as $locale) {
@@ -75,7 +75,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $file = !empty($config['rendition']) ? $this->getRenditionFile($asset->getId(), $config['rendition']) : $asset->getSource();
 
-        $responseUpload = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/uploads/new?filename='.$fileName, [
+        $responseUpload = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/uploads/new?'.http_build_query(['filename' => $fileName]), [
             'headers' => [
                 'Authorization' => 'Bearer '.$config['apiKey'],
             ],
@@ -105,7 +105,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $srcLanguageAttrDef = $this->attributeDefinitionRepository
                 ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $config['sourceLanguageAttribute'])
-                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['sourceLanguageAttribute'], $asset->getWorkspaceId()));
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config->getClientValue('sourceLanguageAttribute'), $asset->getWorkspaceId()));
 
         $sourceLanguage = $attributeIndex->getAttribute($srcLanguageAttrDef->getId(), AttributeInterface::NO_LOCALE)?->getValue() ?? $config['defaultSourceLanguage'];
         $sourceLanguage = trim((string) $sourceLanguage);

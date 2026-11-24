@@ -7,6 +7,8 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use App\Entity\Asset;
+use App\Storage\AssetManager;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -22,6 +24,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class AssetCrudController extends AbstractAdminCrudController
 {
+    public function __construct(
+        private readonly AssetManager $assetManager,
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return Asset::class;
@@ -32,6 +39,20 @@ class AssetCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW);
+    }
+
+    /**
+     * @param Asset $entityInstance
+     */
+    public function deleteEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    {
+        if ($entityInstance->isCommitted()) {
+            parent::deleteEntity($entityManager, $entityInstance);
+
+            return;
+        }
+
+        $this->assetManager->removeUncommitted($entityInstance);
     }
 
     public function configureCrud(Crud $crud): Crud

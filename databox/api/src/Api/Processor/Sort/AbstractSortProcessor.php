@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Api\Processor\Sort;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Api\Model\Input\InputLimits;
 use App\Entity\Core\Workspace;
 use App\Model\AuditLogActionEnum;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -53,6 +56,15 @@ abstract class AbstractSortProcessor implements ProcessorInterface
         $ids = json_decode($context['request']->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (empty($ids)) {
             return null;
+        }
+        if (!is_array($ids) || !array_is_list($ids) || array_any($ids, fn ($id): bool => !is_string($id))) {
+            throw new BadRequestHttpException('The request body should be a list of IDs');
+        }
+        if (count($ids) > InputLimits::MAX_IDS) {
+            throw new BadRequestHttpException(sprintf('Too many IDs (%d > %d)', count($ids), InputLimits::MAX_IDS));
+        }
+        foreach ($ids as $id) {
+            UuidUtil::assertValid($id, 'id');
         }
 
         if ($this->isReversed()) {

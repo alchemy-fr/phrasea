@@ -143,6 +143,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?int $namePriority = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?bool $useAsName = null;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?bool $required = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]

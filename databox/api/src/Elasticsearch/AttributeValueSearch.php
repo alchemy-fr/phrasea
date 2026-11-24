@@ -6,6 +6,7 @@ namespace App\Elasticsearch;
 
 use App\Attribute\AttributeInterface;
 use App\Entity\Core\Attribute;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Elastica\Aggregation;
 use Elastica\Index;
 use Elastica\Query;
@@ -18,7 +19,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * "attributeValues" nested field of the asset documents (see AssetPostTransformListener).
  *
  * The assets are paginated (newest first) and filtered like any asset search
- * (AssetSearch::createBaseFilterQueries()): the total counts the readable assets only.
+ * (AssetSearch::createBaseFilterQueries()); the values of a definition that an asset policy
+ * hides from the user on an asset do not count (see HiddenAttributeScope).
  */
 class AttributeValueSearch extends AbstractSearch
 {
@@ -33,12 +35,14 @@ class AttributeValueSearch extends AbstractSearch
         #[Autowire(service: 'fos_elastica.index.asset')]
         private readonly Index $index,
         private readonly AssetSearch $assetSearch,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
     /**
-     * The asset IDs of the page in order, the matching attribute IDs of each of them,
-     * and the number of matching assets.
+     * The asset IDs of the page in order, the matching attribute IDs of each of them, and the
+     * number of matching assets. An asset matches when it holds a matching value the user may
+     * see; its attribute IDs are those of every matching value, hidden by an asset policy or not.
      *
      * @param string[] $definitionIds
      * @param string[] $values        exact values, any when empty
@@ -66,25 +70,13 @@ class AttributeValueSearch extends AbstractSearch
             return $empty;
         }
 
-        $field = AttributeInterface::VALUES_FIELD;
-        $valueQuery = new Query\BoolQuery();
-        $valueQuery->addFilter(new Query\Terms($field.'.definitionId', array_values($definitionIds)));
-        if (!empty($values)) {
-            $valueQuery->addFilter(new Query\Terms($field.'.value', array_values($values)));
-        }
-        if (null !== $origin) {
-            $valueQuery->addFilter(new Query\Term([$field.'.origin' => $origin]));
-        }
-
         $innerHits = new Query\InnerHits();
         $innerHits->setName(self::INNER_HITS_NAME);
         $innerHits->setSize(self::MAX_VALUES_PER_ASSET);
         $innerHits->setSource(false);
-        $innerHits->setParam('docvalue_fields', [$field.'.attributeId']);
+        $innerHits->setParam('docvalue_fields', [AttributeInterface::VALUES_FIELD.'.attributeId']);
 
-        $nestedQuery = new Query\Nested();
-        $nestedQuery->setPath($field);
-        $nestedQuery->setQuery($valueQuery);
+        $nestedQuery = $this->createNestedQuery(self::createValueQuery($definitionIds, $values, $origin));
         $nestedQuery->setInnerHits($innerHits);
 
         $filterQuery = new Query\BoolQuery();
@@ -94,7 +86,22 @@ class AttributeValueSearch extends AbstractSearch
         if (null !== $assetId) {
             $filterQuery->addFilter(new Query\Terms('_id', [$assetId]));
         }
-        $filterQuery->addFilter($nestedQuery);
+
+        $groups = HiddenAttributeScope::groupDefinitions($definitionIds, $this->assetPolicyManager->getHiddenAttributeScopes($userId, $groupIds));
+        if (1 === count($groups) && empty($groups[0]['scopes'])) {
+            $filterQuery->addFilter($nestedQuery);
+        } else {
+            $visibleValueQuery = new Query\BoolQuery();
+            $visibleValueQuery->setMinimumShouldMatch(1);
+            foreach ($groups as $group) {
+                $groupQuery = HiddenAttributeScope::createExclusionQuery($group['scopes']) ?? new Query\BoolQuery();
+                $groupQuery->addFilter($this->createNestedQuery(self::createValueQuery($group['definitionIds'], $values, $origin)));
+                $visibleValueQuery->addShould($groupQuery);
+            }
+            $filterQuery->addFilter($visibleValueQuery);
+            // Does not restrict the assets (the bool query has filters): only collects their matching values
+            $filterQuery->addShould($nestedQuery);
+        }
 
         $query = new Query($filterQuery);
         $query->setSource(false);
@@ -129,7 +136,8 @@ class AttributeValueSearch extends AbstractSearch
     /**
      * How many attribute values of the definitions hold each of the values (an entity ID), and
      * how many of them were set by a user, across the assets the user may see (quarantined ones
-     * included when the user has access to them).
+     * included when the user has access to them), leaving out the values of a definition that an
+     * asset policy hides from the user on their asset.
      *
      * @param string[] $definitionIds
      * @param string[] $values
@@ -149,49 +157,79 @@ class AttributeValueSearch extends AbstractSearch
             return [];
         }
 
-        $field = AttributeInterface::VALUES_FIELD;
-        $valueQuery = new Query\BoolQuery();
-        $valueQuery->addFilter(new Query\Terms($field.'.definitionId', array_values($definitionIds)));
-        $valueQuery->addFilter(new Query\Terms($field.'.value', $values));
-
-        $nestedQuery = new Query\Nested();
-        $nestedQuery->setPath($field);
-        $nestedQuery->setQuery($valueQuery);
-
         $filterQuery = new Query\BoolQuery();
         foreach ($baseFilters as $filter) {
             $filterQuery->addFilter($filter);
         }
-        $filterQuery->addFilter($nestedQuery);
-
-        $human = new Aggregation\Filter('human', new Query\Term([$field.'.origin' => Attribute::ORIGIN_HUMAN]));
-        $byValue = new Aggregation\Terms('values');
-        $byValue->setField($field.'.value');
-        $byValue->setSize(count($values));
-        $byValue->addAggregation($human);
-        // The other values of the matching assets are left out
-        $matching = new Aggregation\Filter('matching', $valueQuery);
-        $matching->addAggregation($byValue);
-        $nested = new Aggregation\Nested('usage', $field);
-        $nested->addAggregation($matching);
+        $filterQuery->addFilter($this->createNestedQuery(self::createValueQuery($definitionIds, $values)));
 
         $query = new Query($filterQuery);
         $query->setSize(0);
         $query->setTrackTotalHits(false);
-        $query->addAggregation($nested);
+
+        // One aggregation per group of definitions hidden on the same assets: a nested aggregation
+        // cannot filter on the asset, the filter wraps it.
+        $groups = HiddenAttributeScope::groupDefinitions($definitionIds, $this->assetPolicyManager->getHiddenAttributeScopes($userId, $groupIds));
+        foreach ($groups as $i => $group) {
+            $valueQuery = self::createValueQuery($group['definitionIds'], $values);
+            $human = new Aggregation\Filter('human', new Query\Term([AttributeInterface::VALUES_FIELD.'.origin' => Attribute::ORIGIN_HUMAN]));
+            $byValue = new Aggregation\Terms('values');
+            $byValue->setField(AttributeInterface::VALUES_FIELD.'.value');
+            $byValue->setSize(count($values));
+            $byValue->addAggregation($human);
+            // The other values of the matching assets are left out
+            $matching = new Aggregation\Filter('matching', $valueQuery);
+            $matching->addAggregation($byValue);
+            $nested = new Aggregation\Nested('usage', AttributeInterface::VALUES_FIELD);
+            $nested->addAggregation($matching);
+
+            $visible = new Aggregation\Filter('group_'.$i, HiddenAttributeScope::createExclusionQuery($group['scopes']) ?? new Query\MatchAll());
+            $visible->addAggregation($nested);
+            $query->addAggregation($visible);
+        }
 
         /** @var ResultSet $resultSet */
         $resultSet = $this->executeSearch(fn (): ResultSet => $this->index->search($query));
 
         $usage = [];
-        foreach ($resultSet->getAggregation('usage')['matching']['values']['buckets'] ?? [] as $bucket) {
-            $usage[(string) $bucket['key']] = [
-                'attributes' => (int) $bucket['doc_count'],
-                'humanAttributes' => (int) ($bucket['human']['doc_count'] ?? 0),
-            ];
+        foreach (array_keys($groups) as $i) {
+            foreach ($resultSet->getAggregation('group_'.$i)['usage']['matching']['values']['buckets'] ?? [] as $bucket) {
+                $key = (string) $bucket['key'];
+                $usage[$key] ??= ['attributes' => 0, 'humanAttributes' => 0];
+                $usage[$key]['attributes'] += (int) $bucket['doc_count'];
+                $usage[$key]['humanAttributes'] += (int) ($bucket['human']['doc_count'] ?? 0);
+            }
         }
 
         return $usage;
+    }
+
+    /**
+     * @param string[] $definitionIds
+     * @param string[] $values        exact values, any when empty
+     */
+    private static function createValueQuery(array $definitionIds, array $values = [], ?int $origin = null): Query\BoolQuery
+    {
+        $field = AttributeInterface::VALUES_FIELD;
+        $valueQuery = new Query\BoolQuery();
+        $valueQuery->addFilter(new Query\Terms($field.'.definitionId', array_values($definitionIds)));
+        if (!empty($values)) {
+            $valueQuery->addFilter(new Query\Terms($field.'.value', array_values($values)));
+        }
+        if (null !== $origin) {
+            $valueQuery->addFilter(new Query\Term([$field.'.origin' => $origin]));
+        }
+
+        return $valueQuery;
+    }
+
+    private function createNestedQuery(Query\AbstractQuery $valueQuery): Query\Nested
+    {
+        $nestedQuery = new Query\Nested();
+        $nestedQuery->setPath(AttributeInterface::VALUES_FIELD);
+        $nestedQuery->setQuery($valueQuery);
+
+        return $nestedQuery;
     }
 
     /**

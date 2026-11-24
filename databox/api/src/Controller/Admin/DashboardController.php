@@ -58,7 +58,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(AttributeDefinitionCrudController::class, 'Attribute Definition'),
             MenuItem::linkTo(AssetPolicyCrudController::class, 'Asset Policy'),
             MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policy'),
-            MenuItem::linkTo(TagCrudController::class, 'Tag'),
             MenuItem::linkTo(AttributeFilterRuleCrudController::class, 'Attribute Filter Rule'),
             MenuItem::linkTo(AssetRenditionCrudController::class, 'Asset Rendition'),
             MenuItem::linkTo(AssetEmbeddingCrudController::class, 'Asset Embedding'),
@@ -143,6 +142,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
         yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
         yield NotifierAdminMenu::createMenuItem();
+        yield $this->createRealtimeMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }

@@ -93,6 +93,24 @@ class RenditionDefinitionTest extends AbstractSearchTestCase
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertStringContainsString('Unknown metadata tag', $response->getContent(false));
+
+        foreach (['File:HardLink', 'File:SymLink', 'system:Directory'] as $tag) {
+            $response = $client->request('PATCH', $iri, [
+                'headers' => [
+                    'Content-Type' => 'application/merge-patch+json',
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                ],
+                'json' => [
+                    'metadata' => [
+                        $tag => 'foo',
+                    ],
+                ],
+            ]);
+
+            $this->assertResponseStatusCodeSame(422);
+            $this->assertStringContainsString('is not allowed to be written', $response->getContent(false));
+            $this->assertStringContainsString($tag, $response->getContent(false));
+        }
     }
 
     public function testGetRenditionDefinition(): void

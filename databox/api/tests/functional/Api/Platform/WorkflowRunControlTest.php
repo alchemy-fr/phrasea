@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api\Platform;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\Workflow\Message\JobConsumer;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
@@ -13,6 +12,7 @@ use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use App\Entity\Core\Asset;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use App\Tests\Functional\InterceptedTransports;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -188,9 +188,7 @@ final class WorkflowRunControlTest extends AbstractDataboxTestCase
         $this->getStateRepository()->persistJobState(new JobState($state->getId(), $jobId, JobState::STATUS_FAILURE));
 
         $client = static::createClient();
-        /** @var TestTransport $transport */
-        $transport = static::getContainer()->get('messenger.transport.p2');
-        $queue = $transport->intercept();
+        $queue = InterceptedTransports::intercept(static::getContainer(), 'p2', 'heavy', 'heavy_low');
 
         $response = $client->request('POST', '/workflows/'.$state->getId().'/jobs/'.$jobId.'/rerun', [
             'headers' => $this->headers(self::OWNER),
@@ -223,9 +221,7 @@ final class WorkflowRunControlTest extends AbstractDataboxTestCase
         $jobId = $this->getFirstJobId($this->getRun(self::OWNER, $state->getId()));
 
         $client = static::createClient();
-        /** @var TestTransport $transport */
-        $transport = static::getContainer()->get('messenger.transport.p2');
-        $queue = $transport->intercept();
+        $queue = InterceptedTransports::intercept(static::getContainer(), 'p2', 'heavy', 'heavy_low');
 
         $client->request('POST', '/workflows/'.$state->getId().'/jobs/'.$jobId.'/rerun', [
             'headers' => $this->headers(self::OWNER),

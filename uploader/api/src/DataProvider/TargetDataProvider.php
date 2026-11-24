@@ -18,11 +18,6 @@ final readonly class TargetDataProvider implements ProviderInterface
     ) {
     }
 
-    public function supports(string $resourceClass, ?string $operationName = null, array $context = []): bool
-    {
-        return Target::class === $resourceClass && 'get' === $operationName;
-    }
-
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $items = $this->itemsProvider->provide($operation, $uriVariables, $context);

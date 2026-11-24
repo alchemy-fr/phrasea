@@ -10,9 +10,9 @@ import {Logger} from 'winston';
 import {
     attributeTypesEquivalence,
     DataboxAttributeType,
-    TagIndex,
+    StatusBitIndex,
 } from './shared';
-import {AttributeDefinition, Tag} from '../../databox/types';
+import {AttributeDefinition, EntityList} from '../../databox/types';
 import Twig from 'twig';
 import {dump} from 'js-yaml';
 
@@ -516,42 +516,177 @@ export async function importMetadataStructure({
     return fieldMap;
 }
 
-export async function importStatusBitsStructure(
-    databoxClient: DataboxClient,
-    workspaceId: string,
-    phraseanetDataboxId: string,
-    phraseanetClient: PhraseanetClient,
-    logger: Logger
-): Promise<TagIndex> {
-    const tagIndex: TagIndex = {};
+/**
+ * Same names as the entity list and the attribute that the Databox migration
+ * makes of the former tags, so that an indexed workspace looks like a migrated one.
+ */
+const statusBitsListName = 'Tags';
+const statusBitsDefinitionName = 'Tags';
+const statusBitsDefinitionSlug = 'tags';
+// Used when "Tags" is already taken by another attribute of the workspace
+const statusBitsFallbackDefinitionName = 'Tags (Phraseanet)';
+const assetTypeBoth = 3;
+
+/**
+ * Imports the status bits as the values of the "Tags" entity list, set on
+ * the assets and the stories by the multi-valued entity attribute "Tags".
+ * The list, the attribute and the values already in the workspace are reused.
+ */
+export async function importStatusBitsStructure({
+    databoxClient,
+    workspaceId,
+    phraseanetDataboxId,
+    phraseanetClient,
+    idempotencePrefixes,
+    attrPolicy,
+    logger,
+}: {
+    databoxClient: DataboxClient;
+    workspaceId: string;
+    phraseanetDataboxId: string;
+    phraseanetClient: PhraseanetClient;
+    idempotencePrefixes: Record<string, string>;
+    attrPolicy: string;
+    logger: Logger;
+}): Promise<StatusBitIndex | undefined> {
+    const statusBits: {bit: number; name: string}[] = [];
     for (const sb of await phraseanetClient.getStatusBitsStruct(
         phraseanetDataboxId
     )) {
         // Use label_on if available, fallback to label_off, skip if both empty
-        const tagName = sb.label_on?.trim() || sb.label_off?.trim() || '';
+        const name = sb.label_on?.trim() || sb.label_off?.trim() || '';
 
-        if (!tagName) {
+        if (!name) {
             logger.info(
                 `  Skipping status bit ${sb.bit} with empty label_on and label_off`
             );
             continue;
         }
-
-        logger.info(`  Creating "${tagName}" tag`);
-        const key =
-            phraseanetClient.getId() +
-            '_' +
-            phraseanetDataboxId +
-            '.sb' +
-            sb.bit;
-        const tag: Tag = await databoxClient.createTag(key, {
-            workspace: `/workspaces/${workspaceId}`,
-            name: tagName,
-        });
-        tagIndex[sb.bit] = '/tags/' + tag.id;
+        statusBits.push({bit: sb.bit, name});
     }
 
-    return tagIndex;
+    if (statusBits.length === 0) {
+        return undefined;
+    }
+
+    const list = await getOrCreateStatusBitsList(
+        databoxClient,
+        workspaceId,
+        logger
+    );
+    const definition = await getOrCreateStatusBitsDefinition(
+        databoxClient,
+        workspaceId,
+        list,
+        idempotencePrefixes,
+        attrPolicy,
+        logger
+    );
+
+    const entityIdByValue: Record<string, string> = {};
+    for (const e of await databoxClient.getAttributeEntities(list.id)) {
+        entityIdByValue[e.value] ??= e.id;
+    }
+
+    const entities: Record<number, string> = {};
+    for (const {bit, name} of statusBits) {
+        if (!entityIdByValue[name]) {
+            logger.info(
+                `  Creating "${name}" value of the "${list.name}" list`
+            );
+            entityIdByValue[name] = (
+                await databoxClient.createAttributeEntity(
+                    `${list.id}_${name}`,
+                    {
+                        list: `/entity-lists/${list.id}`,
+                        value: name,
+                        position: bit,
+                    }
+                )
+            ).id;
+        }
+        entities[bit] = entityIdByValue[name];
+    }
+
+    return {
+        definitionId: definition.id,
+        entities,
+    };
+}
+
+async function getOrCreateStatusBitsList(
+    databoxClient: DataboxClient,
+    workspaceId: string,
+    logger: Logger
+): Promise<EntityList> {
+    const existing = (
+        await databoxClient.getEntityLists(workspaceId, statusBitsListName)
+    ).find(l => l.name === statusBitsListName);
+    if (existing) {
+        return existing;
+    }
+
+    logger.info(`  Creating "${statusBitsListName}" entity list`);
+
+    return await databoxClient.createEntityList(
+        `${workspaceId}_${statusBitsListName}`,
+        {
+            workspace: `/workspaces/${workspaceId}`,
+            name: statusBitsListName,
+            withColors: true,
+            withTranslations: true,
+        }
+    );
+}
+
+async function getOrCreateStatusBitsDefinition(
+    databoxClient: DataboxClient,
+    workspaceId: string,
+    list: EntityList,
+    idempotencePrefixes: Record<string, string>,
+    attrPolicy: string,
+    logger: Logger
+): Promise<AttributeDefinition> {
+    const bound = (
+        await databoxClient.getAttributeDefinitions({
+            workspaceId,
+            entityListId: list.id,
+        })
+    ).filter(d => d.multiple);
+    const existing =
+        bound.find(d => d.slug === statusBitsDefinitionSlug) ?? bound[0];
+    if (existing) {
+        return existing;
+    }
+
+    const taken = await databoxClient.getAttributeDefinitions({
+        workspaceId,
+        slugs: [statusBitsDefinitionSlug],
+    });
+    const name =
+        taken.length > 0
+            ? statusBitsFallbackDefinitionName
+            : statusBitsDefinitionName;
+
+    logger.info(`  Creating "${name}" attribute definition`);
+
+    return await databoxClient.createAttributeDefinition(
+        `${workspaceId}_status_bits`,
+        {
+            key: `${idempotencePrefixes['attributeDefinition']}status_bits`,
+            name,
+            type: DataboxAttributeType.Entity,
+            entityList: `/entity-lists/${list.id}`,
+            multiple: true,
+            facetEnabled: true,
+            searchable: true,
+            editable: true,
+            translatable: false,
+            target: assetTypeBoth,
+            workspace: `/workspaces/${workspaceId}`,
+            policy: attrPolicy,
+        }
+    );
 }
 
 function translateDocumentSettings(sd: PhraseanetSubdefStruct): object {

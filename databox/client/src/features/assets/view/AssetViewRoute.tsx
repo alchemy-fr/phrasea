@@ -104,15 +104,32 @@ function setViewerUrl(url: string, push = false) {
     }
 }
 
+/** The story an asset is shown in, kept in its URL for an item of that story */
+function storyParam(id: string, storyId: string | undefined) {
+    return storyId && id !== storyId ? storyId : undefined;
+}
+
+async function loadAssetView(id: string) {
+    const [asset, renditions] = await Promise.all([
+        getAsset(id),
+        getAssetRenditions(id),
+    ]);
+
+    return {asset, renditions};
+}
+
 /**
  * Full screen asset viewer: media on the left, side panel on the right.
  */
 export function AssetViewRoute({
     assetId: initialAssetId,
     renditionId: initialRenditionId,
+    storyId: initialStoryId,
 }: {
     assetId: string;
     renditionId: string;
+    /** `?story=`: the story the asset is browsed in, as one of its items */
+    storyId?: string;
 }) {
     // Navigating between results keeps this component mounted and mirrors
     // the current asset in the URL (shallow): a router navigation would
@@ -120,9 +137,9 @@ export function AssetViewRoute({
     const [assetId, setAssetId] = useState(initialAssetId);
     const active = useActiveViewer();
     const [renditionId, setRenditionId] = useState(initialRenditionId);
-    // The story being browsed, kept while switching between its items
-    const [storyAsset, setStoryAsset] = useState<Asset>();
-    const storyId = storyAsset?.id;
+    // The story being browsed, kept while switching between its items and
+    // mirrored in the URL of its items as `?story=` so that a reload keeps it
+    const [storyId, setStoryId] = useState(initialStoryId);
     // The hash is not sent to the server: the panel tab or mode it asks for
     // is read after hydration.
     const [panelTab, setPanelTab] =
@@ -131,13 +148,13 @@ export function AssetViewRoute({
     useEffect(() => {
         setAssetId(initialAssetId);
         setRenditionId(initialRenditionId);
-        setStoryAsset(undefined);
+        setStoryId(initialStoryId);
         const hashTarget = panelTargetFromHash();
         setEditing(hashTarget === editPanelTarget);
         if (hashTarget !== editPanelTarget) {
             setPanelTab(hashTarget);
         }
-    }, [initialAssetId, initialRenditionId]);
+    }, [initialAssetId, initialRenditionId, initialStoryId]);
     const {t, i18n} = useTranslation();
     const queryClient = useQueryClient();
     const {openModal} = useModals();
@@ -155,13 +172,10 @@ export function AssetViewRoute({
     const query = useQuery({
         queryKey,
         queryFn: async () => {
-            const [asset, renditions] = await Promise.all([
-                getAsset(assetId),
-                getAssetRenditions(assetId),
-            ]);
-            update(asset);
+            const data = await loadAssetView(assetId);
+            update(data.asset);
 
-            return {asset, renditions};
+            return data;
         },
         staleTime: 2000,
         enabled: active,
@@ -222,10 +236,35 @@ export function AssetViewRoute({
     // somewhere else (the items of a story are plain assets).
     useEffect(() => {
         if (asset?.storyCollection) {
-            setStoryAsset(asset);
+            setStoryId(asset.id);
         }
     }, [asset]);
     const story = useStoryAssets(storyId);
+    // Same key as the viewer of the story: coming from its cover, it is cached
+    const storyQuery = useQuery({
+        queryKey: ['asset-view', storyId],
+        queryFn: () => loadAssetView(storyId!),
+        enabled: active && !!storyId && storyId !== assetId,
+        staleTime: 2000,
+    });
+    const storyAsset = storyId === assetId ? asset : storyQuery.data?.asset;
+    // A story of the URL that cannot be read, or that the asset is not an
+    // item of, is dropped
+    useEffect(() => {
+        if (!storyId || storyId === assetId) {
+            return;
+        }
+        const notAnItem =
+            asset?.id === assetId &&
+            !!asset.collections &&
+            !asset.collections.some(c => c.storyAsset?.id === storyId);
+        if (storyQuery.isError || notAnItem) {
+            setStoryId(undefined);
+            setViewerUrl(
+                routes.assetView(assetId, renditionId, window.location.hash)
+            );
+        }
+    }, [storyId, assetId, asset, renditionId, storyQuery.isError]);
 
     // A story has no file of its own: show its first displayable item
     // instead of nothing
@@ -282,9 +321,15 @@ export function AssetViewRoute({
         if (!urlAssetId || pathname !== window.location.pathname) {
             return;
         }
+        const urlStoryId = new URLSearchParams(window.location.search).get(
+            'story'
+        );
+        if (urlStoryId) {
+            setStoryId(urlStoryId);
+        }
         if (urlAssetId !== shown.current.assetId) {
-            if (!shown.current.ids.includes(urlAssetId)) {
-                setStoryAsset(undefined);
+            if (!urlStoryId && !shown.current.ids.includes(urlAssetId)) {
+                setStoryId(undefined);
             }
             setAssetId(urlAssetId);
         }
@@ -311,12 +356,23 @@ export function AssetViewRoute({
             {
                 renditionId: toRenditionId = UNKNOWN_RENDITION,
                 push = false,
-            }: {renditionId?: string; push?: boolean} = {}
+                storyId: toStoryId,
+            }: {
+                renditionId?: string;
+                push?: boolean;
+                /** Story browsed there: callers may change it in this render */
+                storyId?: string;
+            } = {}
         ) => {
             setAssetId(id);
             setRenditionId(toRenditionId);
             setViewerUrl(
-                routes.assetView(id, toRenditionId, panelHash(target)),
+                routes.assetView(
+                    id,
+                    toRenditionId,
+                    panelHash(target),
+                    storyParam(id, toStoryId)
+                ),
                 push
             );
         },
@@ -324,15 +380,29 @@ export function AssetViewRoute({
     );
     // Keeps the displayed rendition: the integration tabs work on its file
     const showPanelTarget = (target: AssetPanelTarget) => {
-        setViewerUrl(routes.assetView(assetId, renditionId, panelHash(target)));
+        setViewerUrl(
+            routes.assetView(
+                assetId,
+                renditionId,
+                panelHash(target),
+                storyParam(assetId, storyId)
+            )
+        );
     };
     // Keeps the `#panel=` hash: picking from the renditions tab stays there
     const selectRendition = useCallback(
         (id: string) => {
             setRenditionId(id);
-            setViewerUrl(routes.assetView(assetId, id, window.location.hash));
+            setViewerUrl(
+                routes.assetView(
+                    assetId,
+                    id,
+                    window.location.hash,
+                    storyParam(assetId, storyId)
+                )
+            );
         },
-        [assetId]
+        [assetId, storyId]
     );
     const panelTarget: AssetPanelTarget = editing ? editPanelTarget : panelTab;
     // An asset opened from the panel (similar asset, attachment) replaces the
@@ -346,7 +416,7 @@ export function AssetViewRoute({
                 ) {
                     return;
                 }
-                setStoryAsset(undefined);
+                setStoryId(undefined);
                 goTo(id, panelTarget, {
                     renditionId: toRenditionId,
                     push: true,
@@ -355,15 +425,13 @@ export function AssetViewRoute({
         }),
         [assetId, renditionId, panelTarget, goTo]
     );
-    const go = (id: string | undefined) => {
-        if (id) {
-            goTo(id, panelTarget);
-        }
+    const go = (id: string, toStoryId: string | undefined) => {
+        goTo(id, panelTarget, {storyId: toStoryId});
     };
     const step = (direction: 'prev' | 'next') => {
         const id = direction === 'prev' ? prevId : nextId;
         if (id) {
-            go(id);
+            go(id, storyId);
 
             return;
         }
@@ -382,8 +450,8 @@ export function AssetViewRoute({
 
             return;
         }
-        setStoryAsset(undefined);
-        go(outerId);
+        setStoryId(undefined);
+        go(outerId, undefined);
     };
     const selectPanelTab = (tab: AssetPanelTab) => {
         setPanelTab(tab);
@@ -452,6 +520,7 @@ export function AssetViewRoute({
         outerPrevId,
         outerNextId,
         exitHint,
+        storyId,
         story.hasNextPage,
         panelTarget,
         active,
@@ -465,10 +534,7 @@ export function AssetViewRoute({
         [prevId, nextId].filter(Boolean).forEach(id => {
             void queryClient.prefetchQuery({
                 queryKey: ['asset-view', id],
-                queryFn: async () => ({
-                    asset: await getAsset(id!),
-                    renditions: await getAssetRenditions(id!),
-                }),
+                queryFn: () => loadAssetView(id!),
             });
         });
     }, [prevId, nextId, queryClient, active]);
@@ -749,7 +815,7 @@ export function AssetViewRoute({
                                     <StoryCarousel
                                         story={storyAsset}
                                         currentAssetId={assetId}
-                                        onSelect={id => go(id)}
+                                        onSelect={id => go(id, storyId)}
                                     />
                                 ) : null}
                             </div>

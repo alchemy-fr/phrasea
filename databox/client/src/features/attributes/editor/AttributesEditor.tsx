@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AlertTriangleIcon, PlusIcon, XIcon} from 'lucide-react';
 import type {AssetAnnotation, AttributeDefinition} from '@/types/api';
@@ -23,6 +23,7 @@ import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetBut
 import {ManageEntityListButton} from '@/features/entities/manage/ManageEntityListButton';
 import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
 import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {focusableIn, hasFocusableInStop, nextFieldStop} from './fieldTabbing';
 
 export type OnAttributeChange = (
     definitionId: string,
@@ -36,7 +37,6 @@ type Props = {
     onChange: OnAttributeChange;
     disabled?: boolean;
     target: AssetTypeFilter;
-    workspaceId?: string;
     workspaceLocales?: string[];
     /** More definitions to load, at the end of the form */
     hasMore?: boolean;
@@ -54,7 +54,6 @@ export function AttributesEditor({
     onChange,
     disabled,
     target,
-    workspaceId,
     workspaceLocales,
     hasMore = false,
     onLoadMore,
@@ -95,6 +94,62 @@ export function AttributesEditor({
     const [currentLocale, setCurrentLocale] = useState<string>(
         locales[0] ?? NO_LOCALE
     );
+    const rootRef = useRef<HTMLDivElement>(null);
+    // Where Tab was pressed at the end of the loaded fields, waiting for the
+    // next ones to focus the first of them
+    const tabbedPastEnd = useRef<Element | null>(null);
+
+    useEffect(() => {
+        const from = tabbedPastEnd.current;
+        const root = rootRef.current;
+        if (!from) {
+            return;
+        }
+        if (!root || !from.isConnected) {
+            tabbedPastEnd.current = null;
+            return;
+        }
+        const next = nextFieldStop(root, from, false);
+        if (next) {
+            tabbedPastEnd.current = null;
+            focusableIn(next)?.focus();
+        } else if (!loadingMore) {
+            tabbedPastEnd.current = null;
+        }
+    }, [list.length, loadingMore]);
+
+    // Tab goes from a field to the next one, over the secondary buttons
+    // (annotations, locales, removal…). Events from portals (combobox
+    // popover, menus) bubble here through React but are left to the browser.
+    const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        const root = rootRef.current;
+        const target = e.target as Element;
+        if (
+            e.key !== 'Tab' ||
+            e.ctrlKey ||
+            e.altKey ||
+            e.metaKey ||
+            e.defaultPrevented ||
+            e.nativeEvent.isComposing ||
+            !root ||
+            !root.contains(target) ||
+            hasFocusableInStop(root, target, e.shiftKey)
+        ) {
+            return;
+        }
+
+        const next = nextFieldStop(root, target, e.shiftKey);
+        if (next) {
+            e.preventDefault();
+            focusableIn(next)?.focus();
+        } else if (!e.shiftKey && hasMore && onLoadMore) {
+            e.preventDefault();
+            tabbedPastEnd.current = target;
+            if (!loadingMore) {
+                onLoadMore();
+            }
+        }
+    };
 
     if (list.length === 0) {
         return (
@@ -107,7 +162,7 @@ export function AttributesEditor({
     }
 
     return (
-        <div className="space-y-6">
+        <div ref={rootRef} className="space-y-6" onKeyDown={onKeyDown}>
             {list.map(def => {
                 const translatable = def.translatable && locales.length > 0;
                 const locale = translatable ? currentLocale : NO_LOCALE;
@@ -180,7 +235,6 @@ export function AttributesEditor({
                             value={attributes[def.id]?.[locale]}
                             onChange={v => onChange(def.id, locale, v)}
                             disabled={disabled || !def.canEdit}
-                            workspaceId={workspaceId}
                         />
                     </div>
                 );
@@ -196,14 +250,12 @@ export function AttributeField({
     value,
     onChange,
     disabled,
-    workspaceId,
 }: {
     definition: AttributeDefinition;
     locale: string;
     value: AttrValue | AttrValue[] | undefined;
     onChange: (v: AttrValue | AttrValue[] | undefined) => void;
     disabled?: boolean;
-    workspaceId?: string;
 }) {
     const {t} = useTranslation();
     const rtl = isRtl(locale === NO_LOCALE ? undefined : locale);
@@ -237,7 +289,7 @@ export function AttributeField({
             <div className="space-y-2">
                 {list.map((item, i) => (
                     <div key={item.id} className="flex items-start gap-2">
-                        <div className="flex-1">
+                        <div className="flex-1" data-attr-stop>
                             <InvalidWrapper
                                 item={item}
                                 onCorrect={() =>
@@ -267,7 +319,6 @@ export function AttributeField({
                                     }
                                     disabled={disabled}
                                     rtl={rtl}
-                                    workspaceId={workspaceId}
                                     autoFocus={
                                         item.id.startsWith('new-') &&
                                         i === list.length - 1
@@ -299,6 +350,7 @@ export function AttributeField({
                     </div>
                 ))}
                 <Button
+                    data-attr-stop
                     variant="outline"
                     size="sm"
                     disabled={disabled}
@@ -325,38 +377,39 @@ export function AttributeField({
     );
 
     const widget = (
-        <InvalidWrapper
-            item={single}
-            onCorrect={() =>
-                onChange({
-                    id: single?.id ?? `new-${shortId()}`,
-                    value: '',
-                    invalid: false,
-                })
-            }
-        >
-            <AttributeWidget
-                id={`attr-${definition.id}`}
-                definition={definition}
-                value={single?.value}
-                onChange={v =>
-                    onChange(
-                        v === undefined || v === ''
-                            ? single?.id && !single.id.startsWith('new-')
-                                ? {...single, value: undefined}
-                                : undefined
-                            : {
-                                  ...single,
-                                  id: single?.id ?? `new-${shortId()}`,
-                                  value: v,
-                              }
-                    )
+        <div data-attr-stop>
+            <InvalidWrapper
+                item={single}
+                onCorrect={() =>
+                    onChange({
+                        id: single?.id ?? `new-${shortId()}`,
+                        value: '',
+                        invalid: false,
+                    })
                 }
-                disabled={disabled}
-                rtl={rtl}
-                workspaceId={workspaceId}
-            />
-        </InvalidWrapper>
+            >
+                <AttributeWidget
+                    id={`attr-${definition.id}`}
+                    definition={definition}
+                    value={single?.value}
+                    onChange={v =>
+                        onChange(
+                            v === undefined || v === ''
+                                ? single?.id && !single.id.startsWith('new-')
+                                    ? {...single, value: undefined}
+                                    : undefined
+                                : {
+                                      ...single,
+                                      id: single?.id ?? `new-${shortId()}`,
+                                      value: v,
+                                  }
+                        )
+                    }
+                    disabled={disabled}
+                    rtl={rtl}
+                />
+            </InvalidWrapper>
+        </div>
     );
 
     if (!singleAnnotationButton) {

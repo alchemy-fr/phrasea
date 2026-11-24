@@ -42,6 +42,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Publications', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::linkTo(EnvVarCrudController::class, 'EnvVar', 'fas fa-folder-open');
         yield NotifierAdminMenu::createMenuItem();
+        yield $this->createRealtimeMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }

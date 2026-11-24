@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Integration;
 
 use Alchemy\AuthBundle\Client\KeycloakClient;
-use Alchemy\AuthBundle\Security\DataboxIntegrationClient;
 use Alchemy\AuthBundle\Security\Impersonator;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Api\Processor\CreateOAuthClientProcessor;
 use App\Api\Provider\OAuthClientProvider;
 use App\Integration\Auth\OAuthRedirectUriMatcher;
 use App\Tests\Functional\AbstractDataboxTestCase;
@@ -26,12 +26,14 @@ final class OAuthClientTest extends AbstractDataboxTestCase
     {
         parent::setUp();
         KeycloakClientTestMock::$createdClients = [];
+        KeycloakClientTestMock::$addedDefaultClientScopes = [];
         unset(KeycloakClientTestMock::$lastQueries[self::CLIENTS_PATH]);
     }
 
     protected function tearDown(): void
     {
         KeycloakClientTestMock::$createdClients = [];
+        KeycloakClientTestMock::$addedDefaultClientScopes = [];
         parent::tearDown();
     }
 
@@ -125,30 +127,39 @@ final class OAuthClientTest extends AbstractDataboxTestCase
         foreach ($response->toArray() as $client) {
             $accepted[$client['clientId']] = $client['acceptedByExpose'];
         }
-        // Created by Databox; neither the client of Databox itself nor one allowing any URI of the API
+        // The ones having the "expose-api" default client scope
         $this->assertSame([
-            'expose-integration' => false,
+            'expose-integration' => true,
             'an-integration' => true,
             'databox-app' => false,
         ], $accepted);
     }
 
-    public function testExposeAcceptsTheClientsOfItsAllowedList(): void
+    public function testExposeAcceptsTheClientsHavingItsDefaultClientScope(): void
     {
         $provider = new OAuthClientProvider(
             self::getService(KeycloakClient::class),
             self::getService(OAuthRedirectUriMatcher::class),
-            [' expose-integration '],
         );
+        $target = 'http://localhost/integrations/x/code';
+        $client = [
+            ...KeycloakClientTestMock::CLIENTS[1],
+            'redirectUris' => ['http://localhost/integrations/*'],
+        ];
 
-        $this->assertTrue($provider->createClient(KeycloakClientTestMock::CLIENTS[0], 'http://localhost/integrations/x/code')->acceptedByExpose);
-        $this->assertFalse($provider->createClient(KeycloakClientTestMock::CLIENTS[1], 'http://localhost/integrations/x/code')->acceptedByExpose);
+        // Redirecting to the integrations is not enough
+        $this->assertFalse($provider->createClient($client, $target)->acceptedByExpose);
+        $this->assertFalse($provider->createClient([...$client, 'defaultClientScopes' => null], $target)->acceptedByExpose);
+        $this->assertFalse($provider->createClient([...$client, 'optionalClientScopes' => ['expose-api']], $target)->acceptedByExpose);
+        $this->assertTrue($provider->createClient([...$client, 'defaultClientScopes' => ['profile', 'expose-api']], $target)->acceptedByExpose);
     }
 
     public function testListsTheClientsExposeAcceptsFirst(): void
     {
-        $created = $this->create(self::adminJwt(), ['clientId' => 'z-integration']);
+        $created = $this->create(self::adminJwt(), ['clientId' => 'a-refused-integration']);
         $this->assertSame(201, $created->getStatusCode(), $created->getContent(false));
+        // Its "expose-api" client scope removed from Keycloak
+        KeycloakClientTestMock::$addedDefaultClientScopes = [];
 
         $response = $this->list(self::adminJwt(), ['integrationId' => self::INTEGRATION_ID]);
 
@@ -156,8 +167,8 @@ final class OAuthClientTest extends AbstractDataboxTestCase
         // Among the clients allowing the redirect URI of the integration, the ones Expose accepts come first
         $this->assertSame([
             'an-integration' => true,
-            'z-integration' => true,
             'expose-integration' => true,
+            'a-refused-integration' => true,
             'databox-app' => false,
         ], self::allowedByClientId($response));
     }
@@ -229,10 +240,19 @@ final class OAuthClientTest extends AbstractDataboxTestCase
         $this->assertFalse($sent['serviceAccountsEnabled']);
         $this->assertSame('http://localhost', $sent['rootUrl']);
         $this->assertSame(['http://localhost/integrations/*'], $sent['redirectUris']);
-        $this->assertSame([DataboxIntegrationClient::CREATED_BY_ATTRIBUTE => DataboxIntegrationClient::CREATED_BY], $sent['attributes']);
+        $this->assertSame([CreateOAuthClientProcessor::CREATED_BY_ATTRIBUTE => CreateOAuthClientProcessor::CREATED_BY], $sent['attributes']);
+        // The scope is added afterwards, keeping the default scopes of the realm
+        $this->assertArrayNotHasKey('defaultClientScopes', $sent);
+        $this->assertSame([md5('databox-expose-test') => ['d0000003-fc1a-492b-9e76-c2e8e6979786']], KeycloakClientTestMock::$addedDefaultClientScopes);
 
-        // Listed along the others, as allowing any integration
-        $this->assertTrue(self::allowedByClientId($this->list(self::adminJwt(), ['integrationId' => self::INTEGRATION_ID]))['databox-expose-test']);
+        // Listed along the others, as allowing any integration, and accepted by Expose
+        $listed = $this->list(self::adminJwt(), ['integrationId' => self::INTEGRATION_ID]);
+        $this->assertTrue(self::allowedByClientId($listed)['databox-expose-test']);
+        foreach ($listed->toArray() as $client) {
+            if ('databox-expose-test' === $client['clientId']) {
+                $this->assertTrue($client['acceptedByExpose']);
+            }
+        }
     }
 
     public function testNamesTheClientAfterItsIdByDefault(): void
@@ -241,6 +261,14 @@ final class OAuthClientTest extends AbstractDataboxTestCase
 
         $this->assertSame(201, $response->getStatusCode(), $response->getContent(false));
         $this->assertSame('databox-expose-test', KeycloakClientTestMock::$createdClients['databox-expose-test']['name']);
+    }
+
+    public function testAddingTheScopeOfExposeNeedsTheKeycloakConfiguration(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The client scope "unknown-api" does not exist in the realm');
+
+        self::getService(KeycloakClient::class)->addDefaultClientScope(md5('my-client'), 'unknown-api', self::adminJwt());
     }
 
     public function testRefusesATakenClientId(): void

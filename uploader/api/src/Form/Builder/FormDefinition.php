@@ -57,7 +57,7 @@ final readonly class FormDefinition
                 $keys[$field->key] = true;
             }
 
-            if (null === $workspaceId && (FieldSource::Attribute === $field->source || FieldType::Tag === $field->type)) {
+            if (null === $workspaceId && FieldSource::Attribute === $field->source) {
                 throw new InvalidFormDefinitionException('Databox fields need the form to have a workspace', 'workspaceId');
             }
 

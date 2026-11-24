@@ -382,6 +382,39 @@ final readonly class KeycloakClient
     }
 
     /**
+     * Adds a client scope of the realm to the default scopes of an OAuth client, on behalf of the owner
+     * of the access token ("manage-clients" role of "realm-management"). Nothing changes for a scope
+     * already there.
+     *
+     * @param string $clientUuid the ID of the client in Keycloak ("id"), not its "clientId"
+     *
+     * @throws \RuntimeException when the realm has no such scope
+     */
+    public function addDefaultClientScope(string $clientUuid, string $scopeName, string $accessToken): void
+    {
+        $scopeId = null;
+        foreach ($this->asTokenOwner(fn (): array => $this->get($this->urlGenerator->getClientScopesApiUrl(), [
+            'access_token' => $accessToken,
+        ])) as $scope) {
+            if ($scopeName === ($scope['name'] ?? null)) {
+                $scopeId = (string) $scope['id'];
+                break;
+            }
+        }
+
+        if (null === $scopeId) {
+            throw new \RuntimeException(sprintf('The client scope "%s" does not exist in the realm: the Keycloak configuration of Phrasea was not applied (run bin/migrate.sh)', $scopeName));
+        }
+
+        $this->sendAsTokenOwner('PUT', sprintf(
+            '%s/%s/default-client-scopes/%s',
+            $this->urlGenerator->getClientsApiUrl(),
+            rawurlencode($clientUuid),
+            rawurlencode($scopeId),
+        ), $accessToken);
+    }
+
+    /**
      * Runs a request of the admin API authenticated by a user's token. Keycloak refusing that token
      * is a missing permission, not the end of the user's session in the application.
      */
