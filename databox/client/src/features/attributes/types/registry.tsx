@@ -1,6 +1,7 @@
 import {getUserDisplayName} from '@/lib/users';
 import type {ReactNode} from 'react';
 import type {TFunction} from 'i18next';
+import {format as dfFormat} from 'date-fns';
 import {
     type Asset,
     AssetStatus,
@@ -112,21 +113,37 @@ function dateType(withTime: boolean): AttributeTypeDef {
         formats: dateFormats,
         format: (v, f, ctx) => fmt(v, f, ctx),
         formatString: fmt,
+        /**
+         * A date-time is shown in the browser time zone (datetime-local input);
+         * a date is the calendar day as stored, without any time zone shift.
+         */
         denormalize: value => {
             if (typeof value !== 'string' || !value) {
                 return value;
+            }
+            if (withTime) {
+                const d = new Date(value);
+                if (!Number.isNaN(d.getTime())) {
+                    return dfFormat(d, "yyyy-MM-dd'T'HH:mm:ss");
+                }
             }
             const local = value.replace(/(Z|[+-]\d{2}:\d{2})$/, '');
 
             return withTime ? local.slice(0, 19) : local.slice(0, 10);
         },
+        /** Canonical API value: `YYYY-MM-DD`, or UTC ISO 8601 without milliseconds */
         normalize: value => {
             if (typeof value !== 'string' || !value) {
                 return value;
             }
+            if (!withTime) {
+                return value.match(/^\d{4}-\d{2}-\d{2}/)?.[0] ?? value;
+            }
             const d = new Date(value);
 
-            return Number.isNaN(d.getTime()) ? value : d.toISOString();
+            return Number.isNaN(d.getTime())
+                ? value
+                : d.toISOString().replace(/\.\d{3}Z$/, 'Z');
         },
     };
 }

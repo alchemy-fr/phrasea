@@ -48,7 +48,7 @@ class DateAttributeType extends DateTimeAttributeType
         }
 
         try {
-            $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
+            $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
             if (false === $date) {
                 $date = parent::denormalizeValue($value);
             }

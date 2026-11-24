@@ -56,11 +56,32 @@ class DateUtilTest extends TestCase
         $this->assertEquals('2024-01-02T13:45:59+00:00', $result->format('Y-m-d\TH:i:sP'));
     }
 
+    public function testNormalizeDateWithFractionalSeconds()
+    {
+        $result = DateUtil::normalizeDate('2026-04-26T00:00:00.000Z');
+        $this->assertInstanceOf(\DateTimeImmutable::class, $result);
+        $this->assertSame('2026-04-26T00:00:00+00:00', $result->format(\DateTimeInterface::ATOM));
+
+        $result = DateUtil::normalizeDate('2026-04-26T10:11:12.5+02:00');
+        $this->assertInstanceOf(\DateTimeImmutable::class, $result);
+        $this->assertSame('2026-04-26T10:11:12+02:00', $result->format(\DateTimeInterface::ATOM));
+        $this->assertSame(
+            (new \DateTimeImmutable('2026-04-26T08:11:12Z'))->getTimestamp(),
+            $result->getTimestamp()
+        );
+
+        $result = DateUtil::normalizeDate('2026-04-26T10:11:12.123456+02:00');
+        $this->assertInstanceOf(\DateTimeImmutable::class, $result);
+        $this->assertSame('2026-04-26T10:11:12.123456+02:00', $result->format('Y-m-d\\TH:i:s.uP'));
+    }
+
     public function testNormalizeDateWithInvalidString()
     {
         $this->assertNull(DateUtil::normalizeDate('not-a-date'));
         $this->assertNull(DateUtil::normalizeDate('0000-00-00T00:00:00+00:00'));
         $this->assertNull(DateUtil::normalizeDate('0000-00-00T00:00:00+99:00'));
+        $this->assertNull(DateUtil::normalizeDate('2026-04-26T.000Z'));
+        $this->assertNull(DateUtil::normalizeDate('0000-00-00T00:00:00.000Z'));
     }
 
     public function testNormalizeDateWithUnsupportedType()

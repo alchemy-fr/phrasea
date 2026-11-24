@@ -44,7 +44,12 @@ abstract class DateUtil
                 }
             }
 
-            if (false === $value = \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $value)) {
+            $parsed = \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $value);
+            if (false === $parsed) {
+                // Browsers (Date.toISOString()) send fractional seconds, e.g. 2026-04-26T00:00:00.000Z
+                $parsed = \DateTimeImmutable::createFromFormat('Y-m-d\\TH:i:s.uP', $value);
+            }
+            if (false === $value = $parsed) {
                 return null;
             }
 
