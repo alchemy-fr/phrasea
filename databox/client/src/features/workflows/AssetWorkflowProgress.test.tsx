@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {act, render, screen} from '@testing-library/react';
+import {act, render, screen, waitFor} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {Tooltip as TooltipPrimitive} from 'radix-ui';
@@ -141,7 +141,7 @@ describe('AssetWorkflowProgress', () => {
         expect(screen.getByText('Running: Job 2')).toBeTruthy();
     });
 
-    it('keeps the status of the run once it ended', async () => {
+    it('hides the card once the run succeeded', async () => {
         api.getAssetWorkflows.mockResolvedValue({
             items: [run(WorkflowStatus.Started)],
         });
@@ -156,12 +156,50 @@ describe('AssetWorkflowProgress', () => {
             realtime.handlers[`${assetChannel('a1')}|workflow_update`]()
         );
 
-        expect(await screen.findByText('Success')).toBeTruthy();
-        expect(screen.queryByRole('progressbar')).toBeNull();
-        expect(
-            screen
-                .getByRole('link', {name: 'Open the run'})
-                .getAttribute('href')
-        ).toBe('/workflows/w1');
+        await waitFor(() =>
+            expect(screen.queryByTestId('asset-workflow-progress')).toBeNull()
+        );
     });
+
+    it('renders nothing when the last run already succeeded', async () => {
+        api.getAssetWorkflows.mockResolvedValue({
+            items: [run(WorkflowStatus.Success)],
+        });
+        const {container} = renderProgress({asset: asset(true)});
+
+        await waitFor(() =>
+            expect(api.getAssetWorkflows).toHaveBeenCalledWith('a1')
+        );
+        await act(async () => {});
+        expect(screen.queryByTestId('asset-workflow-progress')).toBeNull();
+        expect(container.innerHTML).toBe('');
+    });
+
+    it.each([
+        {status: WorkflowStatus.Failure, label: 'Failure'},
+        {status: WorkflowStatus.Cancelled, label: 'Cancelled'},
+    ])(
+        'keeps the status of the run once it ended ($label)',
+        async ({status, label}) => {
+            api.getAssetWorkflows.mockResolvedValue({
+                items: [run(WorkflowStatus.Started)],
+            });
+            api.getWorkflow.mockResolvedValue(detail(JobStatus.Running));
+            renderProgress({asset: asset(true), interactive: true});
+            await screen.findByText('0/1 jobs');
+
+            api.getAssetWorkflows.mockResolvedValue({items: [run(status)]});
+            await act(async () =>
+                realtime.handlers[`${assetChannel('a1')}|workflow_update`]()
+            );
+
+            expect(await screen.findByText(label)).toBeTruthy();
+            expect(screen.queryByRole('progressbar')).toBeNull();
+            expect(
+                screen
+                    .getByRole('link', {name: 'Open the run'})
+                    .getAttribute('href')
+            ).toBe('/workflows/w1');
+        }
+    );
 });

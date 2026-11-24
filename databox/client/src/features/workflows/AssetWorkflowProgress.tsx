@@ -26,8 +26,8 @@ type Props = {
 
 /**
  * Compact card over the media of an asset: the progress of its last workflow
- * run while it runs, then the status it ended with. Editors only, like the
- * runs themselves.
+ * run while it runs, then the status it ended with when it did not succeed
+ * (a successful run hides the card). Editors only, like the runs themselves.
  */
 export function AssetWorkflowProgress(props: Props) {
     if (!props.asset.capabilities.edit) {
@@ -41,7 +41,7 @@ function WorkflowProgressCard({asset, interactive, className}: Props) {
     const {t, i18n} = useTranslation();
     const {run, progress} = useAssetWorkflowProgress(asset);
 
-    if (!run) {
+    if (!run || run.status === WorkflowStatus.Success) {
         return null;
     }
 
