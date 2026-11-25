@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Consumer;
 
+use App\Consumer\CommitNotifier;
+use App\Consumer\Handler\AssetConsumerNotify;
 use App\Consumer\Handler\CommitHandler;
 use App\Consumer\Handler\CommitMessage;
 use App\Entity\Asset;
 use App\Entity\AssetRepository;
 use App\Entity\Commit;
+use App\Entity\CommitRepository;
 use App\Entity\Target;
 use App\Storage\AssetManager;
 use App\Storage\CommitManager;
@@ -32,9 +35,14 @@ class CommitHandlerTest extends TestCase
         /** @var Commit|null $persisted */
         $persisted = null;
         $em = $this->createMock(EntityManagerInterface::class);
+        $commitRepo = $this->createMock(CommitRepository::class);
+        $commitRepo->expects($this->once())
+            ->method('claimNotifyDispatch')
+            ->willReturn(true);
         $em->method('getRepository')
             ->willReturnMap([
                 [Asset::class, $assetRepo],
+                [Commit::class, $commitRepo],
             ]);
         $em->method('getReference')
             ->with(Target::class, '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09')
@@ -49,6 +57,7 @@ class CommitHandlerTest extends TestCase
         $busStub
             ->expects($this->once())
             ->method('dispatch')
+            ->with($this->isInstanceOf(AssetConsumerNotify::class))
             ->willReturnCallback(function (object $message) {
                 return new Envelope($message, []);
             })
@@ -61,7 +70,7 @@ class CommitHandlerTest extends TestCase
             ->willReturn(42);
 
         $handler = new CommitHandler(
-            $busStub,
+            new CommitNotifier($busStub, $em),
             new CommitManager($em, $assetManager),
             $em,
             new NullLogger(),
@@ -101,7 +110,7 @@ class CommitHandlerTest extends TestCase
         $bus->expects($this->never())->method('dispatch');
 
         $handler = new CommitHandler(
-            $bus,
+            new CommitNotifier($bus, $em),
             new CommitManager($em, $this->createStub(AssetManager::class)),
             $em,
             new NullLogger(),

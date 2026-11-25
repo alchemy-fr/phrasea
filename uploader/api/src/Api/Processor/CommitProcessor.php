@@ -8,7 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ReportBundle\ReportUserService;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Consumer\Handler\AssetConsumerNotify;
+use App\Consumer\CommitNotifier;
 use App\Entity\Asset;
 use App\Entity\AssetRepository;
 use App\Entity\Commit;
@@ -29,7 +29,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * The commit is stored with its files right away: committing files that another commit took meanwhile is a
@@ -37,14 +36,14 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * Committing again files already stored as one commit, all of them and them only, by the same owner to the same
  * target is a retry of that commit (the first answer was lost or failed after the storage): it answers 200 without
- * storing, notifying or logging anything again, since the first request may have notified the target already.
+ * storing or logging anything again, and notifies the target only if the first request failed to (see CommitNotifier).
  */
 final readonly class CommitProcessor implements ProcessorInterface
 {
     public function __construct(
         private AssetManager $assetManager,
         private CommitManager $commitManager,
-        private MessageBusInterface $bus,
+        private CommitNotifier $commitNotifier,
         private FormValidator $formValidator,
         private CommitValidator $commitValidator,
         private ReportUserService $reportClient,
@@ -106,7 +105,9 @@ final readonly class CommitProcessor implements ProcessorInterface
             throw new AccessDeniedHttpException('Authentication required');
         }
 
-        if (null !== $this->assertFilesCanBeCommitted($data, $userId, $link)) {
+        if (null !== $existing = $this->assertFilesCanBeCommitted($data, $userId, $link)) {
+            $this->commitNotifier->notifyOnce($existing->getId());
+
             return new JsonResponse(true);
         }
 
@@ -140,13 +141,15 @@ final readonly class CommitProcessor implements ProcessorInterface
             $existingId = 1 === count($commitIds) ? reset($commitIds) : null;
             if (null !== $existingId
                 && $this->isStoredIdentically($this->em->find(Commit::class, $existingId), $data->getFiles(), $data->getTarget(), $userId, $link)) {
+                $this->commitNotifier->notifyOnce($existingId);
+
                 return new JsonResponse(true);
             }
 
             throw new ConflictHttpException('These files have been committed meanwhile');
         }
 
-        $this->bus->dispatch(new AssetConsumerNotify($commit->getId()));
+        $this->commitNotifier->notifyOnce($commit->getId());
 
         $this->reportClient->pushHttpRequestLog(
             $request,

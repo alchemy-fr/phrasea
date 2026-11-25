@@ -142,6 +142,12 @@ class Commit extends AbstractUuidEntity
     #[Groups(['asset:read', self::GROUP_READ])]
     private ?\DateTimeImmutable $acknowledgedAt = null;
 
+    /**
+     * When the target was notified of the commit (see CommitNotifier), null while it has to be.
+     */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $notifyDispatchedAt = null;
+
     #[ApiProperty]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['asset:read', self::GROUP_READ])]
@@ -331,6 +337,11 @@ class Commit extends AbstractUuidEntity
     public function getAcknowledgedAt(): ?\DateTimeImmutable
     {
         return $this->acknowledgedAt;
+    }
+
+    public function getNotifyDispatchedAt(): ?\DateTimeImmutable
+    {
+        return $this->notifyDispatchedAt;
     }
 
     public function getFormLocale(): ?string

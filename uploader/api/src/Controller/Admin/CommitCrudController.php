@@ -8,7 +8,7 @@ use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use Alchemy\AdminBundle\Filter\UserChoiceFilter;
-use App\Consumer\Handler\AssetConsumerNotify;
+use App\Consumer\CommitNotifier;
 use App\Entity\Commit;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -25,12 +25,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 class CommitCrudController extends AbstractAdminCrudController
 {
     public function __construct(
-        private readonly MessageBusInterface $bus,
+        private readonly CommitNotifier $commitNotifier,
         private readonly UserChoiceField $userChoiceField,
         private readonly UserChoiceFilter $userChoiceFilter,
     ) {
@@ -99,6 +98,9 @@ class CommitCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield TextField::new('formLocale')
             ->hideOnIndex();
+        yield DateTimeField::new('notifyDispatchedAt', 'Target notified at')
+            ->hideOnIndex()
+            ->hideOnForm();
         yield DateTimeField::new('acknowledgedAt')
             ->hideOnForm();
         yield DateTimeField::new('createdAt')
@@ -118,7 +120,7 @@ class CommitCrudController extends AbstractAdminCrudController
         if ($commit->isAcknowledged()) {
             $this->addFlash('danger', 'Commit has been acknowledged');
         } else {
-            $this->bus->dispatch(new AssetConsumerNotify($commit->getId()));
+            $this->commitNotifier->notifyAgain($commit->getId());
         }
 
         $targetUrl = $adminUrlGenerator

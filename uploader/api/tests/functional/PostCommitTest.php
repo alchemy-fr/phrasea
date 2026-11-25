@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\MessengerBundle\Transport\TestTransport;
 use ApiPlatform\Test\Client;
+use App\Consumer\Handler\AssetConsumerNotify;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
@@ -57,6 +59,62 @@ class PostCommitTest extends AbstractUploaderTestCase
         $commits = $em->getRepository(Commit::class)->findBy(['target' => $target->getId()]);
         $this->assertCount(1, $commits);
         $this->assertCount(2, $commits[0]->getAssets());
+    }
+
+    public function testRetryingACommitDoesNotNotifyTheTargetAgain(): void
+    {
+        $target = $this->createTarget();
+        $files = [$this->createAsset($target)->getId(), $this->createAsset($target)->getId()];
+
+        $response = $this->commitIntercepted($target, $files, $notified);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(1, $notified);
+
+        $response = $this->commitIntercepted($target, $files, $notified);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(0, $notified);
+    }
+
+    public function testRetryingACommitWhoseNotificationFailedNotifiesTheTarget(): void
+    {
+        $target = $this->createTarget();
+        // On the private network: the notification fails (sync transport) without any request
+        $target->setTargetUrl('http://10.0.0.1/enqueue');
+        $target->setAuthorizationKey('secret_token');
+        self::getEntityManager()->flush();
+        $files = [$this->createAsset($target)->getId(), $this->createAsset($target)->getId()];
+
+        $response = $this->commit(KeycloakClientTestMock::ADMIN_UID, $target, $files);
+        $this->assertEquals(500, $response->getStatusCode(), $response->getContent(false));
+        $em = self::getEntityManager();
+        $em->clear();
+        $commits = $em->getRepository(Commit::class)->findBy(['target' => $target->getId()]);
+        $this->assertCount(1, $commits);
+        $this->assertNull($commits[0]->getNotifyDispatchedAt());
+
+        $response = $this->commitIntercepted($target, $files, $notified);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(1, $notified);
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertNotNull($em->find(Commit::class, $commits[0]->getId())->getNotifyDispatchedAt());
+
+        $response = $this->commitIntercepted($target, $files, $notified);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(0, $notified);
+    }
+
+    public function testRetryingAnAcknowledgedCommitDoesNotNotifyTheTarget(): void
+    {
+        $target = $this->createTarget();
+        $files = [$this->createAsset($target)->getId()];
+        $commit = $this->newCommit($target, $files);
+        $commit->setAcknowledged(true);
+        $this->assertTrue(self::getService(CommitManager::class)->store($commit));
+
+        $response = $this->commitIntercepted($target, $files, $notified);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(0, $notified);
     }
 
     public function testRetryingWithOtherFilesThanTheStoredCommitReturns403(): void
@@ -248,6 +306,38 @@ class PostCommitTest extends AbstractUploaderTestCase
             'formData' => [],
             'target' => '/targets/'.$target->getId(),
         ]);
+    }
+
+    /**
+     * Commits as the admin, the notifications of the target queued instead of handled.
+     *
+     * @param string[] $files
+     *
+     * @param-out int $notified the notifications queued by the request
+     */
+    private function commitIntercepted(Target $target, array $files, ?int &$notified): ResponseInterface
+    {
+        $client = static::createClient();
+        /** @var TestTransport $transport */
+        $transport = static::getContainer()->get('messenger.transport.p2');
+        $queue = $transport->intercept();
+
+        $response = $client->request('POST', '/commit', [
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID)],
+            'json' => [
+                'files' => $files,
+                'formData' => [],
+                'target' => '/targets/'.$target->getId(),
+            ],
+        ]);
+        $response->getStatusCode();
+
+        $notified = count(array_filter(
+            iterator_to_array($queue->getSent()),
+            static fn ($envelope): bool => $envelope->getMessage() instanceof AssetConsumerNotify,
+        ));
+
+        return $response;
     }
 
     /**

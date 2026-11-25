@@ -6,8 +6,10 @@ namespace App\Tests\Functional;
 
 use Alchemy\AdminBundle\Tests\AbstractAdminTestCase;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use App\Admin\Home\UploaderHomeCharts;
+use App\Consumer\Handler\AssetConsumerNotify;
 use App\Controller\Admin\GlobalPermissionsController;
 use App\Entity\Asset;
 use App\Entity\Commit;
@@ -161,6 +163,45 @@ class AdminTest extends AbstractAdminTestCase
 
         $save(['Target[targetUrl]' => 'https://example.com/upload', 'Target[authorizationKey]' => 'moved-key']);
         $this->assertSame('moved-key', $getKey());
+    }
+
+    public function testTriggerCommitAgain(): void
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $target = new Target();
+        $target->setName('Notified target');
+        $target->setTargetUrl(null);
+        $em->persist($target);
+
+        $commit = new Commit();
+        $commit->setTarget($target);
+        $commit->setTotalSize(42);
+        $commit->setUserId(KeycloakClientTestMock::ADMIN_UID);
+        $commit->setToken('secret_token');
+        $em->persist($commit);
+        $em->flush();
+        $id = $commit->getId();
+
+        /** @var TestTransport $transport */
+        $transport = static::getContainer()->get('messenger.transport.p2');
+        $queue = $transport->intercept();
+
+        $this->client->loginUser($this->getAuthAdminUser(), 'admin');
+        $router = static::getContainer()->get('router');
+        $this->client->request('GET', $router->generate('easyadmin_commit_trigger_again', ['entityId' => $id]));
+        $this->assertResponseRedirects();
+
+        $sent = iterator_to_array($queue->getSent());
+        $this->assertCount(1, $sent);
+        $this->assertInstanceOf(AssetConsumerNotify::class, $sent[0]->getMessage());
+        $this->assertSame($id, $sent[0]->getMessage()->getId());
+
+        $em->clear();
+        $this->assertNotNull($em->find(Commit::class, $id)->getNotifyDispatchedAt());
+
+        $this->client->request('GET', $router->generate('easyadmin_commit_detail', ['entityId' => $id]));
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString('Target notified at', (string) $this->client->getResponse()->getContent());
     }
 
     public function testRealtimePage(): void

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use App\Consumer\CommitNotifier;
 use App\Entity\Commit;
 use App\Storage\CommitManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 final readonly class CommitHandler
 {
     public function __construct(
-        private MessageBusInterface $bus,
+        private CommitNotifier $commitNotifier,
         private CommitManager $commitManager,
         private EntityManagerInterface $em,
         private LoggerInterface $logger,
@@ -36,6 +36,6 @@ final readonly class CommitHandler
             return;
         }
 
-        $this->bus->dispatch(new AssetConsumerNotify($commit->getId()));
+        $this->commitNotifier->notifyOnce($commit->getId());
     }
 }
