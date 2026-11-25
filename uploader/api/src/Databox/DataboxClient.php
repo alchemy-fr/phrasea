@@ -25,17 +25,17 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * Calls Databox with the access token of the user: Databox applies its own rights,
  * the uploader never sees more than the user could.
  *
- * Nobody is behind an upload link: its holder only reads the values of the entity lists,
- * from the Uploader integration of Databox the target of the link commits to, with the key
- * the target already sends to it. Databox restricts them to the approved values of the
- * lists of the workspace of the integration.
+ * Nobody is behind an upload link: its holder only reads the values of the entity lists, as the
+ * Uploader integration of Databox the target of the link commits to (`Authorization: ApiKey
+ * <integration ID>:<key>`), with the key the target already sends to it. Databox answers them with
+ * the rights of the owner of the integration, restricted to the lists of its workspace.
  */
 #[AsAlias(DataboxClientInterface::class)]
 #[Autoconfigure(public: true)]
 final readonly class DataboxClient implements DataboxClientInterface
 {
     private const string LINK_ALLOWED_PATH = '/attribute-entities';
-    private const string INTEGRATION_URL_PATTERN = '~^(.+/integrations/uploader/[^/?#]+)/incoming-commit$~';
+    private const string INTEGRATION_URL_PATTERN = '~^(.+)/integrations/uploader/([0-9a-fA-F-]+)/incoming-commit$~';
     private const int LINK_MAX_DURATION = 30;
 
     public function __construct(
@@ -77,16 +77,19 @@ final readonly class DataboxClient implements DataboxClientInterface
 
         $target = $this->em->find(Target::class, $user->getTargetId());
         $authorizationKey = $target?->getAuthorizationKey();
+        // Databox authenticates an integration by the ApiKey scheme only: any other would read it anonymously
         if (
             !$target instanceof Target
             || !preg_match(self::INTEGRATION_URL_PATTERN, (string) $target->getTargetUrl(), $matches)
             || null === $authorizationKey || '' === $authorizationKey
             || 'avoid' === $authorizationKey
+            || AssetConsumerNotifyHandler::DEFAULT_AUTHORIZATION_SCHEME !== ($target->getAuthorizationScheme() ?? AssetConsumerNotifyHandler::DEFAULT_AUTHORIZATION_SCHEME)
         ) {
             throw new DataboxException('The target of the link is not bound to an Uploader integration of Databox', 403);
         }
 
-        $url = $matches[1].self::LINK_ALLOWED_PATH;
+        [, $databoxApiUrl, $integrationId] = $matches;
+        $url = $databoxApiUrl.$path;
         $options = ['max_duration' => self::LINK_MAX_DURATION];
         // Same network policy as the notification of the commits to the target (AssetConsumerNotifyHandler)
         if ($this->privateOrigins->isAllowed($url)) {
@@ -97,8 +100,8 @@ final readonly class DataboxClient implements DataboxClientInterface
         }
 
         return $this->request($client, $url, $path, $query, [
-            'Authorization' => ($target->getAuthorizationScheme() ?? AssetConsumerNotifyHandler::DEFAULT_AUTHORIZATION_SCHEME).' '.$authorizationKey,
-            'Accept' => 'application/json',
+            'Authorization' => sprintf('%s %s:%s', AssetConsumerNotifyHandler::DEFAULT_AUTHORIZATION_SCHEME, $integrationId, $authorizationKey),
+            'Accept' => 'application/ld+json',
         ], $options);
     }
 

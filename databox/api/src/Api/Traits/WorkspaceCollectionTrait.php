@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Util\UuidUtil;
 use ApiPlatform\Metadata\Exception\ItemNotFoundException;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
+use App\Security\IntegrationUser;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -35,7 +36,18 @@ trait WorkspaceCollectionTrait
             static fn (mixed $v): bool => \is_string($v) && '' !== $v
         ));
 
-        if (empty($workspaceIds)) {
+        $integration = $this->security->getUser();
+        if ($integration instanceof IntegrationUser) {
+            // An integration reads the workspace of the integration only, with the rights of its owner
+            $requested = array_map(basename(...), $workspaceIds);
+            $workspaceIds = null !== $integration->workspaceId && ([] === $requested || \in_array($integration->workspaceId, $requested, true))
+                ? [$integration->workspaceId]
+                : [];
+        }
+
+        if ($integration instanceof IntegrationUser && [] === $workspaceIds) {
+            $workspaces = [];
+        } elseif (empty($workspaceIds)) {
             $user = $this->getUser();
             $workspaces = $this->em->getRepository(Workspace::class)->getReadableWorkspaceIds($user?->getId(), $user?->getGroups() ?? [], $this->isAdmin());
         } else {

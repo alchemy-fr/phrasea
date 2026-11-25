@@ -8,7 +8,7 @@ interface DataboxClientInterface
 {
     /**
      * GETs a resource of the Databox API on behalf of the current user, or of the integration of the
-     * target for an upload link (the values of the entity lists only), and decodes its JSON answer.
+     * target for an upload link (the values of the entity lists only), and decodes its JSON-LD answer.
      *
      * @throws DataboxException
      */

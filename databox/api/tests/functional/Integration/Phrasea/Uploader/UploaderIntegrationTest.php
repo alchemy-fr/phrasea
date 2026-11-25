@@ -31,7 +31,6 @@ use App\Tests\Functional\WithoutSecretKeyTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class UploaderIntegrationTest extends ApiTestCase
@@ -223,21 +222,15 @@ class UploaderIntegrationTest extends ApiTestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    public function testAttributeEntitiesNeedTheSecurityKey(): void
+    public function testTheIntegrationNeedsItsSecurityKey(): void
     {
         self::enableFixtures();
         $apiClient = static::createClient();
         $integration = $this->createIntegration();
         $list = $this->createEntityList($integration->getWorkspace());
 
-        $response = $this->getEntities($apiClient, $integration, null, ['list' => $list->getId()]);
-        $this->assertEquals(401, $response->getStatusCode());
-
         $response = $this->getEntities($apiClient, $integration, 'invalidtoken', ['list' => $list->getId()]);
         $this->assertEquals(403, $response->getStatusCode());
-
-        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, []);
-        $this->assertEquals(400, $response->getStatusCode());
 
         foreach ([
             $this->createIntegration(enabled: false, name: 'Disabled'),
@@ -246,9 +239,54 @@ class UploaderIntegrationTest extends ApiTestCase
             $response = $this->getEntities($apiClient, $other, self::SECURITY_KEY, ['list' => $list->getId()]);
             $this->assertEquals(404, $response->getStatusCode(), $other->getName());
         }
+
+        $response = $apiClient->request('GET', '/attribute-entities?list='.$list->getId(), [
+            'headers' => ['Authorization' => 'ApiKey b0a2b1e0-6bd5-4f6a-9a1f-2a3c4d5e6f70:'.self::SECURITY_KEY],
+        ]);
+        $this->assertEquals(404, $response->getStatusCode(), 'Unknown integration');
+
+        $response = $apiClient->request('GET', '/attribute-entities?list='.$list->getId(), [
+            'headers' => ['Authorization' => 'ApiKey '.self::SECURITY_KEY],
+        ]);
+        $this->assertEquals(200, $response->getStatusCode(), 'Without integration ID, the key alone is no credential');
+        $this->assertSame([], $response->toArray()['member']);
     }
 
-    public function testAttributeEntitiesAreTheApprovedValuesOfAListOfTheWorkspace(): void
+    /**
+     * The integration reads the entity lists only: any other operation refuses its header.
+     */
+    public function testTheIntegrationReadsNothingElse(): void
+    {
+        self::enableFixtures();
+        $apiClient = static::createClient();
+        $integration = $this->createIntegration();
+        $list = $this->createEntityList($integration->getWorkspace(), [['value' => 'A']]);
+        $entityId = $this->getEntityIds($list)['A'];
+        $headers = ['Authorization' => sprintf('ApiKey %s:%s', $integration->getId(), self::SECURITY_KEY)];
+
+        foreach ([
+            ['GET', '/workspaces'],
+            ['GET', '/entity-lists'],
+            ['GET', '/attribute-entities/'.$entityId],
+            ['GET', '/assets'],
+            ['DELETE', '/attribute-entities/'.$entityId],
+        ] as [$method, $url]) {
+            $response = $apiClient->request($method, $url, ['headers' => $headers]);
+            $this->assertEquals(403, $response->getStatusCode(), $method.' '.$url);
+        }
+
+        $response = $apiClient->request('POST', '/attribute-entities', [
+            'headers' => $headers,
+            'json' => ['list' => '/entity-lists/'.$list->getId(), 'value' => 'B'],
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertCount(1, $this->getEntityIds($list));
+    }
+
+    /**
+     * Its owner (a mere reader of the workspace) sees the approved values only.
+     */
+    public function testTheIntegrationReadsTheApprovedValuesOfAListOfItsWorkspace(): void
     {
         self::enableFixtures();
         $apiClient = static::createClient();
@@ -256,42 +294,67 @@ class UploaderIntegrationTest extends ApiTestCase
         $list = $this->createEntityList($integration->getWorkspace(), [
             ['value' => 'Bravo'],
             ['value' => 'Alpha', 'translations' => ['fr' => 'Alpha FR'], 'color' => '#ff0000', 'emoji' => '🙂'],
-            ['value' => 'Zulu', 'position' => -1],
+            ['value' => 'Zulu'],
             ['value' => 'Alpha pending', 'status' => AttributeEntity::STATUS_PENDING],
             ['value' => 'Alpha rejected', 'status' => AttributeEntity::STATUS_REJECTED],
         ]);
 
-        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId()]);
+        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, [
+            'list' => $list->getId(),
+            'order[value]' => 'asc',
+        ]);
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
         $data = $response->toArray();
-        $this->assertSame(['Zulu', 'Alpha', 'Bravo'], array_column($data['member'], 'value'));
-        $this->assertArrayNotHasKey('view', $data);
-        $alpha = $data['member'][1];
+        $this->assertSame(['Alpha', 'Bravo', 'Zulu'], array_column($data['member'], 'value'));
+        $alpha = $data['member'][0];
         $this->assertSame(['fr' => 'Alpha FR'], $alpha['translations']);
         $this->assertSame('#ff0000', $alpha['color']);
         $this->assertSame('🙂', $alpha['emoji']);
 
-        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId(), 'query' => 'alp']);
-        $this->assertSame(['Alpha'], array_column($response->toArray()['member'], 'value'));
-
-        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId(), 'query' => '%']);
-        $this->assertSame([], $response->toArray()['member']);
-
         $byValue = $this->getEntityIds($list);
         $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, [
             'list' => $list->getId(),
-            'ids' => [$byValue['Bravo'], $byValue['Alpha pending']],
+            'ids' => [$byValue['Bravo'], $byValue['Alpha pending'], $byValue['Alpha rejected']],
         ]);
         $this->assertSame([$byValue['Bravo']], array_column($response->toArray()['member'], 'id'));
 
         $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, [
             'list' => $list->getId(),
-            'ids' => array_map(static fn (): string => Uuid::v4()->toRfc4122(), range(0, 100)),
+            'status' => AttributeEntity::STATUS_PENDING,
         ]);
-        $this->assertEquals(400, $response->getStatusCode(), 'At most 100 ids');
+        $this->assertSame([], $response->toArray()['member'], 'No pending value, even asked for');
     }
 
-    public function testAttributeEntitiesArePaginated(): void
+    /**
+     * The integration acts as its owner: the owner of the workspace also sees its pending and rejected values.
+     */
+    public function testTheIntegrationHasTheRightsOfItsOwner(): void
+    {
+        self::enableFixtures();
+        $apiClient = static::createClient();
+        $list = null;
+        foreach ([
+            KeycloakClientTestMock::USER_UID => ['Approved'],
+            KeycloakClientTestMock::ADMIN_UID => ['Approved', 'Pending', 'Rejected'],
+        ] as $ownerId => $expected) {
+            $integration = $this->createIntegration(name: 'Of '.$ownerId, ownerId: $ownerId);
+            $list ??= $this->createEntityList($integration->getWorkspace(), [
+                ['value' => 'Approved'],
+                ['value' => 'Pending', 'status' => AttributeEntity::STATUS_PENDING],
+                ['value' => 'Rejected', 'status' => AttributeEntity::STATUS_REJECTED],
+            ]);
+
+            $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId(), 'order[value]' => 'asc']);
+            $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+            $this->assertSame($expected, array_column($response->toArray()['member'], 'value'), $ownerId);
+        }
+
+        $integration = $this->createIntegration(name: 'Of a disabled user', ownerId: KeycloakClientTestMock::DISABLED_USER_UID);
+        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId()]);
+        $this->assertEquals(403, $response->getStatusCode(), 'An integration of a disabled owner');
+    }
+
+    public function testTheValuesReadByTheIntegrationArePaginated(): void
     {
         self::enableFixtures();
         $apiClient = static::createClient();
@@ -303,9 +366,11 @@ class UploaderIntegrationTest extends ApiTestCase
         ]);
 
         $values = [];
-        $url = sprintf('/integrations/uploader/%s/attribute-entities?%s', $integration->getId(), http_build_query(['list' => $list->getId(), 'limit' => 2]));
+        $url = '/attribute-entities?'.http_build_query(['list' => $list->getId(), 'order[value]' => 'asc', 'limit' => 2]);
         for ($i = 0; null !== $url && $i < 5; ++$i) {
-            $response = $apiClient->request('GET', $url, ['headers' => ['Authorization' => 'ApiKey '.self::SECURITY_KEY]]);
+            $response = $apiClient->request('GET', $url, ['headers' => [
+                'Authorization' => sprintf('ApiKey %s:%s', $integration->getId(), self::SECURITY_KEY),
+            ]]);
             $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
             $data = $response->toArray();
             $values[] = array_column($data['member'], 'value');
@@ -315,7 +380,7 @@ class UploaderIntegrationTest extends ApiTestCase
         $this->assertSame([['A', 'B'], ['C']], $values);
     }
 
-    public function testAttributeEntitiesOfAnotherWorkspaceAreNotFound(): void
+    public function testTheIntegrationReadsNoListOfAnotherWorkspace(): void
     {
         self::enableFixtures();
         $apiClient = static::createClient();
@@ -326,11 +391,20 @@ class UploaderIntegrationTest extends ApiTestCase
         $otherWorkspace->setSlug('other-workspace');
         $otherWorkspace->setOwnerId(KeycloakClientTestMock::ADMIN_UID);
         $otherWorkspace->setEnabledLocales(['en']);
+        $otherWorkspace->setPublic(true);
         $this->getService(WorkspaceCreator::class)->createWorkspace($otherWorkspace);
         $foreignList = $this->createEntityList($otherWorkspace, [['value' => 'Foreign']]);
 
-        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $foreignList->getId()]);
-        $this->assertEquals(404, $response->getStatusCode());
+        foreach ([
+            ['list' => $foreignList->getId()],
+            ['list' => $foreignList->getId(), 'workspace' => $otherWorkspace->getId()],
+            ['workspace' => '/workspaces/'.$otherWorkspace->getId()],
+            [],
+        ] as $query) {
+            $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, $query);
+            $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+            $this->assertNotContains('Foreign', array_column($response->toArray()['member'], 'value'), http_build_query($query));
+        }
 
         $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => 'b0a2b1e0-6bd5-4f6a-9a1f-2a3c4d5e6f70']);
         $this->assertEquals(404, $response->getStatusCode());
@@ -339,7 +413,7 @@ class UploaderIntegrationTest extends ApiTestCase
     /**
      * An integration of no workspace reads the lists of the workspace of its collection.
      */
-    public function testAttributeEntitiesOfAnIntegrationWithoutWorkspace(): void
+    public function testTheIntegrationWithoutWorkspaceReadsTheWorkspaceOfItsCollection(): void
     {
         self::enableFixtures();
         $apiClient = static::createClient();
@@ -357,7 +431,8 @@ class UploaderIntegrationTest extends ApiTestCase
 
         $integration = $this->createIntegration(workspace: false, name: 'Without collection');
         $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId()]);
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame([], $response->toArray()['member']);
 
         $integration = $this->createIntegration(workspace: false, config: ['collectionId' => $collection->getId()]);
         $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId()]);
@@ -406,10 +481,10 @@ class UploaderIntegrationTest extends ApiTestCase
         return $ids;
     }
 
-    private function getEntities(Client $apiClient, WorkspaceIntegration $integration, ?string $token, array $query): ResponseInterface
+    private function getEntities(Client $apiClient, WorkspaceIntegration $integration, string $key, array $query): ResponseInterface
     {
-        return $apiClient->request('GET', sprintf('/integrations/uploader/%s/attribute-entities?%s', $integration->getId(), http_build_query($query)), [
-            'headers' => null !== $token ? ['Authorization' => 'ApiKey '.$token] : [],
+        return $apiClient->request('GET', '/attribute-entities?'.http_build_query($query), [
+            'headers' => ['Authorization' => sprintf('ApiKey %s:%s', $integration->getId(), $key)],
         ]);
     }
 
@@ -420,6 +495,7 @@ class UploaderIntegrationTest extends ApiTestCase
         bool $workspace = true,
         string $name = 'Uploader',
         array $config = [],
+        string $ownerId = KeycloakClientTestMock::USER_UID,
     ): WorkspaceIntegration {
         $em = self::getService(EntityManagerInterface::class);
 
@@ -439,7 +515,7 @@ class UploaderIntegrationTest extends ApiTestCase
             ...$config,
         ]);
         $integration->setEnabled($enabled);
-        $integration->setOwnerId('custom_owner');
+        $integration->setOwnerId($ownerId);
         $em->persist($integration);
         $em->flush();
 

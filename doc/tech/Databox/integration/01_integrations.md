@@ -108,12 +108,11 @@ Operational notes:
 - Only the Uploader of the instance (`UPLOADER_API_URL`) and its storage (`S3_ENDPOINT`) may be reached on the private network: any other base URL, and the file URLs it answers, must be public.
 - The user sent with a commit (the uploading user) becomes the owner of the assets, and must be allowed to create assets in the destination collection or workspace (and to edit the asset for a rendition substitution); otherwise the ingestion fails.
 
-Values of the entity lists (`GET /integrations/uploader/{integrationId}/attribute-entities`):
+Values of the entity lists, for the forms filled through an upload link (no user to call Databox on behalf of):
 
-- Read by the Uploader for the forms filled through an upload link, where no user can be called on behalf of. Authenticated like the commits, by `Authorization: ApiKey <securityKey>`: 401 without key, 404 when the integration is unknown, disabled or not an Uploader one, 403 with another key.
-- Parameters: `list` (the ID of the entity list, required), `query` (contains match on the value, case-insensitive), `ids[]` (lookup by IDs, at most 100), `page` and `limit` (30 by default, at most 100). Sorted by position, then value.
-- Only the approved values, of a list of the workspace of the integration (or, for an integration without workspace, of the workspace of its `collectionId`): any other list answers 404.
-- Answers `{"member": [{"id", "value", "translations", "color", "emoji"}], "view": {"next": "<URL of the next page>"}}`, without `view` on the last page.
+- The Uploader reads the usual `GET /attribute-entities` with `Authorization: ApiKey <integrationId>:<securityKey>` (`IntegrationAuthenticator`): 404 when the integration is unknown, disabled or not an Uploader one, 403 with another key. Without the integration ID, the key alone is no credential (the request stays anonymous).
+- The integration acts as its owner (`IntegrationUser`, with the current roles and groups of the owner, read from Keycloak as for an impersonation; 403 when the owner is disabled): it reads the values the owner could (the approved ones for a mere reader, the pending and rejected ones too for an editor of the list), of the lists of the workspace of the integration only (or, for an integration without workspace, of the workspace of its `collectionId`); any other workspace answers an empty collection.
+- Only the API Platform operations flagged with `IntegrationAuthenticator::OPERATION_ACCESS` in their `extraProperties` accept this key (the `/attribute-entities` collection): it is refused with 403 anywhere else.
 
 ## Asset import integration (core.asset_import)
 

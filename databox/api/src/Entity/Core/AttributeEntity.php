@@ -36,6 +36,7 @@ use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
+use App\Security\IntegrationAuthenticator;
 use App\Security\Voter\EntityListVoter;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
@@ -62,6 +63,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     self::GROUP_LIST,
                 ],
             ],
+            // The Uploader reads the approved values of the lists of its integration for the forms filled through an upload link
+            extraProperties: [IntegrationAuthenticator::OPERATION_ACCESS => true],
             parameters: [
                 'workspace' => new QueryParameter(
                     filter: ExactSearchFilter::class,
