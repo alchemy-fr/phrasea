@@ -1,5 +1,6 @@
 import {Loader2} from 'lucide-react';
 import {cn} from '../utils/cn';
+import {PhraseaLoader} from './phrasea-loader';
 
 export function Spinner({className}: {className?: string}) {
     return (
@@ -15,7 +16,7 @@ export function Spinner({className}: {className?: string}) {
 export function FullPageLoader({label}: {label?: string}) {
     return (
         <div className="flex h-full min-h-[50vh] w-full flex-col items-center justify-center gap-3 text-muted-foreground">
-            <Spinner className="size-8" />
+            <PhraseaLoader className="h-16" />
             {label ? <div className="text-sm">{label}</div> : null}
         </div>
     );

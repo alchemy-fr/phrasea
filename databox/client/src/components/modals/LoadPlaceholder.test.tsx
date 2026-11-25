@@ -53,7 +53,9 @@ describe('LoadPlaceholder', () => {
 
         expect(screen.queryByTestId('load-error')).toBeNull();
         expect(
-            screen.getByTestId('route-dialog').querySelector('.animate-spin')
+            screen
+                .getByTestId('route-dialog')
+                .querySelector('[data-slot="phrasea-loader"]')
         ).not.toBeNull();
     });
 
