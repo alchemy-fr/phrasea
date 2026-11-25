@@ -138,7 +138,7 @@ class Target extends AbstractUuidEntity implements \Stringable
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
-    #[Assert\Url]
+    #[Assert\Url(requireTld: false)]
     #[SecureTargetUrl]
     #[Groups([self::GROUP_WRITE, self::GROUP_ADMIN])]
     private ?string $targetUrl = null;

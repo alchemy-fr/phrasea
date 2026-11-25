@@ -151,6 +151,15 @@ class TargetWriteTest extends AbstractUploaderTestCase
         ];
     }
 
+    public function testTargetUrlMayBeAHostOfTheStack(): void
+    {
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/targets', [
+            'name' => 'Stack',
+            'targetUrl' => 'http://databox-api/integrations/uploader/incoming-uploads',
+        ]);
+        $this->assertEquals(201, $response->getStatusCode());
+    }
+
     public function testTargetNameIsRequired(): void
     {
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/targets', [
