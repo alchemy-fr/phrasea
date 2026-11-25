@@ -62,7 +62,7 @@ final readonly class EntityListTools
         string $name,
         #[Schema(description: 'Whether users can add values while editing an attribute')]
         ?bool $allowNewValues = null,
-        #[Schema(description: 'Whether the values added by users must be approved')]
+        #[Schema(description: 'Whether the values added by users are approved automatically; otherwise those added by users who cannot manage the list wait for an approval')]
         ?bool $approveNewValues = null,
         #[Schema(description: 'Whether the values have an emoji')]
         ?bool $withEmojis = null,
@@ -115,6 +115,66 @@ final readonly class EntityListTools
             'withTranslations' => $withTranslations,
             'withSynonyms' => $withSynonyms,
         ]));
+    }
+
+    #[McpTool(
+        name: 'import_entity_list_values',
+        description: 'Add values to an entity list in bulk. "raw": one value per line, the values already in the list are skipped. "csv": a header line then one entity per line; the columns are "value" (required), "id", "external_id", "emoji", "color", "status" (0 = approved, 1 = pending, 2 = rejected) and "translation_<locale>" (e.g. "translation_fr"). A line updates the entity of its "id", else the one of its "external_id", else the one with the same value, or adds it; any invalid line rejects the whole import. Read the current values with export_entity_list_values.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false),
+    )]
+    public function import(
+        #[Schema(description: 'Entity list ID (UUID)')]
+        string $id,
+        #[Schema(description: 'Format of "data"', enum: ['raw', 'csv'])]
+        string $format,
+        #[Schema(description: 'The values, in the given format')]
+        string $data,
+    ): array {
+        return $this->client->post('/entity-lists/'.rawurlencode($id).'/import', [
+            'format' => $format,
+            'data' => $data,
+        ]);
+    }
+
+    /**
+     * @return array{format: string, content: string}
+     */
+    #[McpTool(
+        name: 'export_entity_list_values',
+        description: 'Export every value of an entity list, with its ID, emoji, color, status (0 = approved, 1 = pending, 2 = rejected), external ID and translations. The CSV export is in the format of import_entity_list_values.',
+        annotations: new ToolAnnotations(readOnlyHint: true),
+    )]
+    public function export(
+        #[Schema(description: 'Entity list ID (UUID)')]
+        string $id,
+        #[Schema(enum: ['csv', 'json'])]
+        string $format = 'csv',
+        #[Schema(description: 'Export the values in this locale (their translation) instead of every translation')]
+        ?string $locale = null,
+    ): array {
+        $file = $this->client->postForFile('/entity-lists/'.rawurlencode($id).'/export', ApiClient::withoutNulls([
+            'format' => $format,
+            'locale' => $locale,
+        ]));
+
+        return ['format' => $format, 'content' => $file['content']];
+    }
+
+    /**
+     * @return array{cleared: string}
+     */
+    #[McpTool(
+        name: 'clear_entity_list',
+        description: 'Delete every value of an entity list, which stays empty: the assets lose these values. Done in the background. This cannot be undone.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true),
+    )]
+    public function clear(
+        #[Schema(description: 'Entity list ID (UUID)')]
+        string $id,
+    ): array {
+        $this->client->post('/entity-lists/'.rawurlencode($id).'/clear');
+
+        return ['cleared' => $id];
     }
 
     /**

@@ -7,6 +7,8 @@ namespace Alchemy\McpBundle\Api;
 use Mcp\Exception\ToolCallException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
@@ -76,6 +78,21 @@ final readonly class ApiClient
     }
 
     /**
+     * Posts to an endpoint answering a file (an export in CSV, JSON…), streamed or not.
+     *
+     * @return array{content: string, contentType: string|null}
+     */
+    public function postForFile(string $path, array $body = []): array
+    {
+        $response = $this->send(Request::METHOD_POST, $path, body: $body);
+
+        return [
+            'content' => self::contentOf($response),
+            'contentType' => $response->headers->get('Content-Type'),
+        ];
+    }
+
+    /**
      * Drops the arguments the model left unset, so that they do not overwrite the current values.
      */
     public static function withoutNulls(array $data): array
@@ -90,6 +107,19 @@ final readonly class ApiClient
         ?array $body = null,
         string $format = 'application/json',
     ): mixed {
+        $content = self::contentOf($this->send($method, $path, $query, $body, $format));
+        $data = '' !== $content ? json_decode($content, true) : null;
+
+        return is_array($data) ? self::stripMetadataKeys($data) : $data;
+    }
+
+    private function send(
+        string $method,
+        string $path,
+        array $query = [],
+        ?array $body = null,
+        string $format = 'application/json',
+    ): Response {
         $mainRequest = $this->requestStack->getMainRequest();
 
         $server = [
@@ -122,14 +152,34 @@ final readonly class ApiClient
         }
 
         $response = $this->httpKernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
-        $content = (string) $response->getContent();
-        $data = '' !== $content ? json_decode($content, true) : null;
 
         if (!$response->isSuccessful()) {
+            $content = self::contentOf($response);
+            $data = '' !== $content ? json_decode($content, true) : null;
+
             throw new ToolCallException(sprintf('%s API responded %d: %s', $this->apiName, $response->getStatusCode(), $this->extractErrorMessage($data) ?? $response->getStatusCode()));
         }
 
-        return is_array($data) ? self::stripMetadataKeys($data) : $data;
+        return $response;
+    }
+
+    /**
+     * A streamed response (exports) only gives its content when sent: it is captured instead.
+     */
+    private static function contentOf(Response $response): string
+    {
+        if (!$response instanceof StreamedResponse) {
+            return (string) $response->getContent();
+        }
+
+        ob_start();
+        try {
+            $response->sendContent();
+        } finally {
+            $content = (string) ob_get_clean();
+        }
+
+        return $content;
     }
 
     private function extractErrorMessage(mixed $data): ?string

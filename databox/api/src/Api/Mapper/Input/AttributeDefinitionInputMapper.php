@@ -143,6 +143,9 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         if (null !== $data->searchable) {
             $object->setSearchable($data->searchable);
         }
+        if (null !== $data->searchBoost) {
+            $object->setSearchBoost($data->searchBoost);
+        }
         if (null !== $data->suggest) {
             $object->setSuggest($data->suggest);
         }

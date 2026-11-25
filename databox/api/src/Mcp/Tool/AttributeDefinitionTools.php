@@ -28,6 +28,14 @@ final readonly class AttributeDefinitionTools
         'additionalProperties' => ['type' => 'string'],
     ];
 
+    private const string SEARCH_BOOST = 'Weight of its values in the full-text search relevance (1 by default): a higher boost ranks first the assets matching on it';
+
+    private const string READ_FROM_METADATA = 'Metadata tags read, in this order, to initialize it (first found wins), e.g. ["XMP-dc:Title", "IPTC:ObjectName"]; find the tag names with list_metadata_tags';
+
+    private const string WRITE_METADATA = 'Metadata tags its value is written into on export; find the tag names with list_metadata_tags';
+
+    private const string WRITE_METADATA_RENDITIONS = 'IDs of the rendition definitions whose files get its value written into ("writeMetadata"); all of them when empty';
+
     public function __construct(
         private ApiClient $client,
     ) {
@@ -100,6 +108,8 @@ final readonly class AttributeDefinitionTools
         #[Schema(description: 'Whether the value is given per locale')]
         ?bool $translatable = null,
         ?bool $searchable = null,
+        #[Schema(description: self::SEARCH_BOOST)]
+        ?int $searchBoost = null,
         #[Schema(description: 'Whether the search shows a facet of its values')]
         ?bool $facetEnabled = null,
         #[Schema(description: 'Whether the search results can be sorted by it')]
@@ -125,10 +135,12 @@ final readonly class AttributeDefinitionTools
         ?array $initialValues = null,
         #[Schema(definition: self::FALLBACK)]
         ?array $fallback = null,
-        #[Schema(description: 'Metadata tags read, in this order, to initialize it (first found wins), e.g. ["XMP-dc:Title", "IPTC:ObjectName"]', items: ['type' => 'string'])]
+        #[Schema(description: self::READ_FROM_METADATA, items: ['type' => 'string'])]
         ?array $readFromMetadata = null,
-        #[Schema(description: 'Metadata tags its value is written into on export', items: ['type' => 'string'])]
+        #[Schema(description: self::WRITE_METADATA, items: ['type' => 'string'])]
         ?array $writeMetadata = null,
+        #[Schema(description: self::WRITE_METADATA_RENDITIONS, items: ['type' => 'string'])]
+        ?array $writeMetadataRenditionIds = null,
         #[Schema(description: 'Technical key, unique in the workspace')]
         ?string $key = null,
         #[Schema(definition: ToolSchemas::TARGET)]
@@ -147,6 +159,7 @@ final readonly class AttributeDefinitionTools
             'multiple' => $multiple,
             'translatable' => $translatable,
             'searchable' => $searchable,
+            'searchBoost' => $searchBoost,
             'facetEnabled' => $facetEnabled,
             'sortable' => $sortable,
             'suggest' => $suggest,
@@ -162,6 +175,7 @@ final readonly class AttributeDefinitionTools
             'fallback' => $fallback,
             'readFromMetadata' => $readFromMetadata,
             'writeMetadata' => $writeMetadata,
+            'writeMetadataRenditions' => self::renditionDefinitionIris($writeMetadataRenditionIds),
             'key' => $key,
             'target' => $target,
             'labels' => $labels,
@@ -187,6 +201,8 @@ final readonly class AttributeDefinitionTools
         ?bool $multiple = null,
         ?bool $translatable = null,
         ?bool $searchable = null,
+        #[Schema(description: self::SEARCH_BOOST)]
+        ?int $searchBoost = null,
         ?bool $facetEnabled = null,
         ?bool $sortable = null,
         ?bool $suggest = null,
@@ -202,10 +218,12 @@ final readonly class AttributeDefinitionTools
         ?array $initialValues = null,
         #[Schema(definition: self::FALLBACK)]
         ?array $fallback = null,
-        #[Schema(items: ['type' => 'string'])]
+        #[Schema(description: self::READ_FROM_METADATA, items: ['type' => 'string'])]
         ?array $readFromMetadata = null,
-        #[Schema(items: ['type' => 'string'])]
+        #[Schema(description: self::WRITE_METADATA, items: ['type' => 'string'])]
         ?array $writeMetadata = null,
+        #[Schema(description: self::WRITE_METADATA_RENDITIONS.', [] for all of them', items: ['type' => 'string'])]
+        ?array $writeMetadataRenditionIds = null,
         #[Schema(definition: ToolSchemas::TARGET)]
         ?int $target = null,
         #[Schema(definition: ToolSchemas::LABELS)]
@@ -221,6 +239,7 @@ final readonly class AttributeDefinitionTools
             'multiple' => $multiple,
             'translatable' => $translatable,
             'searchable' => $searchable,
+            'searchBoost' => $searchBoost,
             'facetEnabled' => $facetEnabled,
             'sortable' => $sortable,
             'suggest' => $suggest,
@@ -236,6 +255,7 @@ final readonly class AttributeDefinitionTools
             'fallback' => $fallback,
             'readFromMetadata' => $readFromMetadata,
             'writeMetadata' => $writeMetadata,
+            'writeMetadataRenditions' => self::renditionDefinitionIris($writeMetadataRenditionIds),
             'target' => $target,
             'labels' => $labels,
             'translations' => $translations,
@@ -362,5 +382,15 @@ final readonly class AttributeDefinitionTools
         $this->client->delete('/attribute-policies/'.rawurlencode($id));
 
         return ['deleted' => $id];
+    }
+
+    /**
+     * @param list<string>|null $ids
+     *
+     * @return list<string>|null
+     */
+    private static function renditionDefinitionIris(?array $ids): ?array
+    {
+        return null !== $ids ? array_map(static fn (string $id): string => '/rendition-definitions/'.$id, array_values($ids)) : null;
     }
 }

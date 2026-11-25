@@ -40,6 +40,14 @@ class RenditionToolsTest extends AbstractToolTestCase
         ]);
     }
 
+    public function testGetDefinition(): void
+    {
+        $this->kernel->willRespond(['@id' => '/rendition-definitions/d1', 'id' => 'd1', 'definition' => 'x: y']);
+
+        $this->assertSame(['id' => 'd1', 'definition' => 'x: y'], $this->tools->getDefinition('d1'));
+        $this->assertLastRequest('GET', '/rendition-definitions/d1');
+    }
+
     public function testCreateDefinitionMapsRelationsToIris(): void
     {
         $this->kernel->willRespond(['id' => 'd1'], 201);
@@ -152,5 +160,52 @@ class RenditionToolsTest extends AbstractToolTestCase
         $this->tools->listAssetRenditions('a1');
 
         $this->assertLastRequest('GET', '/renditions', ['assetId' => 'a1']);
+    }
+
+    public function testBuildCustomRendition(): void
+    {
+        $this->kernel->willRespond(['id' => 'r1'], 201);
+
+        $this->tools->buildCustomRendition('a1', 'crop', 'image: {transformations: []}', sourceRenditionId: 'r0', writeMetadata: true);
+
+        $this->assertLastRequest('POST', '/renditions', body: [
+            'assetId' => 'a1',
+            'name' => 'crop',
+            'buildDefinition' => 'image: {transformations: []}',
+            'sourceRenditionId' => 'r0',
+            'writeMetadata' => true,
+        ]);
+    }
+
+    public function testSetRenditionFromUrl(): void
+    {
+        $this->kernel->willRespond(['id' => 'r1'], 201);
+
+        $this->tools->setRenditionFromUrl('a1', 'https://example.com/thumb.jpg', definitionName: 'thumbnail', importFile: true);
+
+        $this->assertLastRequest('POST', '/renditions', body: [
+            'assetId' => 'a1',
+            'name' => 'thumbnail',
+            'sourceFile' => [
+                'url' => 'https://example.com/thumb.jpg',
+                'importFile' => true,
+            ],
+            'substituted' => true,
+        ]);
+    }
+
+    public function testSetRenditionFromUrlNeedsOneDefinition(): void
+    {
+        $this->expectException(ToolCallException::class);
+
+        $this->tools->setRenditionFromUrl('a1', 'https://example.com/thumb.jpg');
+    }
+
+    public function testDeleteRendition(): void
+    {
+        $this->kernel->willRespond(null, 204);
+
+        $this->assertSame(['deleted' => 'r1'], $this->tools->deleteRendition('r1'));
+        $this->assertLastRequest('DELETE', '/renditions/r1');
     }
 }

@@ -3,7 +3,7 @@ mcp:
     servers:
         databox:
             name: 'Phrasea Databox'
-            description: 'Search, describe and organize the assets of Phrasea Databox, and set up its workspaces (attributes, entity lists, renditions, integrations).'
+            description: 'Search, describe and organize the assets of Phrasea Databox, follow their processing, and set up its workspaces (attributes, entity lists, renditions, integrations).'
             instructions: |
                 Phrasea Databox is a digital asset management system. Every call runs with the permissions of the
                 authenticated user: what the user cannot see or change is not returned or is refused.
@@ -16,20 +16,26 @@ mcp:
                 - The metadata of an asset are attributes: a value (per locale when the definition is translatable)
                   of an attribute definition. Definitions have a type (text, number, date, keyword, entity…), may be
                   multiple-valued and belong to an attribute policy, which controls who can read or edit them.
-                  Entity attributes take their values from an entity list (the IDs of its entities): the
-                  labels, keywords or tags of the assets are such attributes.
+                  Entity attributes take their values from an entity list: they hold the IDs of its entities
+                  (list_entities, create_entity). The labels, keywords or tags of the assets are such attributes.
                 - Renditions are the files derived from the source file of an asset (thumbnail, preview…). Each one
                   is described by a rendition definition, whose "definition" is a YAML build configuration (read
                   get_rendition_build_reference before writing one), grouped under rendition policies.
+                - The ingest of an asset (metadata reading, renditions, integrations) runs in the background as a
+                  workflow (list_workflows, reprocess_asset). An asset whose file analysis failed is quarantined
+                  until resolved (check_quarantined_assets, resolve_quarantined_assets).
 
                 Search (search_assets) combines a full-text "query" with AQL "conditions", e.g.
-                `title STARTS WITH "Report" AND (tags HAS ALL OF ("a", "b") OR description IS EMPTY)`: a condition is
-                `field OPERATOR [value]`, a field is an attribute slug or a built-in one (@collection, @workspace,
-                @createdAt…), operators are uppercase (IS, IS NOT, <, >, BETWEEN, IS ANY OF, HAS ALL OF, IS EMPTY,
-                CONTAINS, STARTS WITH, MATCHES…), conditions combine with AND, OR, NOT and parentheses.
+                `title STARTS WITH "Report" AND (tags HAS ALL OF ("<entity ID>", "<entity ID>") OR description IS EMPTY)`:
+                a condition is `field OPERATOR [value]`, a field is an attribute slug or a built-in one (@collection,
+                @workspace, @createdAt…, see list_built_in_attributes), operators are uppercase (IS, IS NOT, <, >,
+                BETWEEN, IS ANY OF, HAS ALL OF, IS EMPTY, CONTAINS, STARTS WITH, MATCHES…), conditions combine with
+                AND, OR, NOT and parentheses. An entity attribute (such as "tags") is compared with entity IDs, found
+                with list_entities, not with their labels.
 
                 Prefer reading before writing: get the IDs of workspaces, definitions, collections and entities
-                from the list tools rather than guessing them.
+                from the list tools (list_workspaces, list_attribute_definitions, list_collections, list_entities)
+                rather than guessing them.
             # tools/list in a single page: some clients do not follow the pagination cursor
             pagination_limit: 100
             registry:

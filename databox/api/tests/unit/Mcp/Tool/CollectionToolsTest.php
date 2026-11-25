@@ -32,6 +32,14 @@ class CollectionToolsTest extends AbstractToolTestCase
         ]);
     }
 
+    public function testGet(): void
+    {
+        $this->kernel->willRespond(['@id' => '/collections/c1', 'id' => 'c1', 'title' => 'Summer']);
+
+        $this->assertSame(['id' => 'c1', 'title' => 'Summer'], $this->tools->get('c1'));
+        $this->assertLastRequest('GET', '/collections/c1');
+    }
+
     public function testCreate(): void
     {
         $this->kernel->willRespond(['id' => 'c2'], 201);

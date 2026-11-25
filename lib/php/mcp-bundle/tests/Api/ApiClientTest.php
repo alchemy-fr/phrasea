@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class ApiClientTest extends TestCase
@@ -169,6 +170,40 @@ class ApiClientTest extends TestCase
         $this->client->delete('/publications/1');
 
         $this->assertSame('DELETE', $this->kernel->lastRequest()->getMethod());
+    }
+
+    public function testPostForFileCapturesStreamedContent(): void
+    {
+        $this->kernel->willRespondWith(new StreamedResponse(static function (): void {
+            echo "id,value\n";
+            echo "1,Paris\n";
+        }, 200, ['Content-Type' => 'text/csv']));
+
+        $this->assertSame(
+            ['content' => "id,value\n1,Paris\n", 'contentType' => 'text/csv'],
+            $this->client->postForFile('/entity-lists/1/export', ['format' => 'csv']),
+        );
+        $this->assertSame('POST', $this->kernel->lastRequest()->getMethod());
+        $this->assertSame(['format' => 'csv'], $this->kernel->lastBody());
+    }
+
+    public function testPostForFileReportsErrors(): void
+    {
+        $this->kernel->willRespond(['detail' => 'Unsupported export format "xml".'], 400);
+
+        $this->expectException(ToolCallException::class);
+        $this->expectExceptionMessage('Expose API responded 400: Unsupported export format "xml".');
+
+        $this->client->postForFile('/entity-lists/1/export', ['format' => 'xml']);
+    }
+
+    public function testStreamedJsonResponseIsDecoded(): void
+    {
+        $this->kernel->willRespondWith(new StreamedResponse(static function (): void {
+            echo '{"id": "1"}';
+        }));
+
+        $this->assertSame(['id' => '1'], $this->client->get('/publications/1'));
     }
 
     public function testGetCollectionUnwrapsHydraCollection(): void

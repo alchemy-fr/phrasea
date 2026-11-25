@@ -27,6 +27,8 @@ ACL, Doctrine extensions, validation, persistence and normalization are exactly 
 - `post()`, `put()` and `patch()` (sent as `application/merge-patch+json`) always return an array: the decoded JSON
   response, `['result' => <value>]` when the API answers a scalar (e.g. `true`), and `[]` on an empty response
   (`204`). `delete()` returns nothing.
+- `postForFile()` posts to an endpoint answering a file (an export in CSV, JSON…) and returns
+  `{content, contentType}` as is; a `StreamedResponse` is captured, here as in the other methods.
 - JSON-LD metadata (`@id`, `@type`, `@context`) and debug data (`debug:…` keys) are removed from the responses.
 - An error response becomes a `ToolCallException` whose message is reported to the model:
   `<api_name> API responded <status>: <violations or detail>`.

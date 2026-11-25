@@ -30,6 +30,22 @@ class IntegrationToolsTest extends AbstractToolTestCase
         $this->assertLastRequest('GET', '/integration-types');
     }
 
+    public function testGetTypeKeepsTheReference(): void
+    {
+        $this->kernel->willRespond(['@id' => '/integration-types/core--blurhash', 'id' => 'core--blurhash', 'reference' => 'rendition: ~']);
+
+        $this->assertSame(['id' => 'core--blurhash', 'reference' => 'rendition: ~'], $this->tools->getType('core--blurhash'));
+        $this->assertLastRequest('GET', '/integration-types/core--blurhash');
+    }
+
+    public function testGet(): void
+    {
+        $this->kernel->willRespond(['id' => 'i1', 'configYaml' => 'rendition: thumbnail']);
+
+        $this->assertSame(['id' => 'i1', 'configYaml' => 'rendition: thumbnail'], $this->tools->get('i1'));
+        $this->assertLastRequest('GET', '/integrations/i1');
+    }
+
     public function testList(): void
     {
         $this->kernel->willRespond(self::emptyCollection());

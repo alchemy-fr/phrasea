@@ -32,6 +32,13 @@ final class RecordingHttpKernel implements HttpKernelInterface
         return $this;
     }
 
+    public function willRespondWith(Response $response): self
+    {
+        $this->responses[] = $response;
+
+        return $this;
+    }
+
     public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
     {
         $this->calls[] = ['request' => $request, 'type' => $type];

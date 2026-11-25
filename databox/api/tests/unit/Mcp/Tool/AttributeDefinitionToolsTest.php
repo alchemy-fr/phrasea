@@ -32,6 +32,50 @@ class AttributeDefinitionToolsTest extends AbstractToolTestCase
         ]);
     }
 
+    public function testGetDefinition(): void
+    {
+        $this->kernel->willRespond(['@id' => '/attribute-definitions/a1', 'id' => 'a1', 'name' => 'Title']);
+
+        $this->assertSame(['id' => 'a1', 'name' => 'Title'], $this->tools->getDefinition('a1'));
+        $this->assertLastRequest('GET', '/attribute-definitions/a1');
+    }
+
+    public function testCreateDefinitionWithSearchAndExportSettings(): void
+    {
+        $this->kernel->willRespond(['id' => 'a1'], 201);
+
+        $this->tools->createDefinition(
+            workspaceId: 'w1',
+            name: 'Title',
+            policyId: 'p1',
+            searchBoost: 3,
+            writeMetadata: ['XMP-dc:Title'],
+            writeMetadataRenditionIds: [2 => 'r1', 5 => 'r2'],
+        );
+
+        $this->assertLastRequest('POST', '/attribute-definitions', body: [
+            'workspace' => '/workspaces/w1',
+            'name' => 'Title',
+            'policy' => '/attribute-policies/p1',
+            'type' => 'text',
+            'searchBoost' => 3,
+            'writeMetadata' => ['XMP-dc:Title'],
+            'writeMetadataRenditions' => ['/rendition-definitions/r1', '/rendition-definitions/r2'],
+        ]);
+    }
+
+    public function testUpdateDefinitionWritesMetadataIntoEveryRendition(): void
+    {
+        $this->kernel->willRespond(['id' => 'a1']);
+
+        $this->tools->updateDefinition('a1', searchBoost: 2, writeMetadataRenditionIds: []);
+
+        $this->assertLastRequest('PATCH', '/attribute-definitions/a1', body: [
+            'searchBoost' => 2,
+            'writeMetadataRenditions' => [],
+        ]);
+    }
+
     public function testCreateDefinition(): void
     {
         $this->kernel->willRespond(['id' => 'a1'], 201);

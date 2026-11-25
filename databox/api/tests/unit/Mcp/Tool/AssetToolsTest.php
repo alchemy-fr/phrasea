@@ -95,12 +95,14 @@ class AssetToolsTest extends AbstractToolTestCase
     {
         $this->kernel->willRespond(['id' => 's1'], 201);
 
-        $this->tools->createFromUrl(workspaceId: 'w1', isStory: true, storyAssetIds: ['a1', 'a2']);
+        $this->tools->createFromUrl(workspaceId: 'w1', externalId: 'ext-1', isStory: true, storyAssetIds: ['a1', 'a2'], storyCoverId: 'a2');
 
         $this->assertLastRequest('POST', '/assets', body: [
             'workspace' => '/workspaces/w1',
+            'externalId' => 'ext-1',
             'isStory' => true,
             'storyAssets' => ['a1', 'a2'],
+            'storyCover' => 'a2',
         ]);
     }
 
@@ -115,10 +117,11 @@ class AssetToolsTest extends AbstractToolTestCase
     {
         $this->kernel->willRespond(['id' => 'a1']);
 
-        $this->tools->update('a1', privacy: 'secret');
+        $this->tools->update('a1', privacy: 'secret', externalId: 'ext-1');
 
         $this->assertLastRequest('PATCH', '/assets/a1', body: [
             'privacyLabel' => 'secret',
+            'externalId' => 'ext-1',
         ]);
     }
 
@@ -135,8 +138,32 @@ class AssetToolsTest extends AbstractToolTestCase
         $this->assertLastRequest('POST', '/assets/a1/attributes', body: ['actions' => [
             ['action' => 'set', 'definitionId' => 'd1', 'value' => 'Sunset', 'confidence' => 0.9, 'origin' => 'machine'],
             ['action' => 'add', 'definitionId' => 'd2', 'value' => 'beach', 'origin' => 'machine'],
-            ['action' => 'delete', 'definitionId' => 'd3', 'id' => 'x1', 'origin' => 'machine'],
+            ['action' => 'delete', 'definitionId' => 'd3', 'id' => 'x1'],
         ]]);
+    }
+
+    public function testBatchUpdateAttributes(): void
+    {
+        $this->kernel->willRespond(null, 200);
+
+        $result = $this->tools->batchUpdateAttributes('w1', [
+            ['action' => 'add', 'definitionId' => 'd1', 'value' => 'e1'],
+            ['action' => 'replace', 'definitionId' => 'd2', 'value' => 'colour', 'replaceWith' => 'color', 'assets' => [3 => 'a3']],
+            ['action' => 'replace', 'value' => '^(\\w+)', 'replaceWith' => '\\1!', 'regex' => true, 'flags' => 'g'],
+            ['action' => 'delete', 'definitionId' => 'd1', 'value' => ['e2']],
+        ], assetIds: ['a1', 'a2'], originVendor: 'claude');
+
+        $this->assertSame(['updated' => ['a1', 'a2', 'a3']], $result);
+        $this->assertLastRequest('POST', '/attributes/batch-update', body: [
+            'workspaceId' => 'w1',
+            'assets' => ['a1', 'a2'],
+            'actions' => [
+                ['action' => 'add', 'definitionId' => 'd1', 'value' => 'e1', 'origin' => 'machine', 'originVendor' => 'claude'],
+                ['action' => 'replace', 'definitionId' => 'd2', 'value' => 'colour', 'assets' => ['a3'], 'replaceWith' => 'color', 'origin' => 'machine', 'originVendor' => 'claude'],
+                ['action' => 'replace', 'value' => '^(\\w+)', 'regex' => true, 'flags' => 'g', 'replaceWith' => '\\1!', 'origin' => 'machine', 'originVendor' => 'claude'],
+                ['action' => 'delete', 'definitionId' => 'd1', 'value' => ['e2']],
+            ],
+        ]);
     }
 
     public function testMoveAndCopy(): void

@@ -7,6 +7,7 @@ namespace App\Mcp\Tool;
 use Alchemy\McpBundle\Api\ApiClient;
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
+use Mcp\Exception\ToolCallException;
 use Mcp\Schema\ToolAnnotations;
 
 final readonly class RenditionTools
@@ -355,5 +356,84 @@ final readonly class RenditionTools
         string $assetId,
     ): array {
         return $this->client->getCollection('/renditions', ['assetId' => $assetId]);
+    }
+
+    #[McpTool(
+        name: 'build_custom_rendition',
+        description: 'Build a custom rendition of an asset (e.g. a crop or a resized copy) from an inline YAML build configuration, in the background: it is listed by list_asset_renditions under its name, without a rendition definition. Read get_rendition_build_reference first. A name already used by a custom rendition of the asset is refused: delete it first (delete_rendition) to build it again.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false),
+    )]
+    public function buildCustomRendition(
+        #[Schema(description: 'Asset ID (UUID)')]
+        string $assetId,
+        #[Schema(description: 'Name of the custom rendition, unique among the custom renditions of the asset')]
+        string $name,
+        #[Schema(description: 'YAML build configuration, in the format of the "definition" of a rendition definition')]
+        string $buildDefinition,
+        #[Schema(description: 'ID of a rendition of the asset whose file is the source (the asset source file when unset)')]
+        ?string $sourceRenditionId = null,
+        #[Schema(description: 'Whether the attribute values are written into the built file')]
+        ?bool $writeMetadata = null,
+    ): array {
+        return $this->client->post('/renditions', ApiClient::withoutNulls([
+            'assetId' => $assetId,
+            'name' => $name,
+            'buildDefinition' => $buildDefinition,
+            'sourceRenditionId' => $sourceRenditionId,
+            'writeMetadata' => $writeMetadata,
+        ]));
+    }
+
+    #[McpTool(
+        name: 'set_rendition_from_url',
+        description: 'Replace the file of a rendition of an asset (e.g. its thumbnail) by the file at a URL, for a substitutable rendition definition of its workspace. The file substitutes the built one: the builds no longer overwrite it.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true),
+    )]
+    public function setRenditionFromUrl(
+        #[Schema(description: 'Asset ID (UUID)')]
+        string $assetId,
+        #[Schema(description: 'Public URL of the file')]
+        string $url,
+        #[Schema(description: 'Rendition definition ID (UUID)')]
+        ?string $definitionId = null,
+        #[Schema(description: 'Rendition definition name, instead of its ID')]
+        ?string $definitionName = null,
+        #[Schema(description: 'File name, e.g. "thumb.jpg" (taken from the URL otherwise)')]
+        ?string $originalName = null,
+        #[Schema(description: 'Copy the file into the Phrasea storage; otherwise the rendition keeps pointing to the URL, which must stay reachable')]
+        bool $importFile = false,
+    ): array {
+        if ((null === $definitionId) === (null === $definitionName)) {
+            throw new ToolCallException('Give either a definitionId or a definitionName.');
+        }
+
+        return $this->client->post('/renditions', ApiClient::withoutNulls([
+            'assetId' => $assetId,
+            'definitionId' => $definitionId,
+            'name' => $definitionName,
+            'sourceFile' => ApiClient::withoutNulls([
+                'url' => $url,
+                'originalName' => $originalName,
+                'importFile' => $importFile,
+            ]),
+            'substituted' => true,
+        ]));
+    }
+
+    /**
+     * @return array{deleted: string}
+     */
+    #[McpTool(
+        name: 'delete_rendition',
+        description: 'Delete a rendition of an asset (its file), e.g. a custom rendition to build it again. A rendition of a definition is built again by reprocess_asset. This cannot be undone.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true),
+    )]
+    public function deleteRendition(
+        #[Schema(description: 'Rendition ID (UUID), as listed by list_asset_renditions')]
+        string $id,
+    ): array {
+        $this->client->delete('/renditions/'.rawurlencode($id));
+
+        return ['deleted' => $id];
     }
 }

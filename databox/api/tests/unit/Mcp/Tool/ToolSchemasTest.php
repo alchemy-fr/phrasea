@@ -76,6 +76,28 @@ class ToolSchemasTest extends TestCase
         ];
     }
 
+    #[DataProvider('getBatchAttributeActions')]
+    public function testBatchAttributeActionsSchema(mixed $actions, bool $valid): void
+    {
+        $this->assertSame($valid, $this->isValid(ToolSchemas::BATCH_ATTRIBUTE_ACTIONS, $actions));
+    }
+
+    public static function getBatchAttributeActions(): array
+    {
+        return [
+            'set, add, delete, replace' => [[
+                ['action' => 'set', 'definitionId' => 'd1', 'value' => 'Sunset', 'assets' => ['a1']],
+                ['action' => 'add', 'definitionId' => 'd2', 'value' => 'e1'],
+                ['action' => 'delete', 'definitionId' => 'd2', 'value' => ['e2', 'e3']],
+                ['action' => 'replace', 'value' => '^(\w+)', 'replaceWith' => '\1', 'regex' => true, 'flags' => 'g'],
+            ], true],
+            'empty' => [[], false],
+            'unknown action' => [[['action' => 'move', 'definitionId' => 'd1']], false],
+            'assets not a list' => [[['action' => 'set', 'definitionId' => 'd1', 'value' => 'x', 'assets' => 'a1']], false],
+            'regex not a boolean' => [[['action' => 'replace', 'value' => 'a', 'replaceWith' => 'b', 'regex' => 'yes']], false],
+        ];
+    }
+
     public function testPrivacyMatchesTheApi(): void
     {
         $this->assertEqualsCanonicalizing(

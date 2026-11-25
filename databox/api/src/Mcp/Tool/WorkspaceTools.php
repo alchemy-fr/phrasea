@@ -59,7 +59,7 @@ final readonly class WorkspaceTools
 
     #[McpTool(
         name: 'create_workspace',
-        description: 'Create a workspace, owned by the current user. It starts empty: add its attribute and rendition policies and definitions afterwards.',
+        description: 'Create a workspace, owned by the current user. Unlike a workspace created from the administration, it starts empty: no rendition policy nor definitions (Source, Main, Preview, Thumbnail…), no attribute policy nor "Name" attribute, no integration ("core.read_metadata", "core.rendition"). Create them afterwards (create_rendition_policy, create_rendition_definition, create_attribute_policy, create_attribute_definition with useAsName, create_integration): without them, its assets get neither renditions nor titles.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false),
     )]
     public function create(

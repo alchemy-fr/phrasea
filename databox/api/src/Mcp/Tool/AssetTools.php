@@ -14,11 +14,13 @@ final readonly class AssetTools
 {
     private const string MACHINE_ORIGIN = 'machine';
 
+    private const string DELETE_ACTION = 'delete';
+
     private const string AQL = <<<'TXT'
         AQL conditions, combined with AND. A condition is `field OPERATOR [value]`; a field is an attribute slug or a built-in field (@collection, @workspace, @createdAt, @editedAt, @filename, @type, @owner…).
         Operators (uppercase): IS, IS NOT, <, <=, >, >=, BETWEEN a AND b, IS ANY OF ("a", "b"), IS NONE OF (…), HAS ALL OF (…), IS EMPTY, IS NOT EMPTY, CONTAINS, STARTS WITH, ENDS WITH (case-insensitive, add CASE SENSITIVE after the value otherwise), MATCHES (full-text, every word required), WITHIN CIRCLE (lat, lng, "1500m"), WITHIN RECTANGLE (tlLat, tlLng, brLat, brLng).
         Values are quoted strings, numbers, true, false, null or functions (NOW(), DATE_SUB(NOW(), "P7D")…); combine with AND, OR, NOT and parentheses. On dates, IS matches a prefix: @createdAt IS "2024-03" is the whole month.
-        An entity attribute (e.g. "tags") is compared with the IDs of the entities of its list.
+        An entity attribute (e.g. "tags") is compared with the IDs of the entities of its list: get them with list_entities. The built-in fields are listed by list_built_in_attributes.
         Example: title STARTS WITH "Report" AND (tags HAS ALL OF ("<entity ID>", "<entity ID>") OR description IS EMPTY)
         TXT;
 
@@ -110,10 +112,14 @@ final readonly class AssetTools
         ?string $privacy = null,
         #[Schema(description: 'Technical key, unique in the workspace')]
         ?string $key = null,
+        #[Schema(description: 'ID of the asset in an external system')]
+        ?string $externalId = null,
         #[Schema(description: 'Create a story (an asset grouping other assets) instead of a file asset')]
         bool $isStory = false,
         #[Schema(description: 'Story only: IDs of existing assets added to the story, in this order', items: ['type' => 'string'])]
         ?array $storyAssetIds = null,
+        #[Schema(description: 'Story only: ID of the asset (one of storyAssetIds) whose file is the cover of the story')]
+        ?string $storyCoverId = null,
         #[Schema(description: 'Name of the vendor or model writing the attribute values, e.g. "claude"')]
         ?string $originVendor = null,
     ): array {
@@ -141,14 +147,16 @@ final readonly class AssetTools
             ) : null,
             'privacyLabel' => $privacy,
             'key' => $key,
+            'externalId' => $externalId,
             'isStory' => $isStory ?: null,
             'storyAssets' => null !== $storyAssetIds ? array_values($storyAssetIds) : null,
+            'storyCover' => $storyCoverId,
         ]));
     }
 
     #[McpTool(
         name: 'update_asset',
-        description: 'Update the privacy of an asset. To change its title, its tags or any other metadata, use set_asset_attributes.',
+        description: 'Update the privacy or the external ID of an asset. To change its title, its tags or any other metadata, use set_asset_attributes.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true),
     )]
     public function update(
@@ -156,9 +164,12 @@ final readonly class AssetTools
         string $id,
         #[Schema(definition: ToolSchemas::PRIVACY)]
         ?string $privacy = null,
+        #[Schema(description: 'ID of the asset in an external system')]
+        ?string $externalId = null,
     ): array {
         return $this->client->patch('/assets/'.rawurlencode($id), ApiClient::withoutNulls([
             'privacyLabel' => $privacy,
+            'externalId' => $externalId,
         ]));
     }
 
@@ -185,6 +196,50 @@ final readonly class AssetTools
                 'confidence' => $action['confidence'] ?? null,
             ], $originVendor), array_values($actions)),
         ]);
+    }
+
+    /**
+     * @return array{updated: list<string>}
+     */
+    #[McpTool(
+        name: 'batch_update_attributes',
+        description: 'Change the attribute values of many assets of a workspace at once, e.g. to tag a selection or fix a typo everywhere. Each action applies to the given "assetIds", or to its own "assets". The values are recorded as written by a machine. Get the definition IDs with list_attribute_definitions.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false),
+    )]
+    public function batchUpdateAttributes(
+        #[Schema(description: 'Workspace ID (UUID) of the assets')]
+        string $workspaceId,
+        #[Schema(definition: ToolSchemas::BATCH_ATTRIBUTE_ACTIONS)]
+        array $actions,
+        #[Schema(description: 'Asset IDs (UUID) the actions apply to', items: ['type' => 'string'])]
+        ?array $assetIds = null,
+        #[Schema(description: 'Name of the vendor or model writing the values, e.g. "claude"')]
+        ?string $originVendor = null,
+    ): array {
+        $assetIds = null !== $assetIds ? array_values($assetIds) : null;
+        $this->client->post('/attributes/batch-update', ApiClient::withoutNulls([
+            'workspaceId' => $workspaceId,
+            'assets' => $assetIds,
+            'actions' => array_map(static fn (array $action): array => self::machineValue([
+                'action' => $action['action'] ?? 'set',
+                'definitionId' => $action['definitionId'] ?? null,
+                'value' => $action['value'] ?? null,
+                'locale' => $action['locale'] ?? null,
+                'id' => $action['id'] ?? null,
+                'assets' => isset($action['assets']) ? array_values($action['assets']) : null,
+                'regex' => $action['regex'] ?? null,
+                'flags' => $action['flags'] ?? null,
+                'replaceWith' => $action['replaceWith'] ?? null,
+                'confidence' => $action['confidence'] ?? null,
+            ], $originVendor), array_values($actions)),
+        ]));
+
+        $updated = $assetIds ?? [];
+        foreach ($actions as $action) {
+            array_push($updated, ...array_values($action['assets'] ?? []));
+        }
+
+        return ['updated' => array_values(array_unique($updated))];
     }
 
     /**
@@ -354,10 +409,15 @@ final readonly class AssetTools
     }
 
     /**
-     * Values written by the model are flagged as such, unlike those of the users.
+     * Values written by the model are flagged as such, unlike those of the users. On a "delete"
+     * action, the origin would restrict the deletion to the values of that origin.
      */
     private static function machineValue(array $value, ?string $originVendor): array
     {
+        if (self::DELETE_ACTION === ($value['action'] ?? null)) {
+            return ApiClient::withoutNulls($value);
+        }
+
         return ApiClient::withoutNulls($value + [
             'origin' => self::MACHINE_ORIGIN,
             'originVendor' => $originVendor,

@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Mcp\Tool;
 
 use Alchemy\McpBundle\Test\AbstractToolTestCase;
 use App\Mcp\Tool\EntityListTools;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EntityListToolsTest extends AbstractToolTestCase
 {
@@ -48,5 +49,36 @@ class EntityListToolsTest extends AbstractToolTestCase
         $this->kernel->willRespond(null, 204);
         $this->tools->delete('l1');
         $this->assertLastRequest('DELETE', '/entity-lists/l1');
+    }
+
+    public function testImport(): void
+    {
+        $this->kernel->willRespond(['id' => 'l1']);
+
+        $this->tools->import('l1', 'raw', "Paris\nLyon");
+
+        $this->assertLastRequest('POST', '/entity-lists/l1/import', body: ['format' => 'raw', 'data' => "Paris\nLyon"]);
+    }
+
+    public function testExportReturnsTheStreamedFile(): void
+    {
+        $this->kernel->willRespondWith(new StreamedResponse(static function (): void {
+            echo "id,value\n";
+            echo "e1,Paris\n";
+        }, 200, ['Content-Type' => 'text/csv']));
+
+        $this->assertSame(
+            ['format' => 'csv', 'content' => "id,value\ne1,Paris\n"],
+            $this->tools->export('l1', locale: 'fr'),
+        );
+        $this->assertLastRequest('POST', '/entity-lists/l1/export', body: ['format' => 'csv', 'locale' => 'fr']);
+    }
+
+    public function testClear(): void
+    {
+        $this->kernel->willRespond(['id' => 'l1']);
+
+        $this->assertSame(['cleared' => 'l1'], $this->tools->clear('l1'));
+        $this->assertLastRequest('POST', '/entity-lists/l1/clear', body: []);
     }
 }
