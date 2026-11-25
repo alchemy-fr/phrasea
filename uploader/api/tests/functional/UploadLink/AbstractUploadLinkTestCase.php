@@ -116,7 +116,7 @@ abstract class AbstractUploadLinkTestCase extends AbstractUploaderTestCase
             $options['json'] = $data;
         }
 
-        return static::createClient()->request($method, $url, $options);
+        return $this->createClientWithDatabox()->request($method, $url, $options);
     }
 
     /**

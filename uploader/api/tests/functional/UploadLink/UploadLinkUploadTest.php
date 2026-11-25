@@ -13,6 +13,7 @@ use App\Entity\Commit;
 use App\Exception\UploadLinkQuotaExceededException;
 use App\Repository\UploadLinkRepository;
 use App\Storage\AssetManager;
+use App\Tests\Functional\Databox\FakeDataboxClient;
 use App\Tests\Functional\TargetFormTest;
 use Doctrine\DBAL\Types\Types;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -543,6 +544,96 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
             'target' => '/targets/'.$target->getId(),
         ], $sessionB);
         $this->assertSame(200, $response->getStatusCode(), 'The files of the link are committed whoever sent them');
+    }
+
+    /**
+     * The values of the entity fields are read from the Databox integration of the target
+     * (DataboxClient), each field from its own list.
+     */
+    public function testTheEntityFieldsAreFilledThroughALink(): void
+    {
+        $peopleList = '2b3c4d5e-6f70-4182-93a4-b5c6d7e8f901';
+        $placesList = '3c4d5e6f-7081-4293-a4b5-c6d7e8f90a12';
+        $person = 'a1b2c3d4-e5f6-4789-8abc-def012345678';
+        $place = 'b1b2c3d4-e5f6-4789-8abc-def012345678';
+        $unknown = 'c1b2c3d4-e5f6-4789-8abc-def012345678';
+        $valuesByList = [$peopleList => [$person => 'Alice'], $placesList => [$place => 'Paris']];
+        $this->databox = new FakeDataboxClient([
+            '/attribute-entities' => static function (array $query) use ($valuesByList): array {
+                $values = $valuesByList[$query['list']] ?? [];
+                if (isset($query['ids'])) {
+                    $values = array_intersect_key($values, array_flip($query['ids']));
+                }
+
+                return ['member' => array_map(
+                    static fn (string $id, string $value): array => ['id' => $id, 'value' => $value],
+                    array_keys($values),
+                    $values,
+                )];
+            },
+        ]);
+
+        $entityField = static fn (string $key, string $listId, array $extra = []): array => [
+            'id' => 'f_'.$key,
+            'source' => 'attribute',
+            'key' => $key,
+            'type' => 'entity',
+            'attribute' => ['id' => 'a_'.$key, 'slug' => $key, 'databoxType' => 'entity', 'entityListId' => $listId],
+            ...$extra,
+        ];
+        $target = $this->createTarget();
+        $target->setForm([
+            'version' => 1,
+            'workspaceId' => '7e5ab1c2-0a7e-4b8a-9d2c-5c1b2f0e6a01',
+            'fields' => [
+                $entityField('people', $peopleList, ['multiple' => true]),
+                $entityField('place', $placesList),
+                $entityField('internal', $peopleList, ['hidden' => true]),
+            ],
+        ]);
+        $link = $this->createLink($target);
+        $options = static fn (string $key, string $query = ''): string => '/targets/'.$target->getId().'/form-fields/'.$key.'/options'.$query;
+
+        $response = $this->linkRequest($link->getToken(), 'GET', $options('people', '?query=al'));
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame([['value' => $person, 'label' => 'Alice', 'color' => null, 'emoji' => null]], $response->toArray()['member']);
+
+        $response = $this->linkRequest($link->getToken(), 'GET', $options('place'));
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame([$place], array_column($response->toArray()['member'], 'value'));
+
+        $this->assertSame([$peopleList, $placesList], array_map(static fn (array $call): string => $call['query']['list'], $this->databox->calls));
+
+        $response = $this->linkRequest($link->getToken(), 'GET', $options('internal'));
+        $this->assertSame(404, $response->getStatusCode(), 'A hidden field');
+
+        $validate = fn (array $data): array => $this->linkRequest($link->getToken(), 'POST', '/form/validate', [
+            'target' => '/targets/'.$target->getId(),
+            'data' => $data,
+        ])->toArray()['errors'];
+        $this->assertSame([], $validate(['people' => [$person], 'place' => $place]));
+        $this->assertSame(['people'], array_keys($validate(['people' => [$person, $unknown], 'place' => $place])));
+        $this->assertSame(['place'], array_keys($validate(['place' => $person])), 'A value of another list');
+
+        $assetId = $this->uploadFile($link->getToken())->toArray()['id'];
+        $commit = fn (array $formData): ResponseInterface => $this->linkRequest($link->getToken(), 'POST', '/commit', [
+            'files' => [$assetId],
+            'formData' => $formData,
+            'target' => '/targets/'.$target->getId(),
+        ]);
+
+        $response = $commit(['people' => [$unknown]]);
+        $this->assertSame(400, $response->getStatusCode(), $response->getContent(false));
+
+        $response = $commit(['people' => [$person], 'place' => $place]);
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $commits = $em->getRepository(Commit::class)->findBy(['target' => $target->getId()]);
+        $this->assertCount(1, $commits);
+        $this->assertSame([$person], $commits[0]->getFormData()['people']);
+        $this->assertSame($place, $commits[0]->getFormData()['place']);
     }
 
     public function testAnInvalidBrowserSessionIsRefused(): void

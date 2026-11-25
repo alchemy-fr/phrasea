@@ -7,6 +7,7 @@ namespace App\Tests\Functional;
 use Alchemy\ApiTest\ApiTestTrait;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use ApiPlatform\Test\ApiTestCase;
+use ApiPlatform\Test\Client;
 use App\Databox\DataboxClient;
 use App\Databox\DataboxClientInterface;
 use App\Entity\Target;
@@ -74,12 +75,22 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
         return $target;
     }
 
-    protected function request(?string $accessToken, string $method, string $url, ?array $data = null): ResponseInterface
+    /**
+     * A client whose requests read Databox through $databox when set.
+     */
+    protected function createClientWithDatabox(): Client
     {
         $client = static::createClient();
         if (null !== $this->databox && !static::getContainer()->initialized(DataboxClient::class)) {
             static::getContainer()->set(DataboxClient::class, $this->databox);
         }
+
+        return $client;
+    }
+
+    protected function request(?string $accessToken, string $method, string $url, ?array $data = null): ResponseInterface
+    {
+        $client = $this->createClientWithDatabox();
 
         $options = [
             'headers' => [

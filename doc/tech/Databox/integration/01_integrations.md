@@ -108,6 +108,13 @@ Operational notes:
 - Only the Uploader of the instance (`UPLOADER_API_URL`) and its storage (`S3_ENDPOINT`) may be reached on the private network: any other base URL, and the file URLs it answers, must be public.
 - The user sent with a commit (the uploading user) becomes the owner of the assets, and must be allowed to create assets in the destination collection or workspace (and to edit the asset for a rendition substitution); otherwise the ingestion fails.
 
+Values of the entity lists (`GET /integrations/uploader/{integrationId}/attribute-entities`):
+
+- Read by the Uploader for the forms filled through an upload link, where no user can be called on behalf of. Authenticated like the commits, by `Authorization: ApiKey <securityKey>`: 401 without key, 404 when the integration is unknown, disabled or not an Uploader one, 403 with another key.
+- Parameters: `list` (the ID of the entity list, required), `query` (contains match on the value, case-insensitive), `ids[]` (lookup by IDs, at most 100), `page` and `limit` (30 by default, at most 100). Sorted by position, then value.
+- Only the approved values, of a list of the workspace of the integration (or, for an integration without workspace, of the workspace of its `collectionId`): any other list answers 404.
+- Answers `{"member": [{"id", "value", "translations", "color", "emoji"}], "view": {"next": "<URL of the next page>"}}`, without `view` on the last page.
+
 ## Asset import integration (core.asset_import)
 
 Display name: Asset import
