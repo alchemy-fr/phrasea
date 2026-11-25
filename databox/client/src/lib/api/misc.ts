@@ -1,4 +1,4 @@
-import {api} from './http';
+import {api, isApiError} from './http';
 import {toPage} from './hydra';
 import {
     Ace,
@@ -241,6 +241,25 @@ export function sortProfileItems(
     ids: string[]
 ): Promise<void> {
     return api.post(`/${EntityName.Profile}/${profileId}/sort`, ids);
+}
+
+/**
+ * The default profile of the current user, among the ones they read, applied
+ * while no profile is selected. None: `undefined` (404, not an error).
+ */
+export async function getUserDefaultProfile(): Promise<
+    DisplayProfile | undefined
+> {
+    try {
+        return await api.get<DisplayProfile>(
+            `/${EntityName.Profile}/user-default`
+        );
+    } catch (e) {
+        if (isApiError(e, 404)) {
+            return undefined;
+        }
+        throw e;
+    }
 }
 
 // Renditions ---------------------------------------------------------------

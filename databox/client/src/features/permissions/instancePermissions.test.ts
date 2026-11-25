@@ -18,6 +18,7 @@ const CREATE_WORKSPACE = 5;
 const SHARE_PROFILE = 6;
 const SHARE_BASKET = 7;
 const PUBLISH_SAVED_SEARCH = 8;
+const ASSIGN_DEFAULT_PROFILE = 9;
 
 function ace(data: Partial<Ace>): Ace {
     return {
@@ -169,6 +170,26 @@ describe('getToggleWrite', () => {
         });
     });
 
+    it('keeps the other capability of the same object type', () => {
+        const [, row] = mergeTypeAces([
+            ace({objectType: 'profile', metadata: [SHARE_PROFILE]}),
+        ]);
+
+        expect(
+            hasInstancePermission(row, permission('assignDefaultProfile'))
+        ).toBe(false);
+        expect(
+            getToggleWrite(row, permission('assignDefaultProfile'), true)
+        ).toEqual({
+            type: 'put',
+            userType: UserType.Group,
+            userId: 'g1',
+            objectType: 'profile',
+            mask: 0,
+            metadata: [SHARE_PROFILE, ASSIGN_DEFAULT_PROFILE],
+        });
+    });
+
     it('deletes the ACE once nothing is left', () => {
         const [, row] = mergeTypeAces([
             ace({objectType: 'basket', metadata: [SHARE_BASKET]}),
@@ -212,7 +233,10 @@ describe('getRemoveRowWrites', () => {
                 mask: VIEW,
                 metadata: [SHARE_BASKET, QUARANTINE],
             }),
-            ace({objectType: 'profile', metadata: [SHARE_PROFILE]}),
+            ace({
+                objectType: 'profile',
+                metadata: [SHARE_PROFILE, ASSIGN_DEFAULT_PROFILE],
+            }),
         ]);
 
         expect(getRemoveRowWrites(row)).toEqual([

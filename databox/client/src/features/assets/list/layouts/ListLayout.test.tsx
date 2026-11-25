@@ -19,6 +19,7 @@ vi.mock('@/features/permissions/useInstanceCapabilities', () => ({
         shareProfile: false,
         shareBasket: false,
         publishSavedSearch: false,
+        assignDefaultProfile: false,
     }),
 }));
 

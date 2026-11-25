@@ -84,6 +84,25 @@ class ProfileRepository extends ServiceEntityRepository
             ]);
     }
 
+    /**
+     * Among the default profiles the user reads, the one applied while none is
+     * chosen: a profile shared with the user (owned or by ACL) wins over a public
+     * one, then the oldest.
+     *
+     * @param string[] $groupIds
+     */
+    public function findUserDefault(string $userId, array $groupIds): ?Profile
+    {
+        return $this->createQueryBuilderAcl($userId, $groupIds)
+            ->andWhere('t.defaultProfile = true')
+            ->addOrderBy('t.public', 'ASC')
+            ->addOrderBy('t.createdAt', 'ASC')
+            ->addOrderBy('t.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function createQueryBuilderAcl(?string $userId, array $groupIds): QueryBuilder
     {
         $queryBuilder = $this

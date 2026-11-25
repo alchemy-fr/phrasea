@@ -34,6 +34,7 @@ import {useProfileStore} from '../profileStore';
 import {ProfileAttributesTab} from './ProfileAttributesTab';
 import {ProfileGridTab} from './ProfileGridTab';
 import {ProfileFiltersTab} from './ProfileFiltersTab';
+import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabilities';
 import {profileQueryKey} from './useProfileEditing';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 
@@ -159,6 +160,15 @@ function GeneralTab(props: ProfileTabProps) {
                             : t('common.private', 'Private')}
                     </Badge>
                 </InfoRow>
+                {profile.defaultProfile ? (
+                    <InfoRow
+                        label={t('profile.default_profile', 'Default profile')}
+                    >
+                        <Badge variant="success">
+                            {t('common.yes', 'Yes')}
+                        </Badge>
+                    </InfoRow>
+                ) : null}
                 <InfoRow label={t('asset.info.created_at', 'Created at')}>
                     {formatDateTime(profile.createdAt, 'medium', i18n.language)}
                 </InfoRow>
@@ -233,49 +243,85 @@ function SettingsForm({profile, refresh}: ProfileTabProps) {
 /**
  * Who sees the profile: public or not (saved at once), then the ACL. Making
  * the profile private only takes the edit right; making it public also takes
- * the share right, and the ACL the permissions one.
+ * the share right, and the ACL the permissions one. Its readers are also the
+ * ones it applies to when it is a default profile, which takes the instance
+ * capability.
  */
 function PermissionsTab({profile}: ProfileTabProps) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
     const upsert = useProfileStore(s => s.upsert);
+    const reloadUserDefault = useProfileStore(s => s.reloadUserDefault);
+    const {assignDefaultProfile} = useInstanceCapabilities();
     const [isPublic, setIsPublic] = useState(!!profile.public);
+    const [isDefault, setIsDefault] = useState(!!profile.defaultProfile);
     const [saving, setSaving] = useState(false);
     const publishDenied = !profile.capabilities.share && !isPublic;
 
-    const changePublic = async (value: boolean) => {
-        setIsPublic(value);
+    const save = async (
+        data: Pick<DisplayProfile, 'public' | 'defaultProfile'>
+    ) => {
         setSaving(true);
         try {
-            const saved = await putProfile(profile.id, {public: value});
+            const saved = await putProfile(profile.id, data);
             upsert(saved);
-            // The items may have edits in flight: only the visibility changes
+            // The items may have edits in flight: only the flags change
             queryClient.setQueryData<DisplayProfile>(
                 profileQueryKey(profile.id),
                 p =>
                     p && {
                         ...p,
                         public: saved.public,
+                        defaultProfile: saved.defaultProfile,
                         updatedAt: saved.updatedAt,
                     }
             );
-            toast.success(
-                value
-                    ? t('profile.now_public', 'The profile is now public')
-                    : t('profile.now_private', 'The profile is now private')
-            );
+            // Who reads it, or whether it is a default, decides the default
+            void reloadUserDefault();
+
+            return true;
         } catch (e: any) {
-            setIsPublic(!value);
             toast.error(e?.message);
+
+            return false;
         } finally {
             setSaving(false);
         }
     };
 
+    const changePublic = async (value: boolean) => {
+        setIsPublic(value);
+        if (!(await save({public: value}))) {
+            setIsPublic(!value);
+            return;
+        }
+        toast.success(
+            value
+                ? t('profile.now_public', 'The profile is now public')
+                : t('profile.now_private', 'The profile is now private')
+        );
+    };
+
+    const changeDefault = async (value: boolean) => {
+        setIsDefault(value);
+        if (!(await save({defaultProfile: value}))) {
+            setIsDefault(!value);
+            return;
+        }
+        toast.success(
+            value
+                ? t('profile.now_default', 'The profile is now a default one')
+                : t(
+                      'profile.no_longer_default',
+                      'The profile is no longer a default one'
+                  )
+        );
+    };
+
     return (
         <div className="space-y-6">
             {profile.capabilities.edit ? (
-                <section className="max-w-2xl rounded-lg border p-3">
+                <section className="max-w-2xl space-y-3 rounded-lg border p-3">
                     <LabeledControl
                         label={t('common.public', 'Public')}
                         description={
@@ -297,6 +343,25 @@ function PermissionsTab({profile}: ProfileTabProps) {
                             onCheckedChange={v => void changePublic(v)}
                         />
                     </LabeledControl>
+                    {assignDefaultProfile ? (
+                        <LabeledControl
+                            label={t(
+                                'profile.default_profile',
+                                'Default profile'
+                            )}
+                            description={t(
+                                'profile.default_profile_help',
+                                'Applied to the users who read this profile while they have not chosen one. A profile shared with them wins over a public one, then the oldest.'
+                            )}
+                        >
+                            <Switch
+                                data-testid="profile-default-profile"
+                                checked={isDefault}
+                                disabled={saving}
+                                onCheckedChange={v => void changeDefault(v)}
+                            />
+                        </LabeledControl>
+                    ) : null}
                 </section>
             ) : null}
             {profile.capabilities.editPermissions ? (

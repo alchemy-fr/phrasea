@@ -53,6 +53,12 @@ class ProfileOutput extends AbstractUuidOutput
     #[Groups([Profile::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?bool $public = null;
 
+    /**
+     * Applied to its readers while they have not chosen a profile.
+     */
+    #[Groups([Profile::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
+    public ?bool $defaultProfile = null;
+
     #[Groups([Profile::GROUP_LIST, Profile::GROUP_READ])]
     public ?UserOutput $owner = null;
 }

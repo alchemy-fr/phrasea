@@ -45,6 +45,8 @@ export function ProfileMenu() {
     const {user} = useAuth();
     const profiles = useProfileStore(s => s.profiles);
     const current = useProfileStore(s => s.current);
+    const currentIsDefault = useProfileStore(s => s.currentIsDefault);
+    const userDefault = useProfileStore(s => s.userDefault);
     const next = useProfileStore(s => s.next);
     const load = useProfileStore(s => s.load);
     const loadMore = useProfileStore(s => s.loadMore);
@@ -56,13 +58,21 @@ export function ProfileMenu() {
     const autoSync = usePreferencesStore(s => s.preferences.autoSync ?? false);
     const updatePreference = usePreferencesStore(s => s.updatePreference);
     const canEdit = !!current?.capabilities.edit;
+    // The user default applies while no profile is chosen
+    const selected =
+        current && !currentIsDefault ? current.id : DEFAULT_PROFILE;
+    const defaultLabel = userDefault
+        ? t('profile.default_named', 'Default: {{name}}', {
+              name: userDefault.name,
+          })
+        : t('profile.default', 'Default display profile');
 
     useEffect(() => {
         void load();
     }, [load]);
 
     const choose = (id: string) => {
-        if (id === (current?.id ?? DEFAULT_PROFILE)) {
+        if (id === selected) {
             return;
         }
         const profile =
@@ -81,8 +91,9 @@ export function ProfileMenu() {
                         {t('profile.display_profile', 'Display profile')}
                     </span>
                     <span className="truncate">
-                        {current?.name ??
-                            t('profile.default', 'Default display profile')}
+                        {selected === DEFAULT_PROFILE
+                            ? defaultLabel
+                            : current?.name}
                     </span>
                 </span>
             </DropdownMenuSubTrigger>
@@ -90,15 +101,12 @@ export function ProfileMenu() {
                 <DropdownMenuLabel>
                     {t('profile.menu.switch', 'Switch profile')}
                 </DropdownMenuLabel>
-                <DropdownMenuRadioGroup
-                    value={current?.id ?? DEFAULT_PROFILE}
-                    onValueChange={choose}
-                >
+                <DropdownMenuRadioGroup value={selected} onValueChange={choose}>
                     <DropdownMenuRadioItem
                         value={DEFAULT_PROFILE}
                         data-testid="profile-default"
                     >
-                        {t('profile.default', 'Default display profile')}
+                        {defaultLabel}
                     </DropdownMenuRadioItem>
                     {profiles.map(p => (
                         <DropdownMenuRadioItem
@@ -126,7 +134,7 @@ export function ProfileMenu() {
                         {t('common.load_more', 'Load more')}
                     </DropdownMenuItem>
                 ) : null}
-                {current && canEdit ? (
+                {current && canEdit && !currentIsDefault ? (
                     <>
                         <DropdownMenuSeparator />
                         <DropdownMenuCheckboxItem

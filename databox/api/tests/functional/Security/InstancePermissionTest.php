@@ -80,6 +80,7 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
             'shareProfile' => false,
             'shareBasket' => false,
             'publishSavedSearch' => false,
+            'assignDefaultProfile' => false,
         ], $this->getCapabilities(self::USER));
     }
 
@@ -90,6 +91,7 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
             'shareProfile' => true,
             'shareBasket' => true,
             'publishSavedSearch' => true,
+            'assignDefaultProfile' => true,
         ], $this->getCapabilities(self::ADMIN));
     }
 
@@ -104,6 +106,7 @@ final class InstancePermissionTest extends AbstractDataboxTestCase
         yield 'share profile' => [Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_PROFILE, 'shareProfile'];
         yield 'share basket' => [Basket::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_SHARE_BASKET, 'shareBasket'];
         yield 'publish saved search' => [SavedSearch::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_PUBLISH_SAVED_SEARCH, 'publishSavedSearch'];
+        yield 'assign default profile' => [Profile::OBJECT_TYPE, DataboxExtraPermissionInterface::PERM_ASSIGN_DEFAULT_PROFILE, 'assignDefaultProfile'];
     }
 
     #[DataProvider('getCapabilityGrants')]

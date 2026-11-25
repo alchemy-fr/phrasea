@@ -23,6 +23,7 @@ final class InstancePermission
     public const string SHARE_PROFILE = 'INSTANCE_SHARE_PROFILE';
     public const string SHARE_BASKET = 'INSTANCE_SHARE_BASKET';
     public const string PUBLISH_SAVED_SEARCH = 'INSTANCE_PUBLISH_SAVED_SEARCH';
+    public const string ASSIGN_DEFAULT_PROFILE = 'INSTANCE_ASSIGN_DEFAULT_PROFILE';
 
     /**
      * @var array<string, array{class-string, int}>
@@ -32,6 +33,7 @@ final class InstancePermission
         self::SHARE_PROFILE => [Profile::class, DataboxExtraPermissionInterface::PERM_SHARE_PROFILE],
         self::SHARE_BASKET => [Basket::class, DataboxExtraPermissionInterface::PERM_SHARE_BASKET],
         self::PUBLISH_SAVED_SEARCH => [SavedSearch::class, DataboxExtraPermissionInterface::PERM_PUBLISH_SAVED_SEARCH],
+        self::ASSIGN_DEFAULT_PROFILE => [Profile::class, DataboxExtraPermissionInterface::PERM_ASSIGN_DEFAULT_PROFILE],
     ];
 
     /**
@@ -42,6 +44,7 @@ final class InstancePermission
         self::SHARE_PROFILE => 'shareProfile',
         self::SHARE_BASKET => 'shareBasket',
         self::PUBLISH_SAVED_SEARCH => 'publishSavedSearch',
+        self::ASSIGN_DEFAULT_PROFILE => 'assignDefaultProfile',
     ];
 
     /**

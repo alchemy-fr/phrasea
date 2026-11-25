@@ -731,6 +731,7 @@ export type InstanceCapabilities = {
     shareProfile: boolean;
     shareBasket: boolean;
     publishSavedSearch: boolean;
+    assignDefaultProfile: boolean;
 };
 
 export enum AutomationScope {
@@ -885,6 +886,8 @@ export interface DisplayProfile
     items?: ProfileItem[];
     exclusive?: boolean;
     public?: boolean;
+    /** Applied to its readers while they have not chosen a profile */
+    defaultProfile?: boolean;
     createdAt: string;
     updatedAt: string;
     data?: Record<string, unknown>;

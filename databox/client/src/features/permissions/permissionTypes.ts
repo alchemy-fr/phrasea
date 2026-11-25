@@ -51,6 +51,7 @@ export enum AclExtraPermission {
     SHARE_PROFILE = 6,
     SHARE_BASKET = 7,
     PUBLISH_SAVED_SEARCH = 8,
+    ASSIGN_DEFAULT_PROFILE = 9,
 }
 
 export enum PermissionObject {

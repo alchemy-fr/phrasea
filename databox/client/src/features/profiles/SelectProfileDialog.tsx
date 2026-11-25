@@ -41,8 +41,18 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
     const {user} = useAuth();
     const router = useRouter();
     const {openModal} = useModals();
-    const {profiles, current, setCurrent, remove, next, loadMore} =
-        useProfileStore();
+    const {
+        profiles,
+        current,
+        currentIsDefault,
+        userDefault,
+        setCurrent,
+        remove,
+        next,
+        loadMore,
+    } = useProfileStore();
+    // The user default applies while no profile is chosen
+    const selectedId = currentIsDefault ? undefined : current?.id;
 
     const choose = async (profile: DisplayProfile | undefined) => {
         await setCurrent(profile);
@@ -76,7 +86,8 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
         >
             <ProfileRow
                 profile={undefined}
-                current={current}
+                selectedId={selectedId}
+                userDefault={userDefault}
                 userId={user?.id}
                 onChoose={choose}
                 onDelete={remove}
@@ -86,7 +97,7 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
                 <ProfileRow
                     key={p.id}
                     profile={p}
-                    current={current}
+                    selectedId={selectedId}
                     userId={user?.id}
                     onChoose={choose}
                     onDelete={remove}
@@ -109,14 +120,18 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
 
 function ProfileRow({
     profile,
-    current,
+    selectedId,
+    userDefault,
     userId,
     onChoose,
     onDelete,
     onEdit,
 }: {
     profile: DisplayProfile | undefined;
-    current: DisplayProfile | undefined;
+    /** The chosen profile, none for the default one */
+    selectedId: string | undefined;
+    /** Applied by the default row */
+    userDefault?: DisplayProfile;
     userId: string | undefined;
     onChoose: (profile: DisplayProfile | undefined) => void;
     onDelete: (id: string) => Promise<void>;
@@ -124,7 +139,7 @@ function ProfileRow({
 }) {
     const {t} = useTranslation();
     const {openModal} = useModals();
-    const active = (profile?.id ?? null) === (current?.id ?? null);
+    const active = profile?.id === selectedId;
     const shared = profile && profile.owner && profile.owner.id !== userId;
 
     return (
@@ -146,7 +161,18 @@ function ProfileRow({
                     ) : null}
                     <span className="truncate">
                         {profile?.name ??
-                            t('profile.default', 'Default display profile')}
+                            (userDefault
+                                ? t(
+                                      'profile.default_named',
+                                      'Default: {{name}}',
+                                      {
+                                          name: userDefault.name,
+                                      }
+                                  )
+                                : t(
+                                      'profile.default',
+                                      'Default display profile'
+                                  ))}
                     </span>
                     {profile ? (
                         <ProfileOwnership profile={profile} userId={userId} />

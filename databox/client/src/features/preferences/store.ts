@@ -116,6 +116,12 @@ type State = {
     authenticated: boolean;
     load: (authenticated: boolean) => Promise<void>;
     updatePreference: UpdatePreference;
+    /**
+     * Fills the preferences the user has not set with the given values, in
+     * this tab only: nothing is saved (e.g. the display preferences of the
+     * default profile of the user).
+     */
+    applyFallback: (values: UserPreferences) => void;
     /** Called by the profile store when a preference change must be synced to the current profile instead */
     onBeforePersist?: (
         name: keyof UserPreferences,
@@ -189,6 +195,23 @@ export const usePreferencesStore = create<State>((set, get) => ({
         open();
 
         return persist(name, options.reset);
+    },
+
+    applyFallback: values => {
+        const prev = get().preferences;
+        const missing = Object.fromEntries(
+            Object.entries(values).filter(
+                ([k, v]) =>
+                    v !== undefined &&
+                    prev[k as keyof UserPreferences] === undefined
+            )
+        );
+        if (Object.keys(missing).length === 0) {
+            return;
+        }
+        const next: UserPreferences = {...prev, ...missing};
+        set({preferences: next});
+        writeLocal(next);
     },
 }));
 

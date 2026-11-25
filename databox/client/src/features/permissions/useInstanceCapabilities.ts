@@ -12,6 +12,7 @@ const none: InstanceCapabilities = {
     shareProfile: false,
     shareBasket: false,
     publishSavedSearch: false,
+    assignDefaultProfile: false,
 };
 
 /**

@@ -153,8 +153,12 @@ export function AttributeList({
                         builtInValue={item.builtInValue}
                         format={item.format}
                         controls={controls}
-                        // Pinning without profile creates the default one
-                        pinnable={!ignoreProfile}
+                        // Pinning without profile creates the default one; with
+                        // one, it takes the right to edit it
+                        pinnable={
+                            !ignoreProfile &&
+                            (!profile || !!profile.capabilities?.edit)
+                        }
                         pinned={pinnedItems.some(
                             p =>
                                 p.definition === def.id ||

@@ -20,4 +20,5 @@ interface DataboxExtraPermissionInterface
     final public const int PERM_SHARE_PROFILE = 6;
     final public const int PERM_SHARE_BASKET = 7;
     final public const int PERM_PUBLISH_SAVED_SEARCH = 8;
+    final public const int PERM_ASSIGN_DEFAULT_PROFILE = 9;
 }

@@ -1,7 +1,8 @@
 # Instance permissions
 
 Some Databox capabilities do not belong to any workspace: creating a workspace,
-sharing one's display profiles and one's baskets, publishing one's saved searches. They are
+sharing one's display profiles and one's baskets, publishing one's saved searches, making
+display profiles default ones. They are
 granted at the **instance level**, to users or groups, by a **metadata** of an access
 control entry (ACE) set on a whole object type: an ACE with an object type and **no
 object id**.
@@ -12,6 +13,7 @@ object id**.
 | Share own profiles         | `profile`      | `6`      | The owner of a profile may make it public and edit its ACL (`share` and `editPermissions` capabilities).       |
 | Share own baskets          | `basket`       | `7`      | The owner of a basket may share it and edit its ACL (`share` and `editPermissions` capabilities).              |
 | Publish own saved searches | `saved_search` | `8`      | The owner of a saved search may make it Private or Public, and edit its ACL (`publish` and `editPermissions`). |
+| Assign default profiles    | `profile`      | `9`      | Set or unset `defaultProfile` on a profile it may edit (see below).                                            |
 
 The source of truth is `App\Security\InstancePermission` and
 `App\Security\Voter\DataboxExtraPermissionInterface` (API), and
@@ -45,7 +47,7 @@ these ACEs: it neither shows nor grants the capabilities, and keeps them when it
 The current user's capabilities are answered by `GET /capabilities`:
 
 ```json
-{"createWorkspace": false, "shareProfile": true, "shareBasket": true, "publishSavedSearch": false}
+{"createWorkspace": false, "shareProfile": true, "shareBasket": true, "publishSavedSearch": false, "assignDefaultProfile": false}
 ```
 
 The ACEs without object id are read and written through `/permissions/ace(s)` by admins only.
@@ -62,6 +64,32 @@ The metadata checks on an object (`hasMetadata()`) also read the ACEs of its typ
 capability values must differ from the other metadata of `DataboxExtraPermissionInterface`
 (`PERM_EDIT_PERMISSIONS`, `PERM_QUARANTINE`…). A capability set on the ACE of one object
 is not a capability.
+
+## Default display profiles
+
+A display profile flagged `defaultProfile` is applied to **its readers** (owner, users and
+groups of its ACL, everyone when it is public) while they have not chosen a profile. No
+population is stored: who it applies to is who reads it. Anonymous visitors are not
+concerned.
+
+- **Fallback only.** The default applies while the user has not chosen a profile: the
+  `profile` preference is absent or `null`. An explicit choice wins; choosing "Default
+  display profile" again (profile `null`) goes back to the default. Nothing is written to
+  the preferences of the user: the client applies the synced preferences of the default
+  (layout, display…) to the ones the user has not set, in the tab only.
+- **Resolution** (`ProfileRepository::findUserDefault()`), when the user reads several
+  default profiles: a profile shared with the user (owned or by ACL) wins over a public one,
+  then the oldest (`createdAt`, then id).
+- **Rights.** Changing the flag takes `EDIT` on the profile (`PATCH /profiles/{id}`) and the
+  capability; sending its current value takes nothing more.
+
+API: `GET /profiles/user-default`, the default profile of the current user (`404` without
+any). Not to be confused with `POST /profiles/default/items`, which adds to the first
+profile the user owns.
+
+In the Databox client: profile management → **Permissions** tab, "Default profile" switch
+(holders of the capability). The administration (EasyAdmin) shows and filters the flag
+under Searches → Profiles.
 
 # Entity list permissions
 

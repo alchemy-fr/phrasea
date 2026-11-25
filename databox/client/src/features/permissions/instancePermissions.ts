@@ -39,6 +39,11 @@ export const instancePermissions: InstancePermission[] = [
         objectType: PermissionObject.SavedSearch,
         metadata: AclExtraPermission.PUBLISH_SAVED_SEARCH,
     },
+    {
+        key: 'assignDefaultProfile',
+        objectType: PermissionObject.Profile,
+        metadata: AclExtraPermission.ASSIGN_DEFAULT_PROFILE,
+    },
 ];
 
 export const instancePermissionObjectTypes: PermissionObject[] = [
@@ -84,6 +89,16 @@ export function getInstancePermissionLabels(
             description: t(
                 'instance_permissions.publish_saved_search_help',
                 'Make the saved searches they own private (by link) or public, and grant access to them.'
+            ),
+        },
+        assignDefaultProfile: {
+            label: t(
+                'instance_permissions.assign_default_profile',
+                'Assign default profiles'
+            ),
+            description: t(
+                'instance_permissions.assign_default_profile_help',
+                'Make the display profiles they may edit default ones: applied to their readers while they have not chosen one.'
             ),
         },
     };

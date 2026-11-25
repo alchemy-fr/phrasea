@@ -22,7 +22,7 @@ use App\Api\Provider\InstanceCapabilitiesProvider;
             uriTemplate: '/capabilities',
             openapi: new OpenApiOperation(
                 summary: 'Instance capabilities of the current user',
-                description: 'Capabilities granted outside any workspace: creating a workspace, sharing its profiles and its baskets, publishing its saved searches.',
+                description: 'Capabilities granted outside any workspace: creating a workspace, sharing its profiles and its baskets, publishing its saved searches, assigning default display profiles to populations.',
             ),
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             name: 'instance_capabilities',

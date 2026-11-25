@@ -8,6 +8,7 @@ import {ProfileItemSection, ProfileItemType} from '@/types/api';
 import {
     addToProfile,
     deleteProfile,
+    getUserDefaultProfile,
     getProfile,
     getProfiles,
     putProfile,
@@ -23,7 +24,15 @@ import {deepEquals} from '@alchemy/next-ui/utils/misc';
 
 type State = {
     profiles: DisplayProfile[];
+    /** The profile applied: the chosen one, else the user default */
     current: DisplayProfile | undefined;
+    /**
+     * The default profile of the user, among the ones they read, applied
+     * while none is chosen
+     */
+    userDefault?: DisplayProfile;
+    /** Whether `current` is the user default, none being chosen */
+    currentIsDefault: boolean;
     loaded: boolean;
     loading: boolean;
     next?: string;
@@ -32,6 +41,8 @@ type State = {
     setCurrent: (profile: DisplayProfile | undefined) => Promise<void>;
     upsert: (profile: DisplayProfile) => void;
     remove: (id: string) => Promise<void>;
+    /** Resolves the user default again (e.g. a default flag changed) */
+    reloadUserDefault: () => Promise<void>;
     toggleDefinition: (definition: BaseAttributeDefinition) => Promise<void>;
     addItems: (items: ProfileItem[]) => Promise<void>;
     removeItems: (ids: string[]) => Promise<void>;
@@ -62,9 +73,27 @@ function extractSyncedPrefs(prefs: UserPreferences): Record<string, unknown> {
     return out;
 }
 
+/**
+ * Applies the synced preferences of the user default to the ones the
+ * user has not set, without saving them: a choice of the user wins.
+ */
+function applyDefaultPreferences(profile: DisplayProfile): void {
+    usePreferencesStore
+        .getState()
+        .applyFallback(
+            extractSyncedPrefs((profile.data ?? {}) as UserPreferences)
+        );
+}
+
+/** A profile the user may not edit is not changed from the profile tools */
+function isReadOnly(profile: DisplayProfile | undefined): boolean {
+    return !!profile && !profile.capabilities?.edit;
+}
+
 export const useProfileStore = create<State>((set, get) => ({
     profiles: [],
     current: undefined,
+    currentIsDefault: false,
     loaded: false,
     loading: false,
 
@@ -76,18 +105,30 @@ export const useProfileStore = create<State>((set, get) => ({
         try {
             const prefProfile =
                 usePreferencesStore.getState().preferences.profile;
-            const [page, current] = await Promise.all([
+            const [page, chosen, userDefault] = await Promise.all([
                 getProfiles(),
                 prefProfile
                     ? getProfile(prefProfile).catch(() => undefined)
                     : Promise.resolve(undefined),
+                // Also named by the "default" entry when a profile is chosen
+                getUserDefaultProfile().catch(() => undefined),
             ]);
+            // A chosen profile no longer readable falls back to the default
+            const fallback = !chosen && !!userDefault;
             set({
                 profiles: page.items,
                 next: page.next,
-                current: current ?? get().current,
+                userDefault,
+                current: fallback
+                    ? userDefault
+                    : (chosen ??
+                      (get().currentIsDefault ? undefined : get().current)),
+                currentIsDefault: fallback,
                 loaded: true,
             });
+            if (fallback && userDefault) {
+                applyDefaultPreferences(userDefault);
+            }
         } finally {
             set({loading: false});
         }
@@ -106,7 +147,11 @@ export const useProfileStore = create<State>((set, get) => ({
         // A profile of the list has neither its items nor its data
         const profile =
             listed && !listed.items ? await getProfile(listed.id) : listed;
-        set({current: profile});
+        const {userDefault} = get();
+        set({
+            current: profile ?? userDefault,
+            currentIsDefault: !profile && !!userDefault,
+        });
         const prefs = usePreferencesStore.getState();
         if (profile) {
             await prefs.updatePreference('profile', profile.id, {
@@ -114,7 +159,15 @@ export const useProfileStore = create<State>((set, get) => ({
                 offlineUpdates: (profile.data ?? {}) as UserPreferences,
             });
         } else {
-            await prefs.updatePreference('profile', null, {reset: true});
+            // The preferences are reset: the default ones all apply
+            await prefs.updatePreference('profile', null, {
+                reset: true,
+                offlineUpdates: userDefault
+                    ? (extractSyncedPrefs(
+                          (userDefault.data ?? {}) as UserPreferences
+                      ) as UserPreferences)
+                    : undefined,
+            });
         }
     },
 
@@ -124,13 +177,36 @@ export const useProfileStore = create<State>((set, get) => ({
                 ? s.profiles.map(p => (p.id === profile.id ? profile : p))
                 : [profile, ...s.profiles],
             current: s.current?.id === profile.id ? profile : s.current,
+            userDefault:
+                s.userDefault?.id === profile.id ? profile : s.userDefault,
         })),
 
     remove: async id => {
         await deleteProfile(id);
+        const {current, userDefault} = get();
         set(s => ({profiles: s.profiles.filter(p => p.id !== id)}));
-        if (get().current?.id === id) {
+        if (userDefault?.id === id) {
+            // Another default may apply now
+            await get().reloadUserDefault();
+        }
+        if (current?.id === id) {
             await get().setCurrent(undefined);
+        }
+    },
+
+    reloadUserDefault: async () => {
+        const userDefault = await getUserDefaultProfile().catch(
+            () => undefined
+        );
+        const {currentIsDefault} = get();
+        set({
+            userDefault,
+            ...(currentIsDefault
+                ? {current: userDefault, currentIsDefault: !!userDefault}
+                : {}),
+        });
+        if (currentIsDefault && userDefault) {
+            applyDefaultPreferences(userDefault);
         }
     },
 
@@ -163,6 +239,9 @@ export const useProfileStore = create<State>((set, get) => ({
 
     addItems: async items => {
         const {current} = get();
+        if (isReadOnly(current)) {
+            return;
+        }
         const profile = await addToProfile(current?.id, items);
         get().upsert(profile);
         if (!current) {
@@ -172,7 +251,7 @@ export const useProfileStore = create<State>((set, get) => ({
 
     removeItems: async ids => {
         const {current} = get();
-        if (!current) {
+        if (!current || isReadOnly(current)) {
             return;
         }
         const profile = await removeFromProfile(current.id, ids);
@@ -181,7 +260,7 @@ export const useProfileStore = create<State>((set, get) => ({
 
     updateItem: async (itemId, data) => {
         const {current} = get();
-        if (!current) {
+        if (!current || isReadOnly(current)) {
             return;
         }
         const item = await putProfileItem(current.id, itemId, data);
@@ -195,7 +274,7 @@ export const useProfileStore = create<State>((set, get) => ({
 
     sortItems: async ids => {
         const {current} = get();
-        if (!current) {
+        if (!current || isReadOnly(current)) {
             return;
         }
         await sortProfileItems(current.id, ids);
@@ -209,8 +288,9 @@ export const useProfileStore = create<State>((set, get) => ({
     },
 
     syncPreferences: async () => {
-        const {current} = get();
-        if (!current?.capabilities.edit) {
+        const {current, currentIsDefault} = get();
+        // The preferences of a user without chosen profile are their own
+        if (!current?.capabilities.edit || currentIsDefault) {
             return;
         }
         const data = extractSyncedPrefs(
@@ -221,8 +301,8 @@ export const useProfileStore = create<State>((set, get) => ({
     },
 
     isSynced: () => {
-        const {current} = get();
-        if (!current) {
+        const {current, currentIsDefault} = get();
+        if (!current || currentIsDefault) {
             return true;
         }
         const prefs = extractSyncedPrefs(

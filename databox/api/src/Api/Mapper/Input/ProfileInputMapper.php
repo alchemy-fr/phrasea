@@ -7,6 +7,7 @@ namespace App\Api\Mapper\Input;
 use App\Api\Model\Input\ProfileInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Profile\Profile;
+use App\Security\InstancePermission;
 use App\Security\Voter\ProfileVoter;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -28,6 +29,13 @@ class ProfileInputMapper extends AbstractFileInputMapper implements InputMapperI
         $published = true === $data->public && !$object->isPublic();
         if (null !== $data->public) {
             $object->setPublic($data->public);
+        }
+
+        if (null !== $data->defaultProfile && $data->defaultProfile !== $object->isDefaultProfile()) {
+            if (!$this->isGranted(InstancePermission::ASSIGN_DEFAULT_PROFILE)) {
+                throw new AccessDeniedHttpException('You are not allowed to assign default profiles.');
+            }
+            $object->setDefaultProfile($data->defaultProfile);
         }
 
         if (null !== $data->name) {

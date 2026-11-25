@@ -51,6 +51,7 @@ class ProfileCrudController extends AbstractAclAdminCrudController
         return $filters
             ->add(TextFilter::new('name'))
             ->add(BooleanFilter::new('public'))
+            ->add(BooleanFilter::new('defaultProfile'))
             ->add(DateTimeFilter::new('createdAt'))
             ->add(DateTimeFilter::new('updatedAt'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
@@ -68,6 +69,9 @@ class ProfileCrudController extends AbstractAclAdminCrudController
             ->hideOnIndex();
         yield BooleanField::new('public')
             ->renderAsSwitch(false);
+        yield BooleanField::new('defaultProfile', 'Default')
+            ->renderAsSwitch(false)
+            ->setHelp('Applied to the readers of the profile while they have not chosen one.');
         yield DateTimeField::new('updatedAt')
             ->hideOnForm();
         yield DateTimeField::new('createdAt')

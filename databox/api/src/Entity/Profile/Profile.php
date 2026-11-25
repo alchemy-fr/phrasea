@@ -26,6 +26,7 @@ use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\RemoveFromProfileProcessor;
 use App\Api\Processor\Sort\ProfileItemSortProcessor;
 use App\Api\Provider\ProfileCollectionProvider;
+use App\Api\Provider\UserDefaultProfileProvider;
 use App\Audit\AuditableInterface;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
@@ -42,6 +43,20 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'profile',
     operations: [
         new GetCollection(),
+        // Declared before "/profiles/{id}", which would match it
+        new Get(
+            uriTemplate: '/profiles/user-default',
+            openapi: new OpenApiOperation(
+                summary: 'Default display profile of the current user',
+                description: 'Among the default profiles the current user reads, the one applied while the user has not chosen one: a profile shared with them (owned or by ACL) wins over a public one, then the oldest. 404 without any.',
+            ),
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            name: 'user_default_profile',
+            provider: UserDefaultProfileProvider::class,
+        ),
         new Get(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
@@ -152,6 +167,12 @@ class Profile extends AbstractUuidEntity implements AuditableInterface, WithOwne
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $items = null;
 
+    /**
+     * Applied to its readers while they have not chosen a profile.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $defaultProfile = false;
+
     #[ORM\OneToOne(targetEntity: ProfileData::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\JoinColumn(nullable: true)]
     private ?ProfileData $data = null;
@@ -188,6 +209,16 @@ class Profile extends AbstractUuidEntity implements AuditableInterface, WithOwne
     public function getItems(): Collection
     {
         return $this->items;
+    }
+
+    public function isDefaultProfile(): bool
+    {
+        return $this->defaultProfile;
+    }
+
+    public function setDefaultProfile(bool $defaultProfile): void
+    {
+        $this->defaultProfile = $defaultProfile;
     }
 
     public function getAclOwnerId(): string

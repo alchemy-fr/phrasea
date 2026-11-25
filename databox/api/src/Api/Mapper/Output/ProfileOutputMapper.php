@@ -46,6 +46,7 @@ class ProfileOutputMapper implements OutputMapperInterface
         $output->name = $data->getName();
         $output->description = $data->getDescription();
         $output->public = $data->isPublic();
+        $output->defaultProfile = $data->isDefaultProfile();
 
         $output->owner = $this->transformUser($data->getOwnerId());
 
