@@ -325,6 +325,33 @@ class UploaderIntegrationTest extends ApiTestCase
     }
 
     /**
+     * The usage counts would be computed on the assets its owner reads, which the holder of the key may not see.
+     */
+    public function testTheIntegrationCannotAskForTheUsage(): void
+    {
+        self::enableFixtures();
+        $apiClient = static::createClient();
+        $integration = $this->createIntegration();
+        $list = $this->createEntityList($integration->getWorkspace(), [['value' => 'Alpha']]);
+
+        foreach (['1', 'true'] as $usage) {
+            $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, [
+                'list' => $list->getId(),
+                'usage' => $usage,
+            ]);
+            $this->assertEquals(400, $response->getStatusCode(), $response->getContent(false));
+            $this->assertStringContainsString('"usage" is not available to an integration key', $response->toArray(false)['detail'] ?? '');
+        }
+
+        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, [
+            'list' => $list->getId(),
+            'usage' => '0',
+        ]);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(['Alpha'], array_column($response->toArray()['member'], 'value'));
+    }
+
+    /**
      * Nobody is behind the integration: even when its owner edits the list or created the values,
      * only the approved ones are read.
      */

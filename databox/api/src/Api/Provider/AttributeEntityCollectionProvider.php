@@ -14,8 +14,10 @@ use App\Elasticsearch\AttributeValueSearch;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Security\IntegrationUser;
 use App\Security\Voter\AttributeDefinitionVoter;
 use App\Service\Image\ImageSetManager;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 {
@@ -34,6 +36,13 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
+        $usage = self::getParameterValue($operation, 'usage');
+        $withUsage = null !== $usage && '' !== $usage && filter_var($usage, FILTER_VALIDATE_BOOL);
+        if ($withUsage && $this->getUser() instanceof IntegrationUser) {
+            // The counts would cover the assets of the integration owner, which the key holder may not see
+            throw new BadRequestHttpException('"usage" is not available to an integration key');
+        }
+
         $workspaces = $this->resolveAllowedWorkspaces($operation);
         if (empty($workspaces)) {
             return [];
@@ -55,8 +64,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         }
         $this->imageSetManager->preload(array_map(fn (AttributeEntity $entity) => $entity->getImage(), $entities));
 
-        $usage = self::getParameterValue($operation, 'usage');
-        if (null !== $usage && '' !== $usage && filter_var($usage, FILTER_VALIDATE_BOOL)) {
+        if ($withUsage) {
             $this->assignUsage(is_iterable($result) ? $result : []);
         }
 
