@@ -31,6 +31,9 @@ class FileUtilTest extends TestCase
             ['application/x-xz-compressed-tar', 'tar.xz'],
             ['application/x-zstd-compressed-tar', 'tar.zst'],
             ['application/x-gzip', 'sql.gz'],
+            ['video/x-ms-wmv', 'wmv'],
+            ['video/x-ms-wmv', 'WMV'],
+            ['audio/x-ms-wma', 'wma'],
             [null, 'unknownext'],
             [null, null],
         ];

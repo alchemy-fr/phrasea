@@ -6,7 +6,6 @@ namespace Alchemy\StorageBundle\Upload;
 
 use Alchemy\StorageBundle\Storage\InlineContentTypePolicy;
 use Alchemy\StorageBundle\Util\FileUtil;
-use Symfony\Component\Mime\MimeTypes;
 
 /**
  * Detects the type of a file from its content (libmagic, on its first bytes only)
@@ -253,8 +252,7 @@ final readonly class ContentTypeDetector
     /**
      * The first type registered for the extension of the file that $container
      * holds, none when the container is itself registered for it (".asf").
-     * Every type is tried, not only the first one: Symfony MIME lists
-     * "audio/x-ms-wmv" before "video/x-ms-wmv" for ".wmv".
+     * Every type is tried, the usual one first, not only the first one.
      */
     private function getContainedTypeFromExtension(string $filename, string $container): ?string
     {
@@ -263,7 +261,7 @@ final readonly class ContentTypeDetector
             return null;
         }
 
-        $types = new MimeTypes()->getMimeTypes($extension);
+        $types = FileUtil::getTypesFromExtension($extension);
         if (in_array($container, $types, true)) {
             return null;
         }

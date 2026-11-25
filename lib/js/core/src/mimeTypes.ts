@@ -2069,11 +2069,22 @@ export function getMIMETypeFromFile(file: File): string | undefined {
     return getMIMETypeFromExtension(extension);
 }
 
+/**
+ * The usual type of an extension for which the map lists another type first.
+ */
+const preferredMimeTypes: Record<Extension, MimeType> = {
+    wmv: 'video/x-ms-wmv',
+};
+
 export function getMIMETypeFromExtension(
     extension: string | undefined
 ): string | undefined {
     if (!extension) {
         return;
+    }
+    const preferred = preferredMimeTypes[extension.toLowerCase()];
+    if (preferred) {
+        return preferred;
     }
     const mimeTypes = getMimeTypesMap();
     for (const [type, extensions] of Object.entries(mimeTypes)) {

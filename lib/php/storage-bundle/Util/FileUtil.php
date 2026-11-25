@@ -18,6 +18,14 @@ final class FileUtil
         'tar.br',
     ];
 
+    /**
+     * The usual type of an extension for which Symfony MIME lists another type first
+     * ("audio/x-ms-wmv" before "video/x-ms-wmv" for ".wmv").
+     */
+    private const array PREFERRED_TYPES = [
+        'wmv' => 'video/x-ms-wmv',
+    ];
+
     public static function isImageType(?string $mimeType): bool
     {
         return 1 === preg_match('#^image/#', $mimeType ?? '');
@@ -90,9 +98,7 @@ final class FileUtil
             return null;
         }
 
-        $mimeTypes = new MimeTypes();
-
-        $types = $mimeTypes->getMimeTypes($extension);
+        $types = self::getTypesFromExtension($extension);
 
         if (empty($types)) {
             if (false !== ($pos = strrpos($extension, '.'))) {
@@ -103,6 +109,21 @@ final class FileUtil
         }
 
         return $types[0];
+    }
+
+    /**
+     * @return string[] the types registered for the extension, the usual one first
+     */
+    public static function getTypesFromExtension(string $extension): array
+    {
+        $types = new MimeTypes()->getMimeTypes($extension);
+
+        $preferred = self::PREFERRED_TYPES[strtolower($extension)] ?? null;
+        if (null !== $preferred && in_array($preferred, $types, true)) {
+            $types = [$preferred, ...array_values(array_diff($types, [$preferred]))];
+        }
+
+        return $types;
     }
 
     public static function stripExtension(string $filename): string

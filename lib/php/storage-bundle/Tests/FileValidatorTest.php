@@ -115,6 +115,13 @@ class FileValidatorTest extends TestCase
         $this->assertSame('video/x-ms-asf', $validator->validateHead(self::ASF, 'song.wma', null));
     }
 
+    public function testWmvWithoutTypeIsAVideo(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        (new FileValidator('audio/*(.mp3,.wma),video/*(.mp4,.wmv)'))->validateFile('clip.wmv', null);
+    }
+
     public function testContentOfAnotherFamilyIsRefused(): void
     {
         $this->expectException(ContentTypeMismatchException::class);
