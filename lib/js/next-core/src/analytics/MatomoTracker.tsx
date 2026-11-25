@@ -1,9 +1,10 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {
     initMatomo,
+    isCookieConsentRequired,
     setUserId,
     trackPageView,
     type MatomoConfig,
@@ -13,6 +14,18 @@ import {
     type UrlRedactor,
 } from '../privacy/redactUrl';
 import {CookieConsentBanner} from './CookieConsentBanner';
+import {getSnapshot, subscribe} from './cookieConsent';
+
+/**
+ * Whether the hits may identify the user: the cookies are accepted, or the
+ * visitor is not asked about them. Without consent, the audience is measured
+ * anonymously, as the banner says.
+ */
+function isUserIdAllowed(): boolean {
+    return (
+        !isCookieConsentRequired() || getSnapshot().consent?.granted === true
+    );
+}
 
 /**
  * Path sent to Matomo for a page, or undefined when the page is not tracked:
@@ -36,7 +49,9 @@ export function getTrackedPath(
  *
  * Next navigates without reloading the page: the URL, the referrer and the
  * title are given to Matomo before every page view. Page views wait for the
- * session to be resolved (`authResolved`), to come with the user id.
+ * session to be resolved (`authResolved`), to come with the user id. The user
+ * id is only sent when the cookies are accepted, or when the visitor is not
+ * asked about them.
  *
  * The secrets of the path (`redactUrl`) are masked after `trackedPath`.
  */
@@ -66,11 +81,17 @@ export function MatomoTracker({
         return Boolean(matomo);
     });
 
+    const userIdAllowed = useSyncExternalStore(
+        subscribe,
+        isUserIdAllowed,
+        () => false
+    );
+
     useEffect(() => {
         if (ready && authResolved) {
-            setUserId(userId);
+            setUserId(userIdAllowed ? userId : undefined);
         }
-    }, [ready, authResolved, userId]);
+    }, [ready, authResolved, userId, userIdAllowed]);
 
     useEffect(() => {
         if (!ready || !authResolved) {
