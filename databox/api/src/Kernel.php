@@ -25,14 +25,33 @@ class Kernel extends BaseKernel
     protected function initializeBundles(): void
     {
         if (!$this->debug && 'prod' !== $this->environment) {
-            $containerPath = $this->getBuildDir().'/'.$this->getContainerClass().'.php';
-            if (!new ConfigCache($containerPath, true)->isFresh()) {
-                @unlink($containerPath);
-                @unlink($this->getBuildDir().'/'.$this->getContainerClass().'.bundles.php');
+            $buildDir = $this->getEffectiveBuildDir();
+            $containerPath = $buildDir.'/'.$this->getContainerClass().'.php';
+            // Checked once per container in a process, as Symfony does in debug
+            if (!(self::$freshCache[$containerPath] ?? false)) {
+                if (new ConfigCache($containerPath, true, null, self::getSkippedResourceTypes())->isFresh()) {
+                    self::$freshCache[$containerPath] = true;
+                } else {
+                    @unlink($containerPath);
+                    @unlink($buildDir.'/'.$this->getContainerClass().'.bundles.php');
+                }
             }
         }
 
         parent::initializeBundles();
+    }
+
+    /**
+     * The resources left out of the freshness check, as Symfony reads SYMFONY_DISABLE_RESOURCE_TRACKING.
+     *
+     * @return list<string>|null
+     */
+    private static function getSkippedResourceTypes(): ?array
+    {
+        $skip = $_SERVER['SYMFONY_DISABLE_RESOURCE_TRACKING'] ?? '';
+        $skip = filter_var($skip, \FILTER_VALIDATE_BOOLEAN, \FILTER_NULL_ON_FAILURE) ?? explode(',', $skip);
+
+        return \is_array($skip) && ['*'] !== $skip ? $skip : ($skip ? [] : null);
     }
 
     protected function configureContainer(ContainerConfigurator $container): void
