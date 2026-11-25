@@ -119,7 +119,8 @@ type State = {
     /**
      * Fills the preferences the user has not set with the given values, in
      * this tab only: nothing is saved (e.g. the display preferences of the
-     * default profile of the user).
+     * default profile of the user). Replaces the values of the previous
+     * fallback the user has not changed since.
      */
     applyFallback: (values: UserPreferences) => void;
     /** Called by the profile store when a preference change must be synced to the current profile instead */
@@ -131,6 +132,9 @@ type State = {
 
 /** Preferences in a throttle window: whether a save is due at its end */
 const throttled = new Map<keyof UserPreferences, {pending: boolean}>();
+
+/** Preferences holding a value of `applyFallback`, not set by the user */
+const fallbackKeys = new Set<keyof UserPreferences>();
 
 export const usePreferencesStore = create<State>((set, get) => ({
     preferences: typeof window !== 'undefined' ? readLocal() : {},
@@ -146,6 +150,7 @@ export const usePreferencesStore = create<State>((set, get) => ({
         try {
             const prefs = await api.get<UserPreferences>('/preferences');
             writeLocal(prefs ?? {});
+            fallbackKeys.clear();
             set({preferences: prefs ?? {}, loaded: true, authenticated: true});
         } catch {
             set({loaded: true, authenticated: true});
@@ -164,6 +169,14 @@ export const usePreferencesStore = create<State>((set, get) => ({
         }
         if (deepEquals(next, prev)) {
             return;
+        }
+        if (options.reset) {
+            fallbackKeys.clear();
+        } else {
+            fallbackKeys.delete(name);
+            Object.keys(options.offlineUpdates ?? {}).forEach(k =>
+                fallbackKeys.delete(k as keyof UserPreferences)
+            );
         }
         set({preferences: next});
         writeLocal(next);
@@ -199,17 +212,23 @@ export const usePreferencesStore = create<State>((set, get) => ({
 
     applyFallback: values => {
         const prev = get().preferences;
+        const kept: UserPreferences = {...prev};
+        fallbackKeys.forEach(k => delete kept[k]);
+        fallbackKeys.clear();
         const missing = Object.fromEntries(
             Object.entries(values).filter(
                 ([k, v]) =>
                     v !== undefined &&
-                    prev[k as keyof UserPreferences] === undefined
+                    kept[k as keyof UserPreferences] === undefined
             )
         );
-        if (Object.keys(missing).length === 0) {
+        Object.keys(missing).forEach(k =>
+            fallbackKeys.add(k as keyof UserPreferences)
+        );
+        const next: UserPreferences = {...kept, ...missing};
+        if (deepEquals(next, prev)) {
             return;
         }
-        const next: UserPreferences = {...prev, ...missing};
         set({preferences: next});
         writeLocal(next);
     },

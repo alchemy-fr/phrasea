@@ -64,6 +64,8 @@ describe('profile store: default profile of the user', () => {
             loaded: false,
             loading: false,
         });
+        // Forgets the values of the fallback of the previous test
+        usePreferencesStore.getState().applyFallback({});
         usePreferencesStore.setState({
             preferences: {},
             authenticated: true,
@@ -179,6 +181,68 @@ describe('profile store: default profile of the user', () => {
         await useProfileStore.getState().reloadUserDefault();
         expect(useProfileStore.getState().current).toBeUndefined();
         expect(useProfileStore.getState().currentIsDefault).toBe(false);
+    });
+
+    it('applies a default marked while none applied', async () => {
+        usePreferencesStore.setState({preferences: {profile: null}});
+        api.getUserDefaultProfile.mockResolvedValue(undefined);
+        await useProfileStore.getState().load();
+        expect(useProfileStore.getState().current).toBeUndefined();
+
+        api.getUserDefaultProfile.mockResolvedValue(userDefault);
+        await useProfileStore.getState().reloadUserDefault();
+
+        expect(useProfileStore.getState().current?.id).toBe('default');
+        expect(useProfileStore.getState().currentIsDefault).toBe(true);
+        expect(usePreferencesStore.getState().preferences).toEqual({
+            profile: null,
+            layout: 'masonry',
+            display: {thumbSize: 300},
+        });
+    });
+
+    it('replaces the preferences of the previous default', async () => {
+        usePreferencesStore.setState({preferences: {profile: null}});
+        await useProfileStore.getState().load();
+        // A choice of the user stays
+        await usePreferencesStore
+            .getState()
+            .updatePreference('display', {thumbSize: 120} as any);
+
+        api.getUserDefaultProfile.mockResolvedValue(
+            profile('other', {layout: 'list', facets: [{name: 'f'}]})
+        );
+        await useProfileStore.getState().reloadUserDefault();
+        expect(usePreferencesStore.getState().preferences).toEqual({
+            profile: null,
+            layout: 'list',
+            display: {thumbSize: 120},
+            facets: [{name: 'f'}],
+        });
+
+        api.getUserDefaultProfile.mockResolvedValue(undefined);
+        await useProfileStore.getState().reloadUserDefault();
+        expect(usePreferencesStore.getState().preferences).toEqual({
+            profile: null,
+            display: {thumbSize: 120},
+        });
+    });
+
+    it('replaces the preferences of the default once "default" is chosen', async () => {
+        usePreferencesStore.setState({preferences: {profile: 'chosen'}});
+        api.getProfile.mockResolvedValue(profile('chosen'));
+        await useProfileStore.getState().load();
+        await useProfileStore.getState().setCurrent(undefined);
+
+        api.getUserDefaultProfile.mockResolvedValue(
+            profile('other', {layout: 'list'})
+        );
+        await useProfileStore.getState().reloadUserDefault();
+
+        expect(usePreferencesStore.getState().preferences).toEqual({
+            profile: null,
+            layout: 'list',
+        });
     });
 
     it('keeps the chosen profile when the default changes', async () => {

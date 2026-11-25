@@ -75,13 +75,16 @@ function extractSyncedPrefs(prefs: UserPreferences): Record<string, unknown> {
 
 /**
  * Applies the synced preferences of the user default to the ones the
- * user has not set, without saving them: a choice of the user wins.
+ * user has not set, without saving them: a choice of the user wins. The
+ * values of a previous default are removed first.
  */
-function applyDefaultPreferences(profile: DisplayProfile): void {
+function applyDefaultPreferences(profile: DisplayProfile | undefined): void {
     usePreferencesStore
         .getState()
         .applyFallback(
-            extractSyncedPrefs((profile.data ?? {}) as UserPreferences)
+            profile
+                ? extractSyncedPrefs((profile.data ?? {}) as UserPreferences)
+                : {}
         );
 }
 
@@ -126,9 +129,7 @@ export const useProfileStore = create<State>((set, get) => ({
                 currentIsDefault: fallback,
                 loaded: true,
             });
-            if (fallback && userDefault) {
-                applyDefaultPreferences(userDefault);
-            }
+            applyDefaultPreferences(fallback ? userDefault : undefined);
         } finally {
             set({loading: false});
         }
@@ -159,15 +160,13 @@ export const useProfileStore = create<State>((set, get) => ({
                 offlineUpdates: (profile.data ?? {}) as UserPreferences,
             });
         } else {
-            // The preferences are reset: the default ones all apply
-            await prefs.updatePreference('profile', null, {
+            // The preferences are reset (synchronously, before the save
+            // resolves): the default ones all apply
+            const saved = prefs.updatePreference('profile', null, {
                 reset: true,
-                offlineUpdates: userDefault
-                    ? (extractSyncedPrefs(
-                          (userDefault.data ?? {}) as UserPreferences
-                      ) as UserPreferences)
-                    : undefined,
             });
+            applyDefaultPreferences(userDefault);
+            await saved;
         }
     },
 
@@ -198,14 +197,16 @@ export const useProfileStore = create<State>((set, get) => ({
         const userDefault = await getUserDefaultProfile().catch(
             () => undefined
         );
-        const {currentIsDefault} = get();
+        const {current, currentIsDefault, loaded} = get();
+        // The default applies while no profile is chosen
+        const applies = currentIsDefault || (loaded && !current);
         set({
             userDefault,
-            ...(currentIsDefault
+            ...(applies
                 ? {current: userDefault, currentIsDefault: !!userDefault}
                 : {}),
         });
-        if (currentIsDefault && userDefault) {
+        if (applies) {
             applyDefaultPreferences(userDefault);
         }
     },
