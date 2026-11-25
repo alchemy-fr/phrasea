@@ -14,9 +14,20 @@ final readonly class HomeChart
     public const string TYPE_DOUGHNUT = 'doughnut';
 
     /**
+     * Widths of the chart card, in columns of the 12-column grid of the page (from the xl breakpoint).
+     */
+    public const int WIDTH_SMALL = 4;
+    public const int WIDTH_MEDIUM = 6;
+    public const int WIDTH_LARGE = 8;
+    public const int WIDTH_FULL = 12;
+
+    private const array WIDTHS = [self::WIDTH_SMALL, self::WIDTH_MEDIUM, self::WIDTH_LARGE, self::WIDTH_FULL];
+
+    /**
      * @param list<string>           $labels
      * @param list<HomeChartDataset> $datasets
      * @param bool                   $horizontal for bars: the labels on the vertical axis
+     * @param int                    $width      one of the WIDTH_* constants
      */
     public function __construct(
         public string $title,
@@ -27,10 +38,14 @@ final readonly class HomeChart
         public bool $horizontal = false,
         public ?string $url = null,
         public ?string $error = null,
+        public int $width = self::WIDTH_SMALL,
     ) {
+        if (!in_array($width, self::WIDTHS, true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid chart width %d, expected one of %s', $width, implode(', ', self::WIDTHS)));
+        }
     }
 
-    public static function failed(string $title, string $icon, \Throwable $error, ?string $url = null): self
+    public static function failed(string $title, string $icon, \Throwable $error, ?string $url = null, int $width = self::WIDTH_SMALL): self
     {
         return new self(
             title: $title,
@@ -38,7 +53,27 @@ final readonly class HomeChart
             type: self::TYPE_BAR,
             url: $url,
             error: $error->getMessage(),
+            width: $width,
         );
+    }
+
+    /**
+     * Whether there is nothing to draw: no label, or only zero values.
+     */
+    public function isEmpty(): bool
+    {
+        if ([] === $this->labels) {
+            return true;
+        }
+        foreach ($this->datasets as $dataset) {
+            foreach ($dataset->data as $value) {
+                if (0.0 !== (float) $value) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -61,6 +96,9 @@ final readonly class HomeChart
                 'label' => $dataset->label,
                 'data' => $dataset->data,
             ];
+            if (null !== $dataset->type) {
+                $config['type'] = $dataset->type;
+            }
             if ($hasAxes) {
                 $axis = $dataset->axis ?? $mainAxis;
                 if (null !== $dataset->axis) {

@@ -6,10 +6,12 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\AdminBundle\Home\HomeActivityItem;
+use Alchemy\AdminBundle\Home\HomeChart;
 use Alchemy\AdminBundle\Home\HomeStat;
 use Alchemy\AdminBundle\Home\PeriodCounter;
 use Alchemy\AdminBundle\Utils\SizeUtils;
 use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
+use App\Admin\Home\UploaderHomeCharts;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
@@ -26,6 +28,7 @@ class DashboardController extends AbstractAdminDashboardController
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly UploaderHomeCharts $homeCharts,
     ) {
     }
 
@@ -93,6 +96,36 @@ class DashboardController extends AbstractAdminDashboardController
             $this->generateCrudUrl(UploadLinkCrudController::class),
         );
         yield fn (): ?HomeStat => $this->createFailedMessagesStat($this->em);
+    }
+
+    #[\Override]
+    protected function getHomeCharts(): iterable
+    {
+        $commitsUrl = $this->generateCrudUrl(CommitCrudController::class);
+        $assetsUrl = $this->generateCrudUrl(AssetCrudController::class);
+        $targetsUrl = $this->generateCrudUrl(TargetCrudController::class);
+
+        yield $this->createHomeChart(
+            UploaderHomeCharts::UPLOADS_TITLE,
+            UploaderHomeCharts::UPLOADS_ICON,
+            fn (): HomeChart => $this->homeCharts->getUploadsChart($commitsUrl),
+            $commitsUrl,
+            UploaderHomeCharts::UPLOADS_WIDTH,
+        );
+        yield $this->createHomeChart(
+            UploaderHomeCharts::FILE_TYPE_TITLE,
+            UploaderHomeCharts::FILE_TYPE_ICON,
+            fn (): HomeChart => $this->homeCharts->getFileTypeChart($assetsUrl),
+            $assetsUrl,
+            UploaderHomeCharts::FILE_TYPE_WIDTH,
+        );
+        yield $this->createHomeChart(
+            UploaderHomeCharts::TARGET_TITLE,
+            UploaderHomeCharts::TARGET_ICON,
+            fn (): HomeChart => $this->homeCharts->getTargetChart($targetsUrl),
+            $targetsUrl,
+            UploaderHomeCharts::TARGET_WIDTH,
+        );
     }
 
     protected function getHomeActivityBlocks(): iterable

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\Home;
 
+use Alchemy\AdminBundle\Home\DailyCounter;
 use Alchemy\AdminBundle\Home\HomeChart;
 use Alchemy\AdminBundle\Home\HomeChartDataset;
 use Alchemy\AdminBundle\Home\HomeStat;
@@ -24,10 +25,13 @@ final readonly class AssetHomeCharts
 {
     public const string TIMELINE_TITLE = 'Assets created (30 days)';
     public const string TIMELINE_ICON = 'fa-solid fa-chart-column';
+    public const int TIMELINE_WIDTH = HomeChart::WIDTH_FULL;
     public const string FAMILY_TITLE = 'Assets by file family';
     public const string FAMILY_ICON = 'fa-solid fa-chart-pie';
+    public const int FAMILY_WIDTH = HomeChart::WIDTH_SMALL;
     public const string WORKSPACE_TITLE = 'Assets by workspace';
     public const string WORKSPACE_ICON = 'fa-solid fa-briefcase';
+    public const int WORKSPACE_WIDTH = HomeChart::WIDTH_LARGE;
 
     private const int TIMELINE_DAYS = 30;
     private const int WORKSPACE_COUNT = 10;
@@ -43,8 +47,9 @@ final readonly class AssetHomeCharts
 
     public function getTimelineChart(?string $url = null): HomeChart
     {
-        $until = new \DateTimeImmutable('today');
-        $since = $until->modify(sprintf('-%d days', self::TIMELINE_DAYS - 1));
+        $days = DailyCounter::getDays(self::TIMELINE_DAYS);
+        $since = $days[0];
+        $until = $days[count($days) - 1];
 
         $aggregation = new DateHistogram(self::AGGREGATION, 'createdAt', 'day');
         $aggregation->setTimezone(date_default_timezone_get());
@@ -106,7 +111,7 @@ final readonly class AssetHomeCharts
         $data = [];
         $until = $until->setTime(0, 0);
         for ($day = $since->setTime(0, 0); $day <= $until; $day = $day->modify('+1 day')) {
-            $labels[] = $day->format('d/m');
+            $labels[] = DailyCounter::formatLabel($day);
             $data[] = $counts[$day->format('Y-m-d')] ?? 0;
         }
 
@@ -117,6 +122,7 @@ final readonly class AssetHomeCharts
             labels: $labels,
             datasets: [new HomeChartDataset('Assets', $data)],
             url: $url,
+            width: self::TIMELINE_WIDTH,
         );
     }
 
@@ -140,6 +146,7 @@ final readonly class AssetHomeCharts
             labels: $labels,
             datasets: [new HomeChartDataset('Assets', $data)],
             url: $url,
+            width: self::FAMILY_WIDTH,
         );
     }
 
@@ -171,6 +178,7 @@ final readonly class AssetHomeCharts
             ],
             horizontal: true,
             url: $url,
+            width: self::WORKSPACE_WIDTH,
         );
     }
 

@@ -250,18 +250,21 @@ class DashboardController extends AbstractAdminDashboardController
             AssetHomeCharts::TIMELINE_ICON,
             fn (): HomeChart => $this->assetHomeCharts->getTimelineChart($assetsUrl),
             $assetsUrl,
+            AssetHomeCharts::TIMELINE_WIDTH,
         );
         yield $this->createHomeChart(
             AssetHomeCharts::FAMILY_TITLE,
             AssetHomeCharts::FAMILY_ICON,
             fn (): HomeChart => $this->assetHomeCharts->getFamilyChart($assetsUrl),
             $assetsUrl,
+            AssetHomeCharts::FAMILY_WIDTH,
         );
         yield $this->createHomeChart(
             AssetHomeCharts::WORKSPACE_TITLE,
             AssetHomeCharts::WORKSPACE_ICON,
             fn (): HomeChart => $this->assetHomeCharts->getWorkspaceChart($workspacesUrl),
             $workspacesUrl,
+            AssetHomeCharts::WORKSPACE_WIDTH,
         );
     }
 

@@ -39,6 +39,7 @@ class AssetHomeChartsTest extends TestCase
         $this->assertSame(['30/10', '31/10', '01/11', '02/11'], $chart->labels);
         $this->assertCount(1, $chart->datasets);
         $this->assertSame([4, 0, 2, 0], $chart->datasets[0]->data);
+        $this->assertSame(HomeChart::WIDTH_FULL, $chart->width);
     }
 
     public function testFamilyChartLabelsTheAssetsWithoutFile(): void
@@ -53,6 +54,7 @@ class AssetHomeChartsTest extends TestCase
         $this->assertSame(HomeChart::TYPE_DOUGHNUT, $chart->type);
         $this->assertSame(['Image', 'No file', 'Video'], $chart->labels);
         $this->assertSame([12, 3, 1], $chart->datasets[0]->data);
+        $this->assertSame(HomeChart::WIDTH_SMALL, $chart->width);
     }
 
     public function testWorkspaceChartHasTheSizeOnASecondAxis(): void
@@ -64,6 +66,7 @@ class AssetHomeChartsTest extends TestCase
 
         $this->assertSame(AssetHomeCharts::WORKSPACE_TITLE, $chart->title);
         $this->assertTrue($chart->horizontal);
+        $this->assertSame(HomeChart::WIDTH_LARGE, $chart->width);
         $this->assertSame(['Marketing', 'ws-unknown'], $chart->labels);
         $this->assertCount(2, $chart->datasets);
 

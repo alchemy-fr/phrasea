@@ -6,9 +6,11 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\AdminBundle\Home\HomeActivityItem;
+use Alchemy\AdminBundle\Home\HomeChart;
 use Alchemy\AdminBundle\Home\HomeStat;
 use Alchemy\AdminBundle\Home\PeriodCounter;
 use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
+use App\Admin\Home\ExposeHomeCharts;
 use App\Entity\Asset;
 use App\Entity\DownloadRequest;
 use App\Entity\Publication;
@@ -26,6 +28,7 @@ class DashboardController extends AbstractAdminDashboardController
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly ExposeHomeCharts $homeCharts,
     ) {
     }
 
@@ -85,6 +88,34 @@ class DashboardController extends AbstractAdminDashboardController
             $this->generateCrudUrl(PublicationProfileCrudController::class),
         );
         yield fn (): ?HomeStat => $this->createFailedMessagesStat($this->em);
+    }
+
+    #[\Override]
+    protected function getHomeCharts(): iterable
+    {
+        $assetsUrl = $this->generateCrudUrl(AssetCrudController::class);
+        $publicationsUrl = $this->generateCrudUrl(PublicationCrudController::class);
+
+        yield $this->createHomeChart(
+            ExposeHomeCharts::ACTIVITY_TITLE,
+            ExposeHomeCharts::ACTIVITY_ICON,
+            fn (): HomeChart => $this->homeCharts->getActivityChart(),
+            width: ExposeHomeCharts::ACTIVITY_WIDTH,
+        );
+        yield $this->createHomeChart(
+            ExposeHomeCharts::FILE_TYPE_TITLE,
+            ExposeHomeCharts::FILE_TYPE_ICON,
+            fn (): HomeChart => $this->homeCharts->getFileTypeChart($assetsUrl),
+            $assetsUrl,
+            ExposeHomeCharts::FILE_TYPE_WIDTH,
+        );
+        yield $this->createHomeChart(
+            ExposeHomeCharts::PUBLICATION_TITLE,
+            ExposeHomeCharts::PUBLICATION_ICON,
+            fn (): HomeChart => $this->homeCharts->getPublicationChart($publicationsUrl),
+            $publicationsUrl,
+            ExposeHomeCharts::PUBLICATION_WIDTH,
+        );
     }
 
     protected function getHomeActivityBlocks(): iterable

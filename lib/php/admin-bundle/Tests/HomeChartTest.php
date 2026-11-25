@@ -93,6 +93,53 @@ class HomeChartTest extends TestCase
         ], $chart->toConfig());
     }
 
+    public function testMixedConfigGivesTheTypeOfEachDataset(): void
+    {
+        $chart = new HomeChart('Uploads', 'fa-solid fa-chart-column', HomeChart::TYPE_BAR, ['01/11', '02/11'], [
+            new HomeChartDataset('Commits', [1, 2]),
+            new HomeChartDataset('Volume', [2048, 0], HomeStat::FORMAT_BYTES, 'y1', HomeChart::TYPE_LINE),
+        ], width: HomeChart::WIDTH_FULL);
+
+        $config = $chart->toConfig();
+        $this->assertSame('bar', $config['type']);
+        $this->assertSame([
+            ['label' => 'Commits', 'data' => [1, 2]],
+            ['label' => 'Volume', 'data' => [2048, 0], 'type' => 'line', 'yAxisID' => 'y1'],
+        ], $config['data']['datasets']);
+        $this->assertSame(['y' => HomeStat::FORMAT_NUMBER, 'y1' => HomeStat::FORMAT_BYTES], $config['formats']['axes']);
+        $this->assertSame([
+            'y' => ['beginAtZero' => true],
+            'y1' => ['beginAtZero' => true, 'position' => 'right', 'grid' => ['drawOnChartArea' => false]],
+        ], $config['options']['scales']);
+        $this->assertArrayNotHasKey('width', $config);
+    }
+
+    public function testWidthDefaultsToSmall(): void
+    {
+        $this->assertSame(HomeChart::WIDTH_SMALL, new HomeChart('Created', 'fa-solid fa-chart-column', HomeChart::TYPE_BAR)->width);
+        $this->assertSame(HomeChart::WIDTH_LARGE, new HomeChart('Created', 'fa-solid fa-chart-column', HomeChart::TYPE_BAR, width: HomeChart::WIDTH_LARGE)->width);
+    }
+
+    public function testInvalidWidth(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new HomeChart('Created', 'fa-solid fa-chart-column', HomeChart::TYPE_BAR, width: 5);
+    }
+
+    public function testIsEmpty(): void
+    {
+        $this->assertTrue(new HomeChart('Created', 'fa-solid fa-chart-column', HomeChart::TYPE_BAR)->isEmpty());
+        $this->assertTrue(new HomeChart('Created', 'fa-solid fa-chart-column', HomeChart::TYPE_BAR, ['01/11', '02/11'], [
+            new HomeChartDataset('Assets', [0, 0]),
+            new HomeChartDataset('Size', [0, 0.0], HomeStat::FORMAT_BYTES, 'y1'),
+        ])->isEmpty());
+        $this->assertFalse(new HomeChart('Created', 'fa-solid fa-chart-column', HomeChart::TYPE_BAR, ['01/11', '02/11'], [
+            new HomeChartDataset('Assets', [0, 0]),
+            new HomeChartDataset('Size', [0, 12], HomeStat::FORMAT_BYTES, 'y1'),
+        ])->isEmpty());
+    }
+
     public function testFailed(): void
     {
         $chart = HomeChart::failed('By family', 'fa-solid fa-chart-pie', new \RuntimeException('ES is down'), '/admin/assets');
@@ -103,5 +150,13 @@ class HomeChartTest extends TestCase
         $this->assertSame('ES is down', $chart->error);
         $this->assertSame([], $chart->labels);
         $this->assertSame([], $chart->datasets);
+        $this->assertSame(HomeChart::WIDTH_SMALL, $chart->width);
+    }
+
+    public function testFailedKeepsTheWidth(): void
+    {
+        $chart = HomeChart::failed('Timeline', 'fa-solid fa-chart-column', new \RuntimeException('ES is down'), width: HomeChart::WIDTH_FULL);
+
+        $this->assertSame(HomeChart::WIDTH_FULL, $chart->width);
     }
 }

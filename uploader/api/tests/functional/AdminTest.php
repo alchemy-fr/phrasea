@@ -7,11 +7,13 @@ namespace App\Tests\Functional;
 use Alchemy\AdminBundle\Tests\AbstractAdminTestCase;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
+use App\Admin\Home\UploaderHomeCharts;
 use App\Controller\Admin\GlobalPermissionsController;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class AdminTest extends AbstractAdminTestCase
@@ -44,6 +46,10 @@ class AdminTest extends AbstractAdminTestCase
         ], [
             'Latest commits',
             'Latest upload links used',
+        ], [
+            UploaderHomeCharts::UPLOADS_TITLE,
+            UploaderHomeCharts::FILE_TYPE_TITLE,
+            UploaderHomeCharts::TARGET_TITLE,
         ]);
     }
 
@@ -81,9 +87,26 @@ class AdminTest extends AbstractAdminTestCase
         $crawler = $this->client->request('GET', '/admin');
         $this->assertResponseIsSuccessful();
 
+        $charts = $crawler->filter('.admin-home-chart');
+        $this->assertCount(3, $charts);
+        $this->assertCount(0, $charts->filter('.text-danger'), $charts->text(''));
+        $configs = [];
+        foreach ($charts as $node) {
+            $chart = new Crawler($node);
+            $configs[trim($chart->filter('.card-header > span')->text())] = json_decode((string) $chart->filter('canvas[data-chart]')->attr('data-chart'), true, 512, JSON_THROW_ON_ERROR);
+        }
+        $uploads = $configs[UploaderHomeCharts::UPLOADS_TITLE]['data']['datasets'];
+        $this->assertSame(1, $uploads[0]['data'][29]);
+        $this->assertSame(2048, $uploads[1]['data'][29]);
+        $this->assertSame('line', $uploads[1]['type']);
+        $this->assertSame(['Image'], $configs[UploaderHomeCharts::FILE_TYPE_TITLE]['data']['labels']);
+        $this->assertSame([2], $configs[UploaderHomeCharts::FILE_TYPE_TITLE]['data']['datasets'][0]['data']);
+        $this->assertSame(['Home target'], $configs[UploaderHomeCharts::TARGET_TITLE]['data']['labels']);
+        $this->assertSame([1], $configs[UploaderHomeCharts::TARGET_TITLE]['data']['datasets'][0]['data']);
+
         $stats = $crawler->filter('.admin-home-stat');
         $this->assertStringContainsString('2.05 kB', $stats->eq(2)->text());
-        $this->assertStringContainsString('24h: 1', $stats->eq(0)->text());
+        $this->assertSame('24h 1', $stats->eq(0)->filter('.admin-home-period')->first()->text());
 
         $row = $crawler->filter('.admin-home-block')->first()->filter('tbody tr')->first();
         $this->assertStringContainsString('Home target', $row->text());

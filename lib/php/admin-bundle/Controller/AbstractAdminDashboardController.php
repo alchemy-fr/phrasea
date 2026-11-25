@@ -151,22 +151,22 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     }
 
     /**
-     * $title, $icon and $url label the error card shown when $build fails, $build giving
-     * them to the chart it returns.
+     * $title, $icon, $url and $width (HomeChart::WIDTH_*) describe the error card shown when
+     * $build fails, $build giving them to the chart it returns.
      *
      * @param callable(): HomeChart $build
      *
      * @return callable(): HomeChart
      */
-    protected function createHomeChart(string $title, string $icon, callable $build, ?string $url = null): callable
+    protected function createHomeChart(string $title, string $icon, callable $build, ?string $url = null, int $width = HomeChart::WIDTH_SMALL): callable
     {
-        return function () use ($title, $icon, $build, $url): HomeChart {
+        return function () use ($title, $icon, $build, $url, $width): HomeChart {
             try {
                 return $build();
             } catch (\Throwable $e) {
                 $this->logHomeSourceError($e, $title);
 
-                return HomeChart::failed($title, $icon, $e, $url);
+                return HomeChart::failed($title, $icon, $e, $url, $width);
             }
         };
     }

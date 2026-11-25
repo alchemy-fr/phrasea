@@ -2,125 +2,394 @@
 
 {% macro value(stat, value) %}{{ stat.format == 'bytes' ? value|file_size : value|number_format(0, '.', ',') }}{% endmacro %}
 
+{% macro card_title(icon, title) %}<span class="admin-home-card-title"><span class="admin-home-icon admin-home-icon-sm" aria-hidden="true"><i class="{{ icon }} fa-fw"></i></span> {{ title }}</span>{% endmacro %}
+
+{% macro see_all(url) %}<a href="{{ url }}" class="admin-home-see-all">See all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>{% endmacro %}
+
 {% block content_title %}
     Home
 {% endblock %}
 
+{% block head_stylesheets %}
+    {{ parent() }}
+    <style>
+        .admin-home-section + .admin-home-section {
+            margin-top: 2rem;
+        }
+
+        .admin-home-section-title {
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--bs-secondary-color);
+            margin: 0 0 .75rem;
+        }
+
+        .admin-home-card {
+            border: 1px solid var(--bs-border-color);
+            border-radius: .75rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+            overflow: hidden;
+        }
+
+        .admin-home-card > .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+            padding: .75rem 1rem;
+            background: transparent;
+            border-bottom: 1px solid var(--bs-border-color);
+        }
+
+        .admin-home-card-title {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            min-width: 0;
+            font-weight: 600;
+        }
+
+        .admin-home-icon {
+            display: inline-flex;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: .625rem;
+            color: var(--bs-primary);
+            background: rgba(var(--bs-primary-rgb), .12);
+            background: color-mix(in srgb, var(--bs-primary) 14%, transparent);
+        }
+
+        .admin-home-icon-sm {
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: .5rem;
+            font-size: .8125rem;
+        }
+
+        .admin-home-see-all {
+            flex-shrink: 0;
+            font-size: .8125rem;
+            color: var(--bs-secondary-color);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .admin-home-see-all:hover,
+        .admin-home-see-all:focus {
+            color: var(--bs-primary);
+        }
+
+        .admin-home-see-all i {
+            font-size: .6875rem;
+        }
+
+        .admin-home-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            padding: 1.5rem 1rem;
+            color: var(--bs-secondary-color);
+            text-align: center;
+        }
+
+        .admin-home-error {
+            margin: 0;
+            padding: 1rem;
+        }
+
+        /* Key figures */
+        .admin-home-stat {
+            transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+        }
+
+        .admin-home-stat .card-body {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            column-gap: .75rem;
+            padding: .875rem 1rem;
+        }
+
+        .admin-home-stat .card-body > .admin-home-icon {
+            grid-row: 1 / span 2;
+        }
+
+        .admin-home-stat-label {
+            grid-column: 2;
+            overflow: hidden;
+            font-size: .8125rem;
+            color: var(--bs-secondary-color);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .admin-home-stat-value {
+            grid-column: 2;
+            line-height: 1.2;
+        }
+
+        .admin-home-stat-periods,
+        .admin-home-stat-error {
+            grid-column: 1 / -1;
+            margin-top: .625rem;
+        }
+
+        .admin-home-stat-periods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .25rem;
+        }
+
+        .admin-home-period {
+            display: inline-flex;
+            align-items: baseline;
+            gap: .25rem;
+            padding: .0625rem .5rem;
+            border: 1px solid var(--bs-border-color);
+            border-radius: 50rem;
+            font-size: .75rem;
+            background: var(--bs-tertiary-bg);
+            white-space: nowrap;
+        }
+
+        .admin-home-period-name {
+            color: var(--bs-secondary-color);
+        }
+
+        .admin-home-period-value {
+            font-weight: 600;
+        }
+
+        a.admin-home-stat {
+            cursor: pointer;
+        }
+
+        a.admin-home-stat:hover,
+        a.admin-home-stat:focus-visible {
+            border-color: var(--bs-primary);
+            box-shadow: 0 .375rem 1rem rgba(0, 0, 0, .08);
+            transform: translateY(-2px);
+        }
+
+        .admin-home-stat.is-error {
+            border-color: rgba(var(--bs-warning-rgb), .6);
+        }
+
+        .admin-home-stat.is-error .admin-home-icon {
+            color: var(--bs-warning);
+            background: rgba(var(--bs-warning-rgb), .15);
+        }
+
+        .admin-home-stat-error {
+            overflow: hidden;
+            font-size: .75rem;
+            color: var(--bs-secondary-color);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Charts */
+        .admin-home-chart .card-body {
+            padding: 1rem;
+        }
+
+        .admin-home-chart-canvas {
+            position: relative;
+            height: 300px;
+        }
+
+        .admin-home-chart-canvas.is-full {
+            height: 280px;
+        }
+
+        .admin-home-chart .admin-home-empty {
+            min-height: 200px;
+        }
+
+        /* Latest activity */
+        .admin-home-table {
+            margin: 0;
+            font-size: .875rem;
+        }
+
+        .admin-home-table > :not(caption) > * > * {
+            padding: .5rem 1rem;
+            border-bottom-color: var(--bs-border-color);
+            vertical-align: middle;
+        }
+
+        .admin-home-table tr:last-child > * {
+            border-bottom: 0;
+        }
+
+        .admin-home-truncate {
+            max-width: 18rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .admin-home-detail {
+            max-width: 14rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .admin-home-stat {
+                transition: none;
+            }
+
+            a.admin-home-stat:hover,
+            a.admin-home-stat:focus-visible {
+                transform: none;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block main %}
-    {% if userNamesError is not null %}
-        <p class="text-muted small"><i class="fa-solid fa-triangle-exclamation"></i> Cannot resolve the user names: {{ userNamesError }}</p>
-    {% endif %}
+    <div class="admin-home">
+        {% if userNamesError is not null %}
+            <p class="text-body-secondary small"><i class="fa-solid fa-triangle-exclamation"></i> Cannot resolve the user names: {{ userNamesError }}</p>
+        {% endif %}
 
-    {% if stats is not empty %}
-        <div class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-3 mb-4 admin-home-stats">
-            {% for stat in stats %}
-                <div class="col">
-                    {% set tag = stat.url is not null ? 'a' : 'div' %}
-                    <{{ tag }} class="card h-100 text-decoration-none text-reset admin-home-stat"{% if stat.url is not null %} href="{{ stat.url }}"{% endif %}{% if stat.error is not null %} title="{{ stat.error }}"{% endif %}>
-                        <div class="card-body">
-                            <div class="text-muted"><i class="{{ stat.icon }} fa-fw"></i> {{ stat.label }}</div>
-                            {% if stat.error is not null %}
-                                <div class="fs-3 fw-bold">—</div>
-                                <div class="small text-muted text-truncate">{{ stat.error }}</div>
-                            {% else %}
-                                <div class="fs-3 fw-bold">{{ _self.value(stat, stat.total) }}</div>
-                                {% if stat.hasPeriods %}
-                                    <div class="small text-muted">
-                                        24h: {{ _self.value(stat, stat.last24h ?? 0) }}
-                                        · 7d: {{ _self.value(stat, stat.last7d ?? 0) }}
-                                        · 30d: {{ _self.value(stat, stat.last30d ?? 0) }}
-                                    </div>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    </{{ tag }}>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {% if charts is not empty %}
-        <div class="row row-cols-1 row-cols-xl-3 g-3 mb-4 admin-home-charts">
-            {% for chart in charts %}
-                <div class="col">
-                    <div class="card h-100 admin-home-chart">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <span class="fw-bold"><i class="{{ chart.icon }} fa-fw"></i> {{ chart.title }}</span>
-                            {% if chart.url is not null %}
-                                <a href="{{ chart.url }}" class="small">See all</a>
-                            {% endif %}
-                        </div>
-                        <div class="card-body">
-                            {% if chart.error is not null %}
-                                <p class="text-danger mb-0">Cannot load the chart: {{ chart.error }}</p>
-                            {% else %}
-                                <div style="position: relative; height: 260px;">
-                                    <canvas data-chart="{{ chart.toConfig|json_encode|e('html_attr') }}"></canvas>
+        {% if charts is not empty %}
+            <section class="admin-home-section">
+                <h2 class="admin-home-section-title">Overview</h2>
+                <div class="row g-3 admin-home-charts">
+                    {% for chart in charts %}
+                        {% set isFull = chart.width == constant('Alchemy\\AdminBundle\\Home\\HomeChart::WIDTH_FULL') %}
+                        <div class="{{ chart.width == constant('Alchemy\\AdminBundle\\Home\\HomeChart::WIDTH_SMALL') ? 'col-12 col-lg-6 col-xl-4' : 'col-12 col-xl-' ~ chart.width }}">
+                            <div class="card h-100 admin-home-card admin-home-chart">
+                                <div class="card-header">
+                                    {{ _self.card_title(chart.icon, chart.title) }}
+                                    {% if chart.url is not null %}
+                                        {{ _self.see_all(chart.url) }}
+                                    {% endif %}
                                 </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {% if blocks is not empty %}
-        <div class="row row-cols-1 row-cols-xl-2 g-3 admin-home-blocks">
-            {% for block in blocks %}
-                <div class="col">
-                    <div class="card h-100 admin-home-block">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <span class="fw-bold"><i class="{{ block.icon }} fa-fw"></i> {{ block.title }}</span>
-                            {% if block.seeAllUrl is not null %}
-                                <a href="{{ block.seeAllUrl }}" class="small">See all</a>
-                            {% endif %}
-                        </div>
-                        <div class="card-body p-0">
-                            {% if block.error is not null %}
-                                <p class="text-danger m-3">Cannot load the latest items: {{ block.error }}</p>
-                            {% else %}
-                                <table class="table datagrid table-sm mb-0">
-                                    <tbody>
-                                    {% for item in block.items %}
-                                        {% set userName = item.userName ?? (item.userId is not null ? userNames[item.userId] ?? null : null) %}
-                                        <tr>
-                                            <td class="text-nowrap" title="{{ item.date|date('Y-m-d H:i:s T') }}">{{ item.date|date('d/m/Y H:i') }}</td>
-                                            <td>
-                                                {% if item.url is not null %}
-                                                    <a href="{{ item.url }}">{{ item.label }}</a>
-                                                {% else %}
-                                                    {{ item.label }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-muted">{{ item.detail }}</td>
-                                            <td>
-                                                {% if userName is not null %}
-                                                    {{ userName }}
-                                                {% elseif item.userId is not null %}
-                                                    <code>{{ item.userId }}</code>
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-end">
-                                                {% if item.status is not null %}
-                                                    <span class="badge text-bg-{{ item.statusVariant ?? 'secondary' }}">{{ item.status }}</span>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
+                                <div class="card-body">
+                                    {% if chart.error is not null %}
+                                        <p class="text-danger mb-0">Cannot load the chart: {{ chart.error }}</p>
+                                    {% elseif chart.isEmpty() %}
+                                        <div class="admin-home-empty"><i class="fa-regular fa-chart-bar" aria-hidden="true"></i> No data yet.</div>
                                     {% else %}
-                                        <tr>
-                                            <td colspan="5" class="text-muted">No recent activity.</td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            {% endif %}
+                                        <div class="admin-home-chart-canvas{{ isFull ? ' is-full' }}">
+                                            <canvas data-chart="{{ chart.toConfig|json_encode|e('html_attr') }}" aria-label="{{ chart.title }}" role="img"></canvas>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+            </section>
+        {% endif %}
+
+        {% if stats is not empty %}
+            <section class="admin-home-section">
+                <h2 class="admin-home-section-title">Key figures</h2>
+                <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 admin-home-stats">
+                    {% for stat in stats %}
+                        <div class="col">
+                            {% set tag = stat.url is not null ? 'a' : 'div' %}
+                            <{{ tag }} class="card h-100 text-decoration-none text-reset admin-home-card admin-home-stat{{ stat.error is not null ? ' is-error' }}"{% if stat.url is not null %} href="{{ stat.url }}"{% endif %}{% if stat.error is not null %} title="{{ stat.error }}"{% endif %}>
+                                <div class="card-body">
+                                    <span class="admin-home-icon" aria-hidden="true"><i class="{{ stat.icon }} fa-fw"></i></span>
+                                    <div class="admin-home-stat-label" title="{{ stat.label }}">{{ stat.label }}</div>
+                                    {% if stat.error is not null %}
+                                        <div class="admin-home-stat-value fs-4 fw-bold">—</div>
+                                        <div class="admin-home-stat-error" title="{{ stat.error }}">{{ stat.error }}</div>
+                                    {% else %}
+                                        <div class="admin-home-stat-value fs-4 fw-bold">{{ _self.value(stat, stat.total) }}</div>
+                                        {% if stat.hasPeriods %}
+                                            <div class="admin-home-stat-periods">
+                                                {% for period, name in {'24h': 'Last 24 hours', '7d': 'Last 7 days', '30d': 'Last 30 days'} %}
+                                                    <span class="admin-home-period" title="{{ name }}"><span class="admin-home-period-name">{{ period }}</span> <span class="admin-home-period-value">{{ _self.value(stat, attribute(stat, 'last' ~ period) ?? 0) }}</span></span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </{{ tag }}>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+        {% if blocks is not empty %}
+            <section class="admin-home-section">
+                <h2 class="admin-home-section-title">Latest activity</h2>
+                <div class="row row-cols-1 row-cols-xl-2 g-3 admin-home-blocks">
+                    {% for block in blocks %}
+                        <div class="col">
+                            <div class="card h-100 admin-home-card admin-home-block">
+                                <div class="card-header">
+                                    {{ _self.card_title(block.icon, block.title) }}
+                                    {% if block.seeAllUrl is not null %}
+                                        {{ _self.see_all(block.seeAllUrl) }}
+                                    {% endif %}
+                                </div>
+                                <div class="card-body p-0">
+                                    {% if block.error is not null %}
+                                        <p class="text-danger admin-home-error">Cannot load the latest items: {{ block.error }}</p>
+                                    {% else %}
+                                        <div class="table-responsive">
+                                            <table class="table table-hover admin-home-table">
+                                                <tbody>
+                                                {% for item in block.items %}
+                                                    {% set userName = item.userName ?? (item.userId is not null ? userNames[item.userId] ?? null : null) %}
+                                                    <tr>
+                                                        <td class="text-nowrap small text-body-secondary" title="{{ item.date|date('Y-m-d H:i:s T') }}">{{ item.date|date('d/m/Y H:i') }}</td>
+                                                        <td>
+                                                            <div class="admin-home-truncate" title="{{ item.label }}">
+                                                                {% if item.url is not null %}
+                                                                    <a href="{{ item.url }}">{{ item.label }}</a>
+                                                                {% else %}
+                                                                    {{ item.label }}
+                                                                {% endif %}
+                                                            </div>
+                                                        </td>
+                                                        <td class="small text-body-secondary">
+                                                            {% if item.detail is not null and item.detail is not same as('') %}
+                                                                <div class="admin-home-truncate admin-home-detail" title="{{ item.detail }}">{{ item.detail }}</div>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="small text-body-secondary text-nowrap">
+                                                            {% if userName is not null %}
+                                                                {{ userName }}
+                                                            {% elseif item.userId is not null %}
+                                                                <code>{{ item.userId }}</code>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="text-end">
+                                                            {% if item.status is not null %}
+                                                                <span class="badge rounded-pill text-bg-{{ item.statusVariant ?? 'secondary' }}">{{ item.status }}</span>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="5" class="admin-home-empty">No recent activity.</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block body_javascript %}
@@ -134,6 +403,17 @@
                 if (typeof Chart === 'undefined') {
                     return;
                 }
+
+                // Primary blue, teal, amber, violet, pink, green, orange, gray
+                const palette = ['#3b63e0', '#14b8a6', '#f59e0b', '#8b5cf6', '#ec4899', '#22c55e', '#f97316', '#94a3b8'];
+                const color = function (index) {
+                    return palette[index % palette.length];
+                };
+                const transparent = function (hex, alpha) {
+                    const value = parseInt(hex.slice(1), 16);
+
+                    return 'rgba(' + (value >> 16) + ', ' + ((value >> 8) & 255) + ', ' + (value & 255) + ', ' + alpha + ')';
+                };
 
                 const units = ['B', 'KB', 'MB', 'GB', 'TB'];
                 const numberFormat = new Intl.NumberFormat('en-US', {maximumFractionDigits: 0});
@@ -150,9 +430,98 @@
                 const format = function (type, value) {
                     return 'bytes' === type ? formatBytes(value) : numberFormat.format(value);
                 };
+                const truncate = function (label, length) {
+                    label = String(label);
 
-                // Follows the EasyAdmin light/dark theme
-                Chart.defaults.color = getComputedStyle(document.body).color;
+                    return label.length > length ? label.slice(0, length - 1) + '…' : label;
+                };
+
+                const xlQuery = window.matchMedia('(min-width: 1200px)');
+                const legendPosition = function () {
+                    return xlQuery.matches ? 'right' : 'bottom';
+                };
+
+                // The text and grid colors follow the EasyAdmin light/dark theme
+                const readTheme = function () {
+                    const style = getComputedStyle(document.body);
+                    const read = function (name, fallback) {
+                        return style.getPropertyValue(name).trim() || fallback;
+                    };
+
+                    return {
+                        text: read('--bs-body-color', style.color),
+                        muted: read('--bs-secondary-color', style.color),
+                        grid: read('--bs-border-color', 'rgba(128, 128, 128, .25)'),
+                    };
+                };
+
+                const charts = [];
+
+                // Sets the colors in the configuration given to Chart.js (chart.config), which
+                // chart.update() resolves again, rather than in the resolved chart.options
+                const applyTheme = function (config, canvas) {
+                    const theme = readTheme();
+                    const options = config.options;
+                    options.color = theme.text;
+                    options.plugins.legend.labels.color = theme.text;
+                    Object.values(options.scales || {}).forEach(function (scale) {
+                        scale.ticks = Object.assign({}, scale.ticks, {color: theme.muted});
+                        scale.grid = Object.assign({}, scale.grid, {color: theme.grid});
+                        scale.border = Object.assign({}, scale.border, {color: theme.grid});
+                    });
+                    if ('doughnut' === config.type) {
+                        options.plugins.legend.position = legendPosition();
+                        const background = getComputedStyle(canvas.closest('.card') || document.body).backgroundColor;
+                        config.data.datasets.forEach(function (dataset) {
+                            dataset.borderColor = background;
+                        });
+                    }
+                };
+
+                const styleDatasets = function (config) {
+                    const datasets = config.data.datasets;
+                    if ('doughnut' === config.type) {
+                        datasets.forEach(function (dataset) {
+                            dataset.backgroundColor = config.data.labels.map(function (label, index) {
+                                return color(index);
+                            });
+                            dataset.borderWidth = 2;
+                            dataset.hoverOffset = 6;
+                        });
+
+                        return;
+                    }
+
+                    const seriesPerAxis = {};
+                    datasets.forEach(function (dataset) {
+                        const axis = dataset.yAxisID || dataset.xAxisID || '';
+                        seriesPerAxis[axis] = (seriesPerAxis[axis] || 0) + 1;
+                    });
+
+                    datasets.forEach(function (dataset, index) {
+                        const main = color(index);
+                        const type = dataset.type || config.type;
+                        dataset.borderColor = main;
+                        if ('line' === type) {
+                            dataset.backgroundColor = transparent(main, .15);
+                            dataset.borderWidth = 2;
+                            dataset.tension = 0.3;
+                            dataset.pointRadius = 2;
+                            dataset.pointHoverRadius = 4;
+                            dataset.pointBackgroundColor = main;
+                            dataset.fill = 1 === seriesPerAxis[dataset.yAxisID || dataset.xAxisID || ''] ? 'origin' : false;
+                            // Drawn over the bars of a mixed chart
+                            dataset.order = 0;
+                        } else {
+                            dataset.backgroundColor = transparent(main, .45);
+                            dataset.hoverBackgroundColor = transparent(main, .7);
+                            dataset.borderWidth = 1.5;
+                            dataset.borderRadius = 4;
+                            dataset.maxBarThickness = 28;
+                            dataset.order = 1;
+                        }
+                    });
+                };
 
                 document.querySelectorAll('canvas[data-chart]').forEach(function (canvas) {
                     const config = JSON.parse(canvas.dataset.chart);
@@ -160,32 +529,84 @@
                     const datasetFormats = formats.datasets || [];
                     delete config.formats;
 
+                    styleDatasets(config);
+
+                    const isDoughnut = 'doughnut' === config.type;
                     const options = config.options = config.options || {};
                     options.responsive = true;
                     options.maintainAspectRatio = false;
-                    options.scales = options.scales || {};
-                    Object.entries(formats.axes || {}).forEach(function ([axis, type]) {
-                        const scale = options.scales[axis] = options.scales[axis] || {};
-                        scale.ticks = Object.assign({}, scale.ticks, {
-                            callback: function (value) {
-                                return format(type, value);
-                            },
-                        });
-                    });
-
                     options.plugins = options.plugins || {};
+                    options.plugins.legend = Object.assign({}, options.plugins.legend);
+                    options.plugins.legend.labels = Object.assign({usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 14}, options.plugins.legend.labels);
+
+                    if (isDoughnut) {
+                        options.cutout = '65%';
+                    } else {
+                        const indexAxis = 'y' === options.indexAxis ? 'y' : 'x';
+                        options.interaction = {mode: 'index', intersect: false, axis: indexAxis};
+                        options.scales = options.scales || {};
+                        options.scales[indexAxis] = Object.assign({}, options.scales[indexAxis]);
+                        options.scales[indexAxis].grid = {display: false};
+                        options.scales[indexAxis].ticks = {
+                            autoSkip: true,
+                            maxRotation: 0,
+                            callback: function (value) {
+                                return truncate(this.getLabelForValue(value), 24);
+                            },
+                        };
+                        Object.entries(formats.axes || {}).forEach(function ([axis, type]) {
+                            const scale = options.scales[axis] = options.scales[axis] || {};
+                            scale.ticks = Object.assign({}, scale.ticks, {
+                                callback: function (value) {
+                                    return format(type, value);
+                                },
+                            });
+                        });
+                    }
+
                     options.plugins.tooltip = options.plugins.tooltip || {};
                     options.plugins.tooltip.callbacks = Object.assign({}, options.plugins.tooltip.callbacks, {
                         label: function (context) {
-                            const label = 'doughnut' === config.type ? context.label : context.dataset.label;
-                            const value = format(datasetFormats[context.datasetIndex] || 'number', context.raw);
+                            const label = isDoughnut ? context.label : context.dataset.label;
+                            let value = format(datasetFormats[context.datasetIndex] || 'number', context.raw);
+                            if (isDoughnut) {
+                                const total = context.dataset.data.reduce(function (sum, item) {
+                                    return sum + Number(item);
+                                }, 0);
+                                if (total > 0) {
+                                    value += ' (' + Math.round(Number(context.raw) * 100 / total) + '%)';
+                                }
+                            }
 
                             return label ? label + ': ' + value : value;
                         },
                     });
 
-                    new Chart(canvas, config);
+                    applyTheme(config, canvas);
+                    charts.push(new Chart(canvas, config));
                 });
+
+                let scheduled = false;
+                const refresh = function () {
+                    if (scheduled) {
+                        return;
+                    }
+                    scheduled = true;
+                    window.requestAnimationFrame(function () {
+                        scheduled = false;
+                        charts.forEach(function (chart) {
+                            applyTheme(chart.config, chart.canvas);
+                            chart.update('none');
+                        });
+                    });
+                };
+
+                // EasyAdmin switches the theme by changing the class and data-bs-theme attribute of <body>
+                const observer = new MutationObserver(refresh);
+                [document.documentElement, document.body].forEach(function (element) {
+                    observer.observe(element, {attributes: true, attributeFilter: ['class', 'data-bs-theme']});
+                });
+                xlQuery.addEventListener('change', refresh);
             })();
         </script>
     {% endif %}
