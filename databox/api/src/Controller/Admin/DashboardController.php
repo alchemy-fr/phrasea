@@ -221,19 +221,28 @@ class DashboardController extends AbstractAdminDashboardController
             fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(Basket::class)->createQueryBuilder('b'), 'b.createdAt'),
             $this->generateCrudUrl(BasketCrudController::class),
         );
-        // DQL has no COUNT(DISTINCT CASE …): one query per window
+        // DQL has no COUNT(DISTINCT CASE …): one query per window. A total since the beginning
+        // would read the whole audit log: it covers the last 30 days.
         yield $this->createHomeStat(
-            'Active users',
+            'Active users (30 days)',
             'fa-solid fa-users',
-            fn (): array => PeriodCounter::fromCallable(function (?\DateTimeImmutable $since): int {
-                $qb = $this->em->getRepository(AuditLog::class)->createQueryBuilder('a')
-                    ->select('COUNT(DISTINCT a.userId)');
-                if (null !== $since) {
-                    $qb->andWhere('a.date >= :since')->setParameter('since', $since);
-                }
+            function (): array {
+                $count = fn (\DateTimeImmutable $since): int => (int) $this->em->getRepository(AuditLog::class)->createQueryBuilder('a')
+                    ->select('COUNT(DISTINCT a.userId)')
+                    ->andWhere('a.date >= :since')
+                    ->setParameter('since', $since)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+                $bounds = PeriodCounter::getBounds();
+                $last30d = $count($bounds['last30d']);
 
-                return (int) $qb->getQuery()->getSingleScalarResult();
-            }),
+                return [
+                    'total' => $last30d,
+                    'last24h' => $count($bounds['last24h']),
+                    'last7d' => $count($bounds['last7d']),
+                    'last30d' => $last30d,
+                ];
+            },
             $this->generateCrudUrl(AuditLogCrudController::class),
         );
         yield fn (): ?HomeStat => $this->createFailedMessagesStat($this->em);

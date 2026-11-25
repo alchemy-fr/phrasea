@@ -26,7 +26,7 @@ class AdminTest extends AbstractDataboxAdminTestCase
             'Exports',
             'Shares',
             'Baskets',
-            'Active users',
+            'Active users (30 days)',
             'Failed messages',
         ], [
             'Latest assets',

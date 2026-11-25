@@ -2,6 +2,7 @@
 
 namespace Alchemy\AdminBundle\DependencyInjection;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\ConfiguratorBundle\StackConfig;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -51,6 +52,18 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
 
         $container->setParameter('alchemy_admin.worker_rabbitmq', $config['worker']['rabbitmq']);
         $container->setParameter('alchemy_admin.worker_inspect_limit', $config['worker']['inspect_limit']);
+
+        $container->prependExtensionConfig('framework', [
+            'cache' => [
+                'pools' => [
+                    AbstractAdminDashboardController::HOME_CACHE_POOL => [
+                        // The tests check the figures of the data they create: an array pool is emptied at each request
+                        'adapter' => 'test' === $container->getParameter('kernel.environment') ? 'cache.adapter.array' : 'cache.app',
+                        'default_lifetime' => AbstractAdminDashboardController::HOME_CACHE_LIFETIME,
+                    ],
+                ],
+            ],
+        ]);
 
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [

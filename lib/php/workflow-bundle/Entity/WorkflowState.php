@@ -15,6 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'workflow_state')]
+#[ORM\Index(name: 'workflow_state_started_at', columns: ['started_at'])]
+#[ORM\Index(name: 'workflow_state_status_started_at', columns: ['status', 'started_at'])]
 class WorkflowState
 {
     #[ORM\Column(type: Types::TEXT)]

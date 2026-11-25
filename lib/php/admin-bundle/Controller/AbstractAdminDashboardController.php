@@ -27,17 +27,26 @@ use EasyCorp\Bundle\EasyAdminBundle\Contracts\Menu\MenuItemInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
 use function Symfony\Component\Translation\t;
 
 abstract class AbstractAdminDashboardController extends AbstractDashboardController
 {
+    /**
+     * The figures of the home page cards are kept for HOME_CACHE_LIFETIME seconds in this pool.
+     */
+    final public const string HOME_CACHE_POOL = 'alchemy_admin.home.cache';
+    final public const int HOME_CACHE_LIFETIME = 300;
+
     private AdminConfigRegistry $adminConfigRegistry;
     private UserDisplayNameResolver $userDisplayNameResolver;
     private LoggerInterface $logger;
+    private CacheInterface $homeCache;
 
     /**
      * Routed by the #[AdminDashboard] attribute of the application dashboard: a #[Route] here
@@ -136,6 +145,8 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     }
 
     /**
+     * $counts is cached for HOME_CACHE_LIFETIME seconds per dashboard and label; a failure is not.
+     *
      * @param callable(): array{total: int, last24h?: ?int, last7d?: ?int, last30d?: ?int} $counts
      *
      * @return callable(): HomeStat
@@ -144,7 +155,9 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     {
         return function () use ($label, $icon, $counts, $url, $format): HomeStat {
             try {
-                return HomeStat::fromCounts($label, $icon, $counts(), $url, $format);
+                $cacheKey = 'stat_'.hash('xxh128', static::class."\0".$label);
+
+                return HomeStat::fromCounts($label, $icon, $this->homeCache->get($cacheKey, static fn (): array => $counts()), $url, $format);
             } catch (\Throwable $e) {
                 $this->logHomeSourceError($e, $label);
 
@@ -344,5 +357,11 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
+    }
+
+    #[Required]
+    public function setHomeCache(#[Autowire(service: self::HOME_CACHE_POOL)] CacheInterface $homeCache): void
+    {
+        $this->homeCache = $homeCache;
     }
 }
