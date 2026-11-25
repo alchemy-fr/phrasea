@@ -5,9 +5,12 @@ namespace Alchemy\WorkflowBundle\Listener;
 use Alchemy\Workflow\Listener\JobUpdateEvent;
 use Alchemy\Workflow\Listener\WorkflowUpdateEvent;
 use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Client\NetworkExceptionInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Pusher\ApiErrorException;
 use Pusher\Pusher;
+use Pusher\PusherException;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
@@ -51,8 +54,12 @@ final readonly class PusherListener
 
         try {
             $this->pusher->trigger($this->channelPrefix.$workflowId, $event, $payload);
-        } catch (ApiErrorException|GuzzleException $e) {
-            $this->logger->error('Failed to push {event}: {error}', [
+        } catch (PusherException|GuzzleException $e) {
+            // A transport failure (timeout, connection refused, skipped by an open
+            // circuit breaker) is transient, unlike an error answered by Sockudo.
+            $transport = $e instanceof NetworkExceptionInterface || ($e instanceof ApiErrorException && 0 === $e->getCode());
+
+            $this->logger->log($transport ? LogLevel::WARNING : LogLevel::ERROR, 'Failed to push {event}: {error}', [
                 'event' => $event,
                 'error' => $e->getMessage(),
                 'workflowId' => $workflowId,

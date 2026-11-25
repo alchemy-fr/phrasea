@@ -3,6 +3,7 @@
 namespace Alchemy\CoreBundle\Pusher;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 use Pusher\Pusher;
 
 abstract class PusherFactory
@@ -20,7 +21,7 @@ abstract class PusherFactory
             'host' => $host,
             // Pusher passes its own timeout (30s by default) to every request,
             // which overrides the one of the Guzzle client below.
-            'timeout' => 5,
+            'timeout' => 2,
         ];
 
         // Server side, Sockudo can be reached directly instead of through the
@@ -33,6 +34,11 @@ abstract class PusherFactory
             $options['scheme'] = $scheme;
         }
 
+        // After a network failure, the requests of the process are skipped for a
+        // while instead of each waiting for the timeout.
+        $stack = HandlerStack::create();
+        $stack->push(new CircuitBreakerMiddleware(), 'circuit_breaker');
+
         return new Pusher(
             $key,
             $secret,
@@ -40,10 +46,12 @@ abstract class PusherFactory
             $options,
             new Client([
                 'verify' => $verifySsl,
-                // Pushes are best-effort real-time hints: never let an unreachable
-                // Sockudo host hold a request or a worker for the default 30s+.
-                'connect_timeout' => 3,
-                'timeout' => 5,
+                // Pushes are best-effort real-time hints and Sockudo answers in a
+                // few milliseconds on the internal network: never let an
+                // unreachable host hold a request or a worker for long.
+                'connect_timeout' => 1,
+                'timeout' => 2,
+                'handler' => $stack,
             ])
         );
     }

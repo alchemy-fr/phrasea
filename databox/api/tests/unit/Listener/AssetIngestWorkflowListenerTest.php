@@ -15,6 +15,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Pusher\Pusher;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -28,8 +29,11 @@ class AssetIngestWorkflowListenerTest extends TestCase
             ->method('trigger')
             ->willThrowException(new ConnectException('Connection timed out', new Request('POST', 'https://sockudo')));
 
+        $pusherLogger = $this->createMock(LoggerInterface::class);
+        $pusherLogger->expects($this->once())->method('log')->with(LogLevel::WARNING);
+
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())->method('error');
+        $logger->expects($this->never())->method($this->anything());
 
         $state = new WorkflowState(
             new MemoryStateRepository(),
@@ -38,7 +42,7 @@ class AssetIngestWorkflowListenerTest extends TestCase
         );
         $state->setStatus(WorkflowState::STATUS_SUCCESS);
 
-        new AssetIngestWorkflowListener(new PusherManager($pusher, $this->createMock(MessageBusInterface::class)), $logger)
+        new AssetIngestWorkflowListener(new PusherManager($pusher, $this->createMock(MessageBusInterface::class), logger: $pusherLogger), $logger)
             ->onWorkflowUpdate(new WorkflowUpdateEvent($state));
     }
 }
