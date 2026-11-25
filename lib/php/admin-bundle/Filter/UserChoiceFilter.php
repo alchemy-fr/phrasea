@@ -2,30 +2,57 @@
 
 namespace Alchemy\AdminBundle\Filter;
 
-use Alchemy\AuthBundle\Client\KeycloakClient;
-use Alchemy\AuthBundle\Client\ServiceAccountClient;
-use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AdminBundle\Utils\UserChoiceLoader;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Filter\FilterInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\FiltersFormType;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final readonly class UserChoiceFilter
 {
-    public function __construct(private ServiceAccountClient $serviceAccountClient, private KeycloakClient $authServiceClient)
-    {
+    public function __construct(
+        private UserChoiceLoader $userChoiceLoader,
+        private RequestStack $requestStack,
+    ) {
     }
 
-    public function createFilter(string $propertyName, ?string $label = null): ChoiceFilter
+    /**
+     * A choice among the users, in which an ID missing from the list can also be typed. Without
+     * the user list (identity provider unavailable), an exact match on the typed ID.
+     */
+    public function createFilter(string $propertyName, ?string $label = null): FilterInterface
     {
-        /** @var JwtUser[] $users */
-        $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
+        $users = $this->userChoiceLoader->getUsers();
+        if (empty($users)) {
+            return TextFilter::new($propertyName, $label)
+                ->setFormTypeOption('comparison_type_options.type', 'choice');
+        }
+
+        $requestedId = $this->getRequestedId($propertyName);
+        if (null !== $requestedId && !isset($users[$requestedId])) {
+            $users[$requestedId] = $requestedId;
+        }
+
         $choices = [];
-        foreach ($users as $user) {
-            $choices[$user['username']] = $user['id'];
+        foreach ($users as $id => $name) {
+            $choices[$name] = (string) $id;
         }
 
-        if (empty($choices)) {
-            $choices = ['' => ''];
-        }
+        return ChoiceFilter::new($propertyName, $label)
+            ->setChoices($choices)
+            ->setFormTypeOption('value_type_options.attr', [
+                'data-ea-widget' => 'ea-autocomplete',
+                'data-ea-autocomplete-allow-item-create' => 'true',
+            ]);
+    }
 
-        return ChoiceFilter::new($propertyName, $label)->setChoices($choices);
+    private function getRequestedId(string $propertyName): ?string
+    {
+        $filters = $this->requestStack->getCurrentRequest()?->query->all(EA::FILTERS) ?? [];
+        $value = $filters[str_replace('.', FiltersFormType::EMBEDDED_PROPERTY_SEPARATOR, $propertyName)]['value'] ?? null;
+
+        return is_string($value) && '' !== $value ? $value : null;
     }
 }

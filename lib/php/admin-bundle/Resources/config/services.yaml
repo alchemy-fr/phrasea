@@ -38,6 +38,8 @@ services:
 
   Alchemy\AdminBundle\Utils\UserDisplayNameResolver: ~
 
+  Alchemy\AdminBundle\Utils\UserChoiceLoader: ~
+
   Alchemy\AdminBundle\Home\HomeChartFactory: ~
 
   Alchemy\AdminBundle\Listener\EasyAdminListener: ~
