@@ -44,6 +44,8 @@ container environment and the stack configuration at request time (see
 | `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `CSP_REPORT_ONLY`, `CSP_EXTRA_SOURCES` | Content Security Policy (see below) |
 | `DEV_MODE` | "Debug user" entry of the user menu |
+| `APP_ID` | Identifier of the application in the Sentry events (`app.id`, default `uploader`) |
+| `NEXT_ALLOWED_DEV_ORIGINS` | `next dev` only: hosts allowed to reach the dev server besides the host of `UPLOADER_CLIENT_URL`, comma separated (`next.config.ts`) |
 | `CONFIGURATOR_S3_*`, `CONFIG_IS_PUBLIC`, `STACK_CONFIG_SRC`, `STACK_CONFIG_REFRESH_INTERVAL` | Stack configuration, read like the Databox client does |
 | stack `uploader.max_upload_file_size` | Maximum size of a file (falls back to `S3_MAX_OBJECT_SIZE`) |
 | stack `uploader.max_upload_commit_size` | Maximum size of a batch |
@@ -90,14 +92,18 @@ page whose inline script cannot bear the nonce.
 ```
 src/
   app/            Next.js routes (App Router); the private ones under app/(app)
-  components/     Layout (the design system is `@alchemy/next-ui`, shared)
+  components/
+    layout/       Application shell and top bar (the design system is `@alchemy/next-ui`, shared)
+    form/code/    Code editor of the JSON fields (target data)
   features/
     targets/      Target list
     upload/       Upload wizard, and its engine (engine/: queue, resume, transport)
     download/     Upload by URL
+    upload-link/  Page of an upload link (/l/[token]), without account
     form-builder/ Forms of the targets: definition, editor (editor/) and renderer (render/)
-    admin/        Editors of the form and of the data of each target
-  lib/            Config, auth (OIDC/PKCE), API client, navigation guard
+    admin/        Target editors (properties, form, data) and upload links
+    user/         Current user (`GET /me`) and the "Debug user" dialog
+  lib/            Config, auth (OIDC/PKCE), API client, analytics, monitoring, privacy, security, SEO
   i18n/           Languages and translations of the uploader (en, fr, de, es)
   types/          API contracts
 ```
@@ -121,10 +127,29 @@ PUT at a time, two files at a time.
   the "done" screen only shows once the API accepted the commit, an error
   is shown otherwise (retry, or edit the form).
 
+## Routes
+
+| Route | Page |
+|---|---|
+| `/` | Targets the user may upload to; opens the target directly when there is only one |
+| `/upload/[id]` | Upload wizard of a target: files, information (form), finalization, done |
+| `/download/[id]` | Import of a file from a URL into a target (`POST /downloads`) |
+| `/admin/targets` | Targets: list and creation (admins), with their form and data |
+| `/admin/targets/[id]` | Target editor: Properties, Form and Data tabs, each behind its permission |
+| `/admin/upload-links` | Upload links of the user (every link for an admin) |
+| `/l/[token]` | Page of an upload link: public, no account; neither indexed nor sent as a referrer |
+
+`/admin/forms[/id]` and `/admin/target-data[/id]`, the former form and target
+data editors, redirect permanently to `/admin/targets[/id]`
+(`next.config.ts`).
+
+The API, the flow of an upload and the configuration are documented in
+[doc/tech/Uploader](../../doc/tech/Uploader/01_intro.md).
+
 ## Not implemented
 
 - **notifications**: the Uploader API exposes no in-app notification
   endpoint (see `uploader/api/config/routes/alchemy_notifier.yaml`), so
-  there is no bell nor realtime connection;
-- **multi-step forms**: `doc/tech/Uploader/form-steps.md` describes a
-  `POST /schema` endpoint the API does not implement.
+  there is no bell nor realtime connection. The notifications asked with
+  "Notify me when done" reach the user by email; their in-app copy is only
+  recorded by the API (admin > Notifications).

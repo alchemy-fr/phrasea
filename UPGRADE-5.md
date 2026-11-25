@@ -773,7 +773,8 @@ Item `PUT` operations are removed from every resource. Send `PATCH` with
   `/template-attributes`, `/baskets`, `/messages`;
 - expose: `/assets`, `/publications`, `/publication_profiles`,
   `/download_requests`;
-- uploader: `/targets`, `/target-params`, `/form-schemas`.
+- uploader: `/targets` (`/target-params` and `/form-schemas` are removed, see
+  [Form and data on the target](#form-and-data-on-the-target)).
 
 RPC-style `PUT` routes are kept: `/assets/{id}/trigger-workflow`,
 `/assets/{id}/position`, `/assets/{id}/story-cover`,
@@ -1088,9 +1089,29 @@ upgraded separately.
 ## Uploader API
 
 Routes, methods and bodies of `POST /assets`, `/assets/{id}/ack`, `/commit`,
-`/commits/{id}/ack`, `/form/validate` and `GET /targets/{id}/form-schema` are
-unchanged. Only `PUT` → `PATCH`, the `hydra:` prefix and filter typing change:
-`acknowledged` is a strict boolean, `target` accepts an id or an IRI.
+`/commits/{id}/ack` and `/form/validate` are unchanged. Only `PUT` → `PATCH`,
+the `hydra:` prefix and filter typing change: `acknowledged` is a strict
+boolean, `target` accepts an id or an IRI. `GET /targets/{id}/form-schema`
+becomes `GET /targets/{id}/form` (see below).
+
+### Form and data on the target
+
+A target holds its form and its data itself:
+
+- `/form-schemas` and `/target-params` are removed. The form of a target is
+  read and written with `GET|PUT /targets/{id}/form`, its data with
+  `GET|PUT /targets/{id}/data`; `GET /targets` and `GET /targets/{id}` tell
+  whether a target has them (`hasForm`, `hasData`).
+- A target has one form for every language, designed with the form builder
+  of the Uploader client: the LiForm JSON schemas are gone, and so is the
+  `localeMode`.
+- The migration `Version20261111120000` converts the schemas of each target
+  into one builder form and moves its target params to its data. What the
+  builder cannot express is left out, with a warning naming the target and the
+  key. The ACEs set on one schema or one params record are deleted, the global
+  ones (`form_schema`, `target_params`) are kept. It cannot be reverted.
+
+See [Migration from LiForm](doc/tech/Uploader/form_config.md#migration-from-liform).
 
 ### Upload links
 

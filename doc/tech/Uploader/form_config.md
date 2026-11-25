@@ -1,3 +1,7 @@
+---
+title: Form Configuration
+---
+
 # Form Configuration
 
 A target (`Target`) holds its upload form and its data:
@@ -86,7 +90,7 @@ Users therefore need access to Databox (the `databox` role, and to the workspace
 
 ## Reserved keys
 
-- `__notify`: the user asks for an email notification when the upload is processed (built-in field "Notify me when done").
+- `__notify`: the user asks to be notified (by email) once the destination has acknowledged the upload (built-in field "Notify me when done", hidden on the upload link page). See [Notifications](./configuration.md#notifications).
 - `collection_destination`: the collection the assets are stored in; defaults to the default destination of the target.
 
 ### Databox reserved keys

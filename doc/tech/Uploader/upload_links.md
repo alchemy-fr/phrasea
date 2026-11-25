@@ -1,3 +1,7 @@
+---
+title: Upload Links
+---
+
 # Upload Links
 
 An upload link lets someone without an account (a photographer, a partner…) send files to one target. It is a secret URL, `https://<uploader client>/l/<token>`, handed out by the user who created it: whoever holds it can upload, within the limits of the link.
