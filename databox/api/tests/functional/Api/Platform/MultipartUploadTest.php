@@ -901,4 +901,19 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $this->assertSame(Command::INVALID, $tester->getStatusCode());
         $this->assertSame([], $this->s3Commands);
     }
+
+    #[DataProvider('getNonIntegerMinAges')]
+    public function testPruningRefusesANonIntegerMinimumAge(string $minAge): void
+    {
+        $tester = $this->prune(['--min-age' => $minAge]);
+
+        $this->assertSame(Command::INVALID, $tester->getStatusCode());
+        $this->assertStringContainsString('--min-age must be a whole number of hours', $tester->getDisplay());
+        $this->assertSame([], $this->s3Commands);
+    }
+
+    public static function getNonIntegerMinAges(): array
+    {
+        return [['abc'], ['4.5'], ['']];
+    }
 }

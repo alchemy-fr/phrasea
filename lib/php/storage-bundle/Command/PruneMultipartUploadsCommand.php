@@ -24,9 +24,16 @@ final class PruneMultipartUploadsCommand extends Command
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Option('Minimum age of the uploads to prune, in hours (at least '.(UploadManager::PRUNE_MIN_AGE_LIMIT / 3600).', the lifetime of the part URLs)', name: 'min-age')]
-        int $hours = UploadManager::PRUNE_MIN_AGE / 3600,
+        #[Option('Minimum age of the uploads to prune, in hours (default '.(UploadManager::PRUNE_MIN_AGE / 3600).', at least '.(UploadManager::PRUNE_MIN_AGE_LIMIT / 3600).', the lifetime of the part URLs)', name: 'min-age')]
+        ?string $hours = null,
     ): int {
+        $hours = null === $hours ? intdiv(UploadManager::PRUNE_MIN_AGE, 3600) : filter_var($hours, FILTER_VALIDATE_INT);
+        if (false === $hours) {
+            $io->error('--min-age must be a whole number of hours');
+
+            return Command::INVALID;
+        }
+
         $minAge = $hours * 3600;
         if ($minAge < UploadManager::PRUNE_MIN_AGE_LIMIT) {
             $io->error(sprintf('--min-age must be at least %d hours', UploadManager::PRUNE_MIN_AGE_LIMIT / 3600));
