@@ -18,7 +18,7 @@ rendition definitions, in the "Public" rendition policy (build definitions in
 | ------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------- |
 | `Source`            | Pick source, no parent, assets only      | The file of the asset as is: the one to export or share to get the source.         |
 | `Main`              | Custom (`main.yaml`), from the source    | `useAsMain`: the version displayed by the asset viewer, readable by a web browser. |
-| `Preview`           | Custom (`preview.yaml`), from the source | `useAsPreview`                                                                     |
+| `Preview`           | Custom (`preview.yaml`), from `Main`     | `useAsPreview`                                                                     |
 | `Thumbnail`         | Custom, from `Preview`                   | `useAsThumbnail`, built first                                                      |
 | `AnimatedThumbnail` | Custom, from `Preview`                   | `useAsAnimatedThumbnail`                                                           |
 | `StoryContactSheet` | `generate:` (stories only)               | Thumbnail and animated thumbnail of the stories, see below                         |

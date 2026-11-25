@@ -50,8 +50,7 @@ final readonly class WorkspaceCreator
         $renditionDefs = ['source' => $source];
         foreach ([
             'main' => null,
-            // Built from the source: the web version of Main may have lost what Preview needs (audio artwork…)
-            'preview' => null,
+            'preview' => 'main',
             'thumbnail' => 'preview',
             'animatedThumbnail' => 'preview',
         ] as $renditionName => $parentName) {

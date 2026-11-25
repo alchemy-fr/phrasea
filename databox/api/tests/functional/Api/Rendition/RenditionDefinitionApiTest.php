@@ -153,6 +153,7 @@ YAML;
     {
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $this->addUserOnWorkspace(self::READER, $ws->getId());
+        $main = $defaults->renditionDefinitions['main'];
         $preview = $defaults->renditionDefinitions['preview'];
 
         $data = $this->jsonRequest('GET', '/rendition-definitions/'.$preview->getId(), self::EDITOR)->toArray();
@@ -161,7 +162,7 @@ YAML;
         $this->assertFalse($data['useAsMain']);
         $this->assertSame(RenditionDefinition::BUILD_MODE_CUSTOM, $data['buildMode']);
         $this->assertNotEmpty($data['definition']);
-        $this->assertNull($data['parent'] ?? null);
+        $this->assertSame('/rendition-definitions/'.$main->getId(), $data['parent']['@id'] ?? $data['parent']);
         $this->assertSame(AssetTypeEnum::Both->value, $data['target']);
 
         $data = $this->jsonRequest('GET', '/rendition-definitions/'.$preview->getId(), self::READER)->toArray();
@@ -375,15 +376,15 @@ YAML;
     public function testPatchKeepsTheParent(): void
     {
         [, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
-        $thumbnail = $defaults->renditionDefinitions['thumbnail'];
-        $previewIri = '/rendition-definitions/'.$defaults->renditionDefinitions['preview']->getId();
+        $preview = $defaults->renditionDefinitions['preview'];
+        $mainIri = '/rendition-definitions/'.$defaults->renditionDefinitions['main']->getId();
 
-        $response = $this->jsonRequest('PATCH', '/rendition-definitions/'.$thumbnail->getId(), self::EDITOR, [
+        $response = $this->jsonRequest('PATCH', '/rendition-definitions/'.$preview->getId(), self::EDITOR, [
             'name' => 'Renamed',
         ]);
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
-        $this->assertSame($previewIri, $data['parent']['@id'] ?? $data['parent'] ?? null);
+        $this->assertSame($mainIri, $data['parent']['@id'] ?? $data['parent'] ?? null);
     }
 
     public function testPatchKeepsTheBuildDefinition(): void

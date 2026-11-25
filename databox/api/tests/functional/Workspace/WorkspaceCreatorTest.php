@@ -68,12 +68,12 @@ final class WorkspaceCreatorTest extends AbstractDataboxTestCase
         }
     }
 
-    public function testPreviewIsBuiltFromTheSource(): void
+    public function testPreviewIsBuiltFromMain(): void
     {
         [, $defaults] = $this->createWorkspaceWithDefaults('ws-preview');
         $definitions = $defaults->renditionDefinitions;
 
-        $this->assertNull($definitions['preview']->getParent());
+        $this->assertSame($definitions['main'], $definitions['preview']->getParent());
         $this->assertSame($definitions['preview'], $definitions['thumbnail']->getParent());
         $this->assertSame($definitions['preview'], $definitions['animatedThumbnail']->getParent());
     }
