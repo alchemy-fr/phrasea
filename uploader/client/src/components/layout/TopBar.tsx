@@ -3,13 +3,7 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
-import {
-    BracesIcon,
-    BugIcon,
-    FileJsonIcon,
-    Link2Icon,
-    UploadCloudIcon,
-} from 'lucide-react';
+import {BugIcon, Link2Icon, TargetIcon, UploadCloudIcon} from 'lucide-react';
 import {DropdownMenuItem} from '@alchemy/next-ui/ui/menu';
 import {
     AppLogo,
@@ -89,25 +83,13 @@ export function TopBar() {
                 aria-label={t('nav.admin', 'Administration')}
                 className="ml-2 flex min-w-0 flex-1 items-center gap-1"
             >
-                {me?.permissions.form_schema ? (
+                {me?.permissions.form_schema || me?.permissions.target_data ? (
                     <NavLink
-                        href={routes.forms()}
-                        testId="nav-forms"
-                        active={pathname.startsWith(routes.forms())}
-                        icon={<FileJsonIcon />}
-                        label={t('nav.form_editor', 'Form Editor')}
-                    />
-                ) : null}
-                {me?.permissions.target_data ? (
-                    <NavLink
-                        href={routes.targetDataList()}
-                        testId="nav-target-data"
-                        active={pathname.startsWith(routes.targetDataList())}
-                        icon={<BracesIcon />}
-                        label={t(
-                            'nav.target_data_editor',
-                            'Target Data Editor'
-                        )}
+                        href={routes.targets()}
+                        testId="nav-targets"
+                        active={pathname.startsWith(routes.targets())}
+                        icon={<TargetIcon />}
+                        label={t('nav.target_editor', 'Target Editor')}
                     />
                 ) : null}
                 {me?.permissions.upload_link ? (

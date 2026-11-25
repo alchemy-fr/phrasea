@@ -11,8 +11,9 @@ status: WIP
 ## Glossary
 
 - **Target**: Destination for files  
-- **Form editor**: Builds, for each target, the indexing form filled in by the user (form builder).  
-- **Target data editor**: Additional indexing data of a target, not accessible to the user.  
+- **Target editor**: Edits the settings of each target, in two tabs:  
+  - **Form**: Builds the indexing form filled in by the user (form builder).  
+  - **Data**: Additional indexing data of the target, not accessible to the user.  
 - **Asset**: Uploaded file.  
 - **Commit**: Grouping of assets and information entered in the target form (in JSON format)  
 - **Multipart upload**: Files are split into chunks and reassembled on the server once the upload is complete.
@@ -118,14 +119,17 @@ In Push mode, the operation of the Uploader with Phraseanet is identical in mech
 
 ## Target Form Configuration
 
-### Form editor
+### Target editor
 
-In the Uploader client interface: “Form Editor” menu  
-Documentation and example [form](../../tech/Uploader/form_config.md)  
-   
-Click on a Target: the list shows which targets have a form.
+In the Uploader client interface: “Target Editor” menu. The list shows, for each target, whether it has a form and data. Click on a Target to edit it: its page has a “Form” tab and a “Data” tab, each with its own “Save” button. Switching tabs keeps unsaved changes.
 
-Each target has one form, for every language: its labels, help texts and placeholders are translated in the form itself. The form editor builds the form by dragging the attributes of a Databox workspace (entity lists included), Databox values (name, story), custom fields and sections, and shows its rendering. "Delete the form" removes it: the target then accepts no indexing data from the user.
+Each tab requires its own permission: the form one (form edition) or the data one (target data edition). A user who has only one of them sees only that tab.
+
+### Form tab
+
+Documentation and example [form](../../tech/Uploader/form_config.md)
+
+Each target has one form, for every language: its labels, help texts and placeholders are translated in the form itself. The Form tab builds the form by dragging the attributes of a Databox workspace (entity lists included), Databox values (name, story), custom fields and sections, and shows its rendering. "Delete the form" removes it: the target then accepts no indexing data from the user.
 
 Forms described in JSON (LiForm) before version 5 were converted to the form builder on upgrade; see the [technical documentation](../../tech/Uploader/form_config.md#migration-from-liform) for what the conversion keeps.
 
@@ -133,11 +137,11 @@ Example:
 
 ![][image4] todo
 
-### Target data editor
+### Data tab
 
-In the Uploader client interface: “Target Data Editor” menu. The “Target data editor” allows you to pass, as a JSON object, additional data added to every upload of the target to describe the assets. Emptying it removes the data of the target.
+The “Data” tab of the target editor allows you to pass, as a JSON object, additional data added to every upload of the target to describe the assets. Emptying it removes the data of the target.
 
-Data defined in the “Target data editor” takes precedence over information entered in the form. Therefore, it is unnecessary to declare attribute values in the form if they are already referenced in the target data.
+Data defined in the “Data” tab takes precedence over information entered in the form. Therefore, it is unnecessary to declare attribute values in the form if they are already referenced in the target data.
 
 ![][image5] todo
 
@@ -154,7 +158,7 @@ It is possible to notify the sender via Uploader. Like other modules, the “Upl
   - An interface reduced to the essentials for users  
   - Can work in “Pull” mode: the consuming application queries the Uploader from a secure area at its chosen frequency (the “Pull” mode is not yet available for Phrasea)
 
-**Why a form editor and a target data editor?**
+**Why a form and target data?**
 
-- The form editor allows you to build a form usable by the user  
-- The target data editor allows you to add values to the batch of assets without going through the form; these values are not accessible to the user uploading the assets
+- The form is filled in by the user uploading the assets  
+- The target data allows you to add values to the batch of assets without going through the form; these values are not accessible to the user uploading the assets

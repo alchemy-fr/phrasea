@@ -69,15 +69,10 @@ describe('Uploader navigation & authentication', () => {
         login();
         cy.visit(uploaderUrl);
 
-        cy.getBySel('nav-forms').click();
-        cy.url().should('include', '/admin/forms');
-        cy.getBySel('page-title').should('contain', 'Forms');
-        cy.getBySel('nav-forms').should('have.attr', 'aria-current', 'page');
-
-        cy.getBySel('nav-target-data').click();
-        cy.url().should('include', '/admin/target-data');
-        cy.getBySel('page-title').should('contain', 'Target Data');
-        cy.getBySel('nav-target-data').should('have.attr', 'aria-current', 'page');
+        cy.getBySel('nav-targets').click();
+        cy.url().should('include', '/admin/targets');
+        cy.getBySel('page-title').should('contain', 'Targets');
+        cy.getBySel('nav-targets').should('have.attr', 'aria-current', 'page');
     });
 
     it('switches the language from the settings menu', () => {

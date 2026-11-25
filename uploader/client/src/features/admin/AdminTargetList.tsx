@@ -13,23 +13,27 @@ import {getAllTargets} from '@/lib/api/uploader';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';
 import type {Target} from '@/types/api';
 
+/** A setting of the target, shown as a badge telling whether it is set */
+export type AdminTargetBadge = {
+    key: string;
+    has: (target: Target) => boolean;
+    label: string;
+    notLabel: string;
+};
+
 /**
- * The targets, each with a badge telling whether it has what the screen
- * edits, and a link to its editor.
+ * The targets, each with a badge per setting the user may edit, telling
+ * whether the target has it, and a link to its editor.
  */
 export function AdminTargetList({
     title,
     testId,
-    has,
-    hasLabel,
-    hasNotLabel,
+    badges,
     href,
 }: {
     title: string;
     testId: string;
-    has: (target: Target) => boolean;
-    hasLabel: string;
-    hasNotLabel: string;
+    badges: AdminTargetBadge[];
     href: (target: Target) => string;
 }) {
     const {t} = useTranslation();
@@ -59,22 +63,28 @@ export function AdminTargetList({
                             <div className="min-w-0 flex-1 truncate font-medium">
                                 {target.name}
                             </div>
-                            {has(target) ? (
-                                <Badge
-                                    variant="secondary"
-                                    data-testid="admin-target-badge"
-                                    data-state="on"
-                                >
-                                    {hasLabel}
-                                </Badge>
-                            ) : (
-                                <Badge
-                                    variant="muted"
-                                    data-testid="admin-target-badge"
-                                    data-state="off"
-                                >
-                                    {hasNotLabel}
-                                </Badge>
+                            {badges.map(badge =>
+                                badge.has(target) ? (
+                                    <Badge
+                                        key={badge.key}
+                                        variant="secondary"
+                                        data-testid="admin-target-badge"
+                                        data-badge={badge.key}
+                                        data-state="on"
+                                    >
+                                        {badge.label}
+                                    </Badge>
+                                ) : (
+                                    <Badge
+                                        key={badge.key}
+                                        variant="muted"
+                                        data-testid="admin-target-badge"
+                                        data-badge={badge.key}
+                                        data-state="off"
+                                    >
+                                        {badge.notLabel}
+                                    </Badge>
+                                )
                             )}
                             <Button variant="outline" size="sm" asChild>
                                 <Link

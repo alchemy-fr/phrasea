@@ -11,8 +11,9 @@ status: WIP
 ## Vocabulaire
 
 - **Target** : Destination pour les fichiers  
-- **Éditeur de formulaire** : Construit, pour chaque target, le formulaire d’indexation rempli par l’utilisateur (constructeur de formulaire).  
-- **Éditeur de données de la target** : Données d’indexation supplémentaires d’une target, non accessibles à l’utilisateur.  
+- **Éditeur de cibles** : Modifie les réglages de chaque target, dans deux onglets :  
+  - **Formulaire** : Construit le formulaire d’indexation rempli par l’utilisateur (constructeur de formulaire).  
+  - **Données** : Données d’indexation supplémentaires de la target, non accessibles à l’utilisateur.  
 - **Asset** : Fichier téléversé.   
 - **Commit** : Ensemble regroupant les assets et les informations saisies dans le formulaire de la target (au format JSON)    
 - **Multipart upload** : Les fichiers envoyés sont découpés en parties (chunks) et rassemblés côté serveur une fois l’upload terminé.
@@ -118,14 +119,17 @@ En mode Push, le fonctionnement de l’Uploader avec Phraseanet est identique da
 
 ## Paramétrage d’un formulaire de Target
 
-### Éditeur de formulaire
+### Éditeur de cibles
 
-Dans l’interface client Uploader : menu « Éditeur de formulaires »  
-Documentation et exemple de [formulaire](../../tech/Uploader/form_config.md)  
-   
-Cliquer sur une Target : la liste indique les targets qui ont un formulaire.
+Dans l’interface client Uploader : menu « Éditeur de cibles ». La liste indique, pour chaque target, si elle a un formulaire et des données. Cliquer sur une Target pour la modifier : sa page a un onglet « Formulaire » et un onglet « Données », chacun avec son propre bouton « Enregistrer ». Changer d’onglet conserve les modifications non enregistrées.
 
-Chaque target a un seul formulaire, pour toutes les langues : ses libellés, aides et placeholders sont traduits dans le formulaire lui-même. L’éditeur de formulaire permet de construire le formulaire en glissant les attributs d’un workspace Databox (dont les listes d’entités), des valeurs Databox (nom, story), des champs personnalisés et des sections, puis d’en voir le rendu. « Supprimer le formulaire » le retire : la target n’accepte alors plus de données d’indexation de l’utilisateur.
+Chaque onglet demande sa propre permission : celle du formulaire (édition des formulaires) ou celle des données (édition des données de la target). Un utilisateur qui n’a que l’une des deux ne voit que l’onglet correspondant.
+
+### Onglet Formulaire
+
+Documentation et exemple de [formulaire](../../tech/Uploader/form_config.md)
+
+Chaque target a un seul formulaire, pour toutes les langues : ses libellés, aides et placeholders sont traduits dans le formulaire lui-même. L’onglet Formulaire permet de construire le formulaire en glissant les attributs d’un workspace Databox (dont les listes d’entités), des valeurs Databox (nom, story), des champs personnalisés et des sections, puis d’en voir le rendu. « Supprimer le formulaire » le retire : la target n’accepte alors plus de données d’indexation de l’utilisateur.
 
 Les formulaires décrits en JSON (LiForm) avant la version 5 ont été convertis vers le constructeur lors de la mise à jour ; voir la [documentation technique](../../tech/Uploader/form_config.md#migration-from-liform) pour ce que garde la conversion.
 
@@ -133,11 +137,11 @@ Exemple :
 
 ![][image4] todo
 
-### Éditeur de données de la target
+### Onglet Données
 
-Dans l’interface client Uploader : menu « Paramètres de cible ». L’éditeur de données de la target permet de passer, sous forme d’objet JSON, des données supplémentaires ajoutées à chaque envoi vers la target pour décrire les assets. Le vider retire les données de la target.
+L’onglet « Données » de l’éditeur de cibles permet de passer, sous forme d’objet JSON, des données supplémentaires ajoutées à chaque envoi vers la target pour décrire les assets. Le vider retire les données de la target.
 
-Les données définies dans l’éditeur de données de la target prévalent sur les informations saisies dans le formulaire. Il est donc inutile de déclarer des valeurs d’attribut dans le formulaire si celles-ci sont déjà référencées dans les données de la target.
+Les données définies dans l’onglet « Données » prévalent sur les informations saisies dans le formulaire. Il est donc inutile de déclarer des valeurs d’attribut dans le formulaire si celles-ci sont déjà référencées dans les données de la target.
 
 ![][image5] todo
 
@@ -154,7 +158,7 @@ Il est possible de notifier l’émetteur via Uploader. Comme les autres modules
   - Une interface réduite à l’essentiel pour les utilisateurs  
   - Peut fonctionner en mode “Pull” : l’application consommatrice interroge l’Uploader depuis une zone sécurisée à la fréquence de son choix (le mode “Pull” n’est pas encore disponible pour Phrasea)
 
-**Pourquoi un éditeur de formulaire et un éditeur de données de la target ?**
+**Pourquoi un formulaire et des données de la target ?**
 
-- L’éditeur de formulaire permet de construire un formulaire utilisable par l’utilisateur  
-- L’éditeur de données de la target permet d’ajouter des valeurs au lot d’assets sans passer par le formulaire ; ces valeurs ne sont pas accessibles à l’utilisateur déposant les assets
+- Le formulaire est rempli par l’utilisateur qui dépose les assets  
+- Les données de la target permettent d’ajouter des valeurs au lot d’assets sans passer par le formulaire ; ces valeurs ne sont pas accessibles à l’utilisateur déposant les assets

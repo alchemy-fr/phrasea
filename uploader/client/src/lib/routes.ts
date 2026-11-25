@@ -3,10 +3,8 @@ export const routes = {
     home: () => '/',
     upload: (targetId: string) => `/upload/${targetId}`,
     download: (targetId: string) => `/download/${targetId}`,
-    forms: () => '/admin/forms',
-    form: (targetId: string) => `/admin/forms/${targetId}`,
-    targetDataList: () => '/admin/target-data',
-    targetData: (targetId: string) => `/admin/target-data/${targetId}`,
+    targets: () => '/admin/targets',
+    target: (targetId: string) => `/admin/targets/${targetId}`,
     uploadLinks: () => '/admin/upload-links',
     /** The page of an upload link: no account needed */
     uploadLink: (token: string) => `/l/${token}`,

@@ -9,21 +9,25 @@ import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {useUploaderUser} from '@/features/user/useUploaderUser';
 import type {UploaderUser} from '@/types/api';
 
+type Permission = keyof UploaderUser['permissions'];
+
 /**
  * Hides an admin screen from the users the API would refuse anyway (it
- * enforces the permission on every call).
+ * enforces the permission on every call). Given several permissions, any of
+ * them grants access.
  */
 export function RequirePermission({
     permission,
     children,
-}: PropsWithChildren<{permission: keyof UploaderUser['permissions']}>) {
+}: PropsWithChildren<{permission: Permission | Permission[]}>) {
     const {t} = useTranslation();
     const {data: me, error, isPending} = useUploaderUser();
 
     if (isPending) {
         return <FullPageLoader />;
     }
-    if (error || !me.permissions[permission]) {
+    const permissions = Array.isArray(permission) ? permission : [permission];
+    if (error || !permissions.some(p => me.permissions[p])) {
         return (
             <Page>
                 <Alert variant="destructive" data-testid="forbidden">

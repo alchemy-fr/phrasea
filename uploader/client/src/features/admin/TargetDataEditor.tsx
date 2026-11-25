@@ -68,7 +68,6 @@ export function TargetDataEditor({
         <form
             data-testid="target-data-editor"
             noValidate
-            className="max-w-3xl"
             onSubmit={e => {
                 e.preventDefault();
                 setErrors({});
@@ -77,23 +76,25 @@ export function TargetDataEditor({
                 }
             }}
         >
-            <FormRow
-                label={t('admin.target_data.data', 'Data (JSON)')}
-                htmlFor={jsonId}
-                error={errors.data ?? invalidJson}
-                help={t(
-                    'admin.target_data.help',
-                    'Merged into the form data of every batch sent to this target; it takes precedence over what users enter. Leave empty for none.'
-                )}
-            >
-                <CodeEditor
-                    id={jsonId}
-                    value={json}
-                    onChange={setJson}
-                    placeholder={EXAMPLE}
-                    aria-invalid={!!parsed.error}
-                />
-            </FormRow>
+            <div className="max-w-3xl">
+                <FormRow
+                    label={t('admin.target_data.data', 'Data (JSON)')}
+                    htmlFor={jsonId}
+                    error={errors.data ?? invalidJson}
+                    help={t(
+                        'admin.target_data.help',
+                        'Merged into the form data of every batch sent to this target; it takes precedence over what users enter. Leave empty for none.'
+                    )}
+                >
+                    <CodeEditor
+                        id={jsonId}
+                        value={json}
+                        onChange={setJson}
+                        placeholder={EXAMPLE}
+                        aria-invalid={!!parsed.error}
+                    />
+                </FormRow>
+            </div>
             {errors[''] ? (
                 <Alert variant="destructive" className="mb-4">
                     {errors['']}

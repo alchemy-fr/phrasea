@@ -2,8 +2,8 @@
 
 A target (`Target`) holds its upload form and its data:
 
-- `form`: one form designed visually with the form builder of the Uploader client (Admin > Forms), or `null` for no form. Its fields come from the attributes of a Databox workspace (entity lists included), the values Databox reads itself, and custom keys. The texts are translated in the form itself: there is one form per target, for every language.
-- `data`: a JSON object merged into the data of every commit (Admin > Target data), or `null`.
+- `form`: one form designed visually with the form builder of the Uploader client (Form tab of the target editor), or `null` for no form. Its fields come from the attributes of a Databox workspace (entity lists included), the values Databox reads itself, and custom keys. The texts are translated in the form itself: there is one form per target, for every language.
+- `data`: a JSON object merged into the data of every commit (Data tab of the target editor in the Uploader client, or the target in the admin), or `null`.
 
 The data sent with a commit is a flat object: Databox reads each key as the `slug` of an attribute definition of the workspace (optionally suffixed by a locale: `title:fr`), and a few reserved keys (see below). The values of an entity attribute are entity UUIDs. The commit records the language of the user who sent it (`formLocale`).
 
