@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Workspace;
 
 use Alchemy\RenditionFactory\Config\YamlLoader;
+use Alchemy\RenditionFactory\DTO\BuildConfig\Transformation;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use App\Entity\Core\RenditionDefinition;
 use App\Model\AssetTypeEnum;
@@ -76,6 +77,22 @@ final class WorkspaceCreatorTest extends AbstractDataboxTestCase
         $this->assertSame($definitions['main'], $definitions['preview']->getParent());
         $this->assertSame($definitions['preview'], $definitions['thumbnail']->getParent());
         $this->assertSame($definitions['preview'], $definitions['animatedThumbnail']->getParent());
+    }
+
+    public function testAnimationsAreBuiltAsImages(): void
+    {
+        [, $defaults] = $this->createWorkspaceWithDefaults('ws-animation');
+
+        foreach (['preview', 'thumbnail'] as $key) {
+            $config = new YamlLoader()->parse($defaults->renditionDefinitions[$key]->getDefinition());
+            $toArray = static fn (FamilyEnum $family): array => array_map(
+                static fn (Transformation $transformation): array => $transformation->toArray(),
+                $config->getFamily($family)?->getTransformations() ?? [],
+            );
+
+            $this->assertNotSame([], $toArray(FamilyEnum::Image), $key);
+            $this->assertSame($toArray(FamilyEnum::Image), $toArray(FamilyEnum::Animation), $key);
+        }
     }
 
     public function testEveryBuildDefinitionIsValid(): void

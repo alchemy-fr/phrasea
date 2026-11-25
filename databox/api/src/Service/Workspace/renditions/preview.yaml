@@ -26,7 +26,7 @@ image:
                         mode: inset
 
 audio:
-    transformations: &image_transformations
+    transformations:
         -
             module: album_artwork
             description:  'extract album artwork from audio files'
