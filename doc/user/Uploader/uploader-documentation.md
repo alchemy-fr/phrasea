@@ -11,7 +11,8 @@ status: WIP
 ## Glossary
 
 - **Target**: Destination for files  
-- **Target editor**: Edits the settings of each target, in two tabs:  
+- **Targets**: Menu of the Uploader client that edits the settings of each target, in three tabs:  
+  - **Properties**: Name, URL, authorization, destination and allowed groups of the target (administrators).  
   - **Form**: Builds the indexing form filled in by the user (form builder).  
   - **Data**: Additional indexing data of the target, not accessible to the user.  
 - **Asset**: Uploaded file.  
@@ -119,13 +120,29 @@ In Push mode, the operation of the Uploader with Phraseanet is identical in mech
 
 ## Target Form Configuration
 
-### Target editor
+### Targets
 
 In the Uploader client interface: “Targets” menu. The list shows, for each target, whether it has a form and data. Click on a Target to edit it: its page has a “Properties” tab, a “Form” tab and a “Data” tab, each with its own “Save” button. Switching tabs keeps unsaved changes. The breadcrumb above the title leads back to the list.
 
 Each tab requires its own permission: the Properties one is for the administrators, the Form one requires the form edition permission and the Data one the target data edition permission. A user who has only one of them sees only that tab.
 
-The “Properties” tab sets the name, slug, description, target URL (empty for the pull mode), authorization scheme and key (push mode only), default destination and allowed groups (empty to allow every user) of the target. The authorization key is never shown: leave the field empty to keep it.
+### New target
+
+An administrator creates a target from the list, with the “New target” button. The dialog asks for the same properties as the Properties tab; only the name is required. “Create the target” saves it and opens its page, where its form and data are then added.
+
+### Properties tab
+
+The “Properties” tab sets the properties of the target:
+
+- **Name**: required.  
+- **Slug**: optional and unique; lowercase letters, digits, “-” and “_”, starting with a letter (100 characters at most).  
+- **Description**.  
+- **Target URL**: where the uploads are pushed, in https. Empty for the pull mode: the destination fetches the uploads.  
+- **Authorization scheme** and **Authorization key**: push mode only. The scheme defaults to “ApiKey” (“OAuth” for Phraseanet).  
+- **Default destination**: the ID of a Databox collection, or of a Phraseanet collection.  
+- **Allowed groups**: empty to allow every user.
+
+The authorization key is never shown: leaving the field empty keeps it, and the “Remove the key” checkbox removes it. It is sent to the target URL: once this URL leads to another host (scheme, host or port), the key is removed on save, unless a new key is entered along with it.
 
 ### Form tab
 

@@ -11,7 +11,8 @@ status: WIP
 ## Vocabulaire
 
 - **Target** : Destination pour les fichiers  
-- **Éditeur de cibles** : Modifie les réglages de chaque target, dans deux onglets :  
+- **Cibles** : Menu de l’Uploader client qui modifie les réglages de chaque target, dans trois onglets :  
+  - **Propriétés** : Nom, URL, autorisation, destination et groupes autorisés de la target (administrateurs).  
   - **Formulaire** : Construit le formulaire d’indexation rempli par l’utilisateur (constructeur de formulaire).  
   - **Données** : Données d’indexation supplémentaires de la target, non accessibles à l’utilisateur.  
 - **Asset** : Fichier téléversé.   
@@ -119,11 +120,29 @@ En mode Push, le fonctionnement de l’Uploader avec Phraseanet est identique da
 
 ## Paramétrage d’un formulaire de Target
 
-### Éditeur de cibles
+### Cibles
 
-Dans l’interface client Uploader : menu « Éditeur de cibles ». La liste indique, pour chaque target, si elle a un formulaire et des données. Cliquer sur une Target pour la modifier : sa page a un onglet « Formulaire » et un onglet « Données », chacun avec son propre bouton « Enregistrer ». Changer d’onglet conserve les modifications non enregistrées.
+Dans l’interface client Uploader : menu « Cibles ». La liste indique, pour chaque target, si elle a un formulaire et des données. Cliquer sur une Target pour la modifier : sa page a un onglet « Propriétés », un onglet « Formulaire » et un onglet « Données », chacun avec son propre bouton « Enregistrer ». Changer d’onglet conserve les modifications non enregistrées. Le fil d’Ariane au-dessus du titre ramène à la liste.
 
-Chaque onglet demande sa propre permission : celle du formulaire (édition des formulaires) ou celle des données (édition des données de la target). Un utilisateur qui n’a que l’une des deux ne voit que l’onglet correspondant.
+Chaque onglet demande sa propre permission : l’onglet Propriétés est réservé aux administrateurs, l’onglet Formulaire demande la permission d’édition des formulaires et l’onglet Données celle d’édition des données de la target. Un utilisateur qui n’a que l’une d’elles ne voit que l’onglet correspondant.
+
+### Nouvelle cible
+
+Un administrateur crée une target depuis la liste, avec le bouton « Nouvelle cible ». La boîte de dialogue demande les mêmes propriétés que l’onglet Propriétés ; seul le nom est obligatoire. « Créer la cible » l’enregistre et ouvre sa page, où ajouter ensuite son formulaire et ses données.
+
+### Onglet Propriétés
+
+L’onglet « Propriétés » règle les propriétés de la target :
+
+- **Nom** : obligatoire.  
+- **Identifiant** : facultatif et unique ; lettres minuscules, chiffres, « - » et « _ », commençant par une lettre (100 caractères au plus).  
+- **Description**.  
+- **URL de la cible** : où les envois sont poussés, en https. Vide pour le mode pull : la destination vient chercher les envois.  
+- **Schéma d’autorisation** et **Clé d’autorisation** : en mode push uniquement. Le schéma vaut « ApiKey » par défaut (« OAuth » pour Phraseanet).  
+- **Destination par défaut** : l’identifiant d’une collection Databox ou d’une collection Phraseanet.  
+- **Groupes autorisés** : vide pour autoriser tous les utilisateurs.
+
+La clé d’autorisation n’est jamais affichée : laisser le champ vide la conserve, et la case « Supprimer la clé » la retire. Elle est envoyée à l’URL de la cible : si cette URL mène à un autre hôte (schéma, hôte ou port), la clé est supprimée à l’enregistrement, sauf si une nouvelle clé est saisie en même temps.
 
 ### Onglet Formulaire
 
