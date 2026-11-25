@@ -34,6 +34,13 @@ final class AttributeEntityVisibilityResolver
     {
         // The editors of the requested list(s) also see the pending and rejected values
         $editableListIds = $this->getEditableListIds(null !== $operation ? self::getParameterValue($operation, 'list') : null);
+
+        // Nobody is behind an integration (the forms filled through an upload link): the approved values only,
+        // whatever its owner may edit or has created
+        if ($this->security->getUser() instanceof IntegrationUser) {
+            return new AttributeEntityVisibility();
+        }
+
         if (null !== $editableListIds) {
             return new AttributeEntityVisibility(listIds: $editableListIds);
         }

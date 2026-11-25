@@ -27,8 +27,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  *
  * Nobody is behind an upload link: its holder only reads the values of the entity lists, as the
  * Uploader integration of Databox the target of the link commits to (`Authorization: ApiKey
- * <integration ID>:<key>`), with the key the target already sends to it. Databox answers them with
- * the rights of the owner of the integration, restricted to the lists of its workspace.
+ * <integration ID>:<key>`), with the key the target already sends to it. Databox answers their
+ * approved values only, of the lists of its workspace the owner of the integration could read.
  */
 #[AsAlias(DataboxClientInterface::class)]
 #[Autoconfigure(public: true)]

@@ -326,27 +326,30 @@ class UploaderIntegrationTest extends ApiTestCase
     }
 
     /**
-     * The integration acts as its owner: the owner of the workspace also sees its pending and rejected values.
+     * Nobody is behind the integration: even when its owner edits the list or created the values,
+     * only the approved ones are read.
      */
-    public function testTheIntegrationHasTheRightsOfItsOwner(): void
+    public function testTheIntegrationReadsTheApprovedValuesWhateverTheRightsOfItsOwner(): void
     {
         self::enableFixtures();
         $apiClient = static::createClient();
         $list = null;
-        foreach ([
-            KeycloakClientTestMock::USER_UID => ['Approved'],
-            KeycloakClientTestMock::ADMIN_UID => ['Approved', 'Pending', 'Rejected'],
-        ] as $ownerId => $expected) {
+        foreach ([KeycloakClientTestMock::USER_UID, KeycloakClientTestMock::ADMIN_UID] as $ownerId) {
             $integration = $this->createIntegration(name: 'Of '.$ownerId, ownerId: $ownerId);
             $list ??= $this->createEntityList($integration->getWorkspace(), [
                 ['value' => 'Approved'],
                 ['value' => 'Pending', 'status' => AttributeEntity::STATUS_PENDING],
                 ['value' => 'Rejected', 'status' => AttributeEntity::STATUS_REJECTED],
+                ['value' => 'Pending of the user', 'status' => AttributeEntity::STATUS_PENDING, 'creatorId' => KeycloakClientTestMock::USER_UID],
+                ['value' => 'Rejected of the admin', 'status' => AttributeEntity::STATUS_REJECTED, 'creatorId' => KeycloakClientTestMock::ADMIN_UID],
             ]);
 
             $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId(), 'order[value]' => 'asc']);
             $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
-            $this->assertSame($expected, array_column($response->toArray()['member'], 'value'), $ownerId);
+            $this->assertSame(['Approved'], array_column($response->toArray()['member'], 'value'), $ownerId);
+
+            $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['ids' => array_values($this->getEntityIds($list))]);
+            $this->assertSame(['Approved'], array_column($response->toArray()['member'], 'value'), $ownerId.', by IDs');
         }
 
         $integration = $this->createIntegration(name: 'Of a disabled user', ownerId: KeycloakClientTestMock::DISABLED_USER_UID);
@@ -441,7 +444,7 @@ class UploaderIntegrationTest extends ApiTestCase
     }
 
     /**
-     * @param list<array{value: string, status?: int, position?: int, translations?: array<string, string>, color?: string, emoji?: string}> $values
+     * @param list<array{value: string, status?: int, position?: int, translations?: array<string, string>, color?: string, emoji?: string, creatorId?: string}> $values
      */
     private function createEntityList(Workspace $workspace, array $values = []): EntityList
     {
@@ -461,6 +464,7 @@ class UploaderIntegrationTest extends ApiTestCase
             $entity->setTranslations($value['translations'] ?? null);
             $entity->setColor($value['color'] ?? null);
             $entity->setEmoji($value['emoji'] ?? null);
+            $entity->setCreatorId($value['creatorId'] ?? null);
             $em->persist($entity);
         }
         $em->flush();
