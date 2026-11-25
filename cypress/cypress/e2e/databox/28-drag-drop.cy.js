@@ -28,14 +28,30 @@ function dragStart(source) {
     cy.getBySel('drag-ghost').should('exist');
 }
 
-/** Moves the pointer over an element (two moves: dnd-kit measures on the first) */
+/**
+ * Moves the pointer over an element (two moves: dnd-kit measures on the first).
+ * Its position is read again before each move, in case the layout shifted.
+ */
 function dragOver(target, keys = {}) {
     target.then($t => {
-        const {x, y} = center($t);
-        cy.get('body').trigger('pointermove', {...pointer, ...keys, clientX: x, clientY: y, eventConstructor: 'PointerEvent'});
+        const moveTo = dx =>
+            cy.then(() => {
+                const {x, y} = center($t);
+                cy.get('body').trigger('pointermove', {...pointer, ...keys, clientX: x + dx, clientY: y, eventConstructor: 'PointerEvent'});
+            });
+        moveTo(0);
         cy.wait(100, {log: false});
-        cy.get('body').trigger('pointermove', {...pointer, ...keys, clientX: x + 1, clientY: y, eventConstructor: 'PointerEvent'});
+        moveTo(1);
     });
+}
+
+/**
+ * The tree tab, once its saved searches are loaded: their list growing from
+ * nothing pushes the tree down, away from where the pointer was sent.
+ */
+function openNavigation() {
+    openLeftPanelTab('Navigation');
+    cy.wait('@savedSearches');
 }
 
 function drop(keys = {}) {
@@ -83,12 +99,13 @@ describe('Drag & drop', () => {
     beforeEach(() => {
         cy.viewport(1400, 900);
         login();
+        cy.intercept({method: 'GET', pathname: '/saved-searches'}).as('savedSearches');
         visitWorkspace(ctx.workspace.id);
         waitForResults(4);
     });
 
     it('adds the selection to a collection with Ctrl and keeps it selected', () => {
-        openLeftPanelTab('Navigation');
+        openNavigation();
         expandTreeWorkspace(ctx.workspace.id);
         treeCollection(ctx.entertainment.id).should('be.visible');
 
@@ -118,7 +135,7 @@ describe('Drag & drop', () => {
     });
 
     it('drags an unselected asset alone to a basket, switching the tab while hovering it', () => {
-        openLeftPanelTab('Navigation');
+        openNavigation();
         assetItem('Alpha').click();
 
         dragStart(assetItem('Bravo'));
@@ -140,7 +157,7 @@ describe('Drag & drop', () => {
     it('pins a story and drops assets on it', () => {
         openAssetContextMenu('E2E Story');
         cy.menuItem('Pin story').click();
-        openLeftPanelTab('Navigation');
+        openNavigation();
         // Centered: at the top of the scrolled panel, the row would be in the
         // auto-scroll zone and slide away from the pointer during the drag
         cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`)
@@ -174,7 +191,7 @@ describe('Drag & drop', () => {
     });
 
     it('refuses to add the assets to their own workspace', () => {
-        openLeftPanelTab('Navigation');
+        openNavigation();
         dragStart(assetItem('Alpha'));
         dragOver(treeWorkspace(ctx.workspace.id), {ctrlKey: true});
         cy.getBySel('drag-ghost').should('contain', 'Already there');
@@ -183,7 +200,7 @@ describe('Drag & drop', () => {
     });
 
     it('moves an asset by default', () => {
-        openLeftPanelTab('Navigation');
+        openNavigation();
         expandTreeWorkspace(ctx.workspace.id);
 
         dragStart(assetItem('Bravo'));
@@ -204,7 +221,7 @@ describe('Drag & drop', () => {
     });
 
     it('moves a collection into another one, never into its own subtree', () => {
-        openLeftPanelTab('Navigation');
+        openNavigation();
         expandTreeWorkspace(ctx.workspace.id);
         treeCollection(ctx.sport.id).find('[aria-label=Expand]').click();
         treeCollection(ctx.football.id).should('be.visible');
