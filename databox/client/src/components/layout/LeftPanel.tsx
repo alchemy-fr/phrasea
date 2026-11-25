@@ -184,9 +184,10 @@ function DroppableTabsTrigger({
 
 /**
  * The scrollable content of a tab, droppable as a whole so that auto-scroll
- * keeps going between rows. Sticky rows (workspaces) drift from where
- * dnd-kit measured them when the panel scrolls: the targets are measured
- * again on scroll during a drag.
+ * keeps going between rows. dnd-kit measures the targets when the drag starts
+ * only: they drift when the panel scrolls (sticky workspace rows) or when its
+ * content changes height (a section done loading), so they are measured again
+ * in both cases during a drag.
  */
 function DroppablePanel({
     value,
@@ -195,8 +196,9 @@ function DroppablePanel({
     const drop = useDropTarget({type: 'panel', id: value});
     const {droppableContainers, measureDroppableContainers} = useDndContext();
     const frame = useRef<number>(undefined);
+    const [content, setContent] = useState<HTMLDivElement | null>(null);
 
-    const onScroll = useCallback(() => {
+    const remeasure = useCallback(() => {
         if (!drop.active || frame.current !== undefined) {
             return;
         }
@@ -208,15 +210,25 @@ function DroppablePanel({
         });
     }, [drop.active, droppableContainers, measureDroppableContainers]);
 
+    useEffect(() => {
+        if (!drop.active || !content) {
+            return;
+        }
+        const observer = new ResizeObserver(remeasure);
+        observer.observe(content);
+
+        return () => observer.disconnect();
+    }, [drop.active, content, remeasure]);
+
     return (
         <TabsContent
             ref={drop.setNodeRef}
             value={value}
             className="min-h-0 flex-1 overflow-y-auto"
             data-dnd-scroll
-            onScroll={onScroll}
+            onScroll={remeasure}
         >
-            {children}
+            <div ref={setContent}>{children}</div>
         </TabsContent>
     );
 }
