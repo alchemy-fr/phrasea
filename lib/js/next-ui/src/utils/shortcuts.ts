@@ -1,5 +1,7 @@
 type ShortcutOptions = {
     shift?: boolean;
+    /** Name of the Shift key in the language of the user (not on macOS) */
+    shiftLabel?: string;
 };
 
 type NavigatorWithUAData = Navigator & {
@@ -20,17 +22,17 @@ export function isMacPlatform(): boolean {
 /**
  * The modifier of a shortcut handled as `ctrlKey || metaKey`: "⌘" / "⇧⌘" on
  * macOS (symbols in the macOS order, without "+"), "Ctrl" / "Ctrl+Shift"
- * elsewhere.
+ * elsewhere, Shift being named by `shiftLabel`.
  */
 export function formatModifier(
     mac: boolean,
-    {shift = false}: ShortcutOptions = {}
+    {shift = false, shiftLabel = 'Shift'}: ShortcutOptions = {}
 ): string {
     if (mac) {
         return shift ? '⇧⌘' : '⌘';
     }
 
-    return shift ? 'Ctrl+Shift' : 'Ctrl';
+    return shift ? `Ctrl+${shiftLabel}` : 'Ctrl';
 }
 
 export function formatShortcut(

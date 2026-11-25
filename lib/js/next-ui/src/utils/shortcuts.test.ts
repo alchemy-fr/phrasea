@@ -20,6 +20,18 @@ describe('formatModifier', () => {
         expect(formatModifier(false)).toBe('Ctrl');
         expect(formatModifier(false, {shift: true})).toBe('Ctrl+Shift');
     });
+
+    it('names Shift in the language of the user, except on macOS', () => {
+        expect(formatModifier(false, {shift: true, shiftLabel: 'Maj'})).toBe(
+            'Ctrl+Maj'
+        );
+        expect(
+            formatShortcut('a', false, {shift: true, shiftLabel: 'Maj'})
+        ).toBe('Ctrl+Maj+A');
+        expect(formatModifier(true, {shift: true, shiftLabel: 'Maj'})).toBe(
+            '⇧⌘'
+        );
+    });
 });
 
 describe('isMacPlatform', () => {

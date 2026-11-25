@@ -1,4 +1,5 @@
 import {useCallback, useSyncExternalStore} from 'react';
+import {useTranslation} from 'react-i18next';
 import {
     formatModifier,
     formatShortcut,
@@ -20,19 +21,22 @@ type ShortcutOptions = {shift?: boolean};
 
 /**
  * Labels of the keyboard shortcuts handled as `ctrlKey || metaKey`: "⌘U" on
- * macOS, "Ctrl+U" elsewhere.
+ * macOS, "Ctrl+U" elsewhere (Shift translated).
  */
 export function useShortcutLabels() {
+    const {t} = useTranslation();
     const mac = useIsMac();
+    const shiftLabel = t('shortcut.shift', 'Shift');
 
     const modifier = useCallback(
-        (options?: ShortcutOptions) => formatModifier(mac, options),
-        [mac]
+        (options?: ShortcutOptions) =>
+            formatModifier(mac, {...options, shiftLabel}),
+        [mac, shiftLabel]
     );
     const shortcut = useCallback(
         (key: string, options?: ShortcutOptions) =>
-            formatShortcut(key, mac, options),
-        [mac]
+            formatShortcut(key, mac, {...options, shiftLabel}),
+        [mac, shiftLabel]
     );
 
     return {mac, modifier, shortcut};
