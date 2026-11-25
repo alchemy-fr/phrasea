@@ -1,17 +1,20 @@
 /**
- * Uploader — admin editors: the form and the data of each target.
+ * Uploader — admin editors: the targets, and the form and the data of each.
  */
 import {uploaderUrl} from '../lib/urls';
 import {
+    apiRequest,
     ensureTarget,
     FORM_FIELDS,
     getForm,
     getTargetData,
+    iri,
     removeForm,
     removeTargetData,
     setBuilderForm,
     setTargetData,
     TARGETS,
+    uniqueValue,
 } from './lib/api';
 import {confirmDialog, expectToastText, login, setCodeEditorValue} from './lib/app';
 
@@ -170,6 +173,27 @@ describe('Uploader admin', () => {
             codeEditorValue('target-data-editor').should('eq', '{"kept": true}');
             saveButton('target-data-editor').should('be.enabled');
             getTargetData(target.id).should('be.null');
+        });
+    });
+
+    describe('Targets', () => {
+        it('creates a target and opens its editor', () => {
+            const name = uniqueValue('Created target');
+            cy.visit(`${uploaderUrl}/admin/targets`);
+            cy.getBySel('target-create', {timeout: 30000}).click();
+            cy.getBySel('target-create-form').within(() => {
+                cy.getBySel('target-name-input').type(name);
+                cy.getBySel('target-description-input').type('Made from the client');
+                cy.getBySel('target-authorizationKey-input').should('not.exist');
+                cy.getBySel('target-targetUrl-input').type('https://example.com/upload');
+                cy.getBySel('target-authorizationKey-input').should('be.visible');
+                cy.getBySel('target-targetUrl-input').clear();
+            });
+            cy.contains('button', 'Create the target').click();
+
+            cy.url().should('match', /\/admin\/targets\/[0-9a-f-]{36}$/);
+            cy.getBySel('page-title').should('contain', `Edit ${name}`);
+            cy.url().then(url => apiRequest({method: 'DELETE', path: iri('targets', url.split('/').pop())}));
         });
     });
 });

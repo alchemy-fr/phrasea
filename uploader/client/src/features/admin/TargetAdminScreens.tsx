@@ -1,8 +1,12 @@
 'use client';
 
 import {ReactNode, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
+import {PlusIcon} from 'lucide-react';
+import {Button} from '@alchemy/next-ui/ui/button';
+import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {
     Alert,
     Tabs,
@@ -25,6 +29,7 @@ import {
 import {FormBuilderEditor} from './FormBuilderEditor';
 import {targetDataQueryKey, targetFormQueryKey} from './queryKeys';
 import {RequirePermission} from './RequirePermission';
+import {TargetCreateDialog} from './TargetCreateDialog';
 import {TargetDataEditor} from './TargetDataEditor';
 
 /** Either permission opens the target editor, on the settings it grants */
@@ -34,7 +39,7 @@ type Tab = 'form' | 'data';
 
 export function TargetAdminListScreen() {
     return (
-        <RequirePermission permission={[...TARGET_PERMISSIONS]}>
+        <RequirePermission permission={[...TARGET_PERMISSIONS, 'target']}>
             <TargetAdminList />
         </RequirePermission>
     );
@@ -43,6 +48,15 @@ export function TargetAdminListScreen() {
 function TargetAdminList() {
     const {t} = useTranslation();
     const {data: me} = useUploaderUser();
+    const {openModal} = useModals();
+    const router = useRouter();
+
+    const create = async () => {
+        const created = await openModal(TargetCreateDialog, {});
+        if (created) {
+            router.push(routes.target(created.id));
+        }
+    };
 
     const badges: AdminTargetBadge[] = [];
     if (me?.permissions.form_schema) {
@@ -68,6 +82,13 @@ function TargetAdminList() {
             testId="admin-target-list"
             badges={badges}
             href={target => routes.target(target.id)}
+            actions={
+                me?.permissions.target ? (
+                    <Button data-testid="target-create" onClick={create}>
+                        <PlusIcon /> {t('admin.targets.create', 'New target')}
+                    </Button>
+                ) : null
+            }
         />
     );
 }

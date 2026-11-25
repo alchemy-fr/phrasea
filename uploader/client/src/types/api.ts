@@ -36,6 +36,8 @@ export type UploaderUser = {
         target_data: boolean;
         /** Creating upload links, and managing one's own */
         upload_link: boolean;
+        /** Creating targets */
+        target: boolean;
     };
     /** In days: how far the expiration of an upload link can be set */
     upload_link_max_ttl?: number;
@@ -51,6 +53,18 @@ export type Target = HydraObject & {
     hasForm: boolean;
     /** It has data, read with `GET /targets/{id}/data` */
     hasData: boolean;
+};
+
+/** What is written on a target when it is created (`POST /targets`) */
+export type TargetInput = {
+    name: string;
+    slug?: string | null;
+    description?: string | null;
+    /** Null for the pull mode: the target fetches what is uploaded */
+    targetUrl?: string | null;
+    authorizationScheme?: string | null;
+    authorizationKey?: string | null;
+    defaultDestination?: string | null;
 };
 
 /**

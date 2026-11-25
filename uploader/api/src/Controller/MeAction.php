@@ -35,6 +35,7 @@ class MeAction extends AbstractController
                 'form_schema' => $this->isGranted(FormDataEditorVoter::EDIT_FORM_SCHEMA),
                 'target_data' => $this->isGranted(FormDataEditorVoter::EDIT_TARGET_DATA),
                 'upload_link' => $this->isGranted(UploadLinkVoter::CREATE),
+                'target' => $this->isGranted(JwtUser::ROLE_ADMIN),
             ],
             // In days: how far the expiration of an upload link can be set
             'upload_link_max_ttl' => $uploadLinkMaxTtl,

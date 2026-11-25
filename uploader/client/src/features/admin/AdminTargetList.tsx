@@ -1,5 +1,6 @@
 'use client';
 
+import {ReactNode} from 'react';
 import Link from 'next/link';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
@@ -30,11 +31,13 @@ export function AdminTargetList({
     testId,
     badges,
     href,
+    actions,
 }: {
     title: string;
     testId: string;
     badges: AdminTargetBadge[];
     href: (target: Target) => string;
+    actions?: ReactNode;
 }) {
     const {t} = useTranslation();
     const {data, error, isPending} = useQuery({
@@ -43,7 +46,7 @@ export function AdminTargetList({
     });
 
     return (
-        <Page title={title}>
+        <Page title={title} actions={actions}>
             {isPending ? (
                 <FullPageLoader />
             ) : error ? (

@@ -55,6 +55,11 @@ class TargetWriteTest extends AbstractUploaderTestCase
 
     public function testUserCannotCreateATarget(): void
     {
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/me');
+        $this->assertFalse($response->toArray()['permissions']['target']);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/me');
+        $this->assertTrue($response->toArray()['permissions']['target']);
+
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'POST', '/targets', [
             'slug' => 'forbidden',
             'name' => 'Forbidden',

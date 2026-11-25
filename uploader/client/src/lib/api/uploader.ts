@@ -6,6 +6,7 @@ import type {
     Page,
     Target,
     TargetData,
+    TargetInput,
     UploadedAsset,
     UploaderUser,
 } from '@/types/api';
@@ -75,6 +76,10 @@ export function getAllTargets(): Promise<Target[]> {
 
 export function getTarget(id: string, opts?: RequestOptions): Promise<Target> {
     return api.get<Target>(`/targets/${id}`, opts);
+}
+
+export function createTarget(input: TargetInput): Promise<Target> {
+    return api.post<Target>('/targets', input);
 }
 
 /** The form of the target, null when it has none */

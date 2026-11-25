@@ -84,7 +84,9 @@ export function TopBar() {
                 aria-label={t('nav.admin', 'Administration')}
                 className="ml-2 flex min-w-0 flex-1 items-center gap-1"
             >
-                {me?.permissions.form_schema || me?.permissions.target_data ? (
+                {me?.permissions.form_schema ||
+                me?.permissions.target_data ||
+                me?.permissions.target ? (
                     <NavLink
                         href={routes.targets()}
                         testId="nav-targets"

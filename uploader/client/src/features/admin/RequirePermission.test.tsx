@@ -19,6 +19,7 @@ function mockPermissions(permissions: Partial<UploaderUser['permissions']>) {
                 form_schema: false,
                 target_data: false,
                 upload_link: false,
+                target: false,
                 ...permissions,
             },
         },
