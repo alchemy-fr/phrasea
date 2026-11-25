@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Alchemy\AuthBundle\Security\Impersonator;
 use Alchemy\AuthBundle\Security\RoleMapper;
 use ApiPlatform\Metadata\Exception\OperationNotFoundException;
 use ApiPlatform\Metadata\Exception\ResourceClassNotFoundException;
@@ -24,7 +23,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 /**
  * Authenticates an Uploader integration calling the API on its own, where nobody can be called on behalf of
  * (the forms filled through an upload link): `Authorization: ApiKey <integration ID>:<security key of the integration>`.
- * It then acts as the owner of the integration, with their current roles and groups (as an impersonation would).
+ * It then acts as the owner of the integration, with their roles and groups (as an impersonation would, see IntegrationOwnerProvider).
  *
  * Only the API Platform operations flagged with OPERATION_ACCESS in their extraProperties accept it,
  * any other one is refused.
@@ -41,7 +40,7 @@ final class IntegrationAuthenticator extends AbstractAuthenticator
     public function __construct(
         private readonly UploaderIntegrationKeyChecker $keyChecker,
         private readonly ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory,
-        private readonly Impersonator $impersonator,
+        private readonly IntegrationOwnerProvider $ownerProvider,
         private readonly RoleMapper $roleMapper,
     ) {
     }
@@ -62,7 +61,7 @@ final class IntegrationAuthenticator extends AbstractAuthenticator
         [$integrationId, $key] = self::parseAuthorization($request) ?? throw new \LogicException('Unsupported request');
         $config = $this->keyChecker->checkKey($integrationId, $key);
         $ownerId = $config->getWorkspaceIntegration()->getOwnerId() ?? throw new AccessDeniedHttpException('The integration has no owner');
-        $owner = $this->impersonator->getIdentity($ownerId);
+        $owner = $this->ownerProvider->getOwner($ownerId);
         $user = new IntegrationUser(
             $config->getIntegrationId(),
             $this->keyChecker->getWorkspaceId($config),

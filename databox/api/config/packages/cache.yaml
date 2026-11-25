@@ -23,5 +23,8 @@ framework:
             signed_url.cache:
                 adapter: cache.adapter.redis
                 provider: '%env(REDIS_URL)%'
+            integration_owner.cache:
+                adapter: cache.adapter.redis
+                provider: '%env(REDIS_URL)%'
 
         default_pdo_provider: 'doctrine.dbal.default_connection'
