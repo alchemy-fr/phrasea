@@ -1,4 +1,5 @@
 import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
+import type {AnalyticsConfig} from '@alchemy/next-core/analytics/config';
 import type {SentryClientConfig} from '@alchemy/next-core/monitoring/config';
 
 /**
@@ -16,20 +17,6 @@ export type UploadConfig = {
     maxFileCount?: number;
     /** MIME type (may contain a wildcard) => list of allowed extensions */
     allowedTypes: Record<string, string[]>;
-};
-
-export type AnalyticsConfig = {
-    matomo?: {
-        baseUrl: string;
-        siteId: string;
-        /** `MATOMO_DISABLE_COOKIES`: tracks visitors without any cookie */
-        disableCookies: boolean;
-        /**
-         * `MATOMO_COOKIE_CONSENT`: asks the visitor before setting the Matomo
-         * cookies (default on)
-         */
-        cookieConsent: boolean;
-    };
 };
 
 export type AppConfig = {

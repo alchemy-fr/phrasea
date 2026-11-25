@@ -1,14 +1,8 @@
 import 'server-only';
 import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
+import {analyticsConfigFromEnv} from '@alchemy/next-core/analytics/config';
+import {envBool} from '@alchemy/next-core/config/env';
 import type {AppConfig} from './types';
-
-function bool(value: string | undefined, fallback = false): boolean {
-    if (value === undefined || value === '') {
-        return fallback;
-    }
-
-    return ['1', 'true', 'on', 'y', 'yes'].includes(value.toLowerCase());
-}
 
 function int(value: string | undefined): number | undefined {
     if (!value) {
@@ -60,7 +54,7 @@ export function parseAllowedTypes(
 export function getServerConfig(): AppConfig {
     const env = process.env;
     const keycloakUrl = env.KEYCLOAK_URL ?? '';
-    const notifications = bool(env.NOTIFICATIONS_ENABLED);
+    const notifications = envBool(env.NOTIFICATIONS_ENABLED);
 
     return {
         appId: env.APP_ID || 'databox',
@@ -74,28 +68,15 @@ export function getServerConfig(): AppConfig {
             autoConnectIdP: env.AUTO_CONNECT_IDP || undefined,
         },
         dashboardUrl: env.DASHBOARD_CLIENT_URL || undefined,
-        displayServicesMenu: bool(env.DISPLAY_SERVICES_MENU),
-        devMode: bool(env.DEV_MODE),
+        displayServicesMenu: envBool(env.DISPLAY_SERVICES_MENU),
+        devMode: envBool(env.DEV_MODE),
         requestSignatureTtl: int(env.S3_REQUEST_SIGNATURE_TTL),
         realtime:
             env.SOCKUDO_HOST && env.SOCKUDO_KEY
                 ? {host: env.SOCKUDO_HOST, key: env.SOCKUDO_KEY}
                 : undefined,
         notifications,
-        analytics:
-            env.MATOMO_URL && env.MATOMO_SITE_ID
-                ? {
-                      matomo: {
-                          baseUrl: env.MATOMO_URL,
-                          siteId: env.MATOMO_SITE_ID,
-                          mediaPluginEnabled: bool(
-                              env.MATOMO_MEDIA_PLUGIN_ENABLED
-                          ),
-                          disableCookies: bool(env.MATOMO_DISABLE_COOKIES),
-                          cookieConsent: bool(env.MATOMO_COOKIE_CONSENT, true),
-                      },
-                  }
-                : {},
+        analytics: analyticsConfigFromEnv(env, {mediaPlugin: true}),
         sentry: sentryClientConfigFromEnv(env),
         upload: {
             // The API refuses a larger file (see alchemy_storage.upload.max_file_size)
@@ -107,7 +88,7 @@ export function getServerConfig(): AppConfig {
         },
         ticketing: {
             // JIRA credentials stay on the server (see lib/ticketing/config.ts)
-            enabled: bool(env.DATABOX_TICKETING_ENABLED),
+            enabled: envBool(env.DATABOX_TICKETING_ENABLED),
         },
         logo: env.APP_LOGO_SRC ? {src: env.APP_LOGO_SRC} : undefined,
         mapbox:

@@ -1,15 +1,9 @@
 import 'server-only';
 import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
+import {analyticsConfigFromEnv} from '@alchemy/next-core/analytics/config';
+import {envBool} from '@alchemy/next-core/config/env';
 import type {AppConfig} from './types';
 import type {StackConfig} from '@alchemy/next-core/config/stackConfig';
-
-function bool(value: string | undefined, fallback = false): boolean {
-    if (value === undefined || value === '') {
-        return fallback;
-    }
-
-    return ['1', 'true', 'on', 'y', 'yes'].includes(value.toLowerCase());
-}
 
 /** A positive integer from an env variable or a stack configuration entry */
 export function positiveInt(value: unknown): number | undefined {
@@ -107,19 +101,9 @@ export function getServerConfig(
             autoConnectIdP: env.AUTO_CONNECT_IDP || undefined,
         },
         dashboardUrl: env.DASHBOARD_CLIENT_URL || undefined,
-        displayServicesMenu: bool(env.DISPLAY_SERVICES_MENU),
-        devMode: bool(env.DEV_MODE),
-        analytics:
-            env.MATOMO_URL && env.MATOMO_SITE_ID
-                ? {
-                      matomo: {
-                          baseUrl: env.MATOMO_URL,
-                          siteId: env.MATOMO_SITE_ID,
-                          disableCookies: bool(env.MATOMO_DISABLE_COOKIES),
-                          cookieConsent: bool(env.MATOMO_COOKIE_CONSENT, true),
-                      },
-                  }
-                : {},
+        displayServicesMenu: envBool(env.DISPLAY_SERVICES_MENU),
+        devMode: envBool(env.DEV_MODE),
+        analytics: analyticsConfigFromEnv(env),
         sentry: sentryClientConfigFromEnv(env),
         upload: {
             maxFileSize:

@@ -1,4 +1,5 @@
 import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
+import type {AnalyticsConfig} from '@alchemy/next-core/analytics/config';
 import type {SentryClientConfig} from '@alchemy/next-core/monitoring/config';
 
 /**
@@ -7,21 +8,6 @@ import type {SentryClientConfig} from '@alchemy/next-core/monitoring/config';
  * client tree through the ConfigProvider, so the same Docker image can be
  * deployed against any stack.
  */
-export type AnalyticsConfig = {
-    matomo?: {
-        baseUrl: string;
-        siteId: string;
-        mediaPluginEnabled: boolean;
-        /** `MATOMO_DISABLE_COOKIES`: tracks visitors without any cookie */
-        disableCookies: boolean;
-        /**
-         * `MATOMO_COOKIE_CONSENT`: asks the visitor before setting the Matomo
-         * cookies (default on)
-         */
-        cookieConsent: boolean;
-    };
-};
-
 export type AppConfig = {
     appId: string;
     clientUrl: string;

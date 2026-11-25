@@ -1,27 +1,6 @@
 import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
+import type {AnalyticsConfig} from '@alchemy/next-core/analytics/config';
 import type {SentryClientConfig} from '@alchemy/next-core/monitoring/config';
-
-/**
- * Runtime configuration of the client. It is resolved on the server at request
- * time from environment variables and the stack configuration (see
- * ./server.ts) and injected into the client tree through the ConfigProvider,
- * so the same Docker image can be deployed against any stack.
- *
- * Everything in it is served to any visitor with the page.
- */
-export type AnalyticsConfig = {
-    matomo?: {
-        baseUrl: string;
-        siteId: string;
-        /** `MATOMO_DISABLE_COOKIES`: tracks visitors without any cookie */
-        disableCookies: boolean;
-        /**
-         * `MATOMO_COOKIE_CONSENT`: asks the visitor before setting the Matomo
-         * cookies (default on)
-         */
-        cookieConsent: boolean;
-    };
-};
 
 export const appIds = ['databox', 'expose', 'uploader'] as const;
 
@@ -60,6 +39,14 @@ export const linkIds = [
 
 export type LinkId = (typeof linkIds)[number];
 
+/**
+ * Runtime configuration of the client. It is resolved on the server at request
+ * time from environment variables and the stack configuration (see
+ * ./server.ts) and injected into the client tree through the ConfigProvider,
+ * so the same Docker image can be deployed against any stack.
+ *
+ * Everything in it is served to any visitor with the page.
+ */
 export type AppConfig = {
     appId: string;
     clientUrl: string;

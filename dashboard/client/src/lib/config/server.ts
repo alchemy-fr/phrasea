@@ -1,17 +1,11 @@
 import 'server-only';
 import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
+import {analyticsConfigFromEnv} from '@alchemy/next-core/analytics/config';
+import {envBool} from '@alchemy/next-core/config/env';
 import type {AppConfig, AppId, AppService, LinkId, ToolId} from './types';
 import type {StackConfig} from '@alchemy/next-core/config/stackConfig';
 
 type Env = Record<string, string | undefined>;
-
-function bool(value: string | undefined, fallback = false): boolean {
-    if (value === undefined || value === '') {
-        return fallback;
-    }
-
-    return ['1', 'true', 'on', 'y', 'yes'].includes(value.toLowerCase());
-}
 
 function url(value: string | undefined): string | undefined {
     return value?.trim().replace(/\/+$/, '') || undefined;
@@ -115,18 +109,8 @@ export function getServerConfig(
         apps: getApps(env),
         tools: urls(toolEnv, env),
         links: urls(linkEnv, env),
-        devMode: bool(env.DEV_MODE),
-        analytics:
-            env.MATOMO_URL && env.MATOMO_SITE_ID
-                ? {
-                      matomo: {
-                          baseUrl: env.MATOMO_URL,
-                          siteId: env.MATOMO_SITE_ID,
-                          disableCookies: bool(env.MATOMO_DISABLE_COOKIES),
-                          cookieConsent: bool(env.MATOMO_COOKIE_CONSENT, true),
-                      },
-                  }
-                : {},
+        devMode: envBool(env.DEV_MODE),
+        analytics: analyticsConfigFromEnv(env),
         sentry: sentryClientConfigFromEnv(env),
         logo: logoFrom(stackConfig),
     };

@@ -1,14 +1,8 @@
 import 'server-only';
 import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
+import {analyticsConfigFromEnv} from '@alchemy/next-core/analytics/config';
+import {envBool} from '@alchemy/next-core/config/env';
 import type {AppConfig} from './types';
-
-function bool(value: string | undefined, fallback = false): boolean {
-    if (value === undefined || value === '') {
-        return fallback;
-    }
-
-    return ['1', 'true', 'on', 'y', 'yes'].includes(value.toLowerCase());
-}
 
 /**
  * Builds the runtime configuration from the process environment.
@@ -28,22 +22,9 @@ export function getServerConfig(): AppConfig {
             autoConnectIdP: env.AUTO_CONNECT_IDP || undefined,
         },
         dashboardUrl: env.DASHBOARD_CLIENT_URL || undefined,
-        displayServicesMenu: bool(env.DISPLAY_SERVICES_MENU),
-        disableIndexPage: bool(env.DISABLE_INDEX_PAGE),
-        analytics:
-            env.MATOMO_URL && env.MATOMO_SITE_ID
-                ? {
-                      matomo: {
-                          baseUrl: env.MATOMO_URL,
-                          siteId: env.MATOMO_SITE_ID,
-                          mediaPluginEnabled: bool(
-                              env.MATOMO_MEDIA_PLUGIN_ENABLED
-                          ),
-                          disableCookies: bool(env.MATOMO_DISABLE_COOKIES),
-                          cookieConsent: bool(env.MATOMO_COOKIE_CONSENT, true),
-                      },
-                  }
-                : {},
+        displayServicesMenu: envBool(env.DISPLAY_SERVICES_MENU),
+        disableIndexPage: envBool(env.DISABLE_INDEX_PAGE),
+        analytics: analyticsConfigFromEnv(env, {mediaPlugin: true}),
         sentry: sentryClientConfigFromEnv(env),
         logo: env.APP_LOGO_SRC ? {src: env.APP_LOGO_SRC} : undefined,
     };
