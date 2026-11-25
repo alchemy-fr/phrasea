@@ -6,6 +6,7 @@ import type {Asset} from '@/types/api';
 import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
 import {assetKey} from '@/features/assets/list/SelectionProvider';
 import {cn} from '@alchemy/next-ui/utils/cn';
+import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
 import {useDragOver, useDragPayload} from './DragContext';
 import {type DropOp, isNeutralTarget, targetName} from './types';
 
@@ -15,6 +16,7 @@ import {type DropOp, isNeutralTarget, targetName} from './types';
  */
 export function DragGhost() {
     const {t} = useTranslation();
+    const {modifier} = useShortcutLabels();
     const payload = useDragPayload();
     const {target, verdict} = useDragOver();
     if (!payload) {
@@ -32,7 +34,10 @@ export function DragGhost() {
     } else if (verdict) {
         hint = reasonLabel(t, verdict.reason);
     } else if (payload.type === 'assets') {
-        hint = t('dnd.hint', 'Ctrl: add · Ctrl+Shift: duplicate');
+        hint = t('dnd.hint', '{{add}}: add · {{duplicate}}: duplicate', {
+            add: modifier(),
+            duplicate: modifier({shift: true}),
+        });
     } else {
         hint = t('dnd.hint_collection', 'Drop on a collection or a workspace');
     }

@@ -42,7 +42,7 @@ import {routes} from '@/lib/routes';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
 import {
-    SWITCH_USER_SHORTCUT,
+    SWITCH_USER_KEY,
     useSwitchUserShortcut,
 } from '@/features/impersonation/useSwitchUserShortcut';
 import {ProfileMenu} from '@/features/profiles/ProfileMenu';
@@ -53,6 +53,7 @@ import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
 import {groupsApi} from '@/lib/api/groups';
+import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
 
 /**
  * The application header: the logo, where the user is and the way back, then
@@ -70,6 +71,7 @@ export function TopBar({
     children?: ReactNode;
 }) {
     const {t} = useTranslation();
+    const {shortcut} = useShortcutLabels();
     const isPublic = variant === 'public';
     const {
         user,
@@ -290,7 +292,7 @@ export function TopBar({
                                 <UserRoundCogIcon />{' '}
                                 {t('impersonation.switch', 'Switch user…')}
                                 <DropdownMenuShortcut>
-                                    {SWITCH_USER_SHORTCUT}
+                                    {shortcut(SWITCH_USER_KEY)}
                                 </DropdownMenuShortcut>
                             </DropdownMenuItem>
                         ) : null}

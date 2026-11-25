@@ -49,6 +49,7 @@ import {
 } from './messageAttachments';
 import {messageContentClass} from './messageStyles';
 import {usePendingAttachments} from './usePendingAttachments';
+import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
 
 export type MessageComposerHandle = {
     focus: () => void;
@@ -178,6 +179,7 @@ export function MessageComposer({
     annotations?: ComposerAnnotations;
 }) {
     const {t} = useTranslation();
+    const {shortcut} = useShortcutLabels();
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const submitRef = useRef<() => void>(() => {});
@@ -425,13 +427,13 @@ export function MessageComposer({
             tool(
                 'bold',
                 BoldIcon,
-                `${t('discussion.format.bold', 'Bold')} (Ctrl+B)`,
+                `${t('discussion.format.bold', 'Bold')} (${shortcut('B')})`,
                 e => e.chain().focus().toggleBold().run()
             ),
             tool(
                 'italic',
                 ItalicIcon,
-                `${t('discussion.format.italic', 'Italic')} (Ctrl+I)`,
+                `${t('discussion.format.italic', 'Italic')} (${shortcut('I')})`,
                 e => e.chain().focus().toggleItalic().run()
             ),
             tool(

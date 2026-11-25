@@ -35,6 +35,7 @@ import {
     askDiscardChanges,
     useUnsavedChangesPrompt,
 } from '@alchemy/next-ui/navigation/unsavedChanges';
+import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
 import {createTicket} from './api';
 import {
     captureScreenshot,
@@ -63,6 +64,7 @@ type Props = {
 
 export function TicketDialog({open, onOpenChange, page}: Props) {
     const {t} = useTranslation();
+    const {shortcut} = useShortcutLabels();
     const {user} = useAuth();
     const [kind, setKind] = useState<TicketKind>('bug');
     const [summary, setSummary] = useState('');
@@ -275,11 +277,13 @@ export function TicketDialog({open, onOpenChange, page}: Props) {
                                 : canCapture
                                   ? t(
                                         'ticketing.screenshot_help',
-                                        'Optional: capture this page, or paste an image (Ctrl+V).'
+                                        'Optional: capture this page, or paste an image ({{shortcut}}).',
+                                        {shortcut: shortcut('V')}
                                     )
                                   : t(
                                         'ticketing.screenshot_paste_help',
-                                        'Optional: paste an image (Ctrl+V).'
+                                        'Optional: paste an image ({{shortcut}}).',
+                                        {shortcut: shortcut('V')}
                                     )
                         }
                     >

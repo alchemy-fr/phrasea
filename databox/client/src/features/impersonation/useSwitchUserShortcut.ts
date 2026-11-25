@@ -3,7 +3,7 @@ import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {SwitchUserDialog} from './SwitchUserDialog';
 
-export const SWITCH_USER_SHORTCUT = 'Ctrl+U';
+export const SWITCH_USER_KEY = 'U';
 
 /**
  * Opens the "switch user" dialog, from the user menu or with Ctrl/Cmd+U

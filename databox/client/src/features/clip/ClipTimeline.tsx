@@ -28,6 +28,7 @@ import {useTimelineView} from './useTimelineView';
 import {useFramePreview} from './useFramePreview';
 import {RangeHandle, TimelineHoverPreview} from './TimelineParts';
 import type {FrameRateState} from './useFrameRate';
+import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
 
 /** Zoom of a button or a key press */
 const ZOOM_STEP = 2;
@@ -91,6 +92,7 @@ export function ClipTimeline({
     onCreate,
 }: ClipTimelineProps) {
     const {t} = useTranslation();
+    const {modifier} = useShortcutLabels();
     const rootRef = useRef<HTMLDivElement>(null);
     const laneRef = useRef<HTMLDivElement>(null);
     const [hover, setHover] = useState<number>();
@@ -445,7 +447,8 @@ export function ClipTimeline({
             <p className="text-xs text-muted-foreground">
                 {t(
                     'clip.timeline_help',
-                    'Drag on the timeline to add a range, drag its edges to resize it. Keys: ←/→ one frame (Shift: one second), I/O start/end at the playhead, +/− zoom, 0 whole duration; Ctrl + wheel zooms.'
+                    'Drag on the timeline to add a range, drag its edges to resize it. Keys: ←/→ one frame (Shift: one second), I/O start/end at the playhead, +/− zoom, 0 whole duration; {{modifier}} + wheel zooms.',
+                    {modifier: modifier()}
                 )}
             </p>
         </div>

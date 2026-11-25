@@ -12,6 +12,7 @@ import {
 } from '@/features/assets/actions/useAssetActions';
 import {BasketSwitcher} from '@/features/baskets/BasketSwitcher';
 import {useAuth} from '@/lib/auth/AuthProvider';
+import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
 
 /**
  * Master checkbox + bulk actions for the current selection.
@@ -24,6 +25,7 @@ export function SelectionActions({
     context?: ActionContext;
 }) {
     const {t} = useTranslation();
+    const {shortcut} = useShortcutLabels();
     const {isAuthenticated} = useAuth();
     const selection = useSelection();
     const total = pages.flat().length;
@@ -43,7 +45,9 @@ export function SelectionActions({
                 content={
                     count === total && total > 0
                         ? t('list.unselect_all', 'Unselect all')
-                        : t('list.select_all', 'Select all (Ctrl+A)')
+                        : t('list.select_all', 'Select all ({{shortcut}})', {
+                              shortcut: shortcut('A'),
+                          })
                 }
             >
                 <span className="flex items-center px-1">
