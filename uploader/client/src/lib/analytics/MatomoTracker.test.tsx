@@ -29,6 +29,7 @@ vi.mock('@/lib/auth/AuthProvider', () => ({
 
 const matomo = vi.hoisted(() => ({
     initMatomo: vi.fn(),
+    isCookieConsentRequired: vi.fn(() => false),
     setUserId: vi.fn(),
     trackPageView: vi.fn(),
 }));
