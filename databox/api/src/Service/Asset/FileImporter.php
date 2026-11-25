@@ -81,7 +81,7 @@ readonly class FileImporter
             }
 
             try {
-                $detectedType = $this->fileValidator->validateFileContent(
+                $contentType = $this->fileValidator->validateFileContent(
                     $src,
                     $file->getOriginalName() ?? $file->getPath(),
                     $mimeType ?? $file->getType(),
@@ -95,9 +95,10 @@ readonly class FileImporter
             }
 
             if (null !== $mimeType) {
+                $mimeType = $contentType->type;
                 $file->setType($mimeType);
             }
-            $file->setDetectedType($detectedType);
+            $file->setDetectedType($contentType->detectedType);
             $file->setSize(filesize($src));
 
             $finalPath = $this->fileManager->storeFile(

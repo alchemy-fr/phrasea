@@ -50,6 +50,33 @@ class AssetUploadTest extends AbstractExposeTestCase
         $this->assertEquals('image/jpeg', $json['assets'][0]['mimeType']);
     }
 
+    public function testAWmaIsStoredAsAudio(): void
+    {
+        $publication = $this->createPublication();
+        $path = tempnam(sys_get_temp_dir(), 'wma');
+        // The ASF Header Object GUID: libmagic names the container only ("video/x-ms-asf")
+        file_put_contents($path, "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C\xEE\x01\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x01\x02");
+
+        try {
+            $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [
+                'publication_id' => $publication->getId(),
+                'asset_id' => KeycloakClientTestMock::ADMIN_UID,
+            ], [
+                'file' => new UploadedFile($path, 'song.wma', 'video/x-ms-asf'),
+            ]);
+            $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
+        } finally {
+            @unlink($path);
+        }
+
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/'.$publication->getId());
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertCount(1, $json['assets']);
+        $this->assertSame('audio/x-ms-wma', $json['assets'][0]['mimeType']);
+    }
+
     public function testUploadAssetWithoutFileGenerates400(): void
     {
         $publication = $this->createPublication();

@@ -93,7 +93,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
             $this->assertFits($link, $size);
         }
 
-        $this->fileValidator->validateFileContent(
+        $contentType = $this->fileValidator->validateFileContent(
             $uploadedFile->getRealPath(),
             $uploadedFile->getClientOriginalName(),
             $uploadedFile->getMimeType(),
@@ -114,7 +114,7 @@ final readonly class CreateAssetProcessor implements ProcessorInterface
         return $this->createAsset(
             $target,
             $path,
-            $uploadedFile->getMimeType(),
+            $contentType->type,
             $originalName,
             $size,
             $userId,

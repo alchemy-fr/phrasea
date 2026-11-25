@@ -9,6 +9,7 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\UploadManager;
+use Alchemy\StorageBundle\Util\FileUtil;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,7 +66,7 @@ final readonly class UploadRequestResolver
                 throw new BadRequestHttpException('Empty file');
             }
 
-            $this->fileValidator->validateFileContent(
+            $contentType = $this->fileValidator->validateFileContent(
                 $uploadedFile->getRealPath(),
                 $uploadedFile->getClientOriginalName(),
                 $uploadedFile->getMimeType(),
@@ -80,7 +81,7 @@ final readonly class UploadRequestResolver
 
             return new ResolvedUpload(
                 $path,
-                $uploadedFile->getMimeType(),
+                $contentType->type,
                 $uploadedFile->getClientOriginalName(),
                 $uploadedFile->getSize(),
             );
@@ -93,7 +94,7 @@ final readonly class UploadRequestResolver
             $contentType = self::getString($upload, 'type');
             if (null === $contentType && null !== $originalFilename) {
                 $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
-                $contentType = (new MimeTypes())->getMimeTypes($extension)[0] ?? null;
+                $contentType = FileUtil::getTypeFromExtension($extension);
             }
 
             $contentType ??= 'application/octet-stream';

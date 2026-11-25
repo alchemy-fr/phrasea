@@ -75,7 +75,7 @@ class PhraseanetIntegrationController extends AbstractController
         if (0 === $uploadedFile->getSize()) {
             throw new BadRequestHttpException('Empty file');
         }
-        $fileValidator->validateFileContent(
+        $contentType = $fileValidator->validateFileContent(
             $uploadedFile->getRealPath(),
             $uploadedFile->getClientOriginalName(),
             $uploadedFile->getMimeType(),
@@ -97,7 +97,7 @@ class PhraseanetIntegrationController extends AbstractController
         $file = $fileManager->createFileFromPath(
             $asset->getWorkspace(),
             $uploadedFile->getRealPath(),
-            $uploadedFile->getMimeType(),
+            $contentType->type,
             null,
             $uploadedFile->getClientOriginalName(),
             removeSrc: false,

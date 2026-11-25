@@ -6,6 +6,7 @@ namespace App\Border;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\FileValidator;
+use Alchemy\StorageBundle\Upload\ValidatedContentType;
 use App\Border\Model\FileContent;
 use App\Border\Model\InputFile;
 use App\Entity\Core\File;
@@ -33,7 +34,7 @@ final readonly class BorderManager
 
         $content = new FileContent($inputFile, $localFilePath);
         try {
-            $detectedType = $this->validateContent($content);
+            $contentType = $this->validateContent($content);
         } catch (\Throwable $e) {
             unlink($localFilePath);
 
@@ -57,8 +58,8 @@ final readonly class BorderManager
         $file->setOriginalName($inputFile->getName());
         $file->setExtension($inputFile->getExtension());
         $file->setSize($inputFile->getSize());
-        $file->setType($inputFile->getType());
-        $file->setDetectedType($detectedType);
+        $file->setType($contentType->type);
+        $file->setDetectedType($contentType->detectedType);
         $file->setWorkspace($workspace);
 
         $this->em->persist($file);
@@ -72,10 +73,7 @@ final readonly class BorderManager
         $this->fileValidator->validateFile($file->getName(), $file->getType());
     }
 
-    /**
-     * @return string the type detected from the content
-     */
-    public function validateContent(FileContent $fileContent): string
+    public function validateContent(FileContent $fileContent): ValidatedContentType
     {
         $inputFile = $fileContent->getFile();
 

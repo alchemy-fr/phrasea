@@ -7,6 +7,7 @@ namespace Alchemy\StorageBundle\Tests;
 use Alchemy\StorageBundle\Upload\ContentTypeMismatchException;
 use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\StorageBundle\Upload\ForbiddenContentException;
+use Alchemy\StorageBundle\Upload\ValidatedContentType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -103,16 +104,18 @@ class FileValidatorTest extends TestCase
 
     public function testValidContent(): void
     {
-        $this->assertSame('image/png', (new FileValidator(self::ALLOWED_TYPES))->validateHead(self::PNG, 'foo.png', 'image/png'));
+        $this->assertEquals(new ValidatedContentType('image/png', 'image/png'), (new FileValidator(self::ALLOWED_TYPES))->validateHead(self::PNG, 'foo.png', 'image/png'));
         // The type of the content is checked, with the file name
-        $this->assertSame('image/png', (new FileValidator('image/png(.jpg)'))->validateHead(self::PNG, 'foo.jpg', 'image/jpeg'));
+        $this->assertEquals(new ValidatedContentType('image/png', 'image/png'), (new FileValidator('image/png(.jpg)'))->validateHead(self::PNG, 'foo.jpg', 'image/jpeg'));
     }
 
     public function testWmaContentInItsAsfContainerIsAccepted(): void
     {
         $validator = new FileValidator('audio/*(.mp3,.wma),video/*(.mp4)');
-        $this->assertSame('video/x-ms-asf', $validator->validateHead(self::ASF, 'song.wma', 'video/x-ms-asf'));
-        $this->assertSame('video/x-ms-asf', $validator->validateHead(self::ASF, 'song.wma', null));
+        // The detected type is the container, the type to store is the audio format of the extension
+        $this->assertEquals(new ValidatedContentType('video/x-ms-asf', 'audio/x-ms-wma'), $validator->validateHead(self::ASF, 'song.wma', 'video/x-ms-asf'));
+        $this->assertEquals(new ValidatedContentType('video/x-ms-asf', 'audio/x-ms-wma'), $validator->validateHead(self::ASF, 'song.wma', null));
+        $this->assertEquals(new ValidatedContentType('video/x-ms-asf', 'audio/x-ms-wma'), $validator->validateHead(self::ASF, 'song.wma', 'audio/x-ms-wma'));
     }
 
     public function testWmvWithoutTypeIsAVideo(): void
@@ -151,7 +154,7 @@ class FileValidatorTest extends TestCase
         $path = tempnam(sys_get_temp_dir(), 'fvt');
         file_put_contents($path, self::PNG);
         try {
-            $this->assertSame('image/png', (new FileValidator(self::ALLOWED_TYPES))->validateFileContent($path, 'foo.png', null));
+            $this->assertEquals(new ValidatedContentType('image/png', 'image/png'), (new FileValidator(self::ALLOWED_TYPES))->validateFileContent($path, 'foo.png', null));
         } finally {
             unlink($path);
         }

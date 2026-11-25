@@ -102,7 +102,7 @@ readonly class DownloadHandler
             }
 
             try {
-                $this->fileValidator->validateFileContent(stream_get_meta_data($file)['uri'], $originalName, $contentType);
+                $contentType = $this->fileValidator->validateFileContent(stream_get_meta_data($file)['uri'], $originalName, $contentType)->type;
             } catch (HttpExceptionInterface $e) {
                 $this->abort($url, sprintf('Download refused: %s', $e->getMessage()), $e);
             }

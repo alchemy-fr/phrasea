@@ -31,6 +31,10 @@ class DownloadHandlerTest extends TestCase
 {
     private const string JPEG = "\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01";
     private const string GIF = "GIF89a\x01\x00\x01\x00";
+    /**
+     * The ASF Header Object GUID: libmagic names the container only ("video/x-ms-asf").
+     */
+    private const string ASF = "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C\xEE\x01\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x01\x02";
 
     #[DataProvider('downloadProvider')]
     public function testDownload(
@@ -343,7 +347,8 @@ class DownloadHandlerTest extends TestCase
         $assetManager = $this->createMock(AssetManager::class);
         $assetManager->expects($this->once())
             ->method('createAsset')
-            ->with($this->anything(), $this->anything(), 'image/x-phrasea-unknown', 'baz.bin')
+            // The extension comes from the declared type, the stored type from the content
+            ->with($this->anything(), $this->anything(), 'image/jpeg', 'baz.bin')
             ->willReturn(new Asset());
         $pathGenerator = $this->createMock(PathGeneratorInterface::class);
         $pathGenerator->expects($this->once())->method('generatePath')->with('bin')->willReturn('aa/bb/baz.bin');
@@ -481,14 +486,21 @@ class DownloadHandlerTest extends TestCase
             [
                 'http://foo.bar/baz.txt?foo=bar',
                 new MockResponse('foobar', []),
-                'application/octet-stream',
+                'text/plain',
                 'txt',
             ],
             [
                 'http://foo.bar/baz',
                 new MockResponse('foobar', []),
-                'application/octet-stream',
+                'text/plain',
                 null,
+            ],
+            'wma served as its ASF container' => [
+                'http://foo.bar/baz.wma',
+                new MockResponse(self::ASF, ['response_headers' => ['content-type' => 'video/x-ms-asf']]),
+                'audio/x-ms-wma',
+                'wma',
+                strlen(self::ASF),
             ],
         ];
     }

@@ -221,7 +221,7 @@ class FileFetcherTest extends TestCase
         $file->setOriginalName('pixel.png');
 
         $head = $fetcher->getHead($file, ContentTypeDetector::HEAD_SIZE);
-        $file->setDetectedType(new FileValidator('')->validateHead($head, $file->getFileName(), $file->getType()));
+        $file->setDetectedType(new FileValidator('')->validateHead($head, $file->getFileName(), $file->getType())->detectedType);
         $this->assertSame('image/png', $file->getDetectedType());
 
         return $file;

@@ -220,6 +220,40 @@ final class FileContentCheckTest extends AbstractDataboxTestCase
         }
     }
 
+    public function testDirectUploadOfAWmaIsStoredAsAudio(): void
+    {
+        [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $path = tempnam(sys_get_temp_dir(), 'wma');
+        // The ASF Header Object GUID: libmagic names the container only ("video/x-ms-asf")
+        file_put_contents($path, "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C\xEE\x01\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x01\x02");
+
+        try {
+            $response = static::createClient()->request('POST', '/assets', [
+                'headers' => [
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(self::EDITOR),
+                ],
+                'json' => [
+                    'workspace' => '/workspaces/'.$ws->getId(),
+                ],
+                'extra' => [
+                    'files' => [
+                        'file' => new UploadedFile($path, 'song.wma', 'video/x-ms-asf'),
+                    ],
+                ],
+            ]);
+            $this->assertResponseStatusCodeSame(201);
+        } finally {
+            @unlink($path);
+        }
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $file = $em->find(Asset::class, $response->toArray()['id'])->getSource();
+        $this->assertSame('audio/x-ms-wma', $file->getType());
+        $this->assertSame('wma', $file->getExtension());
+        $this->assertStringEndsWith('.wma', $file->getPath());
+    }
+
     private function createAssetWithSource(Workspace $workspace, string $content, string $type, string $name): Asset
     {
         $em = self::getEntityManager();

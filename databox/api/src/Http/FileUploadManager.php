@@ -30,7 +30,7 @@ final readonly class FileUploadManager
             throw new BadRequestHttpException('Empty file');
         }
 
-        $this->fileValidator->validateFileContent(
+        $contentType = $this->fileValidator->validateFileContent(
             $uploadedFile->getRealPath(),
             $uploadedFile->getClientOriginalName(),
             $uploadedFile->getMimeType(),
@@ -39,7 +39,7 @@ final readonly class FileUploadManager
         return $this->fileManager->createFileFromPath(
             $workspace,
             $uploadedFile->getRealPath(),
-            $uploadedFile->getMimeType(),
+            $contentType->type,
             null,
             $uploadedFile->getClientOriginalName(),
             removeSrc: false,

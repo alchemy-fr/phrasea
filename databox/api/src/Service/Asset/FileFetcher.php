@@ -176,7 +176,7 @@ class FileFetcher implements ResetInterface
         }
 
         try {
-            $detectedType = $this->fileValidator->validateFileContent($path, $file->getFileName(), $file->getType());
+            $detectedType = $this->fileValidator->validateFileContent($path, $file->getFileName(), $file->getType())->detectedType;
             if (null !== $file->getDetectedType() && $detectedType !== $file->getDetectedType()) {
                 throw new BadRequestHttpException(sprintf('Content is "%s", "%s" was accepted', $detectedType, $file->getDetectedType()));
             }
