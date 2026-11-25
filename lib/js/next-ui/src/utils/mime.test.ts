@@ -55,6 +55,12 @@ describe('getMimeTypeFromFile', () => {
         expect(getMimeTypeFromFile(new File([''], 'a.PSD'))).toBe(
             'image/vnd.adobe.photoshop'
         );
+        expect(getMimeTypeFromFile(new File([''], 'song.wma'))).toBe(
+            'audio/x-ms-wma'
+        );
+        expect(getMimeTypeFromFile(new File([''], 'clip.WMV'))).toBe(
+            'video/x-ms-wmv'
+        );
         expect(getMimeTypeFromFile(new File([''], 'a.unknown'))).toBe(
             undefined
         );

@@ -163,6 +163,9 @@ class ContentTypeDetectorTest extends TestCase
             ['ogg', 'audio/ogg', 'audio/ogg'],
             ['ogg', 'video/ogg', 'audio/ogg'],
             ['flac', 'audio/flac', 'audio/flac'],
+            ['wma', 'audio/x-ms-wma', 'video/x-ms-asf'],
+            ['wma', 'video/x-ms-asf', 'video/x-ms-asf'],
+            ['wmv', 'video/x-ms-wmv', 'video/x-ms-asf'],
             ['indd', 'application/x-indesign', 'application/octet-stream'],
             ['zip', 'application/zip', 'application/zip'],
             ['json', 'application/json', 'application/json'],
@@ -269,25 +272,37 @@ class ContentTypeDetectorTest extends TestCase
     }
 
     #[DataProvider('getResolvedTypes')]
-    public function testResolveType(?string $declaredType, string $detectedType, string $expectedType): void
+    public function testResolveType(?string $declaredType, string $detectedType, ?string $filename, string $expectedType): void
     {
-        $this->assertSame($expectedType, $this->detector->resolveType($declaredType, $detectedType));
+        $this->assertSame($expectedType, $this->detector->resolveType($declaredType, $detectedType, $filename));
     }
 
     public static function getResolvedTypes(): array
     {
         return [
-            'more precise detected type' => ['image/jpeg', 'image/png', 'image/png'],
-            'nothing declared' => [null, 'text/html', 'text/html'],
-            'opaque binary declared' => ['application/octet-stream', 'image/png', 'image/png'],
-            'unknown content' => ['application/x-indesign', 'application/octet-stream', 'application/x-indesign'],
-            'container' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-            'nothing known' => [null, 'application/octet-stream', 'application/octet-stream'],
-            'csv seen as text' => ['text/csv', 'text/plain', 'text/csv'],
-            'json cut by the head' => ['application/json', 'text/plain', 'application/json'],
-            'ndjson cut by the head' => ['application/x-ndjson', 'text/plain', 'application/x-ndjson'],
-            'camera raw seen as its tiff container' => ['image/x-adobe-dng', 'image/tiff', 'image/x-adobe-dng'],
-            'tiff declared as a jpeg' => ['image/jpeg', 'image/tiff', 'image/tiff'],
+            'more precise detected type' => ['image/jpeg', 'image/png', null, 'image/png'],
+            'nothing declared' => [null, 'text/html', null, 'text/html'],
+            'opaque binary declared' => ['application/octet-stream', 'image/png', null, 'image/png'],
+            'unknown content' => ['application/x-indesign', 'application/octet-stream', null, 'application/x-indesign'],
+            'container' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', null, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            'nothing known' => [null, 'application/octet-stream', null, 'application/octet-stream'],
+            'csv seen as text' => ['text/csv', 'text/plain', null, 'text/csv'],
+            'json cut by the head' => ['application/json', 'text/plain', null, 'application/json'],
+            'ndjson cut by the head' => ['application/x-ndjson', 'text/plain', null, 'application/x-ndjson'],
+            'camera raw seen as its tiff container' => ['image/x-adobe-dng', 'image/tiff', null, 'image/x-adobe-dng'],
+            'tiff declared as a jpeg' => ['image/jpeg', 'image/tiff', null, 'image/tiff'],
+            'wma declared, asf detected' => ['audio/x-ms-wma', 'video/x-ms-asf', null, 'audio/x-ms-wma'],
+            'wmv declared, asf detected' => ['video/x-ms-wmv', 'video/x-ms-asf', null, 'video/x-ms-wmv'],
+            'asf declared for a .wma' => ['video/x-ms-asf', 'video/x-ms-asf', 'song.wma', 'audio/x-ms-wma'],
+            'nothing declared for a .wma' => [null, 'video/x-ms-asf', 'song.wma', 'audio/x-ms-wma'],
+            'opaque binary declared for a .wma' => ['application/octet-stream', 'video/x-ms-asf', 'song.WMA', 'audio/x-ms-wma'],
+            'nothing declared for a .wmv' => [null, 'video/x-ms-asf', 'clip.wmv', 'video/x-ms-wmv'],
+            'real .asf' => [null, 'video/x-ms-asf', 'clip.asf', 'video/x-ms-asf'],
+            'asf without file name' => [null, 'video/x-ms-asf', null, 'video/x-ms-asf'],
+            'asf with an extension of another family' => [null, 'video/x-ms-asf', 'song.mp3', 'video/x-ms-asf'],
+            'docx without declared type' => [null, 'application/zip', 'a.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            'zip named .zip' => [null, 'application/zip', 'a.zip', 'application/zip'],
+            'detected type more precise than the extension' => [null, 'image/png', 'photo.jpg', 'image/png'],
         ];
     }
 

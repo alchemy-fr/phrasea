@@ -120,7 +120,7 @@ final class FileValidator
     {
         $detector = new ContentTypeDetector();
         $detectedType = $detector->checkBuffer($head, $declaredType);
-        $this->validateFile($filename, $detector->resolveType($declaredType, $detectedType));
+        $this->validateFile($filename, $detector->resolveType($declaredType, $detectedType, $filename));
 
         return $detectedType;
     }

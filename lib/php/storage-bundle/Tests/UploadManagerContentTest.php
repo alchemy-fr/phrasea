@@ -24,6 +24,10 @@ class UploadManagerContentTest extends TestCase
 {
     private const string BUCKET = 'uploads';
     private const string PNG = "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xf8\xcf\xc0\xf0\x1f\x00\x05\x00\x01\xff\x89\x99=\x1d\x00\x00\x00\x00IEND\xaeB`\x82";
+    /**
+     * The ASF Header Object GUID, all libmagic needs to name the container.
+     */
+    private const string ASF = "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C\xEE\x01\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x01\x02";
     private const string HTML = '<!DOCTYPE html><html><body><script>alert(1)</script></body></html>';
 
     /**
@@ -59,6 +63,24 @@ class UploadManagerContentTest extends TestCase
         $type = $this->createManager()->validateStoredContent('aa/photo.dng', 'photo.dng', 'image/x-adobe-dng', 72);
 
         $this->assertSame('image/x-adobe-dng', $type);
+    }
+
+    public function testAWmaDeclaredAsItsAsfContainerIsAudio(): void
+    {
+        $this->queueObject(self::ASF);
+
+        $type = $this->createManager('audio/*(.wma)')->validateStoredContent('aa/song.wma', 'song.wma', 'video/x-ms-asf', strlen(self::ASF));
+
+        $this->assertSame('audio/x-ms-wma', $type);
+    }
+
+    public function testAWmvDeclaredAsItsAsfContainerIsVideo(): void
+    {
+        $this->queueObject(self::ASF);
+
+        $type = $this->createManager('video/*(.wmv)')->validateStoredContent('aa/clip.wmv', 'clip.wmv', 'video/x-ms-asf', strlen(self::ASF));
+
+        $this->assertSame('video/x-ms-wmv', $type);
     }
 
     public function testAContentOfAnotherFamilyIsRefused(): void

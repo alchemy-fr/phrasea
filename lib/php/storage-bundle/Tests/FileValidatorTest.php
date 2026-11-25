@@ -14,6 +14,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class FileValidatorTest extends TestCase
 {
     private const string PNG = "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xf8\xcf\xc0\xf0\x1f\x00\x05\x00\x01\xff\x89\x99=\x1d\x00\x00\x00\x00IEND\xaeB`\x82";
+    /**
+     * The ASF Header Object GUID, all libmagic needs to name the container.
+     */
+    private const string ASF = "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C\xEE\x01\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x01\x02";
     private const string ALLOWED_TYPES = 'image/*(.jpg,.jpeg,.png,.svg),application/*(.pdf,.doc),video/*(.mp4,.mov),audio/*(.mp3,.wav),application/x-indesign(.indd),text/csv';
 
     #[DataProvider('getAcceptedFiles')]
@@ -102,6 +106,13 @@ class FileValidatorTest extends TestCase
         $this->assertSame('image/png', (new FileValidator(self::ALLOWED_TYPES))->validateHead(self::PNG, 'foo.png', 'image/png'));
         // The type of the content is checked, with the file name
         $this->assertSame('image/png', (new FileValidator('image/png(.jpg)'))->validateHead(self::PNG, 'foo.jpg', 'image/jpeg'));
+    }
+
+    public function testWmaContentInItsAsfContainerIsAccepted(): void
+    {
+        $validator = new FileValidator('audio/*(.mp3,.wma),video/*(.mp4)');
+        $this->assertSame('video/x-ms-asf', $validator->validateHead(self::ASF, 'song.wma', 'video/x-ms-asf'));
+        $this->assertSame('video/x-ms-asf', $validator->validateHead(self::ASF, 'song.wma', null));
     }
 
     public function testContentOfAnotherFamilyIsRefused(): void

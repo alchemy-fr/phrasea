@@ -119,6 +119,8 @@ const extensionToMime: Record<string, string> = {
     aac: 'audio/aac',
     aiff: 'audio/aiff',
     wav: 'audio/wav',
+    wma: 'audio/x-ms-wma',
+    wmv: 'video/x-ms-wmv',
     vtt: 'text/vtt',
     json: 'application/json',
     csv: 'text/csv',

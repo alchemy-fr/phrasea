@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Alchemy\StorageBundle\Upload;
 
 use Alchemy\StorageBundle\Storage\InlineContentTypePolicy;
+use Alchemy\StorageBundle\Util\FileUtil;
+use Symfony\Component\Mime\MimeTypes;
 
 /**
  * Detects the type of a file from its content (libmagic, on its first bytes only)
@@ -92,6 +94,11 @@ final readonly class ContentTypeDetector
         // A raw HEVC/H.264 stream has no header libmagic knows
         '#^video/(h264|h265|hevc|x-h264|x-h265|x-hevc)$#' => [
             self::UNKNOWN_TYPE,
+        ],
+        // ASF holds WMA audio as well as WMV video, libmagic only names the container
+        '#^(audio/(x-ms-wma|wma)|video/x-ms-(wmv|wm|asf))$#' => [
+            'video/x-ms-asf',
+            'application/vnd.ms-asf',
         ],
         '#^image/svg\+xml$#' => [
             'text/xml',
@@ -216,8 +223,19 @@ final readonly class ContentTypeDetector
     /**
      * The type that best describes a consistent file: the detected one, unless
      * libmagic only knows its container (or nothing at all), then the declared one.
+     *
+     * When the type obtained this way is still the container of a type registered
+     * for the extension of $filename, that type wins: a ".wma" sent without type
+     * or as "video/x-ms-asf" is "audio/x-ms-wma".
      */
-    public function resolveType(?string $declaredType, string $detectedType): string
+    public function resolveType(?string $declaredType, string $detectedType, ?string $filename = null): string
+    {
+        $type = $this->resolveDeclaredType($declaredType, $detectedType);
+
+        return (null !== $filename ? $this->getContainedTypeFromExtension($filename, $type) : null) ?? $type;
+    }
+
+    private function resolveDeclaredType(?string $declaredType, string $detectedType): string
     {
         $declared = InlineContentTypePolicy::normalize($declaredType);
         $detected = InlineContentTypePolicy::normalize($detectedType) ?? self::UNKNOWN_TYPE;
@@ -230,6 +248,33 @@ final readonly class ContentTypeDetector
         }
 
         return $detected;
+    }
+
+    /**
+     * The first type registered for the extension of the file that $container
+     * holds, none when the container is itself registered for it (".asf").
+     * Every type is tried, not only the first one: Symfony MIME lists
+     * "audio/x-ms-wmv" before "video/x-ms-wmv" for ".wmv".
+     */
+    private function getContainedTypeFromExtension(string $filename, string $container): ?string
+    {
+        $extension = FileUtil::getExtensionFromPath($filename);
+        if (null === $extension) {
+            return null;
+        }
+
+        $types = new MimeTypes()->getMimeTypes($extension);
+        if (in_array($container, $types, true)) {
+            return null;
+        }
+
+        foreach ($types as $type) {
+            if ($this->isContainerOf($type, $container)) {
+                return $type;
+            }
+        }
+
+        return null;
     }
 
     private function isContainerOf(string $declared, string $detected): bool

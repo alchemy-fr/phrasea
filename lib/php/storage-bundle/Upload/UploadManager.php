@@ -191,7 +191,7 @@ final readonly class UploadManager
         ])->get('Body');
 
         $detector = new ContentTypeDetector();
-        $type = $detector->resolveType($declaredType, $detector->checkBuffer($head, $declaredType));
+        $type = $detector->resolveType($declaredType, $detector->checkBuffer($head, $declaredType), $filename);
 
         // The declared type was checked against the allowed types when the upload was prepared
         if ($type !== InlineContentTypePolicy::normalize($declaredType)) {
