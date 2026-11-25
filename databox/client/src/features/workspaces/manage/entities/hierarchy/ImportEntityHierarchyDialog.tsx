@@ -17,8 +17,10 @@ import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
 import {hierarchyQueryKey} from './EntityTree';
 
 /**
- * Places existing entities from a CSV (entity_external_id, parent_external_id,
- * position): labels and translations are never changed. A dry run reports
+ * Places existing entities from a CSV (entity_external_id, parent_external_id),
+ * the children of a parent in the order of the rows; the columns of the values
+ * CSV (value, emoji, color, status, translation_<locale>) update them, and an
+ * unknown entity is created. A dry run reports
  * the rejected or ambiguous rows first.
  */
 export function ImportEntityHierarchyDialog({
@@ -78,16 +80,22 @@ export function ImportEntityHierarchyDialog({
                         }
                     )
                 );
-                await queryClient.invalidateQueries({
-                    queryKey: hierarchyQueryKey(list.id),
-                });
+                await Promise.all([
+                    queryClient.invalidateQueries({
+                        queryKey: hierarchyQueryKey(list.id),
+                    }),
+                    // The values table: created and updated entities
+                    queryClient.invalidateQueries({
+                        queryKey: ['attribute-entities'],
+                    }),
+                ]);
             }}
         >
             <FormRow
                 label="CSV"
                 help={t(
                     'entity_hierarchy.import_help',
-                    'Columns: entity_external_id, parent_external_id (empty: the top level), position. Entities without external ID may be referenced by their ID.'
+                    'Columns: entity_external_id, parent_external_id (empty: the top level), and optionally those of the values import (value, emoji, color, status, translation_<locale>), which update the entity. An unknown entity is created (a value is then required, or placeholder at 1). The children of a parent take the order of the rows. Entities without external ID may be referenced by their ID.'
                 )}
             >
                 <Textarea
@@ -108,6 +116,13 @@ export function ImportEntityHierarchyDialog({
                             '{{count}} entities will be placed.',
                             {count: report.applied}
                         )}
+                        {report.created > 0
+                            ? ` ${t(
+                                  'entity_hierarchy.import_report_created',
+                                  '{{count}} of them will be created.',
+                                  {count: report.created}
+                              )}`
+                            : null}
                     </p>
                     {report.rejected.length > 0 ? (
                         <ul className="max-h-48 list-disc overflow-auto pl-5 text-destructive">

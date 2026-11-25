@@ -44,7 +44,8 @@ const Provider = QueryClientProvider as unknown as (
 
 function renderTree(
     selectedId: string | null,
-    reveal: {openIds: string[]} | null = null
+    reveal: {openIds: string[]} | null = null,
+    onAdd = vi.fn()
 ) {
     const onSelect = vi.fn();
     const client = new QueryClient({
@@ -58,6 +59,7 @@ function renderTree(
                     selectedId={selectedId}
                     onSelect={onSelect}
                     reveal={reveal}
+                    onAdd={onAdd}
                 />
             </ModalProvider>
         </Provider>
@@ -93,6 +95,20 @@ describe('EntityTree', () => {
         );
         fireEvent.click(root);
         expect(onSelect).toHaveBeenLastCalledWith(null);
+    });
+
+    it('adds from the "+" of the root and of the nodes, without selecting', async () => {
+        const onAdd = vi.fn();
+        const onSelect = renderTree('object', null, onAdd);
+        await screen.findAllByTestId('entity-tree-node');
+
+        fireEvent.click(screen.getByTestId('entity-tree-add-top'));
+        expect(onAdd).toHaveBeenLastCalledWith(null);
+        fireEvent.click(screen.getAllByTestId('entity-tree-add-child')[1]);
+        expect(onAdd).toHaveBeenLastCalledWith(
+            expect.objectContaining({id: 'object'})
+        );
+        expect(onSelect).not.toHaveBeenCalled();
     });
 
     it('does not select a node through its buttons', async () => {

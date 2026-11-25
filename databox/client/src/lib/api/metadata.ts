@@ -438,6 +438,8 @@ export function getEntityHierarchyImpact(
 
 export type EntityHierarchyImportReport = {
     applied: number;
+    /** Among them, the unknown entities created */
+    created: number;
     rejected: {line: number; entity: string | null; reason: string}[];
 };
 

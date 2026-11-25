@@ -61,7 +61,9 @@ pane resized by its handle (width remembered on the device, `useResizablePanel('
 and on the right the table of the direct children of the selected node — the top level when the
 root (the name of the list) is selected. Both panes scroll horizontally when their content is
 wider. The table keeps its filters, inline edition and moderation; a row added there is created
-under the selected node. A list without the flag only has the table, of every value.
+under the selected node. The "+" of a node (or of the root, for the top level) opens the value
+form, which recalls the path of the new value and can create an empty level (placeholder) under a node;
+the hierarchy has no other "New value" button. A list without the flag only has the table, of every value.
 
 A search hides the tree: the table then lists the matches of every level. An arrow before each
 result goes back to the tree, on the level holding it: its parent is selected, the ancestors above
@@ -87,11 +89,21 @@ The choice is remembered per list on the device.
   `placeholder`, `childCount`, `ancestorIds` (from the parent up, placeholders included) and `path`
   (the ancestors, placeholders left out), which tells
   homonyms apart: "Rue Victor Hugo — 16e / Paris / Île-de-France".
-- `POST /entity-lists/{id}/hierarchy-import` `{"data": "<csv>", "dryRun": true}`: places existing
-  entities from a CSV `entity_external_id,parent_external_id,position` (empty parent: the top level).
-  Labels, translations and synonyms are never changed. Answers `{applied, rejected: [{line, entity, reason}]}`;
-  unknown entities, duplicates and cycles are rejected.
-- `POST /entity-lists/{id}/hierarchy-export`: the same CSV, depth first, from every entity of the top level.
+- `POST /entity-lists/{id}/hierarchy-import` `{"data": "<csv>", "dryRun": true}`: places the entities
+  from a CSV `entity_external_id,parent_external_id` (empty parent: the top level). An unknown entity is created,
+  its key becoming its external ID: a `value` is then required, or `placeholder` at 1 for an empty level; a parent
+  may come after its children in the file. The children of a
+  parent take the order of the rows, before the siblings the file does not place there (in their former order).
+  The columns of the values CSV (`value`, `emoji`, `color`, `status`, `translation_<locale>`), when present, update
+  the entity: an empty value keeps it, an empty translation removes it, the locales without column are kept; the
+  synonyms are never changed, `placeholder` is only read on a creation. The export has the same columns (no `id`
+  nor `external_id`: the key column is the external ID, or the ID of an entity without one).
+  Answers `{applied, created, rejected: [{line, entity, reason}]}`; duplicates, cycles, unknown parents and invalid
+  values (the row is not applied at all) are rejected, and so are the rows placed under an entity whose creation
+  was rejected.
+- `POST /entity-lists/{id}/hierarchy-export`: the same CSV with every column of the values export and
+  `placeholder`, depth first from every entity of the top level, the siblings in their order: importing it back
+  keeps that order.
 
 ## Tabulated thesaurus
 

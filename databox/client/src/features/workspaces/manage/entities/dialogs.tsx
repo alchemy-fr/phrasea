@@ -266,7 +266,7 @@ export function ImportThesaurusDialog({
             size="md"
             title={t(
                 'entity.thesaurus.import_title',
-                'Import a tabulated thesaurus into "{{name}}"',
+                'Import a tabulated hierarchy into "{{name}}"',
                 {name: list.name}
             )}
             submitLabel={t('entity.import', 'Import')}

@@ -5,6 +5,7 @@ import type {AttributeEntity, EntityList} from '@/types/api';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
 } from '@alchemy/next-ui/ui/dialog';
@@ -28,6 +29,7 @@ export function EntityFormDialog({
     notFound,
     list,
     locales,
+    parent,
     onSaved,
 }: {
     open: boolean;
@@ -37,6 +39,8 @@ export function EntityFormDialog({
     notFound?: boolean;
     list: EntityList;
     locales: string[];
+    /** A new value of a hierarchy: created under this node, `null` at the top level */
+    parent?: AttributeEntity | null;
     onSaved: (entity: AttributeEntity) => void;
 }) {
     const {t} = useTranslation();
@@ -44,6 +48,7 @@ export function EntityFormDialog({
     const close = () => {
         void confirmLeave(scope).then(leave => leave && onOpenChange(false));
     };
+    const creating = !entity && !loading && !notFound;
 
     return (
         <Dialog open={open} onOpenChange={o => (o ? onOpenChange(o) : close())}>
@@ -54,6 +59,32 @@ export function EntityFormDialog({
                             ? t('entity.edit_form', 'Edit…')
                             : t('entity.create', 'New value')}
                     </DialogTitle>
+                    {creating && parent !== undefined ? (
+                        <DialogDescription data-testid="entity-form-parent">
+                            {parent
+                                ? t(
+                                      'entity_hierarchy.create_in',
+                                      'In: {{path}}',
+                                      {
+                                          path: [
+                                              ...(parent.path ?? []).map(
+                                                  p => p.value
+                                              ),
+                                              parent.placeholder
+                                                  ? t(
+                                                        'entity_hierarchy.placeholder',
+                                                        'empty level'
+                                                    )
+                                                  : parent.value,
+                                          ].join(' / '),
+                                      }
+                                  )
+                                : t(
+                                      'entity_hierarchy.create_top',
+                                      'At the top level'
+                                  )}
+                        </DialogDescription>
+                    ) : null}
                 </DialogHeader>
                 {notFound ? (
                     <p className="text-sm text-muted-foreground">
@@ -71,6 +102,7 @@ export function EntityFormDialog({
                             entity={entity}
                             list={list}
                             locales={locales}
+                            parent={parent}
                             onSaved={onSaved}
                             onCancel={close}
                         />

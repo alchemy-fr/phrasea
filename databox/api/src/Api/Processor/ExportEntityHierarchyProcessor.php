@@ -13,12 +13,15 @@ use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AttributeEntity\Importer\CsvAttributeEntityImporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * The hierarchy of the list as the CSV ImportEntityHierarchyProcessor reads, depth first.
+ * The hierarchy of the list as the CSV ImportEntityHierarchyProcessor reads, depth first: the siblings in their
+ * order, which the import keeps. Each row also has the columns of the values CSV (CsvAttributeEntityExporter)
+ * but id and external_id, which the entity_external_id column replaces, and whether the entity is a placeholder.
  */
 final class ExportEntityHierarchyProcessor implements ProcessorInterface
 {
@@ -40,12 +43,22 @@ final class ExportEntityHierarchyProcessor implements ProcessorInterface
         foreach ($entities as $entity) {
             $children[$entity->getParentId() ?? ''][] = $entity;
         }
+        $locales = $list->getWorkspace()->getEnabledLocales();
 
-        return new StreamedResponse(function () use ($children): void {
+        return new StreamedResponse(function () use ($children, $locales): void {
             $out = fopen('php://output', 'w');
-            fputcsv($out, [EntityHierarchyImporter::COL_ENTITY, EntityHierarchyImporter::COL_PARENT, EntityHierarchyImporter::COL_POSITION, 'value', 'placeholder'], escape: '');
+            fputcsv($out, [
+                EntityHierarchyImporter::COL_ENTITY,
+                EntityHierarchyImporter::COL_PARENT,
+                'value',
+                'emoji',
+                'color',
+                'status',
+                ...array_map(fn (string $l): string => CsvAttributeEntityImporter::TRANSLATION_PREFIX.$l, $locales),
+                'placeholder',
+            ], escape: '');
             foreach ($children[''] ?? [] as $top) {
-                $this->write($out, $top, null, $children);
+                $this->write($out, $top, null, $children, $locales);
             }
             fclose($out);
         }, Response::HTTP_OK, [
@@ -57,19 +70,24 @@ final class ExportEntityHierarchyProcessor implements ProcessorInterface
     /**
      * @param resource                         $out
      * @param array<string, AttributeEntity[]> $children
+     * @param string[]                         $locales
      */
-    private function write($out, AttributeEntity $entity, ?AttributeEntity $parent, array $children): void
+    private function write($out, AttributeEntity $entity, ?AttributeEntity $parent, array $children, array $locales): void
     {
+        $translations = $entity->getTranslations() ?? [];
         fputcsv($out, [
             self::key($entity),
             null !== $parent ? self::key($parent) : '',
-            $entity->getPosition(),
             $entity->getValue(),
+            $entity->getEmoji(),
+            $entity->getColor(),
+            $entity->getStatus(),
+            ...array_map(fn (string $l): string => $translations[$l] ?? '', $locales),
             $entity->isPlaceholder() ? '1' : '',
         ], escape: '');
 
         foreach ($children[$entity->getId()] ?? [] as $child) {
-            $this->write($out, $child, $entity, $children);
+            $this->write($out, $child, $entity, $children, $locales);
         }
     }
 

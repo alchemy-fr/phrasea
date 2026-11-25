@@ -165,6 +165,8 @@ class AttributeEntityRepository extends ServiceEntityRepository
             ->setParameter('list', $listId)
             ->addOrderBy('e.hierarchyDepth', 'ASC')
             ->addOrderBy('e.position', 'ASC')
+            // Siblings of equal position (never moved) as the tree shows them
+            ->addOrderBy('e.value', 'ASC')
             ->getQuery()
             ->getResult();
     }

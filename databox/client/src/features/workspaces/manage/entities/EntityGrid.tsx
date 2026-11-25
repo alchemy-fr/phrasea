@@ -160,6 +160,8 @@ export function EntityGrid({
         null
     );
     const treePanel = useResizablePanel('entity-tree');
+    // Where the "+" of the tree creates the new value, null at the top level
+    const [newParent, setNewParent] = useState<AttributeEntity | null>(null);
     // Nodes to open, once a search result is shown in the tree
     const [treeReveal, setTreeReveal] = useState<{openIds: string[]} | null>(
         null
@@ -612,14 +614,17 @@ export function EntityGrid({
                 </Button>
                 <h3 className="text-sm font-semibold">{list.name}</h3>
                 <ExploreEntityListButton listId={list.id} />
-                <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => navigate(['new'])}
-                    data-testid="entity-create"
-                >
-                    <PlusIcon /> {t('entity.create', 'New value')}
-                </Button>
+                {/* A hierarchy creates from the "+" of the tree, under a node */}
+                {isHierarchy ? null : (
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate(['new'])}
+                        data-testid="entity-create"
+                    >
+                        <PlusIcon /> {t('entity.create', 'New value')}
+                    </Button>
+                )}
                 <FilterInput
                     value={search}
                     onValueChange={setSearch}
@@ -762,29 +767,8 @@ export function EntityGrid({
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            onSelect={() =>
-                                openModal(ExportEntitiesDialog, {
-                                    list,
-                                    locales,
-                                })
-                            }
-                        >
-                            <DownloadIcon /> {t('entity.export', 'Export…')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onSelect={() =>
-                                openModal(ImportEntitiesDialog, {
-                                    list,
-                                    onImported: reload,
-                                })
-                            }
-                        >
-                            <UploadIcon /> {t('entity.import', 'Import…')}
-                        </DropdownMenuItem>
                         {isHierarchy ? (
                             <>
-                                <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     onSelect={async () => {
                                         try {
@@ -833,7 +817,7 @@ export function EntityGrid({
                                     <UploadIcon />{' '}
                                     {t(
                                         'entity.thesaurus.import',
-                                        'Import a tabulated thesaurus…'
+                                        'Import a tabulated hierarchy…'
                                     )}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
@@ -859,11 +843,36 @@ export function EntityGrid({
                                     <DownloadIcon />{' '}
                                     {t(
                                         'entity.thesaurus.export',
-                                        'Export as a tabulated thesaurus'
+                                        'Export as a tabulated hierarchy'
                                     )}
                                 </DropdownMenuItem>
                             </>
-                        ) : null}
+                        ) : (
+                            <>
+                                <DropdownMenuItem
+                                    onSelect={() =>
+                                        openModal(ExportEntitiesDialog, {
+                                            list,
+                                            locales,
+                                        })
+                                    }
+                                >
+                                    <DownloadIcon />{' '}
+                                    {t('entity.export', 'Export…')}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onSelect={() =>
+                                        openModal(ImportEntitiesDialog, {
+                                            list,
+                                            onImported: reload,
+                                        })
+                                    }
+                                >
+                                    <UploadIcon />{' '}
+                                    {t('entity.import', 'Import…')}
+                                </DropdownMenuItem>
+                            </>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             variant="destructive"
@@ -911,7 +920,10 @@ export function EntityGrid({
                                 setRowSelection({});
                             }}
                             onOpen={e => navigate([e.id])}
-                            onCreated={() => dataChanged(true)}
+                            onAdd={parent => {
+                                setNewParent(parent);
+                                navigate(['new']);
+                            }}
                             wrapRow={(entity, row) => (
                                 <EntityRowContextMenu
                                     entity={entity}
@@ -1049,13 +1061,18 @@ export function EntityGrid({
                 notFound={single.isError}
                 list={list}
                 locales={locales}
+                parent={isHierarchy ? newParent : undefined}
                 onSaved={saved => {
                     if (editing) {
                         grid.replaceEntity(saved);
+                        dataChanged();
+                    } else if (isHierarchy) {
+                        // Under any node: the table and the tree reload
+                        dataChanged(true);
                     } else {
                         grid.insertEntity(saved);
+                        dataChanged();
                     }
-                    dataChanged();
                     navigate([]);
                 }}
             />

@@ -9,7 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class EntityHierarchyImportInput
 {
     /**
-     * CSV with a header row: entity_external_id, parent_external_id (empty: top level), position (optional).
+     * CSV with a header row: entity_external_id, parent_external_id (empty: top level); the children
+     * of a parent take the order of the rows.
      * An entity without external ID may be referenced by its ID.
      */
     #[Assert\NotBlank]

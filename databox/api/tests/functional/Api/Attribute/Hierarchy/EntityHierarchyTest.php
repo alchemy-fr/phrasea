@@ -175,7 +175,7 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
         }
         self::getEntityManager()->flush();
 
-        $csv = "entity_external_id,parent_external_id,position\nworld,,0\neu,world,0\nfr,eu,1\nit,eu,0\nfr,it,0\nghost,eu,2\n";
+        $csv = "entity_external_id,parent_external_id\nworld,\neu,world\nit,eu\nfr,eu\nfr,it\nghost,eu\n";
         $report = $this->api('POST', '/entity-lists/'.$list->getId().'/hierarchy-import', self::USER, ['data' => $csv, 'dryRun' => true])->toArray();
         $this->assertSame(4, $report['applied']);
         $this->assertSame([6, 7], array_column($report['rejected'], 'line'));
@@ -190,8 +190,124 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
         $fr = $em->getRepository(AttributeEntity::class)->findOneBy(['externalId' => 'fr']);
         $this->assertSame(2, $fr->getHierarchyDepth());
         $this->assertSame('EU', $fr->getParent()->getValue());
+        // The order of the file among the siblings
+        $this->assertSame(1, $fr->getPosition());
+        $this->assertSame(0, $em->getRepository(AttributeEntity::class)->findOneBy(['externalId' => 'it'])->getPosition());
 
-        $export = $this->api('POST', '/entity-lists/'.$list->getId().'/hierarchy-export', self::USER, [])->getContent();
-        $this->assertStringContainsString("world,,0,WORLD,\neu,world,0,EU,\nit,eu,0,IT,\nfr,eu,1,FR,", $export);
+        $export = $this->exportHierarchy($list);
+        $this->assertSame([
+            ['world', '', 'WORLD'],
+            ['eu', 'world', 'EU'],
+            ['it', 'eu', 'IT'],
+            ['fr', 'eu', 'FR'],
+        ], array_map(fn (array $r): array => [$r['entity_external_id'], $r['parent_external_id'], $r['value']], $export));
+        // The columns of the values CSV
+        $this->assertArrayNotHasKey('id', $export[3]);
+        $this->assertArrayNotHasKey('external_id', $export[3]);
+        $this->assertSame('0', $export[3]['status']);
+        $this->assertSame('', $export[3]['placeholder']);
+    }
+
+    public function testImportUpdatesTheValueColumns(): void
+    {
+        $this->workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
+        $this->workspace->setEnabledLocales(['en', 'fr', 'de']);
+        $list = $this->createEntityList(['name' => 'Geo', 'isHierarchy' => true]);
+        foreach (['eu', 'fr', 'it'] as $key) {
+            $entity = $this->createEntity($list, strtoupper($key), ['no_flush' => true]);
+            $entity->setExternalId($key);
+            $entity->setTranslations(['en' => strtoupper($key).' (en)', 'de' => strtoupper($key).' (de)']);
+        }
+        self::getEntityManager()->flush();
+
+        $csv = "entity_external_id,parent_external_id,value,emoji,color,status,translation_en,translation_fr\n"
+            ."eu,,Europe,🇪🇺,#0000ff,0,,Europe (fr)\n"
+            ."fr,eu,France,,,1,France (en),\n"
+            ."it,eu,,,notacolor,0,,\n"
+            ."ghost,eu,Ghost,,,9,,\n";
+        $report = $this->api('POST', '/entity-lists/'.$list->getId().'/hierarchy-import', self::USER, ['data' => $csv])->toArray();
+        $this->assertSame(2, $report['applied']);
+        $this->assertSame([4, 5], array_column($report['rejected'], 'line'));
+        $this->assertStringContainsString('color', $report['rejected'][0]['reason']);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $repo = $em->getRepository(AttributeEntity::class);
+        $eu = $repo->findOneBy(['externalId' => 'eu']);
+        $this->assertSame('Europe', $eu->getValue());
+        $this->assertSame('🇪🇺', $eu->getEmoji());
+        $this->assertSame('#0000ff', $eu->getColor());
+        // An empty translation removes it, the locales without column are kept
+        $this->assertSame(['de' => 'EU (de)', 'fr' => 'Europe (fr)'], $eu->getTranslations());
+        $fr = $repo->findOneBy(['externalId' => 'fr']);
+        $this->assertSame(AttributeEntity::STATUS_PENDING, $fr->getStatus());
+        $this->assertSame('France (en)', $fr->getTranslations()['en']);
+        $this->assertSame($eu->getId(), $fr->getParentId());
+        // The rejected row changes nothing
+        $it = $repo->findOneBy(['externalId' => 'it']);
+        $this->assertSame('IT', $it->getValue());
+        $this->assertNull($it->getParent());
+
+        $row = $this->exportHierarchy($list)[0];
+        $this->assertSame(['Europe', '🇪🇺', '#0000ff', '', 'Europe (fr)'], [$row['value'], $row['emoji'], $row['color'], $row['translation_en'], $row['translation_fr']]);
+    }
+
+    public function testImportCreatesTheUnknownEntities(): void
+    {
+        $this->workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
+        $list = $this->createEntityList(['name' => 'Geo', 'isHierarchy' => true]);
+        $this->createEntity($list, 'EU', ['no_flush' => true])->setExternalId('eu');
+        self::getEntityManager()->flush();
+
+        $csv = "entity_external_id,parent_external_id,value,placeholder\n"
+            ."world,,World,\n"
+            ."eu,world,,\n"
+            // Before its parent
+            ."tx,us,Texas,\n"
+            ."us,world,USA,\n"
+            ."lvl,tx,,1\n"
+            ."kid,ghost,Kid,\n"
+            ."kid2,kid,Kid 2,\n"
+            ."novalue,,,\n";
+        $url = '/entity-lists/'.$list->getId().'/hierarchy-import';
+        $report = $this->api('POST', $url, self::USER, ['data' => $csv, 'dryRun' => true])->toArray();
+        $this->assertSame(5, $report['applied']);
+        $this->assertSame(4, $report['created']);
+        $this->assertSame([7, 8, 9], array_column($report['rejected'], 'line'));
+        $this->assertSame('Parent "kid" not created', $report['rejected'][1]['reason']);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $repo = $em->getRepository(AttributeEntity::class);
+        $this->assertNull($repo->findOneBy(['externalId' => 'world']));
+
+        $this->assertSame(4, $this->api('POST', $url, self::USER, ['data' => $csv])->toArray()['created']);
+        $em->clear();
+        $get = fn (string $key): AttributeEntity => $repo->findOneBy(['list' => $list->getId(), 'externalId' => $key]);
+        $this->assertSame('World', $get('world')->getValue());
+        $this->assertNull($get('world')->getParent());
+        // Placed under a new parent, its value kept
+        $this->assertSame('EU', $get('eu')->getValue());
+        $this->assertSame([$get('world')->getId(), 1, 0], [$get('eu')->getParentId(), $get('eu')->getHierarchyDepth(), $get('eu')->getPosition()]);
+        $this->assertSame([$get('world')->getId(), 1, 1], [$get('us')->getParentId(), $get('us')->getHierarchyDepth(), $get('us')->getPosition()]);
+        $this->assertSame([$get('us')->getId(), 2], [$get('tx')->getParentId(), $get('tx')->getHierarchyDepth()]);
+        $lvl = $get('lvl');
+        $this->assertTrue($lvl->isPlaceholder());
+        $this->assertSame(3, $lvl->getHierarchyDepth());
+        foreach (['kid', 'kid2', 'novalue'] as $key) {
+            $this->assertNull($repo->findOneBy(['externalId' => $key]));
+        }
+    }
+
+    /**
+     * @return list<array<string, string>>
+     */
+    private function exportHierarchy(EntityList $list): array
+    {
+        $csv = $this->api('POST', '/entity-lists/'.$list->getId().'/hierarchy-export', self::USER, [])->getContent();
+        $lines = array_map(fn (string $l): array => str_getcsv($l, escape: ''), explode("\n", trim($csv)));
+        $header = array_shift($lines);
+
+        return array_map(fn (array $l): array => array_combine($header, $l), $lines);
     }
 }

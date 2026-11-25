@@ -60,7 +60,7 @@ final class EntityListHierarchyFlagTest extends AbstractDataboxTestCase
         $this->api('POST', $iri.'/import', self::USER, ['format' => 'thesaurus', 'data' => "Blue\nGreen"]);
         $this->assertResponseStatusCodeSame(202);
 
-        $this->api('POST', $iri.'/hierarchy-import', self::USER, ['data' => "entity_external_id,parent_external_id,position\n"]);
+        $this->api('POST', $iri.'/hierarchy-import', self::USER, ['data' => "entity_external_id,parent_external_id\n"]);
         $this->assertResponseStatusCodeSame(400);
 
         $this->api('PATCH', '/attribute-definitions/'.$definition->getId(), self::USER, ['entityHierarchyDepthMin' => 0]);

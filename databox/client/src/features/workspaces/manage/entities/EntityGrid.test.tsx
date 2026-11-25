@@ -36,10 +36,14 @@ vi.mock('@alchemy/next-ui/hooks/useDebouncedValue', () => ({
     useDebouncedValue: <T,>(v: T) => v,
 }));
 
-const api = vi.hoisted(() => ({getAttributeEntities: vi.fn()}));
+const api = vi.hoisted(() => ({
+    getAttributeEntities: vi.fn(),
+    postAttributeEntity: vi.fn(),
+}));
 vi.mock('@/lib/api/metadata', async importOriginal => ({
     ...(await importOriginal<typeof import('@/lib/api/metadata')>()),
     getAttributeEntities: api.getAttributeEntities,
+    postAttributeEntity: api.postAttributeEntity,
 }));
 
 // The tree has its own tests: its props are what matters here
@@ -48,15 +52,28 @@ vi.mock('./hierarchy/EntityTree', () => ({
     EntityTree: ({
         selectedId,
         reveal,
+        onAdd,
     }: {
         selectedId?: string | null;
         reveal?: {openIds: string[]} | null;
+        onAdd?: (parent: unknown) => void;
     }) => (
         <div
             data-testid="entity-tree"
             data-selected={String(selectedId)}
             data-open={reveal?.openIds.join(',') ?? ''}
-        />
+        >
+            <button
+                data-testid="tree-add"
+                onClick={() =>
+                    onAdd?.({
+                        id: 'tours',
+                        value: 'Tours',
+                        path: [{id: 'indre', value: 'Indre-et-Loire'}],
+                    })
+                }
+            />
+        </div>
     ),
 }));
 vi.mock('@/features/entities/explore/ExploreEntityListButton', () => ({
@@ -173,5 +190,32 @@ describe('EntityGrid', () => {
         );
         await waitFor(() => expect(lastListing().parent).toBe('none'));
         expect(lastListing().value).toBeUndefined();
+    });
+
+    it('creates a value from the "+" of the tree, under its node', async () => {
+        api.postAttributeEntity.mockResolvedValue({...street, id: 'new'});
+        renderGrid();
+        // No general "New value" button in a hierarchy
+        expect(screen.queryByTestId('entity-create')).toBeNull();
+
+        fireEvent.click(screen.getByTestId('tree-add'));
+        const dialog = await screen.findByTestId('entity-form-dialog');
+        expect(screen.getByTestId('entity-form-parent').textContent).toBe(
+            'In: Indre-et-Loire / Tours'
+        );
+        fireEvent.change(dialog.querySelector('input')!, {
+            target: {value: 'Saint-Cyr'},
+        });
+        fireEvent.click(screen.getByRole('button', {name: /Save/}));
+
+        await waitFor(() =>
+            expect(api.postAttributeEntity).toHaveBeenCalledWith(
+                'l1',
+                expect.objectContaining({
+                    value: 'Saint-Cyr',
+                    parent: '/attribute-entities/tours',
+                })
+            )
+        );
     });
 });

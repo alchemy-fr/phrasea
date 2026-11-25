@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AttributeEntity, EntityList} from '@/types/api';
-import {AttributeEntityStatus} from '@/types/api';
+import {AttributeEntityStatus, EntityName} from '@/types/api';
 import {
     deleteAttributeEntityImage,
     postAttributeEntity,
@@ -14,6 +14,8 @@ import {
 } from '@/lib/api/metadata';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {iri} from '@/lib/utils/iri';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
 import {Flag} from '@/components/ui/flag';
 import {ColorInput} from '@/components/ui/color-input';
@@ -30,10 +32,13 @@ export function EntityForm({
     entity,
     list,
     locales,
+    parent,
     onSaved,
     onCancel,
 }: {
     entity?: AttributeEntity;
+    /** A new value of a hierarchy: created under this node, `null` at the top level */
+    parent?: AttributeEntity | null;
     list: EntityList;
     locales: string[];
     onSaved: (entity: AttributeEntity) => void;
@@ -55,8 +60,11 @@ export function EntityForm({
     const [synonyms, setSynonyms] = useState<Record<string, string[]>>(
         entity?.synonyms ?? {}
     );
+    // A new empty level: under a node only
+    const [placeholder, setPlaceholder] = useState(false);
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState({
+        placeholder,
         value,
         note,
         status,
@@ -71,7 +79,11 @@ export function EntityForm({
         setSaving(true);
         try {
             const data: Partial<AttributeEntity> = {
-                value,
+                value: placeholder ? '—' : value,
+                ...(placeholder ? {placeholder} : {}),
+                ...(!entity && parent
+                    ? {parent: iri(EntityName.AttributeEntity, parent.id)}
+                    : {}),
                 note: note.trim() || null,
                 status: Number(status) as AttributeEntityStatus,
                 emoji: list.withEmojis ? emoji || undefined : undefined,
@@ -140,9 +152,24 @@ export function EntityForm({
                 <Input
                     value={value}
                     onChange={e => setValue(e.target.value)}
+                    disabled={placeholder}
                     autoFocus
                 />
             </FormRow>
+            {!entity && parent ? (
+                <LabeledControl
+                    label={t(
+                        'entity_hierarchy.add_placeholder',
+                        'Empty level (placeholder)'
+                    )}
+                >
+                    <Checkbox
+                        checked={placeholder}
+                        onCheckedChange={v => setPlaceholder(v === true)}
+                        data-testid="entity-form-placeholder"
+                    />
+                </LabeledControl>
+            ) : null}
             <FormRow label={t('entity.note', 'Note')}>
                 <Input
                     value={note}
@@ -272,7 +299,7 @@ export function EntityForm({
                     size="sm"
                     onClick={save}
                     loading={saving}
-                    disabled={!value.trim()}
+                    disabled={!placeholder && !value.trim()}
                 >
                     <SaveIcon /> {t('common.save', 'Save')}
                 </Button>
