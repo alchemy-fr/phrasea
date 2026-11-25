@@ -1,10 +1,14 @@
+---
+title: 'Workers'
+---
+
 # Databox workers
 
 The asynchronous work of databox goes through Symfony Messenger transports (RabbitMQ
 queues), consumed by the `databox-worker` containers. Each kind of processing has its own
 transport, and each worker process consumes its transports in priority order, so that a
-long job never delays a fast one: a 10-minute video rendition no longer holds the
-notifications back, and a bulk ingestion no longer delays the upload of a single user,
+long job never delays a fast one: a 10-minute video rendition does not hold the
+notifications back, and a bulk ingestion does not delay the upload of a single user,
 while it still gets every idle process.
 
 ## Queues
@@ -31,7 +35,9 @@ the asset copies, the file analyses reevaluation, the indexing of a collection
 
 An export (`AssetExportProcess`) downloads up to `EXPORT_DOWNLOAD_CONCURRENCY` files at once
 (8 by default, `1` downloads them one by one); the rest of its processing (clipping, metadata
-writing, archive, upload) stays sequential.
+writing, archive, upload) stays sequential. The default is set in
+`databox/api/config/services.yaml`; neither `.env` nor the compose files pass this variable to
+the containers, so changing it requires adding it to the environment of the worker.
 
 A message of `App\…` declares its transport with `#[MessengerMessage('…')]`; a message of a
 shared bundle is routed in `databox/api/config/packages/messenger.yaml`. An external call

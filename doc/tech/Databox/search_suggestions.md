@@ -1,3 +1,7 @@
+---
+title: 'Search suggestions'
+---
+
 # Search suggestions
 
 `GET /assets/suggest?query=par` feeds the search bar autocomplete. It returns, in this order:
@@ -60,10 +64,10 @@ The highlight of each value comes from a `top_hits` sub-aggregation.
 - Elasticsearch caps the nested documents of an asset (`index.mapping.nested_objects.limit`,
   10 000 by default): each entity value costs one entry per workspace locale.
 
-## Upgrading from the `attribute` index
+## Orphan `attribute` indices
 
-Attribute values used to be indexed one by one in a dedicated `attribute` index, with the asset
-permissions copied on every document. That index does not exist anymore:
+The attribute values are indexed in the `suggestions` field of the `asset` index; there is no
+dedicated `attribute` index. On an instance whose Elasticsearch still holds `attribute` indices:
 
 1. re-populate the `asset` index so that the documents get their `suggestions` field:
 

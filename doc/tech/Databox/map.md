@@ -1,3 +1,7 @@
+---
+title: 'Map of the results'
+---
+
 # Map of the results
 
 The databox client can lay out the search results on a Mapbox map ("Map" in the

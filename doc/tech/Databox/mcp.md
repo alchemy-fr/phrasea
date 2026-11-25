@@ -7,7 +7,7 @@ title: MCP server
 Databox API embeds a [Model Context Protocol](https://modelcontextprotocol.io/) server so that AI assistants
 (Claude, IDE agents…) can search, describe and organize assets and set up workspaces on behalf of a user.
 
-- Endpoint: `https://<DATABOX_API_URL>/mcp` (Streamable HTTP transport), with a Keycloak access token of the user
+- Endpoint: `<DATABOX_API_URL>/mcp` (Streamable HTTP transport), with a Keycloak access token of the user
 - Configuration: `databox/api/config/packages/mcp.yaml` and `alchemy_mcp.yaml`, tools in `databox/api/src/Mcp/Tool/`
 
 Architecture, authentication, client connection and how to add a tool: see

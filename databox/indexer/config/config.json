@@ -62,11 +62,11 @@
                     "main": {
                         "useAsMain": true,
                         "buildMode": 1,
-                        "class": "public"
+                        "policy": "public"
                     },
                     "preview": {
                         "useAsPreview": true,
-                        "class": "public",
+                        "policy": "public",
                         "builders": {
                             "image": {
                                 "from": "image:preview"
@@ -81,7 +81,7 @@
                     },
                     "thumbnail": {
                         "useAsThumbnail": true,
-                        "class": "public",
+                        "policy": "public",
                         "parent": "preview",
                         "builders": {
                             "image": {

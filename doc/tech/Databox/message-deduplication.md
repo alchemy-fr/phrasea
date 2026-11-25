@@ -1,3 +1,7 @@
+---
+title: 'Message deduplication'
+---
+
 # Message deduplication
 
 Some Messenger messages leave in bursts with the same payload: an asset flushed by every job of

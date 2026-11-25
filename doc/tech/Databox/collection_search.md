@@ -1,31 +1,26 @@
+---
+title: 'Collection search'
+---
+
 # Collection search
 
-Given the following entries;
+`GET /collections?query=…` searches the collections in Elasticsearch
+(`App\Elasticsearch\CollectionSearch`). The query is split by `QueryStringParser`:
 
-Coll #1 EN: Apple (non translated)
-indexed in ES as:
-```
-{
-  "_": "Apple",
-  "en": "Apple"
-}
-```
-Coll #2 FR: Légumes (traduit en EN: Vegetables)
-indexed in ES as:
-```
-{
-  "_": "Légumes",
-  "fr": "Légumes"
-  "en": "Vegetables"
-}
-```
+- `in:all` includes the collections in the trash, `in:trash` only returns them;
+- every quoted part (`"Lot 2"`) must match;
+- the rest of the text must match as a whole.
 
-Elasticsearch query: "collection:Appl"
-SHOULD:
-(title[fr]=Appl)_boost=100,
-(title[_]=Appl) _boost=50,
-(title=Appl) _boost=1 (? try in another language)
+Each part is a `multi_match` query of type `bool_prefix` with the `and` operator on the `name`
+and `translatedNames` fields (the name and every translation of the name, in all the locales):
+every word must be present, the last one being a prefix (search-as-you-type). A query also
+makes the search deep by default (`deep`): it matches the collections at every level (below the
+`parents` when given), not only the roots or the direct children.
 
+The highlight comes from a `multi_match` on `name.suggest` and `translatedNames.suggest`, the
+edge n-gram subfields of these fields, so that only the typed part of the words is
+highlighted (`[hl]…[/hl]`). `CollectionOutputMapper::getNameHighlight()` returns the fragment of
+the displayed name (`nameHighlight`).
 
 ## Collection order
 
@@ -90,11 +85,12 @@ them in PHP with the same key, from the displayed name.
 
 ### Deployment
 
-The mapping of the collection index changed: repopulate it (`bin/migrate.sh`
-only runs the Doctrine migrations):
+The sort fields are part of the mapping of the collection index: after a change of
+this mapping, repopulate the index (`bin/migrate.sh` only runs the Doctrine
+migrations):
 
 ```bash
 bin/console fos:elastica:populate --index=collection
 ```
 
-Until then, the documents without `sortNames` are sorted by their name.
+The documents indexed without `sortNames` are sorted by their name.

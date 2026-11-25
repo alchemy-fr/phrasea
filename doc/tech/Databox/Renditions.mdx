@@ -1,5 +1,5 @@
 ---
-title: 'Rendition Factory'
+title: 'Renditions'
 ---
 
 import MyMarkdown from '../../_databox/_rendition_transformers.md'
@@ -19,9 +19,9 @@ rendition definitions, in the "Public" rendition policy (build definitions in
 | `Source`            | Pick source, no parent, assets only      | The file of the asset as is: the one to export or share to get the source.         |
 | `Main`              | Custom (`main.yaml`), from the source    | `useAsMain`: the version displayed by the asset viewer, readable by a web browser. |
 | `Preview`           | Custom (`preview.yaml`), from `Main`     | `useAsPreview`                                                                     |
-| `Thumbnail`         | Custom, from `Preview`                   | `useAsThumbnail`, built first                                                      |
-| `AnimatedThumbnail` | Custom, from `Preview`                   | `useAsAnimatedThumbnail`                                                           |
-| `StoryContactSheet` | `generate:` (stories only)               | Thumbnail and animated thumbnail of the stories, see below                         |
+| `Thumbnail`         | Custom (`thumbnail.yaml`), from `Preview`         | `useAsThumbnail`, built first                                                      |
+| `AnimatedThumbnail` | Custom (`animatedThumbnail.yaml`), from `Preview` | `useAsAnimatedThumbnail`                                                           |
+| `StoryContactSheet` | Custom (`storyContactSheet.yaml`, `generate:`), no parent, stories only | Thumbnail and animated thumbnail of the stories, built first, see below |
 
 `Main` is built for the web from every file family, so that its job is never skipped:
 
@@ -38,9 +38,9 @@ action of the asset. A file stored on a definition which picks the source withou
 becomes the source of an asset which has none (`RenditionManager`); a file stored on `Main`
 never does.
 
-The workspaces created before `Source` existed keep their former definitions: `Main` picks the
-source file (it is both the viewer file and the source to download) and `Preview` is built from
-it. Nothing is migrated.
+Rendition definitions are never rewritten automatically: in a workspace whose definitions
+have no `Source`, `Main` usually picks the source file (it is both the viewer file and the
+source to download) and `Preview` is built from it.
 
 ## Formats read by ImageMagick
 
@@ -62,16 +62,16 @@ container starts):
 
 Consequences:
 
-- An SVG file is stored and downloadable, and the `imagine` module still
-  passes it through unchanged, but ImageMagick no longer rasterizes it: no
-  bitmap rendition is built from an SVG.
+- An SVG file is stored and downloadable, and the `imagine` module passes it
+  through unchanged, but ImageMagick does not rasterize it: no bitmap
+  rendition is built from an SVG.
 - An EPS or PostScript file, and an Illustrator file without PDF
-  compatibility, no longer gets a thumbnail.
-- Other formats ImageMagick could read before (JPEG 2000, JPEG XL, OpenEXR,
-  TGA, XCF...) no longer get a rendition either. To read one of them again,
-  add its module to the allow list of `01-imagick.sh` and rebuild the image,
-  after weighing the risk: a crafted file can read local files or reach the
-  network through some coders.
+  compatibility, get no thumbnail.
+- The other formats ImageMagick can read (JPEG 2000, JPEG XL, OpenEXR, TGA,
+  XCF...) get no rendition either. To read one of them, add its module to the
+  allow list of `01-imagick.sh` and rebuild the image, after weighing the
+  risk: a crafted file can read local files or reach the network through some
+  coders.
 
 With the `imagine` module, a refused source fails as an unsupported source
 file: the rendition is given up instead of being retried.

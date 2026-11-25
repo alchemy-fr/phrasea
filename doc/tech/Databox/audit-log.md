@@ -1,3 +1,7 @@
+---
+title: 'Audit log'
+---
+
 # Audit log
 
 The audit log records who did what in Databox: every write (content, configuration,
@@ -5,7 +9,7 @@ permissions, attributes) and every download through an export. Admins read it in
 Databox client (**Audit log** in the settings menu of the top bar) or in the admin
 (**Logs > Audit Log**).
 
-It is stored in the `audit_log` table (formerly `action_log`), one row per action.
+It is stored in the `audit_log` table, one row per action.
 
 ## What is logged
 
@@ -112,7 +116,6 @@ The `databox-scheduler` runs it every night; `--days` overrides the delay.
 
 ## Difference with the change log
 
-The change log (`change_log` table, **Logs > Change Log** in the admin) is kept as it
-was: it records the raw changesets of a dozen configuration entities
+The change log (`change_log` table, **Logs > Change Log** in the admin) records the raw changesets of a dozen configuration entities
 (`LoggableChangeSetInterface` of the track bundle). The audit log covers those entities
 too, with the actor, the workspace, the correlation and the semantic actions.

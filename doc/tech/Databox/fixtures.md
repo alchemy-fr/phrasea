@@ -1,3 +1,7 @@
+---
+title: 'Fixtures'
+---
+
 # Databox fixtures
 
 `bin/dev/reset-db-fixtures.sh` empties the databases and loads the dev fixtures of databox.
@@ -18,7 +22,7 @@ each asset runs inline, downloads and rendition-factory included, so the ingest 
 The scripts set `FIXTURES_ANALYSIS_CACHE=1` on the ingest command alone: the responses of
 `similarity-embedder` and `face-recognition` are then cached in
 `databox/api/var/fixtures/analysis/{similarity,faces}/`, keyed by the SHA-256 of the image
-actually sent, so that a replay does not analyse the same images again (the matching of the
+actually sent, so that a replay does not analyze the same images again (the matching of the
 faces, the persons and the embeddings are still created from these responses). php-fpm, the
 consumers and the uploads always call the services. Delete this directory after a change of
 model or service:
@@ -36,7 +40,7 @@ rm -rf databox/api/var/fixtures/analysis
 | `HollowtoneRecording.yaml` | **Hollowtone Recording**, a recording studio                   |
 
 ```bash
-FIXTURES_GENERATE_IMAGES=true bin/dev/reset-db-fixtures.sh  # fast: plain coloured images
+FIXTURES_GENERATE_IMAGES=true bin/dev/reset-db-fixtures.sh  # fast: plain colored images
 bin/dev/reset-db-fixtures.sh                                # real images (network required)
 ```
 
@@ -64,8 +68,8 @@ All the audio and the video of the fixtures are in Hollowtone Recording: the oth
 hold images and PDF documents only.
 
 The four workspaces are created through `App\Fixture\WorkspaceFactory`, like a workspace
-created from the admin: the "Public" attribute and rendition policies, the `source`, `main`,
-`preview`, `thumbnail`, `animatedThumbnail` and `storyContactSheet` renditions (see
+created from the admin: the "Public" attribute and rendition policies, the `Source`, `Main`,
+`Preview`, `Thumbnail`, `AnimatedThumbnail` and `StoryContactSheet` renditions (see
 [the default renditions](./Renditions.mdx#default-renditions-of-a-new-workspace)), the "Name"
 attribute and the base integrations come from `WorkspaceCreator`, and the fixtures get them back
 with the getters of the factory.
@@ -73,7 +77,7 @@ with the getters of the factory.
 Each workspace also has a restricted attribute policy and a restricted rendition policy
 (with a rendition definition), granted to some personas only. That restricted rendition
 (`Print hi-res`, `E-commerce zoom`, `Archival master`, `Master`) picks the source file without
-parent: it is the file of the asset as is, not the web version of `main`.
+parent: it is the file of the asset as is, not the web version of `Main`.
 
 ### Northbeam Press
 
@@ -91,7 +95,7 @@ News agency: editorial flow, geolocated, under embargo, multilingual.
   taken, Published at, Desk and Usage rights (entity lists), Embargo until, Word count, File
   size, Breaking, Watermark, Blurhash, People (faces). **Newsroom only** policy: Editor notes.
 - **Rendition policy** `Print` (restricted): `Print hi-res`.
-- **Tags**: the "Tags" entity list (colours, translated in fr) and its multiple "Tags"
+- **Tags**: the "Tags" entity list (colors, translated in fr) and its multiple "Tags"
   attribute (facet): Breaking, Exclusive, Embargo, Online, Offline.
 - **Integrations**: ToastUI photo editor, Blurhash, watermark (Watermark attribute on the
   thumbnail), visual similarity, face recognition (into People).
@@ -110,7 +114,7 @@ News agency: editorial flow, geolocated, under embargo, multilingual.
 
 ### Linden & Rowe
 
-Ready-to-wear brand, PIM-like catalogue: seasons, products, confidential prices, public
+Ready-to-wear brand, PIM-like catalog: seasons, products, confidential prices, public
 press kit.
 
 - **Collections**: `Seasons` > `SS26` (`Womenswear` > `Dresses`, `Knitwear`; `Menswear` >
@@ -124,7 +128,7 @@ press kit.
   release signed, Photographer, Marketing copy (HTML, translatable), Models (faces).
   **Commercial** policy: Retail price, Wholesale price.
 - **Rendition policy** `Studio` (restricted): `E-commerce zoom`.
-- **Tags**: the "Tags" entity list (colours, translated in fr and it) and its multiple
+- **Tags**: the "Tags" entity list (colors, translated in fr and it) and its multiple
   "Tags" attribute (facet): New in, Bestseller, Sale, Sustainable, Do not publish (the FW26
   packshots and campaign photos).
 - **Integrations**: ToastUI photo editor, Blurhash, visual similarity, face recognition (into
@@ -155,14 +159,14 @@ collections owned by alice and bob, assets at every level of the tree.
 - **Assets**: specimens (scientific and common names of real species), field notebooks and
   accession records (PDF), 6 "Specimen record" stories (front, back and label views).
 - **Attributes**: Common name (title, translatable), Scientific name, Inventory number,
-  Family, Conservation status (IUCN, with colours) and Licence (entity lists),
+  Family, Conservation status (IUCN, with colors) and Licence (entity lists),
   Collected on, Collector, Collection site, City, Country, Accession date, Keywords, On
   display, Credit line, People (faces). **Curatorial** policy: Condition report, Insurance
   value.
 - **Rendition policy** `Archive` (restricted): `Archival master`.
 - **Terms**: the workspace attaches its terms ("Fernhollow image licence terms", en/fr) to
   the exports.
-- **Tags**: the "Tags" entity list (colours, translated in fr) and its multiple "Tags"
+- **Tags**: the "Tags" entity list (colors, translated in fr) and its multiple "Tags"
   attribute (facet): On display, In storage, On loan, Needs digitisation, Fragile.
 - **Integrations**: Blurhash, watermark (Credit line on the preview), visual similarity, face
   recognition (into People), AWS Rekognition (disabled, labels into Keywords, dummy AWS
@@ -206,7 +210,7 @@ fixtures.
   album, 2 labels for the albums, an advertising agency and a radio for the voice-overs),
   People (faces).
 - **Rendition policy** `Masters` (restricted): `Master` (Pick source).
-- **Tags**: the "Tags" entity list (colours, translated in fr) and its multiple "Tags"
+- **Tags**: the "Tags" entity list (colors, translated in fr) and its multiple "Tags"
   attribute (facet): Rough mix, Final mix, Mastered, Approved by client, Do not distribute.
 - **Integrations**: Blurhash, visual similarity, face recognition (into People), AWS
   Transcribe (disabled, transcript into WebVTT transcript, dummy AWS secrets).
@@ -239,7 +243,7 @@ fixtures.
 - The workspaces require the file analysis: two sources with the same content in a workspace
   are duplicates, and the ingest quarantines them (no renditions). Two locks below 210 give two
   different images (variant `lock % 42`, ratio `lock % 5`); with `FIXTURES_GENERATE_IMAGES`,
-  the plain image takes a colour derived from the lock for the same reason.
+  the plain image takes a color derived from the lock for the same reason.
 - An asset has no name property: its title is the attribute with the highest `namePriority`
   (Headline, Product name, Common name, Title), or the "Name" attribute of `WorkspaceFactory`.
 - The business values come from `App\Fixture\Faker\ThematicFaker`, which keeps the values
@@ -254,7 +258,7 @@ fixtures.
   to its sub-collections), and an asset of privacy 2 or more is visible to every member of
   the workspace: to hide a branch from the members, keep its ancestors at privacy 0, 1 or 3
   (a private collection lists its name, not its assets) and its assets at privacy 0 or 1.
-- An entity list has emojis or colours, never both (`withEmojis` or `withColors`).
+- An entity list has emojis or colors, never both (`withEmojis` or `withColors`).
 - The permissions (`AccessControlEntry`) use the masks of `alchemy/acl-bundle`
   (`PermissionInterface`); `objectType` is a string (`workspace`, `collection`,
   `attribute_policy`, `rendition_policy`).
@@ -324,7 +328,7 @@ where `<n>` is the number of the asset in its range (`<current()>`). A file miss
 | `hollowtone-recording/session-footage`   | mp4  | 1-8   | musicians recording in a studio                                           |
 | `hollowtone-recording/behind-the-scenes` | mp4  | 1-4   | mixing console, control room, session preparation                         |
 
-Each theme and set directory holds a `CREDITS.csv` (source, author and licence of every file):
+Each theme and set directory holds a `CREDITS.csv` (source, author and license of every file):
 the photos are CC0 or public domain, the videos are public domain or CC (BY, BY-SA), the PDFs
-and the MP3s are generated (fictional content, speech synthesised with Piper voices under
-CC0, CC-BY or public domain licences).
+and the MP3s are generated (fictional content, speech synthesized with Piper voices under
+CC0, CC-BY or public domain licenses).

@@ -1,9 +1,12 @@
+---
+title: 'Annotations'
+---
+
 # Annotations
 
 Annotations are shapes drawn over an asset in the viewer: a target, a
 rectangle, a face, a circle, a line or an arrow, a free hand drawing or a
-text. They
-are attached either to a **discussion message** or to a **value of an
+text, and the cues of a video. They are attached either to a **discussion message** or to a **value of an
 attribute**.
 
 ## Format
@@ -11,7 +14,8 @@ attribute**.
 A shape is a JSON object (see `AssetAnnotationsInterface` in the API and
 `features/annotations/types.ts` in the client). Coordinates and sizes are
 **relative to the rendered media (0..1)**, so the same shape fits every
-rendition; `page` (1-based) targets a page of a document.
+rendition; `page` (1-based) targets a page of a document; `t` (seconds) is the
+frame of a video a shape is drawn on, or the instant of a cue.
 
 | `type`       | Fields                                  | Options                                   |
 | ------------ | --------------------------------------- | ----------------------------------------- |
@@ -33,8 +37,24 @@ recognition integration writes one per face value, and the AWS Rekognition
 panel shows the faces it detects as `face` shapes too.
 
 Every shape also carries an `id` (unique within its list) and a `name` shown
-by the viewer. The viewer only draws the shapes of the first group (time based
-ones have no tool yet).
+by the viewer. The viewer draws every shape type but `time_range`, which has no
+tool.
+
+### Documents (PDF)
+
+The PDF reader (`features/assets/player/PdfViewer.tsx`) gives every page its own
+annotation layer: a shape is drawn on the page it belongs to (`page`, the first
+page when absent), and selecting a shape scrolls to its page.
+
+### Videos
+
+On a video (`features/assets/player/VideoJsPlayer.tsx`), the layer is over the
+frame displayed: a shape is drawn on the frame the video is paused on (a drawing
+tool pauses it) and gets its time in `t`; it is shown while the video is paused
+on that frame only. The "Add a cue at the current time" button of the toolbar
+adds a `cue` at the current time. Every timed annotation has its mark on the
+time slider; selecting one, from there or from elsewhere (a message, a value),
+pauses the video on its frame.
 
 ## Discussion messages
 
@@ -71,7 +91,7 @@ The viewer code lives in `databox/client/src/features/annotations/`:
   every attribute value of the asset (`getAssetAnnotationsTarget`), read
   only. The toolbar hides them (remembered in the browser) and shows them
   again. Read only shapes of a value (this target, or the shapes button of a
-  value in the attribute list) are labelled with the value, followed by their
+  value in the attribute list) are labeled with the value, followed by their
   own name or text if any ("Arthur Dupont · Profile"), with the attribute name
   as tooltip (`labelAttributeAnnotations`).
 - `useAnnotationLayer` gives the player (`ZoomableImage`) the layer to render

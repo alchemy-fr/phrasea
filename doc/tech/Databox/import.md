@@ -1,4 +1,8 @@
-# Import of assets (JSON / NDJSON)
+---
+title: 'Asset import'
+---
+
+# Asset import (JSON / NDJSON)
 
 Databox creates assets from an **instructions file**: one entry per asset, whose files
 (source and renditions) are downloaded from URLs. The file is sent:
@@ -16,7 +20,9 @@ Databox creates assets from an **instructions file**: one entry per asset, whose
   imports.
 - **JSON** (`.json`): a list of entries, or an object `{"assets": [...]}`. The file is
   decoded at once: above `ASSET_IMPORT_JSON_MAX_SIZE` bytes (50 MB by default), the import
-  fails and asks for NDJSON.
+  fails and asks for NDJSON. The default is set in `databox/api/config/services.yaml`;
+  neither `.env` nor the compose files pass this variable to the containers, so changing it
+  requires adding it to the environment of the API and of the workers.
 
 The line of an entry (reported with its error) is its line in the NDJSON file, or its
 position from 1 in the JSON list.
@@ -57,8 +63,8 @@ Every field is optional, but an entry needs at least one of `sourceUrl`, `previe
   `public`…); the privacy of the import by default.
 - `attributes`: by attribute definition slug, with an optional `:<locale>` suffix; a list
   gives several values to a multiple attribute. An attribute of type `entity` takes the IDs
-  of entities of its list (e.g. `"tags": ["<entity ID>"]`). The former `tags` field is
-  refused: the tags are now the values of an entity list attribute.
+  of entities of its list (e.g. `"tags": ["<entity ID>"]`). A `tags` field is
+  refused: the tags are the values of an entity list attribute.
 - `sourceUrl`, `sourceName`, `sourceType`: the source file, its original name and MIME type.
 - `previewUrl`, `thumbnailUrl`: the file of the first rendition definition used as preview
   (resp. thumbnail) of the workspace; `renditions`: files by rendition definition (its

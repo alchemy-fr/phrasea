@@ -1,10 +1,14 @@
+---
+title: 'Metadata'
+---
+
 # Metadata
 
 __All__ metadata (except binary blobs) are extracted from the file after upload.
-They are saved _as is_ in json in db `file_metadata.metadata`, which only ever mirrors what
+They are saved _as is_ as JSON in the database (`file_metadata.metadata`), which only ever mirrors what
 was read from the file — see [Reading and writing metadata](#reading-and-writing-metadata).
 
-Each of the 21,324 known metadata fields is uniquely identified by a `TagGroup:TagName` pair, such as:
+Each metadata field known by exiftool is uniquely identified by a `TagGroup:TagName` pair, such as:
 - `ExifIFD:CreateDate`
 - `GPS:GPSLatitude`
 - `IPTC:Keywords`
@@ -40,8 +44,12 @@ Reading resolves the two — an overridden tag wins over the one read from the f
 care about the distinction. `File::getReadMetadata()` and `File::getOverriddenMetadata()`
 expose each side on its own, and `File::setMetadataValue()` always writes to the overrides.
 
-:warning: **Only the overrides are ever written back into a file**, and only into the source
-file itself. When a rendition is built or an asset is exported (and the rendition definition has
+:::warning
+**Only the overrides are ever written back into a file**, and only into the source
+file itself.
+:::
+
+When a rendition is built or an asset is exported (and the rendition definition has
 `writeMetadata` enabled), the embedded bag is:
 
 1. the source file's overridden metadata — **only when the exported file _is_ the source**
@@ -89,15 +97,15 @@ Four fields of an attribute definition connect attributes to file metadata:
 | `fallback` | Twig template, per locale | Virtual (non-persisted) value used when the attribute has no value. |
 | `writeMetadata` | list of `Group:Tag` names | Tags into which the attribute value is written when the asset (or its rendition) is exported. |
 
-:warning: The `initialValues` / `fallback` fields **used to be** JSON objects of the shape
-`{"type": "metadata"\|"template", "value": "..."}`. That wrapper is gone: the field is now
-**directly the Twig template**, and reading a raw metadata tag has moved to its own
-`readFromMetadata` field.
+:::warning
+The `initialValues` / `fallback` fields hold **the Twig template itself** (per locale), not a
+`{"type": …, "value": …}` object. Copying a raw metadata tag goes through `readFromMetadata`:
 
-| Before | Now |
+| To | Write |
 |---|---|
-| `{"type": "metadata", "value": "IPTC:Keywords"}` | `readFromMetadata: ["IPTC:Keywords"]` |
-| `{"type": "template", "value": "{{ file.filename }}"}` | `initialValues: "{{ file.filename }}"` |
+| copy a tag | `readFromMetadata: ["IPTC:Keywords"]` |
+| compute a value | `initialValues: "{{ file.filename }}"` |
+:::
 
 ### Locales
 
@@ -234,16 +242,19 @@ A few frequently used tags include:
 - `XMP-dc:Title`
 - `XMP-xmp:Keywords`
 
-For a more comprehensive list, see the helper file in your codebase.
+`GET /metadata-tags?query=<namespace or tag>` lists the tags known by exiftool (the
+suggestions of the attribute definition form), with whether each one is `writable`.
 
-:warning: **Note:** Initial attribute values are set only once, when a file is first added. If
-the source (such as `asset.title`) changes later, the attribute will not update automatically.
+:::warning
+Initial attribute values are set only once, when a file is first added. If their source (a
+metadata tag of the file, another attribute…) changes later, the attribute is not updated.
 Use the `recompute_initial` operation on the attribute definition to replay them
 (and `store_fallback` to persist a fallback as a real attribute).
+:::
 
 More worked examples (with the file metadata and the resulting attributes) are generated from
 `databox/api/src/Documentation/InitialAttributeValuesResolverData.yaml` and published under
-_Attribute Initial Values_.
+[Attribute initial values](./Attributes.mdx).
 
 ## Fallback Attribute Values (Experimental)
 
@@ -307,5 +318,5 @@ in which the tag is typed (`App\Service\Metadata\WritableMetadataPolicy`):
 
 Any other tag is refused when saving an attribute definition's `writeMetadata` (400) or a
 rendition definition's `metadata` (422), and skipped — with a warning log — when a file is
-written, which covers definitions saved before the rule existed. The `/metadata-tags`
+written, which also covers definitions already holding such a tag. The `/metadata-tags`
 dictionary reports such tags as not `writable`.

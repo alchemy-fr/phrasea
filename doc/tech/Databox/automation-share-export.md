@@ -1,8 +1,13 @@
+---
+title: 'Share and export automation'
+---
+
 # Automation: share and export the links (XLSX)
 
 The `share_export` action of the saved search automations adds the assets of a run to a
 **share link**, then uploads an **XLSX file** listing them with the public URLs (permalinks)
-of the chosen renditions, to an S3 bucket, an SFTP or an FTP server.
+of the chosen renditions, to an S3 bucket, an SFTP or an FTP server. See
+[Automations](./automations.md) for the saved search automations and their other actions.
 
 ## Workspace
 

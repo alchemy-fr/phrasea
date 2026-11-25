@@ -1,4 +1,15 @@
-# Instance permissions
+---
+title: 'Instance and entity list permissions'
+---
+
+# Instance permissions, default profiles and entity lists
+
+This page covers the permissions that do not come from the ACL of a workspace, a collection
+or an asset (see [Access control](./access-control.md) for those): the instance
+capabilities, the default display profiles (see also [Display profiles](./display-profiles.md))
+and the rights on a single entity list (see also [Entity lists](./entity-lists.md)).
+
+## Instance permissions
 
 Some Databox capabilities do not belong to any workspace: creating a workspace,
 sharing one's display profiles and one's baskets, publishing one's saved searches, making
@@ -19,7 +30,7 @@ The source of truth is `App\Security\InstancePermission` and
 `App\Security\Voter\DataboxExtraPermissionInterface` (API), and
 `features/permissions/instancePermissions.ts` (client).
 
-## Defaults
+### Defaults
 
 **Admins only.** Admins have every capability (`AdminVoter`); nobody else has any until it
 is granted. Creating baskets, saved searches and display profiles stays open to every
@@ -36,7 +47,7 @@ rename it or edit its items, or make it private, but not make it public again; l
 the owner of a Public search may still rename it, or make it Secret, but not publish it
 again.
 
-## Granting
+### Granting
 
 In the Databox client, as an admin: settings menu → **Instance permissions**. One row per
 user or group (plus "All users"), one column per capability.
@@ -52,7 +63,7 @@ The current user's capabilities are answered by `GET /capabilities`:
 
 The ACEs without object id are read and written through `/permissions/ace(s)` by admins only.
 
-## Warning
+### Warning
 
 An ACE without object id applies to **every object of the type**: any bit of its mask
 (`VIEW`, `EDIT`, `SHARE`, `OWNER`…) grants the permission on **all** the baskets, saved
@@ -91,7 +102,7 @@ In the Databox client: profile management → **Permissions** tab, "Default prof
 (holders of the capability). The administration (EasyAdmin) shows and filters the flag
 under Searches → Profiles.
 
-# Entity list permissions
+## Entity list permissions
 
 By default, an entity list follows its workspace: its readers read it (and propose values
 when the list accepts new ones), its editors manage it. An editor of the workspace may also

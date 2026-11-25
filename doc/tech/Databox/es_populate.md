@@ -1,3 +1,7 @@
+---
+title: 'Elasticsearch populate'
+---
+
 # Elasticsearch populate
 
 A populate (`fos:elastica:populate`, or "Add Populate" in the admin, which queues an
@@ -58,7 +62,7 @@ mapping (`users` / `groups` in `text`: the ACL filters stop matching). Hence:
 
 - the orphan indices a populate removes before starting never include an index still being
   built by a live populate (`es_populate_building_<physical index>`, renewed by its heartbeat);
-- a failed or cancelled populate only deletes its own index, never the one another populate is
+- a failed or canceled populate only deletes its own index, never the one another populate is
   building;
 - before every page, the populate checks that its index still exists, and stops otherwise;
 - before the switch of the alias, it checks that the index carries the mapping it created (the

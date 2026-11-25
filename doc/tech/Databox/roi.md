@@ -1,3 +1,7 @@
+---
+title: 'Regions of interest'
+---
+
 # Regions of interest
 
 An asset can have a **region of interest** (ROI): time ranges of its video or audio
@@ -25,10 +29,10 @@ The ROI is stored in `asset.roi`, the extract of a basket item in
   applied.
 - The ranges are normalized: sorted by start, overlapping or contiguous ones merged,
   empty ones dropped. At most 50 ranges (`MediaClip::MAX_TIME_RANGES`).
-- Time ranges only apply to videos and audios, a crop to images (not SVG) and videos:
+- Time ranges only apply to video and audio files, a crop to images (not SVG) and videos:
   the API answers 400 otherwise, or when the asset has no source file.
-- The former single range format of the extracts (`{"timeRange": {"s": …, "e": …}}`)
-  is still read, and served in the current format.
+- The single range format of the extracts (`{"timeRange": {"s": …, "e": …}}`) is also
+  read, and served in the format above.
 
 The ROI is set with `PATCH /assets/{id}` (`{"roi": …}`, `null` or `{}` removes it), so
 only a user who can edit the asset can change it. The extract of a basket item is set

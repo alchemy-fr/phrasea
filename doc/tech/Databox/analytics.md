@@ -1,3 +1,7 @@
+---
+title: 'Analytics (Matomo)'
+---
+
 # Analytics (Matomo)
 
 The databox client (`databox/client`) sends its audience to Matomo: page views,
@@ -79,7 +83,7 @@ The databox specific parts live in `databox/client/src/lib/analytics/`:
   `_token_`.
 - `useContentTracking.ts` — content impression of the asset displayed and
   content interaction on a click on its media.
-- `events.ts` — the catalogue of events below and the `track()` helper.
+- `events.ts` — the catalog of events below and the `track()` helper.
 
 ## Tracking id contract
 

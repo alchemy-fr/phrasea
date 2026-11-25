@@ -1,8 +1,12 @@
+---
+title: 'AQL (Asset Query Language)'
+---
+
 # AQL (Asset Query Language)
 
 AQL expresses the search conditions of databox: the `conditions[]` parameter of
 `GET /assets`, saved searches, attribute filter rules and the condition builder of
-both clients all use it.
+the client (`databox/client`) all use it.
 
 ```
 title STARTS WITH "Report" AND (keywords HAS ALL OF ("a", "b") OR description IS EMPTY)
@@ -18,7 +22,7 @@ Operator keywords are uppercase.
 
 ## Operators
 
-The builders write the first keyword of each row. The other keywords are accepted
+The builder writes the first keyword of each row. The other keywords are accepted
 aliases, kept so that existing saved searches, filter rules and URLs keep working.
 
 | Keyword (aliases)                               | Field types             | Elasticsearch query                   |
@@ -89,7 +93,7 @@ a single script compilation.
 
 ## Builder labels
 
-The condition builders show the operators with an Airtable-like vocabulary, which
+The condition builder shows the operators with an Airtable-like vocabulary, which
 depends on the type of the field:
 
 | Operator     | Text / keyword / ID                   | Number     | Date                        |
@@ -115,11 +119,13 @@ AQL is parsed in two places, which must stay in sync:
 
 `AQLToESQuery` and `AQLDocumentEvaluator` share `AQLConditionResolver`: the fields a slug designates
 (clusters, built-in attributes disabled for the user except in trusted conditions), the values, the
-functions and the effective operator and field of each criteria (date `=` turned into a prefix,
+functions and the effective operator and field of each criterion (date `=` turned into a prefix,
 boolean `= null` into `IS EMPTY`, length limit of the wildcard values…). A change to the semantics of
 an operator goes there, or in both.
 
 ## Attribute filter rules
+
+See [Attribute filter rules](./attribute-filter-rules.md) for their administration.
 
 An attribute filter rule (`AttributeFilterRule`) restricts, for its targets (users, groups, or
 everyone when it has none, anonymous users included), the assets of a workspace to those matching
@@ -160,7 +166,7 @@ The PHP evaluation reproduces the query exactly or denies: whatever it cannot re
   denied;
 - the scripted criteria (comparing fields) on keyword, text (raw value), number and boolean fields,
   with `CONCAT` and `SUBSTRING` on texts and integers (`SUBSTRING` on ASCII text only), without
-  integer overflow nor division by zero;
+  integer overflow or division by zero;
 - the built-in attributes stored as document fields, `@deleted` and `@assetStatus`; `@similar`,
   `@score` and `@position` are denied.
 

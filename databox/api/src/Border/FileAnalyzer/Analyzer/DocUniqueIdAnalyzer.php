@@ -163,7 +163,7 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
     {
         return <<<HEADER
         This analyzer checks for a unique identifier in the file's metadata.
-        If you enable this analyzer, the `File Analyzer` integration must then need a `Read Metadata` integration to be processed before it.
+        If you enable this analyzer, the `File Analyzer` integration must have a `Read Metadata` integration processed before it.
         HEADER;
     }
 }
