@@ -256,6 +256,48 @@ describe('profile store: default profile of the user', () => {
         expect(useProfileStore.getState().userDefault?.id).toBe('other');
     });
 
+    it('applies the next default when the applied default is deleted', async () => {
+        usePreferencesStore.setState({
+            preferences: {profile: null, layout: 'list'},
+        });
+        await useProfileStore.getState().load();
+
+        api.deleteProfile.mockResolvedValue(undefined);
+        api.getUserDefaultProfile.mockResolvedValue(
+            profile('other', {display: {thumbSize: 120}})
+        );
+        await useProfileStore.getState().remove('default');
+
+        expect(useProfileStore.getState().current?.id).toBe('other');
+        expect(useProfileStore.getState().currentIsDefault).toBe(true);
+        // The preferences of the user are neither reset nor saved
+        expect(usePreferencesStore.getState().preferences).toEqual({
+            profile: null,
+            layout: 'list',
+            display: {thumbSize: 120},
+        });
+        expect(put).not.toHaveBeenCalled();
+    });
+
+    it('goes back to the default when the chosen profile is deleted', async () => {
+        usePreferencesStore.setState({
+            preferences: {profile: 'chosen', layout: 'list'},
+        });
+        api.getProfile.mockResolvedValue(profile('chosen'));
+        await useProfileStore.getState().load();
+
+        api.deleteProfile.mockResolvedValue(undefined);
+        await useProfileStore.getState().remove('chosen');
+
+        expect(useProfileStore.getState().current?.id).toBe('default');
+        expect(useProfileStore.getState().currentIsDefault).toBe(true);
+        expect(put).toHaveBeenCalledWith(
+            '/preferences',
+            {name: 'profile', value: null, reset: true},
+            undefined
+        );
+    });
+
     it('does not sync the preferences into the default profile', async () => {
         api.getUserDefaultProfile.mockResolvedValue(
             profile('default', {}, true)

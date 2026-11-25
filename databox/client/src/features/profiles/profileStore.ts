@@ -182,13 +182,15 @@ export const useProfileStore = create<State>((set, get) => ({
 
     remove: async id => {
         await deleteProfile(id);
-        const {current, userDefault} = get();
+        const {current, currentIsDefault, userDefault} = get();
         set(s => ({profiles: s.profiles.filter(p => p.id !== id)}));
         if (userDefault?.id === id) {
             // Another default may apply now
             await get().reloadUserDefault();
         }
-        if (current?.id === id) {
+        // Without chosen profile, the preferences of the user are kept:
+        // reloading the default has applied the next one
+        if (current?.id === id && !currentIsDefault) {
             await get().setCurrent(undefined);
         }
     },
