@@ -6,10 +6,15 @@
  * Matomo's own `mtm_cookie_consent` cookie does not remember a refusal: the
  * choice stored here is the only one that counts, and Matomo is told about it
  * on every page load. A choice older than 13 months (CNIL recommendation) is
- * forgotten, so that the visitor is asked again.
+ * forgotten, so that the visitor is asked again. A choice made in another tab
+ * of the origin applies to the open ones too.
  */
 
-import {grantCookieConsent, revokeCookieConsent} from './matomo';
+import {
+    grantCookieConsent,
+    isCookieConsentRequired,
+    revokeCookieConsent,
+} from './matomo';
 
 export const CONSENT_STORAGE_KEY = 'phrasea.analytics.cookie-consent';
 export const CONSENT_MAX_AGE_DAYS = 395;
@@ -89,6 +94,7 @@ export function storeCookieConsent(
 
 let state: CookieConsentState | undefined;
 const listeners = new Set<() => void>();
+let listeningToOtherTabs = false;
 
 function update(patch: Partial<CookieConsentState>): void {
     state = {...getSnapshot(), ...patch};
@@ -104,13 +110,41 @@ export function subscribe(listener: () => void): () => void {
     };
 }
 
+/** Applies a choice stored by another tab (a `null` key clears the storage) */
+function onStorage(event: StorageEvent): void {
+    if (event.key !== null && event.key !== CONSENT_STORAGE_KEY) {
+        return;
+    }
+    const consent = readCookieConsent();
+    const previous = getSnapshot().consent;
+    if (
+        consent?.granted === previous?.granted &&
+        consent?.at === previous?.at
+    ) {
+        return;
+    }
+    if (isCookieConsentRequired()) {
+        if (consent?.granted) {
+            grantCookieConsent();
+        } else {
+            revokeCookieConsent();
+        }
+    }
+    update({consent, bannerRequested: false});
+}
+
 /**
- * The current state, read from the storage once then kept: the same object
- * is returned until it changes (`useSyncExternalStore`).
+ * The current state, read from the storage once then kept up to date with the
+ * other tabs: the same object is returned until it changes
+ * (`useSyncExternalStore`).
  */
 export function getSnapshot(): CookieConsentState {
     if (!state) {
         state = {consent: readCookieConsent(), bannerRequested: false};
+        if (!listeningToOtherTabs && typeof window !== 'undefined') {
+            listeningToOtherTabs = true;
+            window.addEventListener('storage', onStorage);
+        }
     }
 
     return state;

@@ -128,3 +128,89 @@ describe('cookie consent store', () => {
         ]);
     });
 });
+
+describe('cookie consent of the other tabs', () => {
+    function chooseInOtherTab(granted: boolean | undefined): void {
+        if (granted === undefined) {
+            window.localStorage.removeItem(CONSENT_STORAGE_KEY);
+        } else {
+            store({granted, at: new Date().toISOString()});
+        }
+        window.dispatchEvent(
+            new StorageEvent('storage', {key: CONSENT_STORAGE_KEY})
+        );
+    }
+
+    function init(cookieConsent = true): void {
+        initMatomo({
+            baseUrl: 'https://matomo.test',
+            siteId: '3',
+            cookieConsent,
+        });
+        window._paq = [];
+    }
+
+    it('applies the choice, notifies and closes the banner', () => {
+        init();
+        expect(getSnapshot().consent).toBeUndefined();
+        openCookieConsentBanner();
+        const listener = vi.fn();
+        const unsubscribe = subscribe(listener);
+
+        chooseInOtherTab(true);
+
+        expect(getSnapshot().consent?.granted).toBe(true);
+        expect(isBannerRequested()).toBe(false);
+        expect(listener).toHaveBeenCalledTimes(1);
+        expect(window._paq).toEqual([['setCookieConsentGiven']]);
+
+        chooseInOtherTab(false);
+
+        expect(getSnapshot().consent?.granted).toBe(false);
+        expect(listener).toHaveBeenCalledTimes(2);
+        expect(window._paq).toEqual([
+            ['setCookieConsentGiven'],
+            ['forgetCookieConsentGiven'],
+        ]);
+        unsubscribe();
+    });
+
+    it('forgets a choice removed in another tab', () => {
+        store({granted: true, at: new Date().toISOString()});
+        init();
+        expect(getSnapshot().consent?.granted).toBe(true);
+
+        window.localStorage.clear();
+        window.dispatchEvent(new StorageEvent('storage', {key: null}));
+
+        expect(getSnapshot().consent).toBeUndefined();
+        expect(window._paq).toEqual([['forgetCookieConsentGiven']]);
+    });
+
+    it('ignores the other keys and an unchanged choice', () => {
+        init();
+        chooseCookieConsent(true);
+        window._paq = [];
+        const listener = vi.fn();
+        const unsubscribe = subscribe(listener);
+
+        window.dispatchEvent(new StorageEvent('storage', {key: 'other'}));
+        window.dispatchEvent(
+            new StorageEvent('storage', {key: CONSENT_STORAGE_KEY})
+        );
+
+        expect(listener).not.toHaveBeenCalled();
+        expect(window._paq).toEqual([]);
+        unsubscribe();
+    });
+
+    it('does not tell Matomo when the consent is not required', () => {
+        init(false);
+        getSnapshot();
+
+        chooseInOtherTab(true);
+
+        expect(getSnapshot().consent?.granted).toBe(true);
+        expect(window._paq).toEqual([]);
+    });
+});
