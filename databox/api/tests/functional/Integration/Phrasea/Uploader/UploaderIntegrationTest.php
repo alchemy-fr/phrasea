@@ -414,6 +414,68 @@ class UploaderIntegrationTest extends ApiTestCase
     }
 
     /**
+     * The integration reads with the rights of its owner: an owner who can no longer read its workspace reads nothing.
+     */
+    public function testTheIntegrationOfAnOwnerWhoCannotReadItsWorkspaceIsDenied(): void
+    {
+        self::enableFixtures();
+        $apiClient = static::createClient();
+
+        $privateWorkspace = new Workspace();
+        $privateWorkspace->setName('Private');
+        $privateWorkspace->setSlug('private-workspace');
+        $privateWorkspace->setOwnerId(KeycloakClientTestMock::ADMIN_UID);
+        $privateWorkspace->setEnabledLocales(['en']);
+        $privateWorkspace->setPublic(false);
+        $this->getService(WorkspaceCreator::class)->createWorkspace($privateWorkspace);
+        $list = $this->createEntityList($privateWorkspace, [['value' => 'Private']]);
+
+        $integration = $this->createIntegration(workspace: $privateWorkspace, ownerId: KeycloakClientTestMock::USER_UID);
+        $ofTheOwner = $this->createIntegration(workspace: $privateWorkspace, name: 'Of the owner of the workspace', ownerId: KeycloakClientTestMock::ADMIN_UID);
+        foreach ([
+            ['list' => $list->getId()],
+            ['list' => $list->getId(), 'workspace' => $privateWorkspace->getId()],
+            [],
+        ] as $query) {
+            $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, $query);
+            $this->assertEquals(403, $response->getStatusCode(), http_build_query($query));
+        }
+
+        $response = $this->getEntities($apiClient, $ofTheOwner, self::SECURITY_KEY, ['list' => $list->getId()]);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+        $this->assertSame(['Private'], array_column($response->toArray()['member'], 'value'));
+    }
+
+    /**
+     * HEAD is answered as the GET it stands for, on the operations open to the integration only.
+     */
+    public function testTheIntegrationHeadRequests(): void
+    {
+        self::enableFixtures();
+        $apiClient = static::createClient();
+        $integration = $this->createIntegration();
+        $list = $this->createEntityList($integration->getWorkspace(), [['value' => 'A']]);
+        $headers = ['Authorization' => sprintf('ApiKey %s:%s', $integration->getId(), self::SECURITY_KEY)];
+
+        $response = $apiClient->request('HEAD', '/attribute-entities?list='.$list->getId(), ['headers' => $headers]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame('', $response->getContent());
+
+        foreach ([
+            '/workspaces',
+            '/attribute-entities/'.$this->getEntityIds($list)['A'],
+        ] as $url) {
+            $response = $apiClient->request('HEAD', $url, ['headers' => $headers]);
+            $this->assertEquals(403, $response->getStatusCode(), $url);
+        }
+
+        $response = $apiClient->request('HEAD', '/attribute-entities?list='.$list->getId(), [
+            'headers' => ['Authorization' => sprintf('ApiKey %s:%s', $integration->getId(), 'invalidtoken')],
+        ]);
+        $this->assertEquals(403, $response->getStatusCode(), 'Invalid key');
+    }
+
+    /**
      * An integration of no workspace reads the lists of the workspace of its collection.
      */
     public function testTheIntegrationWithoutWorkspaceReadsTheWorkspaceOfItsCollection(): void
@@ -496,7 +558,7 @@ class UploaderIntegrationTest extends ApiTestCase
         bool $enabled = true,
         string $type = UploaderIntegration::NAME,
         string $securityKey = self::SECURITY_KEY,
-        bool $workspace = true,
+        Workspace|bool $workspace = true,
         string $name = 'Uploader',
         array $config = [],
         string $ownerId = KeycloakClientTestMock::USER_UID,
@@ -510,7 +572,7 @@ class UploaderIntegrationTest extends ApiTestCase
 
         $integration = new WorkspaceIntegration();
         $integration->setPublic(true);
-        $integration->setWorkspace($workspace ? $ws : null);
+        $integration->setWorkspace($workspace instanceof Workspace ? $workspace : ($workspace ? $ws : null));
         $integration->setName($name);
         $integration->setIntegration($type);
         $integration->setConfig([
