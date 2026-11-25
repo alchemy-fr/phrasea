@@ -4,102 +4,82 @@ title: Intro
 
 # Expose
 
-Expose service is part of the Alchemy ecosystem.
-Its role is to expose assets to the Internet.
+Expose publishes assets on the Internet: web galleries, download pages and embeddable players,
+open to anyone or protected by a password or an account. The publications are filled from
+Databox (a basket or a saved search automation); Expose shows them and lets their editors
+change their settings.
 
-Service wraps the following end projects:
-- Expose API (backend)
+For the end users, see the [Expose user guide](../../user/Expose/expose-documentation.md).
 
+## Components
 
-## How it works
+| Component          | Role                                                                                                                                                  |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `expose-api-php`   | Symfony API (API Platform 5): publications, profiles, assets, downloads, share links. EasyAdmin back office under `/admin`, MCP server under `/mcp`. |
+| `expose-api-nginx` | Front of the API, with a proxy cache of the public reads (see [Access](./access.md#http-cache)).                                                      |
+| `expose-worker`    | Messenger consumer of the `p1` queue: archives, download emails, file checks, deletion of the stored files.                                          |
+| `expose-scheduler` | Single replica consuming the `main` schedule (`src/Schedule/MainSchedule.php`): nightly purge of the abandoned multipart uploads.                     |
+| `expose-client`    | Next.js client (`expose/client`). The server renders the page metadata only; the page itself is loaded by the browser, with TanStack Query.           |
 
-First entrypoint is the React app with one main route:
+The files (originals, renditions, archives) are stored in the S3 bucket of Expose and served
+through signed URLs, optionally through CloudFront.
 
-`/{publication-id}`
+## Concepts
 
-The React app displays a loader while querying the expose API to fetch the publication:
+- **Publication**: a set of assets with a title, a description, a slug and settings (visibility,
+  layout, downloads, security, terms). See [Publications](./publications.md).
+- **Sub-publication**: a publication may have a parent. A sub-publication is hidden with its
+  ancestors and inherits the security method of the closest ancestor defining one.
+- **Profile**: a set of settings shared by the publications using it; a setting left unset on
+  the publication is the one of its profile.
+- **Asset**: a file of a publication (the original), with its title, description, position and
+  sub-definitions. It keeps the id of the Databox asset it comes from (`assetId`).
+- **Sub-definition**: a rendition of an asset. `thumbnail`, `preview` and `poster` are used by the
+  client to display it; every sub-definition can be downloaded.
+- **Share link**: a token opening one publication to whoever holds it. See
+  [Share links](./share-links.md).
 
-`GET <API_HOST>/publications/{publication-id}`
+## Public URLs
 
-If there is no protection, the response will contain all the publication payload.
-Otherwise the response will be limited to protection method:
+| URL                                       | Page                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------ |
+| `/`                                       | The publications listed publicly (404 with `EXPOSE_DISABLE_INDEX_PAGE`)              |
+| `/{slug or id}`                           | A publication, by slug or by id                                                      |
+| `/{publication}/{asset}`                  | The publication with one of its assets opened (id or slug of the asset)              |
+| `/s/{token}`                              | Permalink of a share link                                                            |
+| `/embed/{assetId}`                        | Player of one asset, for iframes (Expose asset id, see [Embedding](./iframe.md))     |
 
-```json
-{
-  "id": "123",
-  "securityMethod": "password | authentication"
-}
-```
+The first segments `auth`, `embed`, `profiles`, `publications`, `api` and `s` are reserved by the
+client (`expose/client/src/lib/routes.ts`): a publication whose slug is one of them cannot be
+opened by its slug. The API does not refuse these slugs. The other routes of the client are
+listed in `expose/client/README.md` (section "Routes").
 
-Then front (React) application will display the according authentication method and request the publication payload again:
+## Loading a publication page
 
-- with password: `GET <API_HOST>/publications/{id} --header "Authorization: Password {password}"`
+1. The Next.js server reads the publication from the API anonymously
+   (`GET /publications/{slug or id}`), only to build the Open Graph metadata of the page (see
+   [SEO and analytics](./seo-analytics.md)).
+2. The browser loads the client, then asks the API for the publication with what the visitor
+   gave: the passwords in `X-Passwords`, the share link tokens in `X-Share-Tokens`, the access
+   token of a signed-in user in `Authorization: Bearer`.
+3. Without access to the details, the API answers a reduced publication (`authorized: false`,
+   `authorizationError`, `securityContainerId`, `securityMethod`): the client shows the password
+   form or the sign-in screen, then asks again. See [Access](./access.md).
+4. Once authorized, the client shows the terms of use if any, then the layout of the publication.
+   Opening an asset only changes the URL: the layout stays in place.
 
-In this example we access the publication at:
-`https://client-url.com/gallery/123`
+An unknown publication answers 404. A publication that is not visible (disabled, not started,
+expired, or below a hidden ancestor) is refused to whoever is not its editor nor holds a share
+link: 401 for an anonymous visitor, 403 for a signed-in user.
 
-### Sequence
+## Documentation
 
-![Sequence](./sequence.png "Request sequence")
-
-​```sequence
-title Expose loading
-
-note over Browser: User wants to access the publication
-Browser->React: GET https://expose.com/123
-React->Browser: Return static page with JS
-note over Browser: React app boots
-Browser->API: GET https://api.expose.com/publications/123
-API->Browser: Returns publication payload `{"id": "123", ...}`
-note over Browser: React displays the layout
-​```
-
-## Definitions
-
-At the top level, we have *layouts*:
-- download (display thumbnail while downloading the whole package)
-- gallery (simple web gallery)
-- lightbox (an extended web gallery with actions on files)
-
-At the second level, we have *themes*.
-Themes are declined graphical versions of layouts.
-A theme should be implemented for each layout.
-
-## Direct URL access
-
-We can define a unique URL path for an asset:
-
-```json
-{
-  "id": "123",
-  "assetId": "asset-unique-id",
-  "alternateUrl": "a/b/c"
-}
-```
-
-Asset will be accessible at `https://client-url.com/direct/{alternateUrl}`.
-
-
-## Setup
-
-Override environment variables defined in `.env` file:
-
-```bash
-DEV_MODE=false
-EXPOSE_CLIENT_ID=<THE_CLIENT_ID>
-```
-
-## Analytics
-
-Add configuration to enable Analytics:
-
-1. Go to Expose Admin panel > Settings > Global Config
-2. Add the appropriate configuration entries (see [Analytics options](../Configuration/02_instance.mdx#analytics))
-
-## Direct URL access
-
-Publications and assets can be accessed directly with slugs:
-
-e.g. `GET https://mygallery.com/publication-1/asset-1`
-
-In the above example, publication should have a `slug` property equal to `publication-1` and the asset having 
+- [Setup](./02_setup.md): services, environment variables, back office.
+- [Publications](./publications.md): settings, profiles and inheritance, assets, publishing from
+  Databox.
+- [Access](./access.md): permissions, passwords, authentication, terms, CORS, HTTP cache.
+- [Downloads](./downloads.md): download modes, signed URLs, archive, downloads by email.
+- [Embedding (iframe)](./iframe.md).
+- [SEO and analytics](./seo-analytics.md): indexing, link previews, Matomo, view logs.
+- [Share links](./share-links.md).
+- [MCP server](./mcp.md).

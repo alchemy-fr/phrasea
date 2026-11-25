@@ -90,15 +90,20 @@ page whose inline script cannot bear the nonce.
 | `/` | Publications listed publicly (404 with `DISABLE_INDEX_PAGE`) | public |
 | `/:publication` | Publication, by slug or id | public |
 | `/:publication/:asset` | Publication with an asset opened (id or slug of the asset) | public |
+| `/s/:token` | Permalink of a share link: keeps its token, then redirects to the publication | public |
 | `/embed/:asset` | Player of an asset alone, for iframes | public |
 | `/publications` | Publications the user can edit (sub-publications included) | signed in |
 | `/publications/:id/edit` | Edition of a publication | signed in |
 | `/profiles`, `/profiles/create`, `/profiles/:id/edit` | Publication profiles | signed in |
 | `/auth/callback` | OpenID Connect callback | public |
 | `/auth/window` | Sign-in window opened by an embedded page | public |
+| `/robots.txt`, `/manifest.webmanifest` | Robots rules (`ALLOW_INDEXING`), web app manifest | public |
+| `/api/og/publication/:publication[/asset/:asset]` | Image of the link previews | public |
+| `/api/relay`, `/api/relay/csp` | Sentry relays (see above) | public |
+| `/api/theme-fonts` | Fonts of the organisation theme | public |
 
-`auth`, `embed`, `profiles` and `publications` are therefore not usable as
-publication slugs.
+`auth`, `embed`, `profiles`, `publications`, `api` and `s` are therefore not
+usable as publication slugs (`src/lib/routes.ts`).
 
 The publication is rendered by the layout of its segment
 (`app/[publication]/layout.tsx`): moving from one asset to another only

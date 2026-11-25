@@ -149,7 +149,7 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
 * Technologies web :  
   * HTML5, CSS3 et JavaScript forment la base de l’interface utilisateur, permettant des interfaces web interactives et accessibles.  
 * Framework JavaScript :  
-  * React et Material UI sont utilisés pour les clients consommant l’API Phrasea.
+  * Next.js (App Router), React 19, TypeScript, Tailwind CSS v4 et Radix sont utilisés pour les clients consommant l’API Phrasea.
 
 ### Base de données
 

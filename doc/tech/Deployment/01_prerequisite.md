@@ -147,8 +147,8 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 ### Front-End
 
 Clients consuming the Phrasea API are written with:
-* React / Typescript
-* Material UI
+* Next.js (App Router), React 19, TypeScript
+* Tailwind CSS v4, Radix primitives
 
 ### Database
 

@@ -7,7 +7,7 @@ title: MCP server
 Expose API embeds a [Model Context Protocol](https://modelcontextprotocol.io/) server so that AI assistants
 (Claude, IDE agents…) can manage publications on behalf of a user.
 
-- Endpoint: `https://<EXPOSE_API_URL>/mcp` (Streamable HTTP transport), with a Keycloak access token of the user
+- Endpoint: `<EXPOSE_API_URL>/mcp` (Streamable HTTP transport), with a Keycloak access token of the user
 - Configuration: `expose/api/config/packages/mcp.yaml` and `alchemy_mcp.yaml`, tools in `expose/api/src/Mcp/Tool/`
 
 Architecture, authentication, client connection and how to add a tool: see

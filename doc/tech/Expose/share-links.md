@@ -4,6 +4,9 @@ title: Share links
 
 # Share links
 
+For the editors, see also the
+[user guide](../../user/Expose/expose-documentation.md#share-links).
+
 A share link gives access to one publication to whoever holds it, without changing the
 settings of the publication. It is a random token of 64 characters, opened by the permalink
 `<EXPOSE_CLIENT_URL>/s/{token}`.
@@ -22,6 +25,9 @@ It does **not** cover:
   child stays hidden, a child protected by the password of its parent asks for it);
 - the download settings and the download terms: the holder of a link is a visitor, not an
   editor.
+
+How a link fits with the other ways in (passwords, authentication, permissions) is described in
+[Access](./access.md).
 
 ## Management
 
@@ -63,7 +69,8 @@ header).
 ## Known limits
 
 - The signed URLs already given to a link holder (downloads, archive, WebVTT, `?jwt=`) stay
-  valid until they expire (`URI_JWT_TTL`, 24 hours by default) after the link is revoked.
+  valid until they expire after the link is revoked: `URI_JWT_TTL` (24 hours by default), 3 days
+  for the download links sent by email (see [Downloads](./downloads.md#signed-urls)).
 - Each publication opened by a link adds one or two cookies to the domain of the client (sent
   to its Next.js server too), without any cap on their number.
 - The client reserves the first path segment `s`, the API does not: the client URLs of a

@@ -525,17 +525,16 @@ Go to the **"Permissions" tab** and choose the group(s) and/or user(s) in the sy
 
 ### **Publishing Baskets**
 
-You can publish your baskets as web galleries on an external site.
+You can publish your baskets as web galleries with Phrasea Expose: the publication follows the basket, every asset added or removed is sent to it.
 
-Phrasea Expose is integrated directly, allowing you to view your publications and customize the layout and colors to match your brand's graphic charter.
+1. Open the basket: right-click on its title then **"Edit"**, or click the **"Integrations"** button of the basket view.
+2. In the **"Manage basket"** window, go to the **"Integrations" tab**.
+3. The first time, click **"Authorize"** under the Expose integration and sign in.
+4. Click **"New publication"**, give it a title (and optionally a slug, a description, a parent publication or a profile), then click **"Create & sync"**.
 
-Many options are available for each publication, such as adding terms and conditions, a logo, and protecting a publication with a password.
+The synchronization can then be run again (**"Force sync"**) or stopped (**"Stop"**, optionally deleting the publication from Expose). The layout, the downloads, the password, the terms and the other settings of the publication are set in Expose.
 
-Click on **“Integrations”**.
-
-To continue, you must have access to Expose.
-
-Contact us to get Expose or for more information.
+To continue, you must have access to Expose. See the [Expose user guide](../Expose/expose-documentation.md) for the whole procedure and the settings of the publications.
 
 ---
 

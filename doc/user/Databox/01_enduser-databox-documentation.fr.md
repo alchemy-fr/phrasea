@@ -557,15 +557,16 @@ Enfin, sélectionner les droits appropriés à leur accorder.
 
 ### **Publication de paniers**
 
-Les paniers peuvent être publiés sous forme de galeries web sur un site externe grâce au service Phrasea Expose.
+Les paniers peuvent être publiés sous forme de galeries web grâce au service Phrasea Expose : la publication suit le panier, chaque asset ajouté ou retiré lui est envoyé.
 
-Expose vous permet de visualiser vos publications, de personnaliser la mise en page, les couleurs à votre charte graphique. 
+1. Ouvrir le panier : faire un clic droit sur son titre puis **"Modifier"**, ou cliquer sur le bouton **"Intégrations"** de la vue du panier.
+2. Dans la fenêtre **"Gérer le panier"**, aller dans l'**onglet "Intégrations"**.
+3. La première fois, cliquer sur **"Autoriser"** sous l'intégration Expose et se connecter.
+4. Cliquer sur **"Nouvelle publication"**, lui donner un titre (et si besoin un slug, une description, une publication parente ou un profil), puis cliquer sur **"Créer et synchroniser"**.
 
-De nombreuses options sont disponibles pour chaque publication, comme ajouter des conditions générales d'utilisation, un logo, protéger une publication en ajoutant un mot de passe,...
+La synchronisation peut ensuite être relancée (**"Forcer la synchronisation"**) ou arrêtée (**"Arrêter"**, en supprimant si besoin la publication dans Expose). La mise en page, les téléchargements, le mot de passe, les conditions et les autres réglages de la publication se règlent dans Expose.
 
-Cliquer sur **“Intégrations”** à partir d’un panier.  
-Pour poursuivre, vous devez avoir accès à Expose.   
-Contactez-nous pour obtenir Expose ou davantage de renseignements. 
+Pour poursuivre, vous devez avoir accès à Expose. Voir le [guide utilisateur d'Expose](../Expose/expose-documentation.fr.md) pour la procédure complète et les réglages des publications.
 
 ---
 
