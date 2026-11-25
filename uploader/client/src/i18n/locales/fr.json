@@ -39,6 +39,8 @@
     "admin.target_data.help": "Fusionnées dans les données de formulaire de chaque lot envoyé vers cette cible ; elles priment sur les saisies des utilisateurs. Laisser vide pour n'en définir aucune.",
     "admin.target_data.no_data": "Aucune donnée",
     "admin.target_data.saved": "Paramètres de cible enregistrés",
+    "admin.target_properties.authorization_key_lost": "L'URL de la cible mène à un autre hôte : saisissez de nouveau la clé, sinon elle est supprimée.",
+    "admin.target_properties.authorization_key_remove": "Supprimer la clé",
     "admin.target_properties.authorization_key_unchanged": "Inchangée",
     "admin.target_properties.saved": "Cible enregistrée",
     "admin.target_select.placeholder": "Choisir une destination",

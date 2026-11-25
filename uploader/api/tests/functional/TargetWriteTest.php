@@ -108,6 +108,42 @@ class TargetWriteTest extends AbstractUploaderTestCase
         $this->assertFalse($data['hasAuthorizationKey']);
     }
 
+    public function testAuthorizationKeyDoesNotFollowTheUrlToAnotherOrigin(): void
+    {
+        $token = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
+        $id = $this->createTargetWithSettings($token);
+
+        $data = $this->request($token, 'PATCH', '/targets/'.$id, [
+            'targetUrl' => 'https://EXAMPLE.com:443/other-path',
+        ])->toArray();
+        $this->assertSame('https://EXAMPLE.com:443/other-path', $data['targetUrl']);
+        $this->assertTrue($data['hasAuthorizationKey']);
+
+        $data = $this->request($token, 'PATCH', '/targets/'.$id, [
+            'authorizationKey' => 'other-secret',
+            'targetUrl' => 'https://other.example.com/upload',
+        ])->toArray();
+        $this->assertTrue($data['hasAuthorizationKey']);
+
+        foreach (['https://elsewhere.example.com/upload', 'https://elsewhere.example.com:8443/upload', 'http://elsewhere.example.com:8443/upload'] as $url) {
+            $data = $this->request($token, 'PATCH', '/targets/'.$id, [
+                'authorizationKey' => 'secret',
+            ])->toArray();
+            $this->assertTrue($data['hasAuthorizationKey']);
+
+            $response = $this->request($token, 'PATCH', '/targets/'.$id, [
+                'targetUrl' => $url,
+            ]);
+            $this->assertEquals(200, $response->getStatusCode());
+            $data = $response->toArray();
+            $this->assertSame($url, $data['targetUrl']);
+            $this->assertFalse($data['hasAuthorizationKey'], $url);
+        }
+
+        $data = $this->request($token, 'GET', '/targets/'.$id.'/settings')->toArray();
+        $this->assertFalse($data['hasAuthorizationKey']);
+    }
+
     public function testAllowedGroupsAreStrings(): void
     {
         $token = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);

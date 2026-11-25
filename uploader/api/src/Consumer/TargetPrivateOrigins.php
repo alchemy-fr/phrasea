@@ -48,7 +48,10 @@ final readonly class TargetPrivateOrigins
         return null !== $origin && in_array($origin, $this->origins, true);
     }
 
-    private static function getOrigin(?string $url): ?string
+    /**
+     * The scheme, host and port of an http(s) URL, the default port included; null for another URL.
+     */
+    public static function getOrigin(?string $url): ?string
     {
         if (null === $url || '' === $url) {
             return null;

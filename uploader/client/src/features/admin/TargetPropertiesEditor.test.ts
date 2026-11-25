@@ -1,6 +1,10 @@
 import {describe, expect, it} from 'vitest';
 import type {TargetSettings} from '@/types/api';
-import {toTargetPatch, toTargetValues} from './TargetPropertiesEditor';
+import {
+    isTargetOriginChanged,
+    toTargetPatch,
+    toTargetValues,
+} from './TargetPropertiesEditor';
 import {EMPTY_TARGET_VALUES, toTargetInput} from './TargetPropertiesFields';
 
 const settings: TargetSettings = {
@@ -81,6 +85,13 @@ describe('toTargetPatch', () => {
         ).toMatchObject({authorizationKey: 'new'});
     });
 
+    it('removes the saved key on demand', () => {
+        expect(toTargetPatch(toTargetValues(settings), true)).toMatchObject({
+            targetUrl: 'https://example.com/upload',
+            authorizationKey: null,
+        });
+    });
+
     it('removes the authorization in the pull mode', () => {
         expect(
             toTargetPatch({
@@ -94,5 +105,24 @@ describe('toTargetPatch', () => {
             authorizationKey: null,
             allowedGroups: null,
         });
+    });
+});
+
+describe('isTargetOriginChanged', () => {
+    it('keeps the origin on another path or an explicit default port', () => {
+        expect(
+            isTargetOriginChanged(settings, 'https://EXAMPLE.com:443/other')
+        ).toBe(false);
+    });
+
+    it('tells another scheme, host or port', () => {
+        for (const url of [
+            'http://example.com/upload',
+            'https://other.example.com/upload',
+            'https://example.com:8443/upload',
+            '',
+        ]) {
+            expect(isTargetOriginChanged(settings, url)).toBe(true);
+        }
     });
 });

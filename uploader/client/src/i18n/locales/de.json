@@ -39,6 +39,8 @@
     "admin.target_data.help": "Werden in die Formulardaten jedes an dieses Ziel gesendeten Stapels übernommen und haben Vorrang vor den Benutzereingaben. Leer lassen, um keine festzulegen.",
     "admin.target_data.no_data": "Keine Daten",
     "admin.target_data.saved": "Zieldaten gespeichert",
+    "admin.target_properties.authorization_key_lost": "Die Ziel-URL führt zu einem anderen Host: Geben Sie den Schlüssel erneut ein, sonst wird er entfernt.",
+    "admin.target_properties.authorization_key_remove": "Schlüssel entfernen",
     "admin.target_properties.authorization_key_unchanged": "Unverändert",
     "admin.target_properties.saved": "Ziel gespeichert",
     "admin.target_select.placeholder": "Ziel auswählen",

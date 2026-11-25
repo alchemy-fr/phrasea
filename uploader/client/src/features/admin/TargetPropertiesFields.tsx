@@ -1,6 +1,6 @@
 'use client';
 
-import type {ComponentProps} from 'react';
+import type {ComponentProps, ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
 import {GroupSelect} from '@alchemy/next-ui/groups/GroupSelect';
@@ -57,15 +57,21 @@ export function TargetPropertiesFields({
     values,
     errors,
     set,
-    authorizationKeyPlaceholder,
+    authorizationKey,
     autoFocus,
 }: {
     values: TargetValues;
     /** The violations by property, as `violationsByField` gives them */
     errors: Record<string, string>;
     set: (patch: Partial<TargetValues>) => void;
-    /** Tells that a key is set, which is never read back */
-    authorizationKeyPlaceholder?: string;
+    /** About the saved key, which is never read back */
+    authorizationKey?: {
+        placeholder?: string;
+        help?: string;
+        disabled?: boolean;
+        /** Shown under the field */
+        extra?: ReactNode;
+    };
     /** Focuses the name */
     autoFocus?: boolean;
 }) {
@@ -156,13 +162,15 @@ export function TargetPropertiesFields({
                             'admin.target_create.authorization_key',
                             'Authorization key'
                         ),
-                        undefined,
+                        authorizationKey?.help,
                         {
                             type: 'password',
                             autoComplete: 'off',
-                            placeholder: authorizationKeyPlaceholder,
+                            placeholder: authorizationKey?.placeholder,
+                            disabled: authorizationKey?.disabled,
                         }
                     )}
+                    {authorizationKey?.extra}
                 </>
             ) : null}
             {field(

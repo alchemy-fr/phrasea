@@ -39,6 +39,8 @@
     "admin.target_data.help": "Se fusionan con los datos de formulario de cada lote enviado a este destino; prevalecen sobre lo que introducen los usuarios. Déjelo vacío para no definir ninguno.",
     "admin.target_data.no_data": "Sin datos",
     "admin.target_data.saved": "Datos de destino guardados",
+    "admin.target_properties.authorization_key_lost": "La URL del destino lleva a otro host: vuelva a introducir la clave; si no, se elimina.",
+    "admin.target_properties.authorization_key_remove": "Eliminar la clave",
     "admin.target_properties.authorization_key_unchanged": "Sin cambios",
     "admin.target_properties.saved": "Destino guardado",
     "admin.target_select.placeholder": "Elegir un destino",

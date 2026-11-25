@@ -39,6 +39,8 @@
     "admin.target_data.help": "Merged into the form data of every batch sent to this target; it takes precedence over what users enter. Leave empty for none.",
     "admin.target_data.no_data": "No data",
     "admin.target_data.saved": "Target data saved",
+    "admin.target_properties.authorization_key_lost": "The target URL leads to another host: enter the key again, otherwise it is removed.",
+    "admin.target_properties.authorization_key_remove": "Remove the key",
     "admin.target_properties.authorization_key_unchanged": "Unchanged",
     "admin.target_properties.saved": "Target saved",
     "admin.target_select.placeholder": "Choose a target",

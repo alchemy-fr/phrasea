@@ -5,6 +5,7 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import {Alert} from '@alchemy/next-ui/ui/misc';
+import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {updateTarget} from '@/lib/api/uploader';
@@ -33,13 +34,48 @@ export function toTargetValues(settings: TargetSettings): TargetValues {
     };
 }
 
-/** An empty authorization key leaves the saved one as it is */
-export function toTargetPatch(values: TargetValues): Partial<TargetInput> {
+/**
+ * An empty authorization key leaves the saved one as it is, unless it is
+ * removed. The API removes it as well once the target URL leads to another
+ * origin without a new key.
+ */
+export function toTargetPatch(
+    values: TargetValues,
+    removeAuthorizationKey = false
+): Partial<TargetInput> {
     const {authorizationKey, ...input} = toTargetInput(values);
 
-    return input.targetUrl && !authorizationKey
+    return input.targetUrl && !authorizationKey && !removeAuthorizationKey
         ? input
-        : {...input, authorizationKey};
+        : {
+              ...input,
+              authorizationKey: removeAuthorizationKey
+                  ? null
+                  : authorizationKey,
+          };
+}
+
+/** The scheme, host and port of a URL: where its authorization key goes */
+function urlOrigin(url: string | null | undefined): string | null {
+    if (!url?.trim()) {
+        return null;
+    }
+    try {
+        return new URL(url.trim()).origin;
+    } catch {
+        return url.trim();
+    }
+}
+
+/**
+ * Whether the target URL leads to another origin than the saved one: the
+ * saved key is then removed unless a new one is entered.
+ */
+export function isTargetOriginChanged(
+    settings: TargetSettings,
+    targetUrl: string
+): boolean {
+    return urlOrigin(settings.targetUrl) !== urlOrigin(targetUrl);
 }
 
 /**
@@ -81,7 +117,10 @@ function PropertiesForm({
     const queryClient = useQueryClient();
     const [values, setValues] = useState(() => toTargetValues(settings));
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const {dirty} = useDirtyState(values);
+    const [removeKey, setRemoveKey] = useState(false);
+    const {dirty} = useDirtyState({values, removeKey});
+    const originChanged = isTargetOriginChanged(settings, values.targetUrl);
+    const removingKey = removeKey && !originChanged;
     const set = (patch: Partial<TargetValues>) =>
         setValues(v => ({...v, ...patch}));
 
@@ -106,7 +145,7 @@ function PropertiesForm({
             onSubmit={e => {
                 e.preventDefault();
                 setErrors({});
-                save.mutate(toTargetPatch(values));
+                save.mutate(toTargetPatch(values, removingKey));
             }}
         >
             <div className="max-w-3xl">
@@ -114,12 +153,47 @@ function PropertiesForm({
                     values={values}
                     errors={errors}
                     set={set}
-                    authorizationKeyPlaceholder={
+                    authorizationKey={
                         settings.hasAuthorizationKey
-                            ? t(
-                                  'admin.target_properties.authorization_key_unchanged',
-                                  'Unchanged'
-                              )
+                            ? {
+                                  placeholder:
+                                      originChanged || removingKey
+                                          ? undefined
+                                          : t(
+                                                'admin.target_properties.authorization_key_unchanged',
+                                                'Unchanged'
+                                            ),
+                                  help: originChanged
+                                      ? t(
+                                            'admin.target_properties.authorization_key_lost',
+                                            'The target URL leads to another host: enter the key again, otherwise it is removed.'
+                                        )
+                                      : undefined,
+                                  disabled: removingKey,
+                                  extra: originChanged ? null : (
+                                      <div className="-mt-2 mb-4">
+                                          <LabeledControl
+                                              label={t(
+                                                  'admin.target_properties.authorization_key_remove',
+                                                  'Remove the key'
+                                              )}
+                                          >
+                                              <Checkbox
+                                                  data-testid="target-authorizationKey-remove"
+                                                  checked={removingKey}
+                                                  onCheckedChange={checked => {
+                                                      setRemoveKey(
+                                                          checked === true
+                                                      );
+                                                      set({
+                                                          authorizationKey: '',
+                                                      });
+                                                  }}
+                                              />
+                                          </LabeledControl>
+                                      </div>
+                                  ),
+                              }
                             : undefined
                     }
                 />

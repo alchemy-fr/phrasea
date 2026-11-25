@@ -21,6 +21,7 @@ use App\Api\Processor\TargetDataProcessor;
 use App\Api\Processor\TargetFormProcessor;
 use App\Api\Provider\TargetDataContentProvider;
 use App\Api\Provider\TargetFormProvider;
+use App\Consumer\TargetPrivateOrigins;
 use App\DataProvider\TargetDataProvider;
 use App\Form\Builder\FormDefinition;
 use App\Form\Builder\InvalidFormDefinitionException;
@@ -102,6 +103,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 )]
 #[ORM\Table]
 #[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['slug'])]
 class Target extends AbstractUuidEntity implements \Stringable
 {
@@ -171,6 +173,13 @@ class Target extends AbstractUuidEntity implements \Stringable
     private \DateTimeImmutable $createdAt;
 
     /**
+     * The target URL as stored, unmapped: tells whether the authorization key would follow the URL to another origin.
+     */
+    private ?string $storedTargetUrl = null;
+    private bool $stored = false;
+    private bool $authorizationKeySet = false;
+
+    /**
      * The form of the uploads: a definition of the form builder (see FormDefinition).
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -207,6 +216,31 @@ class Target extends AbstractUuidEntity implements \Stringable
     public function setAuthorizationKey(?string $authorizationKey): void
     {
         $this->authorizationKey = $authorizationKey;
+        $this->authorizationKeySet = true;
+    }
+
+    #[ORM\PostLoad]
+    public function rememberStoredTargetUrl(): void
+    {
+        $this->storedTargetUrl = $this->targetUrl;
+        $this->stored = true;
+        $this->authorizationKeySet = false;
+    }
+
+    /**
+     * The authorization key is sent to the target URL: once the URL leads to another origin (scheme, host, port),
+     * the key is removed unless a key is given along with it.
+     */
+    #[ORM\PreFlush]
+    public function removeAuthorizationKeyOnOriginChange(): void
+    {
+        if ($this->stored
+            && !$this->authorizationKeySet
+            && TargetPrivateOrigins::getOrigin($this->storedTargetUrl) !== TargetPrivateOrigins::getOrigin($this->targetUrl)) {
+            $this->authorizationKey = null;
+        }
+
+        $this->rememberStoredTargetUrl();
     }
 
     #[Groups([self::GROUP_ADMIN])]
