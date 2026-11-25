@@ -13,11 +13,15 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Exception\ForbiddenActionException;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use Symfony\Component\HttpFoundation\Response;
 
 class IntegrationTokenCrudController extends AbstractAdminCrudController
 {
@@ -45,7 +49,25 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->remove(Crud::PAGE_DETAIL, Action::EDIT)
         ;
+    }
+
+    /**
+     * A token comes from the OAuth flow of its integration: it can be deleted (revoked), not
+     * written. Removing the actions only hides them, since the AdminVoter grants everything to
+     * the admins.
+     */
+    #[\Override]
+    public function new(AdminContext $context): KeyValueStore|Response
+    {
+        throw new ForbiddenActionException($context);
+    }
+
+    #[\Override]
+    public function edit(AdminContext $context): KeyValueStore|Response
+    {
+        throw new ForbiddenActionException($context);
     }
 
     #[\Override]
@@ -68,7 +90,8 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
         yield $this->userChoiceField->create('userId', 'User');
         yield DateTimeField::new('expiresAt');
         yield BooleanField::new('expired')
-            ->renderAsSwitch(false);
+            ->renderAsSwitch(false)
+            ->hideOnForm();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
     }

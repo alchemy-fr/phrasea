@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Controller\ReadOnlyCrudTrait;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
@@ -15,7 +16,6 @@ use Alchemy\TrackBundle\AlchemyTrackBundle;
 use App\Entity\Log\AuditLog;
 use App\Model\AuditActorTypeEnum;
 use App\Model\AuditLogActionEnum;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -28,6 +28,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AuditLogCrudController extends AbstractAdminCrudController
 {
+    use ReadOnlyCrudTrait;
+
     public function __construct(
         #[Autowire(service: AlchemyTrackBundle::OBJECT_MAPPING_SERVICE_ID)]
         private readonly ObjectMapping $objectMapping,
@@ -39,11 +41,7 @@ class AuditLogCrudController extends AbstractAdminCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        return parent::configureActions($actions)
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::DELETE)
-        ;
+        return $this->removeWriteActions(parent::configureActions($actions));
     }
 
     #[\Override]
