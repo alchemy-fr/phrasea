@@ -4,17 +4,9 @@
 #
 #   bin/test.sh quick      static checks + unit tests, no service started
 #                          (composer test:quick per API and lib, pnpm test:quick)
-#   bin/test.sh standard [PART]
-#                          the full PHP suites inside the API images, with
+#   bin/test.sh standard   the full PHP suites inside the API images, with
 #                          db/redis/elasticsearch/minio up (default; what CI
-#                          runs on every pull request to master). PART splits
-#                          it between CI jobs, the parts together run `all`:
-#                            all (default)            everything, one after the other
-#                            others                   databox lint + unit suite,
-#                                                     expose, uploader, configurator
-#                                                     and the PHP libs
-#                            databox-functional:I/N   shard I of N of the databox
-#                                                     functional suite (bin/phpunit-shard)
+#                          runs on every pull request to master)
 #   bin/test.sh release    standard + Doctrine migrations replay + indexer e2e
 #                          (needs the whole stack up: bin/setup.sh first)
 #
@@ -27,27 +19,10 @@ load-env
 
 . bin/vars.sh
 
-usage() {
-  echo "Usage: bin/test.sh [quick|standard [all|others|databox-functional:I/N]|release]" >&2
-  exit 2
-}
-
 TIER="${1:-standard}"
-PART="${2:-all}"
 case "${TIER}" in
-  quick|release) [ $# -le 1 ] || usage ;;
-  standard)
-    [ $# -le 2 ] || usage
-    case "${PART}" in
-      all|others) ;;
-      databox-functional:*)
-        DATABOX_SHARD="${PART#databox-functional:}"
-        [[ "${DATABOX_SHARD}" =~ ^[1-9][0-9]*/[1-9][0-9]*$ ]] || usage
-        ;;
-      *) usage ;;
-    esac
-    ;;
-  *) usage ;;
+  quick|standard|release) ;;
+  *) echo "Usage: bin/test.sh [quick|standard|release]" >&2; exit 2 ;;
 esac
 
 set -ex
@@ -111,31 +86,12 @@ tier_standard() {
   setup_elasticsearch_users
   setup_minio_users
 
-  case "${PART}" in
-    all)
-      for s in ${SF_SERVICES}; do
-        APP_ENV=test docker compose run --rm -T ${s} su app -c "composer install --no-interaction && composer test"
-      done
-      APP_ENV=test docker compose run --rm -T --no-deps configurator su app -c "composer install --no-interaction && composer test"
+  for s in ${SF_SERVICES}; do
+    APP_ENV=test docker compose run --rm -T ${s} su app -c "composer install --no-interaction && composer test"
+  done
+  APP_ENV=test docker compose run --rm -T --no-deps configurator su app -c "composer install --no-interaction && composer test"
 
-      run_php_libs test
-      ;;
-    others)
-      # databox `composer test` minus its functional suite, played by the
-      # databox-functional shards.
-      APP_ENV=test docker compose run --rm -T databox-api-php su app -c "composer install --no-interaction && composer lint && composer phpunit:unit"
-      for s in ${SF_SERVICES}; do
-        [ "${s}" = databox-api-php ] && continue
-        APP_ENV=test docker compose run --rm -T ${s} su app -c "composer install --no-interaction && composer test"
-      done
-      APP_ENV=test docker compose run --rm -T --no-deps configurator su app -c "composer install --no-interaction && composer test"
-
-      run_php_libs test
-      ;;
-    databox-functional:*)
-      APP_ENV=test docker compose run --rm -T databox-api-php su app -c "composer install --no-interaction && composer pre-phpunit && php -d memory_limit=1024M bin/phpunit-shard ${DATABOX_SHARD}"
-      ;;
-  esac
+  run_php_libs test
 }
 
 tier_release() {

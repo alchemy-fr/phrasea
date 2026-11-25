@@ -6,7 +6,7 @@ script that runs the same way locally (in Docker) and in GitHub Actions.
 | Tier | When (GitHub Actions) | Content | Stack | Budget |
 |---|---|---|---|---|
 | **quick** | every push on every branch (`quick.yaml`); pull requests from forks | static checks and unit tests | none | < 8 min |
-| **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, Cypress smoke, GHCR/ECR push | full | ≈ 15-20 min |
+| **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, Cypress smoke, GHCR/ECR push | full | ≈ 20 min |
 | **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay + indexer end-to-end; Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
 
 ## What each tier runs
@@ -37,34 +37,8 @@ them). Per API, inside its image: `composer test` = `lint` + the whole PHPUnit
 run (`unit` + `functional`, with the SQLite and Elasticsearch reset of
 `pre-phpunit`). Then the libs as in quick.
 
-`bin/test.sh standard [PART]` splits it between CI jobs; the parts together
-run exactly what `all` runs:
-
-| PART | Content |
-|---|---|
-| `all` (default) | everything above, one after the other |
-| `databox-functional:I/N` | shard `I` of `N` of the databox `functional` suite: `pre-phpunit`, then `bin/phpunit-shard I/N` |
-| `others` | databox `lint` + `phpunit:unit`, `composer test` of expose, uploader and configurator, the libs |
-
-`databox/api/bin/phpunit-shard I/N` sorts the `*Test.php` files of
-`tests/functional` and deals them round-robin (file `k`, from 0, goes to shard
-`k % N + 1`): the big directories (`Api`, `Search` and its slow
-`AbstractSearchTestCase`) spread over every shard, and a new test file is
-picked up without any list to maintain. `--list-files` prints the files of a
-shard; the other options go to PHPUnit:
-
-```bash
-dc run --rm --no-deps databox-api-php su app -c "php bin/phpunit-shard 1/2 --list-files"
-dc run --rm databox-api-php su app -c "composer pre-phpunit && php -d memory_limit=1024M bin/phpunit-shard 1/2"
-```
-
 Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
-`bin/setup.sh test` and loads the expose fixtures first. `--shard I/N` runs
-shard `I` of `N` only: the `cypress/cypress/e2e/**/*.cy.js` specs, sorted,
-dealt round-robin like the PHPUnit files (the expose fixtures are only loaded
-for a shard holding an `expose/` spec), and `--list` prints the specs that
-would run without starting anything. Every spec seeds the data it needs, so
-that it passes on a fresh stack whatever ran before it. The CI stack runs with
+`bin/setup.sh test` and loads the expose fixtures first. The CI stack runs with
 `APP_ENV=prod` and the default secrets of `.env`: `ci.yaml` and
 `bin/dev/run-tests-in-ci-conditions.sh` set `PHRASEA_ALLOW_DEFAULT_SECRETS=1`,
 otherwise `bin/setup.sh` refuses them (`check_default_secrets` in `bin/functions.sh`).
@@ -76,35 +50,6 @@ creates and drops the scratch databases. Likewise, the `*_S3_ACCESS_KEY`/
 `*_S3_SECRET_KEY` pairs give the APIs, the clients and the indexer a MinIO user
 restricted to their bucket (see [MinIO users](../01_setup.md#minio-users)),
 created by `minio-setup` in `bin/setup.sh` and `bin/test.sh standard`.
-
-### Jobs of `ci.yaml`
-
-```
-build (php, node) ─┬─► php-tests  (databox-functional-1, databox-functional-2, others)
-                   ├─► cypress    (shards 1/3, 2/3, 3/3)
-                   ├─► release-checks (tier release only)
-                   └─► push-ecr   (after every test job)
-documentation_requested ─► documentation (after every test job)
-```
-
-Each test job runs on a runner of its own, with a stack of its own; the
-matrices do not fail fast, so that one failing shard does not hide the others.
-The shared steps (mkcert, logins to GHCR and ECR Public, image pulls) are the
-local composite action `.github/actions/prepare-stack`.
-
-- `php-tests`: `bin/test.sh standard <part>`, one matrix entry per part. No
-  `bin/setup.sh` nor certificate: the script starts the services it needs.
-  Only the images of the services it starts are pulled.
-- `cypress`: `bin/setup.sh test`, then `bin/dev/test-cypress.sh --shard
-  <shard>/<number of shards>`. Adding a shard is adding its number to the
-  matrix. On failure, the screenshots, JUnit results and container logs are
-  uploaded as `phrasea-output-cypress-<shard>`.
-- `release-checks` (tier `release` only): `bin/setup.sh test`, then
-  `bin/dev/test-migrations.sh` and `bin/dev/test-indexer-e2e.sh`.
-- `push-ecr`: see [Image push](#image-push). It runs once every test job has
-  passed or was skipped (`release-checks` outside the release tier, the
-  [commit markers](#commit-markers-push-events-only)), never after a failed
-  or cancelled one: ECR only receives tested images.
 
 ### Image builds
 
@@ -145,19 +90,11 @@ that way, but Cypress and the indexer end-to-end log in through Keycloak.
 
 ### Image push
 
-The `push-ecr` job of `ci.yaml` copies the images of the run from GHCR to ECR
-Public with `bin/ci-copy-images.sh`, registry to registry (`docker buildx
-imagetools create`: nothing is pulled nor unpacked on the runner). It copies
-the image of every compose service with a `build` section, `configurator` and
-`databox-indexer` included (profiles `configurator,indexer` added), from
-`ghcr.io/<owner>/ps-<name>:<sha>` to
-`public.ecr.aws/b2s9z7l1/ps-<name>:<branch>`, and prints the list first.
-
-The Docker Hub pushes of `release.yaml` go through `bin/ci-push-images.sh`
-(`docker compose push`). Both scripts handle one image at a time, with up to 5
-attempts (30, 60, 90 then 120 s apart), because a parallel push exceeds the
-request rate limit of ECR Public (`Rate exceeded`). A new attempt skips the
-layers already pushed. If the failures go on: `max-concurrent-uploads` in the dockerd
+The ECR Public push of `ci.yaml` and the Docker Hub pushes of `release.yaml`
+go through `bin/ci-push-images.sh`: one image at a time, with up to 5 attempts
+(30, 60, 90 then 120 s apart), because a parallel push exceeds the request rate
+limit of ECR Public (`Rate exceeded`). A new attempt skips the layers already
+pushed. If the failures go on: `max-concurrent-uploads` in the dockerd
 configuration, or the ECR Public quotas in Service Quotas (us-east-1).
 
 ### release — `bin/test.sh release`
@@ -180,11 +117,8 @@ Everything goes through Docker (see the root `CLAUDE.md`):
 ```bash
 bin/test.sh quick                      # no stack needed
 bin/setup.sh && bin/test.sh standard   # or bin/test.sh (default)
-bin/test.sh standard databox-functional:1/2   # one part, as a CI job runs it
 bin/setup.sh && bin/test.sh release
 bin/dev/test-cypress.sh                # Cypress alone, stack up
-bin/dev/test-cypress.sh --shard 2/3    # one Cypress shard
-bin/dev/test-cypress.sh --shard 2/3 --list   # its specs
 ```
 
 One project at a time:
@@ -211,23 +145,21 @@ images and reproduces the CI run in an isolated compose project.
 - A JS package gets tests by adding a `test` script (`vitest run`) and a
   `vitest.config.ts`; turbo picks it up in `pnpm test`.
 - Heavy scenarios (full-stack, minutes long) go in a script under `bin/dev/`
-  and are wired in `bin/test.sh release` and in the `release-checks` job of
+  and are wired in `bin/test.sh release` and in the release steps of
   `ci.yaml`.
-- A new PHPUnit file of databox `tests/functional` or a new Cypress spec needs
-  no CI change: the shards are computed at each run.
 
 ## Commit markers (push events only)
 
-`[skip test]` skips the `php-tests`, `cypress` and `release-checks` jobs;
-`[skip php-test]` and `[skip cypress]` skip one of the first two. `push-ecr`
-and `documentation` still run. They read the head commit message, which is
+`[skip test]` skips setup, PHP tests and Cypress; `[skip php-test]` and
+`[skip cypress]` skip one of them. They read the head commit message, which is
 empty on `pull_request`, `schedule` and `workflow_dispatch`, so the tests
 always run there. The native `[skip ci]` still skips every workflow.
 
 ## Documentation builder
 
 `ci.yaml` triggers `alchemy-fr/phrasea-documentation-builder` (`documentation`
-job) once the test jobs have passed (`[skip test]` lets it through). The builder pulls the images it reads `/srv/app/doc` from (`databox`,
+job) once the `setup` job has passed, tests included (`[skip test]` lets it
+through). The builder pulls the images it reads `/srv/app/doc` from (`databox`,
 `expose` and `uploader` `api-php`, `configurator`) from GHCR, tagged with the
 commit sha, and checks out the branch for `doc/` (so the branch name cannot
 contain a `/`). It runs:
