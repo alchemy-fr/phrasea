@@ -132,108 +132,191 @@ jobs:
           targets: ${{ matrix.group }}
           push: true
 
-  setup:
-    name: 'Setup stack'
+  # The tests are split between parallel jobs, each on a runner of its own
+  # with a stack of its own: the PHP suites (php-tests), the Cypress specs
+  # (cypress) and, for the release tier, the heavy suites (release-checks).
+  # The commit markers [skip test], [skip php-test] and [skip cypress] skip
+  # them (see doc/tech/Development/ci.md).
+  php-tests:
+    name: 'PHP tests (${{ matrix.name }})'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    env:
-      TIER: ${{ inputs.tier || 'standard' }}
+    timeout-minutes: 40
     needs:
       - build
-
+    if: ${{ !contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip php-test]') }}
+    env:
+      # The profiles bin/test.sh standard starts: nothing else is pulled.
+      COMPOSE_PROFILES: db,redis,elasticsearch,minio,rabbitmq,report
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # bin/test.sh standard <part>: together, the parts run all of it.
+          - name: databox-functional-1
+            part: 'databox-functional:1/2'
+          - name: databox-functional-2
+            part: 'databox-functional:2/2'
+          - name: others
+            part: others
     steps:
-      - name: Install mkcert
-        run: |
-          sudo apt-get update
-          sudo apt-get install wget libnss3-tools
-          wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
-          sudo mv mkcert-v1.4.3-linux-amd64 /usr/bin/mkcert
-          sudo chmod +x /usr/bin/mkcert
-          mkcert -install
-
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v4
+      - name: Prepare the stack
+        uses: ./.github/actions/prepare-stack
         with:
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # The Keycloak and report-api images are not built here: they come from
-      # public.ecr.aws, whose anonymous pulls hit its rate and data limits on
-      # the shared GitHub runners. Logged in, the pulls are counted against the
-      # AWS account.
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
-          aws-region: us-east-1
-
-      - name: Login to Amazon ECR Public
-        id: login-ecr-public
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
-
-      - name: Pull images
-        run: |
-            docker compose pull
-            docker compose pull configurator
-
-      - name: Setup
-        if: "!contains(github.event.head_commit.message || '', '[skip test]')"
-        run: |
-          docker compose down --volumes
-          bin/dev/make-cert.sh
-          sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
-          bin/setup.sh test
+          services: databox-api-php expose-api-php uploader-api-php dockerize minio-setup
 
       - name: Test
-        if: "!contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip php-test]')"
-        run: bin/test.sh standard
-
-      - name: Run Cypress tests
-        if: "!contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip cypress]')"
-        run: bin/dev/test-cypress.sh
-
-      - name: Replay Doctrine migrations
-        if: env.TIER == 'release'
-        run: bin/dev/test-migrations.sh
-
-      - name: Indexer end-to-end
-        if: env.TIER == 'release'
-        run: |
-          docker compose --profile indexer pull databox-indexer
-          bin/dev/test-indexer-e2e.sh --timeout 300
+        env:
+          PART: ${{ matrix.part }}
+        run: bin/test.sh standard "${PART}"
 
       - name: Extract error output
         if: failure()
-        run: |
-          docker run -d --rm --name dummy -v ${COMPOSE_PROJECT_NAME}_cypress_output:/cypress/output alpine:3.14.8 tail -f /dev/null
-          rm -rf cypress-output
-          docker cp dummy:/cypress/output ./cypress-output
-          docker stop dummy
-          docker compose logs --no-color > docker-logs.log
-          docker compose down --volumes
+        run: docker compose logs --no-color > docker-logs.log
 
       - name: Upload output
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: phrasea-output
+          name: phrasea-output-php-${{ matrix.name }}
+          path: ./docker-logs.log
+          retention-days: 2
+
+  cypress:
+    name: 'Cypress (shard ${{ matrix.shard }}/${{ strategy.job-total }})'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs:
+      - build
+    if: ${{ !contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip cypress]') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # bin/dev/test-cypress.sh --shard <shard>/<number of shards>
+        shard: [1, 2, 3]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Prepare the stack
+        uses: ./.github/actions/prepare-stack
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
+          mkcert: 'true'
+
+      - name: Setup
+        run: |
+          docker compose down --volumes
+          bin/dev/make-cert.sh
+          sudo PHRASEA_DOMAIN="${PHRASEA_DOMAIN}" bin/dev/append-etc-hosts.sh
+          bin/setup.sh test
+
+      - name: Run Cypress tests
+        env:
+          SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
+        run: bin/dev/test-cypress.sh --shard "${SHARD}"
+
+      - name: Extract error output
+        if: failure()
+        run: |
+          docker run -d --rm --name dummy -v "${COMPOSE_PROJECT_NAME}_cypress_output:/cypress/output" alpine:3.14.8 tail -f /dev/null
+          rm -rf cypress-output
+          docker cp dummy:/cypress/output ./cypress-output
+          docker stop dummy
+          docker compose logs --no-color > docker-logs.log
+
+      - name: Upload output
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: phrasea-output-cypress-${{ matrix.shard }}
           path: |
             ./cypress-output/screenshots
             ./cypress-output/results
             ./docker-logs.log
           retention-days: 2
 
-      - name: Clean containers
-        if: ${{ always() }}
+  release-checks:
+    name: 'Release checks'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs:
+      - build
+    if: ${{ inputs.tier == 'release' && !contains(github.event.head_commit.message || '', '[skip test]') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Prepare the stack
+        uses: ./.github/actions/prepare-stack
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
+          mkcert: 'true'
+
+      - name: Setup
         run: |
           docker compose down --volumes
+          bin/dev/make-cert.sh
+          sudo PHRASEA_DOMAIN="${PHRASEA_DOMAIN}" bin/dev/append-etc-hosts.sh
+          bin/setup.sh test
+
+      - name: Replay Doctrine migrations
+        run: bin/dev/test-migrations.sh
+
+      - name: Indexer end-to-end
+        run: |
+          docker compose --profile indexer pull databox-indexer
+          # The indexer goes through the databox API: wait for it to be up.
+          docker compose up -d --wait databox-api-php databox-api-nginx --wait-timeout 200
+          bin/dev/test-indexer-e2e.sh --timeout 300
+
+      - name: Extract error output
+        if: failure()
+        run: docker compose logs --no-color > docker-logs.log
+
+      - name: Upload output
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: phrasea-output-release-checks
+          path: ./docker-logs.log
+          retention-days: 2
+
+  # ECR Public only receives tested images: this job waits for every test job
+  # and runs when none of them failed (or was cancelled, a timeout included).
+  # A skipped test job (release-checks outside the release tier, the [skip …]
+  # markers) does not hold it back.
+  push-ecr:
+    name: 'Push images to AWS ECR'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - build
+      - php-tests
+      - cypress
+      - release-checks
+    if: ${{ !cancelled() && needs.build.result == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Log in to GHCR and ECR Public
+        id: prepare
+        uses: ./.github/actions/prepare-stack
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
+          pull: 'false'
 
       - name: Compute image tag from ref
         env:
@@ -253,22 +336,16 @@ jobs:
             TAG="$(printf '%s' "$TAG" | cut -c1-120)-$(printf '%s' "$REF_NAME" | sha1sum | cut -c1-7)"
           fi
           echo "Ref \"$REF_NAME\" -> image tag \"$TAG\""
-          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
 
       - name: Push images to AWS ECR
         env:
+          ECR_REGISTRY: ${{ steps.prepare.outputs.ecr-registry }}
           REGISTRY_ALIAS: b2s9z7l1
         run: |
-          ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
-          docker compose --profile indexer pull databox-indexer
-          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
-            # Extract image name after ps- prefix
-            image_name="${repo##*/ps-}"
-            ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
-            docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ env.IMAGE_TAG }}"
-          done
+          # The images built by this run, configurator and databox-indexer included
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
-          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} bin/ci-push-images.sh
+          bin/ci-copy-images.sh "${ECR_REGISTRY}/${REGISTRY_ALIAS}/ps-" "${IMAGE_TAG}"
 
   # The documentation builder reads /srv/app/doc from the api-php and
   # configurator images of this run (GHCR, tagged with the commit sha), once
@@ -316,12 +393,16 @@ jobs:
 
   documentation:
     name: 'Trigger the documentation builder'
-    if: needs.documentation_requested.outputs.run == 'true'
+    # Same condition as push-ecr: no test job failed or was cancelled.
+    if: ${{ !cancelled() && needs.documentation_requested.outputs.run == 'true' && needs.build.result == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
       - documentation_requested
-      - setup
+      - build
+      - php-tests
+      - cypress
+      - release-checks
     steps:
       - name: Generate GitHub App token for documentation dispatch
         id: documentation-builder-app-token
