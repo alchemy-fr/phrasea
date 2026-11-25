@@ -64,6 +64,66 @@ class ApiClientTest extends TestCase
         $this->client->get('/publications');
 
         $this->assertFalse($this->kernel->lastRequest()->headers->has('Authorization'));
+        $this->assertFalse($this->kernel->lastRequest()->headers->has('Accept-Language'));
+    }
+
+    public function testSubRequestInheritsAcceptLanguageOfMainRequest(): void
+    {
+        $this->requestStack->push(Request::create('https://api-expose.example.com/mcp', 'POST', server: [
+            'HTTP_ACCEPT_LANGUAGE' => 'fr-FR,fr;q=0.9,en;q=0.8',
+        ]));
+        $this->kernel->willRespond([]);
+
+        $this->client->get('/publications');
+
+        $request = $this->kernel->lastRequest();
+        $this->assertSame('fr-FR,fr;q=0.9,en;q=0.8', $request->headers->get('Accept-Language'));
+        $this->assertSame('fr_FR', $request->getPreferredLanguage());
+    }
+
+    public function testSubRequestWithoutAcceptLanguage(): void
+    {
+        $mainRequest = Request::create('https://api-expose.example.com/mcp', 'POST');
+        $mainRequest->headers->remove('Accept-Language');
+        $this->requestStack->push($mainRequest);
+        $this->kernel->willRespond([]);
+
+        $this->client->get('/publications');
+
+        $this->assertFalse($this->kernel->lastRequest()->headers->has('Accept-Language'));
+    }
+
+    public function testWritesWrapScalarResponses(): void
+    {
+        $this->kernel
+            ->willRespond(true)
+            ->willRespond(false)
+            ->willRespond('done')
+            ->willRespond(3);
+
+        $this->assertSame(['result' => true], $this->client->post('/publications/1/check'));
+        $this->assertSame(['result' => false], $this->client->put('/publications/1/check'));
+        $this->assertSame(['result' => 'done'], $this->client->patch('/publications/1', ['title' => 'Foo']));
+        $this->assertSame(['result' => 3], $this->client->post('/publications/count'));
+    }
+
+    public function testWritesReturnEmptyArrayOnEmptyResponse(): void
+    {
+        $this->kernel
+            ->willRespond(null, 204)
+            ->willRespond(null, 204)
+            ->willRespond(null, 200);
+
+        $this->assertSame([], $this->client->post('/publications/1/sort'));
+        $this->assertSame([], $this->client->put('/collections/1/move/2'));
+        $this->assertSame([], $this->client->patch('/publications/1', ['title' => 'Foo']));
+    }
+
+    public function testWritesKeepListResponses(): void
+    {
+        $this->kernel->willRespond([['id' => '1'], ['id' => '2']]);
+
+        $this->assertSame([['id' => '1'], ['id' => '2']], $this->client->post('/assets/multiple'));
     }
 
     public function testGetReturnsScalarResponses(): void

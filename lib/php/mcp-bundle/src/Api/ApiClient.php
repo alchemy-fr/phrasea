@@ -57,17 +57,17 @@ final readonly class ApiClient
 
     public function post(string $path, array $body = []): array
     {
-        return (array) $this->request(Request::METHOD_POST, $path, body: $body);
+        return self::toArray($this->request(Request::METHOD_POST, $path, body: $body));
     }
 
     public function put(string $path, array $body = []): array
     {
-        return (array) $this->request(Request::METHOD_PUT, $path, body: $body);
+        return self::toArray($this->request(Request::METHOD_PUT, $path, body: $body));
     }
 
     public function patch(string $path, array $body): array
     {
-        return (array) $this->request(Request::METHOD_PATCH, $path, body: $body);
+        return self::toArray($this->request(Request::METHOD_PATCH, $path, body: $body));
     }
 
     public function delete(string $path): void
@@ -113,6 +113,14 @@ final readonly class ApiClient
             content: null !== $body ? json_encode($body, JSON_THROW_ON_ERROR) : null,
         );
 
+        // Request::create() sends a default "Accept-Language: en-us": the API must see the one of the MCP client, or none.
+        $acceptLanguage = $mainRequest?->headers->get('Accept-Language');
+        if (null !== $acceptLanguage) {
+            $subRequest->headers->set('Accept-Language', $acceptLanguage);
+        } else {
+            $subRequest->headers->remove('Accept-Language');
+        }
+
         $response = $this->httpKernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
         $content = (string) $response->getContent();
         $data = '' !== $content ? json_decode($content, true) : null;
@@ -154,5 +162,18 @@ final readonly class ApiClient
         }
 
         return $result;
+    }
+
+    /**
+     * The write tools return a structured result to the model: a scalar response (e.g. `true`) is
+     * wrapped under "result", and an empty response (204) gives an empty array.
+     */
+    private static function toArray(mixed $data): array
+    {
+        if (null === $data) {
+            return [];
+        }
+
+        return is_array($data) ? $data : ['result' => $data];
     }
 }

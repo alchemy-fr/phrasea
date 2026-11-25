@@ -18,10 +18,15 @@ internal **sub-request** to the REST API of the application (`HttpKernelInterfac
 ACL, Doctrine extensions, validation, persistence and normalization are exactly those of the API clients.
 
 - The firewall only authenticates the main request (`/mcp`): sub-requests inherit its security token. The
-  sub-request also gets the host, scheme and `Authorization` header of the MCP request.
-- `get()`, `post()`, `put()`, `patch()` (sent as `application/merge-patch+json`) and `delete()` return the decoded
-  JSON response; `getCollection()` asks for JSON-LD and returns `{items, totalItems, page, hasNextPage}`, plus the
-  top-level keys given in `$extraKeys` (e.g. `facets`).
+  sub-request also gets the host, scheme, `Authorization` and `Accept-Language` headers of the MCP request, so that
+  the translated labels (e.g. of the forms) and the generated URLs follow the language of the MCP client (without
+  that header, the sub-request has none either and the API falls back to its default locale).
+- `get()` returns the decoded JSON response, scalar values included (e.g. `true`); `getCollection()` asks for
+  JSON-LD and returns `{items, totalItems, page, hasNextPage}`, plus the top-level keys given in `$extraKeys`
+  (e.g. `facets`).
+- `post()`, `put()` and `patch()` (sent as `application/merge-patch+json`) always return an array: the decoded JSON
+  response, `['result' => <value>]` when the API answers a scalar (e.g. `true`), and `[]` on an empty response
+  (`204`). `delete()` returns nothing.
 - JSON-LD metadata (`@id`, `@type`, `@context`) and debug data (`debug:…` keys) are removed from the responses.
 - An error response becomes a `ToolCallException` whose message is reported to the model:
   `<api_name> API responded <status>: <violations or detail>`.
