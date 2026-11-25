@@ -12,12 +12,13 @@ const nav = vi.hoisted(() => ({
     pathname: '/assets',
     search: '',
     push: vi.fn(),
+    prefetch: vi.fn(),
 }));
 
 vi.mock('next/navigation', () => ({
     usePathname: () => nav.pathname,
     useSearchParams: () => new URLSearchParams(nav.search),
-    useRouter: () => ({push: nav.push}),
+    useRouter: () => ({push: nav.push, prefetch: nav.prefetch}),
 }));
 
 function Closer({

@@ -13,6 +13,7 @@ import {
     useState,
 } from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {PrefetchKind} from 'next/dist/client/components/router-reducer/router-reducer-types';
 import {Dialog, DialogContent, DialogSize} from '@alchemy/next-ui/ui/dialog';
 import {modalExitDuration} from '@alchemy/next-ui/modals/ModalProvider';
 import {pathOf, RouteOrigins} from './routeOrigins';
@@ -128,6 +129,14 @@ export function useCloseRoute(screen?: string): () => void {
     const openedFrom = useOpenedFrom(screen);
     // Inside a dialog: only its own forms are lost
     const scope = useContext(UnsavedChangesScope);
+
+    // The payload the client router kept for the screen underneath is not
+    // reliably there any more once that screen came from a client navigation
+    // (a search): closing would wait for a server round trip, behind the
+    // navigation progress bar. A full prefetch has it ready.
+    useEffect(() => {
+        router.prefetch(openedFrom, {kind: PrefetchKind.FULL});
+    }, [router, openedFrom]);
 
     return useCallback(
         () =>

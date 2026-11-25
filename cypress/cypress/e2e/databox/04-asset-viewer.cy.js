@@ -80,8 +80,23 @@ describe('Asset viewer', () => {
 
         search('Charlie');
         waitForResults(1);
+        // Search screen pushed by the search: the viewer prefetches it in full
+        cy.intercept(
+            {
+                method: 'GET',
+                hostname: new URL(databoxUrl).hostname,
+                pathname: '/assets',
+                query: {q: 'Charlie'},
+                headers: {rsc: '1'},
+            },
+            req => {
+                if (!isPrefetchRequest(req)) {
+                    req.alias = 'searchScreenPrefetch';
+                }
+            }
+        );
         openAsset('Charlie');
-        // Search screen pushed by the search
+        cy.wait('@searchScreenPrefetch');
         closeViewerFromCache(() => cy.getBySel('asset-view').find('[aria-label="Close"]').click());
         cy.url().should('include', 'q=Charlie');
         cy.getBySel('search-input').should('have.value', 'Charlie');
@@ -238,7 +253,7 @@ function closeViewerFromCache(close) {
             headers: {rsc: '1'},
         },
         req => {
-            if (!req.headers['next-router-prefetch'] && !req.headers['next-router-segment-prefetch']) {
+            if (!isPrefetchRequest(req)) {
                 requests.push(req.url);
             }
         }
@@ -248,6 +263,14 @@ function closeViewerFromCache(close) {
     cy.then(() => {
         expect(requests, 'RSC requests for the search screen').to.be.empty;
     });
+}
+
+/**
+ * Prefetch of a link in view. A full prefetch (`router.prefetch` with
+ * `kind: full`) carries no such header: it looks like a navigation.
+ */
+function isPrefetchRequest(req) {
+    return !!req.headers['next-router-prefetch'] || !!req.headers['next-router-segment-prefetch'];
 }
 
 function resetPanelTabs() {

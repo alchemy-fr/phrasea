@@ -11,6 +11,7 @@ import {useRoutePath} from '@/lib/navigation/routePath';
 const nav = vi.hoisted(() => ({
     pathname: '/workspaces/1/manage/info',
     push: vi.fn(),
+    prefetch: vi.fn(),
     // Stable, like Next's own
     router: {} as {push: unknown},
     renders: {info: 0, entities: 0} as Record<string, number>,
@@ -19,7 +20,8 @@ const nav = vi.hoisted(() => ({
 vi.mock('next/navigation', () => ({
     usePathname: () => nav.pathname,
     useSearchParams: () => new URLSearchParams(),
-    useRouter: () => Object.assign(nav.router, {push: nav.push}),
+    useRouter: () =>
+        Object.assign(nav.router, {push: nav.push, prefetch: nav.prefetch}),
 }));
 
 type Props = {name: string};
