@@ -11,6 +11,9 @@ use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Target;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -19,6 +22,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use Symfony\Component\Form\Event\PostSubmitEvent;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvents;
 
 class TargetCrudController extends AbstractAdminCrudController
 {
@@ -34,6 +41,32 @@ class TargetCrudController extends AbstractAdminCrudController
             ->setEntityLabelInPlural('Targets')
             ->setDefaultSort(['createdAt' => 'DESC'])
             ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'authorizationScheme', 'allowedGroups']);
+    }
+
+    public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        return self::setAuthorizationKeyOnSubmit(parent::createNewFormBuilder($entityDto, $formOptions, $context));
+    }
+
+    public function createEditFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        return self::setAuthorizationKeyOnSubmit(parent::createEditFormBuilder($entityDto, $formOptions, $context));
+    }
+
+    /**
+     * The authorization key field is never filled with the saved key: an empty one keeps it. Set before the validation
+     * of the target.
+     */
+    private static function setAuthorizationKeyOnSubmit(FormBuilderInterface $builder): FormBuilderInterface
+    {
+        return $builder->addEventListener(FormEvents::POST_SUBMIT, static function (PostSubmitEvent $event): void {
+            $form = $event->getForm();
+            $target = $form->getData();
+            $key = $form->has('authorizationKey') ? $form->get('authorizationKey')->getData() : null;
+            if ($target instanceof Target && is_string($key) && '' !== $key) {
+                $target->setAuthorizationKey($key);
+            }
+        }, 1);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -65,6 +98,9 @@ class TargetCrudController extends AbstractAdminCrudController
             ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "'.AssetConsumerNotifyHandler::DEFAULT_AUTHORIZATION_SCHEME.'"']])
             ->onlyOnForms();
         yield TextField::new('authorizationKey')
+            ->setFormType(PasswordType::class)
+            ->setFormTypeOptions(['mapped' => false, 'required' => false, 'always_empty' => true, 'attr' => ['autocomplete' => 'new-password']])
+            ->setHelp('Never shown. Leave empty to keep the current key; it is removed when the target URL moves to another host (scheme, host or port) without a new key.')
             ->onlyOnForms();
         yield TextField::new('defaultDestination')
             ->setHelp('i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)')

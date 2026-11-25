@@ -116,6 +116,53 @@ class AdminTest extends AbstractAdminTestCase
         $this->assertStringContainsString($commit->getId(), (string) $row->filter('a')->attr('href'));
     }
 
+    public function testTargetAuthorizationKeyIsNeverShown(): void
+    {
+        $key = 'k3y-n0t-sh0wn';
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $target = new Target();
+        $target->setName('Keyed target');
+        $target->setTargetUrl('https://example.com/upload');
+        $target->setAuthorizationKey($key);
+        $em->persist($target);
+        $em->flush();
+        $id = $target->getId();
+
+        $this->client->loginUser($this->getAuthAdminUser(), 'admin');
+        $editUrl = static::getContainer()->get('router')->generate('easyadmin_target_edit', ['entityId' => $id]);
+
+        $crawler = $this->client->request('GET', $editUrl);
+        $this->assertResponseIsSuccessful();
+        $input = $crawler->filter('input[name="Target[authorizationKey]"]');
+        $this->assertSame('password', $input->attr('type'));
+        $this->assertSame('', (string) $input->attr('value'));
+        $this->assertStringNotContainsString($key, (string) $this->client->getResponse()->getContent());
+
+        $getKey = function () use ($id): ?string {
+            $em = static::getContainer()->get(EntityManagerInterface::class);
+            $em->clear();
+
+            return $em->find(Target::class, $id)->getAuthorizationKey();
+        };
+        $save = function (array $values) use ($editUrl): void {
+            $crawler = $this->client->request('GET', $editUrl);
+            $this->client->submit($crawler->selectButton('Save changes')->form(), $values);
+            $this->assertResponseRedirects();
+        };
+
+        $save(['Target[name]' => 'Renamed', 'Target[targetUrl]' => 'https://example.com/other-path']);
+        $this->assertSame($key, $getKey());
+
+        $save(['Target[authorizationKey]' => 'new-key']);
+        $this->assertSame('new-key', $getKey());
+
+        $save(['Target[targetUrl]' => 'https://elsewhere.example.com/upload']);
+        $this->assertNull($getKey());
+
+        $save(['Target[targetUrl]' => 'https://example.com/upload', 'Target[authorizationKey]' => 'moved-key']);
+        $this->assertSame('moved-key', $getKey());
+    }
+
     public function testRealtimePage(): void
     {
         $this->doTestRealtimePage();
