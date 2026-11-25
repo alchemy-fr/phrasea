@@ -34,6 +34,7 @@ class FileUtilTest extends TestCase
             ['video/x-ms-wmv', 'wmv'],
             ['video/x-ms-wmv', 'WMV'],
             ['video/mp4', 'mp4'],
+            ['image/vnd.adobe.photoshop', 'psb'],
             ['audio/x-ms-wma', 'wma'],
             [null, 'unknownext'],
             [null, null],

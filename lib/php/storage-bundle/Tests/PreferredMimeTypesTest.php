@@ -31,6 +31,7 @@ class PreferredMimeTypesTest extends TestCase
         yield ['WMV', ['video/x-ms-wmv', 'audio/x-ms-wmv']];
         yield ['wma', ['audio/x-ms-wma', 'audio/wma']];
         yield ['mp4', ['video/mp4', 'application/mp4', 'video/mp4v-es', 'video/x-m4v']];
+        yield ['psb', ['image/vnd.adobe.photoshop', 'application/vnd.3gpp.pic-bw-small']];
         yield ['jpg', ['image/jpeg', 'image/pjpeg']];
         yield ['unknownext', []];
     }
