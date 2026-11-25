@@ -32,6 +32,7 @@ wait_for_es() {
 
 wait_for_es
 
+php -d memory_limit=1G "${BASEDIR}/console" cache:clear --no-debug
 "${BASEDIR}/console" doctrine:database:create --if-not-exists
 "${BASEDIR}/console" app:database:configure
 "${BASEDIR}/console" doctrine:schema:update -f
