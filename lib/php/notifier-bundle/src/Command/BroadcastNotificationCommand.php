@@ -23,6 +23,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 final class BroadcastNotificationCommand extends Command
 {
+    /**
+     * An attribute only takes a constant expression: the channel list is kept in sync with ChannelType by a test.
+     */
+    public const string CHANNEL_DESCRIPTION = 'Restrict delivery to those channels (email, sms, in_app)';
+
     public function __construct(
         private readonly NotifierManager $notifier,
         private readonly UserDirectoryRegistry $directoryRegistry,
@@ -39,7 +44,7 @@ final class BroadcastNotificationCommand extends Command
         string $topic,
         #[Argument('JSON template parameters')]
         string $payload = '{}',
-        #[Option('Restrict delivery to those channels', name: 'channel', shortcut: 'c', suggestedValues: [ChannelType::class, 'values'])]
+        #[Option(self::CHANNEL_DESCRIPTION, name: 'channel', shortcut: 'c', suggestedValues: [ChannelType::class, 'values'])]
         array $channels = [],
         #[Option('User directory to broadcast to', shortcut: 'a')]
         ?string $audience = null,
