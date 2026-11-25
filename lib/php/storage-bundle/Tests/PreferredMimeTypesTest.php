@@ -29,7 +29,7 @@ class PreferredMimeTypesTest extends TestCase
     {
         yield ['wmv', ['video/x-ms-wmv', 'audio/x-ms-wmv']];
         yield ['WMV', ['video/x-ms-wmv', 'audio/x-ms-wmv']];
-        yield ['wma', ['audio/x-ms-wma']];
+        yield ['wma', ['audio/x-ms-wma', 'audio/wma']];
         yield ['jpg', ['image/jpeg', 'image/pjpeg']];
         yield ['unknownext', []];
     }

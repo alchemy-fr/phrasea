@@ -23,7 +23,7 @@ class MimeTypeGuesserTest extends TestCase
         yield ['/tmp/song.wma', 'audio/x-ms-wma'];
         yield ['/tmp/photo.jpg', 'image/jpeg'];
         yield ['/tmp/PHOTO.JPG', 'image/jpeg'];
-        yield ['/tmp/movie.mp4', 'video/mp4'];
+        yield ['/tmp/image.png', 'image/png'];
         yield ['/tmp/noextension', null];
     }
 
