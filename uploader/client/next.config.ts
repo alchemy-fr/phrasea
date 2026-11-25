@@ -29,6 +29,21 @@ const nextConfig: NextConfig = {
         optimizePackageImports: ['lucide-react', 'radix-ui'],
     },
     turbopack: {},
+    // The former Form Editor and Target Data Editor pages, kept for bookmarks
+    async redirects() {
+        return ['forms', 'target-data'].flatMap(page => [
+            {
+                source: `/admin/${page}`,
+                destination: '/admin/targets',
+                permanent: true,
+            },
+            {
+                source: `/admin/${page}/:targetId`,
+                destination: '/admin/targets/:targetId',
+                permanent: true,
+            },
+        ]);
+    },
     // Workspace libraries are shipped as TypeScript sources
     transpilePackages: [
         '@alchemy/api',
