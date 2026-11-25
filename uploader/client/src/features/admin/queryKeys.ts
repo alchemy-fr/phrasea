@@ -6,3 +6,6 @@ export const targetFormQueryKey = (targetId: string) =>
 
 export const targetDataQueryKey = (targetId: string) =>
     [...targetsQueryKey, targetId, 'data'] as const;
+
+export const targetSettingsQueryKey = (targetId: string) =>
+    [...targetsQueryKey, targetId, 'settings'] as const;

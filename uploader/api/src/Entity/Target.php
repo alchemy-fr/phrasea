@@ -38,8 +38,17 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
-        new Patch(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new Patch(
+            security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")',
+            normalizationContext: ['groups' => [self::GROUP_INDEX, self::GROUP_ADMIN]],
+        ),
         new Post(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new Get(
+            uriTemplate: '/targets/{id}/settings',
+            security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")',
+            normalizationContext: ['groups' => [self::GROUP_INDEX, self::GROUP_ADMIN]],
+            name: 'get_target_settings',
+        ),
         new Get(
             uriTemplate: '/targets/{id}/form',
             name: 'get_target_form',
@@ -99,6 +108,10 @@ class Target extends AbstractUuidEntity implements \Stringable
     final public const string GROUP_INDEX = 'target:i';
     final public const string GROUP_READ = 'target:r';
     public const string GROUP_WRITE = 'target:w';
+    /**
+     * The settings only the admins read: the authorization key is never read back.
+     */
+    final public const string GROUP_ADMIN = 'target:admin';
 
     #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
@@ -126,17 +139,17 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[Assert\Length(max: 255)]
     #[Assert\Url]
     #[SecureTargetUrl]
-    #[Groups([self::GROUP_WRITE])]
+    #[Groups([self::GROUP_WRITE, self::GROUP_ADMIN])]
     private ?string $targetUrl = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
-    #[Groups([self::GROUP_WRITE])]
+    #[Groups([self::GROUP_WRITE, self::GROUP_ADMIN])]
     private ?string $defaultDestination = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
-    #[Groups([self::GROUP_WRITE])]
+    #[Groups([self::GROUP_WRITE, self::GROUP_ADMIN])]
     private ?string $authorizationScheme = null;
 
     #[ORM\Column(type: Types::STRING, length: 2000, nullable: true)]
@@ -145,10 +158,11 @@ class Target extends AbstractUuidEntity implements \Stringable
     private ?string $authorizationKey = null;
 
     /**
-     * Null value allows everyone.
+     * The IDs of the Keycloak groups allowed to upload; null allows everyone.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups([self::GROUP_WRITE])]
+    #[Assert\All([new Assert\Type('string')])]
+    #[Groups([self::GROUP_WRITE, self::GROUP_ADMIN])]
     private ?array $allowedGroups = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
@@ -194,6 +208,12 @@ class Target extends AbstractUuidEntity implements \Stringable
         $this->authorizationKey = $authorizationKey;
     }
 
+    #[Groups([self::GROUP_ADMIN])]
+    public function getHasAuthorizationKey(): bool
+    {
+        return null !== $this->authorizationKey && '' !== $this->authorizationKey;
+    }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -219,9 +239,12 @@ class Target extends AbstractUuidEntity implements \Stringable
         return $this->allowedGroups;
     }
 
+    /**
+     * No group is no restriction: stored as null.
+     */
     public function setAllowedGroups(?array $allowedGroups): void
     {
-        $this->allowedGroups = $allowedGroups;
+        $this->allowedGroups = [] === $allowedGroups ? null : $allowedGroups;
     }
 
     /**

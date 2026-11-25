@@ -28,6 +28,11 @@ export type GroupsApi = {
         limit: number,
         signal?: AbortSignal
     ) => Promise<KeycloakGroup[]>;
+    /** The groups of these ids; the unknown ones are left out */
+    getGroupsByIds: (
+        ids: string[],
+        signal?: AbortSignal
+    ) => Promise<KeycloakGroup[]>;
     /** Creates a top level group */
     createGroup: (name: string) => Promise<KeycloakGroup>;
     renameGroup: (id: string, name: string) => Promise<KeycloakGroup>;
@@ -57,7 +62,7 @@ export const GROUPS_PAGE_SIZE = 30;
 export const groupsQueryKey = ['keycloak-groups'] as const;
 
 /**
- * Query key of the group pickers of the clients (`GroupSelect` of databox):
+ * Query key of the group pickers of the clients (`GroupSelect`):
  * stale as soon as a group is created, renamed or deleted.
  */
 export const groupPickerQueryKey = ['groups'] as const;

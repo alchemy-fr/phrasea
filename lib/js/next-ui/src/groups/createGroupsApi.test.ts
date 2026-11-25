@@ -76,6 +76,41 @@ describe('createGroupsApi', () => {
         );
     });
 
+    it('resolves the groups by ids, 50 at most per call', async () => {
+        const http = {
+            ...fakeHttp(),
+            get: vi.fn(async (_path: string, params: {ids: string[]}) =>
+                params.ids.map(id => ({id, name: id}))
+            ),
+        };
+        const api = createGroupsApi(http as unknown as GroupsHttp);
+        const ids = Array.from({length: 51}, (_, i) => `g${i}`);
+
+        const groups = await api.getGroupsByIds(ids);
+
+        expect(groups.map(g => g.id)).toEqual(ids);
+        expect(http.get).toHaveBeenCalledTimes(2);
+        expect(http.get).toHaveBeenNthCalledWith(
+            1,
+            '/permissions/groups',
+            {ids: ids.slice(0, 50)},
+            undefined
+        );
+        expect(http.get).toHaveBeenNthCalledWith(
+            2,
+            '/permissions/groups',
+            {ids: ['g50']},
+            undefined
+        );
+    });
+
+    it('resolves no id without a call', async () => {
+        const http = fakeHttp();
+
+        expect(await create(http).getGroupsByIds([])).toEqual([]);
+        expect(http.get).not.toHaveBeenCalled();
+    });
+
     it('encodes the ids in the paths', async () => {
         const http = fakeHttp();
 

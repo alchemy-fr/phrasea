@@ -24,7 +24,9 @@ export function createDataboxGroupsApi(apiUrl: string): GroupsApi {
     ): Promise<T> => {
         const url = new URL(`${apiUrl.replace(/\/+$/, '')}${path}`);
         Object.entries(params ?? {}).forEach(([key, value]) => {
-            if (value !== undefined) {
+            if (Array.isArray(value)) {
+                value.forEach(v => url.searchParams.append(`${key}[]`, v));
+            } else if (value !== undefined) {
                 url.searchParams.set(key, String(value));
             }
         });

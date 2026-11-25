@@ -92,7 +92,7 @@ export function TopBar() {
                         testId="nav-targets"
                         active={pathname.startsWith(routes.targets())}
                         icon={<TargetIcon />}
-                        label={t('nav.target_editor', 'Target Editor')}
+                        label={t('nav.targets', 'Targets')}
                     />
                 ) : null}
                 {me?.permissions.upload_link ? (

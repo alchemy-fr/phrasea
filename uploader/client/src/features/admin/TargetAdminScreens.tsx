@@ -17,25 +17,35 @@ import {
 import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
 import {Page} from '@/components/layout/AppShell';
-import {getTarget, getTargetData, getTargetForm} from '@/lib/api/uploader';
+import {
+    getTarget,
+    getTargetData,
+    getTargetForm,
+    getTargetSettings,
+} from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';
 import {useUploaderUser} from '@/features/user/useUploaderUser';
 import {
+    AdminBreadcrumb,
     AdminTargetList,
     type AdminTargetBadge,
-    BackToList,
 } from './AdminTargetList';
 import {FormBuilderEditor} from './FormBuilderEditor';
-import {targetDataQueryKey, targetFormQueryKey} from './queryKeys';
+import {
+    targetDataQueryKey,
+    targetFormQueryKey,
+    targetSettingsQueryKey,
+} from './queryKeys';
 import {RequirePermission} from './RequirePermission';
 import {TargetCreateDialog} from './TargetCreateDialog';
 import {TargetDataEditor} from './TargetDataEditor';
+import {TargetPropertiesEditor} from './TargetPropertiesEditor';
 
 /** Either permission opens the target editor, on the settings it grants */
 const TARGET_PERMISSIONS = ['form_schema', 'target_data'] as const;
 
-type Tab = 'form' | 'data';
+type Tab = 'properties' | 'form' | 'data';
 
 export function TargetAdminListScreen() {
     return (
@@ -95,7 +105,7 @@ function TargetAdminList() {
 
 export function TargetAdminEditScreen({targetId}: {targetId: string}) {
     return (
-        <RequirePermission permission={[...TARGET_PERMISSIONS]}>
+        <RequirePermission permission={[...TARGET_PERMISSIONS, 'target']}>
             <TargetAdminEdit targetId={targetId} />
         </RequirePermission>
     );
@@ -104,14 +114,24 @@ export function TargetAdminEditScreen({targetId}: {targetId: string}) {
 function TargetAdminEdit({targetId}: {targetId: string}) {
     const {t} = useTranslation();
     const {data: me} = useUploaderUser();
+    const canProps = !!me?.permissions.target;
     const canForm = !!me?.permissions.form_schema;
     const canData = !!me?.permissions.target_data;
-    const [tab, setTab] = useState<Tab>(canForm ? 'form' : 'data');
+    // The first editor the user may open
+    const [tab, setTab] = useState<Tab>(
+        canProps ? 'properties' : canForm ? 'form' : 'data'
+    );
     // A new form editor once the form is deleted
     const [round, setRound] = useState(0);
     const target = useQuery({
         queryKey: [...targetsQueryKey, targetId],
         queryFn: () => getTarget(targetId),
+    });
+    const settings = useQuery({
+        queryKey: targetSettingsQueryKey(targetId),
+        queryFn: () => getTargetSettings(targetId),
+        staleTime: 0,
+        enabled: canProps,
     });
     const form = useQuery({
         queryKey: targetFormQueryKey(targetId),
@@ -129,22 +149,40 @@ function TargetAdminEdit({targetId}: {targetId: string}) {
     // The editors start from what is saved, never from a cached copy
     if (
         target.isPending ||
+        (canProps && (settings.isPending || !settings.isFetchedAfterMount)) ||
         (canForm && (form.isPending || !form.isFetchedAfterMount)) ||
         (canData && (data.isPending || !data.isFetchedAfterMount))
     ) {
         return <FullPageLoader />;
     }
-    if (target.error || form.error || data.error) {
+    if (target.error || settings.error || form.error || data.error) {
         return (
             <Page>
                 <Alert variant="destructive">
-                    {getErrorMessage(target.error ?? form.error ?? data.error)}
+                    {getErrorMessage(
+                        target.error ??
+                            settings.error ??
+                            form.error ??
+                            data.error
+                    )}
                 </Alert>
             </Page>
         );
     }
 
     const editors: {value: Tab; label: string; content: ReactNode}[] = [];
+    if (canProps && settings.data) {
+        editors.push({
+            value: 'properties',
+            label: t('admin.target.tab_properties', 'Properties'),
+            content: (
+                <TargetPropertiesEditor
+                    targetId={targetId}
+                    settings={settings.data}
+                />
+            ),
+        });
+    }
     if (canForm) {
         editors.push({
             value: 'form',
@@ -178,7 +216,13 @@ function TargetAdminEdit({targetId}: {targetId: string}) {
             title={t('admin.target.edit', 'Edit {{target}}', {
                 target: target.data.name,
             })}
-            actions={<BackToList href={routes.targets()} />}
+            breadcrumb={
+                <AdminBreadcrumb
+                    href={routes.targets()}
+                    label={t('nav.targets', 'Targets')}
+                    current={target.data.name}
+                />
+            }
             wide
         >
             {editors.length === 1 ? (
@@ -196,7 +240,7 @@ function TargetAdminEdit({targetId}: {targetId: string}) {
                             </TabsTrigger>
                         ))}
                     </TabsList>
-                    {/* Both stay mounted: switching tabs keeps unsaved changes */}
+                    {/* All stay mounted: switching tabs keeps unsaved changes */}
                     {editors.map(editor => (
                         <TabsContent
                             key={editor.value}

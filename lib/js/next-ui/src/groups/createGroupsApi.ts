@@ -1,6 +1,10 @@
 import type {GroupMember, GroupsApi, KeycloakGroup} from './types';
 
-export type GroupsSearchParams = Record<string, string | number | undefined>;
+/** An array goes out as `key[]=…`, the way Symfony reads it */
+export type GroupsSearchParams = Record<
+    string,
+    string | number | string[] | undefined
+>;
 
 /**
  * The HTTP calls the groups management needs, authenticated as the user and
@@ -19,6 +23,9 @@ export type GroupsHttp = {
 };
 
 const groupsPath = '/permissions/groups';
+
+/** The most groups `/permissions/groups` resolves by ids at once */
+const GROUPS_IDS_LIMIT = 50;
 
 function groupPath(id: string): string {
     return `${groupsPath}/${encodeURIComponent(id)}`;
@@ -44,6 +51,24 @@ export function createGroupsApi(http: GroupsHttp): GroupsApi {
                 pageParams(query, offset, limit),
                 signal
             ),
+        getGroupsByIds: async (ids, signal) => {
+            const chunks: string[][] = [];
+            for (let i = 0; i < ids.length; i += GROUPS_IDS_LIMIT) {
+                chunks.push(ids.slice(i, i + GROUPS_IDS_LIMIT));
+            }
+
+            return (
+                await Promise.all(
+                    chunks.map(chunk =>
+                        http.get<KeycloakGroup[]>(
+                            groupsPath,
+                            {ids: chunk},
+                            signal
+                        )
+                    )
+                )
+            ).flat();
+        },
         createGroup: name => http.post<KeycloakGroup>(groupsPath, {name}),
         renameGroup: (id, name) =>
             http.put<KeycloakGroup>(groupPath(id), {name}),

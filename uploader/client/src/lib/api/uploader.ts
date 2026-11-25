@@ -7,6 +7,7 @@ import type {
     Target,
     TargetData,
     TargetInput,
+    TargetSettings,
     UploadedAsset,
     UploaderUser,
 } from '@/types/api';
@@ -80,6 +81,19 @@ export function getTarget(id: string, opts?: RequestOptions): Promise<Target> {
 
 export function createTarget(input: TargetInput): Promise<Target> {
     return api.post<Target>('/targets', input);
+}
+
+/** The target with the settings only the admins read */
+export function getTargetSettings(id: string): Promise<TargetSettings> {
+    return api.get<TargetSettings>(`/targets/${id}/settings`);
+}
+
+/** Changes the properties sent, leaving the others as they are */
+export function updateTarget(
+    id: string,
+    input: Partial<TargetInput>
+): Promise<TargetSettings> {
+    return api.patch<TargetSettings>(`/targets/${id}`, input);
 }
 
 /** The form of the target, null when it has none */

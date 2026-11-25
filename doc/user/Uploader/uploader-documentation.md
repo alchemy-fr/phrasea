@@ -121,9 +121,11 @@ In Push mode, the operation of the Uploader with Phraseanet is identical in mech
 
 ### Target editor
 
-In the Uploader client interface: “Target Editor” menu. The list shows, for each target, whether it has a form and data. Click on a Target to edit it: its page has a “Form” tab and a “Data” tab, each with its own “Save” button. Switching tabs keeps unsaved changes.
+In the Uploader client interface: “Targets” menu. The list shows, for each target, whether it has a form and data. Click on a Target to edit it: its page has a “Properties” tab, a “Form” tab and a “Data” tab, each with its own “Save” button. Switching tabs keeps unsaved changes. The breadcrumb above the title leads back to the list.
 
-Each tab requires its own permission: the form one (form edition) or the data one (target data edition). A user who has only one of them sees only that tab.
+Each tab requires its own permission: the Properties one is for the administrators, the Form one requires the form edition permission and the Data one the target data edition permission. A user who has only one of them sees only that tab.
+
+The “Properties” tab sets the name, slug, description, target URL (empty for the pull mode), authorization scheme and key (push mode only), default destination and allowed groups (empty to allow every user) of the target. The authorization key is never shown: leave the field empty to keep it.
 
 ### Form tab
 

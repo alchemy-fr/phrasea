@@ -34,6 +34,90 @@ class TargetWriteTest extends AbstractUploaderTestCase
         $this->assertNull($data['description'] ?? null);
     }
 
+    public function testAdminReadsTheSettingsOfATarget(): void
+    {
+        $token = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
+        $id = $this->createTargetWithSettings($token);
+
+        $response = $this->request($token, 'GET', '/targets/'.$id.'/settings');
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = $response->toArray();
+        $this->assertSame('Pushed', $data['name']);
+        $this->assertSame('https://example.com/upload', $data['targetUrl']);
+        $this->assertSame('my-collection', $data['defaultDestination']);
+        $this->assertSame('OAuth', $data['authorizationScheme']);
+        $this->assertSame(['group-a', 'group-b'], $data['allowedGroups']);
+        $this->assertTrue($data['hasAuthorizationKey']);
+        $this->assertArrayNotHasKey('authorizationKey', $data);
+
+        $response = $this->request($token, 'GET', '/targets/'.$id);
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = $response->toArray();
+        foreach (['targetUrl', 'defaultDestination', 'authorizationScheme', 'allowedGroups', 'hasAuthorizationKey', 'authorizationKey'] as $key) {
+            $this->assertArrayNotHasKey($key, $data);
+        }
+    }
+
+    public function testUserCannotReadNorUpdateTheSettingsOfATarget(): void
+    {
+        $id = $this->createTargetWithSettings(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID));
+        $userToken = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID);
+
+        $response = $this->request($userToken, 'GET', '/targets/'.$id.'/settings');
+        $this->assertEquals(403, $response->getStatusCode());
+
+        $response = $this->request($userToken, 'PATCH', '/targets/'.$id, [
+            'name' => 'Hijacked',
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    public function testPatchKeepsTheAuthorizationKeyUnlessRemoved(): void
+    {
+        $token = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
+        $id = $this->createTargetWithSettings($token);
+
+        $response = $this->request($token, 'PATCH', '/targets/'.$id, [
+            'name' => 'Renamed',
+            'allowedGroups' => ['group-c'],
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = $response->toArray();
+        $this->assertSame('Renamed', $data['name']);
+        $this->assertSame('https://example.com/upload', $data['targetUrl']);
+        $this->assertSame(['group-c'], $data['allowedGroups']);
+        $this->assertTrue($data['hasAuthorizationKey']);
+        $this->assertArrayNotHasKey('authorizationKey', $data);
+
+        $data = $this->request($token, 'GET', '/targets/'.$id.'/settings')->toArray();
+        $this->assertSame(['group-c'], $data['allowedGroups']);
+        $this->assertTrue($data['hasAuthorizationKey']);
+
+        $response = $this->request($token, 'PATCH', '/targets/'.$id, [
+            'targetUrl' => null,
+            'authorizationScheme' => null,
+            'authorizationKey' => null,
+            'allowedGroups' => [],
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = $response->toArray();
+        $this->assertNull($data['targetUrl'] ?? null);
+        $this->assertNull($data['authorizationScheme'] ?? null);
+        $this->assertNull($data['allowedGroups'] ?? null);
+        $this->assertFalse($data['hasAuthorizationKey']);
+    }
+
+    public function testAllowedGroupsAreStrings(): void
+    {
+        $token = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
+        $id = $this->createTargetWithSettings($token);
+
+        $response = $this->request($token, 'PATCH', '/targets/'.$id, [
+            'allowedGroups' => ['group-a', 42],
+        ]);
+        $this->assertEquals(422, $response->getStatusCode());
+    }
+
     public function testTargetSlugIsUnique(): void
     {
         $this->getOrCreateDefaultTarget();
@@ -65,5 +149,20 @@ class TargetWriteTest extends AbstractUploaderTestCase
             'name' => 'Forbidden',
         ]);
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    private function createTargetWithSettings(string $token): string
+    {
+        $response = $this->request($token, 'POST', '/targets', [
+            'name' => 'Pushed',
+            'targetUrl' => 'https://example.com/upload',
+            'defaultDestination' => 'my-collection',
+            'authorizationScheme' => 'OAuth',
+            'authorizationKey' => 'secret',
+            'allowedGroups' => ['group-a', 'group-b'],
+        ]);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        return $response->toArray()['id'];
     }
 }

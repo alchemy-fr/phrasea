@@ -4,7 +4,7 @@ import {ReactNode} from 'react';
 import Link from 'next/link';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
-import {ArrowLeftIcon, PencilIcon} from 'lucide-react';
+import {ChevronRightIcon, PencilIcon} from 'lucide-react';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Alert, Badge, EmptyState} from '@alchemy/next-ui/ui/misc';
 import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
@@ -105,15 +105,42 @@ export function AdminTargetList({
     );
 }
 
-/** Back to the list of the targets of an admin screen */
-export function BackToList({href}: {href: string}) {
+/** Where an admin screen stands: the list of the targets, then itself */
+export function AdminBreadcrumb({
+    href,
+    label,
+    current,
+}: {
+    /** The list of the targets */
+    href: string;
+    label: string;
+    current: string;
+}) {
     const {t} = useTranslation();
 
     return (
-        <Button variant="outline" asChild>
-            <Link href={href} data-testid="admin-back">
-                <ArrowLeftIcon /> {t('admin.back', 'Back')}
-            </Link>
-        </Button>
+        <nav aria-label={t('admin.breadcrumb', 'Breadcrumb')}>
+            <ol className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
+                <li className="shrink-0">
+                    <Link
+                        href={href}
+                        data-testid="admin-back"
+                        className="hover:text-foreground hover:underline"
+                    >
+                        {label}
+                    </Link>
+                </li>
+                <li aria-hidden className="shrink-0">
+                    <ChevronRightIcon className="size-4" />
+                </li>
+                <li
+                    aria-current="page"
+                    data-testid="admin-breadcrumb-current"
+                    className="min-w-0 truncate text-foreground"
+                >
+                    {current}
+                </li>
+            </ol>
+        </nav>
     );
 }

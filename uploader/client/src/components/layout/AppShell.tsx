@@ -18,11 +18,14 @@ export function AppShell({children}: PropsWithChildren) {
 export function Page({
     title,
     actions,
+    breadcrumb,
     children,
     wide,
 }: PropsWithChildren<{
     title?: React.ReactNode;
     actions?: React.ReactNode;
+    /** Above the title */
+    breadcrumb?: React.ReactNode;
     wide?: boolean;
 }>) {
     return (
@@ -33,6 +36,7 @@ export function Page({
                     : 'mx-auto w-full max-w-4xl px-4 py-6'
             }
         >
+            {breadcrumb ? <div className="mb-2">{breadcrumb}</div> : null}
             {title || actions ? (
                 <div className="mb-6 flex flex-wrap items-center gap-3">
                     {title ? (

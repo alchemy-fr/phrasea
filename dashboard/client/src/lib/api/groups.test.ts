@@ -42,6 +42,19 @@ describe('createDataboxGroupsApi', () => {
         expect(init.body).toBeUndefined();
     });
 
+    it('sends the ids as an array parameter', async () => {
+        const api = createDataboxGroupsApi('https://api-databox.test');
+        respond(200, [{id: 'g1', name: 'Sales'}]);
+
+        await api.getGroupsByIds(['g1', 'g2']);
+
+        const [url] = fetchMock.mock.calls[0];
+        expect(new URL(String(url)).searchParams.getAll('ids[]')).toEqual([
+            'g1',
+            'g2',
+        ]);
+    });
+
     it('sends the JSON body of the writes', async () => {
         const api = createDataboxGroupsApi('https://api-databox.test');
         respond(201, {id: 'g2', name: 'Design'});

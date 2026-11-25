@@ -1,5 +1,6 @@
 /**
- * Uploader — admin editors: the targets, and the form and the data of each.
+ * Uploader — admin editors: the targets, their properties, and the form and
+ * the data of each.
  */
 import {uploaderUrl} from '../lib/urls';
 import {
@@ -63,6 +64,7 @@ describe('Uploader admin', () => {
 
             cy.url().should('include', `/admin/targets/${target.id}`);
             cy.getBySel('page-title').should('contain', `Edit ${TARGETS.admin.name}`);
+            cy.getBySel('target-tab-form').click();
             cy.getBySel('form-builder-editor').should('be.visible');
             cy.getBySel('builder-palette').should('be.visible');
             cy.getBySel('builder-canvas').within(() => {
@@ -85,6 +87,7 @@ describe('Uploader admin', () => {
             badgeIs(TARGETS.admin.name, 'form', 'off');
             row(TARGETS.admin.name).findBySel('admin-target-edit').click();
 
+            cy.getBySel('target-tab-form', {timeout: 30000}).click();
             cy.getBySel('form-builder-editor').should('be.visible');
             cy.getBySel('form-delete').should('not.exist');
             cy.getBySel('builder-canvas-field').should('not.exist');
@@ -106,7 +109,8 @@ describe('Uploader admin', () => {
         it('deletes the form of a target', () => {
             setBuilderForm(target.id, FORM_FIELDS);
             cy.visit(`${uploaderUrl}/admin/targets/${target.id}`);
-            cy.getBySel('builder-canvas', {timeout: 30000}).should('contain', 'Album');
+            cy.getBySel('target-tab-form', {timeout: 30000}).click();
+            cy.getBySel('builder-canvas').should('contain', 'Album');
             cy.getBySel('form-delete').click();
             confirmDialog('Delete');
 
@@ -194,6 +198,42 @@ describe('Uploader admin', () => {
             cy.url().should('match', /\/admin\/targets\/[0-9a-f-]{36}$/);
             cy.getBySel('page-title').should('contain', `Edit ${name}`);
             cy.url().then(url => apiRequest({method: 'DELETE', path: iri('targets', url.split('/').pop())}));
+        });
+
+        it('edits the properties of a target', () => {
+            const name = uniqueValue('Edited target');
+            const renamed = `${name} renamed`;
+            apiRequest({method: 'POST', path: '/targets', body: {name, targetUrl: null}}).then(created => {
+                cy.visit(`${uploaderUrl}/admin/targets/${created.id}`);
+                cy.getBySel('target-properties-editor', {timeout: 30000}).should('be.visible');
+                cy.getBySel('target-tab-properties').should('have.attr', 'data-state', 'active');
+                cy.get('nav[aria-label=Breadcrumb]').within(() => {
+                    cy.getBySel('admin-back').should('contain', 'Targets');
+                    cy.get('[aria-current=page]').should('contain', name);
+                });
+                saveButton('target-properties-editor').should('be.disabled');
+
+                cy.getBySel('target-properties-editor').within(() => {
+                    cy.getBySel('target-name-input').should('have.value', name).clear().type(renamed);
+                    cy.getBySel('target-description-input').type('Edited from the client');
+                    cy.getBySel('target-authorizationKey-input').should('not.exist');
+                });
+                saveButton('target-properties-editor').should('be.enabled').click();
+
+                expectToastText('Target saved');
+                saveButton('target-properties-editor').should('be.disabled');
+                cy.getBySel('page-title').should('contain', `Edit ${renamed}`);
+                cy.get('nav[aria-label=Breadcrumb] [aria-current=page]').should('contain', renamed);
+                apiRequest({path: `/targets/${created.id}/settings`, json: true}).then(settings => {
+                    expect(settings.name).to.eq(renamed);
+                    expect(settings.description).to.eq('Edited from the client');
+                    expect(settings.hasAuthorizationKey).to.eq(false);
+                });
+
+                cy.getBySel('admin-back').click();
+                row(renamed).should('exist');
+                apiRequest({method: 'DELETE', path: iri('targets', created.id)});
+            });
         });
     });
 });

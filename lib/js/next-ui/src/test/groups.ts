@@ -33,6 +33,8 @@ export function createFakeGroupsApi(
             state.groups
                 .filter(g => g.name.toLowerCase().includes(query.toLowerCase()))
                 .slice(offset, offset + limit),
+        getGroupsByIds: async ids =>
+            state.groups.filter(g => ids.includes(g.id)),
         createGroup: async name => {
             if (taken(name)) {
                 throw conflict();

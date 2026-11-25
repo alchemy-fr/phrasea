@@ -55,7 +55,24 @@ export type Target = HydraObject & {
     hasData: boolean;
 };
 
-/** What is written on a target when it is created (`POST /targets`) */
+/**
+ * A target with the settings only the admins read
+ * (`GET /targets/{id}/settings`). The authorization key is never read back.
+ * The API leaves out the properties that are null.
+ */
+export type TargetSettings = Target & {
+    targetUrl?: string | null;
+    defaultDestination?: string | null;
+    authorizationScheme?: string | null;
+    /** The IDs of the Keycloak groups allowed to upload; none allows everyone */
+    allowedGroups?: string[] | null;
+    hasAuthorizationKey: boolean;
+};
+
+/**
+ * What is written on a target when it is created (`POST /targets`) or
+ * updated (`PATCH /targets/{id}`)
+ */
 export type TargetInput = {
     name: string;
     slug?: string | null;
@@ -65,6 +82,8 @@ export type TargetInput = {
     authorizationScheme?: string | null;
     authorizationKey?: string | null;
     defaultDestination?: string | null;
+    /** The IDs of the Keycloak groups allowed to upload; null allows everyone */
+    allowedGroups?: string[] | null;
 };
 
 /**
