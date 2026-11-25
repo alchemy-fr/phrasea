@@ -64,7 +64,7 @@ final class IntegrationAuthenticator extends AbstractAuthenticator
         $owner = $this->ownerProvider->getOwner($ownerId);
         $user = new IntegrationUser(
             $config->getIntegrationId(),
-            $this->keyChecker->getWorkspaceId($config),
+            $config->getWorkspaceId(),
             $ownerId,
             $owner['username'],
             $this->roleMapper->getRoles($owner['roles']),

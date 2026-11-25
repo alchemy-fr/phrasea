@@ -14,7 +14,6 @@ use App\Border\UploaderClientMock;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\AttributeEntity;
-use App\Entity\Core\Collection;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
@@ -476,36 +475,6 @@ class UploaderIntegrationTest extends ApiTestCase
     }
 
     /**
-     * An integration of no workspace reads the lists of the workspace of its collection.
-     */
-    public function testTheIntegrationWithoutWorkspaceReadsTheWorkspaceOfItsCollection(): void
-    {
-        self::enableFixtures();
-        $apiClient = static::createClient();
-        $em = self::getService(EntityManagerInterface::class);
-        /** @var Workspace $workspace */
-        $workspace = $em->getRepository(Workspace::class)->findOneBy(['slug' => 'test-workspace']);
-        $list = $this->createEntityList($workspace, [['value' => 'A']]);
-
-        $collection = new Collection();
-        $collection->setWorkspace($workspace);
-        $collection->setName('Uploads');
-        $collection->setOwnerId(KeycloakClientTestMock::ADMIN_UID);
-        $em->persist($collection);
-        $em->flush();
-
-        $integration = $this->createIntegration(workspace: false, name: 'Without collection');
-        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId()]);
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
-        $this->assertSame([], $response->toArray()['member']);
-
-        $integration = $this->createIntegration(workspace: false, config: ['collectionId' => $collection->getId()]);
-        $response = $this->getEntities($apiClient, $integration, self::SECURITY_KEY, ['list' => $list->getId()]);
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
-        $this->assertSame(['A'], array_column($response->toArray()['member'], 'value'));
-    }
-
-    /**
      * @param list<array{value: string, status?: int, position?: int, translations?: array<string, string>, color?: string, emoji?: string, creatorId?: string}> $values
      */
     private function createEntityList(Workspace $workspace, array $values = []): EntityList
@@ -558,7 +527,7 @@ class UploaderIntegrationTest extends ApiTestCase
         bool $enabled = true,
         string $type = UploaderIntegration::NAME,
         string $securityKey = self::SECURITY_KEY,
-        Workspace|bool $workspace = true,
+        ?Workspace $workspace = null,
         string $name = 'Uploader',
         array $config = [],
         string $ownerId = KeycloakClientTestMock::USER_UID,
@@ -572,7 +541,7 @@ class UploaderIntegrationTest extends ApiTestCase
 
         $integration = new WorkspaceIntegration();
         $integration->setPublic(true);
-        $integration->setWorkspace($workspace instanceof Workspace ? $workspace : ($workspace ? $ws : null));
+        $integration->setWorkspace($workspace ?? $ws);
         $integration->setName($name);
         $integration->setIntegration($type);
         $integration->setConfig([

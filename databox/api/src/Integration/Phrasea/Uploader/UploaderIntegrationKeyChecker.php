@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Integration\Phrasea\Uploader;
 
-use App\Entity\Core\Collection;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -22,7 +20,6 @@ final readonly class UploaderIntegrationKeyChecker
 {
     public function __construct(
         private IntegrationManager $integrationManager,
-        private EntityManagerInterface $em,
     ) {
     }
 
@@ -65,23 +62,5 @@ final readonly class UploaderIntegrationKeyChecker
         }
 
         return $config;
-    }
-
-    /**
-     * The workspace of the integration, or else the one of its destination collection.
-     */
-    public function getWorkspaceId(IntegrationConfig $config): ?string
-    {
-        $workspaceId = $config->getWorkspaceId();
-        if (null !== $workspaceId) {
-            return $workspaceId;
-        }
-
-        $collectionId = $config['collectionId'] ?? null;
-        if (!\is_string($collectionId) || !Uuid::isValid($collectionId)) {
-            return null;
-        }
-
-        return $this->em->find(Collection::class, $collectionId)?->getWorkspaceId();
     }
 }
