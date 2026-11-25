@@ -7,6 +7,7 @@ namespace App\Consumer\Handler;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Consumer\TargetPrivateOrigins;
 use App\Entity\Asset;
+use App\Entity\AssetRepository;
 use App\Entity\Commit;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
@@ -39,7 +40,10 @@ final readonly class AssetConsumerNotifyHandler
             return;
         }
 
-        $assets = array_map(fn (Asset $asset): string => $asset->getId(), $commit->getAssets()->toArray());
+        /** @var AssetRepository $assetRepository */
+        $assetRepository = $this->em->getRepository(Asset::class);
+        // Read from the database: a commit stored in this process lists none of its files
+        $assets = $assetRepository->getCommitAssetIds($commit->getId());
         if (empty($assets)) {
             throw new \RuntimeException('There is no asset');
         }

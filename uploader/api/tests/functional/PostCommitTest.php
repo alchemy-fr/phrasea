@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use ApiPlatform\Test\Client;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
+use App\Storage\AssetManager;
 use App\Storage\CommitManager;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class PostCommitTest extends AbstractUploaderTestCase
 {
@@ -34,6 +37,95 @@ class PostCommitTest extends AbstractUploaderTestCase
         $this->assertEquals(KeycloakClientTestMock::ADMIN_UID, $commit->getUserId());
         $this->assertEquals(84, (int) $commit->getTotalSize());
         $this->assertCount(2, $commit->getAssets());
+    }
+
+    public function testRetryingACommitAlreadyStoredSucceedsWithoutASecondCommit(): void
+    {
+        $target = $this->createTarget();
+        $files = [$this->createAsset($target)->getId(), $this->createAsset($target)->getId()];
+
+        for ($i = 0; $i < 2; ++$i) {
+            $response = $this->commit(KeycloakClientTestMock::ADMIN_UID, $target, $files);
+            $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+            $this->assertTrue(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR));
+            // The files in another order are the same commit
+            $files = array_reverse($files);
+        }
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $commits = $em->getRepository(Commit::class)->findBy(['target' => $target->getId()]);
+        $this->assertCount(1, $commits);
+        $this->assertCount(2, $commits[0]->getAssets());
+    }
+
+    public function testRetryingWithOtherFilesThanTheStoredCommitReturns403(): void
+    {
+        $target = $this->createTarget();
+        $files = [$this->createAsset($target)->getId(), $this->createAsset($target)->getId()];
+        $notCommitted = $this->createAsset($target)->getId();
+        $response = $this->commit(KeycloakClientTestMock::ADMIN_UID, $target, $files);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+
+        $response = $this->commit(KeycloakClientTestMock::ADMIN_UID, $target, [$files[0]]);
+        $this->assertEquals(403, $response->getStatusCode(), 'Subset');
+
+        $response = $this->commit(KeycloakClientTestMock::ADMIN_UID, $target, [...$files, $notCommitted]);
+        $this->assertEquals(403, $response->getStatusCode(), 'Superset');
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertCount(1, $em->getRepository(Commit::class)->findBy(['target' => $target->getId()]));
+    }
+
+    public function testRetryingTheCommitOfAnotherUserReturns403(): void
+    {
+        $target = $this->createTarget();
+        $asset = $this->createAsset($target, KeycloakClientTestMock::OTHER_USER_UID);
+        $response = $this->commit(KeycloakClientTestMock::OTHER_USER_UID, $target, [$asset->getId()]);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+
+        $response = $this->commit(KeycloakClientTestMock::USER_UID, $target, [$asset->getId()]);
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    public function testARetryRacingTheStorageOfTheSameCommitSucceeds(): void
+    {
+        $target = $this->createTarget();
+        $files = [$this->createAsset($target)->getId(), $this->createAsset($target)->getId()];
+
+        $client = static::createClient();
+        // Built aside: the service itself must stay uninitialized to be replaced
+        $realManager = new CommitManager(self::getEntityManager(), self::getService(AssetManager::class));
+        $manager = $this->createMock(CommitManager::class);
+        // The first request stores the commit once the second one passed the checks
+        $manager->expects($this->once())->method('store')->willReturnCallback(function () use ($realManager, $target, $files): bool {
+            $this->assertTrue($realManager->store($this->newCommit($target, $files)));
+
+            return false;
+        });
+
+        $response = $this->commitWith($client, $manager, KeycloakClientTestMock::ADMIN_UID, $target, $files);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent(false));
+    }
+
+    public function testARacingCommitOfOtherFilesIsAConflict(): void
+    {
+        $target = $this->createTarget();
+        $files = [$this->createAsset($target)->getId(), $this->createAsset($target)->getId()];
+
+        $client = static::createClient();
+        // Built aside: the service itself must stay uninitialized to be replaced
+        $realManager = new CommitManager(self::getEntityManager(), self::getService(AssetManager::class));
+        $manager = $this->createMock(CommitManager::class);
+        $manager->expects($this->once())->method('store')->willReturnCallback(function () use ($realManager, $target, $files): bool {
+            $this->assertTrue($realManager->store($this->newCommit($target, [$files[0]])));
+
+            return false;
+        });
+
+        $response = $this->commitWith($client, $manager, KeycloakClientTestMock::ADMIN_UID, $target, $files);
+        $this->assertEquals(409, $response->getStatusCode(), $response->getContent(false));
     }
 
     public function testFilesCommittedTwiceAtOnceGoWithOneCommitOnly(): void
@@ -144,6 +236,35 @@ class PostCommitTest extends AbstractUploaderTestCase
             'target' => '/targets/'.$target->getId(),
         ]);
         $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    /**
+     * @param string[] $files
+     */
+    private function commit(string $userId, Target $target, array $files): ResponseInterface
+    {
+        return $this->request(KeycloakClientTestMock::getJwtFor($userId), 'POST', '/commit', [
+            'files' => $files,
+            'formData' => [],
+            'target' => '/targets/'.$target->getId(),
+        ]);
+    }
+
+    /**
+     * @param string[] $files
+     */
+    private function commitWith(Client $client, CommitManager $manager, string $userId, Target $target, array $files): ResponseInterface
+    {
+        static::getContainer()->set(CommitManager::class, $manager);
+
+        return $client->request('POST', '/commit', [
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId)],
+            'json' => [
+                'files' => $files,
+                'formData' => [],
+                'target' => '/targets/'.$target->getId(),
+            ],
+        ]);
     }
 
     private function createTarget(): Target

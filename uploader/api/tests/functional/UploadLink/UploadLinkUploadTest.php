@@ -407,6 +407,47 @@ class UploadLinkUploadTest extends AbstractUploadLinkTestCase
         $this->assertSame(self::FIXTURE_SIZE, $reloaded->getUsedSize());
     }
 
+    public function testRetryingACommitThroughTheLinkSucceeds(): void
+    {
+        $target = $this->createTarget();
+        $link = $this->createLink($target);
+        $otherLink = $this->createLink($target);
+
+        $asset = new Asset();
+        $asset->setTarget($target);
+        $asset->setUploadLink($link);
+        $asset->setUserId(KeycloakClientTestMock::USER_UID);
+        $asset->setMimeType('image/jpeg');
+        $asset->setPath('a/b/c.jpeg');
+        $asset->setSize(42);
+        $asset->setOriginalName('foo.jpeg');
+        $em = self::getEntityManager();
+        $em->persist($asset);
+        $em->flush();
+        $assetId = $asset->getId();
+
+        $data = [
+            'files' => [$assetId],
+            'formData' => [],
+            'target' => '/targets/'.$target->getId(),
+        ];
+
+        for ($i = 0; $i < 2; ++$i) {
+            $response = $this->linkRequest($link->getToken(), 'POST', '/commit', $data);
+            $this->assertSame(200, $response->getStatusCode(), $response->getContent(false));
+        }
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'POST', '/commit', $data);
+        $this->assertSame(403, $response->getStatusCode(), 'Not by the creator of the link');
+
+        $response = $this->linkRequest($otherLink->getToken(), 'POST', '/commit', $data);
+        $this->assertSame(403, $response->getStatusCode(), 'Not through another link');
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertCount(1, $em->getRepository(Commit::class)->findBy(['target' => $target->getId()]));
+    }
+
     public function testTheFilesOfAnotherLinkCannotBeCommitted(): void
     {
         $target = $this->createTarget();

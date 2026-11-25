@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Consumer\Handler\AssetConsumerNotify;
 use App\Entity\Asset;
+use App\Entity\AssetRepository;
 use App\Entity\Commit;
 use App\Entity\Target;
 use App\Entity\UploadLink;
@@ -33,6 +34,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * The commit is stored with its files right away: committing files that another commit took meanwhile is a
  * conflict (409), not an empty commit.
+ *
+ * Committing again files already stored as one commit, all of them and them only, by the same owner to the same
+ * target is a retry of that commit (the first answer was lost or failed after the storage): it answers 200 without
+ * storing, notifying or logging anything again, since the first request may have notified the target already.
  */
 final readonly class CommitProcessor implements ProcessorInterface
 {
@@ -101,7 +106,9 @@ final readonly class CommitProcessor implements ProcessorInterface
             throw new AccessDeniedHttpException('Authentication required');
         }
 
-        $this->assertFilesCanBeCommitted($data, $userId, $link);
+        if (null !== $this->assertFilesCanBeCommitted($data, $userId, $link)) {
+            return new JsonResponse(true);
+        }
 
         $totalSize = $this->assetManager->getTotalSize($data->getFiles());
         $data->setTotalSize($totalSize);
@@ -128,6 +135,14 @@ final readonly class CommitProcessor implements ProcessorInterface
         // Rebuilt from what was checked only
         $commit = Commit::fromMessage($data->toMessage(), $this->em);
         if (!$this->commitManager->store($commit)) {
+            // The same commit sent twice at once (a double click)
+            $commitIds = array_unique($this->getAssetRepository()->getCommitIdsOfAssets($data->getFiles()));
+            $existingId = 1 === count($commitIds) ? reset($commitIds) : null;
+            if (null !== $existingId
+                && $this->isStoredIdentically($this->em->find(Commit::class, $existingId), $data->getFiles(), $data->getTarget(), $userId, $link)) {
+                return new JsonResponse(true);
+            }
+
             throw new ConflictHttpException('These files have been committed meanwhile');
         }
 
@@ -150,8 +165,10 @@ final readonly class CommitProcessor implements ProcessorInterface
 
     /**
      * The files of a link are committed through it only, the ones of a user by them only.
+     *
+     * @return Commit|null the commit already stored identically (a retry), null when the files are not committed
      */
-    private function assertFilesCanBeCommitted(Commit $commit, string $userId, ?UploadLink $link): void
+    private function assertFilesCanBeCommitted(Commit $commit, string $userId, ?UploadLink $link): ?Commit
     {
         if (count($commit->getFiles()) > Commit::MAX_FILES) {
             throw new BadRequestHttpException(sprintf('Too many files (%d > %d)', count($commit->getFiles()), Commit::MAX_FILES));
@@ -163,20 +180,70 @@ final readonly class CommitProcessor implements ProcessorInterface
         }
         $commit->setFiles($files);
 
-        $assets = $this->em->getRepository(Asset::class)->findBy(['id' => $files]);
+        $assets = $this->getAssetRepository()->findBy(['id' => $files]);
         if (count($assets) !== count($files)) {
             throw new BadRequestHttpException('Some files do not exist');
         }
 
+        $committed = null;
+        $commitIds = [];
         foreach ($assets as $asset) {
             $owned = null !== $link
                 ? $asset->getUploadLink()?->getId() === $link->getId()
                 : null === $asset->getUploadLink() && $asset->getUserId() === $userId;
-            if (!$owned
-                || $asset->getTarget()?->getId() !== $commit->getTarget()->getId()
-                || $asset->isCommitted()) {
+            if (!$owned || $asset->getTarget()?->getId() !== $commit->getTarget()->getId()) {
                 throw new AccessDeniedHttpException(sprintf('File "%s" cannot be committed', $asset->getId()));
             }
+
+            $commitIds[$asset->getCommit()?->getId() ?? ''] = true;
+            if ($asset->isCommitted()) {
+                $committed ??= $asset;
+            }
         }
+
+        if (null === $committed) {
+            return null;
+        }
+
+        $existing = $committed->getCommit();
+        if (1 === count($commitIds) && $this->isStoredIdentically($existing, $files, $commit->getTarget(), $userId, $link)) {
+            return $existing;
+        }
+
+        throw new AccessDeniedHttpException(sprintf('File "%s" cannot be committed', $committed->getId()));
+    }
+
+    /**
+     * Whether the commit holds these files and them only, from the same owner to the same target.
+     *
+     * @param string[] $files
+     */
+    private function isStoredIdentically(?Commit $existing, array $files, Target $target, string $userId, ?UploadLink $link): bool
+    {
+        if (null === $existing || $existing->getTarget()?->getId() !== $target->getId()) {
+            return false;
+        }
+
+        $sameOwner = null !== $link
+            ? $existing->getUploadLink()?->getId() === $link->getId()
+            : null === $existing->getUploadLink() && $existing->getUserId() === $userId;
+        if (!$sameOwner) {
+            return false;
+        }
+
+        $stored = array_map(strtolower(...), $this->getAssetRepository()->getCommitAssetIds($existing->getId()));
+        $requested = array_map(strtolower(...), $files);
+        sort($stored);
+        sort($requested);
+
+        return $stored === $requested;
+    }
+
+    private function getAssetRepository(): AssetRepository
+    {
+        /** @var AssetRepository $repository */
+        $repository = $this->em->getRepository(Asset::class);
+
+        return $repository;
     }
 }
