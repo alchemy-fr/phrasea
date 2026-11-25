@@ -56,6 +56,24 @@ class AdminFiltersTest extends AbstractDataboxAdminTestCase
         $this->assertCount(0, $crawler->filter(sprintf('tr[data-id="%s"]', $filteredOut->getId())));
     }
 
+    public function testFilterOnAnInvalidUuidMatchesNothing(): void
+    {
+        $attribute = $this->createAttribute($this->createAsset(), $this->createAttributeDefinition(['name' => 'Filtered definition']));
+
+        foreach ([
+            '/admin/attribute' => ['asset' => 'not-a-uuid'],
+            '/admin/asset' => ['id' => 'not-a-uuid'],
+        ] as $uri => $filters) {
+            $crawler = $this->client->request('GET', $uri, ['filters' => $filters]);
+            $this->assertResponseIsSuccessful($uri);
+            $this->assertCount(0, $crawler->filter('tr[data-id]'), $uri);
+        }
+
+        $crawler = $this->client->request('GET', '/admin/asset', ['filters' => ['id' => $attribute->getAsset()->getId()]]);
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(1, $crawler->filter(sprintf('tr[data-id="%s"]', $attribute->getAsset()->getId())));
+    }
+
     private function createAttribute(Asset $asset, AttributeDefinition $definition): Attribute
     {
         $attribute = new Attribute();

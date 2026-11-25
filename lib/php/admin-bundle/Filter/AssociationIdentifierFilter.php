@@ -4,6 +4,9 @@ namespace Alchemy\AdminBundle\Filter;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\Query\Expr\Orx;
 use Doctrine\ORM\QueryBuilder;
@@ -20,6 +23,12 @@ use Symfony\Component\Uid\Uuid;
 class AssociationIdentifierFilter implements FilterInterface
 {
     use FilterTrait;
+
+    /**
+     * Doctrine types stored in a native uuid column, which rejects any other literal (SQLSTATE 22P02 on PostgreSQL).
+     */
+    private const array UUID_TYPES = [Types::GUID, 'uuid'];
+    private const string UUID_PATTERN = '/^(\{)?[0-9a-f]{8}(?:-?[0-9a-f]{4}){3}-?[0-9a-f]{12}(?(1)\})$/Di';
 
     public static function new(string $propertyName, $label = null): self
     {
@@ -44,6 +53,16 @@ class AssociationIdentifierFilter implements FilterInterface
         $value = $filterDataDto->getValue();
         $isEmpty = null === $value || '' === $value;
         $classMetadata = ($filterDataDto->getEntityDto() ?? $entityDto)->getClassMetadata();
+
+        if (!$isEmpty
+            && \is_string($value)
+            && !self::isUuid($value)
+            && $this->targetsUuid($queryBuilder->getEntityManager(), $classMetadata, $property)
+        ) {
+            $queryBuilder->andWhere('1 = 0');
+
+            return;
+        }
 
         if ($classMetadata->isCollectionValuedAssociation($property)) {
             // the 'ea_' prefix is needed to avoid errors when using reserved words as assocAlias ('order', 'group', etc.)
@@ -73,6 +92,25 @@ class AssociationIdentifierFilter implements FilterInterface
             $queryBuilder->andWhere($orX)
                 ->setParameter($parameterName, $this->processParameterValue($queryBuilder, $value));
         }
+    }
+
+    public static function isUuid(string $value): bool
+    {
+        return 1 === preg_match(self::UUID_PATTERN, $value);
+    }
+
+    private function targetsUuid(EntityManagerInterface $entityManager, ClassMetadata $classMetadata, string $property): bool
+    {
+        if ($classMetadata->hasAssociation($property)) {
+            $classMetadata = $entityManager->getClassMetadata($classMetadata->getAssociationTargetClass($property));
+            try {
+                $property = $classMetadata->getSingleIdentifierFieldName();
+            } catch (MappingException) {
+                return false;
+            }
+        }
+
+        return \in_array($classMetadata->getTypeOfField($property), self::UUID_TYPES, true);
     }
 
     private function processParameterValue(QueryBuilder $queryBuilder, mixed $parameterValue): mixed
