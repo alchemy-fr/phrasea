@@ -378,49 +378,14 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $this->assertStringContainsString('already complete', $response->toArray(false)['description']);
     }
 
-    public static function getPartRoutes(): iterable
+    public function testPartUrlsOfAnUnknownUploadAre404(): void
     {
-        yield 'parts' => ['parts', []];
-        yield 'part (deprecated)' => ['part', ['part' => 1]];
-    }
-
-    #[DataProvider('getPartRoutes')]
-    public function testPartUrlsOfAnUnknownUploadAre404(string $route, array $payload): void
-    {
-        $this->client->request('POST', '/uploads/00000000-0000-4000-8000-000000000000/'.$route, [
-            'headers' => $this->headers(),
-            'json' => $payload,
-        ]);
-
-        $this->assertResponseStatusCodeSame(404);
-    }
-
-    public function testDeprecatedSinglePartUrl(): void
-    {
-        $upload = $this->persistUpload();
-
-        $response = $this->client->request('POST', '/uploads/'.$upload->getId().'/part', [
-            'headers' => $this->headers(),
-            'json' => ['part' => 2],
-        ]);
-
-        $this->assertResponseIsSuccessful();
-        $url = $response->toArray()['url'];
-        $this->assertStringContainsString('partNumber=2&', $url);
-        $this->assertStringContainsString('uploadId=existing-s3-upload', $url);
-    }
-
-    public function testDeprecatedSinglePartUrlRequiresThePartNumber(): void
-    {
-        $upload = $this->persistUpload();
-
-        $response = $this->client->request('POST', '/uploads/'.$upload->getId().'/part', [
+        $this->client->request('POST', '/uploads/00000000-0000-4000-8000-000000000000/parts', [
             'headers' => $this->headers(),
             'json' => [],
         ]);
 
-        $this->assertResponseStatusCodeSame(400);
-        $this->assertSame('Missing part', $response->toArray(false)['description']);
+        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testCancellingAnUploadAbortsItOnS3(): void
@@ -488,7 +453,6 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
     {
         yield 'get' => ['GET', '', null];
         yield 'parts' => ['POST', '/parts', []];
-        yield 'part (deprecated)' => ['POST', '/part', ['part' => 1]];
         yield 'cancel' => ['DELETE', '', null];
     }
 
@@ -529,54 +493,6 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         $this->client->request('GET', '/uploads/'.$upload->getId());
 
         $this->assertResponseStatusCodeSame(401);
-    }
-
-    public static function getInvalidPartNumbers(): iterable
-    {
-        yield 'zero' => [0];
-        yield 'negative' => [-1];
-        yield 'past the last part' => [4];
-        yield 'not a number' => ['abc'];
-    }
-
-    #[DataProvider('getInvalidPartNumbers')]
-    public function testDeprecatedSinglePartUrlIsBoundedToThePartCount(mixed $part): void
-    {
-        // 3 parts of 5 MiB
-        $upload = $this->persistUpload(chunkSize: 5_242_880, size: 12_000_000);
-
-        $this->client->request('POST', '/uploads/'.$upload->getId().'/part', [
-            'headers' => $this->headers(),
-            'json' => ['part' => $part],
-        ]);
-
-        $this->assertResponseStatusCodeSame(400);
-    }
-
-    public function testDeprecatedSinglePartUrlAcceptsTheLastPart(): void
-    {
-        $upload = $this->persistUpload(chunkSize: 5_242_880, size: 12_000_000);
-
-        $response = $this->client->request('POST', '/uploads/'.$upload->getId().'/part', [
-            'headers' => $this->headers(),
-            'json' => ['part' => 3],
-        ]);
-
-        $this->assertResponseIsSuccessful();
-        $this->assertStringContainsString('partNumber=3&', $response->toArray()['url']);
-    }
-
-    public function testNoDeprecatedSinglePartUrlForACompletedUpload(): void
-    {
-        $upload = $this->persistUpload(complete: true);
-
-        $response = $this->client->request('POST', '/uploads/'.$upload->getId().'/part', [
-            'headers' => $this->headers(),
-            'json' => ['part' => 1],
-        ]);
-
-        $this->assertResponseStatusCodeSame(400);
-        $this->assertStringContainsString('already complete', $response->toArray(false)['description']);
     }
 
     private static function completionInput(MultipartUpload $upload): MultipartUploadInput

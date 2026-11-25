@@ -16,14 +16,9 @@ assetId="$3"
 definitionName="$4"
 size=$(stat --printf="%s" $src)
 
-splitSize=100
-((partSize = $splitSize * 1000000))
-
-fileSize=`wc -c $src | awk '{print $1}'`
-((parts = ($fileSize+$partSize-1) / partSize))
-
 tmpDir="/tmp/$RANDOM"
 
+# The API decides the part size and returns the presigned URLs of the first parts
 function initUpload() {
   curl --request POST "$baseUrl/uploads" \
     --insecure \
@@ -31,17 +26,18 @@ function initUpload() {
     --header 'Content-Type: application/json' \
     --header "Authorization: Bearer $accessToken" \
     --header 'Accept: application/json' \
-    --data-raw "{\"filename\":\"$(basename $src)\",\"type\":\"image/jpeg\",\"size\":$size}" | jq -r '.id'
+    --data-raw "{\"filename\":\"$(basename $src)\",\"type\":\"image/jpeg\",\"size\":$size}"
 }
 
-function getPartUrl() {
-  curl --request POST "$baseUrl/uploads/$1/part" \
+# Presigned URLs of the parts from $2, for those the creation did not return
+function getPartUrls() {
+  curl --request POST "$baseUrl/uploads/$1/parts" \
     --insecure \
     --silent \
     --header 'Content-Type: application/json' \
     --header "Authorization: Bearer $accessToken" \
     --header 'Accept: application/json' \
-    --data-raw "{\"part\":$2}" | jq -r '.url'
+    --data-raw "{\"from\":$2}"
 }
 
 function putPart() {
@@ -62,19 +58,27 @@ function postRendition() {
 }
 
 (
-  uploadId=`initUpload` \
+  upload=`initUpload` \
+  && uploadId=`echo "$upload" | jq -r '.id'` \
+  && partSize=`echo "$upload" | jq -r '.chunkSize'` \
+  && urls=`echo "$upload" | jq -c '.urls'` \
+  && ((parts = ($size+$partSize-1) / partSize)) \
   && mkdir -p "$tmpDir" \
   && cp "$src" "$tmpDir/" \
   && cd $tmpDir \
-  && split -b $partSize $src \
-  && rm $src \
+  && split -a 5 -b $partSize "$(basename $src)" part- \
+  && rm "$(basename $src)" \
   && [ -n "$uploadId" ] \
   && (
     index=0
     jsonData="{\"assetId\":\"$assetId\",\"name\":\"$definitionName\",\"multipart\":{\"uploadId\":\"$uploadId\",\"parts\":["
-    for file in *; do
+    for file in part-*; do
         ((index++))
-        uploadUrl=`getPartUrl $uploadId $index`
+        uploadUrl=`echo "$urls" | jq -r --arg n "$index" '.[$n] // empty'`
+        if [ -z "$uploadUrl" ]; then
+          urls=`getPartUrls $uploadId $index | jq -c '.urls'`
+          uploadUrl=`echo "$urls" | jq -r --arg n "$index" '.[$n]'`
+        fi
         eTag=`putPart $uploadUrl $file`
         jsonData+="{\"ETag\":\"$eTag\",\"PartNumber\":$index}"
         if (( $index == $parts )); then

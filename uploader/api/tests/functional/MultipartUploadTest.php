@@ -131,14 +131,6 @@ class MultipartUploadTest extends AbstractUploaderTestCase
         ]);
         $this->assertSame(400, $response->getStatusCode());
 
-        // Legacy single-part endpoint still works
-        $response = $client->request('POST', '/uploads/'.$data['id'].'/part', [
-            'headers' => $this->authHeaders(),
-            'json' => ['part' => 1],
-        ]);
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertStringContainsString('partNumber=1', $response->toArray()['url']);
-
         // Cancelling releases the S3 upload
         $response = $client->request('DELETE', '/uploads/'.$data['id'], [
             'headers' => $this->authHeaders(),
@@ -165,7 +157,6 @@ class MultipartUploadTest extends AbstractUploaderTestCase
     {
         yield 'get' => ['GET', '', null];
         yield 'parts' => ['POST', '/parts', []];
-        yield 'part (deprecated)' => ['POST', '/part', ['part' => 1]];
         yield 'cancel' => ['DELETE', '', null];
     }
 
@@ -179,27 +170,6 @@ class MultipartUploadTest extends AbstractUploaderTestCase
         ] + (null !== $payload ? ['json' => $payload] : []));
 
         $this->assertSame(403, $response->getStatusCode());
-    }
-
-    public static function getInvalidPartNumbers(): iterable
-    {
-        yield 'zero' => [0];
-        // Depends on the configured part size: resolved by the test
-        yield 'past the last part' => [null];
-    }
-
-    #[DataProvider('getInvalidPartNumbers')]
-    public function testDeprecatedSinglePartUrlIsBoundedToThePartCount(?int $part): void
-    {
-        $upload = $this->createUpload(self::SIZE);
-        $part ??= (int) ceil(self::SIZE / $upload['chunkSize']) + 1;
-
-        $response = self::createClient()->request('POST', '/uploads/'.$upload['id'].'/part', [
-            'headers' => $this->authHeaders(),
-            'json' => ['part' => $part],
-        ]);
-
-        $this->assertSame(400, $response->getStatusCode());
     }
 
     public function testAnUploadIsUsedOnce(): void
@@ -217,11 +187,12 @@ class MultipartUploadTest extends AbstractUploaderTestCase
         $this->assertStringContainsString('already used', $response->toArray(false)['detail']);
 
         // No more part URL for a completed upload
-        $response = self::createClient()->request('POST', '/uploads/'.$upload['id'].'/part', [
+        $response = self::createClient()->request('POST', '/uploads/'.$upload['id'].'/parts', [
             'headers' => $this->authHeaders(),
-            'json' => ['part' => 1],
+            'json' => [],
         ]);
         $this->assertSame(400, $response->getStatusCode());
+        $this->assertStringContainsString('already complete', $response->toArray(false)['detail']);
     }
 
     public function testAnotherUserCannotCompleteTheUpload(): void

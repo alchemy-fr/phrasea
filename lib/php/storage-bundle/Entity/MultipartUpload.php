@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Alchemy\StorageBundle\Entity;
 
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadPartsOutput;
-use Alchemy\StorageBundle\Api\Dto\MultipartUploadPartUrlOutput;
 use Alchemy\StorageBundle\Api\Processor\MultipartUploadCancelProcessor;
 use Alchemy\StorageBundle\Api\Processor\MultipartUploadCreateProcessor;
 use Alchemy\StorageBundle\Api\Processor\MultipartUploadPartsProcessor;
-use Alchemy\StorageBundle\Api\Processor\MultipartUploadPartUrlProcessor;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -75,44 +73,6 @@ use Symfony\Component\Validator\Constraints as Assert;
                         ],
                     ]),
                     required: false,
-                ),
-            ),
-        ),
-        new Post(
-            uriTemplate: '/uploads/{id}/part',
-            throwOnNotFound: true,
-            status: 200,
-            security: self::OWNER_SECURITY,
-            input: false,
-            normalizationContext: ['groups' => ['upload:part_url']],
-            output: MultipartUploadPartUrlOutput::class,
-            processor: MultipartUploadPartUrlProcessor::class,
-            deprecationReason: 'Use the "urls" returned when creating the upload, or POST /uploads/{id}/parts.',
-            openapi: new OpenApiOperation(
-                summary: 'Get the upload URL for a single part of the file to upload.',
-                parameters: [
-                    new OpenApiParameter(
-                        name: 'id',
-                        in: 'path',
-                        description: 'The upload ID',
-                        required: true,
-                        schema: ['type' => 'string'],
-                    ),
-                ],
-                requestBody: new OpenApiRequestBody(
-                    content: new \ArrayObject([
-                        'application/json' => [
-                            'schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'part' => [
-                                        'type' => 'integer',
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ]),
-                    required: true,
                 ),
             ),
         ),

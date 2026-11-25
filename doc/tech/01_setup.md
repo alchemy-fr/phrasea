@@ -252,6 +252,19 @@ any DDL; `PUBLIC` loses `CONNECT` on that database as well. The superuser keeps 
 the configurator, pgAdmin, `dev`, manual maintenance. Each API runs its Doctrine migrations with its
 own role, owner of its database.
 
+To switch an existing install, back up the databases, set the pairs, then run the `database` step
+(add `--preset dev` if `keycloak2` is deployed) and recreate the services, so that they connect with
+their role:
+
+```bash
+dc run --rm configurator bin/console configure --filter database
+dc up -d
+```
+
+Run the step again after changing a password (then `dc up -d`), or after creating objects in an
+application database as the superuser: it is idempotent. Emptying a pair switches the application
+back to the superuser, which keeps access to every database.
+
 A role cannot be the superuser itself, nor another superuser: the configurator refuses both. With a
 managed PostgreSQL or Kubernetes, where the roles are handled by the infrastructure, leave the
 variables empty.

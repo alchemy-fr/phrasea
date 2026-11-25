@@ -83,11 +83,6 @@ final readonly class UploadManager
         ]);
     }
 
-    public function getSignedUrl(string $uploadId, string $path, int $partNumber): string
-    {
-        return $this->getSignedUrls($uploadId, $path, $partNumber, $partNumber)[$partNumber];
-    }
-
     /**
      * Presigned PUT URLs for parts $from..$to (inclusive), keyed by part number.
      * Signing is local (no S3 round trip), so handing out thousands is cheap.

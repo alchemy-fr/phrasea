@@ -66,20 +66,13 @@ Follow these steps in order. Each one is detailed in the sections below.
    If your databox workers set `WORKER_PRIORITIES`, make them consume the new
    `heavy`, `heavy_low`, `bulk`, `bulk_heavy` and `bulk_heavy_low` transports
    (see [Worker queues of databox](#worker-queues-of-databox)).
-9. Optionally, if the integration is enabled and its service deployed:
-
-    ```bash
-    bin/console app:similarity:index
-    bin/console app:face-recognition:index
-    ```
-
-10. Audit what this release may break: Twig templates in attribute definitions
-    and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
-    replaced by `PATCH`), shared rendition links, the Databox theme, and the
-    image formats ImageMagick still reads (SVG and EPS get no thumbnail any
-    more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)),
-    and the rendition definitions asking ffmpeg for a `timeout` above 3600
-    seconds (see [Resource limits of the databox workers](#resource-limits-of-the-databox-workers)).
+9. Audit what this release may break: Twig templates in attribute definitions
+   and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
+   replaced by `PATCH`), shared rendition links, the Databox theme, and the
+   image formats ImageMagick still reads (SVG and EPS get no thumbnail any
+   more, see [ImageMagick restricted to an allow list of formats](#imagemagick-restricted-to-an-allow-list-of-formats)),
+   and the rendition definitions asking ffmpeg for a `timeout` above 3600
+   seconds (see [Resource limits of the databox workers](#resource-limits-of-the-databox-workers)).
 
 ## Stack and deployment
 
@@ -97,9 +90,7 @@ Elasticsearch moves from 7.17 to 9.1.4.
   indexed, cosine) and `fileFamily`: Elasticsearch older than 8.12 cannot create
   it. Upgrade any external cluster.
 - The bundled `elasticsearch` service requires authentication (see
-  [Elasticsearch authentication](#elasticsearch-authentication)). An external
-  cluster protected by basic authentication is supported through the same
-  `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD`.
+  [Elasticsearch authentication](#elasticsearch-authentication)).
 
 See [Elasticsearch 9 and index rebuild](#elasticsearch-9-and-index-rebuild).
 
@@ -171,13 +162,11 @@ The `report/` sources are removed. `REPORT_API_IMAGE`
 
 ### Similarity and face recognition services
 
-Two optional services are added, `similarity-embedder` and `face-recognition`,
+Two services are added, `similarity-embedder` and `face-recognition`,
 with the `similarity` and `face-recognition` profiles enabled in the default
 `COMPOSE_PROFILES`. Their images (`SIMILARITY_EMBEDDER_IMAGE`,
 `FACE_RECOGNITION_IMAGE`) live on an Alchemy ECR registry: if you cannot pull
-them, drop the two profiles or override the variables. The databox API reaches
-them through `SIMILARITY_EMBEDDER_URL` and `FACE_RECOGNITION_URL`. They are only
-used when the matching integration is enabled, but they cost CPU and memory
+them, drop the two profiles or override the variables. They cost CPU and memory
 once started.
 
 ### ElasticHQ removed
@@ -213,17 +202,7 @@ The Databox client is no longer static files served by nginx.
   emitted: set them on your reverse proxy. `phrasea-manifest.json` is still
   served, by a route of the Next.js server.
 - Sentry (`CLIENT_SENTRY_DSN`) only reports the browser errors: no tracing, no
-  replay, no source maps uploaded. The SDK sends them to the same origin route
-  `/api/relay`, which relays them to the project of the DSN behind a rate limit
-  per client process (`SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, 30 per minute and per
-  IP; `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL`, 300 per minute).
-- The clients send a Content Security Policy restricting the scripts to those
-  bearing the nonce of the response, only reported
-  (`Content-Security-Policy-Report-Only`) while `CSP_REPORT_ONLY` is true, the
-  default; violations reach Sentry through `/api/relay/csp` when
-  `CLIENT_SENTRY_DSN` is set. List any host serving files to the pages that is
-  not part of the stack (CDN other than `*_CLOUD_FRONT_URL`, external logo…) in
-  `CSP_EXTRA_SOURCES` before enforcing it (`CSP_REPORT_ONLY=false`).
+  replay, no source maps uploaded.
 - Theme: the global `theme` entry (MUI theme options) no longer applies to
   Databox, which reads `databox.theme` (JSON, edited from the admin "Customize
   theme" screen or `PUT /client-theme`). The global `logo` is still honoured.
@@ -253,14 +232,11 @@ The three clients follow the Databox client (see above): same images
   `EXPOSE_ALLOWED_FRAME_ANCESTORS`).
 - The OAuth callback moves from `/auth/check` to `/auth/callback`. Only Keycloak
   redirect URIs configured by hand without a `/*` wildcard need updating.
-- Sentry (`CLIENT_SENTRY_DSN`) reports the browser errors through `/api/relay`,
-  as in Databox.
+- Sentry (`CLIENT_SENTRY_DSN`) only reports the browser errors, as in Databox.
 - Theme: the global `theme` entry (MUI theme options) no longer applies; they
   offer the organisation theme `databox.theme`. The global `logo` (and
   `uploader.client.logo`) is still honoured.
-- Dashboard: `/menu.html` is gone. The services menu of the API admins now
-  frames the dashboard root, and the dashboard lets the API origins frame it.
-  `/git-log.html` redirects to `/git-log`. The dashboard no longer reads
+- Dashboard: `/menu.html` is gone. `/git-log.html` redirects to `/git-log`. The dashboard no longer reads
   `REPORT_API_URL`, `SAML_URL` nor `SAML2_URL`.
 - The `nginx-client-base` image is no longer built nor used.
 
@@ -298,7 +274,7 @@ Run them with **exactly one replica** and never scale them: scale the
   scheduled before.
 
 The commands are kept for manual runs; `bin/console app:automation:run-due`
-triggers the due automations once, for development.
+triggers the due automations once.
 
 ### Zippy service removed
 
@@ -318,8 +294,6 @@ themselves (PHP `zip` extension, already in the images).
   archive is built during the download request, so very large publications may
   hit the PHP-FPM/nginx timeouts; in "download via email" mode the worker builds
   it before sending the email.
-- Archive download is always offered: `archiveDownloadUrl` is now returned for
-  every publication, it no longer depends on `ZIPPY_URL`.
 
 See [Expose API](#expose-api) for the renamed properties and routes.
 
@@ -377,7 +351,6 @@ published ones.
 
 - Rebuild `php-fpm-base` first: it now provides `composer-strip-path-packages`.
 - `*/api/docker/caching/` and `bin/optimize-composer-docker-cache` are removed.
-- The databox API image gains the `ftp` and `gd` extensions.
 
 ### ImageMagick restricted to an allow list of formats
 
@@ -386,8 +359,7 @@ ImageMagick policy (`databox/api/docker/entrypoint.d/01-imagick.sh`): a crafted
 upload could otherwise read local files (container environment included) or
 reach the network through ImageMagick coders and Ghostscript. Only JPEG, PNG,
 GIF, WEBP, TIFF, HEIC/HEIF/AVIF, PSD, BMP, ICO and PDF are read; external
-delegates and the `@file` syntax are refused. The `IMAGEMAGICK_POLICY_*`
-resource variables are unchanged.
+delegates and the `@file` syntax are refused.
 
 - SVG files are still stored and downloadable, but get no bitmap rendition.
 - EPS and PostScript files, and Illustrator files saved without PDF
@@ -397,9 +369,6 @@ resource variables are unchanged.
 
 See [Formats read by ImageMagick](doc/tech/Databox/Renditions.mdx#formats-read-by-imagemagick)
 to re-enable a format.
-
-Expose only uses ImageMagick to load its fixtures: the policy changes nothing
-for its users.
 
 ### Resource limits of the databox workers
 
@@ -432,12 +401,6 @@ fast messages (see [Databox workers](doc/tech/Databox/workers.md)):
   heavy jobs of the workflows started by a bulk processing (workspace
   ingestion, asset import, automation).
 
-A rendition definition has a new "Build first" setting (`buildFirst`): its
-jobs, and those of the definitions it is built from, go to `heavy`, the other
-renditions to `heavy_low`, so that the thumbnails of a large ingestion are all
-built before the other renditions. The migration sets it on the existing
-definitions used as thumbnail; review it on your other definitions.
-
 `ESPopulate`, `IndexAllAssets`, `IndexAllCollections` and `DeleteWorkspace` move
 to `task`. `IngestWorkspaceAsset`, which starts the workflow of one asset of a
 workspace ingestion, moves from `task` to `bulk`: the workflows of every asset
@@ -461,13 +424,6 @@ never processed. Each process has its own `PHP_MEMORY_LIMIT`: give
 The example `config/config.json` now sets `createNewWorkspace` to `false`: the
 workspace is no longer flushed by default. Pass `-n`
 (`--create-new-workspace`) to `index` for the former behaviour.
-
-### Impersonation
-
-Users holding the Keycloak `realm-management` → `impersonation` role can now
-act on behalf of another user by sending the `X-Impersonate-User` header. This
-role is part of `realm-admin`, granted to the default admin. There is no switch
-to disable it: review who holds these roles.
 
 ### Access tokens: audiences
 
@@ -495,13 +451,6 @@ tolerated). The tokens of the admin client of the API itself
   they call, as a default client scope (Clients › `<client>` › Client scopes ›
   Add client scope), or their calls answer `401 Invalid token.` (the API logs
   the refused client and the scope it lacks).
-- No `ALLOWED_CLIENT_IDS` / `*_API_ALLOWED_CLIENT_IDS` /
-  `EXPOSE_ALLOWED_CLIENT_IDS` variables (they briefly existed on the 5.0
-  development branch): remove them from `.env.local` and the deployment
-  values if you added them. The Expose API does not read `DATABOX_API_URL`.
-- The `view-clients` role of `realm-management` that a development version of
-  the configurator granted to the service account of the Expose admin client is
-  no longer needed; it is left in place, without effect, and can be removed.
 
 ### Docker networks split
 
@@ -538,11 +487,7 @@ To upgrade a running stack:
   `extra_hosts` route to the host;
 - `TRAEFIK_PROVIDERS_DOCKER_NETWORK` is now `${COMPOSE_PROJECT_NAME}_proxy`;
 - the Expose API nginx no longer reads `PS_SUBNET`: `/purge` only refuses the
-  requests relayed by a proxy. The variable can stay in the Helm values,
-  without effect;
-- `similarity-embedder` runs with `HF_HUB_OFFLINE=1` and
-  `TRANSFORMERS_OFFLINE=1` (its models are in the image), `face-recognition`
-  with `NO_ALBUMENTATIONS_UPDATE=1` (no version check at startup);
+  requests relayed by a proxy;
 - the default `PS_SUBNET` moves from `172.30.0.0/16` to `10.230.0.0/16`
   (gateway `10.230.0.1`, Traefik `10.230.255.254`), out of the Docker address
   pools. Nothing to do without an override (the `dc down` above applies it).
@@ -560,65 +505,6 @@ To upgrade a running stack:
   `{"base": "10.210.0.0/16", "size": 24}`, with a base that overlaps no
   stack's `PS_SUBNET`).
 
-### PostgreSQL role per application (optional)
-
-The APIs, their workers, Keycloak and the report services can now connect with
-a role of their own, owner of their database only, instead of the superuser
-`POSTGRES_USER` (see
-[Database roles](doc/tech/01_setup.md#database-roles)). Nothing changes while
-the new `*_POSTGRES_USER`/`*_POSTGRES_PASSWORD` variables are empty. To switch
-an existing install:
-
-1. back up the databases;
-2. set the pairs in `.env.local` (`DATABOX_`, `EXPOSE_`, `UPLOADER_`,
-   `KEYCLOAK_`, `REPORT_`; `KEYCLOAK_` also serves `keycloak2`);
-3. run the `database` step of the configurator, which creates the roles and
-   hands them the databases and their objects (add `--preset dev` if
-   `keycloak2` is deployed):
-
-    ```bash
-    dc run --rm configurator bin/console configure --filter database
-    ```
-
-4. recreate the services, so that they connect with their role:
-
-    ```bash
-    dc up -d
-    ```
-
-Run step 3 again after changing a password (then `dc up -d`), or after
-creating objects in an application database as the superuser: it is
-idempotent, and `bin/setup.sh` runs it as well. Emptying a pair switches the
-application back to the superuser, which keeps access to every database.
-
-### MinIO user per consumer (optional)
-
-The APIs (with their workers and schedulers), the Next.js clients and
-databox-indexer can now sign their requests to the bundled MinIO with a user of
-their own, restricted to their bucket, instead of the root user `S3_ACCESS_KEY`
-(see [MinIO users](doc/tech/01_setup.md#minio-users)). Nothing changes while
-the new `*_S3_ACCESS_KEY`/`*_S3_SECRET_KEY` variables are empty. To switch an
-existing install:
-
-1. set the pairs in `.env.local` (`DATABOX_`, `EXPOSE_`, `UPLOADER_`,
-   `CONFIG_READER_` for the clients, `INDEXER_`);
-2. create the users and their policies with the new `minio-setup` service
-   (profile `setup`, image `MINIO_MC_IMAGE`):
-
-    ```bash
-    dc run --rm minio-setup
-    ```
-
-3. recreate the services, so that they use their keys:
-
-    ```bash
-    dc up -d
-    ```
-
-`bin/setup.sh`, `bin/migrate.sh` and `bin/test.sh standard` run step 2 as well
-(idempotent: run it again after changing a secret key). The configurator and
-`dev` keep the root user.
-
 ### Static bucket and signed URLs
 
 - The configurator makes the whole `CONFIGURATOR_S3_BUCKET_NAME` bucket public:
@@ -633,8 +519,6 @@ existing install:
   even once its user has lost access to the file (removed from a workspace,
   share or publication password revoked). Keep a value set in `.env.local` or
   the deployment values only if you accept that delay.
-- Databox hands the same signed URL to every user reading a file for 5 minutes
-  at most (half of the signature TTL before).
 
 ### Helm
 
@@ -701,20 +585,11 @@ The `list_value_uniq` index is dropped: entities with the same value are now
 allowed in an entity list. Rolling back this migration fails if such duplicates
 exist.
 
-Other migrations are additive (`share_rendition_definition`,
-`share.renditions_restricted`, `asset_embedding`, `attribute.embedding`,
-`attribute_entity.note`, `file.import_pending`, `saved_search_automation`,
-`automation_run`, `automation_seen_asset`, `workflow_state.number`,
-`*_upload.chunk_size`).
-
 In Expose, `publication.zippy_id` and `publication.zippy_hash` are dropped
 (replaced by the empty `archive_path` and `archive_hash`), and the
 `config_include_download_terms_in_zippy` columns of `publication` and
 `publication_profile` are renamed to `config_include_download_terms_in_archive`.
 Rolling back restores empty Zippy columns.
-
-For information, the APIs move from Doctrine DBAL 3 to 4, ORM 2 to 3, and
-ramsey/uuid-doctrine 1 to 2. No action is needed.
 
 ## Elasticsearch 9 and index rebuild
 
@@ -771,8 +646,8 @@ Item `PUT` operations are removed from every resource. Send `PATCH` with
   `/workspaces`, `/integrations`, `/integration-data`, `/pages`,
   `/profiles`, `/saved-searches`, `/asset-data-templates`,
   `/template-attributes`, `/baskets`, `/messages`;
-- expose: `/assets`, `/publications`, `/publication_profiles`,
-  `/download_requests`;
+- expose: `/assets`, `/publications`, `/publication-profiles`,
+  `/download-requests`;
 - uploader: `/targets` (`/target-params` and `/form-schemas` are removed, see
   [Form and data on the target](#form-and-data-on-the-target)).
 
@@ -815,9 +690,7 @@ gets **401** where it used to get 403 (for instance on `GET /baskets`).
 - Only renditions of a public rendition policy are served; trashed or
   quarantined assets are not delivered; the source file URL is no longer
   exposed.
-- On a share, `assets` becomes writable while `ownerId` and `token` no longer
-  are. A share can be restricted to some rendition definitions
-  (`renditionDefinitions`).
+- On a share, `ownerId` and `token` are no longer writable.
 
 ### Saved searches in asset search
 
@@ -826,8 +699,7 @@ The `savedSearch` option of `GET /assets` and `GET /assets/geo-clusters`:
 - requires READ on the saved search (403, or 401 when anonymous);
 - has its precedence reversed: a non-empty `query` in the request replaces the
   stored one, and `conditions` are combined with AND;
-- only reads `query`, `conditions` and `sortBy` from the stored `data`;
-- ignores an invalid stored sort instead of answering 400.
+- only reads `query`, `conditions` and `sortBy` from the stored `data`.
 
 ### AQL
 
@@ -851,8 +723,6 @@ require EDIT on that object, or answer 403.
 - Sorting on a non-sortable built-in (`@rendition`, `@directCollection`,
   `@similar`, …) or on an attribute definition whose `sortable` is false answers
   **400**.
-- In a saved search, an invalid sort is silently ignored.
-- The client sort editor only offers sortable fields.
 
 ### Attribute updates
 
@@ -1091,8 +961,8 @@ upgraded separately.
 Routes, methods and bodies of `POST /assets`, `/assets/{id}/ack`, `/commit`,
 `/commits/{id}/ack` and `/form/validate` are unchanged. Only `PUT` → `PATCH`,
 the `hydra:` prefix and filter typing change: `acknowledged` is a strict
-boolean, `target` accepts an id or an IRI. `GET /targets/{id}/form-schema`
-becomes `GET /targets/{id}/form` (see below).
+boolean. `GET /targets/{id}/form-schema` becomes `GET /targets/{id}/form` (see
+below).
 
 ### Form and data on the target
 
@@ -1127,12 +997,6 @@ See [Migration from LiForm](doc/tech/Uploader/form_config.md#migration-from-lifo
   group: the ones whose creator gets the permission or the target through a
   group, or is an admin, stop working until their creator saves them again
   (editing the link or regenerating its token records them).
-- `POST /upload-links/{id}/regenerate-token` gives a link a new token: the
-  former URL stops working.
-- The creator of a link can always disable it (`PATCH` with
-  `{"enabled": false}` only), even without the `upload_link` permission.
-- The holders of a link send their own session id in `X-Upload-Session` (a
-  UUID): the multipart uploads they start belong to that session only.
 - `GET /upload-links/current` no longer gives `lastFormData`: what was entered
   in the form of the last commit is kept by the browser that entered it
   (`localStorage`), not by the link, whose other holders could read it. The
@@ -1231,22 +1095,16 @@ See `doc/tech/Storage/03_file_types.md`.
   `response-content-disposition` in the cache key, and the origin must be
   signed (OAC/OAI); see `doc/tech/Storage/02_cloudfront.md`, which also
   recommends a response headers policy (`nosniff`, sandboxing CSP).
-- Serving the storage from a registrable domain distinct from the
-  applications is recommended.
 - storage-bundle: `UrlSigner::getSignedUrl()` accepts `type` and `inline`
   options; without them, the URL serves an `application/octet-stream`
   attachment.
 
 ## Multipart uploads are planned by the API
 
-Clients no longer decide the part size of a multipart upload nor ask the API
-for a presigned URL before each part. `POST /uploads` now answers with the part
-size (`chunkSize`) and the presigned PUT URL of every part (`urls`, keyed by
-part number, valid for 3 hours). `POST /uploads/{id}/parts` with `{"from": n}`
-renews the URLs from part `n` (expired URLs, resumed uploads).
-
-`POST /uploads/{id}/part` still works for clients of the previous version but is
-deprecated and will be removed.
+`POST /uploads/{id}/part` (the presigned URL of a single part) is removed from
+the three APIs: a client of the previous version can no longer send a file in
+parts. Use the `urls` returned by `POST /uploads` (keyed by part number), and
+renew them with `POST /uploads/{id}/parts` and `{"from": n}`.
 
 ### Upload limits
 
@@ -1270,13 +1128,8 @@ on the storage (see "Upload limits" in `doc/tech/Storage/01_s3.md`):
 - Through an upload link, an exhausted link or a file larger than what remains
   of its total size is refused at creation (400 `upload_link_quota_exceeded`).
   The `AssetToken` of a commit can no longer use `/uploads` (403).
-- New index on `multipart_upload` (migration of databox, expose and uploader).
 - `POST /uploads` refuses (422) a `filename` longer than 255 characters or a
   `type` longer than 150, before anything is opened on the storage.
-- Databox checks the right to create the asset (`POST /assets`,
-  `POST /assets/multiple`) before completing its multipart upload: without it,
-  the request still answers 403, but the upload is left untouched (neither
-  completed nor used), to be sent again elsewhere, cancelled or pruned.
 
 ### Abandoned multipart uploads
 
@@ -1284,39 +1137,11 @@ on the storage (see "Upload limits" in `doc/tech/Storage/01_s3.md`):
 each API, aborts the S3 multipart uploads initiated more than 24 hours ago
 (`--min-age` in hours, 3 at least) and deletes the `multipart_upload` rows of
 that age never used by a resource. It only lists the uploads under
-`S3_PATH_PREFIX`; it used to abort the uploads of the whole bucket, and with a
-non-empty `S3_PATH_PREFIX` it failed on the first one.
+`S3_PATH_PREFIX`.
 
 With an empty `S3_PATH_PREFIX`, it aborts every multipart upload of the bucket:
 do not share the bucket of an application with anything else, or give it a
 prefix.
-
-On AWS S3, also add a lifecycle rule aborting the incomplete multipart uploads
-after 7 days to each application bucket (see "Abandoned uploads" in
-`doc/tech/Storage/01_s3.md`). MinIO does not support it, but removes them by
-itself after 24 hours.
-
-## Collections and stories are ordered
-
-This change shipped in 4.5.0: it is only relevant when upgrading from 4.4 or
-earlier.
-
-Assets now hold a rank inside each collection and story they belong to
-(`collection_asset.position`, seeded by the migration from the creation order),
-and the `asset` index gets a new nested `collectionPositions` field.
-
-Re-populate the `asset` index right after running the migrations: until then the
-index has no mapping for `collectionPositions`, so sorting by `@position` (story
-carousel, `GET /collections/{id}/assets`, `GET /assets/{id}/story-assets`) fails
-or serves an incomplete order.
-
-```bash
-bin/console fos:elastica:populate --index=asset
-```
-
-`@position` sorting requires the search to be narrowed down with `collection`
-(exact membership) or `story`: `parent`, which spans the sub-collections, is
-rejected.
 
 ## Story members are no longer assets of the story's collections
 
@@ -1343,10 +1168,6 @@ call-to-action built from the `uri` / `action` blocks, plain-text alternative).
 An overridden template (`template_namespace`) that renders a full HTML document
 ends up nested in it: keep only the body fragment.
 
-Optional settings `alchemy_notifier.email.app_name` and
-`alchemy_notifier.email.public_url` are available, and the logo is served by
-the public route `GET /notifications/email-logo`.
-
 ## For developers extending Phrasea
 
 - workflow-bundle: `Alchemy\Workflow\Doctrine\Entity\{WorkflowState,JobState}`
@@ -1362,10 +1183,9 @@ the public route `GET /notifications/email-logo`.
 - configurator: `ConfiguratorInterface::getPriority()` is removed in favour of
   `#[AsTaggedItem(priority: …)]`.
 - `AbstractIntegrationAction::shouldRun(): bool` → `getSkipReason(): ?string`.
-- Workflow jobs accept a new `continue-on-skip` key; `JobState` gets a
-  `skipReason`.
 - storage-bundle: `MultipartUploadPartAction` and `MultipartUploadCancelAction`
-  are removed.
+  are removed, and so are `MultipartUploadPartUrlProcessor`,
+  `MultipartUploadPartUrlOutput` and `UploadManager::getSignedUrl()`.
 - api-test: `CompactResultPrinter` is removed.
 - admin-bundle: `ChildPropertyEntityConfigurator` is removed.
 - webhook-bundle: `EntitySerializer::convertChangeSetToPhpValue()` is removed.
