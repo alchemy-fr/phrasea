@@ -256,13 +256,13 @@ services:
       - S3_SECRET_KEY
       - S3_REGION
       - S3_USE_PATH_STYLE_ENDPOINT
-      # Multipart upload plan: the API decides the part size and presigns every part
       - S3_MULTIPART_MIN_CHUNK_SIZE
       - S3_MULTIPART_MAX_CHUNK_SIZE
       - S3_MULTIPART_MAX_PART_NUMBER
       - S3_MAX_OBJECT_SIZE
       - MULTIPART_UPLOAD_RATE_LIMIT
       - MULTIPART_UPLOAD_MAX_PENDING
+      - PREFERRED_FILE_TYPES
 
   uploader-api-php:
     logging: *default-logging

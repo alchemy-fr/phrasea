@@ -48,19 +48,7 @@ final class FileValidator
     private function normalizeTypes(array|string $value): array
     {
         if (is_string($value)) {
-            $types = [];
-            preg_match_all('#([\w*]+/[\w*+.-]+)\s*(\([^)]*\))?#', $value, $matches);
-
-            foreach ($matches[1] as $i => $mask) {
-                $extensions = [];
-                if (!empty($matches[2][$i])) {
-                    $extensions = explode(',', substr($matches[2][$i], 1, -1));
-                }
-
-                $types[$mask] = array_merge($types[$mask] ?? [], $extensions);
-            }
-
-            $value = $types;
+            $value = FileUtil::parseTypesWithExtensions($value);
         }
 
         $normalized = [];

@@ -18,14 +18,6 @@ final class FileUtil
         'tar.br',
     ];
 
-    /**
-     * The usual type of an extension for which Symfony MIME lists another type first
-     * ("audio/x-ms-wmv" before "video/x-ms-wmv" for ".wmv").
-     */
-    private const array PREFERRED_TYPES = [
-        'wmv' => 'video/x-ms-wmv',
-    ];
-
     public static function isImageType(?string $mimeType): bool
     {
         return 1 === preg_match('#^image/#', $mimeType ?? '');
@@ -116,11 +108,27 @@ final class FileUtil
      */
     public static function getTypesFromExtension(string $extension): array
     {
-        $types = new MimeTypes()->getMimeTypes($extension);
+        return PreferredMimeTypes::getDefault()->getMimeTypes($extension);
+    }
 
-        $preferred = self::PREFERRED_TYPES[strtolower($extension)] ?? null;
-        if (null !== $preferred && in_array($preferred, $types, true)) {
-            $types = [$preferred, ...array_values(array_diff($types, [$preferred]))];
+    /**
+     * Parses a list of types with their extensions, "type(.ext1,.ext2),type2,…"
+     * (ALLOWED_FILE_TYPES, PREFERRED_FILE_TYPES).
+     *
+     * @return array<string, string[]> the extensions, as written, by type
+     */
+    public static function parseTypesWithExtensions(string $value): array
+    {
+        $types = [];
+        preg_match_all('#([\w*]+/[\w*+.-]+)\s*(\([^)]*\))?#', $value, $matches);
+
+        foreach ($matches[1] as $i => $type) {
+            $extensions = [];
+            if (!empty($matches[2][$i])) {
+                $extensions = explode(',', substr($matches[2][$i], 1, -1));
+            }
+
+            $types[$type] = array_merge($types[$type] ?? [], $extensions);
         }
 
         return $types;

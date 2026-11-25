@@ -28,6 +28,20 @@ The clients read the same variable to filter the file picker. `EXPOSE_ALLOWED_FI
 
 Browsers do not always know the type of a file: the databox and uploader clients fall back to the type of the extension (`.indd` → `application/x-indesign`). A client sending `application/octet-stream` needs an `application/octet-stream(.ext)` entry: such files are always served as attachments (see below).
 
+### Type of an extension
+
+When a file comes without type, the APIs take the first type registered for its extension in the Symfony MIME database. For some extensions, that first type is not the usual one: Symfony lists `audio/x-ms-wmv` before `video/x-ms-wmv` for `.wmv`. `PREFERRED_FILE_TYPES` (shared by every API and worker, same syntax as the allowed types) gives the usual type of such extensions, put first among their types:
+
+```dotenv
+PREFERRED_FILE_TYPES='video/x-ms-wmv(.wmv)'
+```
+
+- Each entry is a type without wildcard with the extensions it is the usual type of. A type Symfony does not register for the extension is added to its types.
+- An empty value keeps the order of Symfony. A missing variable takes the default of `Alchemy\StorageBundle\Util\PreferredMimeTypes` (`video/x-ms-wmv(.wmv)`).
+- It applies to every guess from an extension: uploads without type, the container types resolved from the extension (see below), and the renditions (`MimeTypeGuesser` of rendition-factory, autowired with `MimeTypesInterface`).
+
+The clients keep their own table (`@alchemy/core`, `@alchemy/next-ui`).
+
 ## Content check
 
 The first bytes of the content (64 KiB) are inspected with libmagic (`Alchemy\StorageBundle\Upload\ContentTypeDetector`):

@@ -7,6 +7,7 @@ parameters:
     env(S3_PATH_PREFIX): ''
     env(VERIFY_SSL): true
     env(ALLOWED_FILE_TYPES): ''
+    env(PREFERRED_FILE_TYPES): !php/const Alchemy\StorageBundle\Util\PreferredMimeTypes::DEFAULT_PREFERRED_TYPES
     # Multipart upload plan (see doc/tech/Storage/01_s3.md). Defaults match AWS S3 limits (5 TiB per object).
     env(S3_MULTIPART_MIN_CHUNK_SIZE): '5242880'
     env(S3_MULTIPART_MAX_CHUNK_SIZE): '5368709120'
@@ -80,3 +81,7 @@ services:
         $allowedTypes: '%alchemy_storage.upload.allowed_types%'
 
     Alchemy\StorageBundle\Upload\ContentTypeDetector: ~
+
+    # Public: the bundle makes it the default instance when it boots
+    Alchemy\StorageBundle\Util\PreferredMimeTypes:
+        public: true
