@@ -78,6 +78,195 @@
             transform: translateX(300%);
         }
     }
+
+    /*
+     * Animations of the Phrasea loader (src/ui/phrasea-loader.tsx). They run
+     * inside its SVG: lengths are user units of the 443.4 × 512 logo. Each
+     * facet staggers them with its own `animation-delay`, and gives the
+     * direction it is pushed in through `--phrasea-x` / `--phrasea-y`.
+     */
+    --animate-phrasea-ring: phrasea-ring 1.2s linear infinite;
+    --animate-phrasea-breathe: phrasea-breathe 1.1s ease-in-out infinite
+        alternate;
+    --animate-phrasea-build: phrasea-build 2.6s cubic-bezier(0.5, 0, 0.2, 1)
+        infinite backwards;
+    --animate-phrasea-burst: phrasea-burst 1.7s cubic-bezier(0.6, 0, 0.3, 1)
+        infinite;
+    --animate-phrasea-turn: phrasea-turn 2.7s cubic-bezier(0.7, 0, 0.25, 1)
+        infinite;
+    --animate-phrasea-pistons: phrasea-pistons 1.8s cubic-bezier(0.4, 0, 0.2, 1)
+        infinite;
+    --animate-phrasea-draw-edge: phrasea-draw-edge 2.8s ease-in-out infinite
+        backwards;
+    --animate-phrasea-draw-facet: phrasea-draw-facet 2.8s ease-in-out infinite
+        backwards;
+    --animate-phrasea-sheen: phrasea-sheen 1.9s ease-in-out infinite;
+    --animate-phrasea-bounce: phrasea-bounce 0.5s cubic-bezier(0.2, 0.6, 0.4, 1)
+        infinite alternate;
+    --animate-phrasea-shadow: phrasea-shadow 0.5s cubic-bezier(0.2, 0.6, 0.4, 1)
+        infinite alternate;
+    --animate-phrasea-orbit: phrasea-orbit 1.5s linear infinite;
+
+    /* Ring: a facet lights up then fades while the light moves on to the next one */
+    @keyframes phrasea-ring {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0.18;
+        }
+    }
+
+    /* Breathe: the whole cube swells and brightens */
+    @keyframes phrasea-breathe {
+        from {
+            opacity: 0.5;
+            transform: scale(0.76);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Build: a facet grows out of the center, holds, then shrinks back */
+    @keyframes phrasea-build {
+        0%,
+        6% {
+            opacity: 0;
+            transform: scale(0);
+        }
+        26%,
+        62% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        82%,
+        100% {
+            opacity: 0;
+            transform: scale(0);
+        }
+    }
+
+    /* Burst: the six facets fly apart, pause, and come back together */
+    @keyframes phrasea-burst {
+        0%,
+        15%,
+        100% {
+            transform: translate(0, 0);
+        }
+        55%,
+        65% {
+            transform: translate(var(--phrasea-x), var(--phrasea-y));
+        }
+    }
+
+    /*
+     * Turn: thirds of a turn, the timing function easing each of them. The
+     * cube looks the same after 120°, only the colors change faces.
+     */
+    @keyframes phrasea-turn {
+        0% {
+            transform: rotate(0deg);
+        }
+        33.333% {
+            transform: rotate(120deg);
+        }
+        66.666% {
+            transform: rotate(240deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Pistons: a face of the cube slides out and back during its third of the cycle */
+    @keyframes phrasea-pistons {
+        0%,
+        34%,
+        100% {
+            transform: translate(0, 0);
+        }
+        17% {
+            transform: translate(var(--phrasea-x), var(--phrasea-y));
+        }
+    }
+
+    /* Draw: a side of the outline (path length 1) is traced, then fades as the facets fill in */
+    @keyframes phrasea-draw-edge {
+        0% {
+            opacity: 0;
+            stroke-dashoffset: 1;
+        }
+        2% {
+            opacity: 1;
+            stroke-dashoffset: 1;
+        }
+        12%,
+        45% {
+            opacity: 1;
+            stroke-dashoffset: 0;
+        }
+        60%,
+        100% {
+            opacity: 0;
+            stroke-dashoffset: 0;
+        }
+    }
+
+    @keyframes phrasea-draw-facet {
+        0%,
+        28% {
+            opacity: 0;
+        }
+        48%,
+        80% {
+            opacity: 1;
+        }
+        94%,
+        100% {
+            opacity: 0;
+        }
+    }
+
+    /* Sheen: a band of light crosses the still logo, then waits off to the right */
+    @keyframes phrasea-sheen {
+        0% {
+            transform: translateX(-180px);
+        }
+        65%,
+        100% {
+            transform: translateX(900px);
+        }
+    }
+
+    /* Bounce: squashed on the ground, stretched in the air; `alternate` plays the fall */
+    @keyframes phrasea-bounce {
+        from {
+            transform: translateY(0) scale(1.1, 0.88);
+        }
+        to {
+            transform: translateY(-58px) scale(0.97, 1.03);
+        }
+    }
+
+    @keyframes phrasea-shadow {
+        from {
+            opacity: 0.2;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0.08;
+            transform: scale(0.6);
+        }
+    }
+
+    /* Orbit: the dash (2 of the 6 units of the ring) runs one lap */
+    @keyframes phrasea-orbit {
+        to {
+            stroke-dashoffset: -6;
+        }
+    }
 }
 
 @layer base {
