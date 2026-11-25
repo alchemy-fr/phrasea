@@ -683,10 +683,12 @@ class AttributeEntity extends AbstractUuidEntity implements AuditableInterface, 
     }
 
     /**
-     * From the parent up to the top level. Used by ES.
+     * From the parent up to the top level, placeholders included. Indexed by ES; the client opens
+     * the tree down to an entity with it. The collection provider preloads the ancestors of a page.
      *
      * @return string[]
      */
+    #[Groups([self::GROUP_LIST])]
     public function getAncestorIds(): array
     {
         $ids = [];

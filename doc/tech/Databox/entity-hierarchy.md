@@ -63,6 +63,16 @@ root (the name of the list) is selected. Both panes scroll horizontally when the
 wider. The table keeps its filters, inline edition and moderation; a row added there is created
 under the selected node. A list without the flag only has the table, of every value.
 
+A search hides the tree: the table then lists the matches of every level. An arrow before each
+result goes back to the tree, on the level holding it: its parent is selected, the ancestors above
+are opened (`ancestorIds` of the listing, placeholders included, unlike `path`) and the search is cleared.
+
+The search results have a `path` column (the ancestors, placeholders left out) after the value; the label
+above the table of a node gives its whole path.
+The columns menu of the toolbar (`EntityColumnsMenu`) hides the path, the note, the usage, the update date and each
+locale; one option hides the synonyms of every locale, and those of a hidden locale are hidden with it.
+The choice is remembered per list on the device.
+
 ## API
 
 - `POST /attribute-entities` `{"list": …, "value": …, "parent": "/attribute-entities/{id}", "placeholder": false}`.
@@ -74,7 +84,8 @@ under the selected node. A list without the flag only has the table, of every va
 - `GET /attribute-entities` parameters: `parent` (children, by position), `depth` (`0`: the top
   level), `branch` (descendants), `placeholder`, and `definition`, which applies the depth range of a
   definition and excludes the placeholders. Each entity has `parentId`, `hierarchyDepth`,
-  `placeholder`, `childCount` and `path` (the ancestors, placeholders left out), which tells
+  `placeholder`, `childCount`, `ancestorIds` (from the parent up, placeholders included) and `path`
+  (the ancestors, placeholders left out), which tells
   homonyms apart: "Rue Victor Hugo — 16e / Paris / Île-de-France".
 - `POST /entity-lists/{id}/hierarchy-import` `{"data": "<csv>", "dryRun": true}`: places existing
   entities from a CSV `entity_external_id,parent_external_id,position` (empty parent: the top level).

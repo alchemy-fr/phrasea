@@ -42,7 +42,10 @@ const Provider = QueryClientProvider as unknown as (
     props: PropsWithChildren<{client: QueryClient}>
 ) => ReactElement;
 
-function renderTree(selectedId: string | null) {
+function renderTree(
+    selectedId: string | null,
+    reveal: {openIds: string[]} | null = null
+) {
     const onSelect = vi.fn();
     const client = new QueryClient({
         defaultOptions: {queries: {retry: false}},
@@ -54,6 +57,7 @@ function renderTree(selectedId: string | null) {
                     list={list}
                     selectedId={selectedId}
                     onSelect={onSelect}
+                    reveal={reveal}
                 />
             </ModalProvider>
         </Provider>
@@ -100,5 +104,26 @@ describe('EntityTree', () => {
         expect(
             screen.getByTestId('entity-tree-root').getAttribute('aria-selected')
         ).toBe('true');
+    });
+
+    it('opens the nodes of a reveal', async () => {
+        api.getAttributeEntities.mockImplementation(
+            async ({parent}: {parent?: string}) =>
+                parent === 'animal'
+                    ? {total: 1, items: [entity('dog')]}
+                    : {
+                          total: 2,
+                          items: [
+                              {...entity('animal'), childCount: 1},
+                              entity('object'),
+                          ],
+                      }
+        );
+        renderTree('dog', {openIds: ['animal']});
+
+        expect(await screen.findByText('dog')).toBeTruthy();
+        expect(api.getAttributeEntities).toHaveBeenCalledWith(
+            expect.objectContaining({parent: 'animal'})
+        );
     });
 });

@@ -146,6 +146,12 @@ final class EntityHierarchyTest extends AbstractDataboxTestCase
             'Monde / Europe / France / Indre-et-Loire / Tours',
         ], $paths);
 
+        // The ancestors, from the parent up, placeholders included: the client opens the tree with them
+        $tours = array_values(array_filter($streets, fn (array $s): bool => $s['id'] === $this->e['rvh_tours']->getId()))[0];
+        $this->assertSame(array_map(fn (string $k): string => $this->e[$k]->getId(), [
+            'tours_none', 'tours', 'indre', 'france', 'europe', 'monde',
+        ]), $tours['ancestorIds']);
+
         // Placeholders are never proposed
         $levels = $this->api('GET', '/attribute-entities', self::USER, options: ['query' => [
             'definition' => $this->defs['arrondissement']->getId(),

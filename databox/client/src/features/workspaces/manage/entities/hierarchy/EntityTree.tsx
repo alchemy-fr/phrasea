@@ -1,6 +1,12 @@
 'use client';
 
-import {type ReactElement, type ReactNode, useEffect, useState} from 'react';
+import {
+    type ReactElement,
+    type ReactNode,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
 import {
@@ -82,6 +88,11 @@ type TreeOptions = {
     selectedId?: string | null;
     /** A click on a node, or on the root (`null`), selects it */
     onSelect?: (entity: AttributeEntity | null) => void;
+    /**
+     * Opens these nodes as they load, and scrolls to the selected one: a new
+     * object each time an entity is shown in the tree
+     */
+    reveal?: {openIds: string[]} | null;
 };
 
 /**
@@ -239,6 +250,7 @@ function TreeNode({
     const selected = !!onSelect && options.selectedId === entity.id;
     const refresh = useRefreshHierarchy(list.id);
     const [open, setOpen] = useState(false);
+    const rowRef = useRef<HTMLDivElement | null>(null);
     const [adding, setAdding] = useState(false);
     const hasChildren = (entity.childCount ?? 0) > 0;
     const {setNodeRef, handle, isDragging, zone} = useHierarchyNode({
@@ -256,6 +268,21 @@ function TreeNode({
         return () => clearTimeout(timeout);
     }, [zone, open, hasChildren]);
 
+    const {reveal} = options;
+    useEffect(() => {
+        if (!reveal) {
+            return;
+        }
+        if (reveal.openIds.includes(entity.id)) {
+            setOpen(true);
+        }
+        if (selected) {
+            rowRef.current?.scrollIntoView?.({block: 'nearest'});
+        }
+        // Once per reveal, or when the node loads during it
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reveal, entity.id]);
+
     const move = async (position: number) => {
         try {
             await moveAttributeEntity(
@@ -271,7 +298,10 @@ function TreeNode({
 
     const row = (
         <div
-            ref={setNodeRef}
+            ref={el => {
+                setNodeRef(el);
+                rowRef.current = el;
+            }}
             className={cn(
                 'group flex items-center gap-1 rounded px-1 py-0.5 whitespace-nowrap hover:bg-accent/50',
                 selected && 'bg-accent',

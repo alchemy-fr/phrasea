@@ -25,7 +25,10 @@ const entity = {
 } as unknown as AttributeEntity;
 
 const noop = () => {};
-const columnIds = (list: Partial<EntityList>) =>
+const columnIds = (
+    list: Partial<EntityList>,
+    onReveal?: (e: AttributeEntity) => void
+) =>
     buildEntityColumns({
         list: {id: 'l1', name: 'L', ...list} as EntityList,
         locales: ['en', 'fr'],
@@ -38,6 +41,7 @@ const columnIds = (list: Partial<EntityList>) =>
         onRemoveImage: noop,
         onMerge: noop,
         onDelete: noop,
+        onReveal,
     }).map(c => c.id);
 
 describe('entityColumns', () => {
@@ -74,6 +78,15 @@ describe('entityColumns', () => {
             'usage',
             'updatedAt',
             'actions',
+        ]);
+        expect(columnIds({isHierarchy: true})).not.toContain('path');
+        // The search results of a hierarchy: the arrow, the path after the value
+        expect(columnIds({isHierarchy: true}, noop).slice(0, 5)).toEqual([
+            'select',
+            'reveal',
+            'value',
+            'path',
+            'note',
         ]);
     });
 

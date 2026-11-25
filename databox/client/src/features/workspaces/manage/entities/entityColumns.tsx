@@ -1,6 +1,7 @@
 import type {ColumnDef} from '@tanstack/react-table';
 import type {TFunction} from 'i18next';
 import {
+    ArrowLeftIcon,
     ImageIcon,
     ImagesIcon,
     ImageUpIcon,
@@ -40,6 +41,11 @@ export type EntityColumnsOptions = EntityMenuActions & {
     onUploadImage: (e: AttributeEntity, file: File) => void;
     /** The values whose photo is being sent */
     uploadingImageIds?: ReadonlySet<string>;
+    /**
+     * Search results of a hierarchy: an arrow left of the value shows the
+     * entity in the tree, and its path follows the value
+     */
+    onReveal?: (e: AttributeEntity) => void;
 };
 
 const TRANSLATIONS = 'translations.';
@@ -193,6 +199,74 @@ function StatusBadge({
     }
 }
 
+function pathColumn(t: TFunction): ColumnDef<AttributeEntity, any> {
+    return {
+        id: 'path',
+        accessorFn: e => (e.path ?? []).map(p => p.value).join(' / '),
+        header: () => t('entity.path', 'Path'),
+        size: 220,
+        enableSorting: false,
+        cell: ({getValue}) => (
+            <span
+                className="truncate text-xs text-muted-foreground"
+                title={getValue()}
+                data-testid="cell-path"
+            >
+                {getValue()}
+            </span>
+        ),
+    };
+}
+
+/** The arrow opening the tree on the level holding the entity */
+function revealColumn(
+    onReveal: (e: AttributeEntity) => void,
+    t: TFunction
+): ColumnDef<AttributeEntity, any> {
+    return {
+        id: 'reveal',
+        size: 36,
+        enableSorting: false,
+        enableResizing: false,
+        meta: {skipFocus: true, align: 'center'},
+        header: () => null,
+        cell: ({row}) => {
+            const e = row.original;
+            if (isDraft(e)) {
+                return null;
+            }
+            const path = (e.path ?? []).map(p => p.value).join(' / ');
+
+            return (
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={
+                        path
+                            ? t(
+                                  'entity_hierarchy.reveal_in',
+                                  'Show in the tree: {{path}}',
+                                  {path}
+                              )
+                            : t(
+                                  'entity_hierarchy.reveal_top',
+                                  'Show in the tree: top level'
+                              )
+                    }
+                    aria-label={t(
+                        'entity_hierarchy.reveal',
+                        'Show in the tree'
+                    )}
+                    onClick={() => onReveal(e)}
+                    data-testid="entity-reveal"
+                >
+                    <ArrowLeftIcon />
+                </Button>
+            );
+        },
+    };
+}
+
 export function buildEntityColumns(
     o: EntityColumnsOptions
 ): ColumnDef<AttributeEntity, any>[] {
@@ -203,6 +277,7 @@ export function buildEntityColumns(
             selectAll: t('table.select_all', 'Select all'),
             selectRow: t('table.select_row', 'Select row'),
         }),
+        ...(o.onReveal ? [revealColumn(o.onReveal, t)] : []),
         {
             id: 'value',
             accessorKey: 'value',
@@ -238,6 +313,8 @@ export function buildEntityColumns(
                 );
             },
         },
+        // The ancestors, placeholders left out
+        ...(o.onReveal ? [pathColumn(t)] : []),
         {
             id: 'note',
             accessorFn: e => e.note ?? '',

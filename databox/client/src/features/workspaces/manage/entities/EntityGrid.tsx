@@ -73,6 +73,11 @@ import {EntityCellEditor} from './EntityCellEditor';
 import {EntityFormDialog} from './EntityFormDialog';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityAssetsPreviewDialog} from './EntityAssetsPreviewDialog';
+import {
+    EntityColumnsMenu,
+    isEntityColumnVisible,
+    useHiddenEntityColumns,
+} from './EntityColumnsMenu';
 import {EntityTree, hierarchyQueryKey} from './hierarchy/EntityTree';
 import {ImportEntityHierarchyDialog} from './hierarchy/ImportEntityHierarchyDialog';
 import {
@@ -123,7 +128,8 @@ async function inBatches<T>(
  * sort and filters, infinite loading. A hierarchy is shown as an explorer:
  * the tree (organized by drag & drop) in a resizable pane on the left, the
  * table of the children of the selected node on the right. Both share the
- * menu of a value.
+ * menu of a value. A search hides the tree and looks through every level; an
+ * arrow on each result goes back to the tree, on the level holding it.
  *
  * The value edited in the full form is in the URL (`useRoutePath`):
  * `:entityId` or `new`.
@@ -154,8 +160,16 @@ export function EntityGrid({
         null
     );
     const treePanel = useResizablePanel('entity-tree');
+    // Nodes to open, once a search result is shown in the tree
+    const [treeReveal, setTreeReveal] = useState<{openIds: string[]} | null>(
+        null
+    );
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebouncedValue(search.trim(), 250);
+    // Cleared at once, without waiting for the debounce
+    const activeSearch = search.trim() ? debouncedSearch : '';
+    // The table lists the matches of every level, instead of the tree
+    const searching = isHierarchy && activeSearch !== '';
     const [statusFilter, setStatusFilter] = useState<EntityStatusFilter>('all');
     const [sorting, setSorting] = useState<SortingState>([
         {id: 'value', desc: false},
@@ -163,6 +177,7 @@ export function EntityGrid({
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const debouncedColumnFilters = useDebouncedValue(columnFilters, 250);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+    const hiddenColumns = useHiddenEntityColumns(list.id);
     const [drafts, setDrafts] = useState<AttributeEntity[]>([]);
     const draftSeq = useRef(0);
     const [requestFocus, setRequestFocus] = useState<
@@ -188,11 +203,14 @@ export function EntityGrid({
             desc: sorting[0]?.desc ?? false,
         },
         filters: {
-            search: debouncedSearch,
+            search: activeSearch,
             status: statusFilter,
-            value: debouncedSearch ? undefined : columnFilter('value'),
+            value: activeSearch ? undefined : columnFilter('value'),
             note: columnFilter('note'),
-            parent: isHierarchy ? (treeSelection?.id ?? null) : undefined,
+            parent:
+                isHierarchy && !searching
+                    ? (treeSelection?.id ?? null)
+                    : undefined,
         },
     });
     const pending = usePendingCount(list.id);
@@ -278,7 +296,7 @@ export function EntityGrid({
                     value: v,
                     status: AttributeEntityStatus.Approved,
                     // In the explorer, under the selected node
-                    ...(treeSelection
+                    ...(treeSelection && !searching
                         ? {
                               parent: iri(
                                   EntityName.AttributeEntity,
@@ -404,6 +422,32 @@ export function EntityGrid({
 
     const reload = () => dataChanged(true);
 
+    /** Leaves the search for the tree, on the level holding the entity */
+    const revealInTree = (entity: AttributeEntity) => {
+        const parentId = entity.parentId ?? null;
+        // The path leaves the placeholders out
+        const named = entity.path?.find(p => p.id === parentId);
+        setTreeSelection(
+            parentId
+                ? ({
+                      id: parentId,
+                      value: named?.value ?? '',
+                      translations: named?.translations ?? {},
+                      placeholder: !named,
+                      // Its own ancestors: those of the entity above it
+                      path: named
+                          ? entity.path!.slice(0, entity.path!.indexOf(named))
+                          : (entity.path ?? []),
+                  } as unknown as AttributeEntity)
+                : null
+        );
+        setTreeReveal({
+            openIds: (entity.ancestorIds ?? []).filter(id => id !== parentId),
+        });
+        setSearch('');
+        setRowSelection({[entity.id]: true});
+    };
+
     const openMerge = (entities: AttributeEntity[]) =>
         openModal(MergeEntitiesDialog, {
             entities,
@@ -495,6 +539,7 @@ export function EntityGrid({
         uploadImage: (_e: AttributeEntity, _f: File) => {},
         removeImage: (_e: AttributeEntity) => {},
         pickImage: (_e: AttributeEntity) => {},
+        reveal: (_e: AttributeEntity) => {},
     });
     actions.current = {
         setStatus: (es, status) => void setStatus(es, status),
@@ -503,6 +548,7 @@ export function EntityGrid({
         uploadImage: (e, f) => void uploadImage(e, f),
         removeImage: e => void removeImage(e),
         pickImage,
+        reveal: revealInTree,
     };
     const menuActions = useMemo<EntityMenuActions>(
         () => ({
@@ -531,8 +577,19 @@ export function EntityGrid({
                 t,
                 onUploadImage: (e, f) => actions.current.uploadImage(e, f),
                 uploadingImageIds,
-            }),
-        [menuActions, list, locales, t, uploadingImageIds]
+                onReveal: searching
+                    ? e => actions.current.reveal(e)
+                    : undefined,
+            }).filter(c => isEntityColumnVisible(c.id!, hiddenColumns.hidden)),
+        [
+            menuActions,
+            list,
+            locales,
+            t,
+            uploadingImageIds,
+            searching,
+            hiddenColumns.hidden,
+        ]
     );
 
     const valueCount =
@@ -674,6 +731,26 @@ export function EntityGrid({
                     {/* A hierarchy counts the values of the selected node, above its table */}
                     {isHierarchy ? null : valueCount}
                 </span>
+                <EntityColumnsMenu
+                    list={list}
+                    withPath={searching}
+                    locales={locales}
+                    hidden={hiddenColumns.hidden}
+                    onToggle={(option, visible) => {
+                        hiddenColumns.toggle(option, visible);
+                        if (!visible) {
+                            // No filter nor sort left on a hidden column
+                            setColumnFilters(fs =>
+                                fs.filter(f => f.id !== option)
+                            );
+                            setSorting(s =>
+                                s[0]?.id === option
+                                    ? [{id: 'value', desc: false}]
+                                    : s
+                            );
+                        }
+                    }}
+                />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button
@@ -815,16 +892,22 @@ export function EntityGrid({
             </div>
             <div className="flex min-h-0 flex-1">
                 {isHierarchy ? (
+                    // Hidden while searching, keeping its open nodes
                     <div
                         style={{width: treePanel.width}}
-                        className="flex min-w-0 shrink-0 flex-col pr-2"
+                        className={cn(
+                            'flex min-w-0 shrink-0 flex-col pr-2',
+                            searching && 'hidden'
+                        )}
                     >
                         <EntityTree
                             list={list}
                             className="min-h-0 flex-1"
                             selectedId={treeSelection?.id ?? null}
+                            reveal={treeReveal}
                             onSelect={e => {
                                 setTreeSelection(e);
+                                setTreeReveal(null);
                                 setRowSelection({});
                             }}
                             onOpen={e => navigate([e.id])}
@@ -842,7 +925,7 @@ export function EntityGrid({
                         />
                     </div>
                 ) : null}
-                {isHierarchy ? (
+                {isHierarchy && !searching ? (
                     <ResizeHandle
                         panel={treePanel}
                         data-testid="entity-tree-resize"
@@ -851,7 +934,7 @@ export function EntityGrid({
                 <div
                     className={cn(
                         'flex min-w-0 flex-1 flex-col gap-1',
-                        isHierarchy && 'pl-2'
+                        isHierarchy && !searching && 'pl-2'
                     )}
                 >
                     {isHierarchy ? (
@@ -860,23 +943,33 @@ export function EntityGrid({
                                 className="truncate"
                                 data-testid="entity-table-parent"
                             >
-                                {treeSelection
+                                {searching
                                     ? t(
-                                          'entity_hierarchy.children_of',
-                                          'Children of "{{name}}"',
-                                          {
-                                              name: treeSelection.placeholder
-                                                  ? t(
-                                                        'entity_hierarchy.placeholder',
-                                                        'empty level'
-                                                    )
-                                                  : treeSelection.value,
-                                          }
+                                          'entity_hierarchy.search_all_levels',
+                                          'Search results, all levels'
                                       )
-                                    : t(
-                                          'entity_hierarchy.root_children',
-                                          'Top level'
-                                      )}
+                                    : treeSelection
+                                      ? t(
+                                            'entity_hierarchy.children_of',
+                                            'Children of "{{name}}"',
+                                            {
+                                                name: [
+                                                    ...(
+                                                        treeSelection.path ?? []
+                                                    ).map(p => p.value),
+                                                    treeSelection.placeholder
+                                                        ? t(
+                                                              'entity_hierarchy.placeholder',
+                                                              'empty level'
+                                                          )
+                                                        : treeSelection.value,
+                                                ].join(' / '),
+                                            }
+                                        )
+                                      : t(
+                                            'entity_hierarchy.root_children',
+                                            'Top level'
+                                        )}
                             </span>
                             {valueCount ? (
                                 <span

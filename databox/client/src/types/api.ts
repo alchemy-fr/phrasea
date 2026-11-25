@@ -475,6 +475,8 @@ export interface AttributeEntity extends HydraObject, Entity {
     placeholder?: boolean;
     /** Ancestors from the top (placeholders left out) */
     path?: AttributeEntityPathItem[];
+    /** Ancestor IDs from the parent up, placeholders included, in listings */
+    ancestorIds?: string[];
     /** Direct children, in listings */
     childCount?: number | null;
 }
