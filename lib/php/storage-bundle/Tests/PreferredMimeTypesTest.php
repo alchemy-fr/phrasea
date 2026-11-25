@@ -30,6 +30,7 @@ class PreferredMimeTypesTest extends TestCase
         yield ['wmv', ['video/x-ms-wmv', 'audio/x-ms-wmv']];
         yield ['WMV', ['video/x-ms-wmv', 'audio/x-ms-wmv']];
         yield ['wma', ['audio/x-ms-wma', 'audio/wma']];
+        yield ['mp4', ['video/mp4', 'application/mp4', 'video/mp4v-es', 'video/x-m4v']];
         yield ['jpg', ['image/jpeg', 'image/pjpeg']];
         yield ['unknownext', []];
     }
@@ -46,6 +47,7 @@ class PreferredMimeTypesTest extends TestCase
     public static function getConfiguredCases(): iterable
     {
         yield 'nothing preferred' => ['', 'wmv', ['audio/x-ms-wmv', 'video/x-ms-wmv']];
+        yield 'mp4 not preferred' => ['video/x-ms-wmv(.wmv)', 'mp4', ['application/mp4', 'video/mp4', 'video/mp4v-es', 'video/x-m4v']];
         yield 'several extensions, dot and case' => ['image/pjpeg(.JPG, jpeg),video/x-ms-wmv(.wmv)', 'jpeg', ['image/pjpeg', 'image/jpeg']];
         yield 'second entry' => ['image/pjpeg(.jpg),video/x-ms-wmv(.wmv)', 'wmv', ['video/x-ms-wmv', 'audio/x-ms-wmv']];
         yield 'type unknown for the extension' => ['application/x-foo(.wmv)', 'wmv', ['application/x-foo', 'audio/x-ms-wmv', 'video/x-ms-wmv']];
@@ -75,6 +77,7 @@ class PreferredMimeTypesTest extends TestCase
     public function testFileUtilReadsTheDefaultInstance(): void
     {
         $this->assertSame('video/x-ms-wmv', FileUtil::getTypeFromExtension('wmv'));
+        $this->assertSame('video/mp4', FileUtil::getTypeFromExtension('mp4'));
 
         PreferredMimeTypes::setDefault(new PreferredMimeTypes(''));
         $this->assertSame('audio/x-ms-wmv', FileUtil::getTypeFromExtension('wmv'));

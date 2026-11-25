@@ -33,6 +33,7 @@ class FileUtilTest extends TestCase
             ['application/x-gzip', 'sql.gz'],
             ['video/x-ms-wmv', 'wmv'],
             ['video/x-ms-wmv', 'WMV'],
+            ['video/mp4', 'mp4'],
             ['audio/x-ms-wma', 'wma'],
             [null, 'unknownext'],
             [null, null],
