@@ -113,7 +113,7 @@ export function TargetPropertiesFields({
                     'admin.target_create.slug_help',
                     'Optional, unique: lowercase letters, digits, "-" and "_", starting with a letter.'
                 ),
-                {pattern: '[a-z][a-z0-9_\\-]+'}
+                {pattern: '[a-z][a-z0-9_\\-]+', maxLength: 100}
             )}
             <FormRow
                 label={t('admin.target_create.description', 'Description')}

@@ -114,7 +114,8 @@ class Target extends AbstractUuidEntity implements \Stringable
     final public const string GROUP_ADMIN = 'target:admin';
 
     #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
-    #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
+    #[Assert\Regex('/^[a-z][a-z0-9_-]+$/D')]
+    #[Assert\Length(max: 100)]
     #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
     protected ?string $slug = null;
 

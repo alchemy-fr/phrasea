@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class TargetWriteTest extends AbstractUploaderTestCase
 {
@@ -127,6 +128,27 @@ class TargetWriteTest extends AbstractUploaderTestCase
             'name' => 'Duplicate',
         ]);
         $this->assertEquals(422, $response->getStatusCode());
+    }
+
+    #[DataProvider('getInvalidSlugs')]
+    public function testTargetSlugIsValidated(string $slug): void
+    {
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/targets', [
+            'slug' => $slug,
+            'name' => 'Invalid slug',
+        ]);
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertSame('slug', $response->toArray(false)['violations'][0]['propertyPath']);
+    }
+
+    public static function getInvalidSlugs(): array
+    {
+        return [
+            'trailing characters' => ['my-target!'],
+            'space' => ['my target'],
+            'trailing newline' => ["my-target\n"],
+            'too long' => ['a'.str_repeat('b', 100)],
+        ];
     }
 
     public function testTargetNameIsRequired(): void
