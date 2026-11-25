@@ -70,7 +70,6 @@ class BroadcastCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->disable(Action::EDIT, Action::DELETE)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_DETAIL, Action::EDIT)

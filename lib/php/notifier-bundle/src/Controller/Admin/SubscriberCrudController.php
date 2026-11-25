@@ -42,7 +42,6 @@ class SubscriberCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->disable(Action::NEW, Action::EDIT, Action::DELETE)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
         ;

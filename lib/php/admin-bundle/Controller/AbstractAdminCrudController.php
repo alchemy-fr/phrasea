@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Alchemy\AdminBundle\Controller;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -23,12 +22,6 @@ abstract class AbstractAdminCrudController extends AbstractCrudController
             ->overrideTemplate('flash_messages', '@AlchemyAdmin/flash_messages.html.twig')
             ->showEntityActionsInlined()
         ;
-    }
-
-    public function configureActions(Actions $actions): Actions
-    {
-        return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 
     protected function returnToReferer(AdminContext $context): RedirectResponse

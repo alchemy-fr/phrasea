@@ -57,7 +57,6 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
         $allowedKeys = array_keys($this->configurationReference->getAllSchemaProperties());
 
         return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->update(Crud::PAGE_INDEX, Action::EDIT, static function (Action $action) use ($allowedKeys) {
                 $action->displayIf(static function (ConfiguratorEntry $entity) use ($allowedKeys) {
                     return in_array($entity->getName(), $allowedKeys, true);

@@ -139,6 +139,20 @@ abstract class AbstractAdminTestCase extends WebTestCase
     {
         $crawler = $this->loadPage($path);
 
+        // The detail, edit and delete row actions of the lists are icon buttons, labelled by their tooltip
+        $rowActionSelectors = [];
+        foreach (['detail', 'edit', 'delete'] as $name) {
+            foreach (['a', 'button'] as $element) {
+                $rowActionSelectors[] = sprintf('td.actions %s.action-%s', $element, $name);
+            }
+        }
+        $crawler
+            ->filter(implode(', ', $rowActionSelectors))
+            ->each(function (Crawler $node) use ($path): void {
+                $this->assertCount(0, $node->filter('.action-label'), sprintf('The "%s" row action has a text label on page: %s', $node->attr('class'), $path));
+                $this->assertNotEmpty(trim((string) $node->attr('title')), sprintf('The "%s" row action has no title on page: %s', $node->attr('class'), $path));
+            });
+
         $crawler
             ->filter('a.action-new')
             ->each(function ($node, $i) {

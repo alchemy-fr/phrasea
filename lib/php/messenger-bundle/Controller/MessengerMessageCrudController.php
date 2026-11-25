@@ -54,7 +54,6 @@ class MessengerMessageCrudController extends AbstractCrudController
             ->askConfirmation('Retry every message that was not retried yet?', 'Retry all');
 
         return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->add(Crud::PAGE_INDEX, $retry)

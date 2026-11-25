@@ -56,7 +56,6 @@ class NotificationDigestCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->disable(Action::NEW, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)

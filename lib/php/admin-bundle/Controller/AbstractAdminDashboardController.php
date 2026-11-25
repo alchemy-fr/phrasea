@@ -16,6 +16,7 @@ use Alchemy\MessengerBundle\Controller\MessengerMessageCrudController;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\RouteMenuItem;
@@ -29,6 +30,8 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Service\Attribute\Required;
+
+use function Symfony\Component\Translation\t;
 
 abstract class AbstractAdminDashboardController extends AbstractDashboardController
 {
@@ -254,6 +257,26 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             ->overrideTemplate('crud/detail', '@AlchemyAdmin/detail.html.twig')
             ->overrideTemplate('flash_messages', '@AlchemyAdmin/flash_messages.html.twig')
         ;
+    }
+
+    /**
+     * The actions shared by every CRUD controller, which receives them in its own configureActions().
+     * On the list pages, the "detail", "edit" and "delete" row actions are icon buttons, their label
+     * being shown as a tooltip.
+     */
+    #[\Override]
+    public function configureActions(): Actions
+    {
+        $actions = parent::configureActions()
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+
+        foreach ([Action::DETAIL, Action::EDIT, Action::DELETE] as $name) {
+            $actions->update(Crud::PAGE_INDEX, $name, static fn (Action $action): Action => $action
+                ->setLabel(false)
+                ->setHtmlAttributes(['title' => t('action.'.$name, [], 'EasyAdminBundle')]));
+        }
+
+        return $actions;
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu
