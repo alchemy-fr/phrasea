@@ -57,4 +57,22 @@ class CommitToolsTest extends AbstractToolTestCase
 
         $this->assertLastRequest('GET', '/assets/a1');
     }
+
+    public function testAcknowledge(): void
+    {
+        $this->kernel->willRespond(true);
+
+        $this->assertSame(['result' => true], $this->tools->acknowledge('c1'));
+
+        $this->assertLastRequest('POST', '/commits/c1/ack', body: []);
+    }
+
+    public function testAcknowledgeAsset(): void
+    {
+        $this->kernel->willRespond(true);
+
+        $this->assertSame(['result' => true], $this->tools->acknowledgeAsset('a1'));
+
+        $this->assertLastRequest('POST', '/assets/a1/ack', body: []);
+    }
 }

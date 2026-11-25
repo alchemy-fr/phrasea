@@ -3,14 +3,21 @@ mcp:
     servers:
         uploader:
             name: 'Phrasea Uploader'
-            description: 'Browse the Phrasea Uploader targets and their upload form, validate form data and follow the commits.'
+            description: 'Send files to the Phrasea Uploader targets from a URL, fill their upload form, follow and acknowledge the commits, manage the upload links and the targets.'
             instructions: |
                 Phrasea Uploader receives files and forwards them to a target (a Databox workspace, a Phraseanet
                 instance…). A target may have an upload form: the fields the uploader fills, whose values ("form
-                data", an object keyed by field key) are sent along with the files. Read the form of a target before
-                validating form data against it. A commit is a batch of files sent to a target with its form data;
-                it is acknowledged once the target has consumed it. Files are uploaded and committed from the
-                Uploader web client, not through this server. Every call runs with the permissions of the
-                authenticated user: listing commits requires the "commit:list" scope or the admin role.
+                data", an object keyed by field key) are sent along with the files. Read the form of a target
+                (get_target_form_schema) before filling form data; the values of its entity fields (tags…) are
+                IDs, listed by list_form_field_options; check the data with validate_form_data. A commit is a
+                batch of files sent to a target with its form data; it is acknowledged once the target has
+                consumed it.
+                The model never sends file bytes: upload_from_url makes the server download a file from a public
+                URL and commit it (in the background, rate limited per user); the other uploads are made from the
+                Uploader web client. An upload link is a secret URL letting someone without an account upload to
+                one target on behalf of its creator, within its limits.
+                Every call runs with the permissions of the authenticated user: listing commits requires the
+                "commit:list" scope or the admin role; managing upload links requires the upload link permission;
+                administering targets and acknowledging commits require the admin role.
             registry:
                 tools: ['App\Mcp\Tool\']

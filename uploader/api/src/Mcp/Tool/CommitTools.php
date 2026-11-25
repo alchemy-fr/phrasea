@@ -56,7 +56,7 @@ final readonly class CommitTools
 
     #[McpTool(
         name: 'get_upload_asset',
-        description: 'Get an uploaded file (asset) of a commit: original name, MIME type, size, a temporary download URL and acknowledgement state. Requires the admin role.',
+        description: 'Get an uploaded file (asset) of a commit: original name, MIME type, size, a temporary download URL and acknowledgement state. Requires the admin role: other users get a 403 (the targets read their files with the token of the commit). Take the asset IDs from get_commit.',
         annotations: new ToolAnnotations(readOnlyHint: true),
     )]
     public function getAsset(
@@ -64,5 +64,35 @@ final readonly class CommitTools
         string $id,
     ): array {
         return $this->client->get('/assets/'.rawurlencode($id));
+    }
+
+    /**
+     * @return array{result: true}
+     */
+    #[McpTool(
+        name: 'acknowledge_commit',
+        description: 'Acknowledge a commit and all its files on behalf of its target, as the target does once it has read them: unblocks a commit the target consumed but left pending (e.g. after a failed acknowledgement). The files are then deleted from the Uploader storage and the sender is notified if they asked for it: only acknowledge a commit its target already ingested. Processed in the background. Requires the admin role.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true),
+    )]
+    public function acknowledge(
+        #[Schema(description: 'Commit ID (UUID)')]
+        string $id,
+    ): array {
+        return $this->client->post('/commits/'.rawurlencode($id).'/ack');
+    }
+
+    /**
+     * @return array{result: true}
+     */
+    #[McpTool(
+        name: 'acknowledge_upload_asset',
+        description: 'Acknowledge one file of a commit on behalf of its target: acknowledging the last pending file acknowledges the whole commit, whose files are then deleted from the Uploader storage. Unblocks a commit whose target ingested a file without acknowledging it. Processed in the background. Requires the admin role.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true),
+    )]
+    public function acknowledgeAsset(
+        #[Schema(description: 'Asset ID (UUID)')]
+        string $id,
+    ): array {
+        return $this->client->post('/assets/'.rawurlencode($id).'/ack');
     }
 }

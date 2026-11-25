@@ -82,4 +82,125 @@ class TargetToolsTest extends AbstractToolTestCase
 
         $this->assertSame(['valid' => true, 'errors' => []], $this->tools->validateFormData('t1', ['album' => 'Foo']));
     }
+
+    public function testListFormFieldOptions(): void
+    {
+        $option = ['value' => 'e1', 'label' => 'Sea', 'color' => null, 'emoji' => null];
+        $this->kernel->willRespond(['member' => [$option], 'hasMore' => true]);
+
+        $this->assertSame(
+            ['items' => [$option], 'page' => 1, 'hasNextPage' => true],
+            $this->tools->listFormFieldOptions('t1', 'tags'),
+        );
+
+        $this->assertLastRequest('GET', '/targets/t1/form-fields/tags/options', ['page' => '1']);
+    }
+
+    public function testListFormFieldOptionsFilters(): void
+    {
+        $this->kernel->willRespond(['member' => [], 'hasMore' => false]);
+        $this->tools->listFormFieldOptions('t1', 'my tags', 'sea', page: 2);
+        $this->assertLastRequest('GET', '/targets/t1/form-fields/my%20tags/options', ['query' => 'sea', 'page' => '2']);
+
+        $this->kernel->willRespond(['member' => [], 'hasMore' => false]);
+        $this->tools->listFormFieldOptions('t1', 'tags', ids: ['e1', 'e2']);
+        $this->assertLastRequest('GET', '/targets/t1/form-fields/tags/options', ['ids' => ['e1', 'e2'], 'page' => '1']);
+    }
+
+    public function testGetSettings(): void
+    {
+        $this->kernel->willRespond(['id' => 't1', 'targetUrl' => 'https://example.com']);
+
+        $this->assertSame(['id' => 't1', 'targetUrl' => 'https://example.com'], $this->tools->getSettings('t1'));
+
+        $this->assertLastRequest('GET', '/targets/t1/settings');
+    }
+
+    public function testCreate(): void
+    {
+        $this->kernel->willRespond(['id' => 't1', 'name' => 'Foo'], 201);
+
+        $this->assertSame(['id' => 't1', 'name' => 'Foo'], $this->tools->create('Foo', 'foo', targetUrl: 'https://example.com', allowedGroups: ['g1']));
+
+        $this->assertLastRequest('POST', '/targets', body: [
+            'name' => 'Foo',
+            'slug' => 'foo',
+            'targetUrl' => 'https://example.com',
+            'allowedGroups' => ['g1'],
+        ]);
+    }
+
+    public function testUpdate(): void
+    {
+        $this->kernel->willRespond(['id' => 't1']);
+
+        $this->tools->update('t1', name: 'Renamed', allowedGroups: []);
+
+        $this->assertLastRequest('PATCH', '/targets/t1', body: [
+            'name' => 'Renamed',
+            'allowedGroups' => [],
+        ]);
+    }
+
+    public function testUpdateClearsTheGivenFields(): void
+    {
+        $this->kernel->willRespond(['id' => 't1']);
+
+        $this->tools->update('t1', targetUrl: 'https://example.com', clear: ['authorizationKey', 'description', 'name']);
+
+        $this->assertLastRequest('PATCH', '/targets/t1', body: [
+            'targetUrl' => 'https://example.com',
+            'description' => null,
+            'authorizationKey' => null,
+        ]);
+    }
+
+    public function testDelete(): void
+    {
+        $this->kernel->willRespond(null, 204);
+
+        $this->assertSame(['deleted' => 't1'], $this->tools->delete('t1'));
+
+        $this->assertLastRequest('DELETE', '/targets/t1');
+    }
+
+    public function testUpdateForm(): void
+    {
+        $form = ['version' => 1, 'fields' => []];
+        $this->kernel->willRespond($form);
+
+        $this->assertSame(['targetId' => 't1', 'form' => $form], $this->tools->updateForm('t1', $form));
+
+        $this->assertLastRequest('PUT', '/targets/t1/form', body: ['form' => $form]);
+    }
+
+    public function testRemoveForm(): void
+    {
+        $this->kernel->willRespond(null);
+
+        $this->assertSame(['targetId' => 't1', 'form' => null], $this->tools->updateForm('t1', null));
+
+        $this->assertLastRequest('PUT', '/targets/t1/form', body: ['form' => null]);
+    }
+
+    public function testGetData(): void
+    {
+        $this->kernel->willRespond(['source' => 'web']);
+        $this->assertSame(['targetId' => 't1', 'data' => ['source' => 'web']], $this->tools->getData('t1'));
+        $this->assertLastRequest('GET', '/targets/t1/data');
+
+        $this->kernel->willRespond(null);
+        $this->assertSame(['targetId' => 't1', 'data' => null], $this->tools->getData('t1'));
+    }
+
+    public function testUpdateData(): void
+    {
+        $this->kernel->willRespond(['source' => 'web']);
+        $this->assertSame(['targetId' => 't1', 'data' => ['source' => 'web']], $this->tools->updateData('t1', ['source' => 'web']));
+        $this->assertLastRequest('PUT', '/targets/t1/data', body: ['data' => ['source' => 'web']]);
+
+        $this->kernel->willRespond(null);
+        $this->assertSame(['targetId' => 't1', 'data' => null], $this->tools->updateData('t1', null));
+        $this->assertLastRequest('PUT', '/targets/t1/data', body: ['data' => null]);
+    }
 }
