@@ -34,10 +34,13 @@ final class RenditionIntegrationQueueTest extends AbstractDataboxTestCase
 
         $jobs = $this->getJobs($workspace);
 
-        foreach (['main', 'preview', 'thumbnail', 'storyContactSheet'] as $name) {
+        foreach (['preview', 'thumbnail', 'storyContactSheet'] as $name) {
             $this->assertSame(WorkerQueue::HEAVY, $jobs[$definitions[$name]->getId()]->getQueue(), $name);
         }
-        $this->assertSame(WorkerQueue::HEAVY_LOW, $jobs[$definitions['animatedThumbnail']->getId()]->getQueue());
+        // Preview is built from the source: Main is not an ancestor of the thumbnail
+        foreach (['source', 'main', 'animatedThumbnail'] as $name) {
+            $this->assertSame(WorkerQueue::HEAVY_LOW, $jobs[$definitions[$name]->getId()]->getQueue(), $name);
+        }
         $this->assertSame(WorkerQueue::HEAVY_LOW, $jobs[$free->getId()]->getQueue());
     }
 
@@ -65,12 +68,11 @@ final class RenditionIntegrationQueueTest extends AbstractDataboxTestCase
         $jobs = $this->getJobs($workspace, [$definitions['thumbnail']->getId(), $definitions['animatedThumbnail']->getId()]);
 
         $this->assertEqualsCanonicalizing([
-            $definitions['main']->getId(),
             $definitions['preview']->getId(),
             $definitions['thumbnail']->getId(),
             $definitions['animatedThumbnail']->getId(),
         ], array_keys($jobs));
-        foreach (['main', 'preview', 'thumbnail'] as $name) {
+        foreach (['preview', 'thumbnail'] as $name) {
             $this->assertSame(WorkerQueue::HEAVY, $jobs[$definitions[$name]->getId()]->getQueue(), $name);
         }
         $this->assertSame(WorkerQueue::HEAVY_LOW, $jobs[$definitions['animatedThumbnail']->getId()]->getQueue());

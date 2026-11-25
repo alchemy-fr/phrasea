@@ -105,7 +105,7 @@ YAML;
         $this->assertNotContains($assetOnly->getId(), $byTarget);
 
         $byWorkspace = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(7, $byWorkspace->toArray()['totalItems']);
+        $this->assertSame(8, $byWorkspace->toArray()['totalItems']);
     }
 
     /**
@@ -153,7 +153,6 @@ YAML;
     {
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $this->addUserOnWorkspace(self::READER, $ws->getId());
-        $main = $defaults->renditionDefinitions['main'];
         $preview = $defaults->renditionDefinitions['preview'];
 
         $data = $this->jsonRequest('GET', '/rendition-definitions/'.$preview->getId(), self::EDITOR)->toArray();
@@ -162,7 +161,7 @@ YAML;
         $this->assertFalse($data['useAsMain']);
         $this->assertSame(RenditionDefinition::BUILD_MODE_CUSTOM, $data['buildMode']);
         $this->assertNotEmpty($data['definition']);
-        $this->assertSame('/rendition-definitions/'.$main->getId(), $data['parent']['@id'] ?? $data['parent']);
+        $this->assertNull($data['parent'] ?? null);
         $this->assertSame(AssetTypeEnum::Both->value, $data['target']);
 
         $data = $this->jsonRequest('GET', '/rendition-definitions/'.$preview->getId(), self::READER)->toArray();
@@ -346,7 +345,7 @@ YAML;
         $this->assertSame('Preview v2', $response->toArray()['name']);
 
         $list = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(5, $list->toArray()['totalItems']);
+        $this->assertSame(6, $list->toArray()['totalItems']);
     }
 
     public function testPatchOnlyChangesProvidedFields(): void
@@ -376,15 +375,15 @@ YAML;
     public function testPatchKeepsTheParent(): void
     {
         [, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
-        $preview = $defaults->renditionDefinitions['preview'];
-        $mainIri = '/rendition-definitions/'.$defaults->renditionDefinitions['main']->getId();
+        $thumbnail = $defaults->renditionDefinitions['thumbnail'];
+        $previewIri = '/rendition-definitions/'.$defaults->renditionDefinitions['preview']->getId();
 
-        $response = $this->jsonRequest('PATCH', '/rendition-definitions/'.$preview->getId(), self::EDITOR, [
+        $response = $this->jsonRequest('PATCH', '/rendition-definitions/'.$thumbnail->getId(), self::EDITOR, [
             'name' => 'Renamed',
         ]);
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
-        $this->assertSame($mainIri, $data['parent']['@id'] ?? $data['parent'] ?? null);
+        $this->assertSame($previewIri, $data['parent']['@id'] ?? $data['parent'] ?? null);
     }
 
     public function testPatchKeepsTheBuildDefinition(): void
@@ -449,6 +448,7 @@ YAML;
             $defaults->renditionDefinitions['thumbnail']->getId(),
             $defaults->renditionDefinitions['main']->getId(),
             $defaults->renditionDefinitions['preview']->getId(),
+            $defaults->renditionDefinitions['source']->getId(),
             $defaults->renditionDefinitions['animatedThumbnail']->getId(),
             $defaults->renditionDefinitions['storyContactSheet']->getId(),
         ];
@@ -461,8 +461,8 @@ YAML;
         $this->assertSame($ids, $listed);
 
         $em = self::getEntityManager();
-        $this->assertSame(4, $em->find(RenditionDefinition::class, $ids[0])->getPriority());
-        $this->assertSame(0, $em->find(RenditionDefinition::class, $ids[4])->getPriority());
+        $this->assertSame(5, $em->find(RenditionDefinition::class, $ids[0])->getPriority());
+        $this->assertSame(0, $em->find(RenditionDefinition::class, $ids[5])->getPriority());
     }
 
     public function testSortOnlyAffectsTheWorkspaceOfTheLastItem(): void
@@ -634,7 +634,7 @@ YAML;
         $this->assertResponseStatusCodeSame(404);
 
         $list = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(5, $list->toArray()['totalItems']);
+        $this->assertSame(6, $list->toArray()['totalItems']);
 
         $this->duplicate($id, self::ADMIN);
         $this->assertResponseStatusCodeSame(201);

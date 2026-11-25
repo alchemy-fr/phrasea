@@ -1532,6 +1532,8 @@
     "rendition_def.reference": "Référence",
     "rendition_def.saved": "Définition de rendu enregistrée",
     "rendition_def.substitutable": "substituable",
+    "rendition_def.useAsMain": "Utiliser comme principale (affichage web)",
+    "rendition_def.useAsMain_help": "Affichée par le visualiseur : doit être lisible par un navigateur (la rendition Source donne le fichier tel quel)",
     "saved_search.automations": "Automatisations",
     "saved_search.conditions": "Conditions",
     "saved_search.delete.title": "Supprimer la recherche « {{name}} » ?",

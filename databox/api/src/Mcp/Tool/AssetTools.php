@@ -76,7 +76,7 @@ final readonly class AssetTools
 
     #[McpTool(
         name: 'get_asset',
-        description: 'Get an asset with its attributes, collections and main renditions.',
+        description: 'Get an asset with its attributes, collections and its main (web display), preview and thumbnail renditions.',
         annotations: new ToolAnnotations(readOnlyHint: true),
     )]
     public function get(

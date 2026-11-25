@@ -1,0 +1,71 @@
+# Version of the asset displayed by the viewer: it must be readable by a web browser.
+# The file of the asset as is is given by the "source" rendition.
+image:
+    transformations:
+        -
+            module: extract_embedded_preview
+            options:
+                eligible_types:
+                    - application/illustrator
+                    - application/postscript
+                    - image/x-canon-cr2
+                    - image/x-olympus-orf
+                    - image/x-sony-arw
+                    - image/x-panasonic-rw2
+                    - image/x-nikon-nef
+                    - image/x-adobe-dng
+        -
+            module: imagine
+            options:
+                format: webp
+                filters:
+                    auto_rotate: ~
+                    thumbnail:
+                        size: [ 3840, 3840 ]
+                        mode: inset
+
+# Animated GIF, WebP and SVG are already readable by a web browser
+animation:
+    transformations:
+        -
+            module: void
+
+video:
+    normalization: ~
+    transformations:
+        -
+            module: ffmpeg
+            options:
+                filters:
+                    -
+                        name: resize
+                        width: 1920
+                        height: 1920
+                        mode: inset
+                    -
+                        name: synchronize
+                format: video-mpeg4
+                timeout: 3600
+                threads: 4
+                video_kilobitrate: 4000
+
+audio:
+    normalization: ~
+    transformations:
+        -
+            module: ffmpeg
+            options:
+                format: audio-mp3
+                audio_kilobitrate: 256
+
+document:
+    normalization: ~
+    transformations:
+        -
+            module: document_to_pdf
+
+# Archives, presentations…: the file as is
+unknown:
+    transformations:
+        -
+            module: void

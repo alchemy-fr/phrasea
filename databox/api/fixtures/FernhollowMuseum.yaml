@@ -65,7 +65,6 @@ App\Entity\Core\RenditionDefinition:
         workspace: '@w_fernhollow'
         name: Archival master
         policy: '@fh_rp_archive'
-        parent: '@fh_rd_main'
         buildMode: 1
         translations: { name: { fr: Original d'archive } }
 

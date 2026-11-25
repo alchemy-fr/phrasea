@@ -26,13 +26,15 @@ class VoidTransformerModule implements TransformerModuleInterface
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            A module that does nothing (testing purpose)
+            Leaves the input file unchanged: the rendition is the input file itself (e.g. a file already readable by a web browser)
             HEADER
         );
     }
 
     public function buildConfiguration(NodeBuilder $builder): void
     {
+        // No option, but the validated transformation always carries an "options" key
+        $builder->arrayNode('options')->end();
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface

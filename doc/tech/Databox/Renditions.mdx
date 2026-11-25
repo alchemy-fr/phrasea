@@ -8,6 +8,40 @@ import MyMarkdown from '../../_databox/_rendition_transformers.md'
 
 The Rendition Factory is a service responsible for generating various renditions (alternative formats or versions) of media assets stored in Databox. It utilizes a set of transformers to process and convert the original media files into different renditions based on predefined configurations.
 
+## Default renditions of a new workspace
+
+A workspace created from the admin or by the fixtures (`WorkspaceCreator`) gets these
+rendition definitions, in the "Public" rendition policy (build definitions in
+`databox/api/src/Service/Workspace/renditions/`):
+
+| Rendition           | Build                                    | Use                                                                                |
+| ------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------- |
+| `Source`            | Pick source, no parent, assets only      | The file of the asset as is: the one to export or share to get the source.         |
+| `Main`              | Custom (`main.yaml`), from the source    | `useAsMain`: the version displayed by the asset viewer, readable by a web browser. |
+| `Preview`           | Custom (`preview.yaml`), from the source | `useAsPreview`                                                                     |
+| `Thumbnail`         | Custom, from `Preview`                   | `useAsThumbnail`, built first                                                      |
+| `AnimatedThumbnail` | Custom, from `Preview`                   | `useAsAnimatedThumbnail`                                                           |
+| `StoryContactSheet` | `generate:` (stories only)               | Thumbnail and animated thumbnail of the stories, see below                         |
+
+`Main` is built for the web from every file family, so that its job is never skipped:
+
+- **image**: the embedded preview of the RAW and Illustrator files, then WebP, 3840 px at most
+  (transparency kept);
+- **animation** (animated GIF, WebP, SVG): the source as is;
+- **video**: MP4, 1920 px at most, 4000 kb/s;
+- **audio**: MP3, 256 kb/s;
+- **document**: PDF (a PDF is passed through);
+- **unknown** (archives, presentations…): the source as is.
+
+`Source` is not substitutable: the source of an asset is replaced by the "replace the source"
+action of the asset. A file stored on a definition which picks the source without parent
+becomes the source of an asset which has none (`RenditionManager`); a file stored on `Main`
+never does.
+
+The workspaces created before `Source` existed keep their former definitions: `Main` picks the
+source file (it is both the viewer file and the source to download) and `Preview` is built from
+it. Nothing is migrated.
+
 ## Formats read by ImageMagick
 
 Image renditions (`imagine`, `pdf_to_image`, the colorspace analyzer...) read

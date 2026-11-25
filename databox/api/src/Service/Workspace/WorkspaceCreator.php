@@ -34,10 +34,24 @@ final readonly class WorkspaceCreator
         $renditionPolicy->setEditable(true);
         $this->em->persist($renditionPolicy);
 
-        $renditionDefs = [];
+        // The file of the asset as is (Main is the version displayed by the viewer, built for the web)
+        $source = new RenditionDefinition();
+        $source->setName('Source');
+        $source->setKey('source');
+        $source->setPolicy($renditionPolicy);
+        $source->setWorkspace($workspace);
+        $source->setTarget(AssetTypeEnum::Asset);
+        $source->setBuildMode(RenditionDefinition::BUILD_MODE_PICK_SOURCE);
+        $source->setDownload(true);
+        // Replacing the source goes through the asset's own "replace source" action
+        $source->setSubstitutable(false);
+        $this->em->persist($source);
+
+        $renditionDefs = ['source' => $source];
         foreach ([
             'main' => null,
-            'preview' => 'main',
+            // Built from the source: the web version of Main may have lost what Preview needs (audio artwork…)
+            'preview' => null,
             'thumbnail' => 'preview',
             'animatedThumbnail' => 'preview',
         ] as $renditionName => $parentName) {

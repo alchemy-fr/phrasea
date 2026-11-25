@@ -35,16 +35,16 @@ YAML;
     public function testPickSourceRenditionIsCreatedWhenMissing(): void
     {
         [$workspace, $defaults] = $this->createWorkspaceWithDefaults('pick-source');
-        $main = $defaults->renditionDefinitions['main'];
+        $pickSource = $defaults->renditionDefinitions['source'];
 
         $source = $this->createUrlFile($workspace);
         $asset = $this->createAsset(['workspace' => $workspace]);
         $asset->setSource($source);
         self::getEntityManager()->flush();
 
-        self::getService(RenditionBuilder::class)->buildRendition($main, $asset);
+        self::getService(RenditionBuilder::class)->buildRendition($pickSource, $asset);
 
-        $rendition = self::getService(RenditionManager::class)->getAssetRenditionByDefinition($asset, $main);
+        $rendition = self::getService(RenditionManager::class)->getAssetRenditionByDefinition($asset, $pickSource);
         $this->assertNotNull($rendition);
         $this->assertSame($source->getId(), $rendition->getFile()?->getId());
     }
@@ -52,17 +52,17 @@ YAML;
     public function testExistingPickSourceRenditionIsKept(): void
     {
         [$workspace, $defaults] = $this->createWorkspaceWithDefaults('pick-source-kept');
-        $main = $defaults->renditionDefinitions['main'];
+        $pickSource = $defaults->renditionDefinitions['source'];
 
         $source = $this->createUrlFile($workspace);
         $picked = $this->createUrlFile($workspace, 'https://cdn.example.com/picked.jpg');
         $asset = $this->createAsset(['workspace' => $workspace]);
         $asset->setSource($source);
-        $this->createAssetRendition($asset, $main, $picked);
+        $this->createAssetRendition($asset, $pickSource, $picked);
 
-        self::getService(RenditionBuilder::class)->buildRendition($main, $asset);
+        self::getService(RenditionBuilder::class)->buildRendition($pickSource, $asset);
 
-        $rendition = self::getService(RenditionManager::class)->getAssetRenditionByDefinition($asset, $main);
+        $rendition = self::getService(RenditionManager::class)->getAssetRenditionByDefinition($asset, $pickSource);
         $this->assertSame($picked->getId(), $rendition?->getFile()?->getId());
     }
 

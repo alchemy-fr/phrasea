@@ -64,13 +64,16 @@ All the audio and the video of the fixtures are in Hollowtone Recording: the oth
 hold images and PDF documents only.
 
 The four workspaces are created through `App\Fixture\WorkspaceFactory`, like a workspace
-created from the API: the "Public" attribute and rendition policies, the `main`, `preview`,
-`thumbnail` and `animatedThumbnail` renditions, the "Name" attribute and the base
-integrations come from `WorkspaceCreator`, and the fixtures get them back with the getters
-of the factory.
+created from the admin: the "Public" attribute and rendition policies, the `source`, `main`,
+`preview`, `thumbnail`, `animatedThumbnail` and `storyContactSheet` renditions (see
+[the default renditions](./Renditions.mdx#default-renditions-of-a-new-workspace)), the "Name"
+attribute and the base integrations come from `WorkspaceCreator`, and the fixtures get them back
+with the getters of the factory.
 
 Each workspace also has a restricted attribute policy and a restricted rendition policy
-(with a rendition definition), granted to some personas only.
+(with a rendition definition), granted to some personas only. That restricted rendition
+(`Print hi-res`, `E-commerce zoom`, `Archival master`, `Master`) picks the source file without
+parent: it is the file of the asset as is, not the web version of `main`.
 
 ### Northbeam Press
 
@@ -93,12 +96,12 @@ News agency: editorial flow, geolocated, under embargo, multilingual.
 - **Integrations**: ToastUI photo editor, Blurhash, watermark (Watermark attribute on the
   thumbnail), visual similarity, face recognition (into People).
 
-| Persona | Role             | Rights                                                                   |
-| ------- | ---------------- | ------------------------------------------------------------------------ |
-| alice   | editor-in-chief  | edit and operate the whole workspace; Newsroom only; Print               |
-| bob     | photographer     | create and edit in `Desks`; reads Newsroom only; Print                   |
-| carol   | freelancer       | `Sports` only (plus `Wire Feed`, public in the workspace)                |
-| dave    | archivist        | view and edit `Archives`; Print                                          |
+| Persona | Role            | Rights                                                     |
+| ------- | --------------- | ---------------------------------------------------------- |
+| alice   | editor-in-chief | edit and operate the whole workspace; Newsroom only; Print |
+| bob     | photographer    | create and edit in `Desks`; reads Newsroom only; Print     |
+| carol   | freelancer      | `Sports` only (plus `Wire Feed`, public in the workspace)  |
+| dave    | archivist       | view and edit `Archives`; Print                            |
 
 - Attribute filter rule: carol does not see the assets tagged `Embargo`
   (`tags IS NOT "<Embargo entity ID>"`).
@@ -127,12 +130,12 @@ press kit.
 - **Integrations**: ToastUI photo editor, Blurhash, visual similarity, face recognition (into
   Models), remove.bg (disabled), webhook to the PIM (disabled).
 
-| Persona | Role             | Rights                                                                   |
-| ------- | ---------------- | ------------------------------------------------------------------------ |
-| alice   | marketing        | view and edit `Campaigns`, `Lookbooks` and `Press Kit`; Commercial       |
-| bob     | photo studio     | create and edit in `Seasons`; Studio (view and edit)                     |
-| carol   | wholesale partner| `SS26` and `Press Kit` (plus `SS26 – Coastline` and `Lookbooks`, public in the workspace); Commercial; Studio |
-| dave    | e-commerce       | view the whole workspace; Commercial; Studio                             |
+| Persona | Role              | Rights                                                                                                        |
+| ------- | ----------------- | ------------------------------------------------------------------------------------------------------------- |
+| alice   | marketing         | view and edit `Campaigns`, `Lookbooks` and `Press Kit`; Commercial                                            |
+| bob     | photo studio      | create and edit in `Seasons`; Studio (view and edit)                                                          |
+| carol   | wholesale partner | `SS26` and `Press Kit` (plus `SS26 – Coastline` and `Lookbooks`, public in the workspace); Commercial; Studio |
+| dave    | e-commerce        | view the whole workspace; Commercial; Studio                                                                  |
 
 - Attribute filter rule: carol does not see the assets tagged `Do not publish`.
 - Asset policy "Press kit": for carol, the assets of `Press Kit` hide their prices and their
@@ -165,12 +168,12 @@ collections owned by alice and bob, assets at every level of the tree.
   recognition (into People), AWS Rekognition (disabled, labels into Keywords, dummy AWS
   secrets).
 
-| Persona | Role       | Rights                                                                   |
-| ------- | ---------- | ------------------------------------------------------------------------ |
-| alice   | curator    | view, edit and delete in `Departments`; Curatorial (edit); Archive       |
-| bob     | researcher | view `Departments` (nothing on `Conservation Lab`)                       |
+| Persona | Role       | Rights                                                                                                       |
+| ------- | ---------- | ------------------------------------------------------------------------------------------------------------ |
+| alice   | curator    | view, edit and delete in `Departments`; Curatorial (edit); Archive                                           |
+| bob     | researcher | view `Departments` (nothing on `Conservation Lab`)                                                           |
 | carol   | visitor    | `Open Collection` (plus `Lepidoptera`, `Ornithology`, `Minerals` and `Exhibitions`, visible to every member) |
-| dave    | registrar  | view and edit `Outgoing Loans`; Curatorial; Archive                      |
+| dave    | registrar  | view and edit `Outgoing Loans`; Curatorial; Archive                                                          |
 
 - Attribute filter rule: bob and carol do not see the critically endangered species
   (Conservation status = CR).
@@ -208,12 +211,12 @@ fixtures.
 - **Integrations**: Blurhash, visual similarity, face recognition (into People), AWS
   Transcribe (disabled, transcript into WebVTT transcript, dummy AWS secrets).
 
-| Persona | Role           | Rights                                                                   |
-| ------- | -------------- | ------------------------------------------------------------------------ |
-| alice   | studio manager | edit and operate the whole workspace; Label (edit); Masters              |
-| bob     | sound engineer | create and edit in `Sessions`; reads Label; Masters                      |
+| Persona | Role           | Rights                                                                                |
+| ------- | -------------- | ------------------------------------------------------------------------------------- |
+| alice   | studio manager | edit and operate the whole workspace; Label (edit); Masters                           |
+| bob     | sound engineer | create and edit in `Sessions`; reads Label; Masters                                   |
 | carol   | client (label) | `Client work` and `Albums` (plus `Music videos` and `Press`, visible to every member) |
-| dave    | archivist      | view and edit `Vault`                                                    |
+| dave    | archivist      | view and edit `Vault`                                                                 |
 
 - Attribute filter rule: carol does not see the assets tagged `Do not distribute`.
 - Asset policy "Unreleased masking": for carol and dave, the assets of `Albums` hide their
@@ -278,14 +281,13 @@ To add a theme:
 1. Prepare 42 landscape and 42 portrait JPEG images (2000px on the long side, quality 65),
    named `1.jpg` to `42.jpg`.
 2. Upload them, readable anonymously:
-   ```bash
-   aws s3 sync ./landscape s3://alchemy-phrasea-fixtures/fixtures/images/<theme>/landscape/
-   aws s3 sync ./portrait s3://alchemy-phrasea-fixtures/fixtures/images/<theme>/portrait/
-   ```
+    ```bash
+    aws s3 sync ./landscape s3://alchemy-phrasea-fixtures/fixtures/images/<theme>/landscape/
+    aws s3 sync ./portrait s3://alchemy-phrasea-fixtures/fixtures/images/<theme>/portrait/
+    ```
 3. Use the theme in a fixture: `'<imageUrlRandomRatio(@w_x->id, <current()>, 1000, "<theme>")>'`.
 
-`nature` is the fallback theme: an image that the requested theme does not have (HTTP 403 or
-404) is replaced by the same variant of `nature`, with a warning in the logs, so that the
+`nature` is the fallback theme: an image that the requested theme does not have (HTTP 403 or 404) is replaced by the same variant of `nature`, with a warning in the logs, so that the
 fixtures always load while a theme is incomplete.
 
 The lock of an asset always gives the same variant (`lock % 42 + 1`) and the same orientation
@@ -308,19 +310,19 @@ where `<n>` is the number of the asset in its range (`<current()>`). A file miss
 (HTTP 403 or 404) is replaced by a generic media, with a warning in the logs; without `set`,
 `randomMedia()` only picks generic media.
 
-| Set                                      | Type | Files | Content                                                   |
-| ---------------------------------------- | ---- | ----- | --------------------------------------------------------- |
-| `northbeam-press/press-release`          | pdf  | 1-10  | press releases (titles of `ThematicFaker`)                |
-| `linden-rowe/spec-sheet`                 | pdf  | 1-6   | technical specifications (tech packs) of SS26 styles      |
-| `linden-rowe/lookbook`                   | pdf  | 1-4   | lookbooks (1-2 internal, 3-4 press kit, en and fr)        |
-| `fernhollow-museum/accession-record`     | pdf  | 1-8   | accession records of specimens                            |
-| `fernhollow-museum/field-notebook`       | pdf  | 1-7   | handwritten geology field notebooks                       |
-| `hollowtone-recording/track`             | mp3  | 1-16  | music, 4 tracks per album: rock, jazz, electronic, folk   |
+| Set                                      | Type | Files | Content                                                                   |
+| ---------------------------------------- | ---- | ----- | ------------------------------------------------------------------------- |
+| `northbeam-press/press-release`          | pdf  | 1-10  | press releases (titles of `ThematicFaker`)                                |
+| `linden-rowe/spec-sheet`                 | pdf  | 1-6   | technical specifications (tech packs) of SS26 styles                      |
+| `linden-rowe/lookbook`                   | pdf  | 1-4   | lookbooks (1-2 internal, 3-4 press kit, en and fr)                        |
+| `fernhollow-museum/accession-record`     | pdf  | 1-8   | accession records of specimens                                            |
+| `fernhollow-museum/field-notebook`       | pdf  | 1-7   | handwritten geology field notebooks                                       |
+| `hollowtone-recording/track`             | mp3  | 1-16  | music, 4 tracks per album: rock, jazz, electronic, folk                   |
 | `hollowtone-recording/take`              | mp3  | 1-8   | isolated takes: vocals, guitar, drums, piano, bass, strings, brass, synth |
-| `hollowtone-recording/voice-over`        | mp3  | 1-6   | voice-overs and jingles (synthetic speech, en and fr)     |
-| `hollowtone-recording/music-video`       | mp4  | 1-6   | music videos and filmed concerts                          |
-| `hollowtone-recording/session-footage`   | mp4  | 1-8   | musicians recording in a studio                           |
-| `hollowtone-recording/behind-the-scenes` | mp4  | 1-4   | mixing console, control room, session preparation         |
+| `hollowtone-recording/voice-over`        | mp3  | 1-6   | voice-overs and jingles (synthetic speech, en and fr)                     |
+| `hollowtone-recording/music-video`       | mp4  | 1-6   | music videos and filmed concerts                                          |
+| `hollowtone-recording/session-footage`   | mp4  | 1-8   | musicians recording in a studio                                           |
+| `hollowtone-recording/behind-the-scenes` | mp4  | 1-4   | mixing console, control room, session preparation                         |
 
 Each theme and set directory holds a `CREDITS.csv` (source, author and licence of every file):
 the photos are CC0 or public domain, the videos are public domain or CC (BY, BY-SA), the PDFs

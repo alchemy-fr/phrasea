@@ -87,6 +87,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->setRequired(false)
             ->hideOnIndex();
         yield BooleanField::new('useAsMain')
+            ->setHelp('Rendition displayed by the asset viewer: must be readable by a web browser')
             ->renderAsSwitch(false);
         yield BooleanField::new('useAsPreview')
             ->renderAsSwitch(false);

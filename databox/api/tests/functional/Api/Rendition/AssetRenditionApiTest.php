@@ -162,7 +162,7 @@ YAML;
         $this->assertSame([$renditionId], $ids);
     }
 
-    public function testUploadOfTheMainRenditionSetsTheMissingAssetSource(): void
+    public function testUploadOfTheSourceRenditionSetsTheMissingAssetSource(): void
     {
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $asset = $this->createAsset(['workspace' => $ws, 'ownerId' => self::EDITOR]);
@@ -170,7 +170,7 @@ YAML;
 
         $this->jsonRequest('POST', '/renditions', self::EDITOR, [
             'assetId' => $asset->getId(),
-            'definitionId' => $defaults->renditionDefinitions['main']->getId(),
+            'definitionId' => $defaults->renditionDefinitions['source']->getId(),
             'sourceFile' => self::sourceFile('https://cdn.example.com/source.jpg'),
         ]);
         $this->assertResponseStatusCodeSame(201);
@@ -178,6 +178,47 @@ YAML;
         $em = self::getEntityManager();
         $em->clear();
         $this->assertSame('https://cdn.example.com/source.jpg', $em->find(Asset::class, $asset->getId())->getSource()?->getPath());
+    }
+
+    public function testUploadOfABuiltMainRenditionLeavesTheAssetWithoutSource(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $main = $defaults->renditionDefinitions['main'];
+        $this->assertTrue($main->isUseAsMain());
+        $this->assertSame(RenditionDefinition::BUILD_MODE_CUSTOM, $main->getBuildMode());
+        $asset = $this->createAsset(['workspace' => $ws, 'ownerId' => self::EDITOR]);
+
+        $this->jsonRequest('POST', '/renditions', self::EDITOR, [
+            'assetId' => $asset->getId(),
+            'definitionId' => $main->getId(),
+            'sourceFile' => self::sourceFile('https://cdn.example.com/web.webp'),
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertNull($em->find(Asset::class, $asset->getId())->getSource());
+    }
+
+    public function testUploadOnAPickSourceRenditionBuiltFromAParentLeavesTheAssetWithoutSource(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $picked = $this->createRenditionDefinition($ws, $defaults->renditionPolicy, 'Picked', [
+            'parent' => $defaults->renditionDefinitions['preview'],
+            'buildMode' => RenditionDefinition::BUILD_MODE_PICK_SOURCE,
+        ]);
+        $asset = $this->createAsset(['workspace' => $ws, 'ownerId' => self::EDITOR]);
+
+        $this->jsonRequest('POST', '/renditions', self::EDITOR, [
+            'assetId' => $asset->getId(),
+            'definitionId' => $picked->getId(),
+            'sourceFile' => self::sourceFile('https://cdn.example.com/picked.jpg'),
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+
+        $em = self::getEntityManager();
+        $em->clear();
+        $this->assertNull($em->find(Asset::class, $asset->getId())->getSource());
     }
 
     public function testUploadRights(): void

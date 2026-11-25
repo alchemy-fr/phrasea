@@ -154,6 +154,16 @@ describe('RenditionDefinitionsTab', () => {
         });
     });
 
+    it('tells that the main rendition is the web display of the viewer', async () => {
+        renderTab();
+
+        await waitFor(() => expect(nameField().value).toBe('preview'));
+        expect(screen.getByText('Use as main (web display)')).toBeTruthy();
+        expect(
+            screen.getByText(/Displayed by the asset viewer: must be readable/)
+        ).toBeTruthy();
+    });
+
     it('edits the name alone without locale', async () => {
         renderTab();
 

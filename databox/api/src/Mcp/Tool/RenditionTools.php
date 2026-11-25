@@ -96,7 +96,7 @@ final readonly class RenditionTools
         ?int $target = null,
         #[Schema(description: 'Higher first in the lists')]
         ?int $priority = null,
-        #[Schema(description: 'Whether this rendition is the main file of the asset')]
+        #[Schema(description: 'Whether this rendition is the one displayed by the asset viewer, optimized for the web')]
         ?bool $useAsMain = null,
         #[Schema(description: 'Whether this rendition is used as preview')]
         ?bool $useAsPreview = null,

@@ -73,7 +73,12 @@ final class RenditionManager
         bool $force = false,
         ?bool $projection = null,
     ): AssetRendition {
-        if (null === $asset->getSource() && $definition->isUseAsMain()) {
+        // A definition picking the asset file itself holds the source: a file stored on it is that source
+        if (
+            null === $asset->getSource()
+            && RenditionDefinition::BUILD_MODE_PICK_SOURCE === $definition->getBuildMode()
+            && null === $definition->getParent()
+        ) {
             $asset->setSource($file);
             $this->em->persist($asset);
         }

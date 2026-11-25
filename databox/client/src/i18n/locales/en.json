@@ -1532,6 +1532,8 @@
     "rendition_def.reference": "Reference",
     "rendition_def.saved": "Rendition definition saved",
     "rendition_def.substitutable": "substitutable",
+    "rendition_def.useAsMain": "Use as main (web display)",
+    "rendition_def.useAsMain_help": "Displayed by the asset viewer: must be readable by a web browser (the Source rendition gives the file as is)",
     "saved_search.automations": "Automations",
     "saved_search.conditions": "Conditions",
     "saved_search.delete.title": "Delete search \"{{name}}\"?",

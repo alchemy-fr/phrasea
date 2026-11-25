@@ -314,10 +314,25 @@ function DefinitionForm({
                 ).map(k => (
                     <LabeledControl
                         key={k}
-                        label={t(
-                            `rendition_def.${k}`,
-                            k.replace(/([A-Z])/g, ' $1').toLowerCase()
-                        )}
+                        label={
+                            k === 'useAsMain'
+                                ? t(
+                                      'rendition_def.useAsMain',
+                                      'Use as main (web display)'
+                                  )
+                                : t(
+                                      `rendition_def.${k}`,
+                                      k.replace(/([A-Z])/g, ' $1').toLowerCase()
+                                  )
+                        }
+                        description={
+                            k === 'useAsMain'
+                                ? t(
+                                      'rendition_def.useAsMain_help',
+                                      'Displayed by the asset viewer: must be readable by a web browser (the Source rendition gives the file as is)'
+                                  )
+                                : undefined
+                        }
                     >
                         <Checkbox
                             checked={form[k]}
