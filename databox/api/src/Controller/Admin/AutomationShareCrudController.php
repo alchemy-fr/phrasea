@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use App\Entity\Automation\AutomationShare;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -58,5 +59,19 @@ class AutomationShareCrudController extends AbstractAdminCrudController
         yield AssociationField::new('automation');
         yield AssociationField::new('workspace');
         yield AssociationField::new('share');
+    }
+
+    /**
+     * Deletes the share along with the link: a share left behind would stay public, and the
+     * next run of the automation would create a second one.
+     *
+     * @param AutomationShare $entityInstance
+     */
+    #[\Override]
+    public function deleteEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    {
+        $entityManager->remove($entityInstance);
+        $entityManager->remove($entityInstance->getShare());
+        $entityManager->flush();
     }
 }
