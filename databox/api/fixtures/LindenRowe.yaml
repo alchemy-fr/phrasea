@@ -410,6 +410,7 @@ App\Entity\Core\File:
         pathPublic: '95%? true : false'
         __calls:
             - setNoAnalysisNeeded: []
+            - setSize: ['<storedFileSize(@self->path)>']
     lr_tpl_jpg (template, extends lr_tpl_file):
         type: image/jpeg
         extension: jpg

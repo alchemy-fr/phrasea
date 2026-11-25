@@ -30,6 +30,11 @@ class FileStorageManager
         $this->filesystem->writeStream($path, $content);
     }
 
+    public function getSize(string $path): int
+    {
+        return $this->filesystem->fileSize($path);
+    }
+
     public function delete(string $path): void
     {
         $this->filesystem->delete($path);

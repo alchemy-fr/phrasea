@@ -425,6 +425,7 @@ App\Entity\Core\File:
         pathPublic: '95%? true : false'
         __calls:
             - setNoAnalysisNeeded: []
+            - setSize: ['<storedFileSize(@self->path)>']
     ht_tpl_jpg (template, extends ht_tpl_file):
         type: image/jpeg
         extension: jpg
