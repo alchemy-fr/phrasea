@@ -116,6 +116,7 @@ export function getServerConfig(
                           baseUrl: env.MATOMO_URL,
                           siteId: env.MATOMO_SITE_ID,
                           disableCookies: bool(env.MATOMO_DISABLE_COOKIES),
+                          cookieConsent: bool(env.MATOMO_COOKIE_CONSENT, true),
                       },
                   }
                 : {},

@@ -13,6 +13,7 @@ import {EmptyState} from '@alchemy/next-ui/ui/misc';
 import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
 import {getErrorMessage, isApiError} from '@alchemy/next-ui/utils/errors';
 import {ThemeMenu} from '@alchemy/next-theme/ThemeMenu';
+import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
 import {Page} from '@/components/layout/AppShell';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {languages} from '@/i18n';
@@ -54,6 +55,7 @@ function UploadLinkShell({
                 <SettingsMenu>
                     <ThemeMenu custom={config.theme} />
                     <LanguageMenu languages={languages.supportedLanguages} />
+                    <CookieConsentMenuItem matomo={config.analytics.matomo} />
                 </SettingsMenu>
             </header>
             <main className="relative min-h-0 flex-1 overflow-auto">

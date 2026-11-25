@@ -19,23 +19,64 @@ Environment of the `databox-client` container, read at request time
 | `MATOMO_SITE_ID` | Id of the site in Matomo. Tracking is off while it is empty |
 | `MATOMO_MEDIA_PLUGIN_ENABLED` | The [MediaAnalytics](https://matomo.org/analytics-for-media/) plugin is installed: videos are tracked by it (and the API reads the media reports) |
 | `MATOMO_DISABLE_COOKIES` | `1`: no Matomo cookie (`_pk_*`) is set (`disableCookies`). Default `0` |
+| `MATOMO_COOKIE_CONSENT` | `1` (default): a banner asks the visitor before Matomo sets its cookies (see below). `0`: the cookies are set without asking. Ignored with `MATOMO_DISABLE_COOKIES=1` |
 
 `setSecureCookie` is always on. The user id (`setUserId`) is the Keycloak id
 of the effective user (the impersonated one when an admin switched user); it
-is reset on logout. There is no consent banner.
+is reset on logout.
+
+The four Next.js clients (databox, expose, uploader, dashboard) send their
+page views with the same tracker and read the same `MATOMO_*` variables
+(`MATOMO_MEDIA_PLUGIN_ENABLED` only in databox and expose).
+
+## Cookie consent
+
+Unless `MATOMO_COOKIE_CONSENT=0` or `MATOMO_DISABLE_COOKIES=1`, the clients
+ask the visitor whether Matomo may set its cookies. Only the cookies are
+subject to consent, never the tracking itself: the metrics of the assets stay
+complete.
+
+- Matomo runs with `requireCookieConsent`: until the visitor accepts, and
+  after a refusal, the hits are sent without any cookie.
+- A banner at the bottom of the page offers "Accept" and "Refuse", with the
+  same weight. It cannot be closed without choosing, and does not block the
+  page.
+- "Accept" calls `setCookieConsentGiven` (cookies `_pk_*` from then on);
+  "Refuse" calls `forgetCookieConsentGiven` (Matomo deletes its cookies).
+- The choice is stored by the client, not by Matomo (whose
+  `mtm_cookie_consent` cookie does not remember a refusal): local storage key
+  `phrasea.analytics.cookie-consent`, `{"granted": true|false, "at": "<ISO
+  date>"}`, per origin, so per client. It is applied on every page load and
+  forgotten after 13 months (CNIL recommendation): the banner comes back.
+  When the storage is not available (private browsing, blocked), the banner
+  shows on every visit and the tracking stays without cookies.
+- In a frame (the embed pages of expose on a third party site), the banner is
+  never shown: Matomo tracks without cookies, unless the visitor already
+  accepted them on this origin.
+- The "Cookies" item of the settings menu of the top bar reopens the banner to
+  change the choice. The pages without a top bar (embed, public share) only
+  have the banner.
 
 ## Code
 
-Everything lives in `databox/client/src/lib/analytics/`:
+The tracker shared by the clients lives in `lib/js/next-core/src/analytics/`:
 
 - `matomo.ts` — thin wrapper around `window._paq`, without React. Every call is
   a no-op on the server and until `initMatomo()` has run.
-- `MatomoTracker.tsx` — mounted in `src/app/providers.tsx` (so on every page,
-  the public share page included): initializes Matomo, sets the user id and
-  sends a page view on each route change (URL, referrer and title are given
-  explicitly since Next navigates without reloading). The OAuth callback
-  (`/auth/*`) is not tracked, and the access token of a public share URL is
-  replaced with `_token_`.
+- `MatomoTracker.tsx` — initializes Matomo, sets the user id and sends a page
+  view on each route change (URL, referrer and title are given explicitly
+  since Next navigates without reloading), and renders the cookie consent
+  banner. The OAuth callback (`/auth/*`) is not tracked.
+- `cookieConsent.ts` — the stored choice of the visitor and the store read by
+  the banner; `CookieConsentBanner.tsx` and `CookieConsentMenuItem.tsx` (the
+  settings menu item).
+
+The databox specific parts live in `databox/client/src/lib/analytics/`:
+
+- `MatomoTracker.tsx` — the shared tracker with the session of the client,
+  mounted in `src/app/providers.tsx` (so on every page, the public share page
+  included). The access token of a public share URL is replaced with
+  `_token_`.
 - `useContentTracking.ts` — content impression of the asset displayed and
   content interaction on a click on its media.
 - `events.ts` — the catalogue of events below and the `track()` helper.
@@ -96,4 +137,6 @@ In `.env.local`, set `MATOMO_SITE_ID` (a site of the local instance
 `https://matomo.${PHRASEA_DOMAIN}`), recreate the client (`dc up -d
 databox-client`), then watch the `matomo.php` requests in the browser:
 `action_name`/`url` on each navigation, `uid` once signed in, `c_n`/`c_p` when
-an asset opens, `e_c`/`e_a` on an action, `search=` on a search.
+an asset opens, `e_c`/`e_a` on an action, `search=` on a search. No `_pk_id`
+cookie is set before "Accept" on the cookie banner; "Refuse" (from the
+"Cookies" item of the settings menu) deletes it.

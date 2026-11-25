@@ -1,4 +1,10 @@
 {
+    "analytics.cookie_consent.accept": "Accepter",
+    "analytics.cookie_consent.menu": "Cookies",
+    "analytics.cookie_consent.message": "Nous mesurons l'audience de ce site avec Matomo. Acceptez-vous qu'il dépose des cookies dans votre navigateur ? Sans eux, l'audience reste mesurée de façon anonyme, sans cookie.",
+    "analytics.cookie_consent.refuse": "Refuser",
+    "analytics.cookie_consent.region": "Consentement aux cookies",
+    "analytics.cookie_consent.title": "Mesure d'audience",
     "auth.error.back_home": "Retour à l'accueil",
     "auth.error.title": "Échec de l'authentification",
     "auth.session_expired.description": "Veuillez vous reconnecter pour continuer.",

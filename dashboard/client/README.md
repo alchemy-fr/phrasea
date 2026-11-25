@@ -49,7 +49,7 @@ visitor with the page.
 | `PGADMIN_URL`, `PHPMYADMIN_URL`, `MAILPIT_URL`, `MATOMO_URL`, `RABBITMQ_CONSOLE_URL`, `TRAEFIK_CONSOLE_URL`, `SOCKUDO_USAGE_URL` | Technical tools (role `tech`) |
 | `STACK_NAME`, `STACK_VERSION` | Title and version of the stack (compose project name and `DOCKER_TAG`) |
 | `DEV_MODE` | "Developer mode" banner |
-| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_DISABLE_COOKIES` | Page views sent to Matomo |
+| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_DISABLE_COOKIES`, `MATOMO_COOKIE_CONSENT` | Page views sent to Matomo |
 | `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `CSP_REPORT_ONLY`, `CSP_EXTRA_SOURCES` | Content Security Policy (see below) |
 | `VERIFY_SSL` | Certificate check of the API probes and of the stack configuration |

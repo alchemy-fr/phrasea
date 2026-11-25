@@ -10,6 +10,7 @@ import {
     UserMenu,
 } from '@alchemy/next-ui/layout/menus';
 import {ThemeMenu} from '@alchemy/next-theme/ThemeMenu';
+import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
@@ -53,6 +54,7 @@ export function TopBar() {
             <SettingsMenu>
                 <ThemeMenu custom={config.theme} />
                 <LanguageMenu languages={languages.supportedLanguages} />
+                <CookieConsentMenuItem matomo={config.analytics.matomo} />
             </SettingsMenu>
 
             <UserMenu

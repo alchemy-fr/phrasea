@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 @import '@alchemy/next-theme/styles/themes.css';
 @import '@alchemy/next-ui/styles/base.css';
+@import '@alchemy/next-core/styles/sources.css';
 
 /*
  * HTML written by the editors (descriptions, terms): readable defaults for

@@ -1,8 +1,12 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import '../test/memoryStorage';
 import {
+    grantCookieConsent,
     initMatomo,
+    isCookieConsentRequired,
     isMediaTrackingEnabled,
     resetMatomoForTests,
+    revokeCookieConsent,
     scanForMedia,
     setUserId,
     trackContentImpression,
@@ -11,6 +15,7 @@ import {
     trackPageView,
     trackSiteSearch,
 } from './matomo';
+import {CONSENT_STORAGE_KEY} from './cookieConsent';
 
 function scripts(): HTMLScriptElement[] {
     return Array.from(
@@ -20,6 +25,7 @@ function scripts(): HTMLScriptElement[] {
 
 beforeEach(() => {
     resetMatomoForTests();
+    window.localStorage.clear();
     delete window._paq;
     scripts().forEach(s => s.remove());
 });
@@ -34,6 +40,8 @@ describe('matomo', () => {
         trackEvent('Asset', 'download');
         trackContentImpression('a.jpg', 't1');
         setUserId('u1');
+        grantCookieConsent();
+        revokeCookieConsent();
 
         expect(window._paq).toBeUndefined();
     });
@@ -88,6 +96,61 @@ describe('matomo', () => {
         ]);
     });
 
+    it('asks for the cookie consent before any hit', () => {
+        initMatomo({
+            baseUrl: 'https://matomo.test',
+            siteId: '3',
+            cookieConsent: true,
+        });
+        trackPageView('/assets');
+
+        expect(isCookieConsentRequired()).toBe(true);
+        expect(window._paq).toEqual([
+            ['setTrackerUrl', 'https://matomo.test/matomo.php'],
+            ['setSiteId', 3],
+            ['setSecureCookie', true],
+            ['requireCookieConsent'],
+            ['enableLinkTracking'],
+            ['setCustomUrl', '/assets'],
+            ['trackPageView'],
+        ]);
+    });
+
+    it('applies the stored cookie consent', () => {
+        window.localStorage.setItem(
+            CONSENT_STORAGE_KEY,
+            JSON.stringify({granted: true, at: new Date().toISOString()})
+        );
+        initMatomo({
+            baseUrl: 'https://matomo.test',
+            siteId: '3',
+            cookieConsent: true,
+        });
+
+        expect(window._paq?.slice(3, 5)).toEqual([
+            ['requireCookieConsent'],
+            ['setCookieConsentGiven'],
+        ]);
+    });
+
+    it('does not ask for a consent when cookies are disabled', () => {
+        initMatomo({
+            baseUrl: 'https://matomo.test',
+            siteId: '3',
+            cookieConsent: true,
+            disableCookies: true,
+        });
+
+        expect(isCookieConsentRequired()).toBe(false);
+        expect(window._paq?.map(([name]) => name)).toEqual([
+            'setTrackerUrl',
+            'setSiteId',
+            'setSecureCookie',
+            'disableCookies',
+            'enableLinkTracking',
+        ]);
+    });
+
     it('is initialized once', () => {
         initMatomo({baseUrl: 'https://matomo.test', siteId: '3'});
         initMatomo({baseUrl: 'https://other.test', siteId: '4'});
@@ -139,6 +202,17 @@ describe('matomo', () => {
                 ['trackEvent', 'Asset action', 'share', 'menu', 2],
                 ['trackSiteSearch', 'cat', 'filters', 12],
                 ['trackSiteSearch', 'dog', false, false],
+            ]);
+        });
+
+        it('grants and revokes the cookie consent', () => {
+            grantCookieConsent();
+            revokeCookieConsent();
+
+            expect(isCookieConsentRequired()).toBe(false);
+            expect(window._paq).toEqual([
+                ['setCookieConsentGiven'],
+                ['forgetCookieConsentGiven'],
             ]);
         });
 

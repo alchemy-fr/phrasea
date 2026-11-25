@@ -47,6 +47,7 @@ import {
 } from '@/features/impersonation/useSwitchUserShortcut';
 import {ProfileMenu} from '@/features/profiles/ProfileMenu';
 import {ThemeMenu} from '@/features/theme/ThemeMenu';
+import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
 import {getAuthClient} from '@/lib/auth/client';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
@@ -210,6 +211,7 @@ export function TopBar({
                         {t('settings.data_locale', 'Data language…')}
                     </DropdownMenuItem>
                 </LanguageMenu>
+                <CookieConsentMenuItem matomo={config.analytics.matomo} />
                 {isAdmin ? (
                     <>
                         <DropdownMenuSeparator />

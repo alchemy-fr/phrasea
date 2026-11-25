@@ -47,7 +47,7 @@ baked at build time.
 | `SOCKUDO_HOST`, `SOCKUDO_KEY`, `NOTIFICATIONS_ENABLED` | Realtime |
 | `S3_MULTIPART_*`, `S3_MAX_OBJECT_SIZE`, `MAX_UPLOAD_FILE_SIZE`, `ALLOWED_FILE_TYPES` | Uploads |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
-| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES` | Matomo analytics (see `doc/tech/Databox/analytics.md`) |
+| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES`, `MATOMO_COOKIE_CONSENT` | Matomo analytics (see `doc/tech/Databox/analytics.md`) |
 | `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `CSP_REPORT_ONLY`, `CSP_EXTRA_SOURCES` | Content Security Policy (see below) |
 | `DATABOX_TICKETING_ENABLED`, `DATABOX_TICKETING_JIRA_*` | Ticketing (see below) |

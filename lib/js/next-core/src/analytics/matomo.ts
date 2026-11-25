@@ -5,10 +5,16 @@
  * called, which only happens when the stack configures Matomo: callers never
  * need to check whether analytics are enabled.
  *
+ * With `cookieConsent`, Matomo tracks without any cookie until the visitor
+ * accepts them (`requireCookieConsent`); the choice itself is kept by
+ * `./cookieConsent`, not by Matomo.
+ *
  * The content piece and the media resource sent here are read back by the
  * API (`MatomoManager`) with `filter_pattern=<trackingId>`: they must be the
  * asset's `resolvedTrackingId`, as is.
  */
+
+import {readCookieConsent} from './cookieConsent';
 
 type Instruction = [string, ...unknown[]];
 
@@ -24,6 +30,8 @@ export type MatomoConfig = {
     /** The MediaAnalytics plugin is installed on the Matomo instance */
     mediaPluginEnabled?: boolean;
     disableCookies?: boolean;
+    /** Asks the visitor before setting cookies (ignored with `disableCookies`) */
+    cookieConsent?: boolean;
 };
 
 const SCRIPT_ID = 'matomo-tracker';
@@ -31,6 +39,7 @@ const MEDIA_PING_INTERVAL = 10;
 
 let initialized = false;
 let mediaTracking = false;
+let cookieConsentRequired = false;
 
 function push(...instruction: Instruction): void {
     if (!initialized || typeof window === 'undefined') {
@@ -48,6 +57,11 @@ export function isMediaTrackingEnabled(): boolean {
     return initialized && mediaTracking;
 }
 
+/** The visitor is asked before Matomo sets its cookies */
+export function isCookieConsentRequired(): boolean {
+    return initialized && cookieConsentRequired;
+}
+
 export function initMatomo(config: MatomoConfig): void {
     if (initialized || typeof window === 'undefined') {
         return;
@@ -58,6 +72,8 @@ export function initMatomo(config: MatomoConfig): void {
     }
     initialized = true;
     mediaTracking = Boolean(config.mediaPluginEnabled);
+    cookieConsentRequired =
+        Boolean(config.cookieConsent) && !config.disableCookies;
     const baseUrl = config.baseUrl.replace(/\/+$/, '');
 
     push('setTrackerUrl', `${baseUrl}/matomo.php`);
@@ -65,6 +81,11 @@ export function initMatomo(config: MatomoConfig): void {
     push('setSecureCookie', true);
     if (config.disableCookies) {
         push('disableCookies');
+    } else if (cookieConsentRequired) {
+        push('requireCookieConsent');
+        if (readCookieConsent()?.granted) {
+            push('setCookieConsentGiven');
+        }
     }
     push('enableLinkTracking');
 
@@ -136,6 +157,16 @@ export function setUserId(id: string | undefined): void {
     }
 }
 
+/** Lets Matomo set its cookies, for this page load only */
+export function grantCookieConsent(): void {
+    push('setCookieConsentGiven');
+}
+
+/** Makes Matomo delete its cookies and track without them again */
+export function revokeCookieConsent(): void {
+    push('forgetCookieConsentGiven');
+}
+
 /**
  * Lets the MediaAnalytics plugin pick up the `<video>` elements of `container`
  * carrying `data-matomo-resource` / `data-matomo-title`.
@@ -152,4 +183,5 @@ export function scanForMedia(container: HTMLElement): void {
 export function resetMatomoForTests(): void {
     initialized = false;
     mediaTracking = false;
+    cookieConsentRequired = false;
 }

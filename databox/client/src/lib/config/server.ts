@@ -92,6 +92,7 @@ export function getServerConfig(): AppConfig {
                               env.MATOMO_MEDIA_PLUGIN_ENABLED
                           ),
                           disableCookies: bool(env.MATOMO_DISABLE_COOKIES),
+                          cookieConsent: bool(env.MATOMO_COOKIE_CONSENT, true),
                       },
                   }
                 : {},

@@ -15,6 +15,7 @@ type Matomo = {
     siteId: string;
     mediaPluginEnabled: boolean;
     disableCookies: boolean;
+    cookieConsent: boolean;
 };
 const config = vi.hoisted(() => ({
     analytics: {} as {matomo?: Matomo},
@@ -37,6 +38,9 @@ const matomo = vi.hoisted(() => ({
     trackPageView: vi.fn(),
 }));
 vi.mock('@alchemy/next-core/analytics/matomo', () => matomo);
+vi.mock('@alchemy/next-core/analytics/CookieConsentBanner', () => ({
+    CookieConsentBanner: () => null,
+}));
 
 const {MatomoTracker, getTrackedPath} = await import('./MatomoTracker');
 
@@ -70,6 +74,7 @@ beforeEach(() => {
             siteId: '3',
             mediaPluginEnabled: false,
             disableCookies: false,
+            cookieConsent: true,
         },
     };
     document.title = 'Databox';

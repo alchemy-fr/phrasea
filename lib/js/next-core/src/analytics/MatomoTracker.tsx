@@ -12,6 +12,7 @@ import {
     redactUrl as defaultRedactUrl,
     type UrlRedactor,
 } from '../privacy/redactUrl';
+import {CookieConsentBanner} from './CookieConsentBanner';
 
 /**
  * Path sent to Matomo for a page, or undefined when the page is not tracked:
@@ -30,7 +31,8 @@ export function getTrackedPath(
 
 /**
  * Sends the page views and the user id to Matomo when the stack configures
- * it (`matomo`). Renders nothing.
+ * it (`matomo`). Renders the cookie consent banner, shown when the visitor is
+ * to be asked (`matomo.cookieConsent`).
  *
  * Next navigates without reloading the page: the URL, the referrer and the
  * title are given to Matomo before every page view. Page views wait for the
@@ -93,5 +95,5 @@ export function MatomoTracker({
         return () => clearTimeout(timeout);
     }, [ready, authResolved, pathname, query, trackedPath, redactUrl]);
 
-    return null;
+    return ready ? <CookieConsentBanner /> : null;
 }

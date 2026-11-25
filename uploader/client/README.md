@@ -40,7 +40,7 @@ container environment and the stack configuration at request time (see
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
 | `S3_MAX_OBJECT_SIZE`, `ALLOWED_FILE_TYPES` | Upload limits (see below) |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
-| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_DISABLE_COOKIES` | Page views sent to Matomo |
+| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_DISABLE_COOKIES`, `MATOMO_COOKIE_CONSENT` | Page views sent to Matomo |
 | `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `CSP_REPORT_ONLY`, `CSP_EXTRA_SOURCES` | Content Security Policy (see below) |
 | `DEV_MODE` | "Debug user" entry of the user menu |

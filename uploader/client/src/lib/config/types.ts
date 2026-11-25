@@ -24,6 +24,11 @@ export type AnalyticsConfig = {
         siteId: string;
         /** `MATOMO_DISABLE_COOKIES`: tracks visitors without any cookie */
         disableCookies: boolean;
+        /**
+         * `MATOMO_COOKIE_CONSENT`: asks the visitor before setting the Matomo
+         * cookies (default on)
+         */
+        cookieConsent: boolean;
     };
 };
 

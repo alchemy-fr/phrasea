@@ -1,0 +1,6 @@
+/*
+ * Lets Tailwind see the classes of the components of this package (cookie
+ * consent banner, auth callback page). To be imported by the global
+ * stylesheet of the client, after `tailwindcss`.
+ */
+@source '../src';

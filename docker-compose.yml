@@ -385,6 +385,7 @@ services:
       - CLOUD_FRONT_URL=${DATABOX_CLOUD_FRONT_URL}
       - KEYCLOAK_INTERNAL_URL
       - MATOMO_DISABLE_COOKIES
+      - MATOMO_COOKIE_CONSENT
       - DATABOX_TICKETING_ENABLED
       - DATABOX_TICKETING_JIRA_URL
       - DATABOX_TICKETING_JIRA_USER
@@ -423,6 +424,7 @@ services:
       - ALLOWED_FRAME_ANCESTORS=${EXPOSE_ALLOWED_FRAME_ANCESTORS}
       - CLOUD_FRONT_URL=${EXPOSE_CLOUD_FRONT_URL}
       - MATOMO_DISABLE_COOKIES
+      - MATOMO_COOKIE_CONSENT
     # The link previews of the publications are read from the API by the
     # server, through traefik
     extra_hosts:
@@ -450,6 +452,7 @@ services:
       - CLIENT_ID=${UPLOADER_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
       - MATOMO_DISABLE_COOKIES
+      - MATOMO_COOKIE_CONSENT
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -868,6 +871,7 @@ services:
       - STACK_NAME=${COMPOSE_PROJECT_NAME}
       - STACK_VERSION=${DOCKER_TAG}
       - MATOMO_DISABLE_COOKIES
+      - MATOMO_COOKIE_CONSENT
     # The status of the APIs is probed from the server, through traefik
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

@@ -1,4 +1,10 @@
 {
+    "analytics.cookie_consent.accept": "Akzeptieren",
+    "analytics.cookie_consent.menu": "Cookies",
+    "analytics.cookie_consent.message": "Wir messen die Besucherzahlen dieser Website mit Matomo. Erlauben Sie, dass Matomo Cookies in Ihrem Browser speichert? Ohne sie werden die Besucherzahlen weiterhin anonym und ohne Cookies gemessen.",
+    "analytics.cookie_consent.refuse": "Ablehnen",
+    "analytics.cookie_consent.region": "Cookie-Einwilligung",
+    "analytics.cookie_consent.title": "Reichweitenmessung",
     "auth.error.back_home": "Zur Startseite",
     "auth.error.title": "Anmeldung fehlgeschlagen",
     "auth.session_expired.description": "Bitte melden Sie sich erneut an, um fortzufahren.",

@@ -20,6 +20,7 @@ import {routes} from '@/lib/routes';
 import {cn} from '@alchemy/next-ui/utils/cn';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {ThemeMenu} from '@alchemy/next-theme/ThemeMenu';
+import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
 import {useUploaderUser} from '@/features/user/useUploaderUser';
 import {UserDebugDialog} from '@/features/user/UserDebugDialog';
 import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
@@ -110,6 +111,7 @@ export function TopBar() {
             <SettingsMenu>
                 <ThemeMenu custom={config.theme} />
                 <LanguageMenu languages={languages.supportedLanguages} />
+                <CookieConsentMenuItem matomo={config.analytics.matomo} />
             </SettingsMenu>
 
             <UserMenu

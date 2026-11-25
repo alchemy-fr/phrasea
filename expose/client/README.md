@@ -42,7 +42,7 @@ baked at build time.
 | `DISABLE_INDEX_PAGE` | No public list of publications at `/` (nor link to it) |
 | `ALLOWED_FRAME_ANCESTORS` | Sites allowed to embed the pages (CSP `frame-ancestors`, space separated), set by `src/proxy.ts` |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
-| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES` | Matomo analytics |
+| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES`, `MATOMO_COOKIE_CONSENT` | Matomo analytics |
 | `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TUNNEL_RATE_LIMIT_PER_IP`, `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` | Browser errors reported to Sentry (see below) |
 | `CSP_REPORT_ONLY`, `CSP_EXTRA_SOURCES` | Content Security Policy (see below) |
 | `CONFIGURATOR_S3_*`, `CONFIG_IS_PUBLIC`, `STACK_CONFIG_SRC`, `STACK_CONFIG_REFRESH_INTERVAL` | Stack configuration (logo, organisation theme), as for `databox/client` |

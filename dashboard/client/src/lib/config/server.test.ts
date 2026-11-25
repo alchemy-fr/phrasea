@@ -46,6 +46,27 @@ describe('getServerConfig', () => {
         expect(config.sentry).toBeUndefined();
     });
 
+    it('asks for the Matomo cookie consent by default', () => {
+        const env = {MATOMO_URL: 'https://matomo.test', MATOMO_SITE_ID: '3'};
+
+        expect(getServerConfig({}, env).analytics).toEqual({
+            matomo: {
+                baseUrl: 'https://matomo.test',
+                siteId: '3',
+                disableCookies: false,
+                cookieConsent: true,
+            },
+        });
+        expect(
+            getServerConfig({}, {...env, MATOMO_COOKIE_CONSENT: ''}).analytics
+                .matomo?.cookieConsent
+        ).toBe(true);
+        expect(
+            getServerConfig({}, {...env, MATOMO_COOKIE_CONSENT: '0'}).analytics
+                .matomo?.cookieConsent
+        ).toBe(false);
+    });
+
     it('reports the browser errors to Sentry when a DSN is set', () => {
         const config = getServerConfig(
             {},

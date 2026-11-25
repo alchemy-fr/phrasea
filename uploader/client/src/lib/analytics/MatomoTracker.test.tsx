@@ -12,7 +12,14 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/lib/config/ConfigProvider', () => ({
     useConfig: () => ({
-        analytics: {matomo: {baseUrl: 'https://matomo.test', siteId: '3'}},
+        analytics: {
+            matomo: {
+                baseUrl: 'https://matomo.test',
+                siteId: '3',
+                disableCookies: false,
+                cookieConsent: true,
+            },
+        },
     }),
 }));
 
@@ -26,6 +33,9 @@ const matomo = vi.hoisted(() => ({
     trackPageView: vi.fn(),
 }));
 vi.mock('@alchemy/next-core/analytics/matomo', () => matomo);
+vi.mock('@alchemy/next-core/analytics/CookieConsentBanner', () => ({
+    CookieConsentBanner: () => null,
+}));
 
 const {MatomoTracker} = await import('./MatomoTracker');
 
