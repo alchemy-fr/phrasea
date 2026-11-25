@@ -17,17 +17,22 @@ class Kernel extends BaseKernel
      * Symfony never rebuilds a non-debug container once compiled. Outside prod, the code changes
      * under it: a `--no-debug` run (the Elasticsearch populate, see ESPopulateHandler and the
      * setup scripts) would otherwise boot a container compiled from older sources.
+     *
+     * The check runs before the bundles are initialized: without debug, they are read from the
+     * cached `<Container>.bundles.php` without any freshness check, and a container recompiled
+     * from that stale list would dump it again.
      */
-    protected function initializeContainer(): void
+    protected function initializeBundles(): void
     {
         if (!$this->debug && 'prod' !== $this->environment) {
-            $cache = new ConfigCache($this->getBuildDir().'/'.$this->getContainerClass().'.php', true);
-            if (is_file($cache->getPath()) && !$cache->isFresh()) {
-                @unlink($cache->getPath());
+            $containerPath = $this->getBuildDir().'/'.$this->getContainerClass().'.php';
+            if (!new ConfigCache($containerPath, true)->isFresh()) {
+                @unlink($containerPath);
+                @unlink($this->getBuildDir().'/'.$this->getContainerClass().'.bundles.php');
             }
         }
 
-        parent::initializeContainer();
+        parent::initializeBundles();
     }
 
     protected function configureContainer(ContainerConfigurator $container): void
