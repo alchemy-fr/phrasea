@@ -1,572 +1,686 @@
 ---
-title: Description de Databox Client
-status: En attente de relecture
----
-# Documentation utilisateur Databox
-
-# 1.Databox
-
-## ---
-
-## **L’interface** 
-
-L’interface **“Databox client”** se divise en plusieurs zones:
-
-### **La barre latérale**
-
-Sur le côté gauche de la fenêtre de Databox se trouve une barre latérale.  
-Celle-ci est composée de 3 onglets:
-
-* **L’arborescence des collections:** pour naviguer parmi les Workspaces et Collections disponibles.  
-* **Les facettes:** pour filtrer les résultats selon différents critères et être guidé dans sa recherche.  
-* **Les paniers:** pour pouvoir regrouper une sélection d’assets, temporairement ou non, en vue d’une action: édition, export, partage, publication d’une galerie sur un site externe,...
-
-### **La barre de recherche**
-
-Le haut de la fenêtre présente une barre de recherche.   
-	
-
-* **Recherche simple:** Entrez un ou plusieurs termes pour trouver des assets.  
-* **Recherche avancée:** Entrez une ou plusieurs conditions afin de pouvoir effectuer des recherches dans des champs spécifiques.  
-* **Tris:** Pour classer les résultats selon ses besoins, et/ou par grandes sections pour un affichage encore plus clair.
-
-### **La zone d’affichage des résultats**
-
-La zone centrale permet de visualiser tous les assets issus d’une recherche.   
-Ceux-ci sont présentés par défaut sous forme de vignettes (deux autres modes d’affichage sont disponibles dans les préférences d’affichage: liste et mosaïque).
-
-### **Le menu des actions** 
-
-Le menu principal des actions se situe juste au-dessus de la zone d’affichage des résultats. 
-
-Il permet d’effectuer de nombreuses actions sur les assets: 
-
-* Ajouter des assets à un panier  
-* Exporter  
-* Déplacer  
-* Modifier les attributs  
-* Dupliquer  
-* Partager  
-* Supprimer
-
-A droite du menu des actions, sur la même ligne, se trouvent les **Préférences d’affichage utilisateur.** Elles regroupent les options suivantes: 
-
-* Mode d’affichage des résultats  
-* Préférences d’affichage des vues des assets: affichage ou non des titres, des collections, de l’aperçu au survol  
-* Choix de la taille des vignettes,   
-* Choix de la taille globale d’affichage et ratio entre l’aperçu et les attributs,   
-* Création et gestion des listes personnelles d’attributs
-
-
-### **Ajouter des assets**
-
-L’icône **\+** en bas à droite de la fenêtre permet d’ajouter des assets à une collection en parcourant l’arborescence du Workspace.
-
-D’autres méthodes d’import sont disponibles dans Phrasea: Par exemple, il est également possible d’importer des fichiers depuis la zone latérale en survolant le titre de la collection de destination.
-
+title: 'Guide utilisateur de Databox'
 ---
 
-## **Workspaces et Collections**
+# Guide utilisateur de Databox
 
-Nous décrirons au fur et à mesure d’autres termes dans cette documentation, mais pour commencer à importer des assets, nous avons besoin de comprendre ce que sont les Workspaces et les Collections dans Phrasea.  
-Nous vous invitons également à aller consulter la page “Vocabulaire Phrasea” regroupant toutes ces notions.
+Databox est l'application de gestion des médias de Phrasea : elle stocke vos assets (photos, vidéos, fichiers audio, documents PDF et autres fichiers), les décrit par des attributs, et permet de les rechercher, de les modifier, de les partager, de les exporter et de les publier.
 
-### **Les définitions**
+Ce guide décrit le client web de Databox pour ses utilisateurs. Ce que vous voyez dépend de vos permissions : une action que vous n'avez pas le droit d'effectuer est masquée ou grisée. Les écrans d'administration (réglages des espaces de travail, attributs, rendus, permissions, intégrations, workflows…) sont décrits dans la documentation technique : voir [Administration](../../tech/Databox/administration.md).
 
-**Workspace**  
-L’espace de travail est un Ensemble qui contient des collections.   
-Il permet de paramétrer les langues, les attributs, les listes d’entités, les renditions, les permissions. 
+## L'interface
 
-**Collection**  
-Une collection regroupe des assets. Les collections peuvent être hiérarchisées.   
-Elles disposent d’un ensemble de paramètres (permissions).
+La fenêtre de Databox se compose d'une barre supérieure, d'un panneau latéral à gauche et de la zone des résultats.
 
-### **Organiser ses assets**
+### Barre supérieure
 
-L'onglet "Workspaces" représente l'arborescence du contenu sur lequel vous avez des droits.  
-Dans Phrasea, un Workspace est un espace de travail qui contient des collections.  
-Dans chaque Workspace se trouvent une ou plusieurs collections, qui sont hiérarchisées.   
-Chaque collection regroupe des assets: photos, vidéos, sons, documents PDF,...
+De gauche à droite, la barre supérieure contient :
 
-### **Création de nouvelles collections**
+- le bouton qui affiche ou masque le panneau latéral ;
+- le logo, qui ramène à la recherche ;
+- le chemin de l'écran en cours lorsqu'un écran est ouvert par-dessus la recherche (par exemple, l'éditeur par lot) ;
+- **Tous les services**, si votre organisation l'a configuré : la liste des autres applications de Phrasea ;
+- **Notifications** (icône de cloche), voir [Suivi et notifications](#suivi-et-notifications) ;
+- le menu des réglages (icône d'engrenage), voir [Réglages](#réglages) ;
+- votre menu utilisateur : **Mon compte** et **Se déconnecter**. Si vous n'êtes pas connecté, le bouton **Se connecter** le remplace.
 
-* #### Créer une première collection dans un Workspace
+Deux boutons ronds flottent au-dessus de la fenêtre : **Ajouter des assets** (en bas à droite de l'écran de recherche) ouvre la fenêtre de téléversement, et **Signaler un problème** (en bas à gauche), si votre organisation l'a activé, envoie un signalement à l'équipe de support.
 
-Cliquez sur l’icône “dossier”.  
-Sélectionnez “Ajouter la collection dans ce Workspace”.
+### Panneau latéral
 
-* #### Créer une sous-collection
+Le panneau latéral comporte trois onglets :
 
-Les collections sont hiérarchiques.   
-Pour créer une nouvelle collection dans une collection existante, il est possible de le faire directement dans l’arborescence, ou à la volée lors de l’import d’assets. 
+- **Facettes** : les valeurs présentes dans les résultats en cours, pour affiner la recherche (voir [Facettes](#facettes)).
+- **Navigation** : les sections **Stories épinglées** (lorsque vous avez épinglé au moins une story), **Recherches enregistrées** et **Espaces de travail et collections**.
+- **Paniers** : vos paniers (voir [Paniers](#paniers)).
 
-Cliquez sur les … près du nom de la collection.  
-Sélectionnez “Créer une nouvelle collection dans celle-ci”.  
-Une fenêtre s’ouvre.  
-La nommer, puis cliquez sur “Enregistrer”.  
-La collection apparaît dans votre arborescence.   
-Besoin de traduire le nom de la collection en plusieurs langues ? Cliquez sur le drapeau présent près du nom de la collection. 
+Dans l'onglet **Navigation**, cliquez sur le titre d'une section pour la replier ou la déplier. Pour changer l'ordre des sections, faites glisser la poignée qui apparaît au survol du titre d'une section (ou donnez-lui le focus et utilisez les touches ↑ et ↓).
 
-Si vous préférez importer des assets et créer une sous-collection à la volée, il suffit d’ouvrir la fenêtre d’import, de parcourir l’arborescence de la collection de destination et d’ajouter une nouvelle collection à l’emplacement choisi.
+Faites glisser le bord du panneau pour le redimensionner.
 
----
+### Zone des résultats
 
-## **Importer**
+Au-dessus des résultats, une barre d'outils affiche :
 
-### **Ajouter des assets**
+- à gauche, la case qui sélectionne ou désélectionne tous les assets, le bouton du panier (voir [Le panier courant](#le-panier-courant)) et, lorsque des assets sont sélectionnés, les boutons d'action (voir [Actions sur les assets](#actions-sur-les-assets)) ;
+- à droite, le nombre de résultats (ou d'assets sélectionnés) et le bouton **Paramètres d'affichage**.
 
-L’ajout d’assets (photos, vidéos, documents audio, PDF, etc.) se fait très facilement dans le DAM. Il existe plusieurs méthodes pour importer des assets dans Phrasea:
+### Paramètres d'affichage
 
-#### Ajouter des assets depuis l’icône \+
+Le bouton **Paramètres d'affichage** ouvre les options suivantes :
 
-* Cliquez sur le bouton **\+** situé en bas à droite dans l’interface. Une fenêtre s’ouvre.  
-* Sélectionnez des fichiers ou effectuez un glisser-déposer dans la fenêtre.   
-* Choisissez un Workspace s’il y en a plusieurs, ainsi que la collection de destination.   
-* Sélectionnez la confidentialité des documents (Public, Private ou Secret).   
-* Validez le transfert en cliquant sur le bouton **“Ajouter”**.
+- **Disposition** : **Grille**, **Mosaïque**, **Liste** ou **Carte** (la carte n'est proposée que si votre organisation l'a configurée, voir [Vue carte](#vue-carte)).
+- **Taille des vignettes** : grille, mosaïque et liste.
+- **Ajustement des vignettes** : **Image entière** ou **Remplir** (grille et liste).
+- **Afficher l'aperçu au survol** : affiche un aperçu plus grand de l'asset lorsque le pointeur s'arrête sur la pastille du type de fichier, en bas à droite d'une vignette (cliquez sur la pastille pour garder l'aperçu ouvert). Avec cette option, vous choisissez aussi **Afficher le fichier dans l'aperçu**, **Afficher les attributs dans l'aperçu**, **Taille de l'aperçu** et **Ratio fichier / attributs**.
+- **Lire les médias au survol** : lit les vidéos et les fichiers audio sur les vignettes.
+- **Lecture automatique des médias dans l'aperçu**.
 
-  #### Ajouter des assets directement depuis une collection
+Ces réglages sont enregistrés dans vos préférences, et dans votre profil d'affichage lorsqu'il est synchronisé (voir [Profils d'affichage et filtres épinglés](#profils-daffichage-et-filtres-épinglés)).
 
-Depuis la barre latérale:
+## Espaces de travail et collections
 
-* Parcourez l’arborescence et choisissez votre collection de destination pour ces nouveaux assets.  
-* Au survol du titre de la collection, l’icône **. . .** apparaît. Cliquez dessus.  
-* Sélectionnez **“Ajouter un nouvel asset à la collection”**.  
-* La démarche d’après reste la même que précédemment évoquée.
+### Définitions
 
-  #### Glisser-déposer des documents dans Databox
+**Espace de travail** : un espace qui contient des collections et des assets. Ses réglages (langues, attributs, listes d'entités, rendus, permissions…) s'appliquent à tout ce qu'il contient. Un asset appartient toujours à un seul espace de travail.
 
-Un simple glisser-déposer n’importe où sur la fenêtre permet d’ouvrir la fenêtre d’import. Les documents sont en place pour l’ajout, il ne reste qu’à sélectionner une collection de destination et appliquer le même procédé que précédemment.
+**Collection** : un dossier d'assets dans un espace de travail. Les collections sont hiérarchiques : une collection peut contenir des sous-collections. Chaque collection a sa propre confidentialité et ses propres permissions.
 
-#### Utiliser Phrasea Uploader
+Un asset a une collection de référence, et peut aussi figurer dans d'autres collections du même espace de travail sous forme de raccourci (voir [Déplacer et copier](#déplacer-et-copier)).
 
-Hormis l’import dans Databox, il est possible d’utiliser **Phrasea Uploader**.
+### Parcourir l'arborescence
 
-Phrasea Uploader est une application dédiée à l’import de fichiers.
+La section **Espaces de travail et collections** de l'onglet **Navigation** affiche les espaces de travail et les collections auxquels vous avez accès. Cliquez sur la flèche d'un espace de travail ou d'une collection pour le déplier.
 
-* Import à partir de n’importe quel appareil (téléphone, tablette, desktop)  
-* Volumes de fichiers importants  
-* Construction de formulaires de pré-indexation   
-* Canaux d’entrée personnalisables  
-* Imports automatisés (récupération des médias à partir d’autres applications)
+- Cliquez sur le nom d'un espace de travail ou d'une collection pour afficher ses assets : la recherche est limitée à celui-ci.
+- Utilisez le champ **Rechercher des collections…** pour retrouver une collection par son nom.
+- Une icône de dossier pleine signale une collection qui n'est pas publique ; une petite icône de groupe, une collection partagée ; un nom barré, une collection dans la corbeille.
 
-Merci de nous contacter si vous souhaitez des renseignements complémentaires concernant Phrasea Uploader.
+En bas de la section, **Corbeille** affiche les assets supprimés (voir [Suppression et corbeille](#suppression-et-corbeille)) et **Quarantaine** ouvre les assets en attente de vérification (voir [Quarantaine](#quarantaine)).
 
-### **Ajout avec pré-indexation** 
+Le bouton ⋮ qui apparaît au survol d'un espace de travail, ou un clic droit sur celui-ci, ouvre son menu : **Épingler**, **Ajouter une collection**, **Ajouter un asset**, **Importer des assets…** et **Gérer l'espace de travail**. Le menu d'une collection contient **Épingler**, **Notifications**, **Ajouter un asset**, **Importer des assets…**, **Créer une sous-collection**, **Modifier** et **Supprimer** (ou **Restaurer** pour une collection dans la corbeille).
 
-Pré-indexez vos contenus durant l’import. Au lieu de directement cliquer sur le bouton **“Importer”** après avoir chargé vos assets, remplissez le formulaire qui vous est présenté.   
-Un formulaire permet de remplir les informations dans les différents attributs qui ont été configurés: titre, description, mots-clés, crédit, tags, etc.  
-A partir de cette même fenêtre, il est possible d’effectuer la pré-indexation dans plusieurs langues simultanément. 
+### Créer une collection
 
-### **Utilisation de modèles à l’import**
+1. Ouvrez le menu de l'espace de travail et choisissez **Ajouter une collection**, ou ouvrez le menu d'une collection et choisissez **Créer une sous-collection**.
+2. Dans la fenêtre **Nouvelle collection**, saisissez le nom et choisissez la confidentialité.
+3. Cliquez sur **Créer**.
 
-Les modèles de pré-indexation permettent de pré-remplir automatiquement les métadonnées lors de l’import des assets. Ils accélèrent le travail des utilisateurs tout en assurant une cohérence documentaire. Moins de saisie, c’est également moins d’erreurs ou risques d’oublis.  
-Les utilisateurs créent ainsi des modèles adaptés à différents usages, qui peuvent être partagés si besoin.
+Vous pouvez aussi créer une collection à la volée depuis le sélecteur de destination des fenêtres de téléversement, de déplacement, de copie et d'enregistrement : cliquez sur **Nouvelle collection** sous l'espace de travail ou la collection où vous la voulez, saisissez le nom et appuyez sur Entrée.
 
-#### Création d’un modèle
+### Gérer une collection
 
-* Remplir les attributs, etc. sur des assets sélectionnés pour l’import, puis  cocher la case dans le formulaire d’import: **“Enregistrer les valeurs comme modèle pour réutilisation”**.   
-* Donner un nom au modèle.   
-* Remplir les options disponibles au sein d’un modèle:  
-  * Remplacer ou non un modèle qui a été appliqué  
-  * Appliquer ou non à la collection  
-  * Inclure ou non les sous-collections  
-  * Inclure ou non les attributs  
-  * Inclure ou non la confidentialité  
-  * Rendre le modèle Public ou bien seulement disponible à l’usage de l’utilisateur qui l’a créé.  
-* Cliquez sur le bouton **“Ajouter”** pour transférer les assets.
+Choisissez **Modifier** dans le menu d'une collection pour ouvrir la fenêtre **Gérer la collection**. Ses onglets sont :
 
-  #### Utilisation d’un modèle
+- **Infos** : identifiant, propriétaire, dates, confidentialité, espace de travail et chemin.
+- **Modifier** : le nom et la confidentialité. Le nom peut être traduit : l'onglet **Par défaut** contient le nom principal, et chaque langue de l'espace de travail a son propre onglet.
+- **Notifications** : les événements de la collection que vous suivez (voir [Suivi et notifications](#suivi-et-notifications)).
+- **Permissions** : les utilisateurs et les groupes autorisés sur la collection, et les permissions héritées de son parent.
+- **Opérations** : **Déplacer la collection**, pour choisir son nouveau parent dans le même espace de travail, et la **Zone de danger**, pour la supprimer.
 
-Dès le prochain import, les modèles créés apparaissent dans la liste déroulante du champ en haut du formulaire **“Remplir avec modèle”**.  
-Sélectionnez un ou plusieurs modèles, car les modèles peuvent être cumulés.
+Vous pouvez aussi déplacer une collection en la faisant glisser sur une autre collection ou sur un espace de travail (pour la placer à la racine).
 
----
+Une collection supprimée part dans la corbeille avec ses assets : saisissez son nom pour confirmer. Pour la restaurer, choisissez **Restaurer** dans son menu.
 
-## **Rechercher**
+### Épingler un espace de travail ou une collection
 
-### **La recherche: Introduction**
+**Épingler**, dans le menu d'un espace de travail ou d'une collection, crée une recherche enregistrée limitée à celui-ci, listée dans **Recherches enregistrées** : un clic vous y ramène ensuite.
 
-Le moteur de recherche utilisé par Phrasea est Elastic   
-[https://www.elastic.co/](https://www.elastic.co/)   
-Elasticsearch est une solution open source, distribuée, conçue pour la recherche et les moteurs d’analyse, optimisée pour la vitesse, la montée en charge et les applications IA. En tant que plateforme de récupération, elle stocke en temps réel des données structurées, non structurées et vectorielles — offrant une recherche hybride et vectorielle rapide, alimentant l’observabilité et la sécurité, et permettant aux applications pilotées par l’IA d’atteindre de hautes performances, une précision optimale et une grande pertinence.
+## Ajouter des assets
 
-Elasticsearch permet entre autres de: 
+### Ouvrir la fenêtre de téléversement
 
-* rechercher des documents en texte libre, par mots exacts, ou expressions précises.  
-* rechercher dans plusieurs champs à la fois,   
-* combiner de nombreux critères (conditions),  
-* faire des recherches floues,   
-* rechercher avec des plages de valeurs (dates, nombres).   
-* Enfin, l’ajustement de la pertinence des résultats grâce à des fonctions de scoring personnalisées.
+La fenêtre **Ajouter des assets** s'ouvre :
 
-Ces méthodes de recherche avec Elastic sont nombreuses et détaillées ici sur le site Elastic [https://www.elastic.co/docs/explore-analyze/query-filter](https://www.elastic.co/docs/explore-analyze/query-filter) 
+- avec le bouton **Ajouter des assets** (icône +) en bas à droite de l'écran de recherche ;
+- avec **Ajouter un asset** dans le menu d'un espace de travail ou d'une collection, qui le présélectionne comme destination ;
+- en déposant des fichiers de votre ordinateur n'importe où sur l'écran de recherche ;
+- en collant un fichier ou une image (⌘V sur macOS, Ctrl+V ailleurs) lorsque le curseur n'est pas dans un champ de texte.
 
-### **La recherche simple**
+Lorsque la recherche est limitée à un espace de travail ou à une collection, celui-ci est présélectionné comme destination.
 
-Dans Databox, la barre de recherche se trouve au-dessus de l’affichage des résultats.  
-Placer le curseur dans la barre de recherche et saisir un terme. 
+### Téléverser des fichiers
 
-La fonctionnalité des **“Suggestions de recherche”** permet de proposer des termes à l’utilisateur au fur de la saisie dans la barre de recherche pour l’orienter. Vous évitez aussi de passer à côté d’informations importantes.
+1. Dans l'onglet **Fichiers**, déposez vos fichiers ou cliquez pour parcourir votre ordinateur. **Ajouter d'autres fichiers** en ajoute d'autres, et la croix d'un fichier le retire.
+2. Sous **Destination**, choisissez l'espace de travail ou la collection. Vous pouvez créer une collection à la volée avec **Nouvelle collection**.
+3. Choisissez la **Confidentialité** (voir [Confidentialité](#confidentialité)).
+4. Renseignez les **Attributs** si vous le souhaitez (voir [Pré-indexer les attributs](#pré-indexer-les-attributs)).
+5. Cliquez sur le bouton **Téléverser**, qui indique le nombre de fichiers.
 
-Les résultats s’affichent par défaut sous forme de grille (vignettes).
+La fenêtre se ferme aussitôt et les fichiers sont envoyés en arrière-plan : un message de progression s'affiche en bas de la fenêtre (voir [Téléversements en attente](#téléversements-en-attente)).
 
-Dans Phrasea, il existe une fonctionnalité de **surlignage automatique des termes** dans les métadonnées. Lorsqu’un utilisateur effectue une recherche, les termes correspondants sont visuellement mis en évidence, ce qui facilite l’identification rapide des informations pertinentes. Cette fonction est active et s’applique à tous les attributs indexés.   
-Dans le cas particulier d’attributs multivalués, c'est le terme strict qui est pris en compte.
+L'option **Silencieux (pas de notification, pas de webhook)** crée les assets sans prévenir les utilisateurs qui suivent la destination et sans appeler les webhooks de l'espace de travail.
 
-### **La recherche à l’aide des facettes** 
+### Ajouter des fichiers depuis des URL
 
-La recherche avec facettes peut être vue comme une cartographie de la recherche.   
-Après l’avoir lancée, les facettes créent une sorte de plan des résultats en les répartissant selon différents critères comme la date, la catégorie, le lieu ou encore le type de document.  
-Chaque facette représente un chemin potentiel à explorer pour affiner et orienter la recherche de manière plus précise. 
+Dans l'onglet **URLs**, saisissez une URL par ligne (commençant par `http://` ou `https://`). Avec **Importer les fichiers** coché (par défaut), les fichiers sont copiés dans Databox ; décoché, les assets référencent les URL distantes.
 
-#### Naviguer via les facettes
+### Créer un asset sans fichier
 
-* Cliquez sur l’onglet **“Facettes”** présent dans la barre latérale.  
-* Pour chaque facette, cochez les valeurs qui vous intéressent afin d’affiner progressivement la recherche. Exemple: choix d’un intervalle de date, de mots-clés, de tags, pays, ville, crédit,... 
+Dans l'onglet **Sans fichier**, saisissez le **Titre de l'asset** et cliquez sur **Créer l'asset**. L'asset est créé sans fichier : vous pourrez en ajouter un plus tard depuis sa visionneuse, avec **Ajouter un fichier source**.
 
-  #### Cumuler ou exclure des facettes
+### Téléverser sous forme de story
 
-Le cumul ou l’exclusion de facettes permet d’élargir ou de réduire la portée de la recherche.   
-Cela vous garantit d’atteindre l’information exacte plus efficacement.
+Cochez **Créer une story avec ces fichiers** pour regrouper les fichiers téléversés dans une nouvelle story (voir [Stories](#stories)) :
 
-Après avoir sélectionné une valeur d’une facette (par exemple: la valeur “Nouveau” de l’attribut “Tags”), cliquez sur le menu ( **. . .**)  de la valeur. Plusieurs choix vous sont proposés:
+1. Saisissez le **Titre de la story**.
+2. Choisissez la **Couverture de la story** parmi les fichiers, ou cliquez sur **Utiliser comme couverture de la story** à côté d'un fichier.
+3. Renseignez si besoin les attributs de la story.
 
-* **Désactiver:** pour exclure cette valeur de la recherche. Tous les assets sauf ceux ayant la valeur “Nouveau” seront affichés.   
-* **Activer:** lorsque vous avez exclu une valeur de la recherche. La facette sera alors réactivée.   
-* **Modifier:** pour modifier une condition (voir “recherche avancée” plus bas).  
-* **Retirer:** pour retirer cette facette de votre recherche
+Dans l'onglet **Sans fichier**, **Créer une story** crée une story vide, à laquelle vous pourrez ajouter des assets plus tard.
 
-  #### Configurer les facettes à afficher
+### Confidentialité
 
-Vous pouvez choisir les facettes qui s’affichent dans la barre latérale.   
-Pour configurer les facettes, vous devez posséder les droits de gestion du Workspace.  
-Rendez-vous dans l’édition du Workspace, cliquez sur l’**onglet “Attributs”** et pour chaque attribut, décidez de cocher (ou non) la case “Facettes”.
+La confidentialité détermine qui peut voir un asset ou une collection :
 
-### **Recherche avancée**
+- **Secret** : seuls le propriétaire et les utilisateurs auxquels l'accès a été accordé.
+- **Privé (les utilisateurs peuvent demander l'accès)** : les utilisateurs voient qu'il existe, mais pas son contenu, sauf si l'accès leur a été accordé.
+- **Public** : son contenu est ouvert.
 
-La recherche avancée vous permet de retrouver rapidement des assets en combinant plusieurs critères et notamment, effectuer des recherches sur des attributs spécifiques. Cliquez sur l’icône en forme d’entonnoir pour ouvrir la recherche avancée.
+Pour **Privé** et **Public**, **Visible uniquement par les utilisateurs de l'espace de travail** limite cela aux utilisateurs de l'espace de travail. Pour **Public**, **L'utilisateur doit être authentifié** n'ouvre le contenu qu'aux utilisateurs connectés ; sans cette option, les visiteurs anonymes le voient aussi.
 
-**Ajouter des conditions**
+Au téléversement, **Non défini (hériter)** (par défaut) applique la confidentialité de la destination. Une collection ou un asset est toujours au moins aussi ouvert que sa collection parente : les niveaux plus restrictifs que le parent sont désactivés, et un message rappelle la confidentialité héritée.
 
-Cliquez sur: **“Ajouter une condition”**:
+### Pré-indexer les attributs
 
-* Sélection d’un champ dans lequel effectuer la recherche:   
-  * Soit un champ dit technique (collection, dates, taille ou type de fichier, etc)  
-  * Soit parmi vos attributs (champ crédit, titre, légende, pays, ville, mots clés, etc.)
+La section **Attributs** de la fenêtre de téléversement affiche les attributs de l'espace de travail de destination : les valeurs saisies s'appliquent à tous les fichiers téléversés. Les attributs traduisibles ont un onglet par langue de l'espace de travail, pour renseigner plusieurs langues à la fois.
 
+### Modèles de valeurs
 
-* Sélection de l’opérateur
+Un modèle de valeurs mémorise des valeurs d'attributs, et si besoin une confidentialité, pour les réutiliser lors des téléversements suivants.
 
-Après avoir choisi le champ, choisir l’opérateur ( “est”, “est l’un de”, “est vide”, “contient”, “commence par”, “se termine par”, “est avant le”,… : ces opérateurs changent en fonction du type du champ choisi).
+Pour créer un modèle :
 
-* Sélection de la valeur
+1. Renseignez les attributs et la confidentialité dans la fenêtre de téléversement.
+2. Ouvrez **Enregistrer comme modèle** et saisissez le **Nom du modèle**.
+3. Choisissez ses options :
+    - **Mémoriser la collection** : le modèle n'est proposé que pour la collection de destination ; **Y compris les sous-collections** le propose aussi dans ses sous-collections. Sans cette option, **Dans toutes les collections** le propose dans tout l'espace de travail.
+    - **Attributs** et **Confidentialité** : ce que le modèle conserve.
+    - **Public** : partage le modèle avec les autres utilisateurs.
+    - **Remplacer le modèle appliqué** : lorsqu'un modèle est appliqué, le met à jour au lieu d'en créer un nouveau.
+4. Cliquez sur **Enregistrer le modèle**.
 
-Pour finir, entrez une valeur: un terme, une date, etc.
+Lors des téléversements suivants, le champ **Modèles de valeurs** affiche les modèles disponibles pour la destination : choisissez un ou plusieurs modèles dans **Appliquer un modèle…** pour remplir le formulaire.
 
-Vous pouvez ensuite lancer la recherche en cliquant sur le bouton **“Ajouter”**, ou bien ajouter une ou plusieurs autres conditions, ainsi qu’un ou plusieurs groupes de conditions pour combiner les filtres de recherche sur des champs spécifiques.
+### Téléversements en attente
 
-### **Les tris**
+Pendant un téléversement, un message en bas de la fenêtre affiche la progression. Cliquez dessus pour ouvrir **Téléversements en attente** : la progression de chaque fichier, les fichiers envoyés et ceux en échec. La croix d'un fichier annule son envoi, et **Effacer les terminés** retire de la liste les envois terminés.
 
-Vous pouvez trier et grouper les résultats de vos recherches: Tri par date de création, date de modification ou encore attributs.  
-En regroupant les résultats par grandes sections, vous obtenez un affichage adapté à vos besoins.
+### Importer depuis un fichier JSON ou NDJSON
 
-Exemple: Un tri sur l’attribut “Pays” placé en 1ère position, puis on ajoute la ville. Décocher les attributs non souhaités et remonter ces deux éléments en premier, par glisser-déposer.
+Pour créer de nombreux assets d'un coup à partir d'un fichier qui les décrit (URL des sources, collections, attributs…) :
 
-Les résultats sont affichés d’abord par pays, puis par villes.
+1. Choisissez **Importer des assets…** dans le menu d'un espace de travail ou d'une collection.
+2. Déposez le fichier JSON ou NDJSON dans **Fichier d'instructions** : un aperçu indique le nombre d'entrées et celles qui seront rejetées. **Format du fichier** décrit les champs attendus.
+3. Vérifiez le **Format**, la **Destination** et la **Confidentialité**.
+4. Cliquez sur **Importer**.
 
-Cocher “Grouper par sections” pour l’ajout de séparateurs de groupes dans la présentation des résultats. Cliquer sur le bouton “Appliquer”.  
-Les résultats sont affichés d’abord par pays, puis par villes, séparés par grandes sections.
+L'import se déroule en arrière-plan. Suivez sa progression avec **Voir les imports**, ou dans l'onglet **Imports** de **Gérer l'espace de travail**, qui liste les imports avec leur statut, leurs compteurs et leurs entrées rejetées.
 
----
+### Phrasea Uploader
 
-## **Afficher**
+En plus de Databox, des fichiers peuvent être envoyés avec Phrasea Uploader, une application dédiée au téléversement (formulaires, liens de dépôt pour des personnes sans compte…) : voir le [guide utilisateur d'Uploader](../Uploader/uploader-documentation.fr.md).
 
-L’affichage des résultats peut être personnalisé par les utilisateurs. 
+## Rechercher
 
-Trois vues sont possibles dans Phrasea: vignettes, liste, mosaïque.  
-Pour modifier ces vues, cliquez sur l’icône correspondant près de l’affichage du nombre de résultats.
+### Recherche textuelle et suggestions
 
-### **Les préférences d'affichage**
+Saisissez un ou plusieurs mots dans le champ **Rechercher des assets…** et appuyez sur Entrée (ou cliquez sur **Rechercher**). Les mots trouvés dans les attributs sont surlignés dans les résultats. La croix du champ efface le texte.
 
-L'interface de Databox s'ajuste à vos besoins. 
+Pendant la saisie, des suggestions apparaissent (utilisez ↑ et ↓, puis Entrée, ou cliquez) :
 
-L'affichage vous montre seulement ce que vous souhaitez voir. Pour cela, rendez-vous dans les **Préférences d'affichage.**
+- les assets, collections et espaces de travail dont le nom correspond : une collection ou un espace de travail limite la recherche à celui-ci ;
+- **Filtrer par** un champ, pour un mot unique qui correspond au nom d'un attribut ou d'un champ intégré (saisissez `@` pour lister les champs intégrés) : le champ s'écrit dans la barre de recherche sous la forme `champ:`, puis ses valeurs sont suggérées ;
+- les valeurs du champ choisi : en choisir une ajoute une condition.
 
-Vous pouvez:
+Le bouton avec une icône de viseur, **Rechercher autour de moi**, ajoute votre position à la recherche (votre navigateur vous demande l'autorisation).
 
-* Choisir la taille de vos vignettes  
-* Choisir d'afficher (ou non) le titre, les collections (ainsi que le nombre), l'aperçu de l'image au survol  
-* Choisir les préférences de l'aperçu: lecture automatique pour les vidéos, choisir d'afficher uniquement l'image, uniquement les attributs, ou bien les deux.  
-* Choisir la taille globale de l'aperçu, ainsi que la taille consacrée à l'affichage des attributs.
+Le menu **Plus** de la barre de recherche contient **Effacer la recherche** (texte, conditions et tri), **Enregistrer la recherche** ou, pour une recherche enregistrée, **Mettre à jour la recherche** et **Enregistrer comme nouvelle recherche** (voir [Recherches enregistrées](#recherches-enregistrées)).
 
-### **Les listes d'attributs**
+### Conditions
 
-Des listes peuvent être constituées afin de sélectionner par avance les attributs que vous souhaitez voir affichés lors du survol de vos assets dans la zone d'affichage des résultats.
+Les conditions filtrent les résultats sur un champ. Elles s'affichent sous forme de pastilles sous la barre de recherche.
 
-Exemple: Si vous souhaitez créer une liste personnalisée avec uniquement des informations géographiques. Le résultat qui s'affiche au survol montre bien les attributs: Ville, Pays, Position Gps (avec l'affichage d'une carte, au choix également).
+- Cliquez sur le texte d'une pastille pour modifier la condition.
+- Son bouton ⋮ (ou un clic droit) propose **Désactiver** ou **Activer**, **Inverser (NOT)** (ou **Annuler l'inversion**), **Modifier** et **Retirer**. Une condition inversée s'affiche en rouge, une condition désactivée est barrée.
 
-### **Les thèmes**
+Pour ajouter une condition :
 
-Des thèmes peuvent être paramétrés pour votre interface Databox. Vous pouvez changer le thème (qui inclut les couleurs de votre interface, la forme des boutons,...).
+1. Cliquez sur **Ajouter une condition**.
+2. Dans l'onglet **Assistant**, choisissez un champ dans **Sélectionner un champ…** (champs **Intégrés** comme la collection, les dates, le type de fichier ou la confidentialité, ou vos **Attributs**), puis un opérateur (**Est**, **Est l'un de**, **Contient**, **Commence par**, **Est avant le**, **Est vide**… selon le type du champ) et une valeur.
+3. Ajoutez d'autres conditions avec **Ajouter une condition**, ou des groupes de conditions avec **Ajouter un groupe de conditions**. Chaque groupe retient **Toutes (ET)** ou **Au moins une (OU)** de ses conditions.
+4. Cliquez sur **Ajouter**.
 
-### **Aperçu** 
+**Aperçu AQL** montre la requête écrite par l'assistant. L'onglet **AQL** permet de l'écrire directement. L'interrupteur **Inverser (NOT)** inverse toute la condition.
 
-Double-cliquez sur une vignette pour visualiser un document et commencer à travailler. 
+Des filtres épinglés peuvent aussi s'afficher avant les pastilles (voir [Profils d'affichage et filtres épinglés](#profils-daffichage-et-filtres-épinglés)).
 
-* En dépliant l'onglet **"Attributs de l’asset"**, vous avez accès aux informations entrées dans la notice, avec les attributs correspondants.  
-* En dessous, l'onglet **"Informations"** vous renseigne sur le propriétaire de l'asset, son ID, et divers champs techniques, tels que la date d'ajout de l'asset dans le DAM, la date de dernière modification, la collection et le workspace dans lesquels il se trouve.   
-* L'onglet **“Discussion"** permet à des utilisateurs de s'envoyer des messages sur l'image, et regroupe également les annotations.  
-* Les onglets suivants sont les **intégrations**: Plusieurs intégrations peuvent être installées et paramétrées dans votre DAM (Auto indexation, Remove Background, retouche simple,...).
+### Facettes
 
----
+L'onglet **Facettes** liste, pour les résultats en cours, les valeurs des champs configurés comme facettes, avec le nombre d'assets pour chaque valeur.
 
-## **Editer**
+- Cochez une ou plusieurs valeurs pour ne garder que les assets correspondants (plusieurs valeurs d'une même facette se combinent en OU). **Manquant** garde les assets sans valeur.
+- Pour une date, déplacez les poignées du curseur pour choisir une période ; **Effacer le filtre** la retire.
+- Les boutons qui apparaissent au survol du titre d'une facette l'épinglent en haut (**Épingler en haut**) ou la masquent (**Masquer la facette**).
 
-### **Edition d’assets en lot**
+Une valeur cochée ajoute une condition, que vous pouvez ensuite inverser ou désactiver comme toute autre condition.
 
-Cette section explique comment modifier plusieurs assets de manière simultanée.
+Le menu ⋮ de l'onglet contient **Tout déplier**, **Tout replier** et **Paramètres des facettes** : faites glisser les facettes pour les réordonner, masquez-les ou affichez-les (les facettes masquées sont listées sous **Masquées**), ou cliquez sur **Rétablir par défaut**.
 
-#### Démarrer l’édition en lot
+Les facettes elles-mêmes sont choisies par les administrateurs de l'espace de travail.
 
-* Sélectionnez les assets à modifier  
-* Cliquez sur le bouton **« Editer »** présent sur la barre de menu. Une fenêtre d’indexation s’ouvre et affiche tous les assets sélectionnés.
+### Trier
 
-  #### Méthodologie préconisée
+Cliquez sur **Trier** pour ouvrir **Trier par** :
 
-Dans la fenêtre d’indexation, vous pouvez organiser vos assets: sélectionnez les assets à indexer, du plus générique au plus spécifique.  
-Ajustez la taille des vignettes d’aperçu dans les **préférences d’affichage** afin de faciliter la visualisation des assets. 
+1. Activez les champs sur lesquels trier avec leur interrupteur, ou ajoutez un attribut avec **Ajouter un tri…**.
+2. Faites glisser les champs pour choisir leur ordre, et cliquez sur la flèche d'un champ pour choisir le sens.
+3. Cochez **Grouper par sections** pour séparer les résultats selon le premier champ (indisponible lors du tri par pertinence).
+4. Cliquez sur **Appliquer**. **Réinitialiser** rétablit le tri par défaut.
 
-#### Saisie des informations
+Par exemple, triez sur un attribut « Pays » puis sur un attribut « Ville », et groupez par sections : les résultats sont listés par pays, puis par ville, avec un séparateur pour chaque pays.
 
-La zone de saisie vous permet de prévisualiser les documents et d’afficher les champs à modifier.
+### Recherches enregistrées
 
-* Entrez les informations dans les champs. 
+Une recherche enregistrée conserve le texte, les conditions et le tri d'une recherche.
 
-Il est possible d'indexer dans plusieurs langues simultanément.
+1. Ouvrez le menu **Plus** de la barre de recherche et choisissez **Enregistrer la recherche**.
+2. Saisissez le nom et choisissez la confidentialité : **Secrète** (seulement vous et les utilisateurs que vous autorisez), **Privée** (accessible par lien, non listée) ou **Publique** (listée pour tous). Publier une recherche demande une permission particulière.
+3. Cliquez sur **Enregistrer**.
 
-* Les valeurs sont visibles sur le côté droit de la fenêtre.  
-* Pour annuler ou rétablir une action, utilisez les boutons « annuler » ou « rétablir »  
-* Avant de valider, comparez les nouvelles valeurs avec les valeurs d’origine.   
-* Cliquez sur “**Enregistrer”** pour valider les modifications.
+Les recherches enregistrées sont listées dans la section **Recherches enregistrées** de l'onglet **Navigation** : cliquez sur l'une d'elles pour la lancer. Après l'avoir modifiée, **Mettre à jour la recherche** enregistre les changements, et **Enregistrer comme nouvelle recherche** en crée une autre.
 
-### **Edition d’un asset à la fois**
+Le menu ⋮ d'une recherche enregistrée contient **Modifier**, qui ouvre **Gérer la recherche enregistrée** (onglets **Infos**, **Modifier**, **Permissions** et **Automatisations**), et **Supprimer**.
 
-Si vous ne souhaitez modifier qu’un seul asset, suivez ces étapes:
+Les automatisations appliquent des actions aux résultats d'une recherche enregistrée, à la demande ou selon un calendrier : ajout à une collection, modification d'un attribut, partage, publication dans Expose… Chaque automatisation d'une recherche enregistrée figure dans son menu, avec **Exécuter maintenant** et **Simulation**.
 
-* Sélectionnez l’asset que vous voulez éditer.   
-* Cliquez sur le bouton **“Editer”**. 
+### Profils d'affichage et filtres épinglés
 
-L’onglet **“Attributes”** s’ouvre et présente les champs à remplir.
+Un profil d'affichage mémorise l'affichage de Databox : les attributs affichés dans le panneau de l'asset, les attributs affichés sur les vignettes de la grille, les filtres de recherche épinglés au-dessus des résultats, et vos préférences d'affichage (disposition, facettes, sections du panneau latéral, onglets du panneau de l'asset, thème…).
 
-* Entrer les informations dans les différents champs. 
+Les profils se choisissent dans le menu des réglages, sous **Profil d'affichage** :
 
-* Cliquer sur **“Enregistrer”**.
+- **Changer de profil** liste le profil par défaut (**Profil d'affichage par défaut**) et les profils que vous avez créés ou qui ont été partagés avec vous.
+- **Synchroniser les préférences** enregistre vos changements dans le profil au fur et à mesure ; sans cette option, **Enregistrer les préférences actuelles dans le profil** les enregistre à la demande.
+- **Nouveau profil…** crée un profil, et **Gérer les profils…** les liste.
 
----
+La fenêtre d'un profil comporte les onglets **Général** (nom et description), **Attributs de l'asset** (les attributs affichés dans le panneau de l'asset, dans l'ordre, avec des séparateurs), **Carte de la grille** (les valeurs affichées sur ou sous les vignettes), **Filtres de recherche** et **Permissions** (**Public** pour partager le profil avec tous les utilisateurs).
 
-## **Effectuer des actions sur les assets**
+Vous pouvez aussi ajouter un attribut à votre profil depuis le panneau de l'asset, avec **Épingler dans le profil**.
 
-### **Exporter des assets**
+Les filtres de recherche épinglés s'affichent avant les conditions, au-dessus des résultats. Cliquez sur l'un d'eux pour choisir sa valeur (une liste, des boutons radio, ou les dates **Du** et **Au** pour une date), puis cliquez sur **Appliquer**. **Effacer** retire la valeur.
 
-Pour télécharger des documents:
+### Vue carte
 
-* Sélectionnez les éléments à partir de la grille de réponses   
-* Cliquez sur le bouton de la barre des actions **“Exporter**”.
+Choisissez **Carte** dans **Paramètres d'affichage** pour placer les résultats sur une carte, d'après leur attribut de géolocalisation (un attribut de type « point géographique »). Les assets proches sont regroupés dans des bulles qui indiquent leur nombre ; cliquez sur une bulle pour les voir et zoomer, et cliquez sur un asset pour l'ouvrir.
 
-La fenêtre qui s’ouvre permet à l’utilisateur de choisir les renditions (sous-définitions des assets, paramétrables dans le DAM) à exporter.
+- **Dessiner une zone** : cliquez et faites glisser sur la carte pour chercher dans un cercle (Échap annule). Faites glisser la zone pour la déplacer, ou son bord pour la redimensionner ; **Effacer la zone** la retire.
+- **Rechercher dans cette zone**, dans la bulle d'un groupe, limite la recherche à sa zone ; **Effacer la zone** retire cette limite.
+- **Afficher tous les résultats** centre la carte sur les résultats, et **Vue satellite** change le fond de carte.
 
-### **Supprimer des assets**
+Lorsque les espaces de travail ont plusieurs attributs de géolocalisation, choisissez celui à utiliser en haut à gauche de la carte.
 
-Pour supprimer définitivement un ou plusieurs assets, sélectionnez les éléments puis cliquer sur le bouton **“Supprimer”**.  
-Une fenêtre demande confirmation de la suppression définitive du DAM.
+### Recherche par similarité
 
-### **Déplacer des assets**
+Lorsque la similarité est activée pour l'espace de travail, **Rechercher des similaires**, dans le menu d'un asset, lance une recherche des assets visuellement similaires. Chaque résultat affiche sa **Similarité** en pourcentage. L'onglet **Similaires** de la visionneuse affiche les assets les plus similaires, et **Rechercher les assets similaires** les ouvre dans la recherche.
 
-Pour déplacer des assets d’une collection vers une autre collection:
+### Visages
 
-* Cliquez sur la flèche près du bouton **“Modifier”**.  
-* Sélectionnez: **“Déplacer”**.
+Lorsque l'intégration de reconnaissance faciale est activée, son onglet dans la visionneuse liste les visages de l'image. Cliquez sur **Détecter les visages** pour l'analyser.
 
-Une fenêtre s’ouvre.
+- Pour nommer un visage **Sans nom**, saisissez un nom dans son champ **Qui est-ce ?**, puis choisissez une personne existante ou créez-en une nouvelle.
+- Un visage **Reconnu** a été nommé automatiquement d'après un autre visage ; **Confirmer la personne** en fait une référence.
+- **Oublier ce visage** le supprime.
 
-* Dépliez les Workspaces et les collections auxquels vous avez accès afin de choisir la collection où déplacer l’élément.  
-* Cliquez sur **“Déplacer”** pour finaliser le déplacement.
+Les personnes sont enregistrées dans un attribut de l'asset : recherchez une personne avec la facette ou une condition sur cet attribut.
 
-### **Dupliquer**
+## Consulter un asset
 
-Deux types de copies peuvent être effectuées dans Phrasea:
+### Ouvrir la visionneuse
 
-* **Duplication de l’asset**  
-* **Copie (raccourci)**
+Double-cliquez sur un asset, ou choisissez **Ouvrir** dans son menu. La visionneuse affiche le fichier à gauche et un panneau à droite.
 
-La duplication d'un asset correspond à la création d'une copie physique d'un fichier. Cela signifie que le nouveau fichier est généré, avec sa référence unique et ses métadonnées. 
+- **Précédent** et **Suivant** (ou les touches ← et →) parcourent les résultats. Dans une story, ils parcourent ses éléments : à la fin de la story, appuyez de nouveau pour passer à l'asset suivant.
+- La liste en haut permet d'afficher un autre rendu.
+- Lorsque l'asset a une région d'intérêt, **Afficher l'asset entier** et **Afficher la région d'intérêt** basculent l'affichage.
+- Les boutons de l'en-tête téléchargent, modifient, partagent ou suppriment l'asset ; son menu ⋮ contient les autres actions (voir [Actions sur les assets](#actions-sur-les-assets)). **Suivre** vous abonne à l'asset (voir [Suivi et notifications](#suivi-et-notifications)).
+- **Masquer le panneau** donne toute la place au fichier. Le bouton de fermeture (ou Échap) ferme la visionneuse.
 
-Quant à la copie, appelée aussi "référence", elle ne crée pas de nouveau fichier physique. Elle crée une nouvelle entrée dans le système qui pointe vers le fichier original. C'est l'équivalent d'un raccourci. L'asset original reste unique, mais il est accessible depuis plusieurs emplacements ou noms.
+Les images se zooment avec la molette ; un double-clic bascule entre l'image entière et sa taille réelle. Pour un asset sans fichier, **Ajouter un fichier source** permet d'en ajouter un.
 
-* Sélectionnez le cas qui correspond à vos besoins.  
-* Choisissez une collection de destination  
-* Cliquez sur **“Copier”**.
+### Onglets du panneau
 
-### **Gérer les versions d’un asset**
+Le panneau comporte les onglets suivants, selon vos permissions et la configuration de l'espace de travail :
 
-Pour gérer et accéder aux différentes versions d’un asset, sélectionnez-le dans la fenêtre d’affichage des résultats et cliquez sur: **“Modifier”**.  
-Rendez-vous sur l’onglet  **“Versions”** pour accéder à toutes les versions. 
+- **Infos** : attributs et informations (voir ci-dessous).
+- **Discussion** : messages et annotations (voir [Discuter](#discuter)).
+- **Rendus** : les rendus du fichier.
+- **Similaires** : les assets similaires (voir [Recherche par similarité](#recherche-par-similarité)).
+- un onglet par intégration disponible pour le fichier (par exemple l'éditeur photo ou la reconnaissance faciale) ;
+- **Versions** : les fichiers source précédents.
+- **Permissions** : qui est autorisé sur l'asset.
+- **Workflow** : les exécutions des traitements de l'asset.
+- **Opérations** : emplacement, raccourcis et suppression.
 
-Pour créer une nouvelle version d’un asset: 
+Les onglets qui ne tiennent pas sont dans le menu ⋮ de la barre d'onglets. **Réorganiser les onglets**, dans ce menu, permet de faire glisser les onglets pour changer leur ordre (**Rétablir par défaut** le rétablit).
 
-* Cliquez sur la roue crantée sur chaque vignette et choisissez “remplacer le fichier source”. Substituez le fichier. La nouvelle version de cet asset apparaîtra dans les versions successives.   
-* Double-cliquez sur un asset. La vue détaillée s’ouvre. Effectuez des modifications sur l’asset, par exemple avec l’outil de retouche. Une fois les modifications effectuées, enregistrez l’asset.
+### Onglet Infos
 
-Une option vous propose d’enregistrer comme: 
+L'onglet **Infos** se compose de sections :
 
-* **Nouvel asset,**   
-* **Rendition**  
-* **Remplacer la source de l’asset**
+- **Attributs** : les valeurs des attributs. Au survol d'un attribut, des boutons permettent de changer son format d'affichage (**Changer le format**), de copier sa valeur, ou de l'épingler dans votre profil (**Épingler dans le profil**).
+- **Informations** : propriétaire, dates de création et de modification, confidentialité, espace de travail, collection de référence, fichier source et type.
+- **Collections** et **Stories** : les collections et les stories auxquelles appartient l'asset ; cliquez sur l'une d'elles pour l'ouvrir dans la recherche.
+- **Métriques** : l'audience de l'asset (vues, lectures…), lorsque votre organisation la mesure.
+- **Pièces jointes** : des fichiers joints à l'asset. **Ajouter une pièce jointe** ajoute un fichier ou une URL ; le menu ⋮ d'une pièce jointe la télécharge, la renomme (**Renommer**), la détache (**Détacher**, l'asset joint est conservé) ou la supprime.
 
-Si vous cliquez sur “Remplacer la source de l’asset”, votre asset sera automatiquement mis à jour sur la grille de réponses.   
-Rendez-vous dans l’**onglet “Versions”**, la version actuelle est bien celle que vous aurez définie. 
+### Onglet Rendus
 
-Grâce à cet affichage, vous pouvez facilement comparer les différentes versions pour identifier les changements.
+Les rendus sont les versions du fichier générées pour l'affichage et le téléchargement (vignette, aperçu, autres formats…). L'onglet affiche chaque rendu avec son type et sa taille ; cliquez sur un rendu pour l'afficher dans la visionneuse. Des badges signalent un rendu en cours de génération (**Génération…**), **Verrouillé**, **Substitué** ou **Obsolète**.
 
-Les informations détaillées présentes sur les assets permettent de visualiser qui a modifié et à quelle date, améliorant ainsi la traçabilité.
+- **Télécharger** et **Enregistrer sous…** s'appliquent au rendu.
+- **Substituer** remplace le fichier d'un rendu par un fichier de votre choix, et **Téléverser** fournit un rendu pas encore généré (pour les rendus qui le permettent).
+- **Créer un rendu personnalisé** (images) crée un nouveau rendu : choisissez la **Source**, le **Rapport d'aspect** et le **Zoom** (faites glisser l'image pour la cadrer), la **Largeur max** et la **Hauteur max**, le **Format**, **Noir et blanc** et **Écrire les attributs dans les métadonnées du fichier**, puis cliquez sur **Créer**.
 
-Rétablir une version antérieure si nécessaire, en faisant de celle-ci la version active:  
-Un choix vous permet de supprimer l’ancienne version, de la télécharger, ou encore de la rétablir en cliquant sur **“remplacer la source de l’asset”**. 
+### Onglet Versions
 
-### **Partager**
+Lorsque le fichier source est remplacé, le fichier précédent est conservé comme version. L'onglet liste les versions avec leur date, leur type et leur taille ; chacune peut être téléchargée, supprimée, ou enregistrée avec **Enregistrer sous…**. Pour restaurer une version, choisissez **Enregistrer sous…** puis **Remplacer le fichier source de cet asset**.
 
-* **Partage en mode public**  
-* **Partage en mode avancé**
+### Onglet Workflow
 
-En cliquant sur le bouton **“Partager”**, partagez vos médias facilement dans Phrasea.
+Les workflows exécutent les traitements des assets (analyse, génération des rendus, intégrations…). L'onglet liste les exécutions avec leur statut ; **Voir** ouvre le détail d'une exécution, où une tâche peut être relancée avec **Relancer**. **Relancer le workflow** exécute de nouveau le workflow de l'asset.
 
-Après avoir sélectionné un asset:
+Pendant une exécution, une carte au-dessus du fichier affiche sa progression ; **Ouvrir l'exécution** l'ouvre.
 
-* Choisissez entre le mode **"standard"** pour un lien de partage permanent, en mode Public,   
-  ou   
-* Le mode **"avancé"** pour un partage limité dans le temps. 
+### Onglet Opérations
 
-La barre de partage facilite également l’intégration aux réseaux sociaux.
+- **Emplacement** : l'espace de travail et la collection de référence de l'asset.
+- **Raccourcis** : les autres collections où figure l'asset ; **Retirer** l'en retire.
+- **Zone de danger** : supprimer (ou restaurer) l'asset ; saisissez son nom pour confirmer.
 
-### **Annoter**
+### Intégrations
 
-Phrasea propose une fonctionnalité d’annotations visuelles permettant de commenter directement sur une zone précise d’un asset.  
-Cette fonction collaborative permet de cliquer sur une partie de l’asset pour y placer une annotation, facilitant ainsi les retours détaillés, corrections ou validations ciblées (signaler une correction lors de la retouche à faire, désigner un lieu, aborder un sujet précis avec des utilisateurs). 
+Selon la configuration de l'espace de travail, d'autres onglets apportent des intégrations, par exemple :
 
-Chaque annotation peut être accompagnée d’un message et d’une mention pour notifier un ou plusieurs collaborateurs. 
+- l'éditeur photo : **Ouvrir l’éditeur photo** ouvre l'image dans un éditeur ; **Enregistrer sous** enregistre le résultat, que vous pouvez ensuite rouvrir depuis l'onglet ;
+- la reconnaissance faciale (voir [Visages](#visages)) ou la détection d'étiquettes et de textes.
 
-\-Pour annoter un asset, double-cliquez sur un document.   
-La vue détaillée s’ouvre.
+## Modifier les attributs
 
-Au bas de l’image, un menu est présent.   
-Il est possible de masquer cette barre de menu en cliquant sur la croix. Elle sera alors signalée par une flèche sur le côté gauche de votre écran, si vous souhaitez la rouvrir ultérieurement.
+### Modifier un asset
 
-Lorsque vous ouvrez le menu, la fonction annotation présente divers outils:
+1. Ouvrez l'asset et cliquez sur le bouton de modification (crayon) de l'en-tête, ou choisissez **Modifier** dans le menu de l'asset.
+2. Le panneau passe en mode modification : changez la confidentialité et les valeurs des attributs. Un attribut traduisible a un onglet par langue ; un attribut multivalué a un bouton pour ajouter une valeur et un bouton pour retirer chacune d'elles.
+3. Cliquez sur **Enregistrer**. **Réinitialiser** annule vos changements, et **Fermer l’éditeur** quitte le mode modification.
 
-* **L’outil texte:** pour ajouter un texte sur l’image  
-* **L’outil formes:** cible, rectangle, cercle, pour dessiner ces formes  
-* **L’outil flèche et trait**, pour dessiner ces lignes  
-* **Le pinceau**, pour choisir la couleur des formes et lignes  
-* **La taille**  
-* **En dessous:** le zoom, dézoom, centrer l’image, voir toute l’image.
+Les attributs que vous ne pouvez pas modifier sont marqués « lecture seule ».
 
-Vous pouvez également redimensionner la forme en plaçant le curseur sur l’un des ronds
+### Modifier par lot
 
-* Choix de la couleur du cercle / rectangle / trait…  
-* Sélectionnez l’élément que vous avez tracé, puis choisissez la couleur, la taille, etc.  
-* Renommez l’élément si nécessaire en cliquant sur le titre ou le supprimer en cliquant sur la corbeille.
+1. Sélectionnez plusieurs assets du même espace de travail.
+2. Cliquez sur **Modifier les attributs**. L'éditeur par lot s'ouvre avec les assets sélectionnés en haut.
+3. Dans la liste des attributs, choisissez un attribut (Tab et Maj+Tab passent au suivant et au précédent).
+4. Saisissez la valeur. Elle s'applique aux assets sélectionnés en haut : cliquez sur une vignette pour travailler sur elle seule, ⌘-clic sur macOS (Ctrl-clic ailleurs) ou Maj-clic pour en sélectionner plusieurs.
+    - Pour un attribut à valeur unique, **Indéterminé** signale que les assets ont des valeurs différentes : une valeur saisie s'applique à tous.
+    - Pour un attribut multivalué, chaque valeur indique la part des assets qui l'ont, avec un bouton pour l'ajouter à tous les assets sélectionnés et un bouton pour la retirer ; **Ajouter à tous** ajoute une nouvelle valeur.
+5. À droite, l'onglet **Valeurs** liste les valeurs utilisées (**Appliquer à la sélection**, **Sélectionner des assets**), et l'onglet **Aperçu** montre le résultat asset par asset.
+6. Cliquez sur **Enregistrer**, vérifiez le récapitulatif dans **Confirmer les modifications ?**, puis confirmez.
 
-Pour qu’un utilisateur puisse voir une annotation, celui-ci doit cliquer sur l’élément entouré ci-dessous. Lorsqu’il y a plusieurs éléments, il doit répéter l’opération.
+**Annuler** et **Rétablir** annulent ou refont vos derniers changements avant l'enregistrement.
 
-### **Discuter**
+## Actions sur les assets
 
-Messagerie collaborative:   
-Le DAM Phrasea intègre une messagerie permettant aux utilisateurs d’échanger directement sur les visuels. Pour chaque asset, un espace de commentaires est disponible, accessible depuis la vue détaillée.   
-Cette fonctionnalité permet de laisser des messages, poser des questions ou donner des retours ciblés sur une image. Les utilisateurs peuvent mentionner un ou plusieurs utilisateurs via  @ (suivi du nom de l’utilisateur) ce qui génère une notification afin de faciliter la collaboration.   
-Les échanges restent visibles pour tous les utilisateurs ayant accès à l’asset. Cela permet un suivi clair des décisions et des validations. Cette messagerie est idéale pour fluidifier les processus de validation ou de retouche, et centraliser les discussions liées à un fichier.
+### Sélectionner des assets
 
-NB: Un utilisateur doit disposer de droits lui permettant de saisir des messages et notifier des utilisateurs depuis la fonction Discuter.
+- Cliquez sur un asset pour le sélectionner ; un ⌘-clic sur macOS (Ctrl-clic ailleurs) ajoute ou retire un asset ; un Maj-clic sélectionne une plage.
+- ⌘A sur macOS (Ctrl+A ailleurs) sélectionne tous les assets chargés, et Échap vide la sélection.
 
-### **Etre notifié**
+### Barre d'actions et menus
 
-Le système intègre des notifications pour tenir les utilisateurs informés en temps réel des actions effectuées sur des assets.   
-Un utilisateur peut être notifié si celui-ci:
+Lorsque des assets sont sélectionnés, la barre d'outils affiche les actions disponibles pour eux : **Télécharger** (un asset) ou **Exporter** (plusieurs), **Modifier** ou **Modifier les attributs**, **Partager**, **Déplacer**, **Copier**, **Créer une story…** et **Supprimer**. Dans la corbeille, **Restaurer** et **Supprimer définitivement** les remplacent.
 
-* est abonné individuellement à un asset: Il peut alors, au choix:  
-  * être notifié à chaque fois que l’asset a été mis à jour  
-  * quand l’asset est supprimé  
-  * quand il y a un nouveau commentaire sur l’asset
+Le bouton ⋮ d'une vignette, ou un clic droit sur celle-ci, ouvre le menu de l'asset (ou de toute la sélection, si l'asset est sélectionné). Il contient, en plus des actions ci-dessus :
 
-Il peut se désabonner du suivi d’un asset.
+- **Ouvrir** et **Infos**, qui ouvrent la visionneuse ;
+- **Rechercher des similaires** (voir [Recherche par similarité](#recherche-par-similarité)) ;
+- **Épingler la story** pour une story (voir [Stories](#stories)) ;
+- **Ajouter au panier** ;
+- **Enregistrer sous…** et **Remplacer le fichier source** (voir [Remplacer le fichier source](#remplacer-le-fichier-source)) ;
+- **Modifier la région d'intérêt** (voir [Région d'intérêt](#région-dintérêt)).
 
-* est abonné à une collection.
+### Glisser-déposer
 
-L’utilisateur a la possibilité de configurer ses préférences de notifications: à savoir, à les recevoir par mail ou bien dans l’application, ou les deux.
+Faites glisser des assets (ou la sélection) sur une collection ou un espace de travail de l'onglet **Navigation**, sur un panier de l'onglet **Paniers**, ou sur une story épinglée. Pendant le glissement, le panneau latéral passe sur l'onglet **Navigation** ; survolez un autre onglet pour l'ouvrir, ou un espace de travail ou une collection repliés pour les déplier. L'étiquette qui suit le pointeur indique ce que fera le dépôt.
 
-NB: Toutes les actions peuvent être déclenchées individuellement depuis chaque asset dans la grille de réponses. Pour cela, cliquez sur la roue crantée présente sur chaque vignette représentant un asset. 
+| Touches maintenues | Sur une collection ou un espace de travail | Sur une story |
+|---|---|---|
+| aucune | Déplacer | Ajouter |
+| ⌘ sur macOS, Ctrl ailleurs | Ajouter (raccourci) | Déplacer |
+| ⇧⌘ sur macOS, Ctrl+Maj ailleurs | Dupliquer | Dupliquer |
 
----
+Un dépôt sur un panier ajoute toujours les assets. Un dépôt dans un autre espace de travail les duplique toujours, après confirmation.
 
-## **Les paniers**
+### Exporter et télécharger
 
-Dans Phrasea, des paniers peuvent être créés afin de pouvoir mettre de côté, de manière temporaire ou non, certains assets.
+1. Sélectionnez les assets et cliquez sur **Exporter** (ou **Télécharger** pour un seul asset).
+2. Cochez les rendus à inclure dans l'export.
+3. Lorsque des assets ont une région d'intérêt ou un extrait de panier, les fichiers exportés sont découpés et recadrés : cochez **Exporter les fichiers entiers (ignorer les régions d'intérêt et les extraits)** pour les exporter entiers.
+4. Si un espace de travail exige l'acceptation de ses conditions générales, lisez-les et acceptez-les.
+5. Cliquez sur **Exporter**.
 
-### **Accéder à un panier**
+Un message indique la préparation de l'export, puis **Export prêt !** avec un bouton **Télécharger**.
 
-Retrouvez l'intégralité des paniers dans la zone latérale, **onglet "Paniers"**:  
-Cliquez sur le titre d'un panier pour en afficher son contenu.
+### Déplacer et copier
 
-### **Création de paniers**
+**Déplacer** change la collection des assets, à l'intérieur de leur espace de travail. Choisissez la **Destination**, puis cliquez sur **Déplacer**.
 
-Pour créer un panier, il suffit de cliquer sur le bouton **"Créer un nouveau panier"** dans la zone latérale.  
-Lui donner un titre, éventuellement une description, puis cliquer sur **"Enregistrer"**.
+**Copier** ajoute les assets à une autre collection :
 
-### **Ajouter des assets au panier**
+- avec **Copier par référence (raccourci)** (par défaut), le même asset figure dans la collection de destination : une modification de l'asset apparaît dans les deux collections ;
+- sans cette option, l'asset est dupliqué : un nouvel asset est créé, avec ses propres attributs si **Copier les attributs** est coché.
 
-Au-dessus de la zone d'affichage des résultats, le bouton avec le titre du panier apparaît.   
-Sélectionner le panier de son choix dans lequel ajouter les assets.  
-Pour cela, utiliser la flèche près du titre du panier par défaut (ou du dernier panier utilisé) pour sélectionner le panier souhaité. 
+Une copie dans un autre espace de travail duplique toujours les assets.
 
-* **Ajouter un asset à un panier**
+### Remplacer le fichier source
 
-Dans les résultats:  
-Sélectionner un asset à ajouter au panier, puis cliquer sur l'icône panier sur la vignette.   
-Le nombre d'assets au panier progresse au fur et à mesure de l'ajout des documents.
+**Remplacer le fichier source** remplace le fichier de l'asset par un nouveau fichier, téléversé ou donné par son URL. Le fichier précédent est conservé dans l'onglet **Versions** et les rendus sont générés de nouveau.
 
-* **Sélection de médias en lots pour les ajouter à un panier**
+**Enregistrer sous…** enregistre le fichier source (ou un rendu, ou une version) comme :
 
-Sélectionnez plusieurs assets puis cliquez sur l’icône dans le bouton.
+- **Nouvel asset** : une copie du fichier dans un nouvel asset, dans la collection de votre choix ;
+- **Rendu de cet asset** : le fichier de l'un de ses rendus ;
+- **Remplacer le fichier source de cet asset** : le nouveau fichier source de l'asset.
 
-### **Effectuer des actions sur les assets du panier**
+### Région d'intérêt
 
-Cliquez sur le panier comme vu précédemment pour en afficher son contenu, puis sélectionnez un ou plusieurs assets: divers boutons d'actions sont disponibles, selon vos droits: exporter, indexer, déplacer, partager, supprimer, retirer l'asset du panier.
+**Modifier la région d'intérêt** (images, vidéos et fichiers audio) définit la partie de l'asset à montrer et à utiliser : un rectangle de recadrage et, pour les vidéos et les fichiers audio, des plages temporelles. Le fichier n'est pas modifié : la région d'intérêt est affichée par défaut, et appliquée lorsque l'asset est publié ou exporté.
 
-Les boutons d’action sont grisés. Sélectionnez des assets pour les activer. Si ceux-ci restent grisés, cela signifie que vous ne disposez pas de droits suffisants.
+- **Recadrage** : tracez le rectangle sur le média, puis déplacez-le ou redimensionnez-le par ses coins ; choisissez un ratio (**Libre**, **Original**, 1:1, 4:3…).
+- **Plages temporelles** : faites glisser sur la ligne de temps pour ajouter une plage, ou cliquez sur **Ajouter une plage** ; faites glisser ses bords, ou utilisez **Commencer à la position courante** et **Finir à la position courante**. Les plages sont lues l'une après l'autre.
 
-A l'instar de la zone d'affichage des résultats, l'utilisateur peut choisir ses préférences d'affichage (ajuster la taille des vignettes, des attributs, choisir d'afficher ou non les titres, collections, l'aperçu au survol, passer en mode vignette ou liste, etc.).
+**Supprimer la région d'intérêt** la supprime.
 
-### **Partage des paniers**
+### Suppression et corbeille
 
-Il est possible de partager les paniers à d'autres utilisateurs du DAM. 
+1. Sélectionnez les assets et cliquez sur **Supprimer**.
+2. Si les assets sont dans des collections, choisissez **Placer dans la corbeille**, ou **Retirer seulement des collections** et cochez les collections dont les retirer.
+3. Confirmez.
 
-Pour cela, faire un clic droit sur le titre du panier, puis cliquer sur **"Editer le panier"**.  
-Une fenêtre s'ouvre.   
-Aller dans l'**onglet "Permissions"** et choisir le(s) groupe(s) et/ou l(es) utilisateur(s) du système pour leur partager.   
-Enfin, sélectionner les droits appropriés à leur accorder. 
+Les assets supprimés partent dans la corbeille. Cliquez sur **Corbeille** en bas de la section **Espaces de travail et collections** pour les voir. Là, **Restaurer** les remet dans leurs collections (si leur collection est aussi supprimée, restaurez-la d'abord), et **Supprimer définitivement** les supprime pour de bon : saisissez « Supprimer » pour confirmer.
 
-### **Publication de paniers**
+### Partager
 
-Les paniers peuvent être publiés sous forme de galeries web grâce au service Phrasea Expose : la publication suit le panier, chaque asset ajouté ou retiré lui est envoyé.
+**Partager** crée des liens publics vers un ou plusieurs assets du même espace de travail.
 
-1. Ouvrir le panier : faire un clic droit sur son titre puis **"Modifier"**, ou cliquer sur le bouton **"Intégrations"** de la vue du panier.
-2. Dans la fenêtre **"Gérer le panier"**, aller dans l'**onglet "Intégrations"**.
-3. La première fois, cliquer sur **"Autoriser"** sous l'intégration Expose et se connecter.
-4. Cliquer sur **"Nouvelle publication"**, lui donner un titre (et si besoin un slug, une description, une publication parente ou un profil), puis cliquer sur **"Créer et synchroniser"**.
+- Activez **Créer un lien public**, puis cliquez sur **Copier le lien**. Pour un asset seul, choisissez si le lien ouvre la page de l'asset ou un rendu donné. Les boutons en dessous partagent le lien sur les réseaux sociaux, et **Code d'intégration** donne le code pour insérer l'asset dans une page web.
+- Pour révoquer le lien, désactivez **Créer un lien public**.
 
-La synchronisation peut ensuite être relancée (**"Forcer la synchronisation"**) ou arrêtée (**"Arrêter"**, en supprimant si besoin la publication dans Expose). La mise en page, les téléchargements, le mot de passe, les conditions et les autres réglages de la publication se règlent dans Expose.
+**Avancé : plusieurs liens avec audience et dates** permet de créer plusieurs liens, par exemple un par destinataire :
+
+1. Cliquez sur **Créer un nouveau lien de partage**.
+2. Renseignez **Nom / audience** et, si besoin, **Débute le** et **Expire le**.
+3. Cochez les **Rendus partagés** : seuls ces rendus peuvent être consultés et téléchargés depuis le lien.
+4. Cliquez sur **Créer**.
+
+Chaque lien peut ensuite être modifié (nom et dates), intégré (**Code d'intégration**) ou révoqué (**Révoquer**).
+
+Les personnes qui ouvrent un lien voient les assets partagés, peuvent les parcourir et télécharger les rendus partagés (**Télécharger…**, **Tout télécharger…**). Si l'espace de travail a des conditions générales, elles doivent d'abord les accepter.
+
+## Stories
+
+Une story est un asset qui regroupe d'autres assets dans un ordre donné, par exemple les pages d'un rapport ou les photos d'un événement. Elle a ses propres attributs et une couverture.
+
+Pour créer une story :
+
+1. Sélectionnez les assets du même espace de travail et choisissez **Créer une story…**.
+2. Saisissez le **Nom de la story** et choisissez la **Couverture de la story**.
+3. Confirmez.
+
+Vous pouvez aussi créer une story lors d'un téléversement (voir [Téléverser sous forme de story](#téléverser-sous-forme-de-story)), ou ajouter des assets à une story en les faisant glisser dessus (voir [Glisser-déposer](#glisser-déposer)).
+
+Ouvrez une story pour voir ses éléments dans un bandeau sous le fichier ; cliquez sur un élément pour l'afficher. Si vous pouvez modifier la story, faites glisser les éléments pour les réordonner, et faites un clic droit sur un élément pour **Définir comme couverture**, **Placer au début**, **Placer à la fin** ou **Retirer de la story**.
+
+**Épingler la story**, dans le menu d'une story, l'ajoute à la section **Stories épinglées** de l'onglet **Navigation** ; **Désépingler la story** l'en retire.
+
+## Collaboration
+
+### Annoter
+
+Les annotations tracent des formes et des textes sur une image, une vidéo ou un PDF, pour désigner une zone précise.
+
+1. Ouvrez l'asset, puis l'onglet **Discussion**, et cliquez sur **Annoter le média**.
+2. Dans la barre d'annotation, choisissez un outil : **Sélectionner**, **Rectangle**, **Cercle**, **Visage**, **Flèche**, **Ligne**, **Cible**, **Texte** ou **Dessin**. Pour une vidéo, **Ajouter un repère à l'instant courant** marque un moment.
+3. Choisissez la **Couleur**, le **Remplissage** et la **Taille** (ou la **Taille de police** d'un texte), puis tracez sur le média.
+4. Sélectionnez une forme pour la déplacer, la redimensionner, la renommer (**Renommer**), la dupliquer (**Dupliquer**) ou la supprimer.
+5. Écrivez votre message et envoyez-le : les annotations y sont jointes.
+
+Dans un message, cliquez sur une annotation pour l'afficher sur le média. Certains attributs enregistrent aussi des annotations : leur bouton d'annotation se trouve dans le mode modification du panneau. **Masquer les annotations** masque les formes, et **Afficher les annotations du média** les affiche de nouveau.
+
+### Discuter
+
+L'onglet **Discussion** de la visionneuse rassemble les messages sur l'asset. Saisissez votre texte dans **Écrire un message…** et appuyez sur Entrée pour l'envoyer (Maj+Entrée pour aller à la ligne).
+
+- **Mentionner quelqu’un** (ou saisir `@`) prévient un utilisateur.
+- **Joindre des fichiers** ajoute des fichiers (vous pouvez aussi les déposer ou les coller), **Emoji** insère un emoji, et **Afficher la mise en forme** affiche la barre de mise en forme (gras, italique, lien, listes, citation, code…).
+- **Répondre** répond à un message ; le menu ⋮ de vos messages permet de les modifier ou de les supprimer.
+
+Les messages sont visibles par les utilisateurs qui ont accès à l'asset.
+
+### Suivi et notifications
+
+**Suivre**, dans l'en-tête de la visionneuse, vous abonne à l'asset ; sa flèche permet de choisir les sujets : **Mises à jour**, **Suppression** et **Nouveaux commentaires**. **Ne plus suivre** met fin à l'abonnement.
+
+Pour suivre une collection, choisissez **Notifications** dans son menu, puis choisissez les sujets : **Asset ajouté**, **Asset retiré**, **Asset mis à jour** et **Nouveau commentaire**.
+
+La cloche **Notifications** de la barre supérieure liste vos notifications ; cliquez sur l'une d'elles pour ouvrir ce qu'elle concerne. **Tout marquer comme lu** les marque toutes comme lues.
+
+## Paniers
+
+Un panier est une sélection d'assets, conservée temporairement ou durablement, pour travailler sur eux ensemble : les exporter, les partager, les publier dans une galerie web… Un même asset peut figurer plusieurs fois dans un panier.
+
+### Accéder aux paniers
+
+L'onglet **Paniers** du panneau latéral liste vos paniers, avec leur nombre d'éléments. Cliquez sur un panier pour l'ouvrir. **Afficher les archivés** affiche aussi les paniers archivés.
+
+### Créer un panier
+
+1. Cliquez sur **Créer un panier** (bouton + de l'onglet **Paniers**).
+2. Saisissez un nom et, si besoin, une description.
+3. Cliquez sur **Enregistrer**.
+
+### Le panier courant
+
+Le panier courant reçoit les assets que vous ajoutez. Le bouton du panier, dans la barre d'outils des résultats, affiche son nom et son nombre d'éléments :
+
+- lorsque des assets sont sélectionnés, le bouton les ajoute au panier courant (**Ajouter la sélection au panier**) ;
+- sinon, il ouvre le panier courant (**Ouvrir le panier**).
+
+La flèche du bouton (**Changer de panier**) liste vos paniers, pour choisir un autre panier courant. Vous pouvez aussi choisir **Définir comme panier courant** dans le menu d'un panier, ou double-cliquer dessus dans l'onglet **Paniers**. Un nouveau panier devient le panier courant.
+
+### Ajouter des assets à un panier
+
+- Sélectionnez des assets et cliquez sur le bouton du panier de la barre d'outils.
+- Choisissez **Ajouter au panier** dans le menu d'un asset.
+- Faites glisser les assets sur un panier de l'onglet **Paniers**.
+
+### Travailler dans un panier
+
+La vue du panier affiche ses éléments dans l'ordre, avec leur position. Sélectionnez des éléments pour utiliser les actions sur les assets (export, partage…) ; **Retirer du panier** les retire du panier sans les supprimer.
+
+Le menu ⋮ d'un panier, dans l'onglet **Paniers**, contient **Définir comme panier courant**, **Modifier**, **Archiver** (ou **Désarchiver**) et **Supprimer**. Un panier archivé est masqué de la liste.
+
+### Découper et recadrer les éléments d'un panier
+
+**Découper / recadrer**, sur un élément du panier (images, vidéos et fichiers audio), définit un extrait pour cet élément seulement : un rectangle de recadrage et, pour les vidéos et les fichiers audio, des plages temporelles (comme pour la [région d'intérêt](#région-dintérêt)). Le fichier n'est pas modifié : l'extrait s'applique lorsque l'élément est lu, publié ou exporté, et remplace la région d'intérêt de l'asset. **Retirer l'extrait** le supprime.
+
+Un badge sur l'élément indique son extrait, ou la région d'intérêt qu'il hérite de l'asset.
+
+### Partager des paniers
+
+Vous pouvez partager un panier avec d'autres utilisateurs de Databox : choisissez **Modifier** dans le menu du panier, allez dans l'onglet **Permissions** de la fenêtre **Gérer le panier**, ajoutez les utilisateurs ou les groupes et choisissez leurs permissions.
+
+### Publier des paniers
+
+Les paniers peuvent être publiés sous forme de galeries web grâce au service Phrasea Expose : la publication suit le panier, chaque asset ajouté ou retiré lui est envoyé.
+
+1. Ouvrez le panier : faites un clic droit sur son titre puis **Modifier**, ou cliquez sur le bouton **Intégrations** de la vue du panier.
+2. Dans la fenêtre **Gérer le panier**, allez dans l'onglet **Intégrations**.
+3. La première fois, cliquez sur **Autoriser** sous l'intégration Expose et connectez-vous.
+4. Cliquez sur **Nouvelle publication**, donnez-lui un titre (et si besoin un slug, une description, une publication parente ou un profil), puis cliquez sur **Créer et synchroniser**.
+
+La synchronisation peut ensuite être relancée (**Forcer la synchronisation**) ou arrêtée (**Arrêter**, en supprimant si besoin la publication dans Expose). La mise en page, les téléchargements, le mot de passe, les conditions et les autres réglages de la publication se règlent dans Expose.
 
 Pour poursuivre, vous devez avoir accès à Expose. Voir le [guide utilisateur d'Expose](../Expose/expose-documentation.fr.md) pour la procédure complète et les réglages des publications.
 
----
+## Quarantaine
 
+Lorsque l'analyse d'un fichier téléversé le rejette (par exemple un doublon possible, ou un contenu inattendu), l'asset est mis en quarantaine : il attend qu'un utilisateur l'accepte, le fusionne ou le supprime. Un asset en quarantaine affiche le bandeau **Cet asset est en quarantaine** ; **Détail de l'analyse** affiche le rapport d'analyse et les doublons possibles.
+
+**Quarantaine**, en bas de la section **Espaces de travail et collections**, ouvre la liste des assets à vérifier ; l'icône à côté les affiche plutôt dans la recherche.
+
+1. Sélectionnez un asset dans la liste (ou cliquez sur **Résoudre** dans son bandeau).
+2. Lisez le rapport d'analyse et les **Doublons possibles**.
+3. Choisissez une action :
+    - **Contourner** : accepter l'asset tel quel ;
+    - **Fusionner les doublons** : choisir, pour chaque attribut, la valeur à garder sur l'asset existant, puis choisir de **Conserver le fichier entrant comme nouvelle version de l'asset existant** ou de **Rejeter le fichier entrant** ;
+    - **Placer dans la corbeille** ou **Supprimer définitivement**.
+
+L'asset suivant s'affiche alors ; **Passer** va au suivant sans décider. Cochez plusieurs assets pour appliquer une action à tous.
+
+## Conditions générales
+
+Un espace de travail peut exiger l'acceptation de ses conditions générales. À l'ouverture de Databox, une fenêtre les affiche : cochez **J'ai lu et j'accepte les conditions générales** et cliquez sur **Accepter** pour accéder au contenu de l'espace de travail. **Plus tard** reporte la décision jusqu'au prochain rechargement de la page.
+
+Les conditions sont aussi demandées lorsque vous exportez des assets de l'espace de travail, et sur les pages de partage.
+
+## Réglages
+
+Le menu des réglages (icône d'engrenage) de la barre supérieure contient :
+
+- **Profil d'affichage** : voir [Profils d'affichage et filtres épinglés](#profils-daffichage-et-filtres-épinglés).
+- **Thème** :
+    - **Apparence** : **Clair**, **Sombre** ou **Système** (suit votre appareil) ;
+    - **Thème** : les couleurs et le style de l'interface, parmi **Par défaut** et les thèmes intégrés (**Océan**, **Forêt**, **Coucher de soleil**…), ou le thème de votre organisation sous **Organisation**.
+- **Langue** : la langue de l'interface. **Langue des données…** choisit la langue utilisée pour les valeurs des attributs et les noms traduits ; **Par défaut — utiliser la langue de l'interface** suit la langue de l'interface.
+- **Cookies**, lorsque votre organisation mesure l'audience avec des cookies : les accepter ou les refuser.
+
+Les administrateurs trouvent d'autres entrées dans ce menu (tâches d'opération, workflows, intégrations, journal d'audit, permissions de l'instance) : voir [Administration](../../tech/Databox/administration.md).
+
+## Signaler un problème
+
+Si votre organisation l'a activé, le bouton **Signaler un problème** (en bas à gauche de la fenêtre) envoie un signalement à l'équipe de support :
+
+1. Choisissez le **Type** : **Anomalie**, **Amélioration** ou **Question**.
+2. Renseignez le **Résumé** et les **Détails**.
+3. Si besoin, ajoutez une **Capture d'écran** : cliquez sur **Capturer cette page**, ou collez une image.
+4. Cliquez sur **Créer le ticket**.
+
+La page sur laquelle vous êtes et votre session sont jointes au signalement.
+
+## Raccourcis clavier
+
+Sur macOS, utilisez ⌘ là où le tableau indique Ctrl.
+
+| Touches | Où | Action |
+|---|---|---|
+| Ctrl+A | Résultats, panier | Sélectionner tous les assets chargés |
+| Échap | Résultats, panier | Vider la sélection |
+| Ctrl+V | Écran de recherche, hors champ de texte | Téléverser les fichiers collés |
+| Entrée | Barre de recherche | Lancer la recherche, ou appliquer la suggestion en surbrillance |
+| ↑ / ↓ | Barre de recherche | Parcourir les suggestions |
+| Échap | Barre de recherche | Fermer les suggestions |
+| ← / → | Visionneuse | Asset précédent / suivant |
+| Échap | Visionneuse | Fermer la visionneuse |
+| Espace ou K | Vidéo | Lecture / pause |
+| M / F / C | Vidéo | Muet / plein écran / sous-titres |
+| Tab / Maj+Tab | Éditeur par lot | Attribut suivant / précédent |
+| Entrée | Discussion | Envoyer le message (Maj+Entrée : nouvelle ligne) |
+| Ctrl+B / Ctrl+I | Discussion | Gras / italique |
+| Suppr | Annotations | Supprimer la forme sélectionnée |
+| Flèches | Annotations | Déplacer la forme sélectionnée (Maj : plus vite) |
+| Espace (maintenue) | Annotations | Déplacer l'image au lieu de dessiner |
+| Échap | Annotations | Annuler, quitter l'outil, puis désélectionner |
+| ← / → | Ligne de temps de la région d'intérêt ou d'un extrait | Avancer d'une image (Maj : une seconde) |
+| I / O | Ligne de temps | Début / fin de la plage à la tête de lecture |
+| + / − / 0 | Ligne de temps | Zoomer / dézoomer / durée totale |
+| Ctrl+U | Partout | **Changer d'utilisateur…** (utilisateurs autorisés à naviguer en tant qu'un autre utilisateur) |
