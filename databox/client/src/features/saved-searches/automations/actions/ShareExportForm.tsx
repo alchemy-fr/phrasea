@@ -43,7 +43,9 @@ async function getRenditionChoices(workspaceId: string): Promise<Choice[]> {
         url => getRenditionDefinitions({url})
     );
 
-    return definitions.map(d => ({id: d.id, label: d.name})).sort(byLabel);
+    return definitions
+        .map(d => ({id: d.id, label: d.displayName || d.name}))
+        .sort(byLabel);
 }
 
 /**

@@ -21,7 +21,7 @@ import {
     sortRenditionDefinitions,
 } from '@/lib/api/misc';
 import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {FormRow} from '@alchemy/next-ui/ui/input';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
 import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
 import {SimpleSelect} from '@alchemy/next-ui/ui/select';
@@ -31,6 +31,7 @@ import {iri} from '@/lib/utils/iri';
 import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {RenditionDefinitionSelect} from '@/components/form/selects';
+import {TranslatableField} from '@/components/form/TranslatableField';
 
 export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -111,7 +112,7 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
                 <DefinitionForm
                     key={d?.id ?? 'new'}
                     definition={d}
-                    workspaceId={workspace.id}
+                    workspace={workspace}
                     policies={policies.data?.items ?? []}
                     onSaved={onSaved}
                 />
@@ -122,18 +123,19 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
 
 function DefinitionForm({
     definition: d,
-    workspaceId,
+    workspace,
     policies,
     onSaved,
 }: {
     definition?: RenditionDefinition;
-    workspaceId: string;
+    workspace: WorkspaceTabProps['workspace'];
     policies: RenditionPolicy[];
     onSaved: (d: RenditionDefinition) => void;
 }) {
     const {t} = useTranslation();
     const [form, setForm] = useState({
         name: d?.name ?? '',
+        translations: d?.translations?.name ?? {},
         policy:
             typeof d?.policy === 'string'
                 ? d.policy
@@ -162,12 +164,15 @@ function DefinitionForm({
     });
     const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
         setForm(f => ({...f, [k]: v}));
+    const workspaceId = workspace.id;
+    const locales = workspace.enabledLocales ?? [];
 
     const save = async () => {
         setSaving(true);
         try {
             const data: Partial<RenditionDefinition> = {
                 name: form.name,
+                translations: {name: form.translations},
                 policy: form.policy || null,
                 parent: form.parent || null,
                 target: Number(form.target) as AssetType,
@@ -201,13 +206,15 @@ function DefinitionForm({
 
     return (
         <div className="space-y-4">
+            <TranslatableField
+                label={t('common.name', 'Name')}
+                value={form.name}
+                onChange={v => set('name', v)}
+                translations={form.translations}
+                onTranslationsChange={v => set('translations', v)}
+                locales={locales}
+            />
             <div className="grid gap-3 sm:grid-cols-2">
-                <FormRow label={t('common.name', 'Name')}>
-                    <Input
-                        value={form.name}
-                        onChange={e => set('name', e.target.value)}
-                    />
-                </FormRow>
                 <FormRow label={t('attribute_def.policy', 'Policy')}>
                     <SimpleSelect
                         value={form.policy || '__none'}

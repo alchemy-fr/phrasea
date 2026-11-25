@@ -31,7 +31,7 @@ type Props = BaseProps &
     );
 
 function optionOf(d: RenditionDefinition): ComboOption<RenditionDefinition> {
-    return {value: d.name, label: d.name, item: d};
+    return {value: d.name, label: d.displayName || d.name, item: d};
 }
 
 /**

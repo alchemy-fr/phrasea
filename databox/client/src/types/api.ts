@@ -250,6 +250,7 @@ export interface RenditionDefinition extends HydraObject, Entity {
     buildFirst?: boolean;
     priority: number;
     target: AssetType;
+    translations?: Record<string, Translations>;
 }
 
 export interface AssetRendition extends HydraObject, Entity {
