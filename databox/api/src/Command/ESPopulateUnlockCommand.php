@@ -7,34 +7,17 @@ namespace App\Command;
 use App\Elasticsearch\Exception\PopulateOwnerAliveException;
 use App\Elasticsearch\PopulateLockManager;
 use FOS\ElasticaBundle\Index\IndexManager;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:es:populate-unlock',
     description: 'Force-release the populate lock of one or every index (after a worker died mid-populate)',
-)]
-final class ESPopulateUnlockCommand extends Command
-{
-    public function __construct(
-        private readonly PopulateLockManager $lockManager,
-        private readonly IndexManager $indexManager,
-    ) {
-        parent::__construct();
-    }
-
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('index', InputArgument::OPTIONAL, 'Logical index name (e.g. "asset"); defaults to every locked index')
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation')
-            ->addOption('even-if-alive', null, InputOption::VALUE_NONE, 'Also release the lock of a populate that gave a sign of life recently')
-            ->setHelp(<<<'HELP'
+    help: <<<'HELP'
 Each populate takes a lock on its index so that two processes never populate the same index at once.
 The lock is released at the end of the run, or expires by itself 30 minutes after the last heartbeat of its
 populate (renewed while it indexes).
@@ -45,16 +28,28 @@ heartbeat is less than 5 minutes old is kept, unless --even-if-alive is given.
 
 <error>Never release the lock of a populate that is actually still running</error>: another populate of the same
 index could then run alongside it.
-HELP
-            );
+HELP,
+)]
+final class ESPopulateUnlockCommand extends Command
+{
+    public function __construct(
+        private readonly PopulateLockManager $lockManager,
+        private readonly IndexManager $indexManager,
+    ) {
+        parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
+    public function __invoke(
+        InputInterface $input,
+        SymfonyStyle $io,
+        #[Argument('Logical index name (e.g. "asset"); defaults to every locked index', name: 'index')]
+        ?string $indexArg = null,
+        #[Option('Do not ask for confirmation', shortcut: 'f')]
+        bool $force = false,
+        #[Option('Also release the lock of a populate that gave a sign of life recently')]
+        bool $evenIfAlive = false,
+    ): int {
         $indices = array_keys($this->indexManager->getAllIndexes());
-        $indexArg = $input->getArgument('index');
         if (null !== $indexArg && !\in_array($indexArg, $indices, true)) {
             $io->error(\sprintf('Unknown index "%s". Known indices: %s', $indexArg, implode(', ', $indices)));
 
@@ -71,7 +66,7 @@ HELP
         $io->warning(\sprintf('Populate lock(s) currently held: %s', implode(', ', $locked)));
         $io->text('Releasing a lock while its populate is still running will make that populate fail and lose its index.');
 
-        if (true !== $input->getOption('force')) {
+        if (!$force) {
             if (!$input->isInteractive()) {
                 $io->error('Refusing to release locks without confirmation in non-interactive mode. Use --force to proceed.');
 
@@ -87,7 +82,7 @@ HELP
         $released = 0;
         foreach ($locked as $index) {
             try {
-                $result = $this->lockManager->forceRelease($index, evenIfAlive: true === $input->getOption('even-if-alive'));
+                $result = $this->lockManager->forceRelease($index, evenIfAlive: $evenIfAlive);
             } catch (PopulateOwnerAliveException $e) {
                 $io->error($e->getMessage().' Use --even-if-alive to release it anyway.');
 

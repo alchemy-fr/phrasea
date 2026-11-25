@@ -8,17 +8,18 @@ use Alchemy\NotifierBundle\Channel\ChannelType;
 use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifierBundle\Model\BroadcastOptions;
 use Alchemy\NotifierBundle\Subscriber\UserDirectoryRegistry;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'alchemy:notifier:broadcast',
     description: 'Send a topic notification to a whole audience (by default every user of the identity provider)',
+    help: <<<'HELP'
+          <info>%command.full_name% admin:message '{"subject":"Maintenance","body":"<p>Tonight</p>"}'</info>
+        HELP,
 )]
 final class BroadcastNotificationCommand extends Command
 {
@@ -29,36 +30,29 @@ final class BroadcastNotificationCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('topic', InputArgument::REQUIRED, 'The notification topic')
-            ->addArgument('payload', InputArgument::OPTIONAL, 'JSON template parameters', '{}')
-            ->addOption('channel', 'c', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, sprintf('Restrict delivery to those channels (%s)', implode(', ', ChannelType::values())))
-            ->addOption('audience', 'a', InputOption::VALUE_REQUIRED, 'User directory to broadcast to')
-            ->addOption('exclude-user', null, InputOption::VALUE_REQUIRED, 'userId to leave out of the broadcast')
-            ->setHelp(<<<'HELP'
-                  <info>%command.full_name% admin:message '{"subject":"Maintenance","body":"<p>Tonight</p>"}'</info>
-                HELP)
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $topic = (string) $input->getArgument('topic');
-        $params = json_decode((string) $input->getArgument('payload'), true, 512, JSON_THROW_ON_ERROR);
-
-        /** @var array<int, string> $channels */
-        $channels = $input->getOption('channel');
-        $audience = $input->getOption('audience');
+    /**
+     * @param string[] $channels
+     */
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Argument('The notification topic')]
+        string $topic,
+        #[Argument('JSON template parameters')]
+        string $payload = '{}',
+        #[Option('Restrict delivery to those channels', name: 'channel', shortcut: 'c', suggestedValues: [ChannelType::class, 'values'])]
+        array $channels = [],
+        #[Option('User directory to broadcast to', shortcut: 'a')]
+        ?string $audience = null,
+        #[Option('userId to leave out of the broadcast')]
+        ?string $excludeUser = null,
+    ): int {
+        $params = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
 
         // Fail here rather than in the worker
         foreach ($channels as $channel) {
             ChannelType::from($channel);
         }
-        $directory = $this->directoryRegistry->get(null !== $audience ? (string) $audience : null);
+        $directory = $this->directoryRegistry->get($audience);
 
         if (!$this->notifier->isEnabled()) {
             $io->warning('Notifications are globally disabled (NOTIFICATIONS_ENABLED), nothing was dispatched.');
@@ -68,7 +62,7 @@ final class BroadcastNotificationCommand extends Command
 
         $this->notifier->broadcast($topic, $params, new BroadcastOptions(
             channels: [] !== $channels ? $channels : null,
-            excludeUserId: $input->getOption('exclude-user'),
+            excludeUserId: $excludeUser,
             directory: $directory->getName(),
         ));
 

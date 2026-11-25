@@ -8,10 +8,9 @@ use Alchemy\Workflow\Dumper\ConsoleWorkflowDumper;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand('alchemy:workflow:dump-workflow')]
@@ -24,17 +23,13 @@ class DumpWorkflowCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this->addArgument('id', InputArgument::REQUIRED, 'The workflow ID');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument('The workflow ID')]
+        string $id,
+    ): int {
         $name = null;
-        $workflowState = $this->stateRepository->getWorkflowState($input->getArgument('id'));
+        $workflowState = $this->stateRepository->getWorkflowState($id);
 
         $event = $workflowState->getEvent();
         $workflow = $this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName());

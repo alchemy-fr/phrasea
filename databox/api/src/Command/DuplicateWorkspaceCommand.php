@@ -7,11 +7,15 @@ namespace App\Command;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceDuplicateManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\Argument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'app:workspace:duplicate',
+    description: 'Create a new workspace from an existing one and copy its settings'
+)]
 class DuplicateWorkspaceCommand extends Command
 {
     public function __construct(private readonly WorkspaceDuplicateManager $workspaceDuplicateManager, private readonly EntityManagerInterface $em)
@@ -19,22 +23,13 @@ class DuplicateWorkspaceCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('app:workspace:duplicate')
-            ->setDescription('Create a new workspace from an existing one and copy its settings')
-            ->addArgument('workspace-id', InputArgument::REQUIRED)
-            ->addArgument('new-slug', InputArgument::REQUIRED)
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $workspaceId = $input->getArgument('workspace-id');
-        $newSlug = $input->getArgument('new-slug');
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument]
+        string $workspaceId,
+        #[Argument]
+        string $newSlug,
+    ): int {
         $workspace = $this->em->find(Workspace::class, $workspaceId);
 
         if (!$workspace instanceof Workspace) {

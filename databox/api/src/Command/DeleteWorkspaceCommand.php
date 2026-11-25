@@ -7,15 +7,15 @@ namespace App\Command;
 use App\Doctrine\Delete\WorkspaceDelete;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-#[AsCommand('app:workspace:delete')]
+#[AsCommand(name: 'app:workspace:delete', description: 'Delete a workspace')]
 class DeleteWorkspaceCommand extends Command
 {
     public function __construct(
@@ -25,20 +25,14 @@ class DeleteWorkspaceCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setDescription('Delete a workspace')
-            ->addArgument('workspace-id', InputArgument::REQUIRED)
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force the deletion without asking for confirmation')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $workspaceId = $input->getArgument('workspace-id');
+    public function __invoke(
+        InputInterface $input,
+        OutputInterface $output,
+        #[Argument]
+        string $workspaceId,
+        #[Option('Force the deletion without asking for confirmation', shortcut: 'f')]
+        bool $force = false,
+    ): int {
         $workspace = $this->em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {
             // Idempotent: the deletion job may be replayed after a successful run.
@@ -47,7 +41,7 @@ class DeleteWorkspaceCommand extends Command
             return Command::SUCCESS;
         }
 
-        if (!$input->getOption('force')) {
+        if (!$force) {
             $output->writeln(sprintf('This action will delete the workspace "%s" (%s) and all its content.', $workspace->getName(), $workspace->getId()));
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion('Continue? (y/n) ', false);

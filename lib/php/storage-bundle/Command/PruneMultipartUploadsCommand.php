@@ -6,10 +6,8 @@ namespace Alchemy\StorageBundle\Command;
 
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
@@ -24,28 +22,11 @@ final class PruneMultipartUploadsCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this->addOption(
-            'min-age',
-            null,
-            InputOption::VALUE_REQUIRED,
-            sprintf('Minimum age of the uploads to prune, in hours (at least %d, the lifetime of the part URLs)', UploadManager::PRUNE_MIN_AGE_LIMIT / 3600),
-            UploadManager::PRUNE_MIN_AGE / 3600,
-        );
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $hours = filter_var($input->getOption('min-age'), FILTER_VALIDATE_INT);
-        if (false === $hours) {
-            $io->error('--min-age must be a whole number of hours');
-
-            return Command::INVALID;
-        }
-
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option('Minimum age of the uploads to prune, in hours (at least '.(UploadManager::PRUNE_MIN_AGE_LIMIT / 3600).', the lifetime of the part URLs)', name: 'min-age')]
+        int $hours = UploadManager::PRUNE_MIN_AGE / 3600,
+    ): int {
         $minAge = $hours * 3600;
         if ($minAge < UploadManager::PRUNE_MIN_AGE_LIMIT) {
             $io->error(sprintf('--min-age must be at least %d hours', UploadManager::PRUNE_MIN_AGE_LIMIT / 3600));

@@ -8,13 +8,13 @@ use App\Entity\Core\Workspace;
 use App\Service\Workspace\Template\WorkspaceTemplateOptions;
 use App\Service\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand('app:workspace:export')]
+#[AsCommand(name: 'app:workspace:export', description: 'Export a workspace as a template.')]
 class ExportWorkspaceCommand extends Command
 {
     public function __construct(
@@ -24,29 +24,24 @@ class ExportWorkspaceCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setDescription('Export a workspace as a template.')
-            ->addArgument('workspace', InputOption::VALUE_REQUIRED, 'Workspace ID to export')
-            ->addOption('with-access', null, InputOption::VALUE_NONE, 'Include owners, ACEs, user/group targets and private data templates (only meaningful on the same instance)')
-            ->addOption('with-secrets', null, InputOption::VALUE_NONE, 'Include the encrypted secret values (only importable on the same instance)')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument('Workspace ID to export', name: 'workspace')]
+        string $workspaceId,
+        #[Option('Include owners, ACEs, user/group targets and private data templates (only meaningful on the same instance)')]
+        bool $withAccess = false,
+        #[Option('Include the encrypted secret values (only importable on the same instance)')]
+        bool $withSecrets = false,
+    ): int {
         /** @var Workspace $workspace */
-        $workspace = $this->em->find(Workspace::class, $input->getArgument('workspace'));
+        $workspace = $this->em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {
-            throw new \InvalidArgumentException(sprintf('Workspace "%s" not found', $input->getArgument('workspace')));
+            throw new \InvalidArgumentException(sprintf('Workspace "%s" not found', $workspaceId));
         }
 
         $options = new WorkspaceTemplateOptions(
-            withAccessControl: $input->getOption('with-access'),
-            withSecrets: $input->getOption('with-secrets'),
+            withAccessControl: $withAccess,
+            withSecrets: $withSecrets,
         );
 
         $output->writeln(

@@ -6,12 +6,22 @@ namespace App\Command;
 
 use App\Entity\Target;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\Argument;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'app:create-target',
+    description: 'Creates a new upload target',
+    help: <<<EOT
+The <info>%command.name%</info> command creates a new upload target.
+
+<info>php %command.full_name% <slug> <name> <target-url> [--hidden]</info>
+
+EOT,
+)]
 class CreateTargetCommand extends Command
 {
     public function __construct(private readonly EntityManagerInterface $em)
@@ -19,30 +29,17 @@ class CreateTargetCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('app:create-target')
-            ->setDescription('Creates a new upload target')
-            ->addArgument('slug', InputArgument::REQUIRED, 'The target unique slug')
-            ->addArgument('name', InputArgument::REQUIRED, 'The target name')
-            ->addArgument('target-url', InputArgument::REQUIRED)
-            ->addOption('hidden', null, InputOption::VALUE_NONE, 'Whether the target is hidden')
-            ->setHelp(<<<EOT
-The <info>%command.name%</info> command creates a new upload target.
-
-<info>php %command.full_name% [--redirect-uri=...] [--grant-type=...]</info>
-
-EOT
-            );
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $slug = $input->getArgument('slug');
-
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument('The target unique slug')]
+        string $slug,
+        #[Argument('The target name')]
+        string $name,
+        #[Argument]
+        string $targetUrl,
+        #[Option('Whether the target is hidden')]
+        bool $hidden = false,
+    ): int {
         /** @var Target $target */
         $target = $this->em->getRepository(Target::class)->findOneBy([
             'slug' => $slug,
@@ -53,9 +50,9 @@ EOT
             $target->setSlug($slug);
         }
 
-        $target->setTargetUrl($input->getArgument('target-url'));
-        $target->setHidden((bool) $input->getOption('hidden'));
-        $target->setName($input->getArgument('name'));
+        $target->setTargetUrl($targetUrl);
+        $target->setHidden($hidden);
+        $target->setName($name);
         $this->em->persist($target);
         $this->em->flush();
 

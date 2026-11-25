@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use Symfony\Component\Console\Attribute\Argument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
+#[AsCommand(name: 'app:migrate:api-platform')]
 final class YamlToApiResourceCommand extends Command
 {
     public function __construct()
@@ -17,20 +18,11 @@ final class YamlToApiResourceCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('app:migrate:api-platform')
-            ->addArgument('file', InputArgument::REQUIRED)
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $file = $input->getArgument('file');
-
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument]
+        string $file,
+    ): int {
         $this->dump($file, $output);
 
         return 0;

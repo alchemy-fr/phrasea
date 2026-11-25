@@ -7,12 +7,16 @@ namespace Alchemy\MetadataManipulatorBundle\Command;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\Metadata;
 use Symfony\Bridge\Monolog\Logger;
+use Symfony\Component\Console\Attribute\Argument;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'alchemy:metadata-manipulator:dump',
+    description: 'Dump metadata from a file'
+)]
 class DumpCommand extends Command
 {
     public function __construct(private readonly MetadataManipulator $mm)
@@ -20,29 +24,19 @@ class DumpCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('alchemy:metadata-manipulator:dump')
-            ->setDescription('Dump metadata from a file')
-            ->addArgument('file', InputArgument::OPTIONAL, 'The file (if not set, dump the dictionary)')
-            ->addOption('filter', null, InputOption::VALUE_REQUIRED, "Dump only infos for Id's matching this regexp, e.g. \"^(XMP|FILE)\"")
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        if (null === $filter = $input->getOption('filter')) {
-            $filter = '';
-        }
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument('The file (if not set, dump the dictionary)')]
+        ?string $file = null,
+        #[Option('Dump only infos for Id\'s matching this regexp, e.g. "^(XMP|FILE)"')]
+        string $filter = '',
+    ): int {
         $filter = '/'.$filter.'/';
 
-        if ($input->getArgument('file')) {
+        if ($file) {
             $logger = new Logger('PHPExiftool');
             $reader = $this->mm->getReader($logger);
-            $reader->files($input->getArgument('file'));
+            $reader->files($file);
             $metadataBag = $reader->first();
 
             /** @var Metadata $meta */

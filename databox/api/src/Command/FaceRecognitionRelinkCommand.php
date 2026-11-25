@@ -9,10 +9,9 @@ use App\Integration\Core\FaceRecognition\FaceManager;
 use App\Integration\Core\FaceRecognition\FaceRecognitionIntegration;
 use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -20,6 +19,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * enabled: after a change of the match threshold, or to group faces detected with another setup.
  * No detection involved.
  */
+#[AsCommand(
+    name: 'app:face-recognition:relink',
+    description: 'Replay the recognition of the detected faces against the persons (no detection involved)'
+)]
 class FaceRecognitionRelinkCommand extends Command
 {
     public function __construct(
@@ -30,21 +33,11 @@ class FaceRecognitionRelinkCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('app:face-recognition:relink')
-            ->setDescription('Replay the recognition of the detected faces against the persons (no detection involved)')
-            ->addOption('workspace', 'w', InputOption::VALUE_REQUIRED, 'Limit to a workspace ID')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option('Limit to a workspace ID', name: 'workspace', shortcut: 'w')]
+        ?string $workspaceId = null,
+    ): int {
         $workspaceIntegrations = $this->em->getRepository(WorkspaceIntegration::class)->findBy([
             'integration' => FaceRecognitionIntegration::getName(),
             'enabled' => true,
@@ -60,7 +53,7 @@ class FaceRecognitionRelinkCommand extends Command
             if (null === $workspace) {
                 continue;
             }
-            if ($input->getOption('workspace') && $workspace->getId() !== $input->getOption('workspace')) {
+            if (null !== $workspaceId && $workspace->getId() !== $workspaceId) {
                 continue;
             }
 

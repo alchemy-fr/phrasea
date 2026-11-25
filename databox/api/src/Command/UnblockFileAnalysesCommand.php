@@ -7,9 +7,8 @@ namespace App\Command;
 use App\File\FileAnalysisUnblockAction;
 use App\File\FileAnalysisUnblocker;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -26,33 +25,16 @@ final class UnblockFileAnalysesCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addOption(
-                'older-than',
-                't',
-                InputOption::VALUE_REQUIRED,
-                'Consider stuck the pending analyses whose file/workflow is older than this number of seconds',
-                3600,
-            )
-            ->addOption(
-                'limit',
-                'l',
-                InputOption::VALUE_REQUIRED,
-                'Maximum number of files handled per run',
-                FileAnalysisUnblocker::DEFAULT_LIMIT,
-            )
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only report what would be done');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $olderThan = (int) $input->getOption('older-than');
-        $limit = (int) $input->getOption('limit');
-        $dryRun = (bool) $input->getOption('dry-run');
-
+    public function __invoke(
+        OutputInterface $output,
+        SymfonyStyle $io,
+        #[Option('Consider stuck the pending analyses whose file/workflow is older than this number of seconds', shortcut: 't')]
+        int $olderThan = 3600,
+        #[Option('Maximum number of files handled per run', shortcut: 'l')]
+        int $limit = FileAnalysisUnblocker::DEFAULT_LIMIT,
+        #[Option('Only report what would be done')]
+        bool $dryRun = false,
+    ): int {
         if ($olderThan < 0 || $limit <= 0) {
             $io->error('"older-than" must be >= 0 and "limit" must be > 0');
 

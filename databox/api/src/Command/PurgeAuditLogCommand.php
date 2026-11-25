@@ -9,9 +9,8 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -29,14 +28,12 @@ final class PurgeAuditLogCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this->addOption('days', null, InputOption::VALUE_REQUIRED, 'Retention delay in days, instead of AUDIT_LOG_RETENTION_DAYS (0 keeps everything)');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $days = $input->getOption('days') ?? $this->retentionDays;
+    public function __invoke(
+        OutputInterface $output,
+        #[Option('Retention delay in days, instead of AUDIT_LOG_RETENTION_DAYS (0 keeps everything)')]
+        ?string $days = null,
+    ): int {
+        $days ??= $this->retentionDays;
         if ('' === $days) {
             $days = self::DEFAULT_RETENTION_DAYS;
         }

@@ -8,14 +8,19 @@ use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Alchemy\RenditionFactory\RenditionCreator;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand('alchemy:rendition-factory:create')]
+#[AsCommand(
+    name: 'alchemy:rendition-factory:create',
+    help: "Create a rendition from a source file and a build config\n"
+        ."without --debug, the working directory will be cleaned up after the rendition is created,\n"
+        ." so to get the final rendition, one must set --output or/and --debug\n"
+        ."--output will move the final rendition from the working directory to the specified location ; Extension is added accordingly of (last) module).\n",
+)]
 class CreateCommand extends Command
 {
     public function __construct(
@@ -26,27 +31,24 @@ class CreateCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument('The source file')]
+        string $src,
+        #[Argument('The build config YAML file')]
+        string $buildConfig,
+        #[Option('Force the MIME type of file', shortcut: 't')]
+        ?string $type = null,
+        #[Option('The working directory. Defaults to system temp directory', shortcut: 'w')]
+        ?string $workingDir = null,
+        #[Option('The output file name WITHOUT extension', name: 'output', shortcut: 'o')]
+        ?string $outputPath = null,
+        #[Option('set to debug mode (keep files in working directory)', shortcut: 'd')]
+        bool $debug = false,
+    ): int {
+        $doFile = fn (string $file): bool => $this->doFile($output, $file, $buildConfig, $type, $workingDir, $outputPath, $debug);
 
-        $this->addArgument('src', InputArgument::REQUIRED, 'The source file');
-        $this->addArgument('build-config', InputArgument::REQUIRED, 'The build config YAML file');
-        $this->addOption('type', 't', InputOption::VALUE_REQUIRED, 'Force the MIME type of file');
-        $this->addOption('working-dir', 'w', InputOption::VALUE_REQUIRED, 'The working directory. Defaults to system temp directory');
-        $this->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The output file name WITHOUT extension');
-        $this->addOption('debug', 'd', InputOption::VALUE_NONE, 'set to debug mode (keep files in working directory)');
-        $this->setHelp("Create a rendition from a source file and a build config\n"
-            ."without --debug, the working directory will be cleaned up after the rendition is created,\n"
-            ." so to get the final rendition, one must set --output or/and --debug\n"
-            ."--output will move the final rendition from the working directory to the specified location ; Extension is added accordingly of (last) module).\n"
-        );
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
         $ret = Command::SUCCESS;
-        $src = $input->getArgument('src');
         if (is_dir($src)) {
             if (false === ($od = opendir($src))) {
                 $output->writeln(sprintf('Directory "%s" could not be opened.', $src));
@@ -57,13 +59,13 @@ class CreateCommand extends Command
                 if ('.' === $f || '..' === $f) {
                     continue;
                 }
-                if (false === $this->doFile($input, $output, $src.'/'.$f)) {
+                if (false === $doFile($src.'/'.$f)) {
                     $ret = Command::FAILURE;
                 }
             }
             closedir($od);
         } else {
-            if (false === $this->doFile($input, $output, $src)) {
+            if (false === $doFile($src)) {
                 $ret = Command::FAILURE;
             }
         }
@@ -71,8 +73,15 @@ class CreateCommand extends Command
         return $ret;
     }
 
-    protected function doFile(InputInterface $input, OutputInterface $output, string $src): bool
-    {
+    protected function doFile(
+        OutputInterface $output,
+        string $src,
+        string $buildConfigFile,
+        ?string $mimeType,
+        ?string $workingDir,
+        ?string $outputPath,
+        bool $debug,
+    ): bool {
         if (!file_exists($src)) {
             $output->writeln(sprintf('File "%s" does not exist.', $src));
 
@@ -83,17 +92,15 @@ class CreateCommand extends Command
         $output->writeln('');
         $output->writeln(sprintf('Processing file: %s', $src));
 
-        $mimeType = $input->getOption('type');
-
         if (null === $mimeType) {
             $mimeType = $this->mimeTypeGuesser->guessMimeTypeFromPath($src);
             $output->writeln(sprintf('MIME type guessed: %s', $mimeType ?? 'unknown'));
         }
 
-        $buildConfig = $this->yamlLoader->load($input->getArgument('build-config'));
+        $buildConfig = $this->yamlLoader->load($buildConfigFile);
 
         $options = new CreateRenditionOptions(
-            workingDirectory: $input->getOption('working-dir')
+            workingDirectory: $workingDir
         );
 
         try {
@@ -111,7 +118,7 @@ class CreateCommand extends Command
             return false;
         }
 
-        if ($outputPath = $input->getOption('output')) {
+        if ($outputPath) {
             if ('/' === substr($outputPath, -1)) {
                 // a directory is specified, use the filename of the source
                 $outputPath .= pathinfo($src, PATHINFO_FILENAME);
@@ -128,7 +135,7 @@ class CreateCommand extends Command
             return false;
         }
 
-        if (!$input->getOption('debug')) {
+        if (!$debug) {
             $this->renditionCreator->cleanUp();
         }
 

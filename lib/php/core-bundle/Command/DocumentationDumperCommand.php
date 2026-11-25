@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Alchemy\CoreBundle\Command;
 
 use Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
-#[AsCommand('alchemy:core:documentation:dump')]
+#[AsCommand(name: 'alchemy:core:documentation:dump', description: 'Dump code-generated documentation(s)')]
 class DocumentationDumperCommand extends Command
 {
     public function __construct(
@@ -22,18 +21,12 @@ class DocumentationDumperCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->addArgument('destination', InputArgument::REQUIRED, 'Path to the "doc" directory whereto generate documentation')
-            ->setDescription('Dump code-generated documentation(s)');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $destination = rtrim($input->getArgument('destination'), '/');
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument('Path to the "doc" directory whereto generate documentation')]
+        string $destination,
+    ): int {
+        $destination = rtrim($destination, '/');
 
         /** @var array<string, DocumentationGeneratorInterface> $chapters */
         $chapters = [];

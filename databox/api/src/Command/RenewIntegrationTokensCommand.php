@@ -10,9 +10,8 @@ use App\Integration\IntegrationManager;
 use App\Repository\Integration\IntegrationTokenRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 
@@ -33,20 +32,11 @@ final class RenewIntegrationTokensCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this->addOption(
-            'threshold',
-            't',
-            InputOption::VALUE_REQUIRED,
-            'Renew tokens whose refresh token expires within this number of seconds',
-            7200,
-        );
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $threshold = (int) $input->getOption('threshold');
+    public function __invoke(
+        OutputInterface $output,
+        #[Option('Renew tokens whose refresh token expires within this number of seconds', shortcut: 't')]
+        int $threshold = 7200,
+    ): int {
         $renewed = $skipped = $failed = 0;
 
         foreach ($this->integrationTokenRepository->getRenewableTokens($threshold) as $token) {

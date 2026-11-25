@@ -3,8 +3,6 @@ services:
     autowire: true
     autoconfigure: true
 
-  Alchemy\MetadataManipulatorBundle\Command\DumpCommand:
-    tags:
-      - { name: console.command }
+  Alchemy\MetadataManipulatorBundle\Command\DumpCommand: ~
 
   Alchemy\MetadataManipulatorBundle\MetadataManipulator: ~

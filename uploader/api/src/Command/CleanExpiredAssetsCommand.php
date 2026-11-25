@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Storage\AssetManager;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'app:asset:clean-expired',
+    description: 'Remove old assets'
+)]
 class CleanExpiredAssetsCommand extends Command
 {
     public function __construct(private readonly AssetManager $assetManager)
@@ -17,22 +20,11 @@ class CleanExpiredAssetsCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('app:asset:clean-expired')
-            ->setDescription('Remove old assets')
-            ->addOption('days-retention', 'r', InputOption::VALUE_REQUIRED, 'Number of days retention')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $assetDaysRetention = $input->getOption('days-retention');
-
-        $this->assetManager->cleanAssets($assetDaysRetention ? (int) $assetDaysRetention : null);
+    public function __invoke(
+        #[Option('Number of days retention', shortcut: 'r')]
+        ?int $daysRetention = null,
+    ): int {
+        $this->assetManager->cleanAssets($daysRetention ?: null);
 
         return 0;
     }

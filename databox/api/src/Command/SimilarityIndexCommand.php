@@ -11,13 +11,16 @@ use App\Integration\Core\Similarity\SimilarityIntegration;
 use App\Integration\IntegrationManager;
 use App\Service\Vector\AssetEmbeddingManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsCommand(
+    name: 'app:similarity:index',
+    description: 'Backfill asset embeddings for workspaces having the similarity integration enabled'
+)]
 class SimilarityIndexCommand extends Command
 {
     public function __construct(
@@ -29,24 +32,15 @@ class SimilarityIndexCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('app:similarity:index')
-            ->setDescription('Backfill asset embeddings for workspaces having the similarity integration enabled')
-            ->addOption('workspace', 'w', InputOption::VALUE_REQUIRED, 'Limit to a workspace ID')
-            ->addOption('sync', null, InputOption::VALUE_NONE, 'Compute embeddings synchronously instead of dispatching messages')
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Force re-computation of embeddings even if they already exist')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $force = $input->getOption('force');
-
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option('Limit to a workspace ID', name: 'workspace', shortcut: 'w')]
+        ?string $workspaceId = null,
+        #[Option('Compute embeddings synchronously instead of dispatching messages')]
+        bool $sync = false,
+        #[Option('Force re-computation of embeddings even if they already exist')]
+        bool $force = false,
+    ): int {
         $criteria = [
             'integration' => SimilarityIntegration::getName(),
             'enabled' => true,
@@ -65,7 +59,7 @@ class SimilarityIndexCommand extends Command
             if (null === $workspace) {
                 continue;
             }
-            if ($input->getOption('workspace') && $workspace->getId() !== $input->getOption('workspace')) {
+            if (null !== $workspaceId && $workspace->getId() !== $workspaceId) {
                 continue;
             }
 
@@ -85,7 +79,7 @@ class SimilarityIndexCommand extends Command
 
             foreach ($assetIds as $r) {
                 $assetId = (string) $r['id'];
-                if ($input->getOption('sync')) {
+                if ($sync) {
                     $asset = $this->em->find(Asset::class, $assetId);
                     $done = $this->assetEmbeddingManager->embedAsset($asset, $rendition, $force);
                     $io->writeln(sprintf('%s %s', $assetId, $done ? '<info>OK</info>' : '<comment>skipped</comment>'));
@@ -97,7 +91,7 @@ class SimilarityIndexCommand extends Command
             }
         }
 
-        $io->success(sprintf('%d asset(s) %s', $count, $input->getOption('sync') ? 'processed' : 'queued'));
+        $io->success(sprintf('%d asset(s) %s', $count, $sync ? 'processed' : 'queued'));
 
         return Command::SUCCESS;
     }

@@ -12,9 +12,8 @@ use App\Repository\Core\AttributeEntityRepository;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
@@ -32,14 +31,11 @@ class DiagnoseAttributeEntityLinksCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this->addOption('fix', null, InputOption::VALUE_NONE, 'Remove invalid Attributes referencing missing AttributeEntity');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $fix = $input->getOption('fix');
+    public function __invoke(
+        OutputInterface $output,
+        #[Option('Remove invalid Attributes referencing missing AttributeEntity')]
+        bool $fix = false,
+    ): int {
         $output->writeln('<info>Diagnosing broken AttributeEntity links...</info>');
 
         $definitions = $this->definitionRepository->createQueryBuilder('d')

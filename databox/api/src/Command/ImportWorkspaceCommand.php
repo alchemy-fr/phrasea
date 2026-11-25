@@ -7,13 +7,22 @@ namespace App\Command;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand('app:workspace:import')]
+#[AsCommand(
+    name: 'app:workspace:import',
+    description: 'Import a workspace from a template.',
+    help: <<<'HELP'
+The template data is read from stdin.
+  e.g. <info>sf app:workspace:import new_workspace  --owner 4fe7bbba-0bb3-496b-8d8c-1234567890aa < template.json</info>
+If the destination workspace does not exist, it is created (<info>--owner</info> is required); If no <info>--slug</info> is provided, the slugified name is used.
+If the destination workspace exists, it is updated with the template data (<info>--force</info> is required; <info>--owner</info> and <info>--slug</info> are ignored).
+HELP,
+)]
 class ImportWorkspaceCommand extends Command
 {
     public function __construct(
@@ -23,37 +32,21 @@ class ImportWorkspaceCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setDescription('Import a workspace from a template.')
-            ->addArgument('name', InputOption::VALUE_REQUIRED, 'Workspace name to create / import to')
-            ->addOption('slug', 's', InputOption::VALUE_REQUIRED, 'Workspace slugified name (if creating)')
-            ->addOption('owner', 'o', InputOption::VALUE_REQUIRED, 'Owner id for of the imported workspace')
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force updating an existing workspace without asking for confirmation')
-
-            ->setHelp(<<<'HELP'
-The template data is read from stdin.
-  e.g. <info>sf app:workspace:import new_workspace  --owner 4fe7bbba-0bb3-496b-8d8c-1234567890aa < template.json</info>
-If the destination workspace does not exist, it is created (<info>--owner</info> is required); If no <info>--slug</info> is provided, the slugified name is used.
-If the destination workspace exists, it is updated with the template data (<info>--force</info> is required; <info>--owner</info> and <info>--slug</info> are ignored).
-HELP
-            )
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $name = $input->getArgument('name');
-        $ownerId = $input->getOption('owner');
-        $slug = $input->getOption('slug');
-
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument('Workspace name to create / import to')]
+        string $name,
+        #[Option('Workspace slugified name (if creating)', shortcut: 's')]
+        ?string $slug = null,
+        #[Option('Owner id for of the imported workspace', name: 'owner', shortcut: 'o')]
+        ?string $ownerId = null,
+        #[Option('Force updating an existing workspace without asking for confirmation', shortcut: 'f')]
+        bool $force = false,
+    ): int {
         /** @var Workspace $ws */
         $ws = $this->em->getRepository(Workspace::class)->findOneBy(['name' => $name]);
         if ($ws instanceof Workspace) {
-            if (!$input->getOption('force')) {
+            if (!$force) {
                 throw new \InvalidArgumentException('Workspace already exists, use --force to update it.');
             }
             $ownerId = $slug = null;

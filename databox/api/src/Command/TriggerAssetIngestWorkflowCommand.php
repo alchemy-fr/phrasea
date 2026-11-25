@@ -7,11 +7,11 @@ namespace App\Command;
 use App\Entity\Core\Asset;
 use App\Service\Asset\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\Argument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'app:workflow:trigger-asset-ingest')]
 class TriggerAssetIngestWorkflowCommand extends Command
 {
     public function __construct(
@@ -21,19 +21,10 @@ class TriggerAssetIngestWorkflowCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('app:workflow:trigger-asset-ingest')
-            ->addArgument('assetId', InputArgument::REQUIRED)
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $assetId = $input->getArgument('assetId');
+    public function __invoke(
+        #[Argument]
+        string $assetId,
+    ): int {
         $asset = $this->em->find(Asset::class, $assetId);
 
         if (!$asset instanceof Asset) {

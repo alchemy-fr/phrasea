@@ -6,13 +6,12 @@ namespace Alchemy\RenditionFactory\Command;
 
 use Alchemy\RenditionFactory\Config\BuildConfigValidator;
 use Alchemy\RenditionFactory\Config\YamlLoader;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand('alchemy:rendition-factory:conf:validate')]
+#[AsCommand(name: 'alchemy:rendition-factory:conf:validate', help: 'Validate a config file.')]
 class ConfigurationValidateCommand extends Command
 {
     public function __construct(
@@ -22,18 +21,12 @@ class ConfigurationValidateCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this->addArgument('config', InputArgument::REQUIRED, 'A build config YAML file to validate')
-            ->setHelp('Validate a config file.')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $config = $this->yamlLoader->load($input->getArgument('config'));
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument('A build config YAML file to validate', name: 'config')]
+        string $configFile,
+    ): int {
+        $config = $this->yamlLoader->load($configFile);
         $this->validator->validate($config);
 
         $output->writeln('Configuration is valid.');

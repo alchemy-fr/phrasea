@@ -11,11 +11,9 @@ use App\Service\Asset\WorkspaceAssetIngester;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -42,18 +40,15 @@ final class IngestWorkspaceAssetsCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('workspaces', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'IDs or slugs of the workspaces (all the workspaces by default)')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $workspaces = $this->getWorkspaces($input->getArgument('workspaces'));
+    /**
+     * @param string[] $references
+     */
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Argument('IDs or slugs of the workspaces (all the workspaces by default)', name: 'workspaces')]
+        array $references = [],
+    ): int {
+        $workspaces = $this->getWorkspaces($references);
 
         $assetIds = [];
         foreach ($workspaces as $workspace) {

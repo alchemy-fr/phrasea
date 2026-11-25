@@ -6,10 +6,8 @@ namespace Alchemy\NotifierBundle\Command;
 
 use Alchemy\NotifierBundle\Digest\DigestFlusher;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -29,18 +27,12 @@ final class FlushNotificationDigestsCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Flush every buffered digest even when its window has not elapsed yet')
-        ;
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $count = $this->flusher->flushOverdue((bool) $input->getOption('force'));
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option('Flush every buffered digest even when its window has not elapsed yet', shortcut: 'f')]
+        bool $force = false,
+    ): int {
+        $count = $this->flusher->flushOverdue($force);
 
         $io->success(sprintf('%d digest(s) flushed.', $count));
 
