@@ -15,6 +15,18 @@ The embeddings and the faces need the `similarity-embedder` and `face-recognitio
 rest of the ingest. In dev, the Messenger transports are synchronous: the whole workflow of
 each asset runs inline, downloads and rendition-factory included, so the ingest takes a while.
 
+The scripts set `FIXTURES_ANALYSIS_CACHE=1` on the ingest command alone: the responses of
+`similarity-embedder` and `face-recognition` are then cached in
+`databox/api/var/fixtures/analysis/{similarity,faces}/`, keyed by the SHA-256 of the image
+actually sent, so that a replay does not analyse the same images again (the matching of the
+faces, the persons and the embeddings are still created from these responses). php-fpm, the
+consumers and the uploads always call the services. Delete this directory after a change of
+model or service:
+
+```bash
+rm -rf databox/api/var/fixtures/analysis
+```
+
 | File                       | Content                                                        |
 | -------------------------- | -------------------------------------------------------------- |
 | `Common.yaml`              | the global Expose integration (`phrasea.expose`, no workspace) |

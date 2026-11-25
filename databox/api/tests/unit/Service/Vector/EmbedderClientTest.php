@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Service\Vector;
 
 use Alchemy\CoreBundle\Listener\ClientExceptionListener;
+use App\Service\Fixture\FixtureAnalysisCache;
 use App\Service\Vector\EmbedderClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -34,7 +35,7 @@ class EmbedderClientTest extends TestCase
             return new JsonMockResponse(['vector' => [0.1], 'model' => 'test', 'dim' => 1]);
         }, 'http://embedder');
 
-        $result = new EmbedderClient($client, new ClientExceptionListener())->embedImageFile($this->path);
+        $result = new EmbedderClient($client, new ClientExceptionListener(), new FixtureAnalysisCache(false, sys_get_temp_dir()))->embedImageFile($this->path);
 
         $this->assertSame('test', $result['model']);
         // A string body is what lets curl send the request again on a fresh connection
@@ -50,5 +51,31 @@ class EmbedderClientTest extends TestCase
         $this->assertMatchesRegularExpression('#multipart/form-data; boundary=#', $contentType[0]);
         $this->assertSame(1, preg_match('#boundary=(\S+)#', $contentType[0], $matches));
         $this->assertStringContainsString('--'.$matches[1], $sent['body']);
+    }
+
+    public function testAnEnabledFixtureCacheSendsTheSameImageOnce(): void
+    {
+        $cacheDir = sys_get_temp_dir().'/embed-cache-'.bin2hex(random_bytes(6));
+        $requests = 0;
+        $client = new MockHttpClient(function () use (&$requests): JsonMockResponse {
+            ++$requests;
+
+            return new JsonMockResponse(['vector' => [0.5, 1.0], 'model' => 'test', 'dim' => 2]);
+        }, 'http://embedder');
+
+        try {
+            $embedder = new EmbedderClient($client, new ClientExceptionListener(), new FixtureAnalysisCache(true, $cacheDir));
+
+            $first = $embedder->embedImageFile($this->path);
+            $second = $embedder->embedImageFile($this->path);
+
+            $this->assertSame(1, $requests);
+            $this->assertSame([0.5, 1.0], $second['vector']);
+            $this->assertSame($first, $second);
+        } finally {
+            array_map(unlink(...), glob($cacheDir.'/similarity/*') ?: []);
+            @rmdir($cacheDir.'/similarity');
+            @rmdir($cacheDir);
+        }
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Core\FaceRecognition;
 
 use Alchemy\CoreBundle\Listener\ClientExceptionListener;
+use App\Service\Fixture\FixtureAnalysisCache;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -17,6 +18,7 @@ class FaceRecognitionClient
     public function __construct(
         private readonly HttpClientInterface $faceRecognitionClient,
         private readonly ClientExceptionListener $clientExceptionListener,
+        private readonly FixtureAnalysisCache $fixtureAnalysisCache,
     ) {
     }
 
@@ -38,16 +40,18 @@ class FaceRecognitionClient
      */
     public function detectFaces(string $path): array
     {
-        // The multipart body is built in memory (the image is downscaled to a few MB): curl can only
-        // resend a string body when a kept-alive connection closed by the service must be retried.
-        $formData = new FormDataPart([
-            'file' => DataPart::fromPath($path),
-        ]);
+        return $this->fixtureAnalysisCache->remember('faces', $path, function () use ($path): array {
+            // The multipart body is built in memory (the image is downscaled to a few MB): curl can only
+            // resend a string body when a kept-alive connection closed by the service must be retried.
+            $formData = new FormDataPart([
+                'file' => DataPart::fromPath($path),
+            ]);
 
-        return $this->clientExceptionListener->wrapClientRequest(fn (): array => $this->faceRecognitionClient->request('POST', '/detect', [
-            'headers' => $formData->getPreparedHeaders()->toArray(),
-            'body' => $formData->bodyToString(),
-            'timeout' => 120,
-        ])->toArray());
+            return $this->clientExceptionListener->wrapClientRequest(fn (): array => $this->faceRecognitionClient->request('POST', '/detect', [
+                'headers' => $formData->getPreparedHeaders()->toArray(),
+                'body' => $formData->bodyToString(),
+                'timeout' => 120,
+            ])->toArray());
+        });
     }
 }

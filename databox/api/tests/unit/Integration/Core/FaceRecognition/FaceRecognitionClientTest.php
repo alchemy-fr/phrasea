@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Integration\Core\FaceRecognition;
 
 use Alchemy\CoreBundle\Listener\ClientExceptionListener;
 use App\Integration\Core\FaceRecognition\FaceRecognitionClient;
+use App\Service\Fixture\FixtureAnalysisCache;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
@@ -34,7 +35,7 @@ class FaceRecognitionClientTest extends TestCase
             return new JsonMockResponse(['model' => 'test', 'dim' => 1, 'width' => 1, 'height' => 1, 'faces' => []]);
         }, 'http://face-recognition');
 
-        $result = new FaceRecognitionClient($client, new ClientExceptionListener())->detectFaces($this->path);
+        $result = new FaceRecognitionClient($client, new ClientExceptionListener(), new FixtureAnalysisCache(false, sys_get_temp_dir()))->detectFaces($this->path);
 
         $this->assertSame('test', $result['model']);
         // A string body is what lets curl send the request again on a fresh connection
