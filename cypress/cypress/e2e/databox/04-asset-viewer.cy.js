@@ -241,10 +241,13 @@ describe('Asset viewer', () => {
  * Closes the viewer with `close` and checks that the search screen comes back
  * from the client router cache: a request for its RSC payload would hold the
  * viewer on screen for a server round trip, behind the navigation progress
- * bar. Prefetches (a link in view) do not count.
+ * bar. Prefetches (a link in view) do not count, nor the requests sent before
+ * the close: the full prefetch of the screen the viewer closes to, sent when
+ * it mounts, carries no prefetch header.
  */
 function closeViewerFromCache(close) {
     const requests = [];
+    let closing = false;
     cy.intercept(
         {
             method: 'GET',
@@ -253,11 +256,14 @@ function closeViewerFromCache(close) {
             headers: {rsc: '1'},
         },
         req => {
-            if (!isPrefetchRequest(req)) {
+            if (closing && !isPrefetchRequest(req)) {
                 requests.push(req.url);
             }
         }
     ).as('searchScreenRsc');
+    cy.then(() => {
+        closing = true;
+    });
     close();
     cy.getBySel('asset-view').should('not.exist');
     cy.then(() => {
