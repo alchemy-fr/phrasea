@@ -72,9 +72,12 @@ final readonly class ApiClient
         return self::toArray($this->request(Request::METHOD_PATCH, $path, body: $body));
     }
 
-    public function delete(string $path): void
+    /**
+     * @param array|null $body JSON body, for the endpoints identifying what to delete in it rather than in the path
+     */
+    public function delete(string $path, ?array $body = null): void
     {
-        $this->request(Request::METHOD_DELETE, $path);
+        $this->request(Request::METHOD_DELETE, $path, body: $body);
     }
 
     /**

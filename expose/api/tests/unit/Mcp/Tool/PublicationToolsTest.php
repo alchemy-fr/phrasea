@@ -36,6 +36,8 @@ class PublicationToolsTest extends AbstractToolTestCase
 
         $this->tools->list(
             title: 'foo',
+            description: 'bar',
+            query: 'baz',
             parentId: 'p1',
             profileId: 'pr1',
             flatten: true,
@@ -50,6 +52,8 @@ class PublicationToolsTest extends AbstractToolTestCase
 
         $this->assertLastRequest('GET', '/publications', [
             'title' => 'foo',
+            'description' => 'bar',
+            'query' => 'baz',
             'parentId' => 'p1',
             'profileId' => 'pr1',
             'flatten' => 'true',
@@ -146,6 +150,45 @@ class PublicationToolsTest extends AbstractToolTestCase
         $this->assertLastRequest('PATCH', '/publications/1', body: [
             'description' => '',
             'config' => ['theme' => 'dark'],
+        ]);
+    }
+
+    public function testCreateEncodesRelationIds(): void
+    {
+        $this->kernel->willRespond(['id' => '1'], 201);
+
+        $this->tools->create(title: 'Foo', profileId: '../x', parentId: 'a b');
+
+        $this->assertLastRequest('POST', '/publications', body: [
+            'title' => 'Foo',
+            'profile' => '/publication-profiles/..%2Fx',
+            'parent' => '/publications/a%20b',
+        ]);
+    }
+
+    public function testUpdateMapsRelationsToIris(): void
+    {
+        $this->kernel->willRespond(['id' => '1']);
+
+        $this->tools->update('1', profileId: 'pr1', parentId: 'p1', coverAssetId: 'a1', packageAssetId: 'a2');
+
+        $this->assertLastRequest('PATCH', '/publications/1', body: [
+            'profile' => '/publication-profiles/pr1',
+            'parent' => '/publications/p1',
+            'cover' => '/assets/a1',
+            'package' => '/assets/a2',
+        ]);
+    }
+
+    public function testUpdateRemovesProfileAndMovesToRoot(): void
+    {
+        $this->kernel->willRespond(['id' => '1']);
+
+        $this->tools->update('1', profileId: 'ignored', removeProfile: true, moveToRoot: true);
+
+        $this->assertLastRequest('PATCH', '/publications/1', body: [
+            'profile' => null,
+            'parent' => null,
         ]);
     }
 

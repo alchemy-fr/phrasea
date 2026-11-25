@@ -3,11 +3,29 @@ mcp:
     servers:
         expose:
             name: 'Phrasea Expose'
-            description: 'Manage Phrasea Expose publications, publication profiles and published assets.'
+            description: 'Manage Phrasea Expose publications, publication profiles, published assets, share links and permissions.'
             instructions: |
                 Phrasea Expose publishes asset galleries on the web. A publication has a title, an optional URL
                 slug, settings ("config") and assets; publications can be nested. A publication profile holds
                 settings shared by the publications using it: a publication setting left unset (null) falls back
                 to the one of its profile. Every call runs with the permissions of the authenticated user.
+
+                Who may read a publication is set by "config.securityMethod", inherited from the parent
+                publication when unset: null = public (anyone, when enabled and within its dates), "password" =
+                anyone giving the password set with "config.securityOptions": {"password": "…"} (never returned:
+                "hasPassword" tells whether one is set), "authentication" = signed-in users holding the VIEW
+                permission. Editors (owner, EDIT permission, admins) always read it.
+
+                Share links (create_publication_share) open one publication, not its sub-publications, to whoever
+                holds the URL, bypassing its security method and visibility; revoke one to stop it for good while
+                keeping its history. Managing them requires the OPERATOR permission on the publication.
+
+                Permissions are granted to a user or a group on a publication or a profile with
+                set_publication_permission (find their IDs with search_users / search_groups); only the owner of
+                the object or an admin manages them. A permission without objectId applies to every object of the
+                type: CREATE there allows creating publications or profiles.
+
+                Assets carry sub-definitions (renditions such as thumbnails or previews), listed with
+                list_asset_sub_definitions. Uploading files is not possible through this server.
             registry:
                 tools: ['App\Mcp\Tool\']

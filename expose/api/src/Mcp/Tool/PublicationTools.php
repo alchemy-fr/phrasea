@@ -27,6 +27,10 @@ final readonly class PublicationTools
     public function list(
         #[Schema(description: 'Case-insensitive search on the title')]
         ?string $title = null,
+        #[Schema(description: 'Case-insensitive search on the description')]
+        ?string $description = null,
+        #[Schema(description: 'Free-text search, on the title')]
+        ?string $query = null,
         #[Schema(description: 'Only the children of this publication')]
         ?string $parentId = null,
         #[Schema(description: 'Only the publications using this profile')]
@@ -43,13 +47,15 @@ final readonly class PublicationTools
         bool $empty = false,
         #[Schema(description: 'Only the disabled publications')]
         bool $disabled = false,
-        #[Schema(description: 'Sort order', enum: ['title', 'createdAt', 'updatedAt'])]
+        #[Schema(description: 'Sort order: title (A to Z) or createdAt (newest first)', enum: ['title', 'createdAt'])]
         string $orderBy = 'title',
         #[Schema(minimum: 1)]
         int $page = 1,
     ): array {
-        $query = ApiClient::withoutNulls([
+        $params = ApiClient::withoutNulls([
             'title' => $title,
+            'description' => $description,
+            'query' => $query,
             'parentId' => $parentId,
             'profileId' => $profileId,
             'flatten' => $flatten ? 'true' : null,
@@ -60,9 +66,9 @@ final readonly class PublicationTools
             'disabled' => $disabled ? 'true' : null,
             'page' => $page,
         ]);
-        $query['order'] = [$orderBy => 'title' === $orderBy ? 'asc' : 'desc'];
+        $params['order'] = [$orderBy => 'title' === $orderBy ? 'asc' : 'desc'];
 
-        $result = $this->client->getCollection('/publications', $query);
+        $result = $this->client->getCollection('/publications', $params);
         // Only computed when reading a single publication: always false in a list, which would mislead.
         $result['items'] = array_map(static function (array $publication): array {
             unset($publication['authorized']);
@@ -120,15 +126,15 @@ final readonly class PublicationTools
         #[Schema(definition: ToolSchemas::CONFIG)]
         ?array $config = null,
     ): array {
-        return $this->client->post('/publications', self::buildBody(
-            title: $title,
-            description: $description,
-            slug: $slug,
-            profileId: $profileId,
-            parentId: $parentId,
-            translations: $translations,
-            config: $config,
-        ));
+        return $this->client->post('/publications', ApiClient::withoutNulls([
+            'title' => $title,
+            'description' => $description,
+            'slug' => $slug,
+            'profile' => self::iri('/publication-profiles/', $profileId),
+            'parent' => self::iri('/publications/', $parentId),
+            'translations' => $translations,
+            'config' => $config,
+        ]));
     }
 
     #[McpTool(
@@ -145,22 +151,41 @@ final readonly class PublicationTools
         ?string $slug = null,
         #[Schema(description: 'ID of the profile to inherit settings from')]
         ?string $profileId = null,
+        #[Schema(description: 'Detach the publication from its profile (overrides "profileId")')]
+        bool $removeProfile = false,
         #[Schema(description: 'ID of the new parent publication')]
         ?string $parentId = null,
+        #[Schema(description: 'Make the publication a root publication, with no parent (overrides "parentId")')]
+        bool $moveToRoot = false,
+        #[Schema(description: 'ID of the asset shown as cover; it must be an asset of this publication (default: the first asset)')]
+        ?string $coverAssetId = null,
+        #[Schema(description: 'ID of the asset offered as the download package of the publication; it must be an asset of this publication')]
+        ?string $packageAssetId = null,
         #[Schema(definition: ToolSchemas::TRANSLATIONS)]
         ?array $translations = null,
         #[Schema(definition: ToolSchemas::CONFIG)]
         ?array $config = null,
     ): array {
-        return $this->client->patch('/publications/'.rawurlencode($id), self::buildBody(
-            title: $title,
-            description: $description,
-            slug: $slug,
-            profileId: $profileId,
-            parentId: $parentId,
-            translations: $translations,
-            config: $config,
-        ));
+        $body = ApiClient::withoutNulls([
+            'title' => $title,
+            'description' => $description,
+            'slug' => $slug,
+            'profile' => self::iri('/publication-profiles/', $profileId),
+            'parent' => self::iri('/publications/', $parentId),
+            'cover' => self::iri('/assets/', $coverAssetId),
+            'package' => self::iri('/assets/', $packageAssetId),
+            'translations' => $translations,
+            'config' => $config,
+        ]);
+        // A null value is an explicit change in a merge patch.
+        if ($removeProfile) {
+            $body['profile'] = null;
+        }
+        if ($moveToRoot) {
+            $body['parent'] = null;
+        }
+
+        return $this->client->patch('/publications/'.rawurlencode($id), $body);
     }
 
     /**
@@ -196,23 +221,8 @@ final readonly class PublicationTools
         ]);
     }
 
-    private static function buildBody(
-        ?string $title,
-        ?string $description,
-        ?string $slug,
-        ?string $profileId,
-        ?string $parentId,
-        ?array $translations,
-        ?array $config,
-    ): array {
-        return ApiClient::withoutNulls([
-            'title' => $title,
-            'description' => $description,
-            'slug' => $slug,
-            'profile' => null !== $profileId ? '/publication-profiles/'.$profileId : null,
-            'parent' => null !== $parentId ? '/publications/'.$parentId : null,
-            'translations' => $translations,
-            'config' => $config,
-        ]);
+    private static function iri(string $prefix, ?string $id): ?string
+    {
+        return null !== $id ? $prefix.rawurlencode($id) : null;
     }
 }

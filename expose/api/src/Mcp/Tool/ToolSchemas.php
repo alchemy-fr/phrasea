@@ -21,6 +21,25 @@ final class ToolSchemas
         ],
     ];
 
+    /**
+     * Subtitles of an asset (Asset::$webVTT).
+     */
+    final public const array WEBVTT = [
+        'type' => ['array', 'null'],
+        'description' => 'Subtitle tracks (WebVTT), replacing the current ones; [] removes them all',
+        'items' => [
+            'type' => 'object',
+            'properties' => [
+                'id' => ['type' => 'string', 'description' => 'Track ID (see webVTTLinks in get_asset), to keep the link of an existing track; generated when unset'],
+                'label' => ['type' => 'string', 'minLength' => 2, 'maxLength' => 100, 'description' => 'Label shown in the player'],
+                'locale' => ['type' => 'string', 'minLength' => 2, 'maxLength' => 10, 'description' => 'Language, e.g. "fr"'],
+                'kind' => ['type' => 'string', 'description' => 'Track kind, e.g. "subtitles" or "captions"'],
+                'content' => ['type' => 'string', 'description' => 'WebVTT content, starting with "WEBVTT"'],
+            ],
+            'required' => ['label', 'locale', 'content'],
+        ],
+    ];
+
     private const array TERMS = [
         'type' => 'object',
         'properties' => [
@@ -44,7 +63,7 @@ final class ToolSchemas
             'css' => ['type' => 'string', 'description' => 'Custom CSS'],
             'downloadEnabled' => ['type' => 'boolean'],
             'downloadViaEmail' => ['type' => 'boolean', 'description' => 'Send download links by email instead of direct download'],
-            'includeDownloadTermsInZippy' => ['type' => 'boolean'],
+            'includeDownloadTermsInArchive' => ['type' => 'boolean', 'description' => 'Add the download terms to the archive of the publication (needs a download terms URL)'],
             'beginsAt' => ['type' => 'string', 'format' => 'date-time', 'description' => 'Visible from this date (ISO 8601)'],
             'expiresAt' => ['type' => 'string', 'format' => 'date-time', 'description' => 'Visible until this date (ISO 8601)'],
             'securityMethod' => ['type' => ['string', 'null'], 'enum' => [null, 'password', 'authentication'], 'description' => 'null = public, "password" = shared password, "authentication" = signed-in users granted by ACL'],

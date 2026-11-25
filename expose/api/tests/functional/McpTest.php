@@ -8,6 +8,8 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\McpBundle\Test\McpClientTrait;
 use App\Entity\Asset;
 use App\Entity\Publication;
+use App\Entity\PublicationShare;
+use App\Entity\SubDefinition;
 use Symfony\Component\HttpFoundation\Response;
 
 class McpTest extends AbstractExposeTestCase
@@ -60,6 +62,20 @@ class McpTest extends AbstractExposeTestCase
             'list_publication_assets',
             'update_asset',
             'delete_asset',
+            'list_publication_shares',
+            'get_publication_share',
+            'create_publication_share',
+            'update_publication_share',
+            'revoke_publication_share',
+            'delete_publication_share',
+            'list_publication_permissions',
+            'set_publication_permission',
+            'remove_publication_permission',
+            'search_users',
+            'search_groups',
+            'list_asset_sub_definitions',
+            'get_sub_definition',
+            'delete_sub_definition',
         ] as $name) {
             $this->assertContains($name, $names);
         }
@@ -118,6 +134,42 @@ class McpTest extends AbstractExposeTestCase
         $this->assertEquals(['Child'], array_column($result['items'], 'title'));
     }
 
+    public function testDetachProfileAndMoveToRoot(): void
+    {
+        $profileId = $this->createProfile();
+        $parent = $this->createPublication(['title' => 'Parent']);
+        $publication = $this->createPublication(['title' => 'Child', 'parent' => $parent, 'profile_id' => $profileId]);
+        $this->mcpInitialize(self::token(KeycloakClientTestMock::ADMIN_UID));
+
+        $updated = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'update_publication', [
+            'id' => $publication->getId(),
+            'removeProfile' => true,
+            'moveToRoot' => true,
+        ]);
+        $this->assertNull($updated['profile'] ?? null);
+        $this->assertNull($updated['parent'] ?? null);
+
+        self::getEntityManager()->clear();
+        $publication = self::getEntityManager()->find(Publication::class, $publication->getId());
+        $this->assertNull($publication->getProfile());
+        $this->assertNull($publication->getParent());
+    }
+
+    public function testListPublicationsByDescription(): void
+    {
+        $this->createPublication(['title' => 'First']);
+        $other = $this->createPublication(['title' => 'Second']);
+        $other->setDescription('Holiday pictures');
+        self::getEntityManager()->flush();
+        $this->mcpInitialize(self::token(KeycloakClientTestMock::ADMIN_UID));
+
+        $result = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'list_publications', [
+            'description' => 'holiday',
+            'orderBy' => 'createdAt',
+        ]);
+        $this->assertEquals(['Second'], array_column($result['items'], 'title'));
+    }
+
     public function testSortAndUpdateAssets(): void
     {
         $publication = $this->createPublication();
@@ -142,9 +194,143 @@ class McpTest extends AbstractExposeTestCase
         $this->assertEquals('New title', $asset['title']);
         $this->assertEquals(48.85, $asset['lat']);
 
+        $asset = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'update_asset', [
+            'id' => $a2,
+            'slug' => 'second',
+            'altitude' => 35.5,
+            'trackingId' => 'track-2',
+            'webVTT' => [['label' => 'English', 'locale' => 'en', 'content' => "WEBVTT\n\n00:00.000 --> 00:01.000\nHello"]],
+        ]);
+        $this->assertEquals('second', $asset['slug']);
+        $this->assertEquals(35.5, $asset['altitude']);
+        $this->assertEquals('track-2', $asset['trackingId']);
+        $this->assertCount(1, $asset['webVTTLinks']);
+        $this->assertEquals('en', $asset['webVTTLinks'][0]['locale']);
+
+        $updated = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'update_publication', [
+            'id' => $publication->getId(),
+            'coverAssetId' => $a2,
+        ]);
+        $this->assertEquals($a2, $updated['cover']['id']);
+
         $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'delete_asset', ['id' => $a1]);
         self::getEntityManager()->clear();
         $this->assertNull(self::getEntityManager()->find(Asset::class, $a1));
+    }
+
+    public function testManageShares(): void
+    {
+        $publication = $this->createPublication(['enabled' => false]);
+        $this->mcpInitialize(self::token(KeycloakClientTestMock::ADMIN_UID));
+
+        $share = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'create_publication_share', [
+            'publicationId' => $publication->getId(),
+            'name' => 'For John',
+            'expiresAt' => (new \DateTimeImmutable('+30 days'))->format(\DATE_ATOM),
+        ]);
+        $this->assertEquals('For John', $share['name']);
+        $this->assertEquals(PublicationShare::STATUS_ACTIVE, $share['status']);
+        $this->assertStringEndsWith('/s/'.$share['token'], $share['url']);
+
+        $result = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'list_publication_shares', [
+            'publicationId' => $publication->getId(),
+        ]);
+        $this->assertEquals([$share['id']], array_column($result['items'], 'id'));
+
+        $updated = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'update_publication_share', [
+            'id' => $share['id'],
+            'removeExpiration' => true,
+        ]);
+        $this->assertNull($updated['expiresAt'] ?? null);
+        $this->assertEquals('For John', $updated['name']);
+
+        $revoked = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'revoke_publication_share', ['id' => $share['id']]);
+        $this->assertEquals(PublicationShare::STATUS_REVOKED, $revoked['status']);
+        $this->assertEquals(
+            PublicationShare::STATUS_REVOKED,
+            $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'get_publication_share', ['id' => $share['id']])['status'],
+        );
+
+        $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'delete_publication_share', ['id' => $share['id']]);
+        self::getEntityManager()->clear();
+        $this->assertNull(self::getEntityManager()->find(PublicationShare::class, $share['id']));
+    }
+
+    public function testManagePermissions(): void
+    {
+        $publication = $this->createPublication(['ownerId' => KeycloakClientTestMock::ADMIN_UID]);
+        $this->mcpInitialize(self::token(KeycloakClientTestMock::ADMIN_UID));
+
+        $ace = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'set_publication_permission', [
+            'objectType' => 'publication',
+            'objectId' => $publication->getId(),
+            'userType' => 'user',
+            'userId' => KeycloakClientTestMock::USER_UID,
+            'permissions' => ['VIEW', 'EDIT'],
+        ]);
+        $this->assertEquals(5, $ace['mask']);
+        $this->assertEquals(['VIEW', 'EDIT'], $ace['permissions']);
+
+        $result = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'list_publication_permissions', [
+            'objectType' => 'publication',
+            'objectId' => $publication->getId(),
+        ]);
+        $this->assertCount(1, $result['items']);
+        $this->assertEquals(KeycloakClientTestMock::USER_UID, $result['items'][0]['userId']);
+        $this->assertEquals(['VIEW', 'EDIT'], $result['items'][0]['permissions']);
+
+        $this->mcpSessionId = null;
+        $this->mcpInitialize(self::token(KeycloakClientTestMock::USER_UID));
+        $updated = $this->mcpCallTool(self::token(KeycloakClientTestMock::USER_UID), 'update_publication', [
+            'id' => $publication->getId(),
+            'title' => 'Edited',
+        ]);
+        $this->assertEquals('Edited', $updated['title']);
+
+        // Only the owner manages the permissions
+        $error = $this->mcpCallTool(self::token(KeycloakClientTestMock::USER_UID), 'set_publication_permission', [
+            'objectType' => 'publication',
+            'objectId' => $publication->getId(),
+            'userType' => 'user',
+            'userId' => KeycloakClientTestMock::USER_UID,
+            'permissions' => ['DELETE'],
+        ], expectError: true);
+        $this->assertStringContainsString('403', $error);
+
+        $this->mcpSessionId = null;
+        $this->mcpInitialize(self::token(KeycloakClientTestMock::ADMIN_UID));
+        $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'remove_publication_permission', [
+            'objectType' => 'publication',
+            'objectId' => $publication->getId(),
+            'userType' => 'user',
+            'userId' => KeycloakClientTestMock::USER_UID,
+        ]);
+        $result = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'list_publication_permissions', [
+            'objectType' => 'publication',
+            'objectId' => $publication->getId(),
+        ]);
+        $this->assertSame([], $result['items']);
+    }
+
+    public function testManageSubDefinitions(): void
+    {
+        $publication = $this->createPublication();
+        $assetId = $this->createAsset($publication);
+        $subDefinitionId = $this->createSubDefinition($assetId, ['name' => 'preview']);
+        $this->mcpInitialize(self::token(KeycloakClientTestMock::ADMIN_UID));
+
+        $result = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'list_asset_sub_definitions', [
+            'assetId' => $assetId,
+        ]);
+        $this->assertEquals([$subDefinitionId], array_column($result['items'], 'id'));
+
+        $subDefinition = $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'get_sub_definition', ['id' => $subDefinitionId]);
+        $this->assertEquals('preview', $subDefinition['name']);
+
+        $this->mcpCallTool(self::token(KeycloakClientTestMock::ADMIN_UID), 'delete_sub_definition', ['id' => $subDefinitionId]);
+        self::getEntityManager()->clear();
+        $this->assertNull(self::getEntityManager()->find(SubDefinition::class, $subDefinitionId));
+        $this->assertAssetExists($assetId);
     }
 
     public function testUserPermissionsApply(): void

@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Mcp\Tool;
 
+use App\Entity\Publication;
+use App\Entity\PublicationConfig;
 use App\Mcp\Tool\ToolSchemas;
 use Opis\JsonSchema\Helper;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
  * The shared schemas are hand-written constants: make sure they are valid JSON Schemas
@@ -35,7 +38,7 @@ class ToolSchemasTest extends TestCase
                 'css' => 'body {}',
                 'downloadEnabled' => true,
                 'downloadViaEmail' => false,
-                'includeDownloadTermsInZippy' => true,
+                'includeDownloadTermsInArchive' => true,
                 'beginsAt' => '2026-01-01T00:00:00+00:00',
                 'expiresAt' => '2027-01-01T00:00:00+00:00',
                 'securityMethod' => 'password',
@@ -66,6 +69,42 @@ class ToolSchemasTest extends TestCase
             'by locale' => [['fr' => ['title' => 'Titre', 'description' => 'Desc'], 'de' => ['title' => 'Titel']], true],
             'locale not an object' => [['fr' => 'Titre'], false],
             'title not a string' => [['fr' => ['title' => 42]], false],
+        ];
+    }
+
+    public function testConfigSchemaMatchesTheWritablePublicationConfig(): void
+    {
+        $writable = [];
+        foreach ((new \ReflectionClass(PublicationConfig::class))->getProperties() as $property) {
+            foreach ($property->getAttributes(Groups::class) as $attribute) {
+                if (in_array(Publication::GROUP_WRITE, $attribute->newInstance()->groups, true)) {
+                    $writable[] = $property->getName();
+                }
+            }
+        }
+
+        $this->assertNotEmpty($writable);
+        $this->assertEqualsCanonicalizing($writable, array_keys(ToolSchemas::CONFIG['properties']));
+    }
+
+    #[DataProvider('getWebVTTs')]
+    public function testWebVTTSchema(mixed $webVTT, bool $valid): void
+    {
+        $this->assertSame($valid, $this->isValid(ToolSchemas::WEBVTT, $webVTT));
+    }
+
+    public static function getWebVTTs(): array
+    {
+        return [
+            'null' => [null, true],
+            'none' => [[], true],
+            'tracks' => [[
+                ['label' => 'English', 'locale' => 'en', 'content' => 'WEBVTT'],
+                ['id' => 'b6f2b5d0-3b5e-4a0a-9a3e-0d6c1f0f4a11', 'label' => 'Français', 'locale' => 'fr', 'kind' => 'captions', 'content' => 'WEBVTT'],
+            ], true],
+            'no content' => [[['label' => 'English', 'locale' => 'en']], false],
+            'label too short' => [[['label' => 'E', 'locale' => 'en', 'content' => 'WEBVTT']], false],
+            'not a list' => [['label' => 'English'], false],
         ];
     }
 

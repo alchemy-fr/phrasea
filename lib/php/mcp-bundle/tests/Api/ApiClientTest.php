@@ -170,6 +170,19 @@ class ApiClientTest extends TestCase
         $this->client->delete('/publications/1');
 
         $this->assertSame('DELETE', $this->kernel->lastRequest()->getMethod());
+        $this->assertNull($this->kernel->lastBody());
+    }
+
+    public function testDeleteSendsJsonBody(): void
+    {
+        $this->kernel->willRespond(true);
+
+        $this->client->delete('/permissions/ace', ['userId' => 'u1']);
+
+        $request = $this->kernel->lastRequest();
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('application/json', $request->headers->get('Content-Type'));
+        $this->assertSame(['userId' => 'u1'], $this->kernel->lastBody());
     }
 
     public function testPostForFileCapturesStreamedContent(): void

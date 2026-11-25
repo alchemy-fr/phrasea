@@ -50,7 +50,7 @@ final readonly class AssetTools
 
     #[McpTool(
         name: 'update_asset',
-        description: 'Update the metadata of an asset. Only the given fields are changed.',
+        description: 'Update the metadata of an asset. Only the given fields are changed; "webVTT" replaces the current subtitles.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true),
     )]
     public function update(
@@ -64,6 +64,16 @@ final readonly class AssetTools
         ?float $lat = null,
         #[Schema(description: 'Longitude', minimum: -180, maximum: 180)]
         ?float $lng = null,
+        #[Schema(description: 'Altitude, in meters')]
+        ?float $altitude = null,
+        #[Schema(description: 'URL slug of the asset in its publication', maxLength: 255)]
+        ?string $slug = null,
+        #[Schema(description: 'Position in the publication (ascending); sort_publication_assets reorders every asset at once')]
+        ?int $position = null,
+        #[Schema(description: 'Free identifier for statistics tracking', maxLength: 100)]
+        ?string $trackingId = null,
+        #[Schema(definition: ToolSchemas::WEBVTT)]
+        ?array $webVTT = null,
     ): array {
         return $this->client->patch('/assets/'.rawurlencode($id), ApiClient::withoutNulls([
             'title' => $title,
@@ -71,6 +81,11 @@ final readonly class AssetTools
             'translations' => $translations,
             'lat' => $lat,
             'lng' => $lng,
+            'altitude' => $altitude,
+            'slug' => $slug,
+            'position' => $position,
+            'trackingId' => $trackingId,
+            'webVTT' => null !== $webVTT ? array_values($webVTT) : null,
         ]));
     }
 

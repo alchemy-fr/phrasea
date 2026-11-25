@@ -63,6 +63,40 @@ class AssetToolsTest extends AbstractToolTestCase
         ]);
     }
 
+    public function testUpdateExtraFields(): void
+    {
+        $this->kernel->willRespond(['id' => 'a1']);
+
+        $webVTT = [
+            3 => ['label' => 'Français', 'locale' => 'fr', 'content' => "WEBVTT\n\n00:00.000 --> 00:01.000\nBonjour"],
+        ];
+        $this->tools->update(
+            'a1',
+            altitude: 0.0,
+            slug: 'my-asset',
+            position: 0,
+            trackingId: 't1',
+            webVTT: $webVTT,
+        );
+
+        $this->assertLastRequest('PATCH', '/assets/a1', body: [
+            'altitude' => 0,
+            'slug' => 'my-asset',
+            'position' => 0,
+            'trackingId' => 't1',
+            'webVTT' => [$webVTT[3]],
+        ]);
+    }
+
+    public function testUpdateRemovesAllWebVTT(): void
+    {
+        $this->kernel->willRespond(['id' => 'a1']);
+
+        $this->tools->update('a1', webVTT: []);
+
+        $this->assertLastRequest('PATCH', '/assets/a1', body: ['webVTT' => []]);
+    }
+
     public function testDelete(): void
     {
         $this->kernel->willRespond(null, 204);
