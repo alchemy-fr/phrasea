@@ -22,6 +22,7 @@ generated files with the SVG: the Docker images copy them from each app.
 | `uploader.svg`                                       | Uploader                                               |
 | `dashboard.svg`                                      | Dashboard                                              |
 | `parade.svg`, `consent.svg`, `lend.svg`, `order.svg` | Apps outside this repository, shown as dashboard tiles |
+| `phrasea.svg`                                        | Phrasea itself: admin and emails                       |
 
 ## Generated files
 
@@ -43,7 +44,10 @@ For each API (`databox`, `expose`, `uploader`), in `<app>/api/public/`:
 In `dashboard/client/public/images/`: a copy of every SVG, for the service
 tiles.
 
+From `phrasea.svg`, the Phrasea logo of the admin and of the emails, 180 px,
+transparent: `lib/php/admin-bundle/Resources/public/phrasea-logo.png` and
+`lib/php/notifier-bundle/assets/email/phrasea-logo.png`. It stays a bitmap:
+email clients do not show SVG images.
+
 `#fafafa` is the `background_color` of the web manifest
-(`lib/js/next-core/src/seo/manifest.ts`). The Phrasea logo of the admin and of
-the emails (`phrasea-logo.png` in `lib/php/admin-bundle` and
-`lib/php/notifier-bundle`) has no SVG source yet and is not generated.
+(`lib/js/next-core/src/seo/manifest.ts`).

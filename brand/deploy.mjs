@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Deploys the logos of brand/*.svg into the apps: SVG copies, favicons,
-// manifest icons and Open Graph images.
+// manifest icons, Open Graph images and the Phrasea logo of the admin and of
+// the emails.
 //
 // Usage: node brand/deploy.mjs [logo...]   (no argument = every logo)
 
@@ -28,6 +29,12 @@ const DASHBOARD_TILES = [
     'consent',
     'lend',
     'order',
+];
+
+// Emails only show bitmaps, and their header sizes the logo as a square
+const PHRASEA_LOGOS = [
+    'lib/php/admin-bundle/Resources/public/phrasea-logo.png',
+    'lib/php/notifier-bundle/assets/email/phrasea-logo.png',
 ];
 
 const targets = [
@@ -69,6 +76,11 @@ const targets = [
         logo,
         path: `dashboard/client/public/images/${logo}.svg`,
         render: svg => svg,
+    })),
+    ...PHRASEA_LOGOS.map(path => ({
+        logo: 'phrasea',
+        path,
+        render: icon(180),
     })),
 ];
 

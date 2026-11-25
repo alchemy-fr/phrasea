@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="443.4" height="512" viewBox="0 0 443.4 512">
+  <title>Phrasea</title>
+  <defs>
+    <clipPath id="hexagon"><polygon points="221.7,0 443.4,128 443.4,384 221.7,512 0,384 0,128"/></clipPath>
+    <linearGradient id="orange" gradientUnits="userSpaceOnUse" x1="252.3" y1="33.9" x2="66.2" y2="201.5">
+      <stop offset="0" stop-color="#f18802"/>
+      <stop offset="0.25" stop-color="#f18c00"/>
+      <stop offset="0.5" stop-color="#f08106"/>
+      <stop offset="0.75" stop-color="#eb5e1d"/>
+      <stop offset="1" stop-color="#e84c29"/>
+    </linearGradient>
+    <linearGradient id="yellow" gradientUnits="userSpaceOnUse" x1="203.7" y1="113.4" x2="439.8" y2="150.8">
+      <stop offset="0" stop-color="#f0a311"/>
+      <stop offset="0.25" stop-color="#f8bb07"/>
+      <stop offset="0.5" stop-color="#fdcd00"/>
+      <stop offset="0.75" stop-color="#fdcb01"/>
+      <stop offset="1" stop-color="#ffd200"/>
+    </linearGradient>
+    <linearGradient id="green" gradientUnits="userSpaceOnUse" x1="452.0" y1="250.2" x2="222.4" y2="266.3">
+      <stop offset="0" stop-color="#41a589"/>
+      <stop offset="0.25" stop-color="#41a589"/>
+      <stop offset="0.5" stop-color="#3b9e85"/>
+      <stop offset="0.75" stop-color="#288677"/>
+      <stop offset="1" stop-color="#1d786e"/>
+    </linearGradient>
+    <linearGradient id="blue" gradientUnits="userSpaceOnUse" x1="213.2" y1="261.8" x2="341.8" y2="452.5">
+      <stop offset="0" stop-color="#006280"/>
+      <stop offset="0.25" stop-color="#0b7091"/>
+      <stop offset="0.5" stop-color="#2488ad"/>
+      <stop offset="0.75" stop-color="#3ea0c9"/>
+      <stop offset="1" stop-color="#54b4e1"/>
+    </linearGradient>
+    <linearGradient id="red" gradientUnits="userSpaceOnUse" x1="221.3" y1="248.3" x2="-6.5" y2="260.2">
+      <stop offset="0" stop-color="#b82e45"/>
+      <stop offset="0.25" stop-color="#c32f48"/>
+      <stop offset="0.5" stop-color="#b32d43"/>
+      <stop offset="0.75" stop-color="#8b2735"/>
+      <stop offset="1" stop-color="#6d232b"/>
+    </linearGradient>
+    <linearGradient id="purple" gradientUnits="userSpaceOnUse" x1="251.2" y1="287.6" x2="68.8" y2="457.7">
+      <stop offset="0" stop-color="#5a3a78"/>
+      <stop offset="0.25" stop-color="#5e3d7d"/>
+      <stop offset="0.5" stop-color="#533670"/>
+      <stop offset="0.75" stop-color="#3b2754"/>
+      <stop offset="1" stop-color="#251a3b"/>
+    </linearGradient>
+  </defs>
+  <polygon points="221.7,0 0,128 221.7,256 222.9,256 222.9,0.7" fill="url(#orange)"/>
+  <polygon points="221.7,0 443.4,128 221.7,256" fill="url(#yellow)"/>
+  <polygon points="443.4,128 443.4,384 442.2,384.7 221.1,257 221.7,256" fill="url(#green)"/>
+  <polygon points="221.7,256 443.4,384 221.7,512" fill="url(#blue)"/>
+  <polygon points="0,128 221.7,256 222.3,257 1.2,384.7 0,384" fill="url(#red)"/>
+  <polygon points="221.7,256 221.7,512 0,384" fill="url(#purple)"/>
+  <path d="M221.7,256 L-11.1,121.6 M221.7,256 L454.5,121.6 M221.7,256 L221.7,524.8" fill="none" stroke="#fff" stroke-width="4.7" clip-path="url(#hexagon)"/>
+</svg>
