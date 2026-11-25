@@ -37,6 +37,12 @@ use Psr\Log\LoggerInterface;
 
 final readonly class WorkspaceDelete
 {
+    /**
+     * Each asset cascades to its attributes, renditions, file versions and links:
+     * loading a whole workspace at once exhausts the worker memory.
+     */
+    public const int ASSET_BATCH_SIZE = 50;
+
     public function __construct(
         private EntityManagerInterface $em,
         private CollectionDelete $collectionDelete,
@@ -124,7 +130,7 @@ final readonly class WorkspaceDelete
             $this->collectionDelete->deleteCollection((string) $c['id'], true);
         }
 
-        $this->deleteDependencies(Asset::class, $workspaceId);
+        $this->deleteAssets($workspaceId);
         $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
         $this->deleteDependencies(RenditionPolicy::class, $workspaceId);
         $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
@@ -169,6 +175,43 @@ final readonly class WorkspaceDelete
         $this->logger->debug('Deleting workspace.');
         $this->em->remove($workspace);
         $this->em->flush();
+    }
+
+    private function deleteAssets(string $workspaceId): void
+    {
+        $this->logger->debug('Deleting Asset(s)');
+
+        $lastId = null;
+        do {
+            $queryBuilder = $this->em->getRepository(Asset::class)
+                ->createQueryBuilder('t')
+                ->select('t.id')
+                ->andWhere('t.workspace = :ws')
+                ->setParameter('ws', $workspaceId)
+                ->orderBy('t.id', 'ASC')
+                ->setMaxResults(self::ASSET_BATCH_SIZE);
+            if (null !== $lastId) {
+                // Keyset pagination: never loops on a row that a batch did not remove
+                $queryBuilder
+                    ->andWhere('t.id > :lastId')
+                    ->setParameter('lastId', $lastId);
+            }
+            $ids = array_map(
+                static fn (array $row): string => (string) $row['id'],
+                $queryBuilder->getQuery()->getArrayResult(),
+            );
+
+            foreach ($ids as $id) {
+                $asset = $this->em->find(Asset::class, $id);
+                if ($asset instanceof Asset) {
+                    $this->em->remove($asset);
+                }
+            }
+            $this->em->flush();
+            $this->em->clear();
+
+            $lastId = end($ids) ?: null;
+        } while (self::ASSET_BATCH_SIZE === count($ids));
     }
 
     private function deleteAssetImports(string $workspaceId): void

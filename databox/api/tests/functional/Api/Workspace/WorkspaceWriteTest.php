@@ -8,7 +8,9 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\Workspace\DeleteWorkspace;
+use App\Doctrine\Delete\WorkspaceDelete;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
@@ -413,6 +415,47 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
             'json' => ['name' => 'Again', 'slug' => 'to-delete'],
         ]);
         $this->assertResponseStatusCodeSame(201);
+    }
+
+    public function testDeletePurgesAssetsAcrossSeveralBatches(): void
+    {
+        $ws = $this->createWs('many-assets', ['ownerId' => self::USER]);
+        $id = $ws->getId();
+        $other = $this->createWs('kept', ['ownerId' => self::USER]);
+
+        $em = self::getEntityManager();
+        $assets = [];
+        for ($i = 0; $i < WorkspaceDelete::ASSET_BATCH_SIZE * 2 + 1; ++$i) {
+            $assets[] = $this->createAsset(['workspace' => $ws, 'no_flush' => true]);
+        }
+        $kept = $this->createAsset(['workspace' => $other]);
+
+        // Links between the assets purged in the first and in the last batch
+        usort($assets, static fn (Asset $a, Asset $b): int => strcmp($a->getId(), $b->getId()));
+        $first = $assets[0];
+        $last = end($assets);
+        foreach ([[$first, $last], [$last, $first]] as [$asset, $attached]) {
+            $attachment = new AssetAttachment();
+            $attachment->setAsset($asset);
+            $attachment->setAttachment($attached);
+            $em->persist($attachment);
+        }
+        $em->flush();
+        $linkedIds = [$first->getId(), $last->getId()];
+        $keptId = $kept->getId();
+        // The request shares this EntityManager: the assets kept in memory miss their attachments
+        $em->clear();
+
+        static::createClient()->request('DELETE', self::iri($ws), [
+            'headers' => self::authHeaders(self::USER),
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+
+        $em->clear();
+        $this->assertNull($em->find(Workspace::class, $id));
+        $this->assertSame([], $em->getRepository(Asset::class)->findBy(['workspace' => $id]));
+        $this->assertSame([], $em->getRepository(AssetAttachment::class)->findBy(['attachment' => $linkedIds]));
+        $this->assertNotNull($em->find(Asset::class, $keptId));
     }
 
     public function testDeleteIsDeferredToTheDeleteWorkspaceMessage(): void
