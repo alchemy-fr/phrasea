@@ -7,6 +7,7 @@ namespace Alchemy\AdminBundle\Controller;
 use Alchemy\AdminBundle\AdminConfigRegistry;
 use Alchemy\AdminBundle\Home\HomeActivityBlock;
 use Alchemy\AdminBundle\Home\HomeActivityItem;
+use Alchemy\AdminBundle\Home\HomeChart;
 use Alchemy\AdminBundle\Home\HomeStat;
 use Alchemy\AdminBundle\Utils\UserDisplayNameResolver;
 use Alchemy\AuthBundle\Security\JwtUser;
@@ -54,6 +55,19 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             }
         }
 
+        $charts = [];
+        foreach ($this->getHomeCharts() as $source) {
+            try {
+                $chart = $source();
+            } catch (\Throwable $e) {
+                $this->logHomeSourceError($e);
+                $chart = HomeChart::failed('Unavailable', 'fa-solid fa-triangle-exclamation', $e);
+            }
+            if (null !== $chart) {
+                $charts[] = $chart;
+            }
+        }
+
         $blocks = [];
         foreach ($this->getHomeActivityBlocks() as $source) {
             try {
@@ -79,6 +93,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
 
         return $this->render('@AlchemyAdmin/home.html.twig', [
             'stats' => $stats,
+            'charts' => $charts,
             'blocks' => $blocks,
             'userNames' => $userNames,
             'userNamesError' => $userNamesError,
@@ -92,6 +107,16 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
      * @return iterable<callable(): ?HomeStat>
      */
     protected function getHomeStats(): iterable
+    {
+        return [];
+    }
+
+    /**
+     * The charts of the home page, computed like getHomeStats(): see createHomeChart().
+     *
+     * @return iterable<callable(): ?HomeChart>
+     */
+    protected function getHomeCharts(): iterable
     {
         return [];
     }
@@ -121,6 +146,27 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
                 $this->logHomeSourceError($e, $label);
 
                 return HomeStat::failed($label, $icon, $e, $url);
+            }
+        };
+    }
+
+    /**
+     * $title, $icon and $url label the error card shown when $build fails, $build giving
+     * them to the chart it returns.
+     *
+     * @param callable(): HomeChart $build
+     *
+     * @return callable(): HomeChart
+     */
+    protected function createHomeChart(string $title, string $icon, callable $build, ?string $url = null): callable
+    {
+        return function () use ($title, $icon, $build, $url): HomeChart {
+            try {
+                return $build();
+            } catch (\Throwable $e) {
+                $this->logHomeSourceError($e, $title);
+
+                return HomeChart::failed($title, $icon, $e, $url);
             }
         };
     }

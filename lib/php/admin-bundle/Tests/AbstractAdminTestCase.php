@@ -75,8 +75,9 @@ abstract class AbstractAdminTestCase extends WebTestCase
     /**
      * @param string[] $expectedStatLabels
      * @param string[] $expectedBlockTitles
+     * @param string[] $expectedChartTitles
      */
-    protected function doTestHomePage(array $expectedStatLabels, array $expectedBlockTitles): void
+    protected function doTestHomePage(array $expectedStatLabels, array $expectedBlockTitles, array $expectedChartTitles = []): void
     {
         $this->client->loginUser($this->getAuthAdminUser(), 'admin');
         $crawler = $this->loadPage('/admin');
@@ -92,6 +93,11 @@ abstract class AbstractAdminTestCase extends WebTestCase
         $blockTitles = $crawler->filter('.admin-home-block .card-header > span')->each(static fn (Crawler $node): string => trim($node->text()));
         foreach ($expectedBlockTitles as $title) {
             $this->assertContains($title, $blockTitles, sprintf('No "%s" block on the admin home page', $title));
+        }
+
+        $chartTitles = $crawler->filter('.admin-home-chart .card-header > span')->each(static fn (Crawler $node): string => trim($node->text()));
+        foreach ($expectedChartTitles as $title) {
+            $this->assertContains($title, $chartTitles, sprintf('No "%s" chart on the admin home page', $title));
         }
     }
 

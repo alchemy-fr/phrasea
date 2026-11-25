@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\AdminBundle\Home\HomeActivityItem;
+use Alchemy\AdminBundle\Home\HomeChart;
 use Alchemy\AdminBundle\Home\HomeStat;
 use Alchemy\AdminBundle\Home\PeriodCounter;
 use Alchemy\CoreBundle\Mapping\ObjectMapping;
@@ -18,6 +19,7 @@ use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookLogCrudController;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use App\Admin\Home\AssetHomeCharts;
 use App\Entity\Basket\Basket;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetExport;
@@ -53,6 +55,7 @@ class DashboardController extends AbstractAdminDashboardController
         private readonly AttributesResolver $attributesResolver,
         #[Autowire(service: AlchemyTrackBundle::OBJECT_MAPPING_SERVICE_ID)]
         private readonly ObjectMapping $objectMapping,
+        private readonly AssetHomeCharts $assetHomeCharts,
     ) {
     }
 
@@ -234,6 +237,32 @@ class DashboardController extends AbstractAdminDashboardController
             $this->generateCrudUrl(AuditLogCrudController::class),
         );
         yield fn (): ?HomeStat => $this->createFailedMessagesStat($this->em);
+    }
+
+    #[\Override]
+    protected function getHomeCharts(): iterable
+    {
+        $assetsUrl = $this->generateCrudUrl(AssetCrudController::class);
+        $workspacesUrl = $this->generateCrudUrl(WorkspaceCrudController::class);
+
+        yield $this->createHomeChart(
+            AssetHomeCharts::TIMELINE_TITLE,
+            AssetHomeCharts::TIMELINE_ICON,
+            fn (): HomeChart => $this->assetHomeCharts->getTimelineChart($assetsUrl),
+            $assetsUrl,
+        );
+        yield $this->createHomeChart(
+            AssetHomeCharts::FAMILY_TITLE,
+            AssetHomeCharts::FAMILY_ICON,
+            fn (): HomeChart => $this->assetHomeCharts->getFamilyChart($assetsUrl),
+            $assetsUrl,
+        );
+        yield $this->createHomeChart(
+            AssetHomeCharts::WORKSPACE_TITLE,
+            AssetHomeCharts::WORKSPACE_ICON,
+            fn (): HomeChart => $this->assetHomeCharts->getWorkspaceChart($workspacesUrl),
+            $workspacesUrl,
+        );
     }
 
     #[\Override]

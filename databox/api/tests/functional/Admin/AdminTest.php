@@ -33,6 +33,10 @@ class AdminTest extends AbstractDataboxAdminTestCase
             'Audit log',
             'Workflows',
             'Exports',
+        ], [
+            'Assets created (30 days)',
+            'Assets by file family',
+            'Assets by workspace',
         ]);
     }
 

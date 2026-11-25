@@ -39,6 +39,32 @@
         </div>
     {% endif %}
 
+    {% if charts is not empty %}
+        <div class="row row-cols-1 row-cols-xl-3 g-3 mb-4 admin-home-charts">
+            {% for chart in charts %}
+                <div class="col">
+                    <div class="card h-100 admin-home-chart">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="fw-bold"><i class="{{ chart.icon }} fa-fw"></i> {{ chart.title }}</span>
+                            {% if chart.url is not null %}
+                                <a href="{{ chart.url }}" class="small">See all</a>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            {% if chart.error is not null %}
+                                <p class="text-danger mb-0">Cannot load the chart: {{ chart.error }}</p>
+                            {% else %}
+                                <div style="position: relative; height: 260px;">
+                                    <canvas data-chart="{{ chart.toConfig|json_encode|e('html_attr') }}"></canvas>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% if blocks is not empty %}
         <div class="row row-cols-1 row-cols-xl-2 g-3 admin-home-blocks">
             {% for block in blocks %}
@@ -94,5 +120,73 @@
                 </div>
             {% endfor %}
         </div>
+    {% endif %}
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    {% if charts is not empty %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"
+                integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w=="
+                crossorigin="anonymous"></script>
+        <script>
+            (function () {
+                if (typeof Chart === 'undefined') {
+                    return;
+                }
+
+                const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const numberFormat = new Intl.NumberFormat('en-US', {maximumFractionDigits: 0});
+                const formatBytes = function (value) {
+                    let size = Number(value);
+                    let unit = 0;
+                    while (Math.abs(size) >= 1024 && unit < units.length - 1) {
+                        size /= 1024;
+                        ++unit;
+                    }
+
+                    return (0 === unit ? size.toFixed(0) : size.toFixed(1)) + ' ' + units[unit];
+                };
+                const format = function (type, value) {
+                    return 'bytes' === type ? formatBytes(value) : numberFormat.format(value);
+                };
+
+                // Follows the EasyAdmin light/dark theme
+                Chart.defaults.color = getComputedStyle(document.body).color;
+
+                document.querySelectorAll('canvas[data-chart]').forEach(function (canvas) {
+                    const config = JSON.parse(canvas.dataset.chart);
+                    const formats = config.formats || {};
+                    const datasetFormats = formats.datasets || [];
+                    delete config.formats;
+
+                    const options = config.options = config.options || {};
+                    options.responsive = true;
+                    options.maintainAspectRatio = false;
+                    options.scales = options.scales || {};
+                    Object.entries(formats.axes || {}).forEach(function ([axis, type]) {
+                        const scale = options.scales[axis] = options.scales[axis] || {};
+                        scale.ticks = Object.assign({}, scale.ticks, {
+                            callback: function (value) {
+                                return format(type, value);
+                            },
+                        });
+                    });
+
+                    options.plugins = options.plugins || {};
+                    options.plugins.tooltip = options.plugins.tooltip || {};
+                    options.plugins.tooltip.callbacks = Object.assign({}, options.plugins.tooltip.callbacks, {
+                        label: function (context) {
+                            const label = 'doughnut' === config.type ? context.label : context.dataset.label;
+                            const value = format(datasetFormats[context.datasetIndex] || 'number', context.raw);
+
+                            return label ? label + ': ' + value : value;
+                        },
+                    });
+
+                    new Chart(canvas, config);
+                });
+            })();
+        </script>
     {% endif %}
 {% endblock %}
