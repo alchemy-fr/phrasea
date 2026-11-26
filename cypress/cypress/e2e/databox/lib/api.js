@@ -368,36 +368,28 @@ export function uploadAssetFromFixture(workspaceId, fixture, data = {}, mime = '
                 token,
                 body: {filename, type: mime, size: blob.size},
             }).then(init =>
-                apiRequest({
-                    method: 'POST',
-                    path: `/uploads/${init.id}/part`,
-                    token,
-                    body: {part: 1},
-                    // Plain controller: the JSON body is only decoded for `application/json`
-                    headers: {'Content-Type': 'application/json'},
-                }).then(({url}) =>
-                    cy
-                        .request({method: 'PUT', url, body: blob, headers: {'Content-Type': mime}})
-                        .then(res => {
-                            const etag = res.headers.etag;
-                            expect(etag, 'ETag from storage').to.be.a('string');
+                // The presigned URLs of the first parts come with the upload, keyed by part number
+                cy
+                    .request({method: 'PUT', url: init.urls[1], body: blob, headers: {'Content-Type': mime}})
+                    .then(res => {
+                        const etag = res.headers.etag;
+                        expect(etag, 'ETag from storage').to.be.a('string');
 
-                            return apiRequest({
-                                method: 'POST',
-                                path: '/assets',
-                                token,
-                                body: {
-                                    workspace: iri('workspaces', workspaceId),
-                                    name: filename,
-                                    ...data,
-                                    multipart: {
-                                        uploadId: init.id,
-                                        parts: [{ETag: etag, PartNumber: 1}],
-                                    },
+                        return apiRequest({
+                            method: 'POST',
+                            path: '/assets',
+                            token,
+                            body: {
+                                workspace: iri('workspaces', workspaceId),
+                                name: filename,
+                                ...data,
+                                multipart: {
+                                    uploadId: init.id,
+                                    parts: [{ETag: etag, PartNumber: 1}],
                                 },
-                            });
-                        })
-                )
+                            },
+                        });
+                    })
             )
         );
     });
