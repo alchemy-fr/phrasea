@@ -32,6 +32,20 @@ asset:
             body: '%author% hat %name% aktualisiert.'
         sms:
             body: '%author% hat %name% aktualisiert.'
+    quarantined:
+        email:
+            action: 'Quarantäne ansehen'
+            subject: 'Asset in Quarantäne verschoben: %name%'
+            body: '<p>Hallo %recipient%,</p><p>Ihr Asset <a href="%url%">%name%</a> wurde in <em>%workspaceName%</em> in Quarantäne verschoben: Seine Datei wurde von der Analyse abgelehnt.</p>'
+        email_digest:
+            subject: '%count% Ihrer Assets in Quarantäne verschoben'
+            group: '<p>%count% Asset in <em>%workspaceName%</em> in Quarantäne verschoben:</p>|<p>%count% Assets in <em>%workspaceName%</em> in Quarantäne verschoben:</p>'
+            item: '<strong>%name%</strong>'
+        in_app:
+            subject: 'Asset in Quarantäne verschoben'
+            body: '<strong>%name%</strong> wurde in %workspaceName% in Quarantäne verschoben.'
+        sms:
+            body: '%name% wurde in %workspaceName% in Quarantäne verschoben.'
 collection:
     asset_add:
         email:

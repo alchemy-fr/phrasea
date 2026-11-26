@@ -48,6 +48,20 @@ asset:
             body: '%author% a mis à jour %name%.'
         sms:
             body: '%author% a mis à jour %name%.'
+    quarantined:
+        email:
+            action: 'Consulter la quarantaine'
+            subject: 'Asset mis en quarantaine : %name%'
+            body: '<p>Bonjour %recipient%,</p><p>Votre asset <a href="%url%">%name%</a> a été mis en quarantaine dans <em>%workspaceName%</em> : son fichier a été refusé par l''analyse.</p>'
+        email_digest:
+            subject: '%count% de vos assets mis en quarantaine'
+            group: '<p>%count% asset mis en quarantaine dans <em>%workspaceName%</em> :</p>|<p>%count% assets mis en quarantaine dans <em>%workspaceName%</em> :</p>'
+            item: '<strong>%name%</strong>'
+        in_app:
+            subject: 'Asset mis en quarantaine'
+            body: '<strong>%name%</strong> a été mis en quarantaine dans %workspaceName%.'
+        sms:
+            body: '%name% a été mis en quarantaine dans %workspaceName%.'
 collection:
     asset_add:
         email:

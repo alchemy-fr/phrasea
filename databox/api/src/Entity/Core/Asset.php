@@ -538,6 +538,7 @@ class Asset extends AbstractUuidEntity implements AuditableInterface, Followable
     final public const string EVENT_UPDATE = 'asset:update';
     final public const string EVENT_DELETE = 'asset:delete';
     final public const string EVENT_NEW_COMMENT = 'asset:new_comment';
+    final public const string EVENT_QUARANTINED = 'asset:quarantined';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     #[AuditIgnore]

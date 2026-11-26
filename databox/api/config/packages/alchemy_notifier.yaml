@@ -15,6 +15,10 @@ alchemy_notifier:
         'asset:new_comment':
             channels: [email, in_app]
             digest: { enabled: true, inactivity_delay: 600, max_delay: 3600, group_by: assetId }
+        # Asset put in quarantine (AssetQuarantineListener → NotifyAssetQuarantinedHandler)
+        'asset:quarantined':
+            channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600, group_by: workspaceId }
         # Collection events (NotifyCollectionTopicHandler)
         'collection:asset_add':
             channels: [email, in_app]

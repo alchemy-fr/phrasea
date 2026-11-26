@@ -1,0 +1,12 @@
+{% block subject %}{{ 'asset.quarantined.email.subject'|trans({'%name%': name}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'asset.quarantined.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%name%': name|e,
+    '%workspaceName%': workspaceName|e,
+    '%url%': notification_url(url)|e('html_attr'),
+}, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|raw }}{% endblock %}
+
+{% block action %}{{ 'asset.quarantined.email.action'|trans({}, 'notifications')|raw }}{% endblock %}

@@ -71,6 +71,17 @@ analyses fail again and the accepted assets go back to quarantine.
 
 Analyses stuck in progress are unblocked hourly by `app:file:unblock-analyses`.
 
+## Notification
+
+When an asset enters the quarantine, whatever put it there, its owner gets the
+`asset:quarantined` [notification](./notifications.md): in the app right away, by email in a
+digest per workspace. It links to the review screen opened on the asset
+(`/quarantine?asset={id}`). `App\Doctrine\Listener\AssetQuarantineListener` detects the status
+change and `NotifyAssetQuarantinedHandler` sends it, unless the asset left the quarantine or
+was deleted in between. Nothing is sent while notifications are disabled (the
+`X-Notification-Disabled` header of the request behind the change), nor to an owner id that
+is not a user UUID. The quarantine managers are not notified.
+
 ## Rights
 
 | Right (`AssetVoter`) | Granted to                                                                 |

@@ -12,6 +12,12 @@ describe('resolveNotificationUri', () => {
         expect(resolveNotificationUri('/assets/a1')).toBe('/assets/a1/_');
     });
 
+    it('opens an asset in the quarantine screen', () => {
+        expect(resolveNotificationUri('/quarantine/a1')).toBe(
+            '/quarantine?asset=a1'
+        );
+    });
+
     it('falls back to the search', () => {
         expect(resolveNotificationUri('/unknown')).toBe('/assets');
     });

@@ -1,0 +1,5 @@
+{% block subject %}{{ 'asset.quarantined.in_app.subject'|trans({}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'asset.quarantined.in_app.body'|trans({'%name%': name|e, '%workspaceName%': workspaceName|e}, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|default('') }}{% endblock %}

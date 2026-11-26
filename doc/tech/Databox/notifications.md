@@ -28,6 +28,7 @@ The author of a change is never notified of it.
 | Topic                       | Sent when                                                             | Digest |
 |-----------------------------|-----------------------------------------------------------------------|--------|
 | `asset:update`              | the attributes of a followed asset change, or of an asset of a followed collection | no |
+| `asset:quarantined`         | an asset is put in [quarantine](./quarantine.md); sent to its owner  | per workspace |
 | `collection:asset_add`      | an asset is added to a followed collection                           | per collection |
 | `collection:asset_remove`   | an asset is removed from a followed collection                       | per collection |
 | `discussion:new_comment`    | a comment is posted on a followed asset, an asset of a followed collection, or a thread the user takes part in or is mentioned in | yes |

@@ -1,0 +1,20 @@
+{% block subject %}{{ 'asset.quarantined.email_digest.subject'|trans({'%count%': count}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'notification_digest.greeting'|trans({'%recipient%': (recipient.displayName|default(recipient.email))|e}, 'notifications')|raw }}
+{%- for group in byObject %}
+{{ 'asset.quarantined.email_digest.group'|trans({
+    '%count%': group|length,
+    '%workspaceName%': (group|first).params.workspaceName|e,
+}, 'notifications')|raw }}
+<ul>
+{%- for event in group|slice(0, 10) %}
+    <li><a href="{{ (notification_url(event.params.url|default(null))|default('#'))|e('html_attr') }}">{{ 'asset.quarantined.email_digest.item'|trans({'%name%': event.params.name|e}, 'notifications')|raw }}</a></li>
+{%- endfor %}
+{%- if group|length > 10 %}
+    <li>{{ 'notification_digest.more_items'|trans({'%count%': group|length - 10}, 'notifications')|raw }}</li>
+{%- endif %}
+</ul>
+{%- endfor %}
+{%- if overflowCount > 0 %}
+{{ 'notification_digest.more'|trans({'%count%': overflowCount}, 'notifications')|raw }}
+{%- endif %}{% endblock %}
