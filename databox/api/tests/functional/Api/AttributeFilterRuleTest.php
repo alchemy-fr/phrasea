@@ -9,6 +9,7 @@ use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributeFilterRule;
 use App\Service\Workspace\WorkspaceDuplicateManager;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class AttributeFilterRuleTest extends AbstractDataboxTestCase
 {
@@ -29,6 +30,38 @@ class AttributeFilterRuleTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(422);
+    }
+
+    #[DataProvider('getUnsupportedConditions')]
+    public function testCreateRuleWithAFieldARuleCannotUseIsRejected(string $condition): void
+    {
+        $workspace = $this->createWorkspace([
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+        ]);
+
+        static::createClient()->request('POST', '/attribute-filter-rules', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+            'json' => [
+                'workspaceId' => $workspace->getId(),
+                'userIds' => [KeycloakClientTestMock::USER_UID],
+                'condition' => $condition,
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(0, self::getEntityManager()->getRepository(AttributeFilterRule::class)->count([]));
+    }
+
+    public static function getUnsupportedConditions(): array
+    {
+        return [
+            'similar' => ['@similar = "f2b2a4b0-1b8e-4d6c-9d43-7b8a3f1f5e11"'],
+            'score' => ['@score > 1'],
+            'position' => ['@position = 1'],
+            'nested' => ['@privacy = 5 OR (@similar = "f2b2a4b0-1b8e-4d6c-9d43-7b8a3f1f5e11")'],
+        ];
     }
 
     public function testDuplicateWorkspaceRemapsEntityReferences(): void

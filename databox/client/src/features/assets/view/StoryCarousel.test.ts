@@ -1,7 +1,8 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
+import {renderHook} from '@testing-library/react';
 import {arrayMove} from '@dnd-kit/sortable';
 import type {Asset} from '@/types/api';
-import {rewriteItems} from './StoryCarousel';
+import {rewriteItems, useStoryPagesUntil} from './StoryCarousel';
 
 const asset = (id: string) => ({id}) as Asset;
 
@@ -52,5 +53,49 @@ describe('rewriteItems', () => {
 
         expect(idsOf(data)).toEqual([['b']]);
         expect(data!.pages[0].total).toBe(3);
+    });
+});
+
+describe('useStoryPagesUntil', () => {
+    type Story = Parameters<typeof useStoryPagesUntil>[0];
+
+    function story(ids: string[], more: Partial<Story> = {}): Story {
+        return {
+            items: ids.map(asset),
+            hasNextPage: true,
+            isFetchingNextPage: false,
+            fetchNextPage: vi.fn(),
+            ...more,
+        } as Story;
+    }
+
+    it('loads the next pages until the item is found', () => {
+        const fetchNextPage = vi.fn();
+        const {rerender} = renderHook(
+            ({s}: {s: Story}) => useStoryPagesUntil(s, 'a45'),
+            {initialProps: {s: story(['a1', 'a2'], {fetchNextPage})}}
+        );
+        expect(fetchNextPage).toHaveBeenCalledTimes(1);
+
+        rerender({
+            s: story(['a1', 'a2'], {fetchNextPage, isFetchingNextPage: true}),
+        });
+        expect(fetchNextPage).toHaveBeenCalledTimes(1);
+
+        rerender({s: story(['a1', 'a2', 'a3'], {fetchNextPage})});
+        expect(fetchNextPage).toHaveBeenCalledTimes(2);
+
+        rerender({s: story(['a1', 'a2', 'a3', 'a45'], {fetchNextPage})});
+        expect(fetchNextPage).toHaveBeenCalledTimes(2);
+    });
+
+    it('stops at the last page, or without an item', () => {
+        const last = story(['a1'], {hasNextPage: false});
+        renderHook(() => useStoryPagesUntil(last, 'a45'));
+        expect(last.fetchNextPage).not.toHaveBeenCalled();
+
+        const cover = story(['a1']);
+        renderHook(() => useStoryPagesUntil(cover, undefined));
+        expect(cover.fetchNextPage).not.toHaveBeenCalled();
     });
 });

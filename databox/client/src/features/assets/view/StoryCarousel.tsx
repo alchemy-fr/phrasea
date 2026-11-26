@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     InfiniteData,
@@ -84,6 +84,27 @@ export function useStoryAssets(storyId?: string) {
     const items = useMemo(() => pages?.flatMap(p => p.items) ?? [], [pages]);
 
     return {...query, items, total: pages?.[0]?.total ?? 0};
+}
+
+/**
+ * Loads the next pages of a story until one holds this item: opened by a
+ * link, an item beyond the first page would have no previous / next item nor
+ * place in the carousel otherwise.
+ */
+export function useStoryPagesUntil(
+    story: Pick<
+        ReturnType<typeof useStoryAssets>,
+        'items' | 'hasNextPage' | 'isFetchingNextPage' | 'fetchNextPage'
+    >,
+    itemId: string | undefined
+): void {
+    const {items, hasNextPage, isFetchingNextPage, fetchNextPage} = story;
+    const found = !!itemId && items.some(a => a.id === itemId);
+    useEffect(() => {
+        if (itemId && !found && hasNextPage && !isFetchingNextPage) {
+            void fetchNextPage();
+        }
+    }, [itemId, found, hasNextPage, isFetchingNextPage, fetchNextPage]);
 }
 
 function storyAssetsKey(storyId?: string) {

@@ -41,6 +41,8 @@ final class SearchIndexer
         private readonly int $maxPerMessage = 200,
         private readonly int $maxDepth = 10,
         private readonly float $deduplicationTtl = 0,
+        // Two deployments sharing a lock store (Redis) would drop each other's messages without it
+        private readonly string $deduplicationKeyPrefix = '',
     ) {
         $this->dependencyStacks = new DependencyStacks();
     }
@@ -80,7 +82,7 @@ final class SearchIndexer
         }
 
         return new Envelope($message, [
-            new DeduplicateStamp('dedup:'.ESIndex::class.':'.sha1(serialize($message)), $this->deduplicationTtl, onlyDeduplicateInQueue: true),
+            new DeduplicateStamp('dedup:'.$this->deduplicationKeyPrefix.ESIndex::class.':'.sha1(serialize($message)), $this->deduplicationTtl, onlyDeduplicateInQueue: true),
         ]);
     }
 

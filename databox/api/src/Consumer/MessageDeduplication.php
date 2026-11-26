@@ -18,6 +18,17 @@ use Symfony\Component\Messenger\Stamp\DeduplicateStamp;
 final class MessageDeduplication
 {
     /**
+     * The deployment's own part of the keys (the ES index prefix, set when the kernel boots): two
+     * deployments sharing a Redis server would drop each other's messages without it.
+     */
+    private static string $keyPrefix = '';
+
+    public static function setKeyPrefix(string $keyPrefix): void
+    {
+        self::$keyPrefix = $keyPrefix;
+    }
+
+    /**
      * Coalescing: one copy waits in the queue at most. The lock is released when the message
      * is received, so an identical message dispatched while it is being handled is queued.
      * For handlers reading the current state, whose result depends on when they run.
@@ -42,6 +53,6 @@ final class MessageDeduplication
 
     private static function key(object $message): string
     {
-        return 'dedup:'.$message::class.':'.sha1(serialize($message));
+        return 'dedup:'.self::$keyPrefix.$message::class.':'.sha1(serialize($message));
     }
 }

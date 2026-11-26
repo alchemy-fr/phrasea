@@ -351,4 +351,63 @@ describe('useCollectionStore load failures', () => {
             useCollectionStore.getState().pagers[pagerKey('ws')].error
         ).toBeUndefined();
     });
+
+    it('keeps the failure of a next page on its pager', async () => {
+        api.getCollections.mockResolvedValueOnce({
+            items: [collection('a')],
+            total: 2,
+            next: '/collections?page=2',
+        });
+        await useCollectionStore.getState().loadChildren('ws');
+
+        api.getCollections.mockRejectedValueOnce(new Error('Bad Gateway'));
+        await useCollectionStore.getState().loadMore('ws');
+
+        expect(
+            useCollectionStore.getState().pagers[pagerKey('ws')]
+        ).toMatchObject({
+            error: 'Bad Gateway',
+            loading: false,
+            ids: ['a'],
+            next: '/collections?page=2',
+        });
+
+        api.getCollections.mockResolvedValueOnce({
+            items: [collection('a'), collection('b')],
+            total: 2,
+        });
+        await useCollectionStore.getState().loadChildren('ws', undefined, true);
+
+        expect(api.getCollections).toHaveBeenCalledTimes(3);
+        const pager = useCollectionStore.getState().pagers[pagerKey('ws')];
+        expect(pager).toMatchObject({loading: false, ids: ['a', 'b']});
+        expect(pager.error).toBeUndefined();
+    });
+
+    it('keeps the failure of a next page of workspaces', async () => {
+        useCollectionStore.setState({
+            workspaces: [workspace('w1')],
+            workspacesLoaded: true,
+            workspacesNext: '/workspaces?page=2',
+        });
+        api.getWorkspaces.mockRejectedValueOnce(new Error('Bad Gateway'));
+        await useCollectionStore.getState().loadMoreWorkspaces();
+
+        expect(useCollectionStore.getState()).toMatchObject({
+            workspacesError: 'Bad Gateway',
+            workspacesLoading: false,
+            workspacesNext: '/workspaces?page=2',
+        });
+
+        api.getWorkspaces.mockResolvedValueOnce({
+            items: [workspace('w2')],
+            total: 2,
+        });
+        await useCollectionStore.getState().loadMoreWorkspaces();
+
+        expect(useCollectionStore.getState().workspacesError).toBeUndefined();
+        expect(useCollectionStore.getState().workspaces.map(w => w.id)).toEqual(
+            ['w1', 'w2']
+        );
+    });
 });

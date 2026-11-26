@@ -38,7 +38,7 @@ final readonly class WebhookTriggerHandler
         $uri = $webhook->getUrl();
 
         try {
-            $client = $this->clientFactory->create();
+            $client = $this->clientFactory->create($uri);
 
             $client->request('POST', $uri, [
                 'verify_peer' => $webhook->isVerifySSL(),
@@ -54,6 +54,9 @@ final readonly class WebhookTriggerHandler
 
             if (null === $response) {
                 $log->setResponse($e->getMessage());
+            } elseif ($this->clientFactory->isPrivateOriginAllowed($uri)) {
+                // A service of the private network: its answer is not shown to the admins
+                $log->setResponse(sprintf('HTTP %d', $response->getStatusCode()));
             } else {
                 $res = '';
                 foreach ($response->getHeaders(false) as $h => $v) {

@@ -130,12 +130,11 @@ export function BasketSwitcher({
                             onSelect={async e => {
                                 e.preventDefault();
                                 setLoadingMore(true);
-                                try {
-                                    await loadMore();
-                                } catch (err: any) {
-                                    toast.error(err?.message);
-                                } finally {
-                                    setLoadingMore(false);
+                                await loadMore();
+                                setLoadingMore(false);
+                                const {error} = useBasketStore.getState();
+                                if (error) {
+                                    toast.error(error);
                                 }
                             }}
                         >

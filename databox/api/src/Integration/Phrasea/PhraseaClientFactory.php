@@ -6,6 +6,7 @@ namespace App\Integration\Phrasea;
 
 use App\Entity\Integration\IntegrationToken;
 use App\Integration\Auth\IntegrationTokenManager;
+use App\Integration\IntegrationPrivateOrigins;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class PhraseaClientFactory
@@ -13,12 +14,13 @@ final readonly class PhraseaClientFactory
     public function __construct(
         private HttpClientInterface $client,
         private IntegrationTokenManager $integrationTokenManager,
+        private IntegrationPrivateOrigins $privateOrigins,
     ) {
     }
 
     public function create(string $baseUrl, string $clientId, IntegrationToken $integrationToken): HttpClientInterface
     {
-        $client = $this->client->withOptions([
+        $client = $this->privateOrigins->getClient($this->client, $baseUrl)->withOptions([
             'base_uri' => $baseUrl,
         ]);
 
@@ -39,7 +41,7 @@ final readonly class PhraseaClientFactory
      */
     public function createTokenRenewer(string $baseUrl, string $clientId): \Closure
     {
-        $client = $this->client->withOptions([
+        $client = $this->privateOrigins->getClient($this->client, $baseUrl)->withOptions([
             'base_uri' => $baseUrl,
         ]);
 

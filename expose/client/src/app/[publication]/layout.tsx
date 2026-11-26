@@ -1,23 +1,29 @@
 import type {Metadata} from 'next';
+import {NO_INDEX} from '@alchemy/next-core/seo/metadata';
 import {PublicationScreen} from '@/features/publication/PublicationScreen';
 import {
     decodeSegment,
-    fetchPublicPublication,
+    fetchPublicationMetadata,
     publicationPageMetadata,
 } from '@/lib/seo/publicationMetadata';
 
 type Params = Promise<{publication: string}>;
 
-/** The link preview of a public publication, the app's otherwise */
+/**
+ * The link preview of a public publication, the app's otherwise. A
+ * publication an anonymous visitor cannot read is not to be indexed.
+ */
 export async function generateMetadata({
     params,
 }: {
     params: Params;
 }): Promise<Metadata> {
     const key = decodeSegment((await params).publication);
-    const publication = key ? await fetchPublicPublication(key) : null;
+    const publication = key ? await fetchPublicationMetadata(key) : null;
 
-    return publication ? publicationPageMetadata(publication) : {};
+    return publication
+        ? publicationPageMetadata(publication)
+        : {robots: NO_INDEX};
 }
 
 /**

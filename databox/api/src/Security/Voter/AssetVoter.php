@@ -60,6 +60,24 @@ class AssetVoter extends AbstractVoter
             return true;
         }
 
+        $user = $token->getUser();
+
+        // An asset hidden by the attribute filter rules can be neither read nor acted upon, whatever
+        // the role, as in the asset search, except for the admins: AdminVoter grants them anyway.
+        // CREATE votes on an asset being created, whose values are not stored yet.
+        return $this->computeGranted($attribute, $subject, $token)
+            && (AbstractVoter::CREATE === $attribute || $this->attributeFilterChecker->isReadable(
+                $subject,
+                $user instanceof JwtUser ? $user->getId() : null,
+                $user instanceof JwtUser ? $user->getGroups() : [],
+            ));
+    }
+
+    /**
+     * The permissions on the asset, before its attribute filter rules.
+     */
+    private function computeGranted(string $attribute, Asset $subject, TokenInterface $token): bool
+    {
         $workspace = $subject->getWorkspace();
         if (!$workspace || !$this->security->isGranted(self::READ, $workspace)) {
             return false;
@@ -71,7 +89,7 @@ class AssetVoter extends AbstractVoter
         $isWorkspaceOwnerSlow = fn (): bool => $this->security->isGranted(AbstractVoter::OWNER, $workspace);
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        $granted = match ($attribute) {
+        return match ($attribute) {
             AbstractVoter::CREATE => $isWorkspaceOwnerFast()
                 || $this->voteOnContainer($subject, AssetContainerVoterInterface::ASSET_CREATE)
                 || $isWorkspaceOwnerSlow(),
@@ -87,7 +105,7 @@ class AssetVoter extends AbstractVoter
                         PermissionInterface::OWNER,
                     ], $subject, $token)
                     || $this->security->isGranted(AssetContainerVoterInterface::ASSET_VIEW, $workspace)
-                    || $this->collectionGrantsAccess($subject)
+                    || $this->collectionGrantsAccess($subject, $token)
                     || $isWorkspaceOwnerSlow()
                 ),
             self::EDIT_ATTRIBUTES => $isOwner()
@@ -142,16 +160,6 @@ class AssetVoter extends AbstractVoter
                 || $isWorkspaceOwnerSlow(),
             default => false,
         };
-
-        // An asset hidden by the attribute filter rules can be neither read nor acted upon, whatever
-        // the role, as in the asset search, except for the admins: AdminVoter grants them anyway.
-        // CREATE votes on an asset being created, whose values are not stored yet.
-        return $granted
-            && (AbstractVoter::CREATE === $attribute || $this->attributeFilterChecker->isReadable(
-                $subject,
-                $userId ?: null,
-                $user instanceof JwtUser ? $user->getGroups() : [],
-            ));
     }
 
     private function voteOnContainer(Asset $asset, string|int $attribute): bool
@@ -168,7 +176,7 @@ class AssetVoter extends AbstractVoter
         return $asset->getReferenceCollection() && $this->security->isGranted($attribute, $asset->getReferenceCollection());
     }
 
-    private function collectionGrantsAccess(Asset $subject): bool
+    private function collectionGrantsAccess(Asset $subject, TokenInterface $token): bool
     {
         $referenceCollection = $subject->getReferenceCollection();
         if (null !== $referenceCollection && $this->security->isGranted(AssetContainerVoterInterface::ASSET_VIEW, $referenceCollection)) {
@@ -178,7 +186,9 @@ class AssetVoter extends AbstractVoter
         foreach ($subject->getCollections() as $collectionAsset) {
             $collection = $collectionAsset->getCollection();
             if (null !== $storyAsset = $collection->getStoryAsset()) {
-                if ($this->security->isGranted(self::READ, $storyAsset)) {
+                // The access given by a story leaves out the rules of the story, as in the search
+                // (AssetPermissionComputer): only the rules of the member apply.
+                if ($this->computeGranted(self::READ, $storyAsset, $token)) {
                     return true;
                 }
             } elseif ($this->security->isGranted(AssetContainerVoterInterface::ASSET_VIEW, $collection)) {

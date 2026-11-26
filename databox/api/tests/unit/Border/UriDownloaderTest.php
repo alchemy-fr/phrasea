@@ -217,6 +217,27 @@ class UriDownloaderTest extends TestCase
         }
     }
 
+    public function testTheBodyWrittenToAFileIsNotBuffered(): void
+    {
+        $buffers = [];
+        $client = new MockHttpClient(static function (string $method, string $url, array $options) use (&$buffers): MockResponse {
+            $buffers[parse_url($url, PHP_URL_PATH)] = $options['buffer'];
+
+            return new MockResponse('content');
+        });
+        $downloader = new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024), 900);
+        $paths = [$this->createTempPath(), $this->createTempPath()];
+
+        try {
+            $downloader->download('http://10.0.0.1/one.jpg', path: $paths[0], allowPrivateNetwork: true);
+            $this->assertSame([], $downloader->downloadMany([$paths[1] => 'http://10.0.0.1/many.jpg'], 1, allowPrivateNetwork: true));
+        } finally {
+            array_map(static fn (string $path) => @unlink($path), $paths);
+        }
+
+        $this->assertSame(['/one.jpg' => false, '/many.jpg' => false], $buffers);
+    }
+
     /**
      * @param array<string, MockResponse> $responses keyed by URL path
      * @param string[]                    $requested the URLs requested

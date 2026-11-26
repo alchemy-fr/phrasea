@@ -34,6 +34,9 @@ class TargetPrivateOriginsTest extends TestCase
             'Dotless stack host' => [$databox, null, 'http://databox-api/foo', false],
             'Unsupported scheme' => ['ftp://api-databox.phrasea.local', null, 'ftp://api-databox.phrasea.local/foo', false],
             'Invalid URL' => [$databox, null, 'not an url', false],
+            // The host is what follows the user info: an allowed origin written before "@" is only a user name
+            'User info naming Databox, private IP host' => [$databox, null, 'https://api-databox.phrasea.local@10.0.0.1/', false],
+            'User info naming Databox with its port, other host' => [$databox, null, 'https://api-databox.phrasea.local:443@evil.example/', false],
             'Listed origin' => [$databox, 'https://phraseanet.local', 'https://phraseanet.local/api/v1/upload/enqueue/', true],
             'Listed dotless origin' => [$databox, 'http://phraseanet', 'http://phraseanet/api/v1/upload/enqueue/', true],
             'List with spaces and empty entries' => [$databox, ' , https://phraseanet.local ,,http://other.local:8080 , ', 'http://other.local:8080/enqueue', true],

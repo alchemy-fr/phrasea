@@ -9,18 +9,21 @@
 # base gets a new cache key in every BuildKit session.
 #
 #   docker buildx bake -f docker-bake.hcl --print        # resolved configuration
-#   docker buildx bake -f docker-bake.hcl php-base --push && docker buildx bake -f docker-bake.hcl php --push
+#
+# The defaults tag the images localhost:5000/ps-<name>:dev, so that a local build
+# neither starts from nor overwrites the published images: the CI sets
+# REGISTRY_NAMESPACE and DOCKER_TAG (see doc/tech/Development/ci.md).
 #
 # Without -f, bake also reads docker-compose.yml, whose services share some
 # target names. docker-compose.yml keeps building the same Dockerfiles for
 # development.
 
 variable "REGISTRY_NAMESPACE" {
-  default = "alchemyfr/ps-"
+  default = "localhost:5000/ps-"
 }
 
 variable "DOCKER_TAG" {
-  default = "latest"
+  default = "dev"
 }
 
 variable "SENTRY_RELEASE" {

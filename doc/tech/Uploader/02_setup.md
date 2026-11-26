@@ -82,7 +82,8 @@ The client shows a "Debug user" entry in the user menu when its `DEV_MODE` is on
 ## Targets on the Private Network
 
 The URL of a target is set by an Uploader admin: on each commit, the worker notifies it with a `POST`.
-It reaches the private network only for the origin (scheme, host and port) of `DATABOX_API_URL` and for the origins listed in `UPLOADER_TARGET_PRIVATE_ORIGINS`, comma separated and empty by default.
+It reaches the private network only for the origin (scheme, host and port) of `DATABOX_API_URL` and for the origins listed in `UPLOADER_TARGET_PRIVATE_ORIGINS`, comma separated.
+Left empty (the default), it lists the Phraseanet of the stack, `PHRASEANET_URL`, which `docker-compose.yml` routes to the gateway; a value replaces it, so list `PHRASEANET_URL` in it to keep that target.
 A target on any other host resolving to a private address (another service of the stack, an internal Phraseanet…) is refused unless its origin is listed:
 
 ```bash

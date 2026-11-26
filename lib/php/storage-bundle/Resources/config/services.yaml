@@ -76,6 +76,8 @@ services:
             $client: '@alchemy_storage.s3_client'
             $bucketName: '%env(S3_BUCKET_NAME)%'
             $pathPrefix: '%env(S3_PATH_PREFIX)%'
+            # In seconds, for the whole transfer of each object
+            $timeout: '%alchemy_storage.download.max_duration%'
 
     Alchemy\StorageBundle\Upload\FileValidator:
         $allowedTypes: '%alchemy_storage.upload.allowed_types%'

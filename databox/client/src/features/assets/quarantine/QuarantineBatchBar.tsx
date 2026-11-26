@@ -2,7 +2,13 @@
 
 import type {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
-import {CopyCheckIcon, ShieldCheckIcon, Trash2Icon, XIcon} from 'lucide-react';
+import {
+    CopyCheckIcon,
+    RotateCwIcon,
+    ShieldCheckIcon,
+    Trash2Icon,
+    XIcon,
+} from 'lucide-react';
 import type {QuarantineBatchAction} from '@/types/api';
 import {Button} from '@alchemy/next-ui/ui/button';
 import {Badge} from '@alchemy/next-ui/ui/misc';
@@ -12,18 +18,23 @@ import type {QuarantineEligibilityCounts} from './useQuarantineEligibility';
  * The batch actions on the selected assets of the quarantine queue, each with
  * how many of them it applies to. Merging counts the assets that can be
  * added as a new version, the default mode, including those whose target is
- * still to be chosen.
+ * still to be chosen. When the eligibility could not be read, the counts
+ * cover the assets known so far only: the bar tells so and offers to retry.
  */
 export function QuarantineBatchBar({
     total,
     counts,
     loading,
+    failed = false,
+    onRetry,
     onClear,
     onRun,
 }: {
     total: number;
     counts: QuarantineEligibilityCounts;
     loading: boolean;
+    failed?: boolean;
+    onRetry?: () => void;
     onClear: () => void;
     onRun: (action: QuarantineBatchAction) => void;
 }) {
@@ -79,6 +90,23 @@ export function QuarantineBatchBar({
                 <XIcon /> {t('quarantine.batch.clear', 'Deselect')}
             </Button>
             <div className="flex-1" />
+            {failed ? (
+                <span
+                    className="flex items-center gap-1 text-xs text-destructive"
+                    data-testid="quarantine-batch-eligibility-failed"
+                    role="alert"
+                >
+                    {t(
+                        'quarantine.batch.eligibility_failed',
+                        'The actions available to the selection could not be checked'
+                    )}
+                    {onRetry ? (
+                        <Button size="sm" variant="ghost" onClick={onRetry}>
+                            <RotateCwIcon /> {t('common.retry', 'Retry')}
+                        </Button>
+                    ) : null}
+                </span>
+            ) : null}
             {actions.map(a => (
                 <Button
                     key={a.action}

@@ -24,9 +24,11 @@ vi.mock('next/link', () => ({
 
 const realtime = vi.hoisted(() => ({
     handlers: {} as Record<string, () => void>,
+    enabled: true,
 }));
 
 vi.mock('@/lib/realtime/RealtimeProvider', () => ({
+    useRealtime: () => ({enabled: realtime.enabled}),
     useChannelEvent: (
         channel: string | undefined,
         event: string,
@@ -96,6 +98,7 @@ describe('AssetWorkflowProgress', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         realtime.handlers = {};
+        realtime.enabled = true;
     });
 
     it('requests nothing without the edit capability', () => {
@@ -159,6 +162,37 @@ describe('AssetWorkflowProgress', () => {
         await waitFor(() =>
             expect(screen.queryByTestId('asset-workflow-progress')).toBeNull()
         );
+    });
+
+    it('polls the running run without realtime', async () => {
+        vi.useFakeTimers({shouldAdvanceTime: true});
+        try {
+            realtime.enabled = false;
+            api.getAssetWorkflows.mockResolvedValue({
+                items: [run(WorkflowStatus.Started)],
+            });
+            api.getWorkflow.mockResolvedValue(detail(JobStatus.Running));
+            renderProgress({asset: asset(true), interactive: true});
+            await screen.findByText('0/1 jobs');
+
+            api.getWorkflow.mockResolvedValue(detail(JobStatus.Success));
+            api.getAssetWorkflows.mockResolvedValue({
+                items: [run(WorkflowStatus.Success)],
+            });
+            await act(() => vi.advanceTimersByTimeAsync(3_000));
+
+            await waitFor(() =>
+                expect(
+                    screen.queryByTestId('asset-workflow-progress')
+                ).toBeNull()
+            );
+            const calls = api.getAssetWorkflows.mock.calls.length;
+            // The run ended: no more polling
+            await act(() => vi.advanceTimersByTimeAsync(10_000));
+            expect(api.getAssetWorkflows).toHaveBeenCalledTimes(calls);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('renders nothing when the last run already succeeded', async () => {

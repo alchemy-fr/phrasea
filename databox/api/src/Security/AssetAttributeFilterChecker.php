@@ -239,6 +239,7 @@ final readonly class AssetAttributeFilterChecker
                 if (null === $ast) {
                     throw new \InvalidArgumentException(sprintf('Invalid condition: %s', $condition));
                 }
+                AttributeFilterRuleFields::assertSupported($ast['data']);
 
                 $this->queryBuilder->createQuery($fieldClusters, $ast['data'], $options);
 

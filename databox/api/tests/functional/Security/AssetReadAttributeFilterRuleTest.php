@@ -6,6 +6,7 @@ namespace App\Tests\Functional\Security;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -42,6 +43,10 @@ class AssetReadAttributeFilterRuleTest extends AbstractDataboxTestCase
             // Invalid condition (unknown field): fail-closed
             'unknown field' => ['unknown_field = "press"', ['Press' => 403, 'Internal' => 403, 'None' => 403]],
             'invalid syntax' => ['category = = "press"', ['Press' => 403, 'Internal' => 403, 'None' => 403]],
+            // Built-in fields a rule cannot use (stored before they were refused): fail-closed
+            'similar' => ['@similar = "f2b2a4b0-1b8e-4d6c-9d43-7b8a3f1f5e11"', ['Press' => 403, 'Internal' => 403, 'None' => 403]],
+            'score' => ['@score > 1', ['Press' => 403, 'Internal' => 403, 'None' => 403]],
+            'position' => ['@position = 1', ['Press' => 403, 'Internal' => 403, 'None' => 403]],
         ];
     }
 
@@ -118,6 +123,42 @@ class AssetReadAttributeFilterRuleTest extends AbstractDataboxTestCase
         self::getAttributeFilterManager()->saveRule($otherWorkspace, [KeycloakClientTestMock::USER_UID], [], 'unknown_field = "press"');
 
         $this->assertReadCodes($assets, ['Press' => 200, 'Internal' => 200, 'None' => 200]);
+    }
+
+    public function testShareOwnerLosesTheShareOfAnAssetHiddenByARule(): void
+    {
+        $workspace = $this->createWorkspace(['public' => true]);
+        $assets = $this->createCategorizedAssets($workspace);
+        $em = self::getEntityManager();
+        $shares = [];
+        foreach (['Press', 'Internal'] as $name) {
+            $share = new Share();
+            $share->setOwnerId(KeycloakClientTestMock::USER_UID);
+            $share->addAsset($assets[$name]);
+            $em->persist($share);
+            $shares[$name] = $share;
+        }
+        $em->flush();
+
+        self::getAttributeFilterManager()->saveRule($workspace, [KeycloakClientTestMock::USER_UID], [], 'category = "press"');
+
+        $client = static::createClient();
+        $headers = [
+            'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+        ];
+        $client->request('GET', '/shares/'.$shares['Press']->getId(), ['headers' => $headers]);
+        $this->assertResponseStatusCodeSame(200);
+        $client->request('GET', '/shares/'.$shares['Internal']->getId(), ['headers' => $headers]);
+        $this->assertResponseStatusCodeSame(403);
+        $client->request('PATCH', '/shares/'.$shares['Internal']->getId(), [
+            'headers' => [...$headers, 'Content-Type' => 'application/merge-patch+json'],
+            'json' => ['name' => 'Renamed'],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        // The owner may still get rid of it
+        $client->request('DELETE', '/shares/'.$shares['Internal']->getId(), ['headers' => $headers]);
+        $this->assertResponseStatusCodeSame(204);
     }
 
     /**

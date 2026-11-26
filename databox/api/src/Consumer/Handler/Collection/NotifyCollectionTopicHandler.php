@@ -54,21 +54,22 @@ readonly class NotifyCollectionTopicHandler extends AbstractNotifyHandler
             'authorId' => $authorId,
         ];
 
-        $this->notifierManager->notify(
-            [
-                new NotifySelectorDto(
-                    event: $event,
-                    objectType: Collection::OBJECT_TYPE,
-                    objectId: $collection->getId(),
-                    topic: new TopicDto(
-                        $topic,
-                        $notificationParams
-                    ),
-                ),
-            ],
-            new NotifyOptions(
-                excludeUserId: $authorId
-            ),
-        );
+        $topicDto = new TopicDto($topic, $notificationParams);
+        if (null === $asset) {
+            $selector = new NotifySelectorDto(event: $event, objectType: Collection::OBJECT_TYPE, objectId: $collection->getId(), topic: $topicDto);
+        } else {
+            $readers = [];
+            $selector = $this->createReadersSelector(
+                new NotifySelectorDto(event: $event, objectType: Collection::OBJECT_TYPE, objectId: $collection->getId()),
+                $asset,
+                $topicDto,
+                $readers,
+            );
+            if (null === $selector) {
+                return;
+            }
+        }
+
+        $this->notifierManager->notify([$selector], new NotifyOptions(excludeUserId: $authorId));
     }
 }

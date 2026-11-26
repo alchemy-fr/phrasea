@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Consumer\Handler\Asset\AssetsDelete;
 use App\Entity\Core\Asset;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -23,6 +24,7 @@ final class DeleteAssetsByKeysProcessor implements ProcessorInterface
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -42,6 +44,7 @@ final class DeleteAssetsByKeysProcessor implements ProcessorInterface
         foreach (array_chunk($keys, 50) as $chunk) {
             $assets = $this->em->getRepository(Asset::class)
                 ->findByKeys($chunk, $workspaceId);
+            $this->attributeFilterChecker->preloadForCurrentUser($assets);
 
             $ids = [];
             foreach ($assets as $asset) {

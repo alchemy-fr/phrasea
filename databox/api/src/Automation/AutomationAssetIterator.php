@@ -10,6 +10,7 @@ use App\Entity\Automation\SavedSearchAutomation;
 use App\Entity\Core\Asset;
 use App\Repository\Automation\AutomationSeenAssetRepository;
 use App\Repository\Core\AssetRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -27,6 +28,7 @@ final readonly class AutomationAssetIterator
         private AssetRepository $assetRepository,
         private AutomationSeenAssetRepository $seenAssetRepository,
         private Security $security,
+        private AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -47,6 +49,8 @@ final readonly class AutomationAssetIterator
 
         foreach ($ids as $searchBatch) {
             foreach (array_chunk($searchBatch, self::LOAD_BATCH_SIZE) as $chunk) {
+                // The search applied the attribute filter rules: the votes need not evaluate them again
+                $this->attributeFilterChecker->markReadable($user->getId(), $user->getGroups(), $chunk);
                 $assets = array_values(array_filter(
                     $this->assetRepository->findByIds($chunk),
                     fn (Asset $asset): bool => $this->security->isGranted(AbstractVoter::READ, $asset),

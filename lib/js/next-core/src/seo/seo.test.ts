@@ -3,7 +3,7 @@ import {describe, expect, it} from 'vitest';
 import {isIndexingAllowed} from './indexing';
 import {appMetadata, OG_IMAGE, pageMetadata, plainText} from './metadata';
 import {appManifest} from './manifest';
-import {appRobots} from './robots';
+import {appRobots, PREVIEW_ROBOTS} from './robots';
 
 describe('isIndexingAllowed', () => {
     it('reads ALLOW_INDEXING, else the default', () => {
@@ -162,5 +162,36 @@ describe('appRobots', () => {
                 disallow: '/',
             },
         });
+    });
+
+    it('opens the pages to the link preview robots on demand', () => {
+        expect(
+            appRobots({
+                allowIndexing: false,
+                allowPreviews: true,
+                disallow: ['/embed/'],
+            })
+        ).toEqual({
+            rules: [
+                {
+                    userAgent: '*',
+                    allow: ['/s/', '/api/og/'],
+                    disallow: '/',
+                },
+                {
+                    userAgent: PREVIEW_ROBOTS,
+                    allow: ['/', '/api/og/'],
+                    disallow: ['/auth/', '/api/', '/embed/'],
+                },
+            ],
+        });
+        expect(PREVIEW_ROBOTS).toContain('Twitterbot');
+        expect(PREVIEW_ROBOTS).toContain('LinkedInBot');
+    });
+
+    it('ignores allowPreviews when the app is indexed', () => {
+        expect(appRobots({allowIndexing: true, allowPreviews: true})).toEqual(
+            appRobots({allowIndexing: true})
+        );
     });
 });

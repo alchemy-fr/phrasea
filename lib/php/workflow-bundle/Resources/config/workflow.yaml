@@ -33,8 +33,6 @@ services:
     alchemy.workflow.job_trigger:
         class: Alchemy\Workflow\Trigger\MessengerJobTrigger
 
-    Alchemy\Workflow\Trigger\JobQueueResolver: ~
-
     Alchemy\Workflow\Message\JobConsumerHandler: ~
 
     alchemy.workflow.job_runner:
@@ -57,14 +55,13 @@ services:
 
     Alchemy\Workflow\Runner\RunnerInterface: '@alchemy.workflow.job_runner'
     Alchemy\Workflow\Trigger\JobTriggerInterface: '@alchemy.workflow.job_trigger'
-    Alchemy\Workflow\Trigger\JobQueueResolverInterface: '@Alchemy\Workflow\Trigger\JobQueueResolver'
     Alchemy\Workflow\State\Repository\StateRepositoryInterface: '@alchemy.workflow.state_repository'
     Alchemy\Workflow\Repository\WorkflowRepositoryInterface: '@alchemy.workflow.workflow_repository.default'
     Alchemy\Workflow\Validator\EventValidatorInterface: '@alchemy.workflow.event_validator'
 
-    Alchemy\Workflow\WorkflowOrchestrator:
-        arguments:
-            $queueResolver: '@Alchemy\Workflow\Trigger\JobQueueResolverInterface'
+    # The queue resolver is autowired: the application may alias JobQueueResolverInterface to its
+    # own, otherwise the orchestrator keeps the queue of each job
+    Alchemy\Workflow\WorkflowOrchestrator: ~
     alchemy.workflow.orchestrator: '@Alchemy\Workflow\WorkflowOrchestrator'
 
     Alchemy\WorkflowBundle\Executor\Adapter\Action\ServiceActionRegistry: ~

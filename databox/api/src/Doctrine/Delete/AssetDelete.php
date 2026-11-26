@@ -26,6 +26,16 @@ final readonly class AssetDelete
      */
     public function deleteAssets(array $assetIds, ?string $reason = null): void
     {
+        $this->deleteFromDatabase($assetIds, $reason);
+        $this->deleteFromIndex($assetIds);
+    }
+
+    /**
+     * The database part of deleteAssets(), which may run within a transaction:
+     * the index is left to deleteFromIndex(), once the transaction is committed.
+     */
+    public function deleteFromDatabase(array $assetIds, ?string $reason = null): void
+    {
         $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $assetIds);
         $deleted = [];
         DeferredIndexListener::disable();
@@ -52,7 +62,10 @@ final readonly class AssetDelete
         } finally {
             DeferredIndexListener::enable();
         }
+    }
 
+    public function deleteFromIndex(array $assetIds): void
+    {
         $this->elasticSearchClient->deleteByQuery(
             'asset',
             [

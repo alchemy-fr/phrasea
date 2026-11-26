@@ -12,6 +12,7 @@ parameters:
     env(AUDIT_LOG_RETENTION_DAYS): '365'
     # Seconds a download from a URL may last (files to ingest, transcripts…)
     app.download.max_duration: 900
+    alchemy_storage.download.max_duration: '%app.download.max_duration%'
     # Files downloaded at once by an export worker
     env(EXPORT_DOWNLOAD_CONCURRENCY): '8'
     # Each attribute definition adds fields to the asset index mapping, shared by every workspace

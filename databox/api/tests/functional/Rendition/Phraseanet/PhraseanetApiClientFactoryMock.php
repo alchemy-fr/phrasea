@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Rendition\Phraseanet;
 
+use App\Integration\IntegrationPrivateOrigins;
 use App\Integration\Phraseanet\PhraseanetApiClientFactory;
 use Symfony\Component\HttpClient\MockHttpClient;
 
@@ -15,7 +16,7 @@ class PhraseanetApiClientFactoryMock extends PhraseanetApiClientFactory
     {
         $this->mockClient = new MockHttpClient();
 
-        parent::__construct($this->mockClient);
+        parent::__construct($this->mockClient, new IntegrationPrivateOrigins(null, 'https://foo.bar', null));
     }
 
     public function shiftHistory(): array

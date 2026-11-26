@@ -91,7 +91,7 @@ class DashboardController extends AbstractAdminDashboardController
         );
         yield $this->createHomeStat(
             'Upload links',
-            'fa-solid fa-link',
+            'fa-solid fa-share-from-square',
             fn (): array => ['total' => $this->em->getRepository(UploadLink::class)->count()],
             $this->generateCrudUrl(UploadLinkCrudController::class),
         );
@@ -163,7 +163,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         yield $this->createHomeActivityBlock(
             'Latest upload links used',
-            'fa-solid fa-link',
+            'fa-solid fa-share-from-square',
             function (): iterable {
                 /** @var UploadLink[] $links */
                 $links = $this->em->getRepository(UploadLink::class)->createQueryBuilder('l')

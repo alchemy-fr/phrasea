@@ -50,6 +50,16 @@ class SearchIndexerDeduplicationTest extends TestCase
         $this->assertNotSame((string) $stamps[0]->getKey(), (string) $stamps[2]->getKey());
     }
 
+    public function testEachDeploymentHasItsOwnKeys(): void
+    {
+        $this->createIndexer(120, 'a_')->scheduleObjectsIndex(A::class, ['1'], Operation::Upsert);
+        $this->createIndexer(120, 'b_')->scheduleObjectsIndex(A::class, ['1'], Operation::Upsert);
+
+        [$a, $b] = array_map(fn (object $envelope): string => (string) $this->getStamp($envelope)->getKey(), $this->dispatched);
+        $this->assertNotSame($a, $b);
+        $this->assertStringStartsWith('dedup:a_'.ESIndex::class.':', $a);
+    }
+
     public function testNoDeduplicationWithoutTtl(): void
     {
         $this->createIndexer(0)->scheduleObjectsIndex(A::class, ['1'], Operation::Upsert);
@@ -67,7 +77,7 @@ class SearchIndexerDeduplicationTest extends TestCase
         return $stamps[0];
     }
 
-    private function createIndexer(float $deduplicationTtl): SearchIndexer
+    private function createIndexer(float $deduplicationTtl, string $deduplicationKeyPrefix = ''): SearchIndexer
     {
         $bus = $this->createStub(MessageBusInterface::class);
         $bus->method('dispatch')->willReturnCallback(function (object $message): Envelope {
@@ -84,6 +94,7 @@ class SearchIndexerDeduplicationTest extends TestCase
             [],
             false,
             deduplicationTtl: $deduplicationTtl,
+            deduplicationKeyPrefix: $deduplicationKeyPrefix,
         );
     }
 }

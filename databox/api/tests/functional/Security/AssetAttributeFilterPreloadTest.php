@@ -112,12 +112,27 @@ class AssetAttributeFilterPreloadTest extends AbstractDataboxTestCase
         });
     }
 
+    public function testQueriesOfTheRulesOfAnExportDoNotGrowWithTheAssets(): void
+    {
+        $this->assertQueriesOfTheRulesDoNotGrow(
+            fn (Workspace $workspace, int $count): array => $this->createAssets($workspace, $count, category: 'press'),
+            '/asset-exports',
+            static fn (array $assetIds): array => [
+                'assets' => $assetIds,
+                'renditions' => ['00000000-0000-0000-0000-000000000000'],
+            ],
+        );
+    }
+
     /**
      * @param callable(Workspace, int): string[] $createAssets
+     * @param (callable(string[]): array)|null   $createBody   the body of the POST request voting on the assets
      */
-    private function assertQueriesOfTheRulesDoNotGrow(callable $createAssets): void
+    private function assertQueriesOfTheRulesDoNotGrow(callable $createAssets, string $uri = '/assets/prepare-delete', ?callable $createBody = null): void
     {
-        // Assets voted on by POST /assets/prepare-delete, by workspace
+        $createBody ??= static fn (array $assetIds): array => ['ids' => $assetIds];
+
+        // Assets voted on by the request, by workspace
         $lists = [];
         foreach ([5, 20] as $count) {
             $workspace = $this->createWorkspace([
@@ -128,13 +143,13 @@ class AssetAttributeFilterPreloadTest extends AbstractDataboxTestCase
         }
 
         $client = static::createClient();
-        $countQueries = function (array $assetIds) use ($client): int {
+        $countQueries = function (array $assetIds) use ($client, $uri, $createBody): int {
             $client->enableProfiler();
-            $client->request('POST', '/assets/prepare-delete', [
+            $client->request('POST', $uri, [
                 'headers' => [
                     'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
                 ],
-                'json' => ['ids' => $assetIds],
+                'json' => $createBody($assetIds),
             ]);
             $this->assertResponseIsSuccessful();
 

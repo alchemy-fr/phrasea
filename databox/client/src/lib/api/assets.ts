@@ -626,7 +626,9 @@ export async function prepareQuarantineBatch(
 
 /**
  * Runs the action slice by slice (the server takes up to 100 assets at once),
- * one slice after the other.
+ * one slice after the other. The items of a slice that fails are reported as
+ * failed (reason `error`), so that the outcome of the slices already run is
+ * not lost; it rejects only when every slice failed.
  */
 export async function runQuarantineBatch(
     input: QuarantineBatchInput
@@ -637,15 +639,37 @@ export async function runQuarantineBatch(
         skipped: 0,
         failed: 0,
     };
-    for (const items of chunk(input.items, quarantineBatchSize)) {
-        const res = await api.post<QuarantineBatchResult>(
-            `/${EntityName.Asset}/quarantine/batch`,
-            {...input, items}
-        );
+    const slices = chunk(input.items, quarantineBatchSize);
+    let firstError: unknown;
+    let failedSlices = 0;
+    for (const items of slices) {
+        let res: QuarantineBatchResult;
+        try {
+            res = await api.post<QuarantineBatchResult>(
+                `/${EntityName.Asset}/quarantine/batch`,
+                {...input, items}
+            );
+        } catch (e) {
+            firstError ??= e;
+            failedSlices++;
+            res = {
+                results: items.map(i => ({
+                    id: i.id,
+                    status: 'failed',
+                    reason: 'error',
+                })),
+                processed: 0,
+                skipped: 0,
+                failed: items.length,
+            };
+        }
         total.results.push(...res.results);
         total.processed += res.processed;
         total.skipped += res.skipped;
         total.failed += res.failed;
+    }
+    if (failedSlices > 0 && failedSlices === slices.length) {
+        throw firstError;
     }
 
     return total;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Consumer\BulkOrigin;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Repository\Core\AssetRepository;
@@ -36,6 +37,7 @@ final class IngestWorkspaceAssetsCommand extends Command
         private readonly ManagerRegistry $doctrine,
         private readonly AssetRepository $assetRepository,
         private readonly WorkspaceAssetIngester $workspaceAssetIngester,
+        private readonly BulkOrigin $bulkOrigin,
     ) {
         parent::__construct();
     }
@@ -64,28 +66,34 @@ final class IngestWorkspaceAssetsCommand extends Command
 
         $progressBar = $io->createProgressBar(count($assetIds));
         $progressBar->start();
-        foreach ($assetIds as $assetId) {
-            try {
-                $asset = $this->em->find(Asset::class, $assetId);
-                if (null === $asset?->getSource()) {
-                    ++$skipped;
-                } else {
-                    $this->workspaceAssetIngester->ingestAsset($asset, null);
-                    ++$ingested;
-                }
-            } catch (\Throwable $e) {
-                ++$errors;
-                $progressBar->clear();
-                $io->error(sprintf('Asset "%s": %s', $assetId, $e->getMessage()));
-                $progressBar->display();
+        // A bulk processing, like the workspace ingestion task: the jobs of the workflows go to the bulk queues
+        $this->bulkOrigin->enter();
+        try {
+            foreach ($assetIds as $assetId) {
+                try {
+                    $asset = $this->em->find(Asset::class, $assetId);
+                    if (null === $asset?->getSource()) {
+                        ++$skipped;
+                    } else {
+                        $this->workspaceAssetIngester->ingestAsset($asset, null);
+                        ++$ingested;
+                    }
+                } catch (\Throwable $e) {
+                    ++$errors;
+                    $progressBar->clear();
+                    $io->error(sprintf('Asset "%s": %s', $assetId, $e->getMessage()));
+                    $progressBar->display();
 
-                if (!$this->em->isOpen()) {
-                    $this->doctrine->resetManager();
+                    if (!$this->em->isOpen()) {
+                        $this->doctrine->resetManager();
+                    }
                 }
+
+                $this->em->clear();
+                $progressBar->advance();
             }
-
-            $this->em->clear();
-            $progressBar->advance();
+        } finally {
+            $this->bulkOrigin->leave();
         }
         $progressBar->finish();
         $io->newLine(2);

@@ -24,6 +24,10 @@ while it still gets every idle process.
 | `bulk_heavy_low` | The non urgent heavy jobs (`queue: heavy_low`) of the workflows started by a bulk processing                                                                                                                   |
 | `task`           | Bulk orchestrations (workspace ingestion, asset import dispatch, automations, operation tasks), `ESPopulate`, `IndexAllAssets`, `IndexAllCollections`, `DeleteWorkspace`                                       |
 
+`IndexAllAssets` and `IndexAllCollections` only stay on `task` for every workspace: those of
+one workspace (an access granted or revoked on it, a new owner) go to `heavy`. The permissions
+are filtered in Elasticsearch, so a revoked access must not wait for the end of a populate.
+
 The heavy messages outside of the workflows are the dynamic renditions
 (`BuildDynamicRendition`), the story contact sheets, the image processing (`ProcessImageSet`),
 the similarity embeddings, the face recognition messages, `RekognitionAnalyze`, `RemoveBgCall`,

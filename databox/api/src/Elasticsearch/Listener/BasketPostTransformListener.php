@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Listener;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Entity\Basket\Basket;
@@ -24,10 +25,13 @@ final readonly class BasketPostTransformListener implements EventSubscriberInter
         }
 
         $document = $event->getDocument();
-        $users = $this->permissionManager->getAllowedUsers($basket, PermissionInterface::VIEW);
-        $groups = $this->permissionManager->getAllowedGroups($basket, PermissionInterface::VIEW);
-        $document->set('users', array_values(array_unique($users)));
-        $document->set('groups', array_values(array_unique($groups)));
+        // An ACE given to all users (null) is indexed under the wildcard, which BasketSearch matches
+        $toTerms = static fn (array $ids): array => array_values(array_unique(array_map(
+            static fn (?string $id): string => $id ?? AccessControlEntryInterface::USER_WILDCARD,
+            $ids,
+        )));
+        $document->set('users', $toTerms($this->permissionManager->getAllowedUsers($basket, PermissionInterface::VIEW)));
+        $document->set('groups', $toTerms($this->permissionManager->getAllowedGroups($basket, PermissionInterface::VIEW)));
     }
 
     public static function getSubscribedEvents(): array

@@ -1,4 +1,6 @@
 alchemy_es:
+    # Several deployments may share a Redis server: the deduplication locks are theirs only
+    deduplication_key_prefix: '%es_index_prefix%'
     admin:
         # The EasyAdmin ES screens only show/manage indices and aliases of this deployment
         index_prefix: '%es_index_prefix%'

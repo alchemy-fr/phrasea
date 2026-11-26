@@ -14,6 +14,7 @@ use App\Consumer\Handler\IngestWorkspaceAsset;
 use App\Consumer\Handler\Rendition\BuildDynamicRendition;
 use App\Consumer\Handler\Search\ESPopulate;
 use App\Consumer\Handler\Search\IndexAllAssets;
+use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Workspace\DeleteWorkspace;
 use App\Consumer\WorkerQueue;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -62,6 +63,17 @@ final class MessengerRoutingTest extends KernelTestCase
         yield 'populate' => [ESPopulate::class, WorkerQueue::TASK];
         yield 'index all assets' => [IndexAllAssets::class, WorkerQueue::TASK];
         yield 'workspace deletion' => [DeleteWorkspace::class, WorkerQueue::TASK];
+    }
+
+    /**
+     * The reindexation of one workspace does not wait behind a populate on task.
+     */
+    public function testTheReindexationOfAWorkspaceIsSentToHeavy(): void
+    {
+        $this->assertSame([WorkerQueue::HEAVY], $this->dispatch(IndexAllAssets::dispatchable('ws-1')));
+        $this->assertSame([WorkerQueue::HEAVY], $this->dispatch(IndexAllCollections::dispatchable('ws-1')));
+        $this->assertSame([WorkerQueue::TASK], $this->dispatch(IndexAllAssets::dispatchable()));
+        $this->assertSame([WorkerQueue::TASK], $this->dispatch(IndexAllCollections::dispatchable()));
     }
 
     #[DataProvider('getJobQueues')]

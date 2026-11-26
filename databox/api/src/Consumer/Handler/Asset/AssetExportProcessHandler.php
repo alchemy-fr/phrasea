@@ -25,6 +25,7 @@ use App\Model\ExportStatusEnum;
 use App\Model\MediaClip;
 use App\Model\UserData;
 use App\Repository\Core\AssetRenditionRepository;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributeMetadataEmbedder;
@@ -67,6 +68,7 @@ class AssetExportProcessHandler
         private readonly TermsPdfGenerator $termsPdfGenerator,
         private readonly LoggerInterface $logger,
         private readonly MediaClipper $mediaClipper,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
         #[Autowire(env: 'int:EXPORT_DOWNLOAD_CONCURRENCY')]
         private readonly int $downloadConcurrency,
     ) {
@@ -106,6 +108,12 @@ class AssetExportProcessHandler
             try {
                 // The files of a batch are downloaded at once, then processed one by one, in the order of the items
                 foreach (array_chunk($items, max(1, $this->downloadConcurrency) * self::BATCH_SIZE_FACTOR) as $batch) {
+                    // The attribute filter rules of the assets of the batch, evaluated at once
+                    $this->attributeFilterChecker->preload(
+                        $this->em->getRepository(Asset::class)->findByIds(array_values(array_unique(array_column($batch, 'assetId')))),
+                        $userData->id,
+                        $userData->groupsId,
+                    );
                     /** @var array<string, File> $toDownload */
                     $toDownload = [];
                     $batchTasks = [];

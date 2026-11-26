@@ -38,34 +38,33 @@ readonly class NotifyAssetTopicHandler extends AbstractNotifyHandler
             'authorId' => $authorId,
         ];
 
-        // The asset itself may already be gone (e.g. delete event); the selector
-        // only needs its id, which comes from the message.
-        $selectors = [
-            new NotifySelectorDto(
-                $event,
-                objectType: Asset::OBJECT_TYPE,
-                objectId: $assetId,
-                topic: new TopicDto(
-                    $topic,
-                    $notificationParams,
-                )
-            ),
-        ];
+        $assetTopic = new TopicDto($topic, $notificationParams);
+        if (null === $asset) {
+            // The asset is already gone (e.g. delete event): the selector only needs its id, which
+            // comes from the message.
+            $selectors = [new NotifySelectorDto($event, objectType: Asset::OBJECT_TYPE, objectId: $assetId, topic: $assetTopic)];
+        } else {
+            $readers = [];
+            $selectors = [$this->createReadersSelector(
+                new NotifySelectorDto($event, objectType: Asset::OBJECT_TYPE, objectId: $assetId),
+                $asset,
+                $assetTopic,
+                $readers,
+            )];
 
-        if (Asset::EVENT_UPDATE === $event && null !== $asset) {
-            foreach ($asset->getCollections() as $assetCollection) {
-                $notificationParams['collection'] = $assetCollection->getCollection()->getAbsoluteName();
+            if (Asset::EVENT_UPDATE === $event) {
+                foreach ($asset->getCollections() as $assetCollection) {
+                    $notificationParams['collection'] = $assetCollection->getCollection()->getAbsoluteName();
 
-                $selectors[] = new NotifySelectorDto(
-                    $event,
-                    objectType: Collection::OBJECT_TYPE,
-                    objectId: $assetCollection->getCollection()->getId(),
-                    topic: new TopicDto(
-                        $topic,
-                        $notificationParams,
-                    )
-                );
+                    $selectors[] = $this->createReadersSelector(
+                        new NotifySelectorDto($event, objectType: Collection::OBJECT_TYPE, objectId: $assetCollection->getCollection()->getId()),
+                        $asset,
+                        new TopicDto($topic, $notificationParams),
+                        $readers,
+                    );
+                }
             }
+            $selectors = array_values(array_filter($selectors));
         }
 
         $this->notifierManager->notify($selectors, new NotifyOptions(excludeUserId: $authorId));

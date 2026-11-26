@@ -8,6 +8,9 @@ export const dynamic = 'force-dynamic';
 export default function robots() {
     return appRobots({
         allowIndexing: isIndexingAllowed(process.env, INDEXING_DEFAULT),
+        // The link previews of the publications: their pages carry the
+        // `noindex` meta tag when the client is not to be indexed
+        allowPreviews: true,
         // The administration and the embedded players. Without the `$` and
         // the trailing slash, a rule would also hide the publications whose
         // slug starts with the same word.

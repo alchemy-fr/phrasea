@@ -2257,6 +2257,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type AlchemyEsConfig = array{
  *     async?: scalar|Param|null, // Default: true
  *     deduplication_ttl?: float|Param, // Asynchronous mode: an indexation message identical to one waiting in the queue is dropped (coalescing). The deduplication lock is released when the message is received, or after this TTL in seconds if it is lost. 0 disables it. Requires the Lock component and framework.lock. // Default: 900
+ *     deduplication_key_prefix?: scalar|Param|null, // Prefix of the deduplication lock keys: the deployments sharing a lock store (e.g. a Redis server) must each have their own, otherwise they drop each other's messages. Typically the prefix of your FOS Elastica index names, e.g. "%env(ELASTICSEARCH_INDEX_PREFIX)%". // Default: ""
  *     admin?: array{
  *         index_prefix?: scalar|Param|null, // Only physical indices and aliases whose name starts with this prefix are shown and manageable in the EasyAdmin screens (empty: everything). Typically the same prefix as your FOS Elastica index names, e.g. "%env(ELASTICSEARCH_INDEX_PREFIX)%". // Default: ""
  *     },

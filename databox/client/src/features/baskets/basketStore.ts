@@ -21,6 +21,7 @@ type State = {
     includeArchived: boolean;
     query: string;
     load: (options?: {force?: boolean}) => Promise<void>;
+    /** Never rejects: a failure is kept in `error` */
     loadMore: () => Promise<void>;
     setQuery: (query: string) => void;
     setIncludeArchived: (value: boolean) => void;
@@ -33,6 +34,10 @@ type State = {
 };
 
 const currentKey = 'dbx.basket.current';
+
+function errorMessage(e: unknown): string {
+    return e instanceof Error ? e.message : String(e);
+}
 
 export const useBasketStore = create<State>((set, get) => ({
     baskets: [],
@@ -69,19 +74,29 @@ export const useBasketStore = create<State>((set, get) => ({
             }));
         } catch (e: unknown) {
             // Called fire-and-forget from effects: the panel shows the failure
-            set({error: e instanceof Error ? e.message : String(e)});
+            set({error: errorMessage(e)});
         } finally {
             set({loading: false});
         }
     },
 
     loadMore: async () => {
-        const {next} = get();
-        if (!next) {
+        const {next, loading} = get();
+        if (!next || loading) {
             return;
         }
-        const page = await getBaskets({url: next});
-        set(s => ({baskets: [...s.baskets, ...page.items], next: page.next}));
+        set({loading: true, error: undefined});
+        try {
+            const page = await getBaskets({url: next});
+            set(s => ({
+                baskets: [...s.baskets, ...page.items],
+                next: page.next,
+            }));
+        } catch (e: unknown) {
+            set({error: errorMessage(e)});
+        } finally {
+            set({loading: false});
+        }
     },
 
     setQuery: query => {

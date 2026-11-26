@@ -43,7 +43,11 @@ import {useCloseRoute} from '@/components/modals/RouteDialog';
 import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
 import {ReplaceSourceDialog} from '@/features/assets/actions/ReplaceSourceDialog';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
-import {StoryCarousel, useStoryAssets} from './StoryCarousel';
+import {
+    StoryCarousel,
+    useStoryAssets,
+    useStoryPagesUntil,
+} from './StoryCarousel';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
 import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
@@ -241,6 +245,7 @@ export function AssetViewRoute({
         }
     }, [asset]);
     const story = useStoryAssets(storyId);
+    useStoryPagesUntil(story, storyId !== assetId ? assetId : undefined);
     // Same key as the viewer of the story: coming from its cover, it is cached
     const storyQuery = useQuery({
         queryKey: ['asset-view', storyId],

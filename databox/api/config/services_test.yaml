@@ -10,6 +10,12 @@ services:
     App\Service\Vector\EmbedderClient: '@App\Tests\Functional\Similarity\EmbedderClientMock'
     App\Tests\Functional\Integration\Expose\ExposeHttpClientMock:
         arguments: ['@http_client']
+    # The fake Expose of the tests (FakeExposeApi) stands for the Expose of the instance: its host
+    # may resolve to a private address, and the environment of the stack overrides .env.test
+    App\Integration\IntegrationPrivateOrigins:
+        autowire: true
+        arguments:
+            $privateOrigins: 'https://api-expose.phrasea.test'
     App\Integration\Phrasea\PhraseaClientFactory:
         autowire: true
         arguments:

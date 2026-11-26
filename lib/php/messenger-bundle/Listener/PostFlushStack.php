@@ -53,6 +53,29 @@ final class PostFlushStack
         $this->terminateStackListener->rollback();
     }
 
+    /**
+     * Taken before a unit of work that may fail, so that rollbackTo() only drops what it stacked.
+     *
+     * @return array{int, int}
+     */
+    public function mark(): array
+    {
+        return $this->terminateStackListener->mark();
+    }
+
+    /**
+     * Drops what was stacked since the mark: the callbacks and messages not flushed yet,
+     * and those deferred until the end of the request by a flush within a transaction.
+     *
+     * @param array{int, int} $mark
+     */
+    public function rollbackTo(array $mark): void
+    {
+        $this->callbacks = [];
+        $this->messages = [];
+        $this->terminateStackListener->rollbackTo($mark);
+    }
+
     public function postFlush(PostFlushEventArgs $args): void
     {
         $callbacks = $this->callbacks;

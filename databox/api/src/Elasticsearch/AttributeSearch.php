@@ -12,10 +12,12 @@ use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
+use App\Elasticsearch\AQL\UnsupportedEvaluationException;
 use App\Elasticsearch\Mapping\FieldInfoDto;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Security\AttributeFilterRuleFields;
 use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
@@ -623,5 +625,27 @@ class AttributeSearch
         }
 
         return $this->AQLToESQuery->createQuery($fieldClusters, $ast['data'], $options);
+    }
+
+    /**
+     * The query of an attribute filter rule, applied as a trusted condition.
+     *
+     * @throws UnsupportedEvaluationException the condition uses a field a rule cannot use
+     */
+    public function buildRuleConditionQuery(
+        array $fieldClusters,
+        string $condition,
+        array $options,
+    ): Query\AbstractQuery {
+        $ast = $this->AQLParser->parse($condition);
+        if (null === $ast) {
+            throw new BadRequestHttpException(sprintf('Invalid condition: %s', $condition));
+        }
+        AttributeFilterRuleFields::assertSupported($ast['data']);
+
+        return $this->AQLToESQuery->createQuery($fieldClusters, $ast['data'], [
+            ...$options,
+            AQLToESQuery::OPT_TRUSTED_CONDITIONS => true,
+        ]);
     }
 }

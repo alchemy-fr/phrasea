@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Basket\Basket;
@@ -149,10 +150,9 @@ class BasketSearch extends AbstractSearch
         $aclBoolQuery = new Query\BoolQuery();
 
         $aclBoolQuery->addShould(new Query\Term(['ownerId' => $userId]));
-        $aclBoolQuery->addShould(new Query\Term(['users' => $userId]));
-        if (!empty($groupIds)) {
-            $aclBoolQuery->addShould(new Query\Terms('groups', $groupIds));
-        }
+        // An ACE given to all users is indexed under the wildcard: it applies to any authenticated user
+        $aclBoolQuery->addShould(new Query\Terms('users', [$userId, AccessControlEntryInterface::USER_WILDCARD]));
+        $aclBoolQuery->addShould(new Query\Terms('groups', [...$groupIds, AccessControlEntryInterface::USER_WILDCARD]));
 
         return $aclBoolQuery;
     }

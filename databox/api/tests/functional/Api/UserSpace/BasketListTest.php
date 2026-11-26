@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api\UserSpace;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Basket\Basket;
 use App\Tests\Functional\AbstractSearchTestCase;
@@ -105,6 +106,24 @@ final class BasketListTest extends AbstractSearchTestCase
         $expected = [$own->getId(), $shared->getId()];
         sort($expected);
         $this->assertSame($expected, $ids);
+    }
+
+    public function testBasketSharedWithAllUsersIsListedForAnyone(): void
+    {
+        $shared = $this->createBasket(['name' => 'Shared with all', 'ownerId' => self::USER]);
+        $this->createBasket(['name' => 'Private', 'ownerId' => self::USER]);
+        self::getPermissionManager()->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_USER_VALUE,
+            AccessControlEntryInterface::USER_WILDCARD,
+            Basket::OBJECT_TYPE,
+            $shared->getId(),
+            PermissionInterface::VIEW,
+        );
+        self::populateSearchIndices();
+
+        foreach ([self::OTHER, self::ADMIN] as $userId) {
+            $this->assertSame([$shared->getId()], $this->memberIds($this->apiJson('GET', '/baskets', $userId)), $userId);
+        }
     }
 
     public function testQueryMatchesNameAndDescriptionWithHighlights(): void

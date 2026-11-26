@@ -260,6 +260,48 @@ describe('QuarantineScreen', () => {
         expect(api.prepareQuarantineBatch).toHaveBeenCalledTimes(1);
     });
 
+    it('tells when the eligibility could not be read and retries', async () => {
+        const assets = [quarantined(1), quarantined(2)];
+        api.searchAssets.mockResolvedValue({
+            items: assets,
+            total: assets.length,
+            facets: {},
+        });
+        api.getAssetDuplicates.mockResolvedValue([]);
+        api.prepareQuarantineBatch.mockRejectedValueOnce(
+            new Error('Bad Gateway')
+        );
+
+        renderScreen();
+        await waitFor(() => expect(queueItems()).toBe(2));
+        screen
+            .getAllByTestId('quarantine-queue-checkbox')
+            .forEach(box => fireEvent.click(box));
+
+        const alert = await screen.findByTestId(
+            'quarantine-batch-eligibility-failed'
+        );
+        expect(alert.textContent).toContain(
+            'The actions available to the selection could not be checked'
+        );
+        expect(api.prepareQuarantineBatch).toHaveBeenCalledTimes(1);
+
+        api.prepareQuarantineBatch.mockImplementation(async (ids: string[]) =>
+            ids.map(id => eligibility(id, {bypass: true}))
+        );
+        fireEvent.click(screen.getByRole('button', {name: /Retry/}));
+
+        await waitFor(() =>
+            expect(
+                screen.getByTestId('quarantine-batch-bypass').textContent
+            ).toBe('Bypass (2 of 2)')
+        );
+        expect(api.prepareQuarantineBatch).toHaveBeenCalledTimes(2);
+        expect(
+            screen.queryByTestId('quarantine-batch-eligibility-failed')
+        ).toBeNull();
+    });
+
     it('tells the user when nothing is quarantined', async () => {
         api.searchAssets.mockResolvedValue({items: [], total: 0, facets: {}});
         api.getAssetDuplicates.mockResolvedValue([]);

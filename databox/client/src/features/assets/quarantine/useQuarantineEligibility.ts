@@ -97,12 +97,16 @@ export function useQuarantineEligibility(ids: string[]) {
         setCache(new Map());
     }, []);
 
+    /** Asks again for the assets whose request failed */
+    const retry = useCallback(() => setFailedKey(undefined), []);
+
     return {
         /** Eligibility of the selected assets known so far, by asset ID */
         items: useMemo(() => new Map(items.map(i => [i.id, i])), [items]),
         counts,
         loading: missing.length > 0 && !failed,
         failed,
+        retry,
         invalidate,
     };
 }

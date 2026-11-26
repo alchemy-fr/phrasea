@@ -51,16 +51,20 @@ final class HttpFileDownload
 
             throw new DownloadTooLargeException($this->getUri(), $maxSize);
         }
-        if ('' !== $content) {
-            fwrite($this->fileHandler, $content);
+        // A full disk only shows as a short write: the caller removes the partial file (see fail())
+        if ('' !== $content && fwrite($this->fileHandler, $content) !== strlen($content)) {
+            throw new \RuntimeException(sprintf('Unable to write "%s"', $this->path));
         }
 
         if (!$chunk->isLast()) {
             return false;
         }
 
-        fclose($this->fileHandler);
+        $closed = fclose($this->fileHandler);
         $this->fileHandler = null;
+        if (!$closed) {
+            throw new \RuntimeException(sprintf('Unable to write "%s"', $this->path));
+        }
 
         return true;
     }

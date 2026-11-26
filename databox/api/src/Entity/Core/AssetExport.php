@@ -41,6 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
 )]
 #[ORM\Entity]
+#[ORM\Index(name: 'asset_export_created_at', columns: ['created_at'])]
 class AssetExport extends AbstractUuidEntity
 {
     use OwnerIdTrait;

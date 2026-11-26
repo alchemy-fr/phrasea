@@ -6,6 +6,17 @@ namespace App\Util;
 
 abstract class DateUtil
 {
+    /**
+     * A date, optionally followed by a time (minutes or seconds precision, optional fractional seconds)
+     * and a time zone. Any non-digit separates the date parts (2026-04-26, EXIF 2026:04:26…).
+     */
+    private const string DATE_PATTERN = '#^(\d{4})\D(\d{2})\D(\d{2})(?:[T\s](\d{2})\D(\d{2})(?:\D(\d{2})(?:\.(\d+))?)?)?\s*(Z|[+-]\d{2}:?\d{2})?$#i';
+
+    /**
+     * A string without a time zone (e.g. 2026-04-26 10:11 or EXIF DateTimeOriginal) is read in UTC.
+     * Fractional seconds are kept up to the microsecond, the further digits are dropped.
+     * A date that does not exist (2026-02-30, 2026-00-12…) or of year 0 is no date.
+     */
     public static function normalizeDate(mixed $date): ?\DateTimeImmutable
     {
         if (empty($date)) {
@@ -21,45 +32,36 @@ abstract class DateUtil
 
             return new \DateTimeImmutable('@'.$date);
         } elseif (is_string($date) || $date instanceof \Stringable) {
-            $value = trim((string) $date);
-            foreach ([
-                [
-                    'p' => '#^(\d{4})\D(\d{2})\D(\d{2})$#',
-                    'f' => '%04d-%02d-%02dT00:00:00Z',
-                    'm' => [1, 2, 3]],
-                [
-                    'p' => '#^(\d{4})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})$#',
-                    'f' => '%04d-%02d-%02dT%02d:%02d:%02dZ',
-                    'm' => [1, 2, 3, 4, 5, 6]],
-                [
-                    'p' => '#^(\d{4})\D(\d{2})\D(\d{2})T(\d{2})\D(\d{2})$#',
-                    'f' => '%04d-%02d-%02dT%02d:%02d:00Z',
-                    'm' => [1, 2, 3, 4, 5]],
-            ] as $tryout) {
-                $matches = [];
-                if (1 === preg_match($tryout['p'], $value, $matches)) {
-                    $args = array_map(fn (string $a): string => $matches[$a], $tryout['m']);
-                    $value = vsprintf($tryout['f'], $args);
-                    break;
-                }
-            }
-
-            $parsed = \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $value);
-            if (false === $parsed) {
-                // Browsers (Date.toISOString()) send fractional seconds, e.g. 2026-04-26T00:00:00.000Z
-                $parsed = \DateTimeImmutable::createFromFormat('Y-m-d\\TH:i:s.uP', $value);
-            }
-            if (false === $value = $parsed) {
+            $matches = [];
+            if (1 !== preg_match(self::DATE_PATTERN, trim((string) $date), $matches)) {
                 return null;
             }
 
-            $formatted = $value->format(\DateTimeInterface::ATOM);
-            if (str_starts_with($formatted, '-') || str_starts_with($formatted, '0000-00-00')) {
+            $value = sprintf(
+                '%s-%s-%sT%s:%s:%s.%s%s',
+                $matches[1],
+                $matches[2],
+                $matches[3],
+                ($matches[4] ?? '') ?: '00',
+                ($matches[5] ?? '') ?: '00',
+                ($matches[6] ?? '') ?: '00',
+                substr(($matches[7] ?? '') ?: '0', 0, 6),
+                strtoupper(($matches[8] ?? '') ?: 'Z'),
+            );
+
+            $parsed = \DateTimeImmutable::createFromFormat('Y-m-d\\TH:i:s.uP', $value);
+            $errors = \DateTimeImmutable::getLastErrors();
+            if (false === $parsed || (false !== $errors && $errors['warning_count'] > 0)) {
+                // Out of range values are not rolled over (2026-02-30 is not 2026-03-02)
+                return null;
+            }
+
+            if (str_starts_with($parsed->format(\DateTimeInterface::ATOM), '0000-')) {
                 // NULL dates
                 return null;
             }
 
-            return $value;
+            return $parsed;
         }
 
         return null;

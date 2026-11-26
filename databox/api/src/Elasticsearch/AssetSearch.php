@@ -10,6 +10,7 @@ use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
+use App\Elasticsearch\AQL\UnsupportedEvaluationException;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
@@ -628,11 +629,18 @@ class AssetSearch extends AbstractSearch
         foreach ($ruleSet as $wId => $conditions) {
             foreach ($conditions as $condition) {
                 try {
-                    $conditionQuery = $this->attributeSearch->buildConditionQuery(
+                    $conditionQuery = $this->attributeSearch->buildRuleConditionQuery(
                         $attributeGroups,
                         $condition,
-                        [...$options, AQLToESQuery::OPT_TRUSTED_CONDITIONS => true]
+                        $options,
                     );
+                } catch (UnsupportedEvaluationException $e) {
+                    $this->logger->warning('Attribute filter rule condition not evaluable', [
+                        'workspaceId' => $wId,
+                        'condition' => $condition,
+                        'error' => $e->getMessage(),
+                    ]);
+                    $conditionQuery = new Query\MatchNone();
                 } catch (\Throwable $e) {
                     // Fail-closed: hide the whole workspace rather than breaking search or leaking assets
                     $this->logger->error('Invalid attribute filter rule condition', [

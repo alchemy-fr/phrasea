@@ -18,6 +18,13 @@ final class Version20261124180000 extends AbstractMigration
         SQL;
 
     /**
+     * Zero years, months or days (e.g. 0000-00-00T00:00:00.000Z) only have the form of a date: they stay invalid.
+     */
+    private const string NULL_DATE_PATTERN = <<<'SQL'
+        '^(0000-|\d{4}-00-|\d{4}-\d{2}-00)'
+        SQL;
+
+    /**
      * Same result as DateUtil::normalizeDate($value)->format(DATE_ATOM) for the values matching the pattern above:
      * fractional seconds dropped, +HHMM turned into +HH:MM and Z into +00:00.
      */
@@ -48,10 +55,12 @@ final class Version20261124180000 extends AbstractMigration
                       AND d.type IN ('date', 'date_time')
                       AND t.invalid = true
                       AND t.value ~ %s
+                      AND t.value !~ %s
                     SQL,
                 $table,
                 self::ATOM_EXPRESSION,
                 self::FRACTIONAL_DATE_PATTERN,
+                self::NULL_DATE_PATTERN,
             ));
         }
     }

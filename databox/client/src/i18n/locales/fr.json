@@ -1426,6 +1426,7 @@
     "quarantine.batch.clear": "Désélectionner",
     "quarantine.batch.count": "{{eligible}} sur {{total}}",
     "quarantine.batch.delete_warning": "Les assets seront supprimés définitivement, sans passer par la corbeille.",
+    "quarantine.batch.eligibility_failed": "Les actions possibles sur la sélection n'ont pas pu être vérifiées",
     "quarantine.batch.ignored_list_one": "{{count}} asset ignoré",
     "quarantine.batch.ignored_list_other": "{{count}} assets ignorés",
     "quarantine.batch.merge_help": "Les valeurs des assets existants sont conservées.",

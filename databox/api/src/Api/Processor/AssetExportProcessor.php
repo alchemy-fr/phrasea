@@ -13,6 +13,7 @@ use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetExport;
 use App\Model\AuditLogActionEnum;
+use App\Security\AssetAttributeFilterChecker;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Log\AuditLogManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,6 +27,7 @@ class AssetExportProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly MessageBusInterface $bus,
         private readonly AuditLogManager $auditLogManager,
+        private readonly AssetAttributeFilterChecker $attributeFilterChecker,
     ) {
     }
 
@@ -41,9 +43,13 @@ class AssetExportProcessor implements ProcessorInterface
         $basketIds = [];
         if (null !== $basketAssetIds = $data->getBasketAssets()) {
             $assetIds = [];
-            foreach ($basketAssetIds as $basketAssetId) {
-                /** @var BasketAsset $basketAsset */
-                $basketAsset = DoctrineUtil::findStrict($this->em, BasketAsset::class, $basketAssetId, throw404: true);
+            /** @var BasketAsset[] $basketAssets */
+            $basketAssets = array_map(
+                fn ($basketAssetId): BasketAsset => DoctrineUtil::findStrict($this->em, BasketAsset::class, $basketAssetId, throw404: true),
+                $basketAssetIds,
+            );
+            $this->attributeFilterChecker->preloadForCurrentUser(array_map(static fn (BasketAsset $basketAsset): Asset => $basketAsset->getAsset(), $basketAssets));
+            foreach ($basketAssets as $basketAsset) {
                 $this->denyAccessUnlessGranted(AbstractVoter::READ, $basketAsset->getBasket());
                 $this->denyAccessUnlessGranted(AbstractVoter::READ, $basketAsset->getAsset());
                 $assetIds[$basketAsset->getAsset()->getId()] = true;
@@ -53,11 +59,13 @@ class AssetExportProcessor implements ProcessorInterface
             $data->setAssets(array_keys($assetIds));
         }
 
-        $assets = [];
-        foreach ($data->getAssets() as $assetId) {
-            $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
+        $assets = array_map(
+            fn ($assetId): Asset => DoctrineUtil::findStrict($this->em, Asset::class, $assetId),
+            $data->getAssets(),
+        );
+        $this->attributeFilterChecker->preloadForCurrentUser($assets);
+        foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
-            $assets[] = $asset;
         }
 
         $user = $this->getStrictUser();

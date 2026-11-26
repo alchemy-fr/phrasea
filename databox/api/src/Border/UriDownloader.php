@@ -44,6 +44,8 @@ readonly class UriDownloader
         $client = $this->createClient($uri, $allowPrivateNetwork);
         $response = $client->request('GET', $uri, [
             'max_duration' => $this->maxDuration,
+            // Written to the file chunk by chunk: no copy of the body in memory or php://temp
+            'buffer' => false,
         ]);
 
         $path ??= sys_get_temp_dir().'/'.uniqid('download-file');
@@ -78,6 +80,7 @@ readonly class UriDownloader
 
             $requests[$path] = fn (): ResponseInterface => $client->request('GET', $uri, [
                 'max_duration' => $this->maxDuration,
+                'buffer' => false,
             ]);
         }
 

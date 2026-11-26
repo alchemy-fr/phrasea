@@ -41,7 +41,7 @@ final readonly class WorkspaceOwnerChangeListener
 
         $workspaceId = $workspace->getId();
         $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new ComputeWorkspaceCollections($workspaceId)));
-        $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new IndexAllCollections($workspaceId)));
-        $this->postFlushStack->addBusMessage(MessageDeduplication::coalesce(new IndexAllAssets($workspaceId)));
+        $this->postFlushStack->addBusMessage(IndexAllCollections::dispatchable($workspaceId));
+        $this->postFlushStack->addBusMessage(IndexAllAssets::dispatchable($workspaceId));
     }
 }

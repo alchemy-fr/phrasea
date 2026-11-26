@@ -12,6 +12,7 @@ use App\Model\QuarantineBatchActionEnum;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * The ways out of quarantine, and the rules telling whether a quarantined
@@ -37,6 +38,7 @@ class QuarantineResolver
         private readonly AssetManager $assetManager,
         private readonly AssetDelete $assetDelete,
         private readonly DuplicateAssetResolver $duplicateAssetResolver,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -67,10 +69,23 @@ class QuarantineResolver
     {
         $file = $quarantined->getSource() ?? throw new \InvalidArgumentException('Quarantined asset has no source file.');
 
-        $this->assetManager->assignNewAssetSourceFile($target, $file);
-        $this->em->flush();
+        $quarantinedId = $quarantined->getId();
+        // The target never loses its source without the quarantined asset being removed, nor the opposite
+        $this->em->wrapInTransaction(function () use ($quarantinedId, $target, $file): void {
+            $this->assetManager->assignNewAssetSourceFile($target, $file);
+            $this->em->flush();
 
-        $this->assetDelete->deleteAssets([$quarantined->getId()]);
+            $this->assetDelete->deleteFromDatabase([$quarantinedId]);
+        });
+
+        try {
+            $this->assetDelete->deleteFromIndex([$quarantinedId]);
+        } catch (\Throwable $e) {
+            // The asset is gone from the database: its document only lingers in the index
+            $this->logger->error(sprintf('Unable to remove the merged asset %s from the index: %s', $quarantinedId, $e->getMessage()), [
+                'exception' => $e,
+            ]);
+        }
     }
 
     /**
@@ -88,7 +103,8 @@ class QuarantineResolver
 
         $targets = [];
         foreach ($this->duplicateAssetResolver->resolveDuplicates($source, excludeAssetId: $asset->getId()) as $duplicate) {
-            $duplicate['validTarget'] = $duplicate['asset']->getWorkspaceId() === $asset->getWorkspaceId()
+            $duplicate['validTarget'] = self::isAccepted($duplicate['asset'])
+                && $duplicate['asset']->getWorkspaceId() === $asset->getWorkspaceId()
                 && $this->isGranted(AbstractVoter::EDIT, $duplicate['asset']);
             $targets[] = $duplicate;
         }
@@ -176,6 +192,14 @@ class QuarantineResolver
     }
 
     /**
+     * A duplicate still pending or in quarantine may itself be rejected: it cannot stand for the incoming file.
+     */
+    private static function isAccepted(Asset $duplicate): bool
+    {
+        return AssetStatusEnum::Accepted === $duplicate->getStatus();
+    }
+
+    /**
      * @param list<MergeTarget> $mergeTargets
      */
     private function checkMergeEligibility(Asset $asset, bool $addAsVersion, array $mergeTargets): ?string
@@ -186,7 +210,12 @@ class QuarantineResolver
                 return self::REASON_FORBIDDEN;
             }
 
-            return empty($mergeTargets) ? self::REASON_NO_DUPLICATE : null;
+            if (empty($mergeTargets)) {
+                return self::REASON_NO_DUPLICATE;
+            }
+
+            // The incoming file is only redundant with a duplicate already let in
+            return array_any($mergeTargets, static fn (array $t): bool => self::isAccepted($t['asset'])) ? null : self::REASON_NO_VALID_TARGET;
         }
 
         if (!$this->isGranted(AssetVoter::QUARANTINE_BYPASS, $asset)) {

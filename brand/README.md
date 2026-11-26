@@ -33,7 +33,7 @@ For each Next.js client (`databox`, `expose`, `uploader`, `dashboard`), in
 | ------------------------------------------ | --------------------------------------------------------------------- |
 | `favicon.svg`                              | The SVG, 512 × 512                                                    |
 | `favicon.ico`                              | 16, 32, 48 and 64 px                                                  |
-| `apple-touch-icon.png`                     | 180 px, transparent                                                   |
+| `apple-touch-icon.png`                     | 180 px: logo 140 px high on `#fafafa`, iOS showing transparency black |
 | `icons/icon-192.png`, `icons/icon-512.png` | Manifest icons, transparent                                           |
 | `icons/icon-maskable-512.png`              | Maskable manifest icon: logo 308 px high on `#fafafa`                 |
 | `icons/og-image.png`                       | Open Graph / Twitter image, 1200 × 630: logo 420 px high on `#fafafa` |

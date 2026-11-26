@@ -95,6 +95,8 @@ final readonly class TransformationContext implements TransformationContextInter
     {
         $response = $this->client->request('GET', $uri, [
             'max_duration' => $this->maxDownloadDuration,
+            // Written to the file chunk by chunk: no copy of the body in memory or php://temp
+            'buffer' => false,
         ]);
 
         HttpDownloadUtil::streamToFile($this->client, $response, $dest, $this->maxDownloadSize);

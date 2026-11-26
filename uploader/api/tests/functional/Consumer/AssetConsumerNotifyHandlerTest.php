@@ -144,6 +144,7 @@ class AssetConsumerNotifyHandlerTest extends AbstractUploaderTestCase
         return [
             'Private IP' => ['https://10.0.0.1/enqueue'],
             'Loopback host' => ['http://localhost/api/v1/upload/enqueue/'],
+            'IPv4-mapped IPv6 address' => ['http://[::ffff:10.0.0.1]/'],
         ];
     }
 

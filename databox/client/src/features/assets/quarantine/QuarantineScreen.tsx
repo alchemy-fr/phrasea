@@ -263,6 +263,8 @@ export function QuarantineScreen() {
                         total={selection.ids.length}
                         counts={eligibility.counts}
                         loading={eligibility.loading}
+                        failed={eligibility.failed}
+                        onRetry={eligibility.retry}
                         onClear={selection.clear}
                         onRun={runBatch}
                     />

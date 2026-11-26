@@ -14,6 +14,12 @@ use Symfony\Component\Messenger\Stamp\DeduplicateStamp;
 
 class MessageDeduplicationTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        // A kernel booted by another test sets the prefix of its deployment
+        MessageDeduplication::setKeyPrefix('');
+    }
+
     public function testSamePayloadGivesTheSameKey(): void
     {
         $this->assertSame(
@@ -48,6 +54,21 @@ class MessageDeduplicationTest extends TestCase
             $this->getKey(MessageDeduplication::coalesce(new IndexAllAssets('ws-1'))),
             $this->getKey(MessageDeduplication::coalesce(new IndexAllCollections('ws-1'))),
         );
+    }
+
+    public function testEachDeploymentHasItsOwnKeys(): void
+    {
+        try {
+            MessageDeduplication::setKeyPrefix('a_');
+            $a = $this->getKey(MessageDeduplication::coalesce(new IndexAllAssets('ws-1')));
+            MessageDeduplication::setKeyPrefix('b_');
+            $b = $this->getKey(MessageDeduplication::coalesce(new IndexAllAssets('ws-1')));
+        } finally {
+            MessageDeduplication::setKeyPrefix('');
+        }
+
+        $this->assertNotSame($a, $b);
+        $this->assertStringStartsWith('dedup:a_'.IndexAllAssets::class.':', $a);
     }
 
     public function testCoalesceReleasesTheLockOnReception(): void

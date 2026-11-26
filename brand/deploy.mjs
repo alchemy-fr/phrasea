@@ -46,7 +46,8 @@ const targets = [
             {
                 logo: app,
                 path: `${dir}/apple-touch-icon.png`,
-                render: icon(180),
+                // iOS shows the transparent pixels in black
+                render: onBackground(180, 180, 140),
             },
             {logo: app, path: `${dir}/icons/icon-192.png`, render: icon(192)},
             {logo: app, path: `${dir}/icons/icon-512.png`, render: icon(512)},

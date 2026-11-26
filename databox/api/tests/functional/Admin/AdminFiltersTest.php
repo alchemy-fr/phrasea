@@ -8,6 +8,7 @@ use Alchemy\TestBundle\Helper\TestServicesTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceCreator;
 use App\Tests\Functional\DataboxTestTrait;
@@ -72,6 +73,32 @@ class AdminFiltersTest extends AbstractDataboxAdminTestCase
         $crawler = $this->client->request('GET', '/admin/asset', ['filters' => ['id' => $attribute->getAsset()->getId()]]);
         $this->assertResponseIsSuccessful();
         $this->assertCount(1, $crawler->filter(sprintf('tr[data-id="%s"]', $attribute->getAsset()->getId())));
+    }
+
+    public function testFilterOnAToManyAssociationIdentifier(): void
+    {
+        $em = $this->getEntityManager();
+        $asset = $this->createAsset();
+        $kept = new Share();
+        $kept->setName('Kept share');
+        $kept->setOwnerId('custom_owner');
+        $kept->addAsset($asset);
+        $em->persist($kept);
+        $filteredOut = new Share();
+        $filteredOut->setName('Filtered out share');
+        $filteredOut->setOwnerId('custom_owner');
+        $filteredOut->addAsset($this->createAsset());
+        $em->persist($filteredOut);
+        $em->flush();
+
+        $crawler = $this->client->request('GET', '/admin/share', ['filters' => ['assets' => $asset->getId()]]);
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(1, $crawler->filter(sprintf('tr[data-id="%s"]', $kept->getId())));
+        $this->assertCount(0, $crawler->filter(sprintf('tr[data-id="%s"]', $filteredOut->getId())));
+
+        $crawler = $this->client->request('GET', '/admin/share', ['filters' => ['assets' => 'not-a-uuid']]);
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(0, $crawler->filter('tr[data-id]'));
     }
 
     private function createAttribute(Asset $asset, AttributeDefinition $definition): Attribute

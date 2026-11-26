@@ -1,10 +1,10 @@
 import type {Asset} from '@/types/api';
 
 /** The asset an URL segment addresses: by id, else by slug */
-export function findAsset(
-    assets: Asset[],
+export function findAsset<T extends Pick<Asset, 'id' | 'slug'>>(
+    assets: T[],
     key: string | undefined
-): Asset | undefined {
+): T | undefined {
     if (!key) {
         return undefined;
     }

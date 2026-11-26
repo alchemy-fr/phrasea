@@ -1,10 +1,16 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 const get = vi.fn();
+const post = vi.fn();
 
-vi.mock('./http', () => ({api: {get: (...args: unknown[]) => get(...args)}}));
+vi.mock('./http', () => ({
+    api: {
+        get: (...args: unknown[]) => get(...args),
+        post: (...args: unknown[]) => post(...args),
+    },
+}));
 
-import {ASSET_IDS_CHUNK, getAssetsByIds} from './assets';
+import {ASSET_IDS_CHUNK, getAssetsByIds, runQuarantineBatch} from './assets';
 
 function idList(count: number): string[] {
     return Array.from({length: count}, (_, i) => `id-${i}`);
@@ -56,5 +62,49 @@ describe('getAssetsByIds', () => {
     it('sends no request without ids', async () => {
         expect(await getAssetsByIds([])).toEqual([]);
         expect(get).not.toHaveBeenCalled();
+    });
+});
+
+describe('runQuarantineBatch', () => {
+    beforeEach(() => {
+        post.mockReset();
+    });
+
+    const items = (count: number) => idList(count).map(id => ({id}));
+    const processed = (ids: {id: string}[]) => ({
+        results: ids.map(({id}) => ({id, status: 'processed'})),
+        processed: ids.length,
+        skipped: 0,
+        failed: 0,
+    });
+
+    it('keeps the outcome of the slices run before a failing one', async () => {
+        post.mockImplementationOnce((_url, body) =>
+            Promise.resolve(processed(body.items))
+        );
+        post.mockRejectedValueOnce(new Error('Bad Gateway'));
+
+        const result = await runQuarantineBatch({
+            action: 'bypass',
+            items: items(150),
+        });
+
+        expect(post).toHaveBeenCalledTimes(2);
+        expect(post.mock.calls[1][1].items).toHaveLength(50);
+        expect(result).toMatchObject({processed: 100, skipped: 0, failed: 50});
+        expect(result.results).toHaveLength(150);
+        expect(result.results[100]).toEqual({
+            id: 'id-100',
+            status: 'failed',
+            reason: 'error',
+        });
+    });
+
+    it('rejects when every slice failed', async () => {
+        post.mockRejectedValue(new Error('Bad Gateway'));
+
+        await expect(
+            runQuarantineBatch({action: 'bypass', items: items(3)})
+        ).rejects.toThrow('Bad Gateway');
     });
 });

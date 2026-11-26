@@ -158,6 +158,27 @@ class ObjectDownloaderTest extends TestCase
         }
     }
 
+    public function testTheTransferIsBounded(): void
+    {
+        $this->objects = ['a/1.jpg' => 'one'];
+        $options = null;
+        $handler = function (CommandInterface $command) use (&$options): PromiseInterface {
+            $options = $command['@http'];
+
+            return Create::promiseFor(new Result(['Body' => Utils::streamFor($this->objects[$command['Key']])]));
+        };
+        $downloader = new ObjectDownloader($this->createClient($handler), self::BUCKET, timeout: 120.0);
+
+        $this->assertSame([], $downloader->downloadMany([$this->dir.'/first.jpg' => 'a/1.jpg'], 1));
+        $this->assertSame($this->dir.'/first.jpg', $options['sink']);
+        $this->assertSame(10, $options['connect_timeout']);
+        $this->assertSame(120.0, $options['timeout']);
+        $this->assertSame([
+            \CURLOPT_LOW_SPEED_LIMIT => 1,
+            \CURLOPT_LOW_SPEED_TIME => 60,
+        ], $options['curl']);
+    }
+
     public function testNothingToDownload(): void
     {
         $downloader = new ObjectDownloader($this->createClient($this->createMemoryHandler()), self::BUCKET);

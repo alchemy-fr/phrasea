@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Consumer\MessageDeduplication;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
@@ -11,6 +12,14 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
+
+    #[\Override]
+    public function boot(): void
+    {
+        parent::boot();
+
+        MessageDeduplication::setKeyPrefix((string) $this->getContainer()->getParameter('es_index_prefix'));
+    }
 
     protected function configureContainer(ContainerConfigurator $container): void
     {

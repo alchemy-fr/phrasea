@@ -180,7 +180,8 @@ class DashboardController extends AbstractAdminDashboardController
             'Collections',
             'fa-solid fa-folder',
             fn (): array => PeriodCounter::fromQueryBuilder($this->em->getRepository(Collection::class)->createQueryBuilder('c')
-                ->andWhere('c.deletedAt IS NULL'), 'c.createdAt'),
+                ->andWhere('c.deletedAt IS NULL')
+                ->andWhere('c.storyAsset IS NULL'), 'c.createdAt'),
             $this->generateCrudUrl(CollectionCrudController::class),
         );
         yield $this->createHomeStat(

@@ -31,6 +31,25 @@ final class TerminateStackListener
         $this->messages = [];
     }
 
+    /**
+     * @return array{int, int} what is stacked so far, for rollbackTo()
+     */
+    public function mark(): array
+    {
+        return [count($this->callbacks), count($this->messages)];
+    }
+
+    /**
+     * Drops what was stacked after the mark, keeping what was before.
+     *
+     * @param array{int, int} $mark
+     */
+    public function rollbackTo(array $mark): void
+    {
+        array_splice($this->callbacks, $mark[0]);
+        array_splice($this->messages, $mark[1]);
+    }
+
     public function addCallback(callable $callback): void
     {
         $this->callbacks[] = $callback;

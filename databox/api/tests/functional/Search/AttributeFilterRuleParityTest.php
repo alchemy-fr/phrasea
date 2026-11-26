@@ -12,6 +12,8 @@ use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\DocumentTextAnalyzer;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractSearchTestCase;
 use Elastica\Index;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -219,6 +221,64 @@ class AttributeFilterRuleParityTest extends AbstractSearchTestCase
         ] as $condition) {
             yield $condition => [$condition];
         }
+    }
+
+    /**
+     * A story gives access to its members whatever its own rules: only the rules of the member apply,
+     * in the search (AssetPermissionComputer) as when reading it.
+     */
+    public function testAMemberOfAStoryHiddenByARuleIsReadThroughTheStory(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $category = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Category',
+            'slug' => 'category',
+            'type' => KeywordAttributeType::NAME,
+        ]);
+
+        $story = $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Story',
+            'public' => true,
+            'attributes' => [['definition' => $category, 'value' => 'internal']],
+        ]);
+        $storyCollection = new Collection();
+        $storyCollection->setWorkspace($workspace);
+        $storyCollection->setOwnerId('custom_owner');
+        $em = self::getEntityManager();
+        $em->persist($storyCollection);
+        $story->setStoryCollection($storyCollection);
+        $em->flush();
+
+        // Secret: only the story opens it
+        $member = $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Member',
+            'collectionId' => $storyCollection->getId(),
+            'attributes' => [['definition' => $category, 'value' => 'press']],
+        ]);
+        $this->assertSame(WorkspaceItemPrivacyInterface::SECRET, $member->getPrivacy());
+
+        self::getAttributeFilterManager()->saveRule($workspace, [KeycloakClientTestMock::USER_UID], [], 'category = "press"');
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $headers = [
+            'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+        ];
+        $client = static::createClient();
+
+        $data = $this->getDataFromResponse($client->request('GET', '/assets', ['headers' => $headers]), 200)['member'];
+        $this->assertSame(['Member'], array_map(static fn (array $asset): string => $asset['name'], $data));
+
+        $client->request('GET', '/assets/'.$member->getId(), ['headers' => $headers]);
+        $this->assertResponseStatusCodeSame(200);
+        $client->request('GET', '/assets/'.$story->getId(), ['headers' => $headers]);
+        $this->assertResponseStatusCodeSame(403);
     }
 
     /**

@@ -6,7 +6,10 @@ namespace App\Tests\Functional\Api\Asset;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
+use App\Entity\Workflow\WorkflowState;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Events;
 
 /**
  * Batch resolution of the quarantine: POST /assets/quarantine/prepare-batch
@@ -198,6 +201,77 @@ final class AssetQuarantineBatchTest extends AbstractDataboxTestCase
         $this->assertSame($file->getId(), $this->reloadAsset($target->getId())->getSource()->getId());
     }
 
+    public function testAQuarantinedDuplicateIsNoMergeTarget(): void
+    {
+        $workspace = $this->createQuarantineWorkspace();
+        [$first, $firstFile] = $this->createQuarantinedAsset($workspace);
+        [$second, $secondFile] = $this->createQuarantinedAsset($workspace);
+        $this->linkDuplicate($firstFile, $secondFile, 'checksum');
+        $this->linkDuplicate($secondFile, $firstFile, 'checksum');
+
+        $items = $this->prepare(self::OTHER, [$first->getId(), $second->getId()]);
+
+        foreach ([[$first, $second], [$second, $first]] as [$asset, $duplicate]) {
+            $item = $items[$asset->getId()];
+            $this->assertEligibility(['bypass', 'trash', 'delete'], $item);
+            $this->assertSame(['mergeAsVersion' => 'no_valid_target', 'mergeDiscard' => 'no_valid_target'], $item['reasons']);
+            $this->assertSame($duplicate->getId(), $item['duplicates'][0]['asset']['id']);
+            $this->assertFalse($item['duplicates'][0]['validTarget']);
+        }
+
+        $data = $this->batch(self::OTHER, 'merge', [['id' => $first->getId(), 'targetId' => $second->getId()]]);
+        $this->assertSame([['id' => $first->getId(), 'status' => 'skipped', 'reason' => 'no_valid_target']], $data['results']);
+        $this->assertNotNull($this->reloadAsset($first->getId()));
+    }
+
+    public function testAFailedMergeIsUndoneWithoutStoppingTheOthers(): void
+    {
+        $workspace = $this->createQuarantineWorkspace();
+        $pairs = [];
+        for ($i = 0; $i < 3; ++$i) {
+            [$quarantined, $file] = $this->createQuarantinedAsset($workspace);
+            $target = $this->createAssetWithSource($workspace, ['ownerId' => self::OWNER]);
+            $this->linkDuplicate($file, $target->getSource(), 'checksum');
+            $pairs[] = [$quarantined->getId(), $file->getId(), $target->getId(), $target->getSource()->getId()];
+        }
+        [$failingId, , $failingTargetId, $failingTargetSourceId] = $pairs[1];
+
+        // Fails once the target got its new source, when the quarantined asset is removed
+        self::getEntityManager()->getEventManager()->addEventListener(Events::onFlush, new class($failingId) {
+            public function __construct(private readonly string $assetId)
+            {
+            }
+
+            public function onFlush(OnFlushEventArgs $args): void
+            {
+                foreach ($args->getObjectManager()->getUnitOfWork()->getScheduledEntityDeletions() as $entity) {
+                    if ($entity instanceof Asset && $entity->getId() === $this->assetId) {
+                        throw new \RuntimeException('Deletion failure');
+                    }
+                }
+            }
+        });
+
+        $data = $this->batch(self::OTHER, 'merge', array_map(static fn (array $pair): array => ['id' => $pair[0]], $pairs));
+
+        $this->assertSame([
+            ['id' => $pairs[0][0], 'status' => 'processed'],
+            ['id' => $failingId, 'status' => 'failed', 'reason' => 'error'],
+            ['id' => $pairs[2][0], 'status' => 'processed'],
+        ], $data['results']);
+
+        foreach ([$pairs[0], $pairs[2]] as [$quarantinedId, $fileId, $targetId]) {
+            $this->assertNull($this->reloadAsset($quarantinedId));
+            $this->assertSame($fileId, $this->reloadAsset($targetId)->getSource()->getId());
+            $this->assertNotEmpty($this->findWorkflowStates($targetId), 'the ingest workflow of a merged target is started');
+        }
+
+        // Nothing of the failed merge is left
+        $this->assertSame(AssetStatusEnum::Quarantined, $this->reloadAsset($failingId)->getStatus());
+        $this->assertSame($failingTargetSourceId, $this->reloadAsset($failingTargetId)->getSource()->getId());
+        $this->assertSame([], $this->findWorkflowStates($failingTargetId));
+    }
+
     public function testBatchMergeDiscardingTheIncomingFile(): void
     {
         $workspace = $this->createQuarantineWorkspace();
@@ -273,6 +347,17 @@ final class AssetQuarantineBatchTest extends AbstractDataboxTestCase
 
         $this->request('POST', '/assets/quarantine/batch', self::OTHER, ['action' => 'bypass', 'items' => []]);
         $this->assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return WorkflowState[]
+     */
+    private function findWorkflowStates(string $assetId): array
+    {
+        $em = self::getEntityManager();
+        $em->clear();
+
+        return $em->getRepository(WorkflowState::class)->findBy(['asset' => $assetId]);
     }
 
     /**

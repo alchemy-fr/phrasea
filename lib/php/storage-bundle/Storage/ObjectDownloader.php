@@ -17,12 +17,16 @@ use Psr\Http\Message\StreamInterface;
  */
 final readonly class ObjectDownloader
 {
+    public const int CONNECT_TIMEOUT = 10;
+    public const int STALLED_TIMEOUT = 60;
+
     private PathPrefixer $prefixer;
 
     public function __construct(
         private S3Client $client,
         private string $bucketName,
         string $pathPrefix = '',
+        private float $timeout = 900.0,
     ) {
         // The key under which the Flysystem adapter (FileStorageManager) writes the objects
         $this->prefixer = new PathPrefixer($pathPrefix);
@@ -46,7 +50,16 @@ final readonly class ObjectDownloader
                 yield $destination => $this->client->getCommand('GetObject', [
                     'Bucket' => $this->bucketName,
                     'Key' => $this->prefixer->prefixPath($path),
-                    '@http' => ['sink' => $destination],
+                    '@http' => [
+                        'sink' => $destination,
+                        'connect_timeout' => self::CONNECT_TIMEOUT,
+                        'timeout' => $this->timeout,
+                        // A stalled transfer (no byte for this long) fails instead of holding the worker
+                        'curl' => [
+                            \CURLOPT_LOW_SPEED_LIMIT => 1,
+                            \CURLOPT_LOW_SPEED_TIME => self::STALLED_TIMEOUT,
+                        ],
+                    ],
                 ]);
             }
         })();

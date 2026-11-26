@@ -36,7 +36,7 @@ baked at build time.
 |---|---|
 | `EXPOSE_API_URL` | Expose API base URL |
 | `EXPOSE_CLIENT_URL` | Public URL of this client |
-| `ALLOW_INDEXING` | Whether the search engines may index the client, in `robots.txt` and the robots meta tag (default `true`, `EXPOSE_CLIENT_ALLOW_INDEXING` in `.env`); the administration, the embedded players, the sign-in and the share links never are |
+| `ALLOW_INDEXING` | Whether the search engines may index the client, in `robots.txt` and the robots meta tag (default `true`, `EXPOSE_CLIENT_ALLOW_INDEXING` in `.env`); the administration, the embedded players, the sign-in and the share links never are. When `false`, the link preview robots (Twitterbot, LinkedInBot…) may still read the pages of the publications, kept out of the search engines by their `noindex` meta tag; unlisted publications are never indexed |
 | `KEYCLOAK_URL`, `KEYCLOAK_REALM_NAME`, `CLIENT_ID` | OpenID Connect settings |
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
 | `DISABLE_INDEX_PAGE` | No public list of publications at `/` (nor link to it) |

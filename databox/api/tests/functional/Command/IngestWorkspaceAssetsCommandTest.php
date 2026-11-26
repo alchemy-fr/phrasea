@@ -31,6 +31,7 @@ final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
 
         // The jobs of the workflow are not run
         $jobs = InterceptedTransports::intercept(self::getContainer(), 'p2', 'heavy', 'heavy_low');
+        $bulkJobs = InterceptedTransports::intercept(self::getContainer(), 'bulk', 'bulk_heavy', 'bulk_heavy_low');
 
         $tester = $this->runIngestCommand(['workspaces' => ['ingested']]);
 
@@ -41,7 +42,10 @@ final class IngestWorkspaceAssetsCommandTest extends AbstractDataboxTestCase
         $this->assertCount(1, $states);
         $this->assertSame(AssetIngestWorkflowEvent::getWorkflowName($workspace->getId()), $states[0]->getName());
         $this->assertSame('asset_owner', $states[0]->getInitiatorId());
-        $this->assertNotEmpty(array_filter($jobs->getSent(), fn ($envelope): bool => $envelope->getMessage() instanceof JobConsumer));
+        // A bulk processing: its jobs never get ahead of the interactive ones
+        $isJob = static fn ($envelope): bool => $envelope->getMessage() instanceof JobConsumer;
+        $this->assertNotEmpty(array_filter($bulkJobs->getSent(), $isJob));
+        $this->assertSame([], array_values(array_filter($jobs->getSent(), $isJob)));
 
         $this->assertSame([], $this->findWorkflowStates($story->getId()));
         $this->assertSame([], $this->findWorkflowStates($otherAsset->getId()));

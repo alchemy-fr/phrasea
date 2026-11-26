@@ -8,6 +8,7 @@ import {
     fetchPublicPublication,
     fetchShareResolution,
     publicationPageMetadata,
+    toPublicationMetadata,
 } from '@/lib/seo/publicationMetadata';
 
 /**
@@ -32,7 +33,10 @@ export async function generateMetadata({
 
     return {
         ...(publication
-            ? publicationPageMetadata(publication, {url, shareToken: token})
+            ? publicationPageMetadata(toPublicationMetadata(publication), {
+                  url,
+                  shareToken: token,
+              })
             : pageMetadata({
                   title: resolution.publication.title,
                   url,

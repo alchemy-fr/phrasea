@@ -73,14 +73,34 @@ abstract class AbstractAdminTestCase extends WebTestCase
     }
 
     /**
+     * index() turns a failing source into an error card rather than a failing page: any card,
+     * block or chart in error fails the test, unless its label or title is in $allowedErrors
+     * (sources that depend on a service the test environment may lack, such as Elasticsearch).
+     *
      * @param string[] $expectedStatLabels
      * @param string[] $expectedBlockTitles
      * @param string[] $expectedChartTitles
+     * @param string[] $allowedErrors
      */
-    protected function doTestHomePage(array $expectedStatLabels, array $expectedBlockTitles, array $expectedChartTitles = []): void
+    protected function doTestHomePage(array $expectedStatLabels, array $expectedBlockTitles, array $expectedChartTitles = [], array $allowedErrors = []): Crawler
     {
         $this->client->loginUser($this->getAuthAdminUser(), 'admin');
         $crawler = $this->loadPage('/admin');
+
+        $crawler->filter('.admin-home-stat.is-error')->each(function (Crawler $node) use ($allowedErrors): void {
+            $label = trim($node->filter('.admin-home-stat-label')->text(''));
+            $this->assertContains($label, $allowedErrors, sprintf('The "%s" card of the admin home page is in error: %s', $label, $node->attr('title')));
+        });
+        foreach (['.admin-home-block', '.admin-home-chart'] as $selector) {
+            $crawler->filter($selector)->each(function (Crawler $node) use ($allowedErrors): void {
+                $error = $node->filter('.card-body .text-danger');
+                if (0 === $error->count()) {
+                    return;
+                }
+                $title = trim($node->filter('.card-header > span')->text(''));
+                $this->assertContains($title, $allowedErrors, sprintf('The "%s" block of the admin home page is in error: %s', $title, trim($error->text())));
+            });
+        }
 
         $this->assertStringContainsString('Home', $crawler->filter('title')->text());
         $this->assertCount(1, $crawler->filter('nav#main-menu a.ea-sidebar-item-link[href="http://localhost/admin"]'), 'No Home link in the admin menu');
@@ -99,6 +119,29 @@ abstract class AbstractAdminTestCase extends WebTestCase
         foreach ($expectedChartTitles as $title) {
             $this->assertContains($title, $chartTitles, sprintf('No "%s" chart on the admin home page', $title));
         }
+
+        return $crawler;
+    }
+
+    /**
+     * The figures shown by a card of the admin home page, as displayed.
+     *
+     * @return array{total: string, periods: array<string, string>}
+     */
+    protected function getHomeStatFigures(Crawler $crawler, string $label): array
+    {
+        $card = $crawler->filter('.admin-home-stat')->reduce(static fn (Crawler $node): bool => $label === trim($node->filter('.admin-home-stat-label')->text('')));
+        $this->assertCount(1, $card, sprintf('No "%s" card on the admin home page', $label));
+
+        $periods = [];
+        $card->filter('.admin-home-period')->each(static function (Crawler $node) use (&$periods): void {
+            $periods[trim($node->filter('.admin-home-period-name')->text())] = trim($node->filter('.admin-home-period-value')->text());
+        });
+
+        return [
+            'total' => trim($card->filter('.admin-home-stat-value')->text()),
+            'periods' => $periods,
+        ];
     }
 
     protected function doTestRealtimePage(): void

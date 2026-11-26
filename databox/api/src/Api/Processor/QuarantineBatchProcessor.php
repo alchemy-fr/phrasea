@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\QuarantineBatchInput;
@@ -32,6 +33,7 @@ final readonly class QuarantineBatchProcessor implements ProcessorInterface
         private QuarantineResolver $quarantineResolver,
         private MessageBusInterface $bus,
         private LoggerInterface $logger,
+        private PostFlushStack $postFlushStack,
     ) {
     }
 
@@ -54,6 +56,7 @@ final readonly class QuarantineBatchProcessor implements ProcessorInterface
                 continue;
             }
 
+            $mark = $this->postFlushStack->mark();
             try {
                 $asset = Uuid::isValid($id) ? $this->em->find(Asset::class, $id) : null;
                 $mergeTargets = QuarantineBatchActionEnum::Merge === $action && null !== $asset
@@ -92,7 +95,7 @@ final readonly class QuarantineBatchProcessor implements ProcessorInterface
                     'exception' => $e,
                 ]);
                 $results[$id] = ['id' => $id, 'status' => QuarantineBatchOutput::STATUS_FAILED, 'reason' => QuarantineBatchOutput::REASON_ERROR];
-                $this->recoverEntityManager();
+                $this->recoverEntityManager($mark);
             }
         }
 
@@ -124,11 +127,16 @@ final readonly class QuarantineBatchProcessor implements ProcessorInterface
     }
 
     /**
-     * A failed asset must not leave its pending changes to the next flush,
-     * nor a closed entity manager to the next assets.
+     * A failed asset must not leave its pending changes to the next flush, its
+     * post-flush callbacks (e.g. the workflow of a merge target) to the end of
+     * the request, nor a closed entity manager to the next assets.
+     *
+     * @param array{int, int} $mark taken before the asset, keeps what the assets processed before it stacked
      */
-    private function recoverEntityManager(): void
+    private function recoverEntityManager(array $mark): void
     {
+        $this->postFlushStack->rollbackTo($mark);
+
         if ($this->em->isOpen()) {
             $this->em->clear();
         } else {

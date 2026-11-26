@@ -16,6 +16,7 @@ use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Http\LocaleContext;
 use App\Integration\Auth\IntegrationTokenManager;
+use App\Integration\IntegrationPrivateOrigins;
 use App\Integration\Phrasea\Expose\ExposeAssetPublisher;
 use App\Integration\Phrasea\Expose\ExposeAttributeHtmlRenderer;
 use App\Integration\Phrasea\Expose\ExposeClient;
@@ -40,7 +41,12 @@ trait ExposeTestTrait
         $http = $api->createClient();
 
         return new ExposeClient(
-            new PhraseaClientFactory($http, self::getService(IntegrationTokenManager::class)),
+            new PhraseaClientFactory(
+                $http,
+                self::getService(IntegrationTokenManager::class),
+                // FakeExposeApi stands for the Expose of the instance: its host may resolve to a private address
+                new IntegrationPrivateOrigins(FakeExposeApi::BASE_URL, null, null),
+            ),
             self::createFileFetcher(),
             self::getService(AssetNameResolver::class),
             self::getService(AttributesResolver::class),

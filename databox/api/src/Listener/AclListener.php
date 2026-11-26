@@ -296,16 +296,16 @@ readonly class AclListener
                 case Workspace::class:
                 case Asset::class:
                     if (!$assetsHandled) {
-                        $this->bus->dispatch(MessageDeduplication::coalesce(new IndexAllAssets()));
+                        $this->bus->dispatch(IndexAllAssets::dispatchable());
                     }
                     break;
                 case Collection::class:
                     if (!$collectionsHandled) {
                         $this->bus->dispatch(MessageDeduplication::coalesce(new ComputeCollectionBranch(null)));
-                        $this->bus->dispatch(MessageDeduplication::coalesce(new IndexAllCollections()));
+                        $this->bus->dispatch(IndexAllCollections::dispatchable());
                     }
                     if (!$assetsHandled) {
-                        $this->bus->dispatch(MessageDeduplication::coalesce(new IndexAllAssets()));
+                        $this->bus->dispatch(IndexAllAssets::dispatchable());
                     }
                     break;
             }
@@ -316,10 +316,10 @@ readonly class AclListener
         switch ($objectClass) {
             case Workspace::class:
                 if (!$assetsHandled) {
-                    $this->bus->dispatch(MessageDeduplication::coalesce(new IndexAllAssets($objectId)));
+                    $this->bus->dispatch(IndexAllAssets::dispatchable($objectId));
                 }
                 if (!$collectionsHandled) {
-                    $this->bus->dispatch(MessageDeduplication::coalesce(new IndexAllCollections($objectId)));
+                    $this->bus->dispatch(IndexAllCollections::dispatchable($objectId));
                 }
                 if ($computeCollectionBranch) {
                     $this->bus->dispatch(MessageDeduplication::coalesce(new ComputeWorkspaceCollections($objectId)));

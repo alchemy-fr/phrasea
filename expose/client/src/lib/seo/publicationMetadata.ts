@@ -1,12 +1,17 @@
 import 'server-only';
 import {cache} from 'react';
+import {unstable_cache} from 'next/cache';
 import type {Metadata} from 'next';
 import {
     httpGet,
     verifySslFromEnv,
     type HttpGet,
 } from '@alchemy/next-core/server/http';
-import {pageMetadata, plainText} from '@alchemy/next-core/seo/metadata';
+import {
+    NO_INDEX,
+    pageMetadata,
+    plainText,
+} from '@alchemy/next-core/seo/metadata';
 import {getServerConfig} from '@/lib/config/server';
 import {findAsset} from '@/features/publication/assets';
 import {publicationKey, routes} from '@/lib/routes';
@@ -15,6 +20,12 @@ import type {Asset, Publication, PublicShareResolution} from '@/types/api';
 
 /** The link preview must not hold the page back */
 export const PREVIEW_TIMEOUT_MS = 3000;
+
+/**
+ * How long the metadata of a publication is kept between requests: moving
+ * from one asset to another in the lightbox renders the metadata again.
+ */
+export const METADATA_REVALIDATE_S = 60;
 
 export type ApiAccess = {
     apiUrl: string;
@@ -79,10 +90,78 @@ export async function loadPublicPublication(
     return publication?.title ? publication : null;
 }
 
-/** Shared by the layout and the page of a same request */
+/** Shared by the routes of a same request */
 export const fetchPublicPublication = cache(
     (key: string, shareToken?: string) =>
         loadPublicPublication(key, shareToken, apiAccess())
+);
+
+/** What the link preview reads of an asset: none of its signed URLs */
+export type AssetMetadata = Pick<
+    Asset,
+    'id' | 'slug' | 'title' | 'originalName' | 'description'
+> & {hasPreviewImage: boolean};
+
+/**
+ * What the link preview reads of a publication. Kept between requests
+ * (see fetchPublicationMetadata): holds no signed URL, which would outlive
+ * its signature in the cache.
+ */
+export type PublicationMetadata = Pick<
+    Publication,
+    'id' | 'slug' | 'title' | 'description' | 'publiclyListed'
+> & {
+    cover: AssetMetadata | null;
+    assets: AssetMetadata[];
+};
+
+function toAssetMetadata(asset: Asset): AssetMetadata {
+    return {
+        id: asset.id,
+        slug: asset.slug,
+        title: asset.title,
+        originalName: asset.originalName,
+        description: asset.description,
+        hasPreviewImage: !!previewImageUrl(asset),
+    };
+}
+
+export function toPublicationMetadata(
+    publication: Publication
+): PublicationMetadata {
+    return {
+        id: publication.id,
+        slug: publication.slug,
+        title: publication.title,
+        description: publication.description,
+        publiclyListed: publication.publiclyListed,
+        cover: publication.cover ? toAssetMetadata(publication.cover) : null,
+        assets: (publication.assets ?? []).map(toAssetMetadata),
+    };
+}
+
+/** The metadata of a publication as an anonymous visitor reads it, cached */
+export function publicationMetadataLoader(
+    access: () => ApiAccess
+): (key: string) => Promise<PublicationMetadata | null> {
+    return unstable_cache(
+        async (key: string) => {
+            const publication = await loadPublicPublication(
+                key,
+                undefined,
+                access()
+            );
+
+            return publication ? toPublicationMetadata(publication) : null;
+        },
+        ['expose-publication-metadata'],
+        {revalidate: METADATA_REVALIDATE_S}
+    );
+}
+
+/** Shared by the layout and the asset pages of a publication */
+export const fetchPublicationMetadata = cache(
+    publicationMetadataLoader(apiAccess)
 );
 
 export async function loadShareResolution(
@@ -135,13 +214,15 @@ function withShare(path: string, shareToken: string | undefined): string {
         : path;
 }
 
+type PublicationKey = Pick<Publication, 'id' | 'slug'>;
+
 export const ogImageRoutes = {
-    publication: (publication: Publication, shareToken?: string) =>
+    publication: (publication: PublicationKey, shareToken?: string) =>
         withShare(
             `/api/og/publication/${publicationKey(publication)}`,
             shareToken
         ),
-    asset: (publication: Publication, asset: Asset) =>
+    asset: (publication: PublicationKey, asset: Pick<Asset, 'id'>) =>
         `/api/og/publication/${publicationKey(publication)}/asset/${encodeURIComponent(asset.id)}`,
 };
 
@@ -149,30 +230,38 @@ function description(html: string | null | undefined): string | undefined {
     return (html && plainText(html)) || undefined;
 }
 
+/** Unlisted publications stay out of the search engines */
+function robots(publication: PublicationMetadata): Metadata {
+    return publication.publiclyListed ? {} : {robots: NO_INDEX};
+}
+
 /** The metadata of the page of a publication */
 export function publicationPageMetadata(
-    publication: Publication,
+    publication: PublicationMetadata,
     {url, shareToken}: {url?: string; shareToken?: string} = {}
 ): Metadata {
-    return pageMetadata({
-        title: publication.title!,
-        description: description(publication.description),
-        image: previewImageUrl(publication.cover)
-            ? ogImageRoutes.publication(publication, shareToken)
-            : undefined,
-        url: url ?? routes.publication(publication),
-        siteName: APP_NAME,
-    });
+    return {
+        ...pageMetadata({
+            title: publication.title!,
+            description: description(publication.description),
+            image: publication.cover?.hasPreviewImage
+                ? ogImageRoutes.publication(publication, shareToken)
+                : undefined,
+            url: url ?? routes.publication(publication),
+            siteName: APP_NAME,
+        }),
+        ...robots(publication),
+    };
 }
 
 /** The metadata of the page of an asset, its publication's when unknown */
 export function assetPageMetadata(
-    publication: Publication,
+    publication: PublicationMetadata,
     assetKey: string
 ): Metadata {
-    let asset: Asset | undefined;
+    let asset: AssetMetadata | undefined;
     try {
-        asset = findAsset(publication.assets ?? [], assetKey);
+        asset = findAsset(publication.assets, assetKey);
     } catch {
         // A malformed URL segment
     }
@@ -181,21 +270,24 @@ export function assetPageMetadata(
     }
     const assetTitle = asset.title || asset.originalName;
 
-    return pageMetadata({
-        title: assetTitle
-            ? `${assetTitle} · ${publication.title}`
-            : publication.title!,
-        description:
-            description(asset.description) ??
-            description(publication.description),
-        image: previewImageUrl(asset)
-            ? ogImageRoutes.asset(publication, asset)
-            : previewImageUrl(publication.cover)
-              ? ogImageRoutes.publication(publication)
-              : undefined,
-        url: routes.publicationAsset(publication, asset.id),
-        siteName: APP_NAME,
-    });
+    return {
+        ...pageMetadata({
+            title: assetTitle
+                ? `${assetTitle} · ${publication.title}`
+                : publication.title!,
+            description:
+                description(asset.description) ??
+                description(publication.description),
+            image: asset.hasPreviewImage
+                ? ogImageRoutes.asset(publication, asset)
+                : publication.cover?.hasPreviewImage
+                  ? ogImageRoutes.publication(publication)
+                  : undefined,
+            url: routes.publicationAsset(publication, asset.id),
+            siteName: APP_NAME,
+        }),
+        ...robots(publication),
+    };
 }
 
 /** A URL segment, undefined when it is not valid percent-encoding */

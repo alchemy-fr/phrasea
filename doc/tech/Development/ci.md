@@ -69,6 +69,11 @@ rebuilt on each run.
 Always pass `-f docker-bake.hcl`: without it, bake also reads
 `docker-compose.yml`, whose services share some target names.
 
+Without `REGISTRY_NAMESPACE` and `DOCKER_TAG`, the images are tagged
+`localhost:5000/ps-<name>:dev`: a local build neither starts from the published
+bases nor overwrites the published images. `ci.yaml` sets both and checks that
+every tag of the group starts with its `REGISTRY_NAMESPACE` before building.
+
 ```bash
 docker buildx bake -f docker-bake.hcl --print          # resolved configuration
 ```

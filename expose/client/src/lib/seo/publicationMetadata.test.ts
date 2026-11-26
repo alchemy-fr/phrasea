@@ -1,12 +1,39 @@
 // @vitest-environment node
 import {describe, expect, it, vi} from 'vitest';
+import {NO_INDEX} from '@alchemy/next-core/seo/metadata';
 import {
-    assetPageMetadata,
+    assetPageMetadata as assetPageMetadataOf,
     loadPublicPublication,
     loadShareResolution,
+    METADATA_REVALIDATE_S,
     previewImageUrl,
-    publicationPageMetadata,
+    publicationMetadataLoader,
+    publicationPageMetadata as publicationPageMetadataOf,
+    toPublicationMetadata,
 } from './publicationMetadata';
+
+const cached = vi.hoisted(() => ({options: [] as unknown[]}));
+
+/** Kept in memory per arguments, as the data cache of Next does */
+vi.mock('next/cache', () => ({
+    unstable_cache: <A extends unknown[], R>(
+        fn: (...args: A) => Promise<R>,
+        _keyParts: string[],
+        options: unknown
+    ) => {
+        cached.options.push(options);
+        const entries = new Map<string, Promise<R>>();
+
+        return (...args: A) => {
+            const k = JSON.stringify(args);
+            if (!entries.has(k)) {
+                entries.set(k, fn(...args));
+            }
+
+            return entries.get(k)!;
+        };
+    },
+}));
 import type {Asset, Publication} from '@/types/api';
 
 const cover: Asset = {
@@ -25,6 +52,7 @@ const publication: Publication = {
     title: 'Summer',
     description: '<p>Photos &amp; videos</p>',
     authorized: true,
+    publiclyListed: true,
     cover,
     assets: [
         cover,
@@ -136,6 +164,97 @@ describe('loadShareResolution', () => {
         await expect(
             loadShareResolution('tok1', access(404, {}).access)
         ).resolves.toBeNull();
+    });
+});
+
+function publicationPageMetadata(
+    p: Publication,
+    options?: Parameters<typeof publicationPageMetadataOf>[1]
+) {
+    return publicationPageMetadataOf(toPublicationMetadata(p), options);
+}
+
+function assetPageMetadata(p: Publication, assetKey: string) {
+    return assetPageMetadataOf(toPublicationMetadata(p), assetKey);
+}
+
+describe('publicationMetadataLoader', () => {
+    it('reads the publication once for successive pages', async () => {
+        const {get, access: a} = access(200, publication);
+        const load = publicationMetadataLoader(() => a);
+        expect(cached.options.at(-1)).toEqual({
+            revalidate: METADATA_REVALIDATE_S,
+        });
+
+        const first = await load('summer');
+        const second = await load('summer');
+        expect(get).toHaveBeenCalledTimes(1);
+        expect(assetPageMetadataOf(first!, 'a1')).toMatchObject({
+            title: 'Sunset · Summer',
+            openGraph: {
+                images: [{url: '/api/og/publication/summer/asset/a1'}],
+            },
+        });
+        expect(assetPageMetadataOf(second!, 'a2')).toMatchObject({
+            title: 'clip.mp4 · Summer',
+            openGraph: {images: [{url: '/api/og/publication/summer'}]},
+        });
+
+        await load('other');
+        expect(get).toHaveBeenCalledTimes(2);
+    });
+
+    it('keeps no signed URL', async () => {
+        const {access: a} = access(200, publication);
+        const metadata = await publicationMetadataLoader(() => a)('summer');
+        expect(JSON.stringify(metadata)).not.toContain('https://s3');
+        expect(metadata).toEqual({
+            id: 'p1',
+            slug: 'summer',
+            title: 'Summer',
+            description: '<p>Photos &amp; videos</p>',
+            publiclyListed: true,
+            cover: {
+                id: 'a1',
+                slug: 'sunset',
+                title: 'Sunset',
+                description: '<p>Over the <b>sea</b></p>',
+                hasPreviewImage: true,
+            },
+            assets: [
+                expect.objectContaining({id: 'a1', hasPreviewImage: true}),
+                expect.objectContaining({
+                    id: 'a2',
+                    originalName: 'clip.mp4',
+                    hasPreviewImage: false,
+                }),
+            ],
+        });
+    });
+
+    it('gives null when the publication cannot be read', async () => {
+        const {access: a} = access(404, {});
+        await expect(
+            publicationMetadataLoader(() => a)('summer')
+        ).resolves.toBeNull();
+    });
+});
+
+describe('robots', () => {
+    it('indexes a publicly listed publication', () => {
+        expect(publicationPageMetadata(publication).robots).toBeUndefined();
+        expect(assetPageMetadata(publication, 'a1').robots).toBeUndefined();
+    });
+
+    it('keeps an unlisted publication out of the search engines', () => {
+        for (const publiclyListed of [false, undefined]) {
+            const unlisted = {...publication, publiclyListed};
+            expect(publicationPageMetadata(unlisted).robots).toEqual(NO_INDEX);
+            expect(assetPageMetadata(unlisted, 'a1').robots).toEqual(NO_INDEX);
+            expect(assetPageMetadata(unlisted, 'unknown').robots).toEqual(
+                NO_INDEX
+            );
+        }
     });
 });
 

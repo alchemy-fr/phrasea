@@ -192,7 +192,7 @@ export const useCollectionStore = create<State>((set, get) => ({
         if (!workspacesNext || workspacesLoading) {
             return;
         }
-        set({workspacesLoading: true});
+        set({workspacesLoading: true, workspacesError: undefined});
         try {
             const page = await getWorkspaces({url: workspacesNext});
             set(s => {
@@ -211,6 +211,8 @@ export const useCollectionStore = create<State>((set, get) => ({
                     workspacesTotal: page.total,
                 };
             });
+        } catch (e: unknown) {
+            set({workspacesError: errorMessage(e)});
         } finally {
             set({workspacesLoading: false});
         }
@@ -353,42 +355,60 @@ export const useCollectionStore = create<State>((set, get) => ({
         if (!pager?.next || pager.loading) {
             return;
         }
-        set(s => ({pagers: {...s.pagers, [key]: {...pager, loading: true}}}));
-        const page = await getCollections({url: pager.next});
-        set(s => {
-            const collections = {...s.collections};
-            const pagers = {...s.pagers};
-            page.items.forEach(c =>
-                ingest(collections, pagers, c, workspaceId, parentId)
-            );
-            const pageIds = page.items.map(c => c.id);
-            const first = page.items[0] && collections[page.items[0].id];
-            const head: string[] = [];
-            // Ordered after the page start: local ones not indexed yet
-            const tail: string[] = [];
-            pagers[key].ids
-                .filter(id => !pageIds.includes(id))
-                .forEach(id => {
-                    const c = collections[id];
-                    (first && c && compareCollections(c, first) > 0
-                        ? tail
-                        : head
-                    ).push(id);
+        set(s => ({
+            pagers: {
+                ...s.pagers,
+                [key]: {...pager, loading: true, error: undefined},
+            },
+        }));
+        try {
+            const page = await getCollections({url: pager.next});
+            set(s => {
+                const collections = {...s.collections};
+                const pagers = {...s.pagers};
+                page.items.forEach(c =>
+                    ingest(collections, pagers, c, workspaceId, parentId)
+                );
+                const pageIds = page.items.map(c => c.id);
+                const first = page.items[0] && collections[page.items[0].id];
+                const head: string[] = [];
+                // Ordered after the page start: local ones not indexed yet
+                const tail: string[] = [];
+                pagers[key].ids
+                    .filter(id => !pageIds.includes(id))
+                    .forEach(id => {
+                        const c = collections[id];
+                        (first && c && compareCollections(c, first) > 0
+                            ? tail
+                            : head
+                        ).push(id);
+                    });
+                let ids = [...head, ...pageIds];
+                tail.forEach(id => {
+                    ids = insertSorted(ids, id, collections);
                 });
-            let ids = [...head, ...pageIds];
-            tail.forEach(id => {
-                ids = insertSorted(ids, id, collections);
-            });
-            pagers[key] = {
-                ...pagers[key],
-                ids,
-                next: page.next,
-                total: page.total,
-                loading: false,
-            };
+                pagers[key] = {
+                    ...pagers[key],
+                    ids,
+                    next: page.next,
+                    total: page.total,
+                    loading: false,
+                };
 
-            return {collections, pagers};
-        });
+                return {collections, pagers};
+            });
+        } catch (e) {
+            set(s => ({
+                pagers: {
+                    ...s.pagers,
+                    [key]: {
+                        ...(s.pagers[key] ?? pager),
+                        loading: false,
+                        error: errorMessage(e),
+                    },
+                },
+            }));
+        }
     },
 
     loadAscendants: async collectionId => {

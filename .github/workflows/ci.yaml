@@ -111,6 +111,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # The defaults of docker-bake.hcl are local: every image must be tagged in the namespace of the CI
+      - name: Check the image tags
+        run: |
+          docker buildx bake -f docker-bake.hcl --print ${{ matrix.group }}-base ${{ matrix.group }} \
+            | jq -e --arg ns "$REGISTRY_NAMESPACE" '[.target[].tags[]] | length > 0 and all(startswith($ns))'
+
       - name: Build and push the base images
         uses: docker/bake-action@v7
         env:

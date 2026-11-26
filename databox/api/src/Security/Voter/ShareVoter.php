@@ -68,10 +68,12 @@ class ShareVoter extends AbstractVoter
                 && $canReadAllAssets()
                 && $canShareAllAssets()
             ,
-            self::READ => $isOwner()
+            // The owner of a share loses it once an attribute filter rule hides one of its assets
+            self::READ => ($isOwner() && $canReadAllAssets())
                 || $this->hasValidToken($subject)
                 || $canShareAllAssets(),
-            self::EDIT,
+            self::EDIT => ($isOwner() && $canReadAllAssets())
+                || $canShareAllAssets(),
             self::DELETE => $isOwner()
                 || $canShareAllAssets(),
             default => false,

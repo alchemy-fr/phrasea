@@ -27,6 +27,10 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
         $loader->load('cdn.yaml');
 
         $container->setParameter('alchemy_storage.upload.allowed_types', $config['upload']['allowed_types']);
+        // An application may set it (e.g. to its own download duration limit)
+        if (!$container->hasParameter('alchemy_storage.download.max_duration')) {
+            $container->setParameter('alchemy_storage.download.max_duration', 900.0);
+        }
         $container->getDefinition(MultipartUploadPlanner::class)
             ->setArgument('$maxFileSize', $config['upload']['max_file_size']);
     }

@@ -48,3 +48,46 @@ describe('useBasketStore.load', () => {
         });
     });
 });
+
+describe('useBasketStore.loadMore', () => {
+    beforeEach(() => {
+        api.getBaskets.mockReset();
+        useBasketStore.setState({
+            baskets: [{id: 'b1'} as never],
+            next: '/baskets?page=2',
+            loaded: true,
+            loading: false,
+            error: undefined,
+        });
+    });
+
+    it('keeps the failure and lets the next page be asked again', async () => {
+        api.getBaskets.mockRejectedValueOnce(new Error('Bad Gateway'));
+        await useBasketStore.getState().loadMore();
+
+        expect(useBasketStore.getState()).toMatchObject({
+            error: 'Bad Gateway',
+            loading: false,
+            next: '/baskets?page=2',
+        });
+
+        api.getBaskets.mockResolvedValueOnce({
+            items: [{id: 'b2'}],
+            total: 2,
+        });
+        await useBasketStore.getState().loadMore();
+
+        expect(api.getBaskets).toHaveBeenLastCalledWith({
+            url: '/baskets?page=2',
+        });
+        expect(useBasketStore.getState()).toMatchObject({
+            error: undefined,
+            loading: false,
+            next: undefined,
+        });
+        expect(useBasketStore.getState().baskets.map(b => b.id)).toEqual([
+            'b1',
+            'b2',
+        ]);
+    });
+});
