@@ -562,6 +562,12 @@ valid. A deployment already running a 5.0 pre-release must then run
 `bin/console fos:elastica:populate --index=asset` in `databox-api-php` to make
 them searchable.
 
+A migration converts the display preferences saved by the legacy client, in the
+profiles (`profile_data`) and the user preferences (`user_preference`): the
+preview size and the file / attributes ratio stored in percent (`60`) become
+ratios (`0.6`), and the layouts `g` / `l` become `grid` / `list`. Nothing to do
+by hand.
+
 The three Day-0 baselines (databox, expose, uploader) detect the existing schema
 and register themselves without running any SQL. Expect the warning
 "Base schema already present, nothing to do." for each of them.
