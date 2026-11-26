@@ -95,7 +95,9 @@ function createInstance(): KyInstance {
 
     return ky.create({
         prefix: config.apiUrl,
-        timeout: 60_000,
+        // The dev API (debug kernel, profiler, Xdebug) is far slower; nginx
+        // waits up to 600 s for PHP-FPM
+        timeout: config.devMode ? 300_000 : 60_000,
         retry: {
             limit: 2,
             methods: ['get', 'head', 'options'],
