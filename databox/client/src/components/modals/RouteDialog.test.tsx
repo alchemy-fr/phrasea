@@ -242,4 +242,34 @@ describe('RouteDialog', () => {
             vi.useRealTimers();
         }
     });
+
+    it('only shows on its own URLs when it stays mounted in the page', () => {
+        vi.useFakeTimers();
+        try {
+            // Loaded directly, the dialog is the page: a screen of the
+            // `@modal` slot opens over it without unmounting it
+            const page = () => (
+                <RouteHistoryProvider>
+                    <RouteDialog routeKey="/workflows">run</RouteDialog>
+                </RouteHistoryProvider>
+            );
+            nav.pathname = '/workflows/w1';
+            const {rerender} = render(page());
+            const go = (url: string) => {
+                nav.pathname = url;
+                act(() => rerender(page()));
+                act(() => vi.advanceTimersByTime(modalExitDuration));
+            };
+            expect(screen.getByRole('dialog')).toBeTruthy();
+
+            go('/assets/a/_');
+            expect(screen.queryByRole('dialog')).toBeNull();
+
+            go('/workflows/w1/jobs/j');
+            expect(screen.getByRole('dialog')).toBeTruthy();
+            expect(nav.push).not.toHaveBeenCalled();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
 });

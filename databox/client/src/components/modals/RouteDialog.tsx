@@ -205,6 +205,10 @@ export function RouteDialog({
     const pathname = usePathname();
     const history = useContext(RouteHistoryContext);
     const [screen] = useState(() => routeKey ?? pathname);
+    // Rendered in the `children` slot (direct load), the dialog is not
+    // replaced when another screen of the `@modal` slot opens: it must only
+    // show on its own URLs
+    const onScreen = pathname === screen || pathname.startsWith(`${screen}/`);
     const returnUrl = useScreenOrigin(screen, pathname);
     // In place of another screen of the `@modal` slot (e.g. the asset viewer
     // a run is opened from), already gone: an enter animation would uncover
@@ -252,7 +256,7 @@ export function RouteDialog({
     );
 
     return (
-        <Dialog open={open} onOpenChange={o => !o && close()}>
+        <Dialog open={open && onScreen} onOpenChange={o => !o && close()}>
             <DialogContent
                 data-testid="route-dialog"
                 size={size}
