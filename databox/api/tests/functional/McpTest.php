@@ -7,14 +7,22 @@ namespace App\Tests\Functional;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\McpBundle\Test\McpClientTrait;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Entity\Discussion\Message;
+use App\Entity\SavedSearch\SavedSearch;
+use App\Entity\Template\AssetDataTemplate;
+use App\Entity\Template\TemplateAttribute;
+use App\Model\ExportStatusEnum;
 use App\Tests\Functional\Api\Rendition\RenditionTestTrait;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -116,6 +124,36 @@ class McpTest extends AbstractDataboxTestCase
             'check_quarantined_assets',
             'resolve_quarantined_assets',
             'bypass_quarantine',
+            'list_thread_messages',
+            'post_message',
+            'list_saved_searches',
+            'get_saved_search',
+            'create_saved_search',
+            'update_saved_search',
+            'delete_saved_search',
+            'list_saved_search_automations',
+            'run_saved_search_automation',
+            'list_automation_runs',
+            'list_story_assets',
+            'set_story_cover',
+            'set_asset_position',
+            'list_asset_file_versions',
+            'find_duplicate_assets',
+            'get_file_metadata',
+            'get_asset_metrics',
+            'list_audit_logs',
+            'list_asset_data_templates',
+            'get_asset_data_template',
+            'create_asset_data_template',
+            'update_asset_data_template',
+            'delete_asset_data_template',
+            'create_asset_export',
+            'get_asset_export',
+            'list_asset_imports',
+            'list_asset_import_errors',
+            'list_attachments',
+            'create_attachment',
+            'delete_attachment',
         ] as $name) {
             $this->assertContains($name, $names);
         }
@@ -382,6 +420,194 @@ class McpTest extends AbstractDataboxTestCase
         $this->assertSame([['id' => $asset->getId(), 'status' => 'skipped', 'reason' => 'not_quarantined']], $result['results']);
     }
 
+    public function testDiscussionOfAnAsset(): void
+    {
+        $workspace = $this->createWorkspace(['ownerId' => self::EDITOR]);
+        $asset = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::EDITOR]);
+        $this->mcpInitialize(self::token(self::EDITOR));
+
+        $message = $this->mcpCallTool(self::token(self::EDITOR), 'post_message', [
+            'threadKey' => 'asset:'.$asset->getId(),
+            'content' => 'Is this the final version?',
+        ]);
+        $this->assertSame('Is this the final version?', $message['content']);
+
+        $messages = $this->mcpCallTool(self::token(self::EDITOR), 'list_thread_messages', ['threadId' => $message['thread']['id']]);
+        $this->assertSame(['Is this the final version?'], array_column($messages['items'], 'content'));
+
+        self::getEntityManager()->clear();
+        $this->assertSame(1, self::getEntityManager()->getRepository(Message::class)->count(['thread' => $message['thread']['id']]));
+    }
+
+    public function testSavedSearchLifecycle(): void
+    {
+        $this->mcpInitialize(self::token(self::EDITOR));
+
+        $savedSearch = $this->mcpCallTool(self::token(self::EDITOR), 'create_saved_search', [
+            'name' => 'Reports',
+            'query' => 'annual',
+            'conditions' => ['title STARTS WITH "Report"'],
+            'order' => ['@createdAt' => 'desc'],
+        ]);
+        $this->assertSame('Reports', $savedSearch['name']);
+
+        $this->mcpCallTool(self::token(self::EDITOR), 'update_saved_search', ['id' => $savedSearch['id'], 'name' => 'Annual reports']);
+
+        $list = $this->mcpCallTool(self::token(self::EDITOR), 'list_saved_searches', ['query' => 'annual']);
+        $this->assertSame(['Annual reports'], array_column($list['items'], 'name'));
+
+        $stored = $this->mcpCallTool(self::token(self::EDITOR), 'get_saved_search', ['id' => $savedSearch['id']]);
+        $this->assertSame([
+            'query' => 'annual',
+            'conditions' => [['id' => 'c1', 'query' => 'title STARTS WITH "Report"']],
+            'sortBy' => [['a' => '@createdAt', 'w' => 1, 'g' => false]],
+        ], $stored['data']);
+
+        $automations = $this->mcpCallTool(self::token(self::EDITOR), 'list_saved_search_automations', ['savedSearchId' => $savedSearch['id']]);
+        $this->assertSame([], $automations['items']);
+
+        $this->mcpCallTool(self::token(self::EDITOR), 'delete_saved_search', ['id' => $savedSearch['id']]);
+        self::getEntityManager()->clear();
+        $this->assertNull(self::getEntityManager()->find(SavedSearch::class, $savedSearch['id']));
+    }
+
+    public function testStoryOrderAndCover(): void
+    {
+        $workspaceId = $this->createWorkspace(['ownerId' => self::EDITOR])->getId();
+        $this->mcpInitialize(self::token(self::EDITOR));
+
+        $story = $this->mcpCallTool(self::token(self::EDITOR), 'create_asset_from_url', [
+            'workspaceId' => $workspaceId,
+            'isStory' => true,
+            'name' => 'Story',
+        ]);
+        $storyCollectionId = $story['storyCollection']['id'];
+        [$first, $firstFile] = $this->createStoryItem($workspaceId, $storyCollectionId);
+        [$second] = $this->createStoryItem($workspaceId, $storyCollectionId);
+
+        $this->assertSame(['moved' => $second], $this->mcpCallTool(self::token(self::EDITOR), 'set_asset_position', [
+            'assetId' => $second,
+            'position' => 0,
+            'storyId' => $story['id'],
+        ]));
+        self::getEntityManager()->clear();
+        $repository = self::getEntityManager()->getRepository(CollectionAsset::class);
+        $this->assertSame(0, $repository->findCollectionAsset($second, $storyCollectionId)->getPosition());
+        $this->assertSame(1, $repository->findCollectionAsset($first, $storyCollectionId)->getPosition());
+
+        $cover = $this->mcpCallTool(self::token(self::EDITOR), 'set_story_cover', ['storyId' => $story['id'], 'assetId' => $first]);
+        $this->assertSame($firstFile, $cover['source']['id']);
+    }
+
+    public function testInsightsOfAnAsset(): void
+    {
+        $workspace = $this->createWorkspace(['ownerId' => self::EDITOR]);
+        $file = $this->createUrlFile($workspace);
+        $asset = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::EDITOR, 'no_flush' => true]);
+        $asset->setSource($file);
+        self::getEntityManager()->flush();
+        $this->mcpInitialize(self::token(self::EDITOR));
+
+        $versions = $this->mcpCallTool(self::token(self::EDITOR), 'list_asset_file_versions', ['assetId' => $asset->getId()]);
+        $this->assertSame([], $versions['items']);
+
+        $this->assertSame(
+            ['duplicates' => []],
+            $this->mcpCallTool(self::token(self::EDITOR), 'find_duplicate_assets', ['assetId' => $asset->getId()]),
+        );
+
+        $metadata = $this->mcpCallTool(self::token(self::EDITOR), 'get_file_metadata', ['fileId' => $file->getId()]);
+        $this->assertSame($file->getId(), $metadata['id']);
+
+        $error = $this->mcpCallTool(self::token(self::EDITOR), 'list_audit_logs', ['objectId' => $asset->getId()], expectError: true);
+        $this->assertStringContainsString('403', $error);
+    }
+
+    public function testAuditLogs(): void
+    {
+        $workspace = $this->createWorkspace();
+        $asset = $this->createAsset(['workspace' => $workspace]);
+        $this->mcpInitialize(self::token(self::ADMIN));
+
+        $logs = $this->mcpCallTool(self::token(self::ADMIN), 'list_audit_logs', [
+            'objectId' => $asset->getId(),
+            'actions' => ['asset_moved'],
+        ]);
+        $this->assertSame([], $logs['items']);
+    }
+
+    public function testDataTemplateLifecycle(): void
+    {
+        $workspace = $this->createWorkspace(['ownerId' => self::EDITOR]);
+        $definition = $this->createAttributeDefinition(['workspace' => $workspace, 'name' => 'Credit']);
+        $this->mcpInitialize(self::token(self::EDITOR));
+
+        $template = $this->mcpCallTool(self::token(self::EDITOR), 'create_asset_data_template', [
+            'workspaceId' => $workspace->getId(),
+            'name' => 'Press',
+            'attributes' => [['definitionId' => $definition->getId(), 'value' => 'ACME']],
+            'privacy' => 'public_in_workspace',
+        ]);
+
+        $this->mcpCallTool(self::token(self::EDITOR), 'update_asset_data_template', ['id' => $template['id'], 'name' => 'Press kit']);
+
+        $stored = $this->mcpCallTool(self::token(self::EDITOR), 'get_asset_data_template', ['id' => $template['id']]);
+        $this->assertSame('Press kit', $stored['name']);
+        $this->assertSame(WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE, $stored['privacy']);
+        self::getEntityManager()->clear();
+        $attributes = self::getEntityManager()->find(AssetDataTemplate::class, $template['id'])->getAttributes();
+        $this->assertSame(['ACME'], array_map(static fn (TemplateAttribute $a): ?string => $a->getValue(), $attributes->getValues()));
+
+        $this->assertSame(
+            ['deleted' => $template['id']],
+            $this->mcpCallTool(self::token(self::EDITOR), 'delete_asset_data_template', ['id' => $template['id']]),
+        );
+        self::getEntityManager()->clear();
+        $this->assertNull(self::getEntityManager()->find(AssetDataTemplate::class, $template['id']));
+    }
+
+    public function testExportAndImports(): void
+    {
+        [$workspace, $defaults] = $this->createWorkspaceWithDefaults('ws-mcp-export', self::EDITOR);
+        $asset = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::EDITOR]);
+        $definitionId = $defaults->renditionDefinitions['preview']->getId();
+        $this->mcpInitialize(self::token(self::EDITOR));
+
+        $export = $this->mcpCallTool(self::token(self::EDITOR), 'create_asset_export', [
+            'assetIds' => [$asset->getId()],
+            'renditionDefinitionIds' => [$definitionId],
+        ]);
+        $this->assertSame(ExportStatusEnum::Pending->value, $export['status']);
+
+        $followed = $this->mcpCallTool(self::token(self::EDITOR), 'get_asset_export', ['id' => $export['id']]);
+        $this->assertSame($export['id'], $followed['id']);
+
+        $imports = $this->mcpCallTool(self::token(self::EDITOR), 'list_asset_imports', ['workspaceId' => $workspace->getId()]);
+        $this->assertSame([], $imports['items']);
+    }
+
+    public function testAttachments(): void
+    {
+        $workspace = $this->createWorkspace(['ownerId' => self::EDITOR]);
+        $asset = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::EDITOR]);
+        $contract = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::EDITOR]);
+        $this->mcpInitialize(self::token(self::EDITOR));
+
+        $attachment = $this->mcpCallTool(self::token(self::EDITOR), 'create_attachment', [
+            'assetId' => $asset->getId(),
+            'attachmentId' => $contract->getId(),
+            'name' => 'Contract',
+        ]);
+
+        $list = $this->mcpCallTool(self::token(self::EDITOR), 'list_attachments', ['assetId' => $asset->getId()]);
+        $this->assertSame([$attachment['id']], array_column($list['items'], 'id'));
+
+        $this->mcpCallTool(self::token(self::EDITOR), 'delete_attachment', ['id' => $attachment['id']]);
+        self::getEntityManager()->clear();
+        $this->assertNull(self::getEntityManager()->find(AssetAttachment::class, $attachment['id']));
+        $this->assertNotNull(self::getEntityManager()->find(Asset::class, $contract->getId()));
+    }
+
     public function testUserPermissionsApply(): void
     {
         $workspace = $this->createWorkspace(['ownerId' => self::EDITOR]);
@@ -432,6 +658,25 @@ class McpTest extends AbstractDataboxTestCase
         self::getEntityManager()->flush();
 
         return $list;
+    }
+
+    /**
+     * @return array{string, string} the IDs of the asset and of its source file
+     */
+    private function createStoryItem(string $workspaceId, string $storyCollectionId): array
+    {
+        $workspace = self::getEntityManager()->find(Workspace::class, $workspaceId);
+        $file = $this->createUrlFile($workspace);
+        $asset = $this->createAsset([
+            'workspace' => $workspace,
+            'ownerId' => self::EDITOR,
+            'collectionId' => $storyCollectionId,
+            'no_flush' => true,
+        ]);
+        $asset->setSource($file);
+        self::getEntityManager()->flush();
+
+        return [$asset->getId(), $file->getId()];
     }
 
     private static function token(string $userId): string

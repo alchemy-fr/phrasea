@@ -3,7 +3,7 @@ mcp:
     servers:
         databox:
             name: 'Phrasea Databox'
-            description: 'Search, describe and organize the assets of Phrasea Databox, follow their processing, and set up its workspaces (attributes, entity lists, renditions, integrations).'
+            description: 'Search, describe and organize the assets of Phrasea Databox (collections, stories, attachments), discuss them, save searches and automate them, export assets, follow their processing, and set up its workspaces (attributes, entity lists, data templates, renditions, integrations).'
             instructions: |
                 Phrasea Databox is a digital asset management system. Every call runs with the permissions of the
                 authenticated user: what the user cannot see or change is not returned or is refused.
@@ -12,7 +12,9 @@ mcp:
                 - A workspace holds everything else: collections, assets, attribute definitions, entity lists,
                   rendition definitions and policies, integrations.
                 - Collections form a tree inside a workspace. An asset belongs to one workspace and to any number
-                  of its collections. A story is an asset that groups other assets.
+                  of its collections. A story is an asset that groups other assets, in an order, one of them
+                  giving its cover (list_story_assets, set_asset_position, set_story_cover). An asset may have
+                  other assets of the workspace as attachments (list_attachments).
                 - The metadata of an asset are attributes: a value (per locale when the definition is translatable)
                   of an attribute definition. Definitions have a type (text, number, date, keyword, entity…), may be
                   multiple-valued and belong to an attribute policy, which controls who can read or edit them.
@@ -24,6 +26,14 @@ mcp:
                 - The ingest of an asset (metadata reading, renditions, integrations) runs in the background as a
                   workflow (list_workflows, reprocess_asset). An asset whose file analysis failed is quarantined
                   until resolved (check_quarantined_assets, resolve_quarantined_assets).
+                - Every asset has a discussion: a thread of messages keyed by the asset ("threadKey" of get_asset),
+                  read with list_thread_messages ("thread.id" of get_asset) and written with post_message.
+                - A saved search stores the criteria of a search under a name (create_saved_search); search_assets
+                  runs it with savedSearchId. Its automations apply actions to its results, on demand
+                  (run_saved_search_automation) or on a schedule.
+                - Data templates hold attribute values the users apply to the assets they upload.
+                - Exports (create_asset_export) and imports run in the background: follow them with
+                  get_asset_export and list_asset_imports.
 
                 Search (search_assets) combines a full-text "query" with AQL "conditions", e.g.
                 `title STARTS WITH "Report" AND (tags HAS ALL OF ("<entity ID>", "<entity ID>") OR description IS EMPTY)`:
@@ -37,6 +47,6 @@ mcp:
                 from the list tools (list_workspaces, list_attribute_definitions, list_collections, list_entities)
                 rather than guessing them.
             # tools/list in a single page: some clients do not follow the pagination cursor
-            pagination_limit: 100
+            pagination_limit: 150
             registry:
                 tools: ['App\Mcp\Tool\']

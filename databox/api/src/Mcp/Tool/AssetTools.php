@@ -50,6 +50,8 @@ final readonly class AssetTools
         ?string $collectionId = null,
         #[Schema(description: 'Only the assets of this story')]
         ?string $storyId = null,
+        #[Schema(description: 'Run this saved search (list_saved_searches): its query (unless one is given), conditions (combined with the given ones) and sort (unless one is given) apply')]
+        ?string $savedSearchId = null,
         #[Schema(
             type: 'object',
             description: 'Sort, by attribute slug or built-in field, e.g. {"@createdAt": "desc"}; by relevance when unset',
@@ -70,6 +72,7 @@ final readonly class AssetTools
             'parents' => null !== $parentIds ? array_values($parentIds) : null,
             'collection' => $collectionId,
             'story' => $storyId,
+            'savedSearch' => $savedSearchId,
             'order' => $order,
             'page' => $page,
             'limit' => $limit,

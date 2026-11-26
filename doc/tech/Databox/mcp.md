@@ -128,6 +128,83 @@ the IDs returned by `list_entities`, not the labels. The image of an entity is o
 | `find_similar_assets`          | Find the visually similar assets                                               |
 | `batch_update_attributes`      | Set, add, delete or replace attribute values on many assets (`machine` origin) |
 
+`search_assets` runs a saved search with `savedSearchId`: its query, conditions and sort apply, refined by
+the given ones.
+
+### Stories and attachments
+
+| Tool                 | Description                                                    |
+|----------------------|----------------------------------------------------------------|
+| `list_story_assets`  | List the assets of a story in their order, with their position |
+| `set_asset_position` | Move an asset to a rank inside a story or a collection         |
+| `set_story_cover`    | Make one of the assets of a story its cover                    |
+| `list_attachments`   | List the attachments of an asset                               |
+| `create_attachment`  | Attach an existing asset of the workspace to an asset          |
+| `delete_attachment`  | Remove an attachment (the attached asset is kept)              |
+
+An attachment is another asset: attaching a new file means creating its asset first
+(`create_asset_from_url`).
+
+### Asset files and history
+
+| Tool                       | Description                                                           |
+|----------------------------|-----------------------------------------------------------------------|
+| `list_asset_file_versions` | List the previous versions of the source file of an asset             |
+| `find_duplicate_assets`    | Find the assets the file analysis detected as duplicates of an asset  |
+| `get_file_metadata`        | Get the metadata read from a file (EXIF, IPTC, XMP…)                  |
+| `get_asset_metrics`        | Get the audience of an asset, from Matomo (refused without Matomo)    |
+| `list_audit_logs`          | List the audit log: by object, type, action, user, workspace, dates   |
+
+`list_audit_logs` is reserved to the administrators, as `GET /audit-logs`.
+
+### Discussions
+
+| Tool                   | Description                                                     |
+|------------------------|-----------------------------------------------------------------|
+| `list_thread_messages` | List the messages of a discussion thread                        |
+| `post_message`         | Post a message in the discussion of an asset (or of a thread)   |
+
+The discussion of an asset is the thread keyed by `threadKey` (`asset:<ID>`), given by `get_asset` with
+`thread.id` once a first message created it. There is no listing of the threads themselves: the API has none.
+
+### Saved searches
+
+| Tool                            | Description                                                      |
+|---------------------------------|------------------------------------------------------------------|
+| `list_saved_searches`           | List the saved searches the user can see                         |
+| `get_saved_search`              | Get a saved search with its criteria                             |
+| `create_saved_search`           | Save a query, AQL conditions and a sort under a name             |
+| `update_saved_search`           | Rename a saved search, change its visibility or its criteria     |
+| `delete_saved_search`           | Delete a saved search and its automations                        |
+| `list_saved_search_automations` | List the automations of a saved search                           |
+| `run_saved_search_automation`   | Run an automation now (or a dry run counting its results)        |
+| `list_automation_runs`          | List the runs of an automation, with their status and results    |
+
+The criteria are stored as the client stores them (`data`: `query`, `conditions` as `{id, query}`, `sortBy`
+as `{a, w, g}`), so that a saved search created by a model opens in the client. Creating or editing the
+automations themselves stays in the client.
+
+### Data templates
+
+| Tool                         | Description                                                    |
+|------------------------------|----------------------------------------------------------------|
+| `list_asset_data_templates`  | List the data templates of a workspace or of a collection      |
+| `get_asset_data_template`    | Get a data template with its attribute values                  |
+| `create_asset_data_template` | Create a data template (attributes, privacy, collection scope) |
+| `update_asset_data_template` | Update a data template                                         |
+| `delete_asset_data_template` | Delete a data template                                         |
+
+### Exports and imports
+
+| Tool                       | Description                                                           |
+|----------------------------|-----------------------------------------------------------------------|
+| `create_asset_export`      | Export renditions of assets as an archive, built in the background    |
+| `get_asset_export`         | Follow an export: its status, then the URL of the archive once ready  |
+| `list_asset_imports`       | List the asset imports of a workspace, with their counts              |
+| `list_asset_import_errors` | List the entries of an import that could not be imported              |
+
+Starting an import (an instructions file) stays in the client and the API.
+
 ### Workflows and quarantine
 
 | Tool                         | Description                                                            |
