@@ -98,7 +98,7 @@ page whose inline script cannot bear the nonce.
 | Route | Screen | Access |
 |---|---|---|
 | `/` | Dashboard | public |
-| `/git-log` | Last 30 commits of the build (`/git-log.html` redirects to it) | public |
+| `/git-log` | Last 200 commits of the build (`/git-log.html` redirects to it) | public |
 | `/auth/callback` | OpenID Connect callback | public |
 | `/auth/window` | Sign-in window opened from the services menu | public |
 | `/api/status` | Status and version of each API, polled by the cards | public |

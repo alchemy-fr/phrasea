@@ -93,7 +93,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 30
+          fetch-depth: 200
 
       - name: Generate git log
         if: matrix.group == 'node'
