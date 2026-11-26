@@ -161,7 +161,9 @@ These screens list what the client and the workers create; they create and edit 
   transport of every bus), newest first, with their queue, type and error,
   filterable by queue, type, dates and **Retried**. **Retry** (row, detail page and batch action)
   sends a message back to its transport once; **Retry all** retries every message not retried yet,
-  whatever the current filter.
+  whatever the current filter. **Purge all** deletes every message of the table, retried or not,
+  after a confirmation dialog then a page where the number of messages to delete must be typed;
+  messages failing after that page is displayed are kept.
 
 ### Search index
 

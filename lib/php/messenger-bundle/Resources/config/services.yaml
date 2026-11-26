@@ -12,6 +12,7 @@ services:
     Alchemy\MessengerBundle\Middleware\RetryCountMiddleware: ~
 
     Alchemy\MessengerBundle\Retry\FailedMessageRetrier: ~
+    Alchemy\MessengerBundle\Purge\FailedMessagePurger: ~
 
     Alchemy\MessengerBundle\Transport\TestTransportFactory:
         tags: [messenger.transport_factory]

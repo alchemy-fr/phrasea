@@ -1,0 +1,23 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    Purge failed messages
+{% endblock %}
+
+{% block main %}
+    <div class="alert alert-danger">
+        This permanently deletes {{ count }} message(s) of the failed transport, retried or not.
+        Messages failing from now on are kept.
+    </div>
+
+    <form method="post" action="{{ confirmUrl }}">
+        <input type="hidden" name="token" value="{{ csrf_token(csrfTokenId) }}">
+        <input type="hidden" name="maxId" value="{{ maxId }}">
+        <div class="mb-3">
+            <label for="purge-confirmation" class="form-label">Type {{ count }} to confirm</label>
+            <input type="text" id="purge-confirmation" name="confirmation" class="form-control" required autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn-danger">Delete {{ count }} message(s)</button>
+        <a href="{{ cancelUrl }}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}

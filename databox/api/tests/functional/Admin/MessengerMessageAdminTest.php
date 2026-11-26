@@ -160,6 +160,100 @@ class MessengerMessageAdminTest extends AbstractDataboxAdminTestCase
         $this->assertStringContainsString('Message already retried', $crawler->filter('#flash-messages')->text());
     }
 
+    public function testPurgeAllAsksASecondConfirmation(): void
+    {
+        $ids = $this->createFailedMessages(3);
+        $this->markAsRetried($ids[1]);
+
+        $crawler = $this->openPurgePage();
+        $this->assertStringContainsString('permanently deletes 3 message(s)', $crawler->filter('.alert-danger')->text());
+        $this->assertCount(1, $crawler->selectButton('Delete 3 message(s)'));
+        $this->assertSame($ids, $this->getAllIds(), 'the first step deletes nothing');
+
+        // failing after the second page is displayed: kept
+        $newId = array_values(array_diff($this->createFailedMessages(1), $ids));
+        $this->assertCount(1, $newId);
+
+        $this->client->submit($crawler->selectButton('Delete 3 message(s)')->form([
+            'confirmation' => '3',
+        ]));
+        $this->assertResponseRedirects();
+        $this->assertSame($newId, $this->getAllIds());
+
+        $crawler = $this->client->followRedirect();
+        $this->assertStringContainsString('3 message(s) deleted', $crawler->filter('#flash-messages')->text());
+    }
+
+    public function testPurgeAllWithWrongConfirmationDeletesNothing(): void
+    {
+        $ids = $this->createFailedMessages(3);
+
+        $crawler = $this->openPurgePage();
+        $this->client->submit($crawler->selectButton('Delete 3 message(s)')->form([
+            'confirmation' => '2',
+        ]));
+        $this->assertResponseRedirects();
+        $this->assertSame($ids, $this->getAllIds());
+
+        $crawler = $this->client->followRedirect();
+        $this->assertStringContainsString('does not match', $crawler->filter('#flash-messages')->text());
+    }
+
+    public function testPurgeAllRejectsInvalidCsrfToken(): void
+    {
+        $ids = $this->createFailedMessages(2);
+
+        $crawler = $this->openPurgePage();
+        $form = $crawler->selectButton('Delete 2 message(s)')->form([
+            'confirmation' => '2',
+        ]);
+        $form['token']->setValue('invalid');
+        $this->client->submit($form);
+        $this->assertResponseRedirects();
+        $this->assertSame($ids, $this->getAllIds());
+
+        $crawler = $this->client->followRedirect();
+        $this->assertStringContainsString('Invalid CSRF token', $crawler->filter('#flash-messages')->text());
+    }
+
+    public function testPurgeAllWithEmptyTable(): void
+    {
+        $form = $this->getPurgeAllForm();
+
+        $this->client->request('POST', $form->attr('action'));
+        $this->assertResponseRedirects();
+
+        $crawler = $this->client->followRedirect();
+        $this->assertStringContainsString('No message to delete', $crawler->filter('#flash-messages')->text());
+    }
+
+    public function testPurgeAllRequiresPost(): void
+    {
+        $ids = $this->createFailedMessages(1);
+        $form = $this->getPurgeAllForm();
+
+        $this->client->request('GET', $form->attr('action'));
+        // a GET falls through to the detail route ("/{entityId}"), which finds no such message
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertSame($ids, $this->getAllIds());
+    }
+
+    private function getPurgeAllForm(): Crawler
+    {
+        $form = $this->loadIndexPage()->filter('form[action*="purge-all"]');
+        $this->assertCount(1, $form, 'the global "Purge all" action is on the list page');
+
+        return $form;
+    }
+
+    private function openPurgePage(): Crawler
+    {
+        $crawler = $this->client->request('POST', $this->getPurgeAllForm()->attr('action'));
+        $this->assertResponseIsSuccessful();
+
+        return $crawler;
+    }
+
     private function loadIndexPage(): Crawler
     {
         $crawler = $this->client->request('GET', '/admin/messenger-message');
@@ -214,6 +308,14 @@ class MessengerMessageAdminTest extends AbstractDataboxAdminTestCase
     private function getPendingIds(): array
     {
         return array_map('intval', $this->getConnection()->fetchFirstColumn('SELECT id FROM messenger_messages WHERE delivered_at IS NULL ORDER BY id'));
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function getAllIds(): array
+    {
+        return array_map('intval', $this->getConnection()->fetchFirstColumn('SELECT id FROM messenger_messages ORDER BY id'));
     }
 
     /**

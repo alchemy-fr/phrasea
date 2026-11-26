@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Voter\AdminVoter;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
+use Alchemy\MessengerBundle\Purge\FailedMessagePurger;
 use Alchemy\MessengerBundle\Retry\FailedMessageRetrier;
 use Alchemy\MessengerBundle\Retry\RetryReport;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
@@ -27,14 +28,19 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(new Expression('is_granted("'.AdminVoter::ROLE.'") or is_granted("'.JwtUser::ROLE_TECH.'")'))]
 class MessengerMessageCrudController extends AbstractCrudController
 {
+    private const string PURGE_CSRF_TOKEN_ID = 'messenger-purge-all';
+
     public function __construct(
         private readonly FailedMessageRetrier $retrier,
+        private readonly FailedMessagePurger $purger,
     ) {
     }
 
@@ -53,6 +59,13 @@ class MessengerMessageCrudController extends AbstractCrudController
             ->renderAsForm()
             ->askConfirmation('Retry every message that was not retried yet?', 'Retry all');
 
+        $purgeAll = Action::new('purgeAll', 'Purge all', 'fas fa-trash')
+            ->linkToCrudAction('purgeAll')
+            ->createAsGlobalAction()
+            ->renderAsForm()
+            ->asDangerAction()
+            ->askConfirmation('Delete every message of the table, retried or not? A second step will ask you to confirm.', 'Continue');
+
         return $actions
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
@@ -60,6 +73,7 @@ class MessengerMessageCrudController extends AbstractCrudController
             ->add(Crud::PAGE_DETAIL, $retry)
             ->addBatchAction($batchRetry)
             ->add(Crud::PAGE_INDEX, $retryAll)
+            ->add(Crud::PAGE_INDEX, $purgeAll)
         ;
     }
 
@@ -105,6 +119,60 @@ class MessengerMessageCrudController extends AbstractCrudController
     public function retryAll(): RedirectResponse
     {
         $this->flashReport($this->retrier->retryAll());
+
+        return $this->redirect($this->getIndexUrl());
+    }
+
+    /**
+     * First step of the purge: the whole table, whatever the current search, retried or not.
+     * The current max id bounds what the second step deletes.
+     */
+    #[AdminRoute(path: '/purge-all', name: 'purge_all', options: ['methods' => ['POST']])]
+    public function purgeAll(): Response
+    {
+        $maxId = $this->purger->getMaxId();
+        if (null === $maxId) {
+            $this->addFlash('info', 'No message to delete');
+
+            return $this->redirect($this->getIndexUrl());
+        }
+
+        return $this->render('@AlchemyMessenger/admin/purge_all.html.twig', [
+            'count' => $this->purger->countUpTo($maxId),
+            'maxId' => $maxId,
+            'confirmUrl' => $this->container->get(AdminUrlGeneratorInterface::class)
+                ->setController(static::class)
+                ->setAction('purgeAllConfirm')
+                ->unset(EA::ENTITY_ID)
+                ->generateUrl(),
+            'cancelUrl' => $this->getIndexUrl(),
+            'csrfTokenId' => self::PURGE_CSRF_TOKEN_ID,
+        ]);
+    }
+
+    #[AdminRoute(path: '/purge-all/confirm', name: 'purge_all_confirm', options: ['methods' => ['POST']])]
+    public function purgeAllConfirm(Request $request): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid(self::PURGE_CSRF_TOKEN_ID, (string) $request->request->get('token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token');
+
+            return $this->redirect($this->getIndexUrl());
+        }
+
+        $maxId = $request->request->get('maxId');
+        if (!is_numeric($maxId)) {
+            throw new BadRequestHttpException('Invalid maxId');
+        }
+        $maxId = (int) $maxId;
+
+        $count = $this->purger->countUpTo($maxId);
+        if (trim((string) $request->request->get('confirmation')) !== (string) $count) {
+            $this->addFlash('danger', sprintf('Confirmation does not match the %d message(s) to delete: nothing was deleted', $count));
+
+            return $this->redirect($this->getIndexUrl());
+        }
+
+        $this->addFlash('success', sprintf('%d message(s) deleted', $this->purger->purgeUpTo($maxId)));
 
         return $this->redirect($this->getIndexUrl());
     }
