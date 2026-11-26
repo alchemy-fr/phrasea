@@ -49,6 +49,7 @@ import {getAttributeType} from '@/features/attributes/types/registry';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
 import {cn} from '@alchemy/ui/utils/cn';
 import {belowTopBar} from '@/components/layout/chrome';
+import {TakeoverScreen} from '@/components/layout/takeoverScreens';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {debounce, deepEquals} from '@alchemy/ui/utils/misc';
 import {Flag} from '@/components/ui/flag';
@@ -139,6 +140,14 @@ function relationEntry(
  * preview before saving.
  */
 export function AttributeBatchEditorRoute() {
+    return (
+        <TakeoverScreen>
+            <AttributeBatchEditor />
+        </TakeoverScreen>
+    );
+}
+
+function AttributeBatchEditor() {
     const {t} = useTranslation();
     const close = useCloseRoute();
     const {openModal} = useModals();

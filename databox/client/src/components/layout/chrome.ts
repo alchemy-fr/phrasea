@@ -4,7 +4,8 @@
  *
  * Screens that take over the whole window — the asset viewer, the basket
  * view, the batch attribute editor — are laid out *below* it with
- * `belowTopBar` instead of `inset-0`, so that row stays visible and usable.
+ * `belowTopBar` instead of `inset-0`, so that row stays visible and usable,
+ * and are wrapped in `<TakeoverScreen>` (`takeoverScreens.tsx`).
  * Both constants describe the same height and must stay in sync.
  */
 export const topBarHeight = 'h-12';

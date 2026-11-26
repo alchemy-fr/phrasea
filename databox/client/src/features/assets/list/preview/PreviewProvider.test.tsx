@@ -1,9 +1,14 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import type {ReactNode} from 'react';
+import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import type {Asset} from '@/types/api';
 import {usePreferencesStore} from '@/features/preferences/store';
+import {
+    TakeoverScreen,
+    useTakeoverScreenStore,
+} from '@/components/layout/takeoverScreens';
 import {PreviewProvider, usePreview} from './PreviewProvider';
 
 vi.mock('@/lib/api/http', () => ({
@@ -39,15 +44,17 @@ function Chip({a}: {a: Asset}) {
     );
 }
 
-function renderChips() {
+function renderChips(wrap: (list: ReactNode) => ReactNode = list => list) {
     const i18n = createI18n('en');
 
     return render(
         <I18nextProvider i18n={i18n}>
-            <PreviewProvider>
-                <Chip a={asset('1')} />
-                <Chip a={asset('2')} />
-            </PreviewProvider>
+            {wrap(
+                <PreviewProvider>
+                    <Chip a={asset('1')} />
+                    <Chip a={asset('2')} />
+                </PreviewProvider>
+            )}
         </I18nextProvider>
     );
 }
@@ -57,7 +64,11 @@ describe('PreviewProvider', () => {
         vi.useFakeTimers();
         usePreferencesStore.setState({preferences: {}, authenticated: true});
     });
-    afterEach(() => vi.useRealTimers());
+    afterEach(() => {
+        cleanup();
+        useTakeoverScreenStore.setState({screens: []});
+        vi.useRealTimers();
+    });
 
     it('opens on hover and closes on leave', () => {
         renderChips();
@@ -121,6 +132,56 @@ describe('PreviewProvider', () => {
         act(() => vi.advanceTimersByTime(60));
         expect(screen.getByText('Asset 1')).toBeTruthy();
         expect(screen.getByTestId('player').dataset.controls).toBe('1');
+        expect(screen.getByLabelText('Unlock preview')).toBeTruthy();
+    });
+
+    it('hides a locked preview while a takeover screen covers the list', () => {
+        renderChips();
+        fireEvent.click(screen.getByTestId('chip-1'));
+        expect(screen.getByText('Asset 1')).toBeTruthy();
+
+        const takeover = render(<TakeoverScreen />);
+        expect(screen.queryByText('Asset 1')).toBeNull();
+        expect(screen.queryByLabelText('Unlock preview')).toBeNull();
+        expect(
+            usePreferencesStore.getState().preferences.display?.previewLocked
+        ).toBe(true);
+
+        // Hovering or clicking the covered list does nothing
+        fireEvent.mouseEnter(screen.getByTestId('chip-2'));
+        fireEvent.click(screen.getByTestId('chip-2'));
+        act(() => vi.advanceTimersByTime(60));
+        expect(screen.queryByText('Asset 2')).toBeNull();
+
+        act(() => takeover.unmount());
+        expect(screen.getByText('Asset 1')).toBeTruthy();
+        expect(screen.getByLabelText('Unlock preview')).toBeTruthy();
+        expect(screen.getByTestId('player').dataset.controls).toBe('1');
+    });
+
+    it('closes a hover preview when a takeover screen covers the list', () => {
+        renderChips();
+        fireEvent.mouseEnter(screen.getByTestId('chip-1'));
+        act(() => vi.advanceTimersByTime(60));
+        expect(screen.getByText('Asset 1')).toBeTruthy();
+
+        const takeover = render(<TakeoverScreen />);
+        expect(screen.queryByText('Asset 1')).toBeNull();
+
+        act(() => takeover.unmount());
+        act(() => vi.advanceTimersByTime(150));
+        expect(screen.queryByText('Asset 1')).toBeNull();
+    });
+
+    it('shows the preview of a list rendered in the top takeover screen', () => {
+        render(<TakeoverScreen />);
+        renderChips(list => <TakeoverScreen>{list}</TakeoverScreen>);
+        fireEvent.mouseEnter(screen.getByTestId('chip-1'));
+        act(() => vi.advanceTimersByTime(60));
+        expect(screen.getByText('Asset 1')).toBeTruthy();
+
+        fireEvent.click(screen.getByTestId('chip-2'));
+        expect(screen.getByText('Asset 2')).toBeTruthy();
         expect(screen.getByLabelText('Unlock preview')).toBeTruthy();
     });
 });

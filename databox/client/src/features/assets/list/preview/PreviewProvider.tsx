@@ -20,6 +20,7 @@ import {
 import {Button} from '@alchemy/ui/ui/button';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {cn} from '@alchemy/ui/utils/cn';
+import {useCoveredByTakeoverScreen} from '@/components/layout/takeoverScreens';
 import {AssetPreview} from './AssetPreview';
 
 type PreviewContextValue = {
@@ -44,6 +45,8 @@ export function usePreview(): PreviewContextValue {
  * the hovered thumbnail and kept inside the viewport. Clicking the file type
  * chip locks the preview: it stays open and becomes interactive (video
  * controls, scrollable attributes) until the red lock is clicked.
+ * Hidden while a takeover screen covers the list it belongs to: a locked
+ * preview comes back when the list is shown again, a hover one is closed.
  */
 export function PreviewProvider({
     children,
@@ -59,6 +62,7 @@ export function PreviewProvider({
     const enterTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
     const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
     const enabled = display.displayPreview && !disabled;
+    const covered = useCoveredByTakeoverScreen();
 
     const open = state !== null;
     const setPreviewLocked = useCallback(
@@ -77,7 +81,7 @@ export function PreviewProvider({
         (asset: Asset, anchor: HTMLElement) => {
             // A locked preview stays on its asset; hovering only opens one
             // when nothing is displayed yet.
-            if (!enabled || (locked && open)) {
+            if (!enabled || covered || (locked && open)) {
                 return;
             }
             clearTimeout(leaveTimer.current);
@@ -87,7 +91,7 @@ export function PreviewProvider({
                 50
             );
         },
-        [enabled, locked, open]
+        [enabled, covered, locked, open]
     );
     const onLeave = useCallback(() => {
         if (locked) {
@@ -98,7 +102,7 @@ export function PreviewProvider({
     }, [locked]);
     const onLock = useCallback(
         (asset: Asset, anchor: HTMLElement) => {
-            if (!enabled) {
+            if (!enabled || covered) {
                 return;
             }
             clearTimeout(leaveTimer.current);
@@ -108,8 +112,18 @@ export function PreviewProvider({
                 setPreviewLocked(true);
             }
         },
-        [enabled, locked, setPreviewLocked]
+        [enabled, covered, locked, setPreviewLocked]
     );
+
+    useEffect(() => {
+        // The click opening the takeover screen may never be followed by a
+        // mouseleave: a hover preview would come back stale.
+        if (covered && !locked) {
+            clearTimeout(leaveTimer.current);
+            clearTimeout(enterTimer.current);
+            setState(null);
+        }
+    }, [covered, locked]);
 
     useEffect(() => {
         if (display.previewLocked) {
@@ -125,7 +139,7 @@ export function PreviewProvider({
     return (
         <PreviewContext.Provider value={value}>
             {children}
-            {state ? (
+            {state && !covered ? (
                 <PreviewPopover
                     asset={state.asset}
                     anchor={state.anchor}

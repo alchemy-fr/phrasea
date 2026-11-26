@@ -40,6 +40,7 @@ import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {basketChannel} from '@/lib/realtime/channels';
 import {belowTopBar} from '@/components/layout/chrome';
+import {TakeoverScreen} from '@/components/layout/takeoverScreens';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@alchemy/ui/utils/cn';
 import {useModals} from '@alchemy/ui/modals/ModalProvider';
@@ -145,37 +146,24 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
     );
 
     return (
-        <div
-            data-testid="basket-view"
-            className={cn(belowTopBar, 'z-50 flex flex-col bg-background')}
-        >
-            <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
-                <ShoppingBasketIcon className="size-5 text-muted-foreground" />
-                <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
-                    {basket.data?.name ?? ''}
-                </h1>
-                <span className="text-sm text-muted-foreground">
-                    {t('basket.view.count', '{{count}} items', {
-                        count: total,
-                    })}
-                </span>
-                {basket.data ? (
-                    <>
-                        <Tooltip content={t('asset.actions.info', 'Info')}>
-                            <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                onClick={() =>
-                                    router.push(
-                                        routes.basketManage(basketId, 'info')
-                                    )
-                                }
-                            >
-                                <InfoIcon />
-                            </Button>
-                        </Tooltip>
-                        {basket.data.capabilities.edit ? (
-                            <Tooltip content={t('common.edit', 'Edit')}>
+        <TakeoverScreen>
+            <div
+                data-testid="basket-view"
+                className={cn(belowTopBar, 'z-50 flex flex-col bg-background')}
+            >
+                <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
+                    <ShoppingBasketIcon className="size-5 text-muted-foreground" />
+                    <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
+                        {basket.data?.name ?? ''}
+                    </h1>
+                    <span className="text-sm text-muted-foreground">
+                        {t('basket.view.count', '{{count}} items', {
+                            count: total,
+                        })}
+                    </span>
+                    {basket.data ? (
+                        <>
+                            <Tooltip content={t('asset.actions.info', 'Info')}>
                                 <Button
                                     variant="ghost"
                                     size="icon-sm"
@@ -183,170 +171,196 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                                         router.push(
                                             routes.basketManage(
                                                 basketId,
-                                                'edit'
+                                                'info'
                                             )
                                         )
                                     }
                                 >
-                                    <PencilIcon />
+                                    <InfoIcon />
                                 </Button>
                             </Tooltip>
-                        ) : null}
-                        <Tooltip
-                            content={t('basket.integrations', 'Integrations')}
-                        >
-                            <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                onClick={() =>
-                                    router.push(
-                                        routes.basketManage(
-                                            basketId,
-                                            'integrations'
-                                        )
-                                    )
-                                }
+                            {basket.data.capabilities.edit ? (
+                                <Tooltip content={t('common.edit', 'Edit')}>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        onClick={() =>
+                                            router.push(
+                                                routes.basketManage(
+                                                    basketId,
+                                                    'edit'
+                                                )
+                                            )
+                                        }
+                                    >
+                                        <PencilIcon />
+                                    </Button>
+                                </Tooltip>
+                            ) : null}
+                            <Tooltip
+                                content={t(
+                                    'basket.integrations',
+                                    'Integrations'
+                                )}
                             >
-                                <PlugIcon />
-                            </Button>
-                        </Tooltip>
-                    </>
-                ) : null}
-                <Separator orientation="vertical" className="mx-0.5 h-5" />
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={close}
-                    aria-label={t('common.close', 'Close')}
-                >
-                    <XIcon />
-                </Button>
-            </header>
-            <div className="flex min-h-0 flex-1">
-                <aside
-                    className="w-72 shrink-0 overflow-y-auto border-r bg-sidebar"
-                    data-dnd-scroll
-                >
-                    <BasketsPanel />
-                </aside>
-                <main className="flex min-w-0 flex-1 flex-col">
-                    {basket.isLoading || assets.isLoading ? (
-                        <FullPageLoader />
-                    ) : basket.isError ? (
-                        <EmptyState
-                            title={t('basket.not_found', 'Basket not found')}
-                        />
-                    ) : (
-                        <SelectionProvider>
-                            <BasketToolbar
-                                pages={pages}
-                                onRemove={
-                                    basket.data?.capabilities.edit
-                                        ? remove
-                                        : undefined
-                                }
-                            />
-                            {total === 0 ? (
-                                <EmptyState
-                                    className="flex-1"
-                                    icon={<ShoppingBasketIcon />}
-                                    title={t(
-                                        'basket.view.empty',
-                                        'This basket is empty'
-                                    )}
-                                    description={t(
-                                        'basket.view.empty_help',
-                                        'Select assets in the search results and add them to the basket.'
-                                    )}
-                                />
-                            ) : (
-                                <AssetList
-                                    pages={pages}
-                                    basketId={basketId}
-                                    loading={false}
-                                    loadingMore={assets.isFetchingNextPage}
-                                    hasMore={assets.hasNextPage}
-                                    onLoadMore={() =>
-                                        assets
-                                            .fetchNextPage()
-                                            .then(() => undefined)
+                                <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={() =>
+                                        router.push(
+                                            routes.basketManage(
+                                                basketId,
+                                                'integrations'
+                                            )
+                                        )
                                     }
-                                    layout={display.layout}
-                                    thumbSize={display.thumbSize}
-                                    onOpen={openAsset}
-                                    itemOverlay={asset => (
-                                        <span className="pointer-events-none absolute bottom-1.5 left-1.5 z-10 flex items-center gap-1">
-                                            <span className="rounded bg-background/90 px-1.5 py-0.5 font-mono text-[11px] font-semibold shadow-sm">
-                                                #
-                                                {positions.get(
-                                                    asset.basketItemId ?? ''
-                                                )}
-                                            </span>
-                                            <ClipBadge
-                                                clip={effectiveClip(asset)}
-                                                inherited={!asset.basketClip}
-                                            />
-                                        </span>
-                                    )}
-                                    itemActions={
+                                >
+                                    <PlugIcon />
+                                </Button>
+                            </Tooltip>
+                        </>
+                    ) : null}
+                    <Separator orientation="vertical" className="mx-0.5 h-5" />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={close}
+                        aria-label={t('common.close', 'Close')}
+                    >
+                        <XIcon />
+                    </Button>
+                </header>
+                <div className="flex min-h-0 flex-1">
+                    <aside
+                        className="w-72 shrink-0 overflow-y-auto border-r bg-sidebar"
+                        data-dnd-scroll
+                    >
+                        <BasketsPanel />
+                    </aside>
+                    <main className="flex min-w-0 flex-1 flex-col">
+                        {basket.isLoading || assets.isLoading ? (
+                            <FullPageLoader />
+                        ) : basket.isError ? (
+                            <EmptyState
+                                title={t(
+                                    'basket.not_found',
+                                    'Basket not found'
+                                )}
+                            />
+                        ) : (
+                            <SelectionProvider>
+                                <BasketToolbar
+                                    pages={pages}
+                                    onRemove={
                                         basket.data?.capabilities.edit
-                                            ? asset => (
-                                                  <>
-                                                      {asset.basketItemId &&
-                                                      isClipApplicable(
-                                                          asset.source?.type
-                                                      ) ? (
+                                            ? remove
+                                            : undefined
+                                    }
+                                />
+                                {total === 0 ? (
+                                    <EmptyState
+                                        className="flex-1"
+                                        icon={<ShoppingBasketIcon />}
+                                        title={t(
+                                            'basket.view.empty',
+                                            'This basket is empty'
+                                        )}
+                                        description={t(
+                                            'basket.view.empty_help',
+                                            'Select assets in the search results and add them to the basket.'
+                                        )}
+                                    />
+                                ) : (
+                                    <AssetList
+                                        pages={pages}
+                                        basketId={basketId}
+                                        loading={false}
+                                        loadingMore={assets.isFetchingNextPage}
+                                        hasMore={assets.hasNextPage}
+                                        onLoadMore={() =>
+                                            assets
+                                                .fetchNextPage()
+                                                .then(() => undefined)
+                                        }
+                                        layout={display.layout}
+                                        thumbSize={display.thumbSize}
+                                        onOpen={openAsset}
+                                        itemOverlay={asset => (
+                                            <span className="pointer-events-none absolute bottom-1.5 left-1.5 z-10 flex items-center gap-1">
+                                                <span className="rounded bg-background/90 px-1.5 py-0.5 font-mono text-[11px] font-semibold shadow-sm">
+                                                    #
+                                                    {positions.get(
+                                                        asset.basketItemId ?? ''
+                                                    )}
+                                                </span>
+                                                <ClipBadge
+                                                    clip={effectiveClip(asset)}
+                                                    inherited={
+                                                        !asset.basketClip
+                                                    }
+                                                />
+                                            </span>
+                                        )}
+                                        itemActions={
+                                            basket.data?.capabilities.edit
+                                                ? asset => (
+                                                      <>
+                                                          {asset.basketItemId &&
+                                                          isClipApplicable(
+                                                              asset.source?.type
+                                                          ) ? (
+                                                              <Tooltip
+                                                                  content={t(
+                                                                      'basket.clip.action',
+                                                                      'Cut / crop'
+                                                                  )}
+                                                              >
+                                                                  <Button
+                                                                      variant="secondary"
+                                                                      size="icon-xs"
+                                                                      className="bg-background/90 shadow-sm"
+                                                                      data-testid="basket-clip-action"
+                                                                      onClick={() =>
+                                                                          void editClip(
+                                                                              asset
+                                                                          )
+                                                                      }
+                                                                  >
+                                                                      <ScissorsIcon />
+                                                                  </Button>
+                                                              </Tooltip>
+                                                          ) : null}
                                                           <Tooltip
                                                               content={t(
-                                                                  'basket.clip.action',
-                                                                  'Cut / crop'
+                                                                  'basket.remove_item',
+                                                                  'Remove from basket'
                                                               )}
                                                           >
                                                               <Button
                                                                   variant="secondary"
                                                                   size="icon-xs"
                                                                   className="bg-background/90 shadow-sm"
-                                                                  data-testid="basket-clip-action"
                                                                   onClick={() =>
-                                                                      void editClip(
-                                                                          asset
-                                                                      )
+                                                                      remove([
+                                                                          asset,
+                                                                      ])
                                                                   }
                                                               >
-                                                                  <ScissorsIcon />
+                                                                  <Trash2Icon />
                                                               </Button>
                                                           </Tooltip>
-                                                      ) : null}
-                                                      <Tooltip
-                                                          content={t(
-                                                              'basket.remove_item',
-                                                              'Remove from basket'
-                                                          )}
-                                                      >
-                                                          <Button
-                                                              variant="secondary"
-                                                              size="icon-xs"
-                                                              className="bg-background/90 shadow-sm"
-                                                              onClick={() =>
-                                                                  remove([
-                                                                      asset,
-                                                                  ])
-                                                              }
-                                                          >
-                                                              <Trash2Icon />
-                                                          </Button>
-                                                      </Tooltip>
-                                                  </>
-                                              )
-                                            : undefined
-                                    }
-                                />
-                            )}
-                        </SelectionProvider>
-                    )}
-                </main>
+                                                      </>
+                                                  )
+                                                : undefined
+                                        }
+                                    />
+                                )}
+                            </SelectionProvider>
+                        )}
+                    </main>
+                </div>
             </div>
-        </div>
+        </TakeoverScreen>
     );
 }
 
