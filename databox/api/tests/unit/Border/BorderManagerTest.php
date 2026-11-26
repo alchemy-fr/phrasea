@@ -14,6 +14,7 @@ use App\Border\UploaderOrigins;
 use App\Border\UriDownloader;
 use App\Entity\Core\Workspace;
 use App\Service\Storage\FilePathGenerator;
+use App\Service\Storage\TemporaryFiles;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\Exception\TransportException;
@@ -51,7 +52,7 @@ class BorderManagerTest extends TestCase
 
         return new BorderManager(
             $this->createStub(EntityManagerInterface::class),
-            new UriDownloader(new MockHttpClient(new MockResponse(self::PNG)), 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024 * 1024), 900),
+            new UriDownloader(new MockHttpClient(new MockResponse(self::PNG)), 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024 * 1024), 900, new TemporaryFiles(sys_get_temp_dir())),
             $this->createStub(FileStorageManager::class),
             new FilePathGenerator($pathGenerator),
             new FileValidator(''),

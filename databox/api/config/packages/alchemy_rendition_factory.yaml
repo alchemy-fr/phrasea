@@ -4,3 +4,5 @@ alchemy_rendition_factory:
         max_size: '%env(int:S3_MAX_OBJECT_SIZE)%'
         max_duration: '%app.download.max_duration%'
     max_timeout: '%env(int:DATABOX_MAX_RENDITION_BUILD_TIME)%'
+    # Under the purge of the stale temporary files done by the workers
+    working_directory: '%app.tmp_dir%'

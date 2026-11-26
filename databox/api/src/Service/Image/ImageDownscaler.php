@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\Image;
 
+use App\Service\Storage\TemporaryFiles;
+
 /**
  * Produces a lighter JPEG copy of an image before sending it to an external service
  * (face recognition, embedding...), so that large renditions or sources stay under the
@@ -15,6 +17,7 @@ final readonly class ImageDownscaler
 
     public function __construct(
         private ImageManagerFactory $imageManagerFactory,
+        private TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -48,7 +51,7 @@ final readonly class ImageDownscaler
             });
         }
 
-        $target = tempnam(sys_get_temp_dir(), 'downscale-').'.jpg';
+        $target = $this->temporaryFiles->createPath('downscale-', 'jpg');
         $image->save($target, $quality, 'jpg');
 
         return $target;

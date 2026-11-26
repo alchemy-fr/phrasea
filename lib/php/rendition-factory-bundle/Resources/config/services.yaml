@@ -10,6 +10,7 @@ services:
 
     Alchemy\RenditionFactory\Context\TransformationContextFactory:
         arguments:
+            $workingDirectory: '%alchemy_rendition_factory.working_directory%'
             $allowPrivateNetwork: "@=parameter('kernel.environment') === 'dev'"
             $maxDownloadSize: '%alchemy_rendition_factory.download.max_size%'
             $maxDownloadDuration: '%alchemy_rendition_factory.download.max_duration%'

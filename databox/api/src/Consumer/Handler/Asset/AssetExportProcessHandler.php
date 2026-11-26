@@ -35,6 +35,7 @@ use App\Service\Clip\ClipResolver;
 use App\Service\Clip\MediaClipper;
 use App\Service\Metadata\FileMetadataEmbedder;
 use App\Service\Metadata\RenditionDefinitionMetadataEmbedder;
+use App\Service\Storage\TemporaryFiles;
 use App\Service\Workspace\TermsManager;
 use App\Service\Workspace\TermsPdfGenerator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -69,6 +70,7 @@ class AssetExportProcessHandler
         private readonly LoggerInterface $logger,
         private readonly MediaClipper $mediaClipper,
         private readonly AssetAttributeFilterChecker $attributeFilterChecker,
+        private readonly TemporaryFiles $temporaryFiles,
         #[Autowire(env: 'int:EXPORT_DOWNLOAD_CONCURRENCY')]
         private readonly int $downloadConcurrency,
     ) {
@@ -96,7 +98,7 @@ class AssetExportProcessHandler
             $i = 0;
             $fileCount = 0;
 
-            $archiveDir = sys_get_temp_dir().'/'.uniqid('archive-dir');
+            $archiveDir = $this->temporaryFiles->createPath('archive-dir');
             mkdir($archiveDir, 0755, true);
             $archiveSrc = null;
 
@@ -191,7 +193,7 @@ class AssetExportProcessHandler
                 $this->exportTermsPdf(array_keys($workspaceIds), $archiveDir);
 
                 $archivePath = $this->pathGenerator->generatePath('zip', 'exports/');
-                $archiveSrc = sys_get_temp_dir().'/'.uniqid('archive-file').'.zip';
+                $archiveSrc = $this->temporaryFiles->createPath('archive-file', 'zip');
 
                 ZipUtil::zipDirectory($archiveDir, $archiveSrc, 'content');
                 $this->triggerExportPush($export->getId(), 'progress', [
@@ -424,15 +426,19 @@ class AssetExportProcessHandler
             }
 
             if ($bag->count() > 0) {
+                $tmpFile = null;
                 try {
                     $writer = $this->metadataManipulator->createWriter();
                     $writer->disableConversion();
 
-                    $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
+                    $tmpFile = $this->temporaryFiles->createPath('metadata-file');
                     $writer->write($path, $bag, destination: $tmpFile);
                     unlink($path);
                     rename($tmpFile, $path);
                 } catch (\Throwable $e) {
+                    if (null !== $tmpFile && is_file($tmpFile)) {
+                        @unlink($tmpFile);
+                    }
                     // The rendition file format may not support metadata writing; skip embedding for this file.
                     $this->logger->error('Failed to write metadata into exported file', [
                         'exception' => $e,

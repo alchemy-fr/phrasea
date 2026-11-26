@@ -47,9 +47,10 @@ final readonly class TransformationContextFactory
         $dateWorkingDir = $baseDir.'/'.date('Y-m-d');
         $workingDir = $dateWorkingDir.'/'.uniqid();
 
-        foreach ([$baseDir, $cacheDir, $dateWorkingDir, $workingDir] as $dir) {
-            if (!is_dir($dir)) {
-                mkdir($dir);
+        foreach ([$cacheDir, $workingDir] as $dir) {
+            // Several processes may create the same parents at once
+            if (!is_dir($dir) && !@mkdir($dir, 0777, true) && !is_dir($dir)) {
+                throw new \RuntimeException(sprintf('Unable to create the "%s" directory', $dir));
             }
         }
 

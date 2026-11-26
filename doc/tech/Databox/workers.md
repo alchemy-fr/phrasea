@@ -156,6 +156,17 @@ than adding programs that skip `p1`.
 Every process has its own `PHP_MEMORY_LIMIT`; the container shares
 `DATABOX_WORKER_MEMORY_LIMIT` between them. Raise it with the number of processes.
 
+### Temporary files
+
+The files the workers download or build (sources, renditions, transcripts, export archives, clips,
+the working directories and remote file cache of the rendition factory) go to `/tmp/databox`
+(parameter `app.tmp_dir`), and are deleted once used, on failure too. A process killed in the
+middle of a message (OOM, time limit, deployment) leaves its files there: each worker process,
+when it starts, deletes the entries of this directory older than 24 hours
+(`TemporaryFilesPurgeListener`). The rest of `/tmp` is never touched; the external tools
+(ImageMagick, ffmpeg, LibreOffice, exiftool) keep their own temporary files
+(`IMAGEMAGICK_POLICY_TEMPORARY_PATH`, `TMPDIR`).
+
 ### Splitting the deployments
 
 The queues can be consumed by different deployments, e.g. with Helm:

@@ -19,6 +19,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileFetcher;
+use App\Service\Storage\TemporaryFiles;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -45,6 +46,7 @@ final class RemoteExportAction extends AbstractAutomationAction
         private readonly RemoteFilesystemFactory $filesystemFactory,
         private readonly FileFetcher $fileFetcher,
         private readonly AssetNameResolver $assetNameResolver,
+        private readonly TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -152,7 +154,7 @@ final class RemoteExportAction extends AbstractAutomationAction
             return;
         }
 
-        $tmp = tempnam(sys_get_temp_dir(), 'automation-export');
+        $tmp = $this->temporaryFiles->createPath('automation-export');
         try {
             $this->fileFetcher->getFile($file, path: $tmp);
             $fd = fopen($tmp, 'r');

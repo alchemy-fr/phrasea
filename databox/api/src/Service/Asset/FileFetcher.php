@@ -13,6 +13,7 @@ use App\Entity\Core\File;
 use App\Entity\Core\FileAnalysisStateEnum;
 use App\Service\Asset\Exception\PrivateFileException;
 use App\Service\Asset\Exception\RefusedFileContentException;
+use App\Service\Storage\TemporaryFiles;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -43,6 +44,7 @@ class FileFetcher implements ResetInterface
         private readonly FileStorageManager $fileStorageManager,
         private readonly FileValidator $fileValidator,
         private readonly ObjectDownloader $objectDownloader,
+        private readonly TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -87,7 +89,7 @@ class FileFetcher implements ResetInterface
         $isTemporary = null === $path;
 
         if (File::STORAGE_S3_MAIN === $file->getStorage()) {
-            $path ??= sys_get_temp_dir().'/'.uniqid('fetch-file');
+            $path ??= $this->temporaryFiles->createPath('fetch-file');
             if ($isTemporary) {
                 $this->temporaryPaths[$path] = true;
             }

@@ -8,6 +8,7 @@ use App\Entity\Core\Attribute;
 use App\Integration\IntegrationConfig;
 use App\Service\Asset\FileFetcher;
 use App\Service\Image\ImageManagerFactory;
+use App\Service\Storage\TemporaryFiles;
 
 /**
  * Crops a face out of the image it was detected on, as the photo of its person.
@@ -28,6 +29,7 @@ final readonly class FacePhotoCropper
         private FaceRecognitionAnalyzer $analyzer,
         private FileFetcher $fileFetcher,
         private ImageManagerFactory $imageManagerFactory,
+        private TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -66,9 +68,7 @@ final readonly class FacePhotoCropper
                 $core->stripImage();
             }
 
-            $tmp = tempnam(sys_get_temp_dir(), 'face-photo-');
-            @unlink($tmp);
-            $target = $tmp.'.jpg';
+            $target = $this->temporaryFiles->createPath('face-photo-', 'jpg');
             $image->save($target, self::QUALITY, 'jpg');
             $image->destroy();
 

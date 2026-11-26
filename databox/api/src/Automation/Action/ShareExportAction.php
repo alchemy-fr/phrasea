@@ -29,6 +29,7 @@ use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 use App\Service\Share\ShareRenditionUrlGenerator;
+use App\Service\Storage\TemporaryFiles;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
@@ -84,6 +85,7 @@ final class ShareExportAction extends AbstractAutomationAction implements Automa
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly AssetNameResolver $assetNameResolver,
         private readonly string $databoxClientBaseUrl,
+        private readonly TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -224,10 +226,7 @@ final class ShareExportAction extends AbstractAutomationAction implements Automa
             return $state->data[self::STATE_WRITER];
         }
 
-        $file = tempnam(sys_get_temp_dir(), 'automation-share-export');
-        if (false === $file) {
-            throw new \RuntimeException('Unable to create the export file');
-        }
+        $file = $this->temporaryFiles->createPath('automation-share-export');
         $state->data[self::STATE_FILE] = $file;
 
         $writer = new Writer();

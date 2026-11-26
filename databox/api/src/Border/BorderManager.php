@@ -32,25 +32,28 @@ final readonly class BorderManager
 
         $localFilePath = $this->importFile($inputFile);
 
-        $content = new FileContent($inputFile, $localFilePath);
         try {
+            $content = new FileContent($inputFile, $localFilePath);
             $contentType = $this->validateContent($content);
-        } catch (\Throwable $e) {
-            unlink($localFilePath);
 
-            throw $e;
+            $finalPath = $this->pathGenerator->generatePath($workspace->getId(), $inputFile->getExtension());
+
+            $fd = fopen($content->getPath(), 'r');
+            if (false === $fd) {
+                throw new \RuntimeException(sprintf('Unable to open file %s', $content->getPath()));
+            }
+            try {
+                $this->storageManager->storeStream($finalPath, $fd);
+            } finally {
+                if (is_resource($fd)) {
+                    fclose($fd);
+                }
+            }
+        } finally {
+            if (is_file($localFilePath)) {
+                @unlink($localFilePath);
+            }
         }
-
-        $finalPath = $this->pathGenerator->generatePath($workspace->getId(), $inputFile->getExtension());
-
-        $fd = fopen($content->getPath(), 'r');
-        if (false === $fd) {
-            throw new \RuntimeException(sprintf('Unable to open file %s', $content->getPath()));
-        }
-        $this->storageManager->storeStream($finalPath, $fd);
-        fclose($fd);
-
-        unlink($content->getPath());
 
         $file = new File();
         $file->setStorage(File::STORAGE_S3_MAIN);

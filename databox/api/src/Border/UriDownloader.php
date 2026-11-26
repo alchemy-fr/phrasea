@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Exception\DownloadTooLargeException;
 use Alchemy\CoreBundle\Util\HttpDownloadUtil;
 use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Border\Exception\UnsupportedUriException;
+use App\Service\Storage\TemporaryFiles;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -27,6 +28,7 @@ readonly class UriDownloader
          */
         #[Autowire(param: 'app.download.max_duration')]
         private float $maxDuration,
+        protected TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -48,7 +50,7 @@ readonly class UriDownloader
             'buffer' => false,
         ]);
 
-        $path ??= sys_get_temp_dir().'/'.uniqid('download-file');
+        $path ??= $this->temporaryFiles->createPath('download-file');
         HttpDownloadUtil::streamToFile($client, $response, $path, $this->uploadPlanner->getMaxObjectSize());
 
         $headers = $response->getHeaders();

@@ -30,6 +30,7 @@ use App\Model\AutomationTriggerEnum;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Share\ShareRenditionUrlGenerator;
+use App\Service\Storage\TemporaryFiles;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\UserSpace\UserSpaceTestTrait;
 use App\Tests\Functional\Automation\AutomationTestTrait;
@@ -100,6 +101,7 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
             self::getService(AttributeTypeRegistry::class),
             self::getService(AssetNameResolver::class),
             self::CLIENT_URL,
+            new TemporaryFiles(sys_get_temp_dir()),
         );
         $action->setSecurity(self::getService(Security::class));
         $action->setRoleMapper(self::getService(RoleMapper::class));

@@ -29,6 +29,7 @@ use App\Model\SavedSearchPrivacyEnum;
 use App\Security\Secrets\SecretsManager;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileFetcher;
+use App\Service\Storage\TemporaryFiles;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\UserSpace\UserSpaceTestTrait;
 use League\Flysystem\FilesystemAdapter;
@@ -112,6 +113,7 @@ final class RemoteExportActionTest extends AbstractDataboxTestCase
             $factory ?? $this->createLocalFactory(),
             self::createFileFetcher(),
             self::getService(AssetNameResolver::class),
+            new TemporaryFiles(sys_get_temp_dir()),
         );
         $action->setSecurity(self::getService(Security::class));
         $action->setRoleMapper(self::getService(RoleMapper::class));

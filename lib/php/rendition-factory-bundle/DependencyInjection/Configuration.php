@@ -42,6 +42,10 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(TransformerModuleInterface::DEFAULT_MAX_TIMEOUT)
                 ->end()
+                ->scalarNode('working_directory')
+                    ->info('Base directory of the working files; the system temporary directory by default')
+                    ->defaultNull()
+                ->end()
             ->end()
         ;
         // @formatter:on

@@ -6,17 +6,26 @@ namespace App\Tests\Unit\Image;
 
 use App\Service\Image\ImageDownscaler;
 use App\Service\Image\ImageManagerFactory;
+use App\Service\Storage\TemporaryFiles;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 class ImageDownscalerTest extends TestCase
 {
     private array $tmpFiles = [];
+    private string $tmpDir;
+
+    protected function setUp(): void
+    {
+        $this->tmpDir = sys_get_temp_dir().'/'.uniqid('downscaler-test', true);
+    }
 
     protected function tearDown(): void
     {
         foreach ($this->tmpFiles as $file) {
             @unlink($file);
         }
+        (new Filesystem())->remove($this->tmpDir);
     }
 
     public function testLargeImageIsDownscaledToJpeg(): void
@@ -32,6 +41,9 @@ class ImageDownscalerTest extends TestCase
         $this->assertSame(768, $height);
         $this->assertSame('image/jpeg', mime_content_type($result));
         $this->assertLessThan(filesize($source), filesize($result));
+        // Nothing else is left in the temporary directory
+        $this->assertSame([basename($result)], array_values(array_diff(scandir($this->tmpDir), ['.', '..'])));
+        $this->assertSame($this->tmpDir, dirname($result));
     }
 
     public function testSmallImageIsReturnedUntouched(): void
@@ -56,7 +68,7 @@ class ImageDownscalerTest extends TestCase
 
     private function createDownscaler(): ImageDownscaler
     {
-        return new ImageDownscaler(new ImageManagerFactory());
+        return new ImageDownscaler(new ImageManagerFactory(), new TemporaryFiles($this->tmpDir));
     }
 
     private function createImage(int $width, int $height): string

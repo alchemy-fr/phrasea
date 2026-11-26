@@ -16,6 +16,7 @@ use App\Service\Asset\FileFetcher;
 use App\Service\Image\ImageManagerFactory;
 use App\Service\Storage\FileManager;
 use App\Service\Storage\RenditionManager;
+use App\Service\Storage\TemporaryFiles;
 use Intervention\Image\Imagick\Font;
 
 class WatermarkAction extends AbstractIntegrationAction implements IfActionInterface
@@ -27,6 +28,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         private readonly RenditionManager $renditionManager,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly FileManager $fileManager,
+        private readonly TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -70,25 +72,32 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
                 $font->valign('center');
             });
 
-            $path = tempnam(sys_get_temp_dir(), self::class);
-            $image->save($path);
-            unlink($src);
+            $path = $this->temporaryFiles->createPath('watermark-');
+            try {
+                $image->save($path);
+                unlink($src);
 
-            $newRenditionFile = $this->fileManager->createFileFromPath(
-                $asset->getWorkspace(),
-                $path,
-                $file->getType(),
-                $file->getExtension(),
-                $file->getOriginalName(),
-            );
+                $newRenditionFile = $this->fileManager->createFileFromPath(
+                    $asset->getWorkspace(),
+                    $path,
+                    $file->getType(),
+                    $file->getExtension(),
+                    $file->getOriginalName(),
+                );
 
-            $this->renditionManager->createOrReplaceRenditionFile(
-                $asset,
-                $rendition->getDefinition(),
-                $newRenditionFile,
-                null,
-                null,
-            );
+                $this->renditionManager->createOrReplaceRenditionFile(
+                    $asset,
+                    $rendition->getDefinition(),
+                    $newRenditionFile,
+                    null,
+                    null,
+                );
+            } finally {
+                // Already removed once stored
+                if (is_file($path)) {
+                    @unlink($path);
+                }
+            }
         }
 
         $this->em->flush();

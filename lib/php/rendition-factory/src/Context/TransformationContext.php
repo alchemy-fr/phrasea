@@ -52,8 +52,9 @@ final readonly class TransformationContext implements TransformationContextInter
     public function getCacheDir(string $folder): string
     {
         $cacheDir = $this->cacheDir.'/'.$folder;
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, recursive: true);
+        // Several processes may create it at once, and the temporary files purge may have removed it
+        if (!is_dir($cacheDir) && !@mkdir($cacheDir, 0777, true) && !is_dir($cacheDir)) {
+            throw new \RuntimeException(sprintf('Unable to create the "%s" directory', $cacheDir));
         }
 
         return $cacheDir;

@@ -122,10 +122,9 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         if (!empty($attributesConfig['transcript'])) {
             $transcriptUri = $job['Transcript']['TranscriptFileUri'] ?? null;
             if (null !== $transcriptUri) {
-                $transcriptFile = $this->fileDownloader->download($transcriptUri);
                 $input->actions[] = $this->createAttribute(
                     $attributesConfig['transcript'],
-                    file_get_contents($transcriptFile),
+                    $this->readRemoteFile($transcriptUri),
                     null,
                     $locale
                 );
@@ -143,11 +142,9 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
                 $extension = FileUtil::getExtensionFromPath($subtitleUri) ?? '';
                 $format = $formatAttrs[$extension];
                 if (!empty($attributesConfig[$format])) {
-                    $subtitleFile = $this->fileDownloader->download($subtitleUri);
-
                     $input->actions[] = $this->createAttribute(
                         $attributesConfig[$format],
-                        file_get_contents($subtitleFile),
+                        $this->readRemoteFile($subtitleUri),
                         null,
                         $locale
                     );
@@ -163,6 +160,16 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
             $input,
             null
         );
+    }
+
+    private function readRemoteFile(string $uri): string
+    {
+        $path = $this->fileDownloader->download($uri);
+        try {
+            return (string) file_get_contents($path);
+        } finally {
+            @unlink($path);
+        }
     }
 
     private function createAttribute(string $name, $value, ?float $confidence, ?string $locale): AttributeActionInput

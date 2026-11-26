@@ -19,6 +19,7 @@ use App\Service\Asset\Exception\PrivateFileException;
 use App\Service\Asset\Exception\RefusedFileContentException;
 use App\Service\Asset\FileFetcher;
 use App\Service\Asset\FileUrlResolver;
+use App\Service\Storage\TemporaryFiles;
 use App\Tests\Functional\Storage\LocalS3Handler;
 use Aws\CloudFront\CloudFrontClient;
 use Aws\S3\Exception\S3Exception;
@@ -313,10 +314,12 @@ class FileFetcherTest extends TestCase
 
     private function createFetcher(?MockHttpClient $httpClient = null): FileFetcher
     {
+        $temporaryFiles = new TemporaryFiles($this->dir.'/tmp');
+
         return new FileFetcher(
             $this->createUrlResolver(),
             // "dev" lets the mocked responses through, without resolving the host to check the network is public.
-            new UriDownloader($httpClient ?? new MockHttpClient(), 'dev', new MultipartUploadPlanner(1, 1024, 1024, 1024 * 1024), 900),
+            new UriDownloader($httpClient ?? new MockHttpClient(), 'dev', new MultipartUploadPlanner(1, 1024, 1024, 1024 * 1024), 900, $temporaryFiles),
             $this->storageManager,
             new FileValidator(''),
             new ObjectDownloader(LocalS3Handler::install(new S3Client([
@@ -324,6 +327,7 @@ class FileFetcherTest extends TestCase
                 'region' => 'us-east-1',
                 'credentials' => ['key' => 'key', 'secret' => 'secret'],
             ]), $this->storage, ''), 'databox'),
+            $temporaryFiles,
         );
     }
 

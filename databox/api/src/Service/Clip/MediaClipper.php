@@ -11,6 +11,7 @@ use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Alchemy\RenditionFactory\RenditionCreator;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpegHelper;
 use App\Model\MediaClip;
+use App\Service\Storage\TemporaryFiles;
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
 
@@ -35,6 +36,7 @@ final class MediaClipper
         private readonly RenditionCreator $renditionCreator,
         private readonly FileFamilyGuesser $fileFamilyGuesser,
         private readonly ClipBuildConfigFactory $buildConfigFactory,
+        private readonly TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -139,7 +141,7 @@ final class MediaClipper
             $extension ??= pathinfo($output->getPath(), PATHINFO_EXTENSION);
         }
 
-        $dir = sys_get_temp_dir().'/'.uniqid('media-clip', true);
+        $dir = $this->temporaryFiles->createPath('media-clip');
         if (!mkdir($dir, 0755, true) && !is_dir($dir)) {
             throw new \RuntimeException(sprintf('Unable to create the "%s" directory', $dir));
         }

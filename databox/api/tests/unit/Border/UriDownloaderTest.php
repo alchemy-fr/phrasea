@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Exception\DownloadTooLargeException;
 use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use App\Border\Exception\UnsupportedUriException;
 use App\Border\UriDownloader;
+use App\Service\Storage\TemporaryFiles;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpClient\Exception\TransportException;
@@ -94,7 +95,7 @@ class UriDownloaderTest extends TestCase
                 ? new MockResponse('', ['http_code' => 416])
                 : new MockResponse('abcdef');
         });
-        $downloader = new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024), 900);
+        $downloader = new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024), 900, new TemporaryFiles(sys_get_temp_dir()));
 
         $this->assertSame('abc', $downloader->downloadHead('http://10.0.0.1/file.jpg', 3, allowPrivateNetwork: true));
         $this->assertSame([['Range: bytes=0-2'], null], $requests);
@@ -200,7 +201,7 @@ class UriDownloaderTest extends TestCase
 
             return new MockResponse($body);
         });
-        $downloader = new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024), 900);
+        $downloader = new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024), 900, new TemporaryFiles(sys_get_temp_dir()));
 
         $uris = [];
         for ($i = 0; $i < 7; ++$i) {
@@ -225,7 +226,7 @@ class UriDownloaderTest extends TestCase
 
             return new MockResponse('content');
         });
-        $downloader = new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024), 900);
+        $downloader = new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, 1024, 1024, 1024), 900, new TemporaryFiles(sys_get_temp_dir()));
         $paths = [$this->createTempPath(), $this->createTempPath()];
 
         try {
@@ -250,7 +251,7 @@ class UriDownloaderTest extends TestCase
             return $responses[parse_url($url, PHP_URL_PATH)] ?? new MockResponse('', ['http_code' => 404]);
         });
 
-        return new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, $maxSize, $maxSize, $maxSize), 900);
+        return new UriDownloader($client, 'prod', new MultipartUploadPlanner(1, $maxSize, $maxSize, $maxSize), 900, new TemporaryFiles(sys_get_temp_dir()));
     }
 
     private function createDownloader(MockResponse $response, int $maxSize = 1024 * 1024): UriDownloader
@@ -260,6 +261,7 @@ class UriDownloaderTest extends TestCase
             'prod',
             new MultipartUploadPlanner(1, $maxSize, $maxSize, $maxSize),
             900,
+            new TemporaryFiles(sys_get_temp_dir()),
         );
     }
 

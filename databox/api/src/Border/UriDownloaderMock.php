@@ -25,7 +25,7 @@ readonly class UriDownloaderMock extends UriDownloader
     #[\Override]
     public function download(string $uri, array &$headers = [], ?string $path = null, bool $allowPrivateNetwork = false): string
     {
-        $path ??= sys_get_temp_dir().'/'.uniqid('incoming-file');
+        $path ??= $this->temporaryFiles->createPath('incoming-file');
         file_put_contents($path, self::getContent($uri));
 
         return $path;

@@ -10,6 +10,7 @@ use App\Border\FileAnalyzer\Dto\AnalysisOutput;
 use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Entity\Core\File;
 use App\Repository\Core\FileRepository;
+use App\Service\Storage\TemporaryFiles;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Exception\ExceptionInterface as PHPExiftoolExceptionInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -27,6 +28,7 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
     public function __construct(
         private MetadataManipulator $metadataManipulator,
         private FileRepository $fileRepository,
+        private TemporaryFiles $temporaryFiles,
     ) {
     }
 
@@ -113,17 +115,20 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 
     private function generateStrippedMetadataFile(string $path): string
     {
-        $tmpFile = tempnam(sys_get_temp_dir(), 'hash');
-        unlink($tmpFile);
-
-        $writer = $this->metadataManipulator->createWriter();
+        $tmpFile = $this->temporaryFiles->createPath('hash');
 
         try {
+            $writer = $this->metadataManipulator->createWriter();
             $writer->reset();
             $writer->erase(true);
             $writer->write($path, new MetadataBag(), $tmpFile);
-        } catch (PHPExiftoolExceptionInterface $e) {
+        } catch (PHPExiftoolExceptionInterface) {
             copy($path, $tmpFile);
+        } catch (\Throwable $e) {
+            // Unknown to the caller, which only removes the returned file
+            @unlink($tmpFile);
+
+            throw $e;
         }
 
         return $tmpFile;

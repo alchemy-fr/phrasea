@@ -33,6 +33,7 @@ final readonly class AssetMetadataFileWriter
             return;
         }
 
+        $tmpFile = false;
         try {
             $writer = $this->metadataManipulator->createWriter();
             $writer->disableConversion();
@@ -46,6 +47,10 @@ final readonly class AssetMetadataFileWriter
                 throw new \RuntimeException(sprintf('Failed to move temporary metadata file "%s" to "%s".', $tmpFile, $path));
             }
         } catch (\Throwable $e) {
+            if (false !== $tmpFile && is_file($tmpFile)) {
+                @unlink($tmpFile);
+            }
+
             // The file format may not support metadata writing; skip embedding for this file.
             $this->logger->error('Failed to write metadata into file', [
                 'exception' => $e,
