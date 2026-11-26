@@ -46,7 +46,7 @@ export function createI18n(
         nsSeparator: false,
         interpolation: {escapeValue: false},
         returnNull: false,
-        initImmediate: false,
+        initAsync: false,
         react: {useSuspense: false},
     });
 

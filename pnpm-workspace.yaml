@@ -6,9 +6,6 @@ packages:
   - 'dashboard/client'
   - 'lib/js/*'
 
-overrides:
-  i18next: 24.2.1
-
 allowBuilds:
   '@parcel/watcher': false
   '@swc/core': false

@@ -70,7 +70,7 @@
         "@types/react-dom": "^19.3.0",
         "eslint": "^10.14.0",
         "eslint-config-next": "^16.4.6",
-        "i18next": "^24.2.1",
+        "i18next": "^26.3.4",
         "jsdom": "^29.1.1",
         "lucide-react": "^1.67.0",
         "next": "^16.4.6",

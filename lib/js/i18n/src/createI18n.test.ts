@@ -25,6 +25,15 @@ describe('defineLanguages', () => {
 describe('createI18n', () => {
     const languages = defineLanguages(['en', 'fr', 'de', 'es'], 'app_lang');
 
+    it('initializes synchronously', () => {
+        const i18n = createI18n('fr', languages, {});
+
+        expect(i18n.isInitialized).toBe(true);
+        expect(i18n.t('user.logout')).toBe(
+            commonTranslations.fr['user.logout']
+        );
+    });
+
     it('merges the translations of the client over the common ones', () => {
         const i18n = createI18n('fr', languages, {
             fr: {'app.title': 'Mon appli', 'user.login': 'Entrer'},
