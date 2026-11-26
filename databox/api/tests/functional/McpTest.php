@@ -571,6 +571,8 @@ class McpTest extends AbstractDataboxTestCase
         [$workspace, $defaults] = $this->createWorkspaceWithDefaults('ws-mcp-export', self::EDITOR);
         $asset = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::EDITOR]);
         $definitionId = $defaults->renditionDefinitions['preview']->getId();
+        // Otherwise the export is built as soon as it is queued, and fails without a file
+        InterceptedTransports::intercept(self::getContainer(), 'p1', 'heavy');
         $this->mcpInitialize(self::token(self::EDITOR));
 
         $export = $this->mcpCallTool(self::token(self::EDITOR), 'create_asset_export', [
