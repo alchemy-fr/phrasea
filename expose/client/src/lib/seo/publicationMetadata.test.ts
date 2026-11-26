@@ -5,35 +5,11 @@ import {
     assetPageMetadata as assetPageMetadataOf,
     loadPublicPublication,
     loadShareResolution,
-    METADATA_REVALIDATE_S,
     previewImageUrl,
     publicationMetadataLoader,
     publicationPageMetadata as publicationPageMetadataOf,
     toPublicationMetadata,
 } from './publicationMetadata';
-
-const cached = vi.hoisted(() => ({options: [] as unknown[]}));
-
-/** Kept in memory per arguments, as the data cache of Next does */
-vi.mock('next/cache', () => ({
-    unstable_cache: <A extends unknown[], R>(
-        fn: (...args: A) => Promise<R>,
-        _keyParts: string[],
-        options: unknown
-    ) => {
-        cached.options.push(options);
-        const entries = new Map<string, Promise<R>>();
-
-        return (...args: A) => {
-            const k = JSON.stringify(args);
-            if (!entries.has(k)) {
-                entries.set(k, fn(...args));
-            }
-
-            return entries.get(k)!;
-        };
-    },
-}));
 import type {Asset, Publication} from '@/types/api';
 
 const cover: Asset = {
@@ -179,16 +155,13 @@ function assetPageMetadata(p: Publication, assetKey: string) {
 }
 
 describe('publicationMetadataLoader', () => {
-    it('reads the publication once for successive pages', async () => {
+    it('reads the publication again on each request', async () => {
         const {get, access: a} = access(200, publication);
         const load = publicationMetadataLoader(() => a);
-        expect(cached.options.at(-1)).toEqual({
-            revalidate: METADATA_REVALIDATE_S,
-        });
 
         const first = await load('summer');
         const second = await load('summer');
-        expect(get).toHaveBeenCalledTimes(1);
+        expect(get).toHaveBeenCalledTimes(2);
         expect(assetPageMetadataOf(first!, 'a1')).toMatchObject({
             title: 'Sunset · Summer',
             openGraph: {
@@ -199,9 +172,6 @@ describe('publicationMetadataLoader', () => {
             title: 'clip.mp4 · Summer',
             openGraph: {images: [{url: '/api/og/publication/summer'}]},
         });
-
-        await load('other');
-        expect(get).toHaveBeenCalledTimes(2);
     });
 
     it('keeps no signed URL', async () => {

@@ -1,6 +1,5 @@
 import 'server-only';
 import {cache} from 'react';
-import {unstable_cache} from 'next/cache';
 import type {Metadata} from 'next';
 import {
     httpGet,
@@ -16,12 +15,6 @@ import type {Asset, Publication, PublicShareResolution} from '@/types/api';
 
 /** The link preview must not hold the page back */
 export const PREVIEW_TIMEOUT_MS = 3000;
-
-/**
- * How long the metadata of a publication is kept between requests: moving
- * from one asset to another in the lightbox renders the metadata again.
- */
-export const METADATA_REVALIDATE_S = 60;
 
 export type ApiAccess = {
     apiUrl: string;
@@ -98,11 +91,7 @@ export type AssetMetadata = Pick<
     'id' | 'slug' | 'title' | 'originalName' | 'description'
 > & {hasPreviewImage: boolean};
 
-/**
- * What the link preview reads of a publication. Kept between requests
- * (see fetchPublicationMetadata): holds no signed URL, which would outlive
- * its signature in the cache.
- */
+/** What the link preview reads of a publication: none of its signed URLs */
 export type PublicationMetadata = Pick<
     Publication,
     'id' | 'slug' | 'title' | 'description' | 'publiclyListed'
@@ -136,23 +125,24 @@ export function toPublicationMetadata(
     };
 }
 
-/** The metadata of a publication as an anonymous visitor reads it, cached */
+/**
+ * The metadata of a publication as an anonymous visitor reads it. Not kept
+ * between requests: the API caches this answer itself (nginx of Expose) and
+ * purges it on every change of the publication, its assets or its profile,
+ * whatever made it.
+ */
 export function publicationMetadataLoader(
     access: () => ApiAccess
 ): (key: string) => Promise<PublicationMetadata | null> {
-    return unstable_cache(
-        async (key: string) => {
-            const publication = await loadPublicPublication(
-                key,
-                undefined,
-                access()
-            );
+    return async (key: string) => {
+        const publication = await loadPublicPublication(
+            key,
+            undefined,
+            access()
+        );
 
-            return publication ? toPublicationMetadata(publication) : null;
-        },
-        ['expose-publication-metadata'],
-        {revalidate: METADATA_REVALIDATE_S}
-    );
+        return publication ? toPublicationMetadata(publication) : null;
+    };
 }
 
 /** Shared by the layout and the asset pages of a publication */
