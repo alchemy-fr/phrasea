@@ -15,6 +15,8 @@ type State = {
     current: Basket | undefined;
     loaded: boolean;
     loading: boolean;
+    /** A next page is being read: a (re)load may still start meanwhile */
+    loadingMore: boolean;
     /** Why the last load failed, cleared by the next one */
     error?: string;
     next?: string;
@@ -44,6 +46,7 @@ export const useBasketStore = create<State>((set, get) => ({
     current: undefined,
     loaded: false,
     loading: false,
+    loadingMore: false,
     includeArchived: false,
     query: '',
 
@@ -81,21 +84,27 @@ export const useBasketStore = create<State>((set, get) => ({
     },
 
     loadMore: async () => {
-        const {next, loading} = get();
-        if (!next || loading) {
+        const {next, loading, loadingMore} = get();
+        if (!next || loading || loadingMore) {
             return;
         }
-        set({loading: true, error: undefined});
+        set({loadingMore: true, error: undefined});
+        // A reload (new filter…) started meanwhile: the page belongs to the previous list
+        const reloaded = () => get().next !== next || get().loading;
         try {
             const page = await getBaskets({url: next});
-            set(s => ({
-                baskets: [...s.baskets, ...page.items],
-                next: page.next,
-            }));
+            if (!reloaded()) {
+                set(s => ({
+                    baskets: [...s.baskets, ...page.items],
+                    next: page.next,
+                }));
+            }
         } catch (e: unknown) {
-            set({error: errorMessage(e)});
+            if (!reloaded()) {
+                set({error: errorMessage(e)});
+            }
         } finally {
-            set({loading: false});
+            set({loadingMore: false});
         }
     },
 

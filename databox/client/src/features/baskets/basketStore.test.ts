@@ -57,6 +57,9 @@ describe('useBasketStore.loadMore', () => {
             next: '/baskets?page=2',
             loaded: true,
             loading: false,
+            loadingMore: false,
+            query: '',
+            includeArchived: false,
             error: undefined,
         });
     });
@@ -67,7 +70,7 @@ describe('useBasketStore.loadMore', () => {
 
         expect(useBasketStore.getState()).toMatchObject({
             error: 'Bad Gateway',
-            loading: false,
+            loadingMore: false,
             next: '/baskets?page=2',
         });
 
@@ -82,12 +85,41 @@ describe('useBasketStore.loadMore', () => {
         });
         expect(useBasketStore.getState()).toMatchObject({
             error: undefined,
-            loading: false,
+            loadingMore: false,
             next: undefined,
         });
         expect(useBasketStore.getState().baskets.map(b => b.id)).toEqual([
             'b1',
             'b2',
+        ]);
+    });
+
+    it('lets a new filter reload the list while a next page is read, and drops that page', async () => {
+        let resolvePage!: (page: unknown) => void;
+        api.getBaskets.mockImplementationOnce(
+            () => new Promise(resolve => (resolvePage = resolve))
+        );
+        const pending = useBasketStore.getState().loadMore();
+
+        api.getBaskets.mockResolvedValueOnce({
+            items: [{id: 'f1', capabilities: {edit: true}}],
+            total: 1,
+        });
+        useBasketStore.getState().setQuery('foo');
+        await vi.waitFor(() =>
+            expect(useBasketStore.getState().loaded).toBe(true)
+        );
+        expect(api.getBaskets).toHaveBeenLastCalledWith({query: 'foo'});
+
+        resolvePage({items: [{id: 'b2'}], total: 2});
+        await pending;
+
+        expect(useBasketStore.getState()).toMatchObject({
+            loadingMore: false,
+            next: undefined,
+        });
+        expect(useBasketStore.getState().baskets.map(b => b.id)).toEqual([
+            'f1',
         ]);
     });
 });
