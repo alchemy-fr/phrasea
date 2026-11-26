@@ -8,9 +8,12 @@ import {useAuth} from '@/lib/auth/AuthProvider';
 
 export function SearchError({
     error,
+    timedOut,
     onRetry,
 }: {
     error: string;
+    /** The API did not answer in time */
+    timedOut?: boolean;
     onRetry: () => void;
 }) {
     const {t} = useTranslation();
@@ -25,9 +28,24 @@ export function SearchError({
             className="h-full"
             testId="search-error"
             icon={<AlertTriangleIcon className="text-destructive" />}
-            title={t('search.error.title', 'Search failed')}
+            title={
+                timedOut
+                    ? t(
+                          'search.error.timeout_title',
+                          'Search is taking too long'
+                      )
+                    : t('search.error.title', 'Search failed')
+            }
             description={
                 <div className="flex flex-col items-center gap-2">
+                    {timedOut ? (
+                        <p data-testid="search-error-timeout-hint">
+                            {t(
+                                'search.error.timeout_hint',
+                                'The server did not answer in time, it may be busy. Try again in a moment.'
+                            )}
+                        </p>
+                    ) : null}
                     {anonymous ? (
                         <p data-testid="search-error-sign-in-hint">
                             {t(

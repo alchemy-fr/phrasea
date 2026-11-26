@@ -1,8 +1,14 @@
-import ky, {HTTPError, isHTTPError, type KyInstance, type Options} from 'ky';
+import ky, {
+    HTTPError,
+    isHTTPError,
+    isTimeoutError as isKyTimeoutError,
+    type KyInstance,
+    type Options,
+} from 'ky';
 import {getConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {getImpersonation, IMPERSONATION_HEADER} from '@/lib/auth/impersonation';
-import {ApiError} from '@alchemy/ui/utils/errors';
+import {ApiError, isApiError} from '@alchemy/ui/utils/errors';
 import {isApiUrl} from '@alchemy/core/api/isApiUrl';
 
 export type QueryParams = Record<string, unknown>;
@@ -23,6 +29,14 @@ export type RequestOptions = {
 };
 
 export {ApiError, isAbortError, isApiError} from '@alchemy/ui/utils/errors';
+
+/**
+ * The API did not answer in time: the client gave up waiting, or the gateway
+ * did (504).
+ */
+export function isTimeoutError(e: unknown): boolean {
+    return isKyTimeoutError(e) || isApiError(e, 504);
+}
 
 /**
  * Serializes query params the way Symfony expects them:
@@ -85,7 +99,9 @@ function createInstance(): KyInstance {
         retry: {
             limit: 2,
             methods: ['get', 'head', 'options'],
-            statusCodes: [408, 429, 502, 503, 504],
+            // No 504: the gateway already waited as long as it could, and
+            // replaying the request only loads an API that is saturated
+            statusCodes: [408, 429, 502, 503],
         },
         hooks: {
             beforeRequest: [

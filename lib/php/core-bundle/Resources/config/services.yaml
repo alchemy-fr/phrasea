@@ -8,6 +8,8 @@ parameters:
     'env(PHRASEA_COMMIT)': ''
     alchemy_core.version: '%env(PHRASEA_VERSION)%'
     alchemy_core.commit: '%env(PHRASEA_COMMIT)%'
+    # Requests slower than this (in ms) are logged as a warning, 0 disables the log
+    'env(SLOW_REQUEST_LOG_THRESHOLD_MS)': '10000'
 
 services:
     _defaults:
@@ -23,6 +25,8 @@ services:
         - { name: kernel.event_subsriber }
 
     Alchemy\CoreBundle\Listener\ClientExceptionListener: ~
+    Alchemy\CoreBundle\Listener\ServerTimingCollector: ~
+    Alchemy\CoreBundle\Listener\ServerTimingListener: ~
     Alchemy\CoreBundle\Cache\TemporaryCacheFactory: ~
     Alchemy\CoreBundle\Command\DocumentationDumperCommand: ~
     Alchemy\CoreBundle\Upload\MultipartUploader: ~

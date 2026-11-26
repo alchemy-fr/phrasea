@@ -240,3 +240,4 @@ Disk capacity for temporary volumes: 100 GB
 * Backups: Implement regular backups for PostgreSQL and object storage.
 * Elasticsearch is not a primary datastore, but indexation time can be significant when the number of assets is large. Backing up Elasticsearch indexes allows for quick recovery after a failure. It is also advisable to use an external cluster for Elasticsearch.
 * RabbitMQ database needs to be persisted in case of failure and container restart.
+* API workers: size the PHP-FPM pool of each API container (`PHP_FPM_PM_*`) to its memory limit, and measure slow requests (`Server-Timing`, NGINX timings, `SLOW_REQUEST_LOG_THRESHOLD_MS`): see [API performance](./performance.md).

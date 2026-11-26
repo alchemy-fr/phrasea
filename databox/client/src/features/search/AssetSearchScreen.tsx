@@ -127,6 +127,7 @@ function SearchScreenContent() {
                 ) : results.error ? (
                     <SearchError
                         error={results.error}
+                        timedOut={results.timedOut}
                         onRetry={() => results.reload()}
                     />
                 ) : !hasOwnResults ? (

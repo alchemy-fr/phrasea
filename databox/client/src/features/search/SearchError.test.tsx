@@ -20,14 +20,14 @@ vi.mock('@/lib/auth/AuthProvider', () => ({
     }),
 }));
 
-function renderError() {
+function renderError(
+    error = 'Field "description" not found',
+    timedOut?: boolean
+) {
     const onRetry = vi.fn();
     render(
         <I18nextProvider i18n={createI18n('en')}>
-            <SearchError
-                error='Field "description" not found'
-                onRetry={onRetry}
-            />
+            <SearchError error={error} timedOut={timedOut} onRetry={onRetry} />
         </I18nextProvider>
     );
 
@@ -43,7 +43,9 @@ describe('SearchError', () => {
         auth.status = 'authenticated';
         const {onRetry} = renderError();
 
+        expect(screen.getByText('Search failed')).toBeTruthy();
         expect(screen.getByText('Field "description" not found')).toBeTruthy();
+        expect(screen.queryByTestId('search-error-timeout-hint')).toBeNull();
         expect(screen.queryByTestId('search-error-sign-in-hint')).toBeNull();
         expect(screen.queryByTestId('search-error-sign-in')).toBeNull();
 
@@ -60,5 +62,24 @@ describe('SearchError', () => {
 
         fireEvent.click(screen.getByTestId('search-error-sign-in'));
         expect(auth.login).toHaveBeenCalled();
+    });
+
+    it('explains a timeout and keeps the raw message and the retry button', () => {
+        auth.status = 'authenticated';
+        const message =
+            'Request timed out: GET https://api.test/assets?query=cat';
+        const {onRetry} = renderError(message, true);
+
+        expect(screen.getByText('Search is taking too long')).toBeTruthy();
+        expect(screen.queryByText('Search failed')).toBeNull();
+        expect(
+            screen.getByTestId('search-error-timeout-hint').textContent
+        ).toBe(
+            'The server did not answer in time, it may be busy. Try again in a moment.'
+        );
+        expect(screen.getByText(message)).toBeTruthy();
+
+        fireEvent.click(screen.getByRole('button', {name: 'Retry'}));
+        expect(onRetry).toHaveBeenCalled();
     });
 });

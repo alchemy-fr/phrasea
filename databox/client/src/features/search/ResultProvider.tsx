@@ -12,7 +12,7 @@ import {
 } from 'react';
 import type {Asset, ESDebug, Facets} from '@/types/api';
 import {searchAssets, SearchAssetsOptions} from '@/lib/api/assets';
-import {isAbortError} from '@/lib/api/http';
+import {isAbortError, isTimeoutError} from '@/lib/api/http';
 import {useSearch} from './SearchProvider';
 import {conditionQuery, resolveSortBy} from './searchState';
 import {appendPage} from './resultPages';
@@ -36,6 +36,8 @@ export type ResultContextValue = {
     /** Similarity scores of the loaded assets, by asset ID, see `SearchAssetsResult` */
     scores?: Record<string, number>;
     error?: string;
+    /** The error is a timeout: the API did not answer in time */
+    timedOut: boolean;
     hasMore: boolean;
     loadMore: () => Promise<void>;
     reload: () => Promise<void>;
@@ -68,6 +70,7 @@ export function ResultProvider({
         debug?: ESDebug;
         scores?: Record<string, number>;
         error?: string;
+        timedOut?: boolean;
         generation: number;
     }>({pages: [], loading: true, loadingMore: false, generation: 0});
     const controller = useRef<AbortController | null>(null);
@@ -124,6 +127,7 @@ export function ResultProvider({
                 loading: !nextUrl,
                 loadingMore: !!nextUrl,
                 error: undefined,
+                timedOut: false,
             }));
 
             const checksum = search.checksum;
@@ -178,6 +182,7 @@ export function ResultProvider({
                     loading: false,
                     loadingMore: false,
                     error: e?.message ?? String(e),
+                    timedOut: isTimeoutError(e),
                 }));
             }
         },
@@ -201,6 +206,7 @@ export function ResultProvider({
             debug: state.debug,
             scores: state.scores,
             error: state.error,
+            timedOut: !!state.timedOut,
             hasMore: !!state.next,
             loadMore: async () => {
                 if (state.next && !state.loadingMore) {

@@ -1604,6 +1604,8 @@
     "search.debug.es_time": "Elasticsearch: {{ms}} ms",
     "search.debug.total_time": "Total: {{ms}} ms",
     "search.error.sign_in_hint": "You are not signed in. This search may use fields, workspaces or collections that are only available to signed-in users: sign in to run it.",
+    "search.error.timeout_hint": "The server did not answer in time, it may be busy. Try again in a moment.",
+    "search.error.timeout_title": "Search is taking too long",
     "search.error.title": "Search failed",
     "search.geo.disable": "Disable \"around me\"",
     "search.geo.enable": "Search around me",

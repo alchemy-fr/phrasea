@@ -1604,6 +1604,8 @@
     "search.debug.es_time": "Elasticsearch : {{ms}} ms",
     "search.debug.total_time": "Total : {{ms}} ms",
     "search.error.sign_in_hint": "Vous n'êtes pas connecté. Cette recherche utilise peut-être des champs, espaces de travail ou collections réservés aux utilisateurs connectés : connectez-vous pour la lancer.",
+    "search.error.timeout_hint": "Le serveur n'a pas répondu à temps, il est peut-être surchargé. Réessayez dans un instant.",
+    "search.error.timeout_title": "La recherche prend trop de temps",
     "search.error.title": "La recherche a échoué",
     "search.geo.disable": "Désactiver « autour de moi »",
     "search.geo.enable": "Rechercher autour de moi",

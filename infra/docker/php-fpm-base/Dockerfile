@@ -93,6 +93,7 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
       /etc/app
 
 COPY conf.d/* /docker/app/conf.d/
+COPY fpm/* /docker/app/fpm/
 COPY entrypoint.sh /docker/entrypoint.sh
 COPY entrypoint.d/*.sh /docker/entrypoint.d/
 COPY supervisor/* /etc/supervisor.d/
@@ -105,6 +106,18 @@ COPY bin/* /usr/local/bin/
 ENV SUPERVISOR_START_SECS=0 \
     SUPERVISOR_START_RETRIES=10 \
     SUPERVISOR_STOP_WAIT_SECS=20
+
+# FPM pool (rendered by entrypoint.d/01-fpm-pool.sh). Every busy worker holds a request: once
+# max_children are busy, the next ones wait in the listen queue until a gateway or client timeout.
+# Size it so that max_children x PHP_MEMORY_LIMIT, plus the opcache shared by all the workers
+# (opcache.memory_consumption), stays under the memory limit of the container:
+# 12 x 132M + 256M = 1.8G for a 2Gi pod.
+ENV PHP_FPM_PM=dynamic \
+    PHP_FPM_PM_MAX_CHILDREN=12 \
+    PHP_FPM_PM_START_SERVERS=3 \
+    PHP_FPM_PM_MIN_SPARE_SERVERS=2 \
+    PHP_FPM_PM_MAX_SPARE_SERVERS=6 \
+    PHP_FPM_PM_MAX_REQUESTS=500
 
 WORKDIR /srv/app
 
