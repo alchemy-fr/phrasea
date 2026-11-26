@@ -286,6 +286,22 @@ final readonly class ContentTypeDetector
         return false;
     }
 
+    /**
+     * The application/* types libmagic gives to some files of the image or audio/video
+     * family of $type, instead of a type of this family: an EPS file is
+     * "application/postscript", an Ogg stream "application/ogg".
+     *
+     * @return string[]
+     */
+    public static function getApplicationTypesOfFamily(string $type): array
+    {
+        return match (self::getFamily($type)) {
+            self::FAMILY_IMAGE => self::IMAGE_TYPES,
+            self::FAMILY_AUDIO_VIDEO => self::AUDIO_VIDEO_TYPES,
+            default => [],
+        };
+    }
+
     public static function getFamily(?string $type): string
     {
         $type = InlineContentTypePolicy::normalize($type);

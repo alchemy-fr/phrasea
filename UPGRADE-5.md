@@ -1071,6 +1071,16 @@ See `doc/tech/Storage/03_file_types.md`.
   `*/*(.indd)` with `application/x-indesign(.indd)`, adds the missing comma
   before `audio/*` and allows `.mp3`, `.mp2` and `.m4a` for `audio/*`. Report
   these changes in your `.env.local` or deployment values if you override them.
+- The previous default value of the Helm chart listed extensions under types
+  their files are not of, which these entries never accept: `.ai` and `.ait` under `image/*`, `.txt` under `application/*`,
+  `.mxf` and `.m4a` under `video/*`, and the InDesign extensions (`.indd`,
+  `.indt`, `.idml`, `.idms`, `.icml`) under `image/*` (a `.indd` is
+  `application/x-indesign`). Such files are now refused, with a message naming
+  the misplaced extension; a warning listing the misplaced extensions whose
+  types the MIME database knows is logged when uploads are checked. Take the
+  new value of the chart, or list these extensions under their own types
+  (`application/*`, `text/*`, `audio/*`). The default `.env` value no longer lists `.mp3`
+  and `.m4a` under `video/*` (they stay under `audio/*`).
 - The expose `file` and `upload` modes (asset and sub-definition creation) and
   every presigned `PUT` URL are checked too.
 - The list now applies to the Databox and Expose APIs, and to every way a file

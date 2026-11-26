@@ -10,6 +10,7 @@ use Alchemy\StorageBundle\Upload\ForbiddenContentException;
 use Alchemy\StorageBundle\Upload\ValidatedContentType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class FileValidatorTest extends TestCase
@@ -169,5 +170,79 @@ class FileValidatorTest extends TestCase
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('File type "text/html" with extension "jpg" is not allowed. Allowed types are image/* (.jpg, .png)');
         $validator->validateFile('foo.jpg', 'text/html');
+    }
+
+    public function testMisplacedExtensionIsNamedInTheRefusal(): void
+    {
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('File type "application/postscript" with extension "ai" is not allowed. The configuration lists ".ai" under image/* only, which none of its types (application/illustrator, application/postscript, application/vnd.adobe.illustrator) matches: list it under application/illustrator or application/*. Allowed types are image/* (.jpg, .ai)');
+
+        (new FileValidator('image/*(.jpg,.ai)'))->validateFile('logo.ai', 'application/postscript');
+    }
+
+    public function testExtensionUnknownToTheMimeDatabaseIsNamedInTheRefusal(): void
+    {
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('File type "application/x-indesign" with extension "indd" is not allowed. The configuration lists ".indd" under image/* only, which does not match the type of this file (application/x-indesign). Allowed types are image/* (.jpg, .indd)');
+
+        (new FileValidator('image/*(.jpg,.indd)'))->validateFile('file1.indd', 'application/x-indesign');
+    }
+
+    public function testRefusalOfAWellPlacedExtensionHasNoDiagnostic(): void
+    {
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('File type "text/html" with extension "jpg" is not allowed. Allowed types are image/* (.jpg)');
+
+        (new FileValidator('image/*(.jpg)'))->validateFile('foo.jpg', 'text/html');
+    }
+
+    public function testExtensionAlsoListedUnderItsOwnTypeHasNoDiagnostic(): void
+    {
+        try {
+            (new FileValidator('image/*(.jpg,.ai),application/*(.ai)'))->validateFile('foo.ai', 'text/html');
+            $this->fail('The file should be refused');
+        } catch (BadRequestHttpException $e) {
+            $this->assertStringNotContainsString('The configuration lists', $e->getMessage());
+        }
+    }
+
+    public function testMisplacedExtensionIsLoggedOnce(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                $this->stringContains('".ai" is listed under image/*, which matches none of its types (application/illustrator, application/postscript, application/vnd.adobe.illustrator)'),
+                $this->callback(static fn (array $context): bool => ['image/*'] === ($context['misplaced']['ai']['masks'] ?? null)),
+            );
+
+        $validator = new FileValidator('image/*(.jpg,.ai)', $logger);
+        $validator->validateFile('foo.jpg', 'image/jpeg');
+        $validator->validateFile('bar.jpg', 'image/jpeg');
+    }
+
+    #[DataProvider('getConfigurationsWithoutMisplacedExtension')]
+    public function testNoWarningWithoutMisplacedExtension(string $allowedTypes): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        try {
+            (new FileValidator($allowedTypes, $logger))->validateFile('foo.jpg', 'image/jpeg');
+        } catch (BadRequestHttpException) {
+        }
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function getConfigurationsWithoutMisplacedExtension(): array
+    {
+        return [
+            'default test configuration' => [self::ALLOWED_TYPES],
+            'octet-stream lists any extension' => ['application/octet-stream(.ai)'],
+            'extension unknown to the MIME database' => ['image/*(.jpg,.prproj,.indd)'],
+            'type libmagic gives to some files of the family' => ['application/*(.epsf,.ogg)'],
+        ];
     }
 }

@@ -91,7 +91,7 @@ The default of `DATABOX_ALLOWED_FILE_TYPES`, in the `mime/type(.ext1,.ext2),…`
 in [File types](../Storage/03_file_types.md):
 
 ```dotenv
-DATABOX_ALLOWED_FILE_TYPES='image/*(.jpg,.jpeg,.bmp,.tif,.gif,.png,.heic,.webp,.svg,.psd,.psb),application/*(.pdf,.doc,.docx,.xls,.xlsx,.odt,.psd,.psb),video/*(.mpg,.mpeg,.mov,.avi,.mp3,.mp2,.mp4,.m4v,.m4a,.mkv,.hevc,.wmv),audio/*(.aac,.aiff,.wav,.mp3,.mp2,.m4a,.wma),application/x-indesign(.indd)'
+DATABOX_ALLOWED_FILE_TYPES='image/*(.jpg,.jpeg,.bmp,.tif,.gif,.png,.heic,.webp,.svg,.psd,.psb),application/*(.pdf,.doc,.docx,.xls,.xlsx,.odt,.psd,.psb),video/*(.mpg,.mpeg,.mov,.avi,.mp2,.mp4,.m4v,.mkv,.hevc,.wmv),audio/*(.aac,.aiff,.wav,.mp3,.mp2,.m4a,.wma),application/x-indesign(.indd)'
 ```
 
 `UPLOAD_MAX_FILE_SIZE` (`4G`, shared) bounds a request body in PHP and nginx, and
