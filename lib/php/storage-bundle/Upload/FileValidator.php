@@ -23,7 +23,7 @@ use Symfony\Component\Mime\MimeTypes;
  * An extension listed under a mask that matches none of its types (".indd" under
  * "image/*") is refused like any other couple: the refusal names this misplaced
  * extension, and a warning is logged when the configuration is parsed for the
- * extensions whose types the MIME database knows.
+ * extensions whose types the MIME database (with PREFERRED_FILE_TYPES) knows.
  */
 final class FileValidator
 {
@@ -130,7 +130,7 @@ final class FileValidator
 
     /**
      * Explains the refusal of an extension listed only under masks that match none
-     * of its types, or, for an extension unknown to the MIME database (".indd"),
+     * of its types, or, for an extension unknown to the MIME database (".idml"),
      * none of which matches the type of the refused file.
      */
     private function describeMisplacedExtension(string $extension, ?string $type): ?string

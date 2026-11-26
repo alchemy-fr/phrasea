@@ -1086,10 +1086,19 @@ See `doc/tech/Storage/03_file_types.md`.
   `.indt`, `.idml`, `.idms`, `.icml`) under `image/*` (a `.indd` is
   `application/x-indesign`). Such files are now refused, with a message naming
   the misplaced extension; a warning listing the misplaced extensions whose
-  types the MIME database knows is logged when uploads are checked. Take the
+  types the MIME database knows is logged when uploads are checked (`.indd` and
+  `.indt` among them, known through the default of `PREFERRED_FILE_TYPES`; not
+  `.idml`, `.idms` and `.icml`). Take the
   new value of the chart, or list these extensions under their own types
   (`application/*`, `text/*`, `audio/*`). The default `.env` value no longer lists `.mp3`
   and `.m4a` under `video/*` (they stay under `audio/*`).
+- New `PREFERRED_FILE_TYPES` variable (shared by every API and worker, same
+  format): the usual type of the extensions for which the Symfony MIME database
+  gives another type first, or none. Its default,
+  `video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photoshop(.psb),application/x-indesign(.indd,.indt)`,
+  makes a `.indd` or `.indt` sent without type an `application/x-indesign`
+  file. If you override the variable, add `application/x-indesign(.indd,.indt)`
+  to your value.
 - The expose `file` and `upload` modes (asset and sub-definition creation) and
   every presigned `PUT` URL are checked too.
 - The list now applies to the Databox and Expose APIs, and to every way a file

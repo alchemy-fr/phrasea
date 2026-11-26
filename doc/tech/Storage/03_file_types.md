@@ -11,7 +11,7 @@ DATABOX_ALLOWED_FILE_TYPES='image/*(.jpg,.jpeg,.png),application/pdf(.pdf),audio
 ```
 
 - An upload is accepted when one entry matches its MIME type **and** lists its extension: `text/html` with a `.jpg` name, or `image/jpeg` with a `.pdf` name, are refused (`400`).
-- An extension listed under an entry that matches none of its types can never be accepted there: `.indd` under `image/*` refuses every InDesign file (`application/x-indesign`), list it under `application/x-indesign` or `application/*`. The refusal names the misplaced extension and the entries it is listed under. When the Symfony MIME database knows the types of the extension (`.ai` under `image/*`: `application/illustrator`, `application/postscript`…), a warning (`Allowed file types: ".ai" is listed under image/*, which matches none of its types…`) is also logged when uploads are checked. The `application/*` types libmagic gives to some images and media (`application/postscript` for `.epsf`, `application/ogg`) count as types of these extensions; extensions unknown to the MIME database (`.indd`, `.idml`…) and the `application/octet-stream` entry are not checked.
+- An extension listed under an entry that matches none of its types can never be accepted there: `.indd` under `image/*` refuses every InDesign file (`application/x-indesign`), list it under `application/x-indesign` or `application/*`. The refusal names the misplaced extension and the entries it is listed under. When the Symfony MIME database knows the types of the extension (`.ai` under `image/*`: `application/illustrator`, `application/postscript`…), a warning (`Allowed file types: ".ai" is listed under image/*, which matches none of its types…`) is also logged when uploads are checked. The `application/*` types libmagic gives to some images and media (`application/postscript` for `.epsf`, `application/ogg`) count as types of these extensions; the types given by `PREFERRED_FILE_TYPES` count too (`.indd`, `application/x-indesign` with the default value, see below). Extensions unknown to the MIME database (`.idml`, `.prproj`…) and the `application/octet-stream` entry are not checked: their refusal only names the entries they are listed under.
 - `*` only stands for the subtype (`image/*`). A main type wildcard (`*/*`, `*/jpeg`) is refused: every upload then fails with a configuration error (`500`, logged). List the actual types instead (`application/x-indesign(.indd)`).
 - An entry without extensions (`text/csv`) accepts the extensions registered for the uploaded type in the Symfony MIME database.
 - Entries are separated by commas; the extensions of an entry are written with or without their dot, in any case.
@@ -31,15 +31,15 @@ Browsers do not always know the type of a file: the databox and uploader clients
 
 ### Type of an extension
 
-When a file comes without type, the APIs take the first type registered for its extension in the Symfony MIME database. For some extensions, that first type is not the usual one: Symfony lists `audio/x-ms-wmv` before `video/x-ms-wmv` for `.wmv`, `application/mp4` before `video/mp4` for `.mp4`, and only `application/vnd.3gpp.pic-bw-small` for `.psb` (Photoshop large documents). `PREFERRED_FILE_TYPES` (shared by every API and worker, same syntax as the allowed types) gives the usual type of such extensions, put first among their types:
+When a file comes without type, the APIs take the first type registered for its extension in the Symfony MIME database. For some extensions, that first type is not the usual one: Symfony lists `audio/x-ms-wmv` before `video/x-ms-wmv` for `.wmv`, `application/mp4` before `video/mp4` for `.mp4`, and only `application/vnd.3gpp.pic-bw-small` for `.psb` (Photoshop large documents). It knows no type at all for `.indd` and `.indt` (InDesign documents and templates). `PREFERRED_FILE_TYPES` (shared by every API and worker, same syntax as the allowed types) gives the usual type of such extensions, put first among their types:
 
 ```dotenv
-PREFERRED_FILE_TYPES='video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photoshop(.psb)'
+PREFERRED_FILE_TYPES='video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photoshop(.psb),application/x-indesign(.indd,.indt)'
 ```
 
 - Each entry is a type without wildcard with the extensions it is the usual type of. A type Symfony does not register for the extension is added to its types.
-- An empty value keeps the order of Symfony. A missing variable takes the default of `Alchemy\StorageBundle\Util\PreferredMimeTypes` (`video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photoshop(.psb)`).
-- It applies to every guess from an extension: uploads without type, the container types resolved from the extension (see below), and the renditions (`MimeTypeGuesser` of rendition-factory, autowired with `MimeTypesInterface`).
+- An empty value keeps the order of Symfony. A missing variable takes the default of `Alchemy\StorageBundle\Util\PreferredMimeTypes` (`video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photoshop(.psb),application/x-indesign(.indd,.indt)`).
+- It applies to every guess from an extension: uploads without type, the check of the extensions listed under a type that does not match them (see above), the container types resolved from the extension (see below), and the renditions (`MimeTypeGuesser` of rendition-factory, autowired with `MimeTypesInterface`).
 
 The clients keep their own table (`@alchemy/api`, `@alchemy/ui`).
 

@@ -14,7 +14,8 @@ use Symfony\Component\Mime\MimeTypesInterface;
  * before "video/x-ms-wmv" for ".wmv", "application/mp4" before "video/mp4" for
  * ".mp4", and only "application/vnd.3gpp.pic-bw-small" for ".psb" (Photoshop
  * large documents), so a ".wmv" would be guessed as audio, a ".mp4" or a ".psb"
- * as a document.
+ * as a document. Symfony knows no type for ".indd" and ".indt" (InDesign
+ * documents and templates).
  *
  * The preferences are written like the allowed types, "type(.ext1,.ext2),…".
  * A preferred type unknown to Symfony for the extension is added to its types.
@@ -24,7 +25,7 @@ use Symfony\Component\Mime\MimeTypesInterface;
  */
 final class PreferredMimeTypes implements MimeTypesInterface
 {
-    public const string DEFAULT_PREFERRED_TYPES = 'video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photoshop(.psb)';
+    public const string DEFAULT_PREFERRED_TYPES = 'video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photoshop(.psb),application/x-indesign(.indd,.indt)';
 
     private static ?self $default = null;
 

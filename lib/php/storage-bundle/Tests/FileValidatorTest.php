@@ -180,12 +180,20 @@ class FileValidatorTest extends TestCase
         (new FileValidator('image/*(.jpg,.ai)'))->validateFile('logo.ai', 'application/postscript');
     }
 
+    public function testExtensionWithAPreferredTypeIsNamedInTheRefusal(): void
+    {
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('File type "application/x-indesign" with extension "indd" is not allowed. The configuration lists ".indd" under image/* only, which none of its types (application/x-indesign) matches: list it under application/x-indesign or application/*. Allowed types are image/* (.jpg, .indd)');
+
+        (new FileValidator('image/*(.jpg,.indd)'))->validateFile('file1.indd', 'application/x-indesign');
+    }
+
     public function testExtensionUnknownToTheMimeDatabaseIsNamedInTheRefusal(): void
     {
         $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('File type "application/x-indesign" with extension "indd" is not allowed. The configuration lists ".indd" under image/* only, which does not match the type of this file (application/x-indesign). Allowed types are image/* (.jpg, .indd)');
+        $this->expectExceptionMessage('File type "application/vnd.adobe.indesign-idml-package" with extension "idml" is not allowed. The configuration lists ".idml" under image/* only, which does not match the type of this file (application/vnd.adobe.indesign-idml-package). Allowed types are image/* (.jpg, .idml)');
 
-        (new FileValidator('image/*(.jpg,.indd)'))->validateFile('file1.indd', 'application/x-indesign');
+        (new FileValidator('image/*(.jpg,.idml)'))->validateFile('file1.idml', 'application/vnd.adobe.indesign-idml-package');
     }
 
     public function testRefusalOfAWellPlacedExtensionHasNoDiagnostic(): void
@@ -221,6 +229,19 @@ class FileValidatorTest extends TestCase
         $validator->validateFile('bar.jpg', 'image/jpeg');
     }
 
+    public function testExtensionWithAPreferredTypeIsLogged(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                $this->stringContains('".indd" is listed under image/*, which matches none of its types (application/x-indesign)'),
+                $this->callback(static fn (array $context): bool => ['image/*'] === ($context['misplaced']['indd']['masks'] ?? null)),
+            );
+
+        (new FileValidator('image/*(.jpg,.indd)', $logger))->validateFile('foo.jpg', 'image/jpeg');
+    }
+
     #[DataProvider('getConfigurationsWithoutMisplacedExtension')]
     public function testNoWarningWithoutMisplacedExtension(string $allowedTypes): void
     {
@@ -241,7 +262,7 @@ class FileValidatorTest extends TestCase
         return [
             'default test configuration' => [self::ALLOWED_TYPES],
             'octet-stream lists any extension' => ['application/octet-stream(.ai)'],
-            'extension unknown to the MIME database' => ['image/*(.jpg,.prproj,.indd)'],
+            'extension unknown to the MIME database' => ['image/*(.jpg,.prproj,.idml)'],
             'type libmagic gives to some files of the family' => ['application/*(.epsf,.ogg)'],
         ];
     }

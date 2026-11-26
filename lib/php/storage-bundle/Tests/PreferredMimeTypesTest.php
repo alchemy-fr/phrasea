@@ -32,6 +32,8 @@ class PreferredMimeTypesTest extends TestCase
         yield ['wma', ['audio/x-ms-wma', 'audio/wma']];
         yield ['mp4', ['video/mp4', 'application/mp4', 'video/mp4v-es', 'video/x-m4v']];
         yield ['psb', ['image/vnd.adobe.photoshop', 'application/vnd.3gpp.pic-bw-small']];
+        yield ['indd', ['application/x-indesign']];
+        yield ['indt', ['application/x-indesign']];
         yield ['jpg', ['image/jpeg', 'image/pjpeg']];
         yield ['unknownext', []];
     }
@@ -79,6 +81,7 @@ class PreferredMimeTypesTest extends TestCase
     {
         $this->assertSame('video/x-ms-wmv', FileUtil::getTypeFromExtension('wmv'));
         $this->assertSame('video/mp4', FileUtil::getTypeFromExtension('mp4'));
+        $this->assertSame('application/x-indesign', FileUtil::getTypeFromExtension('indd'));
 
         PreferredMimeTypes::setDefault(new PreferredMimeTypes(''));
         $this->assertSame('audio/x-ms-wmv', FileUtil::getTypeFromExtension('wmv'));
