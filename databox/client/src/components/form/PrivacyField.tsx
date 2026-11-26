@@ -3,10 +3,10 @@
 import {useTranslation} from 'react-i18next';
 import {InfoIcon} from 'lucide-react';
 import {Privacy} from '@/types/api';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
-import {Label} from '@alchemy/next-ui/ui/input';
-import {Alert} from '@alchemy/next-ui/ui/misc';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Checkbox, LabeledControl} from '@alchemy/ui/ui/controls';
+import {Label} from '@alchemy/ui/ui/input';
+import {Alert} from '@alchemy/ui/ui/misc';
 import {privacyLabels} from '@/features/attributes/types/registry';
 
 type Level = 'secret' | 'private' | 'public';

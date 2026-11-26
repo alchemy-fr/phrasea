@@ -1,7 +1,7 @@
 'use client';
 
 import type {PropsWithChildren} from 'react';
-import {I18nProvider as BaseI18nProvider} from '@alchemy/next-i18n/I18nProvider';
+import {I18nProvider as BaseI18nProvider} from '@alchemy/i18n/I18nProvider';
 import {setApiLocale} from '@/lib/api/http';
 import {setPreferredLanguages} from '@/lib/utils/locale';
 import {createI18n, languages, type LanguageCode} from './index';

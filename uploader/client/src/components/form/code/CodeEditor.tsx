@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTheme} from 'next-themes';
 import type {Ace} from 'ace-builds';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 type Props = {
     'value': string;

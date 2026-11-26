@@ -2,12 +2,9 @@
 
 import {useTranslation} from 'react-i18next';
 import {BrushIcon} from 'lucide-react';
-import {ThemeMenu as BaseThemeMenu} from '@alchemy/next-theme/ThemeMenu';
-import {
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-} from '@alchemy/next-ui/ui/menu';
-import {useGuardedRouter} from '@alchemy/next-ui/modals/UnsavedChangesGuard';
+import {ThemeMenu as BaseThemeMenu} from '@alchemy/theme/ThemeMenu';
+import {DropdownMenuItem, DropdownMenuSeparator} from '@alchemy/ui/ui/menu';
+import {useGuardedRouter} from '@alchemy/ui/modals/UnsavedChangesGuard';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {usePreferencesStore} from '@/features/preferences/store';

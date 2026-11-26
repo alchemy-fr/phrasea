@@ -17,11 +17,11 @@ import {AssetStatus} from '@/types/api';
 import {getAsset, searchAssets} from '@/lib/api/assets';
 import {getAssetRenditions} from '@/lib/api/misc';
 import {routes, UNKNOWN_RENDITION} from '@/lib/routes';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {EmptyState, Separator} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {EmptyState, Separator} from '@alchemy/ui/ui/misc';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {getSubtitleTracks} from '@/features/assets/player/subtitles';
 import {MediaPlaybackProvider} from '@/features/assets/player/MediaPlaybackProvider';
@@ -40,7 +40,7 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {assetChannel, RENDITION_UPDATE_EVENT} from '@/lib/realtime/channels';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {ReplaceSourceDialog} from '@/features/assets/actions/ReplaceSourceDialog';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
 import {
@@ -51,7 +51,7 @@ import {
 import {useResizablePanel} from '@/hooks/useResizablePanel';
 import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {isApiError} from '@/lib/api/http';
 import {
     getContentTracking,

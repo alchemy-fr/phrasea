@@ -1,7 +1,7 @@
 'use client';
 
 import {type KeyboardEvent, useEffect, useRef} from 'react';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {formatClipTime} from './clip';
 import {drawCachedFrame} from './frameCanvas';
 import type {PreviewFrame} from './useFramePreview';

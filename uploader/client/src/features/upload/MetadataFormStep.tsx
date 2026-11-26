@@ -3,9 +3,9 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {SendIcon} from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Alert} from '@alchemy/next-ui/ui/misc';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
+import {Button} from '@alchemy/ui/ui/button';
+import {Alert} from '@alchemy/ui/ui/misc';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
 import {hasFormErrors, validateForm} from '@/lib/api/uploader';
 import type {FormDefinition, FormValues} from '@/features/form-builder/types';
 import {

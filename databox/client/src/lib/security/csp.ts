@@ -3,7 +3,7 @@ import {
     originOf,
     stackCspSources,
     type CspSources,
-} from '@alchemy/next-core/security/csp';
+} from '@alchemy/core/security/csp';
 
 /** Where Mapbox GL loads its styles, tiles and fonts, and sends its events */
 const MAPBOX_SOURCES = [

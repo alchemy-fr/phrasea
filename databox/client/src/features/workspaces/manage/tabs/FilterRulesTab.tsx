@@ -20,28 +20,28 @@ import {
     getAttributeFilterRules,
     saveAttributeFilterRule,
 } from '@/lib/api/integrations';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow} from '@alchemy/next-ui/ui/input';
-import {Badge, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow} from '@alchemy/ui/ui/input';
+import {Badge, Skeleton} from '@alchemy/ui/ui/misc';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
 import {LoadError} from '@/components/modals/LoadPlaceholder';
 import {ConditionDialog} from '@/features/search/conditions/ConditionDialog';
 import {HumanizedExpression} from '@/features/search/conditions/SearchConditionChip';
 import {SearchProvider} from '@/features/search/SearchProvider';
 import {parseAQL} from '@/features/search/aql/parser';
-import {toastError} from '@alchemy/next-ui/utils/errors';
+import {toastError} from '@alchemy/ui/utils/errors';
 import {
     confirmLeave,
     UnsavedChangesScope,
     useDirtyState,
     useUnsavedChangesChildScope,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/navigation/unsavedChanges';
 import {useRoutePath} from '@/lib/navigation/routePath';
 import {useFocusFirstField} from '@/hooks/useFocusFirstField';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
-import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {useInfiniteScroll} from '@alchemy/ui/hooks/useInfiniteScroll';
 
 /**
  * Attribute filter rules: the assets of the workspace are only visible to the

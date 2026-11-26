@@ -1,8 +1,8 @@
 import ky, {HTTPError, isHTTPError, type KyInstance, type Options} from 'ky';
 import {getConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
-import {ApiError} from '@alchemy/next-ui/utils/errors';
-import {isApiUrl} from '@alchemy/next-core/api/isApiUrl';
+import {ApiError} from '@alchemy/ui/utils/errors';
+import {isApiUrl} from '@alchemy/core/api/isApiUrl';
 
 export type QueryParams = Record<string, unknown>;
 
@@ -19,11 +19,7 @@ export type RequestOptions = {
     keepalive?: boolean;
 };
 
-export {
-    ApiError,
-    isAbortError,
-    isApiError,
-} from '@alchemy/next-ui/utils/errors';
+export {ApiError, isAbortError, isApiError} from '@alchemy/ui/utils/errors';
 
 /**
  * Serializes query params the way Symfony expects them:

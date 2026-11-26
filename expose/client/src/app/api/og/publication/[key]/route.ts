@@ -1,6 +1,6 @@
 import type {NextRequest} from 'next/server';
-import {proxyImage} from '@alchemy/next-core/server/imageProxy';
-import {verifySslFromEnv} from '@alchemy/next-core/server/http';
+import {proxyImage} from '@alchemy/core/server/imageProxy';
+import {verifySslFromEnv} from '@alchemy/core/server/http';
 import {
     decodeSegment,
     fetchPublicPublication,

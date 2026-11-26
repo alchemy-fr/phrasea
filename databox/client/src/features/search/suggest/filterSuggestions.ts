@@ -16,7 +16,7 @@ import {
     getAttributeType,
     privacyLabels,
 } from '@/features/attributes/types/registry';
-import {fileFamilies} from '@alchemy/next-ui/utils/mime';
+import {fileFamilies} from '@alchemy/ui/utils/mime';
 import {AQLOperator, AQLValueExpr, RawType, ScalarValue} from '../aql/types';
 import {conditionToString} from '../aql/serializer';
 import {rawTypeMap, validateAST} from '../aql/validation';

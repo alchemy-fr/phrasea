@@ -3,7 +3,7 @@ import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {createI18n} from '@/i18n';
-import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
+import {ModalProvider} from '@alchemy/ui/modals/ModalProvider';
 import {SecretManager} from './SecretManager';
 
 const {secretsApi, integrationsApi} = vi.hoisted(() => ({

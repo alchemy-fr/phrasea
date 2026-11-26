@@ -1,5 +1,5 @@
 import type {Metadata} from 'next';
-import {NO_INDEX} from '@alchemy/next-core/seo/metadata';
+import {NO_INDEX} from '@alchemy/core/seo/metadata';
 import {PublicationScreen} from '@/features/publication/PublicationScreen';
 import {
     decodeSegment,

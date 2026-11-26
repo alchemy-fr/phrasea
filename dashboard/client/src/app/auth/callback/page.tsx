@@ -1,6 +1,6 @@
 'use client';
 
-import {AuthCallbackPage} from '@alchemy/next-core/auth/AuthCallbackPage';
+import {AuthCallbackPage} from '@alchemy/core/auth/AuthCallbackPage';
 import {getAuthClient} from '@/lib/auth/client';
 
 export default function Page() {

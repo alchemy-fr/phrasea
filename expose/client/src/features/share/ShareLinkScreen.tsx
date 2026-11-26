@@ -5,7 +5,7 @@ import {useRouter} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {LinkIcon} from 'lucide-react';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 import {isApiError} from '@/lib/api/http';
 import {resolveShare} from '@/lib/api/shares';
 import {storeShareToken} from '@/lib/api/shareTokens';

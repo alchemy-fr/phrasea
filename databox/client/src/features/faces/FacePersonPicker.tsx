@@ -9,10 +9,7 @@ import {
     loadAttributeEntity,
     postAttributeEntity,
 } from '@/lib/api/metadata';
-import {
-    AsyncCombobox,
-    type ComboOption,
-} from '@alchemy/next-ui/form/AsyncCombobox';
+import {AsyncCombobox, type ComboOption} from '@alchemy/ui/form/AsyncCombobox';
 import {EntityChip} from '@/components/chips';
 import {entityLabel} from '@/features/attributes/types/registry';
 import type {FaceCardFace, FaceEntity} from './FaceCard';

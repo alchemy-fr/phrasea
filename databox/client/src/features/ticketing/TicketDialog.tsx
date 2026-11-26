@@ -20,22 +20,22 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@alchemy/next-ui/ui/dialog';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+} from '@alchemy/ui/ui/dialog';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input, Textarea} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from '@alchemy/next-ui/ui/misc';
+} from '@alchemy/ui/ui/misc';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {
     askDiscardChanges,
     useUnsavedChangesPrompt,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
-import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
+} from '@alchemy/ui/navigation/unsavedChanges';
+import {useShortcutLabels} from '@alchemy/ui/hooks/useShortcutLabels';
 import {createTicket} from './api';
 import {
     captureScreenshot,

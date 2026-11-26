@@ -2,10 +2,10 @@
 
 import {PropsWithChildren} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Alert} from '@alchemy/next-ui/ui/misc';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {Alert} from '@alchemy/ui/ui/misc';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 import {Page} from '@/components/layout/AppShell';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
 import {useUploaderUser} from '@/features/user/useUploaderUser';
 import type {UploaderUser} from '@/types/api';
 

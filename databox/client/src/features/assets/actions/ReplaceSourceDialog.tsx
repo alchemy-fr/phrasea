@@ -4,15 +4,15 @@ import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {Progress} from '@alchemy/next-ui/ui/misc';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {Progress} from '@alchemy/ui/ui/misc';
 import {FileOrUrl, FileOrUrlInput} from '@/components/form/FileOrUrlInput';
 import {multipartUpload} from '@/lib/api/upload';
 import {patchAsset} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useConfig} from '@/lib/config/ConfigProvider';
-import {toDropzoneAccept} from '@alchemy/next-ui/utils/mime';
+import {toDropzoneAccept} from '@alchemy/ui/utils/mime';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function ReplaceSourceDialog({

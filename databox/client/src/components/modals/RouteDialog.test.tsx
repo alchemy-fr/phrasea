@@ -2,11 +2,11 @@ import React from 'react';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {act, render, screen} from '@testing-library/react';
 import {RouteDialog, RouteHistoryProvider, useCloseRoute} from './RouteDialog';
-import {modalExitDuration} from '@alchemy/next-ui/modals/ModalProvider';
+import {modalExitDuration} from '@alchemy/ui/modals/ModalProvider';
 import {
     useUnsavedChangesPrompt,
     useUnsavedChangesStore,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/navigation/unsavedChanges';
 
 const nav = vi.hoisted(() => ({
     pathname: '/assets',

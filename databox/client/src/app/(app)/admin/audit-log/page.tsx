@@ -1,6 +1,6 @@
 import {Suspense} from 'react';
 import {AuditLogScreen} from '@/features/audit-log/AuditLogScreen';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 
 export default function AuditLogPage() {
     return (

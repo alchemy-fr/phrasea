@@ -8,16 +8,16 @@ import {
     LanguageMenu,
     SettingsMenu,
     UserMenu,
-} from '@alchemy/next-ui/layout/menus';
-import {ThemeMenu} from '@alchemy/next-theme/ThemeMenu';
-import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
+} from '@alchemy/ui/layout/menus';
+import {ThemeMenu} from '@alchemy/theme/ThemeMenu';
+import {CookieConsentMenuItem} from '@alchemy/core/analytics/CookieConsentMenuItem';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {languages} from '@/i18n';
 import {routes} from '@/lib/routes';
 import {createDataboxGroupsApi} from '@/lib/api/groups';
-import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
+import {ManageGroupsMenuItem} from '@alchemy/ui/groups/ManageGroupsMenuItem';
 
 /**
  * The application header: the logo, then the settings and user menus. Not

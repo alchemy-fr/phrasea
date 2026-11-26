@@ -63,7 +63,7 @@ complete.
 
 ## Code
 
-The tracker shared by the clients lives in `lib/js/next-core/src/analytics/`:
+The tracker shared by the clients lives in `lib/js/core/src/analytics/`:
 
 - `matomo.ts` — thin wrapper around `window._paq`, without React. Every call is
   a no-op on the server and until `initMatomo()` has run.

@@ -19,11 +19,9 @@
     "files": [
         "translations/*.json",
         "src/multiPartUpload.ts",
-        "src/axiosMultipartUpload.ts"
+        "src/axiosMultipartUpload.ts",
+        "src/mimeTypes.ts"
     ],
-    "dependencies": {
-        "@alchemy/core": "workspace:*"
-    },
     "peerDependencies": {
         "axios": "^1.18.1",
         "axios-retry": "^4.5.0",

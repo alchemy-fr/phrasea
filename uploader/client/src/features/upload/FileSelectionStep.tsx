@@ -11,18 +11,14 @@ import {
     Trash2Icon,
     UploadCloudIcon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {useConfirm} from '@alchemy/next-ui/ui/confirm';
-import {Alert} from '@alchemy/next-ui/ui/misc';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@alchemy/next-ui/ui/overlays';
+import {Button} from '@alchemy/ui/ui/button';
+import {useConfirm} from '@alchemy/ui/ui/confirm';
+import {Alert} from '@alchemy/ui/ui/misc';
+import {Popover, PopoverContent, PopoverTrigger} from '@alchemy/ui/ui/overlays';
 import {routes} from '@/lib/routes';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {formatFileSize} from '@/lib/utils/format';
-import {describeAllowedTypes} from '@alchemy/next-ui/utils/mime';
+import {describeAllowedTypes} from '@alchemy/ui/utils/mime';
 import {FileTile} from './FileTile';
 import {checkBatch, totalSize} from './limits';
 import {useBatchIssueMessage, useFileDrop} from './useFileDrop';

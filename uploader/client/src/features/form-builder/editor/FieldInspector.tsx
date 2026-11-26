@@ -3,11 +3,11 @@
 import {ReactNode, useId} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PlusIcon, Trash2Icon} from 'lucide-react';
-import {FieldHelp, Input, Label} from '@alchemy/next-ui/ui/input';
-import {Switch, LabeledControl} from '@alchemy/next-ui/ui/controls';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Alert, Badge} from '@alchemy/next-ui/ui/misc';
+import {FieldHelp, Input, Label} from '@alchemy/ui/ui/input';
+import {Switch, LabeledControl} from '@alchemy/ui/ui/controls';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Button} from '@alchemy/ui/ui/button';
+import {Alert, Badge} from '@alchemy/ui/ui/misc';
 import {
     CUSTOM_TYPES,
     emptyValue,

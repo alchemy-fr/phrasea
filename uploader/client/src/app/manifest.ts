@@ -1,4 +1,4 @@
-import {appManifest} from '@alchemy/next-core/seo/manifest';
+import {appManifest} from '@alchemy/core/seo/manifest';
 import {APP_DESCRIPTION, APP_FULL_NAME, APP_NAME} from '@/lib/seo/app';
 
 export default function manifest() {

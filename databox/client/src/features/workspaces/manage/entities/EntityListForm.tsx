@@ -6,10 +6,10 @@ import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {EntityList} from '@/types/api';
 import {postEntityList, putEntityList} from '@/lib/api/metadata';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
-import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/ui/ui/controls';
+import {useDirtyState} from '@alchemy/ui/navigation/unsavedChanges';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {entityListPermissions} from '@/features/permissions/permissionDefinitions';
 import {

@@ -50,4 +50,4 @@ transparent: `lib/php/admin-bundle/Resources/public/phrasea-logo.png` and
 email clients do not show SVG images.
 
 `#fafafa` is the `background_color` of the web manifest
-(`lib/js/next-core/src/seo/manifest.ts`).
+(`lib/js/core/src/seo/manifest.ts`).

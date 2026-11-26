@@ -24,11 +24,11 @@ import {
     getAssetsByIds,
 } from '@/lib/api/assets';
 import {useAttributeDefinitionList} from '@/features/attributes/useAttributeDefinitionList';
-import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {useInfiniteScroll} from '@alchemy/ui/hooks/useInfiniteScroll';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {FullPageLoader, Spinner} from '@alchemy/next-ui/ui/loader';
+import {Button} from '@alchemy/ui/ui/button';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
+import {FullPageLoader, Spinner} from '@alchemy/ui/ui/loader';
 import {
     Badge,
     EmptyState,
@@ -36,21 +36,21 @@ import {
     Tabs,
     TabsList,
     TabsTrigger,
-} from '@alchemy/next-ui/ui/misc';
+} from '@alchemy/ui/ui/misc';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {AttributeWidget} from '@/features/attributes/widgets/AttributeWidget';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
-import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
+import {useUnsavedChangesPrompt} from '@alchemy/ui/navigation/unsavedChanges';
 import {useSelectAllKey} from '@/hooks/useSelectAllKey';
 import {NO_LOCALE} from '@/lib/utils/locale';
 import {getAttributeType} from '@/features/attributes/types/registry';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
-import {debounce, deepEquals} from '@alchemy/next-ui/utils/misc';
+import {debounce, deepEquals} from '@alchemy/ui/utils/misc';
 import {Flag} from '@/components/ui/flag';
 import {FilterInput} from '@/components/ui/filter-input';
 import {
@@ -58,7 +58,7 @@ import {
     useEntitiesStore,
 } from '@/features/search/entitiesStore';
 import {iri} from '@/lib/utils/iri';
-import {Slider} from '@alchemy/next-ui/ui/controls';
+import {Slider} from '@alchemy/ui/ui/controls';
 import {thumbSizeRange, useBatchEditorLayout} from './useBatchEditorLayout';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 

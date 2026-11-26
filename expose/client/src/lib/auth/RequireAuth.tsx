@@ -5,9 +5,9 @@ import {useTranslation} from 'react-i18next';
 import {LockIcon} from 'lucide-react';
 import {useAuth} from './AuthProvider';
 import {hasLoggedOut} from './loggedOut';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {EmptyState} from '@alchemy/next-ui/ui/misc';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {Button} from '@alchemy/ui/ui/button';
+import {EmptyState} from '@alchemy/ui/ui/misc';
 
 /**
  * Gate for private screens: shows a loader while the session is being

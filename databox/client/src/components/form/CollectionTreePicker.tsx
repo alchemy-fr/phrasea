@@ -22,11 +22,11 @@ import {
     mayHaveChildren,
     useAutoExpand,
 } from '@/features/collections/tree/autoExpand';
-import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Input} from '@alchemy/next-ui/ui/input';
-import {Skeleton} from '@alchemy/next-ui/ui/misc';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {useInfiniteScroll} from '@alchemy/ui/hooks/useInfiniteScroll';
+import {Button} from '@alchemy/ui/ui/button';
+import {Input} from '@alchemy/ui/ui/input';
+import {Skeleton} from '@alchemy/ui/ui/misc';
+import {cn} from '@alchemy/ui/utils/cn';
 import {iri} from '@/lib/utils/iri';
 import {postCollection} from '@/lib/api/collections';
 

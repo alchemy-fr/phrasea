@@ -4,15 +4,15 @@ import {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Trash2Icon, TypeIcon, UploadIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input, Label} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input, Label} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
 import {
     ClientThemeFont,
     FONT_FAMILY_NAME_RE,
     THEME_LIMITS,
-} from '@alchemy/next-theme/customTheme';
-import {themeFonts} from '@alchemy/next-theme/fonts';
+} from '@alchemy/theme/customTheme';
+import {themeFonts} from '@alchemy/theme/fonts';
 
 /**
  * The value of the select standing for "a CSS font list of my own". Starts

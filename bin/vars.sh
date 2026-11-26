@@ -51,9 +51,8 @@ JS_LIBS="
 lib/js/api
 lib/js/auth
 lib/js/core
-lib/js/next-core
-lib/js/next-i18n
-lib/js/next-theme
-lib/js/next-ui
+lib/js/i18n
 lib/js/storage
+lib/js/theme
+lib/js/ui
 "

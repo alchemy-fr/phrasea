@@ -13,25 +13,25 @@ import {
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset, AssetAttachment} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Input} from '@alchemy/next-ui/ui/input';
+import {Button} from '@alchemy/ui/ui/button';
+import {Input} from '@alchemy/ui/ui/input';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
+} from '@alchemy/ui/ui/menu';
 import {MoreVerticalIcon} from 'lucide-react';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {deleteAttachment, putAttachment, postAttachment} from '@/lib/api/misc';
 import {deleteAssets, uploadAsset} from '@/lib/api/assets';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {FileOrUrlInput, FileOrUrl} from '@/components/form/FileOrUrlInput';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
 import {EntityName} from '@/types/api';
 import {iri} from '@/lib/utils/iri';
 

@@ -7,9 +7,9 @@ import type {AutomationActionConfig} from '@/types/api';
 import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
 import {getRenditionDefinitions} from '@/lib/api/misc';
 import {fetchAllPages} from '@/lib/api/hydra';
-import {FieldError, FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {FieldError, FormRow, Input} from '@alchemy/ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/ui/ui/controls';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
 import {
     describeRemoteDestination,
     isRemoteDestinationComplete,

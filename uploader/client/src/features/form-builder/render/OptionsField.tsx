@@ -2,20 +2,17 @@
 
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
-import {
-    AsyncCombobox,
-    type ComboOption,
-} from '@alchemy/next-ui/form/AsyncCombobox';
+import {AsyncCombobox, type ComboOption} from '@alchemy/ui/form/AsyncCombobox';
 import {
     Checkbox,
     LabeledControl,
     RadioGroup,
     RadioGroupItem,
-} from '@alchemy/next-ui/ui/controls';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
-import {FieldError} from '@alchemy/next-ui/ui/input';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
+} from '@alchemy/ui/ui/controls';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Spinner} from '@alchemy/ui/ui/loader';
+import {FieldError} from '@alchemy/ui/ui/input';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
 import {localized, widgetOf} from '../definition';
 import type {FieldOption, FieldOptionsLoader, InputField} from '../types';
 

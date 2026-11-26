@@ -7,7 +7,7 @@ import {
     AsyncCombobox,
     ComboOption,
     ComboPage,
-} from '@alchemy/next-ui/form/AsyncCombobox';
+} from '@alchemy/ui/form/AsyncCombobox';
 import {
     getAttributeDefinitionsPage,
     getAttributeEntities,
@@ -47,8 +47,8 @@ import {useCollectionStore} from '@/features/collections/collectionStore';
 import {getWorkspaces} from '@/lib/api/collections';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {groupsApi} from '@/lib/api/groups';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {CreateGroupDialog} from '@alchemy/next-ui/groups/CreateGroupDialog';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {CreateGroupDialog} from '@alchemy/ui/groups/CreateGroupDialog';
 
 function comboPage<T>(
     page: Page<T>,

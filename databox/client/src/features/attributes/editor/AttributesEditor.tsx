@@ -11,18 +11,18 @@ import {
     AttributeIndex,
     DefinitionIndex,
 } from './attributeEditorModel';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Label} from '@alchemy/next-ui/ui/input';
-import {Tabs, TabsList, TabsTrigger, Alert} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Label} from '@alchemy/ui/ui/input';
+import {Tabs, TabsList, TabsTrigger, Alert} from '@alchemy/ui/ui/misc';
 import {NO_LOCALE, isRtl} from '@/lib/utils/locale';
 import {idFromIri} from '@/lib/utils/iri';
-import {shortId} from '@alchemy/next-ui/utils/misc';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {shortId} from '@alchemy/ui/utils/misc';
+import {cn} from '@alchemy/ui/utils/cn';
 import {Flag} from '@/components/ui/flag';
 import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetButton';
 import {ManageEntityListButton} from '@/features/entities/manage/ManageEntityListButton';
-import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {useInfiniteScroll} from '@alchemy/ui/hooks/useInfiniteScroll';
+import {Spinner} from '@alchemy/ui/ui/loader';
 import {focusableIn, hasFocusableInStop, nextFieldStop} from './fieldTabbing';
 
 export type OnAttributeChange = (

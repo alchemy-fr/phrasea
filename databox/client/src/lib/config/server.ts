@@ -1,7 +1,7 @@
 import 'server-only';
-import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
-import {analyticsConfigFromEnv} from '@alchemy/next-core/analytics/config';
-import {envBool} from '@alchemy/next-core/config/env';
+import {sentryClientConfigFromEnv} from '@alchemy/core/monitoring/config';
+import {analyticsConfigFromEnv} from '@alchemy/core/analytics/config';
+import {envBool} from '@alchemy/core/config/env';
 import type {AppConfig} from './types';
 
 function int(value: string | undefined): number | undefined {

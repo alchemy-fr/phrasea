@@ -25,11 +25,11 @@ import {
 } from './definitionsStore';
 import {BuiltInAttribute} from '@/features/search/searchState';
 import {CopyButton} from '@/components/ui/copy-button';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {Separator} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
+import {Separator} from '@alchemy/ui/ui/misc';
 import {useProfileStore} from '@/features/profiles/profileStore';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {AttributeType} from '@/types/api';
 
 export type Item = {

@@ -1,5 +1,3 @@
-import {getExtensionFromFilename} from './fileUtils';
-
 type MimeType = string;
 type Extension = string;
 
@@ -2069,6 +2067,15 @@ export function getMIMETypeFromFile(file: File): string | undefined {
     return getMIMETypeFromExtension(extension);
 }
 
+function getExtensionFromFilename(filename: string): string | undefined {
+    const parts = filename.split('.');
+    if (parts.length > 1) {
+        return parts.pop()?.toLowerCase();
+    }
+
+    return undefined;
+}
+
 /**
  * The usual type of an extension for which the map lists another type first.
  */
@@ -2092,18 +2099,4 @@ export function getMIMETypeFromExtension(
             return type;
         }
     }
-}
-
-export function getExtensionFromMIMEType(
-    type: string | undefined
-): string | undefined {
-    if (!type) {
-        return;
-    }
-    const extensions = getMimeTypesMap()[type];
-    if (!extensions) {
-        return;
-    }
-
-    return extensions[0];
 }

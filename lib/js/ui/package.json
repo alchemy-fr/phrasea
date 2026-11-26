@@ -1,5 +1,5 @@
 {
-    "name": "@alchemy/next-ui",
+    "name": "@alchemy/ui",
     "version": "1.0.0",
     "private": true,
     "description": "Design system of the Next.js clients: UI components, modals, menus, base styles",
@@ -50,7 +50,7 @@
         "zustand": "^5.0.16"
     },
     "devDependencies": {
-        "@alchemy/next-i18n": "workspace:*",
+        "@alchemy/i18n": "workspace:*",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",

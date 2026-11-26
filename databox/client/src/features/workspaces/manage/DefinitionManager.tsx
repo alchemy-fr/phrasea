@@ -25,11 +25,11 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {toast} from 'sonner';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Button} from '@alchemy/ui/ui/button';
 import {FilterInput} from '@/components/ui/filter-input';
-import {Skeleton, EmptyState} from '@alchemy/next-ui/ui/misc';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
+import {Skeleton, EmptyState} from '@alchemy/ui/ui/misc';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
 import {LoadError} from '@/components/modals/LoadPlaceholder';
 import {isApiError} from '@/lib/api/http';
 import {
@@ -37,23 +37,23 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
-import {cn} from '@alchemy/next-ui/utils/cn';
+} from '@alchemy/ui/ui/menu';
+import {cn} from '@alchemy/ui/utils/cn';
 import {
     overlayRow,
     SortableOverlay,
     SortableRow,
     sortableMeasuring,
     useSortableRow,
-} from '@alchemy/next-ui/ui/sortable';
+} from '@alchemy/ui/ui/sortable';
 import {
     confirmLeave,
     UnsavedChangesScope,
     useUnsavedChangesChildScope,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/navigation/unsavedChanges';
 import {NestedRoutePath, useRoutePath} from '@/lib/navigation/routePath';
 import {useFocusFirstField} from '@/hooks/useFocusFirstField';
-import {useInfiniteScroll} from '@alchemy/next-ui/hooks/useInfiniteScroll';
+import {useInfiniteScroll} from '@alchemy/ui/hooks/useInfiniteScroll';
 
 export type DefinitionItem = {id: string};
 

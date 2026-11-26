@@ -1,7 +1,7 @@
 'use client';
 
 import {usePathname, useRouter} from 'next/navigation';
-import {SessionExpiredDialog as BaseSessionExpiredDialog} from '@alchemy/next-core/auth/SessionExpiredDialog';
+import {SessionExpiredDialog as BaseSessionExpiredDialog} from '@alchemy/core/auth/SessionExpiredDialog';
 import {useAuth} from './AuthProvider';
 import {isUploadLinkPath, routes} from '@/lib/routes';
 

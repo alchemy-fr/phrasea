@@ -2,8 +2,8 @@
 
 import type {ComponentProps, ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
-import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
-import {GroupSelect} from '@alchemy/next-ui/groups/GroupSelect';
+import {FormRow, Input, Textarea} from '@alchemy/ui/ui/input';
+import {GroupSelect} from '@alchemy/ui/groups/GroupSelect';
 import {groupsApi} from '@/lib/api/groups';
 import type {TargetInput} from '@/types/api';
 

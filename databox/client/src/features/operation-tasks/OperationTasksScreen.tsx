@@ -33,11 +33,11 @@ import {
 } from '@/lib/api/misc';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {useConfirm} from '@alchemy/next-ui/ui/confirm';
-import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Button} from '@alchemy/ui/ui/button';
+import {useConfirm} from '@alchemy/ui/ui/confirm';
+import {Badge, EmptyState, Skeleton} from '@alchemy/ui/ui/misc';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
 import {CopyButton} from '@/components/ui/copy-button';
 import {formatDateTime, formatDuration} from '@/lib/utils/format';
 import {useWorkspace} from '@/features/collections/collectionStore';
@@ -45,7 +45,7 @@ import {
     AttributeDefinitionSelect,
     WorkspaceSelect,
 } from '@/components/form/selects';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {routes} from '@/lib/routes';
 import {ScrollablePage} from '@/components/layout/ScrollablePage';

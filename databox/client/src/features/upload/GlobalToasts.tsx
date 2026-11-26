@@ -7,9 +7,9 @@ import {DownloadIcon, UploadIcon} from 'lucide-react';
 import {useUploadStore} from './uploadStore';
 import {useExportStore} from '@/features/assets/exportStore';
 import {ExportStatus} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Progress} from '@alchemy/next-ui/ui/misc';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {Button} from '@alchemy/ui/ui/button';
+import {Progress} from '@alchemy/ui/ui/misc';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {PendingUploadsDialog} from './PendingUploadsDialog';
 
 /**

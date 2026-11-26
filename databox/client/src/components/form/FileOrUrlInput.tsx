@@ -4,12 +4,12 @@ import {useState} from 'react';
 import {useDropzone} from 'react-dropzone';
 import {useTranslation} from 'react-i18next';
 import {LinkIcon, UploadCloudIcon, XIcon} from 'lucide-react';
-import {Input} from '@alchemy/next-ui/ui/input';
-import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {Input} from '@alchemy/ui/ui/input';
+import {Tabs, TabsList, TabsTrigger} from '@alchemy/ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Checkbox, LabeledControl} from '@alchemy/ui/ui/controls';
 import {formatFileSize} from '@/lib/utils/format';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 export type FileOrUrl = {
     file?: File;

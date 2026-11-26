@@ -1,7 +1,7 @@
 /*
  * The palettes of the Phrasea clients: the base light and dark palettes,
  * then the presets. Imported by the global stylesheet of each client, next to
- * @alchemy/next-ui/styles/base.css which maps these tokens to Tailwind.
+ * @alchemy/ui/styles/base.css which maps these tokens to Tailwind.
  */
 @source '../src';
 

@@ -5,15 +5,15 @@ import Link from 'next/link';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {ArrowLeftIcon, CheckIcon, LinkIcon} from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Alert} from '@alchemy/next-ui/ui/misc';
-import {Input, FormRow} from '@alchemy/next-ui/ui/input';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {Button} from '@alchemy/ui/ui/button';
+import {Alert} from '@alchemy/ui/ui/misc';
+import {Input, FormRow} from '@alchemy/ui/ui/input';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 import {Page} from '@/components/layout/AppShell';
 import {downloadUrl, getTarget, hasFormErrors} from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
-import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
+import {useDirtyState} from '@alchemy/ui/navigation/unsavedChanges';
 import {useTargetForm} from '@/features/upload/UploadScreen';
 import {
     UploadFormBody,

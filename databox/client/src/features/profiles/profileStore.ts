@@ -20,7 +20,7 @@ import {
     usePreferencesStore,
     UserPreferences,
 } from '@/features/preferences/store';
-import {deepEquals} from '@alchemy/next-ui/utils/misc';
+import {deepEquals} from '@alchemy/ui/utils/misc';
 
 type State = {
     profiles: DisplayProfile[];

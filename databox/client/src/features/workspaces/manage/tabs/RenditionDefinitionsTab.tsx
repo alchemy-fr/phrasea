@@ -20,15 +20,15 @@ import {
     putRenditionDefinition,
     sortRenditionDefinitions,
 } from '@/lib/api/misc';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow} from '@alchemy/next-ui/ui/input';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow} from '@alchemy/ui/ui/input';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
-import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/ui/ui/controls';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Badge} from '@alchemy/ui/ui/misc';
 import {ReferenceDetails} from '@/components/form/ReferenceDetails';
 import {iri} from '@/lib/utils/iri';
-import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/ui/navigation/unsavedChanges';
 import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {RenditionDefinitionSelect} from '@/components/form/selects';
 import {TranslatableField} from '@/components/form/TranslatableField';

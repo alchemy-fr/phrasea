@@ -5,10 +5,10 @@ FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} AS deps
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY --chown=node:node ./dashboard/client/package.json ./dashboard/client/package.json
 # Workspace libraries (and the ones they depend on)
-COPY --chown=node:node ./lib/js/next-core/package.json ./lib/js/next-core/package.json
-COPY --chown=node:node ./lib/js/next-i18n/package.json ./lib/js/next-i18n/package.json
-COPY --chown=node:node ./lib/js/next-theme/package.json ./lib/js/next-theme/package.json
-COPY --chown=node:node ./lib/js/next-ui/package.json ./lib/js/next-ui/package.json
+COPY --chown=node:node ./lib/js/core/package.json ./lib/js/core/package.json
+COPY --chown=node:node ./lib/js/i18n/package.json ./lib/js/i18n/package.json
+COPY --chown=node:node ./lib/js/theme/package.json ./lib/js/theme/package.json
+COPY --chown=node:node ./lib/js/ui/package.json ./lib/js/ui/package.json
 
 USER node
 RUN pnpm install --filter "dashboard-client..." --frozen-lockfile \
@@ -18,10 +18,10 @@ RUN pnpm install --filter "dashboard-client..." --frozen-lockfile \
 
 FROM deps AS client-dev
 
-COPY --chown=node:node ./lib/js/next-core ./lib/js/next-core
-COPY --chown=node:node ./lib/js/next-i18n ./lib/js/next-i18n
-COPY --chown=node:node ./lib/js/next-theme ./lib/js/next-theme
-COPY --chown=node:node ./lib/js/next-ui ./lib/js/next-ui
+COPY --chown=node:node ./lib/js/core ./lib/js/core
+COPY --chown=node:node ./lib/js/i18n ./lib/js/i18n
+COPY --chown=node:node ./lib/js/theme ./lib/js/theme
+COPY --chown=node:node ./lib/js/ui ./lib/js/ui
 COPY --chown=node:node ./dashboard/client ./dashboard/client
 WORKDIR /srv/workspace/phrasea/dashboard/client
 ENV NODE_OPTIONS=
@@ -32,10 +32,10 @@ CMD ["pnpm", "dev"]
 
 FROM deps AS client-build
 
-COPY --chown=node:node ./lib/js/next-core ./lib/js/next-core
-COPY --chown=node:node ./lib/js/next-i18n ./lib/js/next-i18n
-COPY --chown=node:node ./lib/js/next-theme ./lib/js/next-theme
-COPY --chown=node:node ./lib/js/next-ui ./lib/js/next-ui
+COPY --chown=node:node ./lib/js/core ./lib/js/core
+COPY --chown=node:node ./lib/js/i18n ./lib/js/i18n
+COPY --chown=node:node ./lib/js/theme ./lib/js/theme
+COPY --chown=node:node ./lib/js/ui ./lib/js/ui
 COPY --chown=node:node ./dashboard/client ./dashboard/client
 WORKDIR /srv/workspace/phrasea/dashboard/client
 ENV NODE_OPTIONS=--max-old-space-size=4096 \

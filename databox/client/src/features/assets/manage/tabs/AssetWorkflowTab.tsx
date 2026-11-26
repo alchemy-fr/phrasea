@@ -6,8 +6,8 @@ import {ExternalLinkIcon, PlayIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AssetTabProps} from '../types';
 import {useAssetWorkflowRuns} from '@/features/workflows/useAssetWorkflowRuns';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Skeleton} from '@alchemy/ui/ui/misc';
 import {formatDateTime} from '@/lib/utils/format';
 import {routes} from '@/lib/routes';
 import {

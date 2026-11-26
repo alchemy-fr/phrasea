@@ -1,5 +1,5 @@
 import type {ComponentProps} from 'react';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 /**
  * Centered content of a full page: the whole main area scrolls, so that the

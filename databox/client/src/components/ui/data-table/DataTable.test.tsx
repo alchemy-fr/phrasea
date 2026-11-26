@@ -8,7 +8,7 @@ import {
     ContextMenuContent,
     ContextMenuItem,
     ContextMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
+} from '@alchemy/ui/ui/menu';
 import type {CellEditorRenderProps} from './types';
 
 // jsdom has no layout: the virtualizer would render no row

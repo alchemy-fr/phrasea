@@ -2,7 +2,7 @@
 
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
 import {getAllTargets} from '@/lib/api/uploader';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';
 

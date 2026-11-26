@@ -2,7 +2,7 @@
 
 import {useSyncExternalStore} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Button} from '@alchemy/ui/ui/button';
 import {isCookieConsentRequired} from './matomo';
 import {chooseCookieConsent, getSnapshot, subscribe} from './cookieConsent';
 

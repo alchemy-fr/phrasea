@@ -1,4 +1,4 @@
-import {createGroupsApi} from '@alchemy/next-ui/groups/createGroupsApi';
+import {createGroupsApi} from '@alchemy/ui/groups/createGroupsApi';
 import {api} from './http';
 
 /** The management of the Keycloak groups, sent with the token of the user */

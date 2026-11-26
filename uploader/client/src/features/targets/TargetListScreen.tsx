@@ -8,10 +8,10 @@ import {useTranslation} from 'react-i18next';
 import {UploadCloudIcon} from 'lucide-react';
 import {getAllTargets} from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {Alert} from '@alchemy/next-ui/ui/misc';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {Alert} from '@alchemy/ui/ui/misc';
 import {Page} from '@/components/layout/AppShell';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
 
 export const targetsQueryKey = ['targets'] as const;
 

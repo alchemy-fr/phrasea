@@ -17,13 +17,13 @@ import type {
     User,
     Workspace,
 } from '@/types/api';
-import {Chip} from '@alchemy/next-ui/ui/misc';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {Chip} from '@alchemy/ui/ui/misc';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
 import {
     assetStatusLabels,
     privacyLabels,
 } from '@/features/attributes/types/registry';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {pickTranslation} from '@/lib/utils/locale';
 import {AssetStatus as AssetStatusEnum} from '@/types/api';
 

@@ -77,14 +77,14 @@ The theme menu has two independent choices: the **appearance** (light / dark
 (`data-theme` on `<html>`): the base palette, ten built-in presets or, when
 one is defined, the organisation theme. Every preset is a light palette with a
 dark alternative and its own font, corner radius, base size and letter spacing
-(`styles/themes.css` of `@alchemy/next-theme`, `[data-theme='<id>']` and
+(`styles/themes.css` of `@alchemy/theme`, `[data-theme='<id>']` and
 `.dark[data-theme='<id>']`). Each preset is set in one of ten popular Google
 fonts, self-hosted by Next (`src/googleFonts.ts` of the same package, nothing
 is fetched from Google at runtime) and reached through the custom property it
 defines — the families are renamed at build time, so `src/fonts.ts` is what
 maps a font id to it. The base font size of a theme drives the whole Tailwind
 text scale (`--text-…` in the `@theme` block of
-`@alchemy/next-ui/styles/base.css`): the sizes are fixed rem
+`@alchemy/ui/styles/base.css`): the sizes are fixed rem
 values out of the box, so without it only the elements inheriting the size of
 the body would follow.
 
@@ -115,12 +115,12 @@ signed-in user. The SDK posts its envelopes to the same origin route
 `SENTRY_DSN` only, behind an in-memory rate limit of the client process:
 `SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
 `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
-code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel*`).
+code lives in `@alchemy/core` (`monitoring/*`, `server/sentryTunnel*`).
 
 ## Content Security Policy
 
 `src/proxy.ts` sets the Content Security Policy of the pages at request time,
-with a new nonce for every response (`@alchemy/next-core/security/*`): a
+with a new nonce for every response (`@alchemy/core/security/*`): a
 script only runs if it bears the nonce or was loaded by one that does
 (`'strict-dynamic'`). Next puts it on its own scripts; the inline scripts of
 the layout (theme pre-paint) read it from the `x-nonce` request
@@ -184,15 +184,15 @@ src/
 ```
 
 The code shared with the other Next.js clients lives in workspace packages
-(`lib/js/next-*`):
+(`lib/js/core`, `i18n`, `theme`, `ui`):
 
-- `@alchemy/next-ui`: design-system primitives (Radix + Tailwind), modals,
+- `@alchemy/ui`: design-system primitives (Radix + Tailwind), modals,
   the unsaved changes guard, the elements of the top bar (logo, services
   link, settings, language and user menus) and the base stylesheet;
-- `@alchemy/next-theme`: palettes, presets, organisation theme, theme menu;
-- `@alchemy/next-i18n`: languages, i18next setup and the translations common
+- `@alchemy/theme`: palettes, presets, organisation theme, theme menu;
+- `@alchemy/i18n`: languages, i18next setup and the translations common
   to every client (a client's own translations override them key by key);
-- `@alchemy/next-core`: OIDC client, stack and runtime configuration, Matomo,
+- `@alchemy/core`: OIDC client, stack and runtime configuration, Matomo,
   OAuth callback page and session expired dialog.
 
 The top bar (`components/layout/TopBar`) is permanent chrome: it always shows

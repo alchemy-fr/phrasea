@@ -5,10 +5,10 @@ import {useTranslation} from 'react-i18next';
 import {CopyIcon, FolderInputIcon, InfoIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
-import {Alert} from '@alchemy/next-ui/ui/misc';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/ui/ui/controls';
+import {Alert} from '@alchemy/ui/ui/misc';
 import {
     CollectionTreePicker,
     TreeSelection,

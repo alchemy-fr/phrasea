@@ -3,8 +3,8 @@
 import {type KeyboardEvent, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {MaximizeIcon, ZoomInIcon, ZoomOutIcon} from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {cn} from '@alchemy/ui/utils/cn';
 import type {ClipTimeRange} from './types';
 import {formatClipRange} from './clip';
 import {
@@ -28,7 +28,7 @@ import {useTimelineView} from './useTimelineView';
 import {useFramePreview} from './useFramePreview';
 import {RangeHandle, TimelineHoverPreview} from './TimelineParts';
 import type {FrameRateState} from './useFrameRate';
-import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
+import {useShortcutLabels} from '@alchemy/ui/hooks/useShortcutLabels';
 
 /** Zoom of a button or a key press */
 const ZOOM_STEP = 2;

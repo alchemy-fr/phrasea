@@ -9,10 +9,7 @@ import {
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import {formatFileSize} from '@/lib/utils/format';
-import {
-    describeAllowedTypes,
-    toDropzoneAccept,
-} from '@alchemy/next-ui/utils/mime';
+import {describeAllowedTypes, toDropzoneAccept} from '@alchemy/ui/utils/mime';
 import {mergeSelection, type BatchIssue} from './limits';
 import {useUploadLimits} from './useUploadLimits';
 

@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {buildCsp} from '@alchemy/next-core/security/csp';
+import {buildCsp} from '@alchemy/core/security/csp';
 import {contentSecuritySources} from './csp';
 
 function policy(env: Record<string, string | undefined>): string {

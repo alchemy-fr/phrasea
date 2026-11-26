@@ -1,6 +1,6 @@
 'use client';
 
-import {createConfig} from '@alchemy/next-core/config/createConfig';
+import {createConfig} from '@alchemy/core/config/createConfig';
 import type {AppConfig} from './types';
 
 const config = createConfig<AppConfig>();

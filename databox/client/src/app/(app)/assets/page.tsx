@@ -1,6 +1,6 @@
 import {Suspense} from 'react';
 import {AssetSearchScreen} from '@/features/search/AssetSearchScreen';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 
 export default function AssetsPage() {
     return (

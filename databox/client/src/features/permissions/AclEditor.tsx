@@ -11,14 +11,14 @@ import {UserType} from '@/types/api';
 import {deleteAce, getAces, putAce} from '@/lib/api/misc';
 import {PermissionCheckbox} from './PermissionCheckbox';
 import {ConfirmDeleteButton} from './ConfirmDeleteButton';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Skeleton} from '@alchemy/ui/ui/misc';
 import {
     Tooltip,
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from '@alchemy/next-ui/ui/overlays';
+} from '@alchemy/ui/ui/overlays';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
 import {
     AclExtraPermission,
@@ -26,7 +26,7 @@ import {
     PermissionDefinition,
     PermissionObject,
 } from './permissionTypes';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {
     SlantedBand,
     SlantedLabel,

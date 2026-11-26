@@ -11,8 +11,8 @@ import {
 } from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {AUTH_CALLBACK_PATH, getAuthClient} from './client';
-import type {AuthUser} from '@alchemy/next-core/auth/oidc';
-import {toastError} from '@alchemy/next-ui/utils/errors';
+import type {AuthUser} from '@alchemy/core/auth/oidc';
+import {toastError} from '@alchemy/ui/utils/errors';
 import {isUploadLinkPath} from '@/lib/routes';
 
 export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';

@@ -21,12 +21,12 @@ import {
     IntegrationObjectType,
     runIntegrationAction,
 } from '@/lib/api/integrations';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
-import {Alert, Badge, Progress} from '@alchemy/next-ui/ui/misc';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
+import {Alert, Badge, Progress} from '@alchemy/ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input, Textarea} from '@alchemy/ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/ui/ui/controls';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {basketChannel} from '@/lib/realtime/channels';
 import {integrationLabel} from '@/features/integrations/integrationLabel';

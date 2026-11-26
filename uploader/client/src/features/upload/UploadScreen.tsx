@@ -24,10 +24,10 @@ import {
     WifiOffIcon,
     XIcon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Alert, Progress} from '@alchemy/next-ui/ui/misc';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {useConfirm} from '@alchemy/next-ui/ui/confirm';
+import {Button} from '@alchemy/ui/ui/button';
+import {Alert, Progress} from '@alchemy/ui/ui/misc';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {useConfirm} from '@alchemy/ui/ui/confirm';
 import {Page} from '@/components/layout/AppShell';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {
@@ -39,10 +39,10 @@ import {
 } from '@/lib/api/uploader';
 import {routes} from '@/lib/routes';
 import type {RequestOptions} from '@/lib/api/http';
-import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
+import {useUnsavedChangesPrompt} from '@alchemy/ui/navigation/unsavedChanges';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
 import {formatFileSize} from '@/lib/utils/format';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import type {FormDefinition, FormValues} from '@/features/form-builder/types';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';
 import {targetFormQueryKey} from '@/features/admin/queryKeys';

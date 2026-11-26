@@ -18,7 +18,7 @@ import {conditionQuery, resolveSortBy} from './searchState';
 import {appendPage} from './resultPages';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useRenditionUpdate} from '@/lib/realtime/renditionUpdates';
-import {trackSiteSearch} from '@alchemy/next-core/analytics/matomo';
+import {trackSiteSearch} from '@alchemy/core/analytics/matomo';
 
 export type ResultContextValue = {
     pages: Asset[][];

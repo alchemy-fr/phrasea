@@ -3,8 +3,8 @@
 import {Suspense, useEffect, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {Button} from '@alchemy/ui/ui/button';
 import type {OidcClient} from './oidc';
 
 function Callback({getClient}: {getClient: () => OidcClient}) {

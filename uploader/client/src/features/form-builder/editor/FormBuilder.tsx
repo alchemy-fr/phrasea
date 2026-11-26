@@ -16,8 +16,8 @@ import {
     overlayRow,
     SortableOverlay,
     sortableMeasuring,
-} from '@alchemy/next-ui/ui/sortable';
-import {useConfirm} from '@alchemy/next-ui/ui/confirm';
+} from '@alchemy/ui/ui/sortable';
+import {useConfirm} from '@alchemy/ui/ui/confirm';
 import {
     BUILTINS,
     CUSTOM_TYPES,

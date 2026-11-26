@@ -15,23 +15,23 @@ import {
     XIcon,
 } from 'lucide-react';
 import type {WorkspaceEnv, WorkspaceSecret} from '@/types/api';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
-import {Chip} from '@alchemy/next-ui/ui/misc';
+import {Spinner} from '@alchemy/ui/ui/loader';
+import {Chip} from '@alchemy/ui/ui/misc';
 import {
     Popover,
     PopoverAnchor,
     PopoverContent,
     PopoverTrigger,
-} from '@alchemy/next-ui/ui/overlays';
+} from '@alchemy/ui/ui/overlays';
 import {
     Command,
     CommandGroup,
     CommandInput,
     CommandItem,
     CommandList,
-} from '@alchemy/next-ui/ui/command';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {cn} from '@alchemy/next-ui/utils/cn';
+} from '@alchemy/ui/ui/command';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {cn} from '@alchemy/ui/utils/cn';
 import {isValidSecretName, parseReference} from '@/features/secrets/secretRef';
 import {
     useSecretNames,

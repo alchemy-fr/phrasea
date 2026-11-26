@@ -1,7 +1,7 @@
 'use client';
 
 import type {PointerEventHandler} from 'react';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {
     formatTickLabel,
     isInView,

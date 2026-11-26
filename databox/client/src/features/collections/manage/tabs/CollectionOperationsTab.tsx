@@ -5,15 +5,15 @@ import {useTranslation} from 'react-i18next';
 import {FolderInputIcon, RotateCcwIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {CollectionTabProps} from '../CollectionManageRoute';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Alert} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Alert} from '@alchemy/ui/ui/misc';
 import {
     CollectionTreePicker,
     TreeSelection,
 } from '@/components/form/CollectionTreePicker';
 import {moveCollection} from '@/lib/api/collections';
 import {useCollectionStore} from '../../collectionStore';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {
     DeleteCollectionDialog,
     RestoreCollectionDialog,

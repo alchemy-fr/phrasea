@@ -1,1 +1,1 @@
-export {CopiableText, CopyButton} from '@alchemy/next-ui/ui/copy-button';
+export {CopiableText, CopyButton} from '@alchemy/ui/ui/copy-button';

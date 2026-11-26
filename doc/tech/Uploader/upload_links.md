@@ -46,7 +46,7 @@ A link only opens the upload flow of its target (`UploadLinkRequestListener`): `
 
 `GET /upload-links/current` gives the page the name of the link, its target, its limits and counters, never the token nor the creator.
 
-The token never leaves the page for a third party: the link page is neither indexed nor sent as a referrer (`noindex`, `no-referrer`), and the URLs given to Matomo (page views) and Sentry (events, breadcrumbs) go through `src/lib/privacy/redactUrl.ts`, which turns `/l/<token>` into `/l/[token]` (`createUrlRedactor()` of `@alchemy/next-core/privacy/redactUrl`); the `Authorization` header is dropped from the Sentry events.
+The token never leaves the page for a third party: the link page is neither indexed nor sent as a referrer (`noindex`, `no-referrer`), and the URLs given to Matomo (page views) and Sentry (events, breadcrumbs) go through `src/lib/privacy/redactUrl.ts`, which turns `/l/<token>` into `/l/[token]` (`createUrlRedactor()` of `@alchemy/core/privacy/redactUrl`); the `Authorization` header is dropped from the Sentry events.
 
 ## Attribution
 

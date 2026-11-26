@@ -5,27 +5,27 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import {Trash2Icon} from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Button} from '@alchemy/ui/ui/button';
 import {
     Alert,
     Tabs,
     TabsContent,
     TabsList,
     TabsTrigger,
-} from '@alchemy/next-ui/ui/misc';
-import {FormRow} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
-import {useConfirm} from '@alchemy/next-ui/ui/confirm';
+} from '@alchemy/ui/ui/misc';
+import {FormRow} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Spinner} from '@alchemy/ui/ui/loader';
+import {useConfirm} from '@alchemy/ui/ui/confirm';
 import {
     Dialog,
     DialogBody,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '@alchemy/next-ui/ui/dialog';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
-import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/ui/dialog';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
+import {useDirtyState} from '@alchemy/ui/navigation/unsavedChanges';
 import {saveTargetForm} from '@/lib/api/uploader';
 import {languages} from '@/i18n/config';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';

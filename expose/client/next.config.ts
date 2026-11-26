@@ -36,10 +36,10 @@ const nextConfig: NextConfig = {
     turbopack: {},
     // Workspace libraries are shipped as TypeScript sources
     transpilePackages: [
-        '@alchemy/next-core',
-        '@alchemy/next-i18n',
-        '@alchemy/next-theme',
-        '@alchemy/next-ui',
+        '@alchemy/core',
+        '@alchemy/i18n',
+        '@alchemy/theme',
+        '@alchemy/ui',
     ],
 };
 

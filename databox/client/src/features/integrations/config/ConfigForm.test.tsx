@@ -10,8 +10,8 @@ import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {useState} from 'react';
 import {createI18n} from '@/i18n';
-import {ApiError} from '@alchemy/next-ui/utils/errors';
-import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
+import {ApiError} from '@alchemy/ui/utils/errors';
+import {ModalProvider} from '@alchemy/ui/modals/ModalProvider';
 import {ConfigForm} from './ConfigForm';
 import type {ConfigObjectSchema, ConfigValues} from './schema';
 

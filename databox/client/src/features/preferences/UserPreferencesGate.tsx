@@ -5,9 +5,9 @@ import {useTheme} from 'next-themes';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {usePreferencesStore} from './store';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 import {setApiLocales} from '@/lib/api/http';
-import {useThemeStore} from '@alchemy/next-theme/themeStore';
+import {useThemeStore} from '@alchemy/theme/themeStore';
 import {useProfileStore} from '@/features/profiles/profileStore';
 import {hydrateDefinitions} from '@/features/attributes/definitionsCache';
 

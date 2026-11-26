@@ -8,8 +8,8 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@alchemy/next-ui/ui/dialog';
-import {Button} from '@alchemy/next-ui/ui/button';
+} from '@alchemy/ui/ui/dialog';
+import {Button} from '@alchemy/ui/ui/button';
 
 /** Offers to sign in again when the session expired */
 export function SessionExpiredDialog({

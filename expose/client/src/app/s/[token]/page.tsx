@@ -1,5 +1,5 @@
 import type {Metadata} from 'next';
-import {NO_INDEX, pageMetadata} from '@alchemy/next-core/seo/metadata';
+import {NO_INDEX, pageMetadata} from '@alchemy/core/seo/metadata';
 import {ShareLinkScreen} from '@/features/share/ShareLinkScreen';
 import {routes} from '@/lib/routes';
 import {APP_NAME} from '@/lib/seo/app';

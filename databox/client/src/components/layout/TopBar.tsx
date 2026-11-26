@@ -3,7 +3,7 @@
 import {Fragment, ReactNode} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {useGuardedRouter} from '@alchemy/next-ui/modals/UnsavedChangesGuard';
+import {useGuardedRouter} from '@alchemy/ui/modals/UnsavedChangesGuard';
 import {useTranslation} from 'react-i18next';
 import {
     BellIcon,
@@ -19,27 +19,27 @@ import {
     UndoIcon,
     WorkflowIcon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Button} from '@alchemy/ui/ui/button';
 import {
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuShortcut,
-} from '@alchemy/next-ui/ui/menu';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+} from '@alchemy/ui/ui/menu';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
 import {
     AppLogo,
     LanguageMenu,
     ServicesMenuLink,
     SettingsMenu,
     UserMenu,
-} from '@alchemy/next-ui/layout/menus';
+} from '@alchemy/ui/layout/menus';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {useLayoutStore} from './layoutStore';
 import {topBarHeight} from './chrome';
 import {languages} from '@/i18n';
 import {routes} from '@/lib/routes';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
 import {
     SWITCH_USER_KEY,
@@ -47,14 +47,14 @@ import {
 } from '@/features/impersonation/useSwitchUserShortcut';
 import {ProfileMenu} from '@/features/profiles/ProfileMenu';
 import {ThemeMenu} from '@/features/theme/ThemeMenu';
-import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
+import {CookieConsentMenuItem} from '@alchemy/core/analytics/CookieConsentMenuItem';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
 import {getAuthClient} from '@/lib/auth/client';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
-import {cn} from '@alchemy/next-ui/utils/cn';
-import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
+import {cn} from '@alchemy/ui/utils/cn';
+import {ManageGroupsMenuItem} from '@alchemy/ui/groups/ManageGroupsMenuItem';
 import {groupsApi} from '@/lib/api/groups';
-import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
+import {useShortcutLabels} from '@alchemy/ui/hooks/useShortcutLabels';
 
 /**
  * The application header: the logo, where the user is and the way back, then

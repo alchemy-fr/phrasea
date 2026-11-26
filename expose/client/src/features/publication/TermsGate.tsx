@@ -3,7 +3,7 @@
 import {PropsWithChildren, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {Publication} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Button} from '@alchemy/ui/ui/button';
 import {
     Dialog,
     DialogBody,
@@ -11,7 +11,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@alchemy/next-ui/ui/dialog';
+} from '@alchemy/ui/ui/dialog';
 import {acceptTerms, isTermsAccepted, termsKey} from './terms';
 import {TermsContent} from './TermsContent';
 

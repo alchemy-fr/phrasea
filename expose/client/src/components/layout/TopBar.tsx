@@ -8,16 +8,16 @@ import {
     ServicesMenuLink,
     SettingsMenu,
     UserMenu,
-} from '@alchemy/next-ui/layout/menus';
-import {ThemeMenu} from '@alchemy/next-theme/ThemeMenu';
-import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
+} from '@alchemy/ui/layout/menus';
+import {ThemeMenu} from '@alchemy/theme/ThemeMenu';
+import {CookieConsentMenuItem} from '@alchemy/core/analytics/CookieConsentMenuItem';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {languages} from '@/i18n';
 import {routes} from '@/lib/routes';
-import {cn} from '@alchemy/next-ui/utils/cn';
-import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
+import {cn} from '@alchemy/ui/utils/cn';
+import {ManageGroupsMenuItem} from '@alchemy/ui/groups/ManageGroupsMenuItem';
 import {groupsApi} from '@/lib/api/groups';
 
 export function AppLogo({linked = true}: {linked?: boolean}) {

@@ -81,7 +81,7 @@ integrations acting as their owner (`App\Security\IntegrationOwnerProvider`).
 ## Client
 
 **Switch user** is offered only when the token grants the `impersonation` role
-(`canImpersonate`, `lib/js/next-core/src/auth/oidc.ts`):
+(`canImpersonate`, `lib/js/core/src/auth/oidc.ts`):
 
 - the user menu of the top bar shows **Switch user…** with its shortcut, Ctrl+U (⌘U on
   macOS), which overrides the browser's "view source" except in a rich text editor

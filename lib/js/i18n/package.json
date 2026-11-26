@@ -1,5 +1,5 @@
 {
-    "name": "@alchemy/next-i18n",
+    "name": "@alchemy/i18n",
     "version": "1.0.0",
     "private": true,
     "description": "Languages, i18next setup and common translations of the Next.js clients",

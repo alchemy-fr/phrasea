@@ -3,8 +3,8 @@
 import {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {SaveIcon} from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {cn} from '@alchemy/ui/utils/cn';
 
 /**
  * The submit button of an editor, kept at the bottom of the page while it

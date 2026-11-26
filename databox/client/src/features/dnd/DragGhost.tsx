@@ -3,10 +3,10 @@
 import {useTranslation} from 'react-i18next';
 import {BanIcon, CheckIcon, FolderIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
-import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
+import {FileFamilyIcon} from '@alchemy/ui/ui/file-icon';
 import {assetKey} from '@/features/assets/list/SelectionProvider';
-import {cn} from '@alchemy/next-ui/utils/cn';
-import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
+import {cn} from '@alchemy/ui/utils/cn';
+import {useShortcutLabels} from '@alchemy/ui/hooks/useShortcutLabels';
 import {useDragOver, useDragPayload} from './DragContext';
 import {type DropOp, isNeutralTarget, targetName} from './types';
 

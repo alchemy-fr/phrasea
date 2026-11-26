@@ -11,18 +11,18 @@ import {
     MapIcon,
 } from 'lucide-react';
 import {Layout, SecurityMethod, type TermsConfig} from '@/types/api';
-import {Switch, RadioGroup, RadioGroupItem} from '@alchemy/next-ui/ui/controls';
+import {Switch, RadioGroup, RadioGroupItem} from '@alchemy/ui/ui/controls';
 import {
     FieldError,
     FieldHelp,
     Input,
     Label,
     Textarea,
-} from '@alchemy/next-ui/ui/input';
-import {Badge} from '@alchemy/next-ui/ui/misc';
-import {Button} from '@alchemy/next-ui/ui/button';
+} from '@alchemy/ui/ui/input';
+import {Badge} from '@alchemy/ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
 import {formatDateTime} from '@/lib/utils/format';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {
     overrideValue,
     PUBLIC_METHOD,

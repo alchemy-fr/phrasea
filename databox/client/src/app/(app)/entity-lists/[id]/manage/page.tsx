@@ -1,6 +1,6 @@
 import {Suspense} from 'react';
 import {EntityListManageScreen} from '@/features/entities/manage/EntityListManageScreen';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 
 export default async function EntityListManagePage({
     params,

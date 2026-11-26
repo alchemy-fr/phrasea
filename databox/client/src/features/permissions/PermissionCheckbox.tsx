@@ -1,6 +1,6 @@
 import {ComponentProps} from 'react';
-import {Checkbox} from '@alchemy/next-ui/ui/controls';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {Checkbox} from '@alchemy/ui/ui/controls';
+import {Spinner} from '@alchemy/ui/ui/loader';
 
 /**
  * Checkbox of a permission table, replaced by a spinner of the same size while

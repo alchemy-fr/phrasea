@@ -6,15 +6,15 @@ import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {AlertTriangleIcon, ChevronDownIcon, WrenchIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
-import {Alert} from '@alchemy/next-ui/ui/misc';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Alert} from '@alchemy/ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
 import {getAssetDuplicates} from '@/lib/api/assets';
 import {routes} from '@/lib/routes';
 import {AnalysisReport} from './AnalysisReport';
 import {fileAnalysis} from './analysis';
 import {DuplicatesList} from './DuplicatesList';
 import {QuarantineActions} from './QuarantineActions';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 /**
  * Analysis report + quarantine actions for a quarantined asset, wherever it

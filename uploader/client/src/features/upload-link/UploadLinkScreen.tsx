@@ -4,16 +4,12 @@ import {PropsWithChildren, useCallback, useMemo} from 'react';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {Link2OffIcon, UploadCloudIcon} from 'lucide-react';
-import {
-    AppLogo,
-    LanguageMenu,
-    SettingsMenu,
-} from '@alchemy/next-ui/layout/menus';
-import {EmptyState} from '@alchemy/next-ui/ui/misc';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {getErrorMessage, isApiError} from '@alchemy/next-ui/utils/errors';
-import {ThemeMenu} from '@alchemy/next-theme/ThemeMenu';
-import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
+import {AppLogo, LanguageMenu, SettingsMenu} from '@alchemy/ui/layout/menus';
+import {EmptyState} from '@alchemy/ui/ui/misc';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {getErrorMessage, isApiError} from '@alchemy/ui/utils/errors';
+import {ThemeMenu} from '@alchemy/theme/ThemeMenu';
+import {CookieConsentMenuItem} from '@alchemy/core/analytics/CookieConsentMenuItem';
 import {Page} from '@/components/layout/AppShell';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {languages} from '@/i18n';

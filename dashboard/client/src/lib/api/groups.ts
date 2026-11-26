@@ -1,9 +1,9 @@
 import {
     createGroupsApi,
     type GroupsSearchParams,
-} from '@alchemy/next-ui/groups/createGroupsApi';
-import type {GroupsApi} from '@alchemy/next-ui/groups/types';
-import {ApiError} from '@alchemy/next-ui/utils/errors';
+} from '@alchemy/ui/groups/createGroupsApi';
+import type {GroupsApi} from '@alchemy/ui/groups/types';
+import {ApiError} from '@alchemy/ui/utils/errors';
 import {getAuthClient} from '@/lib/auth/client';
 
 type RequestOptions = {

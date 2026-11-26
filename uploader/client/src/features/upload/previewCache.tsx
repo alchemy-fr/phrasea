@@ -12,7 +12,7 @@ import {
     FileKind,
     getFileKind,
     getMimeTypeFromFile,
-} from '@alchemy/next-ui/utils/mime';
+} from '@alchemy/ui/utils/mime';
 import {createThumbnail} from './thumbnail';
 
 /** Images larger than this are not previewed: decoding them costs too much */

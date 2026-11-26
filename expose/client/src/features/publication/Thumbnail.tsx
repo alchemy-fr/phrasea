@@ -2,9 +2,9 @@
 
 import {useState} from 'react';
 import type {Asset} from '@/types/api';
-import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
-import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {FileFamilyIcon} from '@alchemy/ui/ui/file-icon';
+import {FileKind, getFileKind} from '@alchemy/ui/utils/mime';
+import {cn} from '@alchemy/ui/utils/cn';
 
 /** The image standing for an asset: its thumbnail, else its preview image */
 export function getThumbSrc(asset: Asset): string | undefined {

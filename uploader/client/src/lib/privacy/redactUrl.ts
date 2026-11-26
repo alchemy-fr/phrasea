@@ -1,4 +1,4 @@
-import {createUrlRedactor} from '@alchemy/next-core/privacy/redactUrl';
+import {createUrlRedactor} from '@alchemy/core/privacy/redactUrl';
 
 /**
  * Masks the secrets of the URLs before they are sent to Matomo or Sentry:

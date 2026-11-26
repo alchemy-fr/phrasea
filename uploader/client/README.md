@@ -65,12 +65,12 @@ signed-in user. The SDK posts its envelopes to the same origin route
 `SENTRY_DSN` only, behind an in-memory rate limit of the client process:
 `SENTRY_TUNNEL_RATE_LIMIT_PER_IP` envelopes per minute and per IP (30) and
 `SENTRY_TUNNEL_RATE_LIMIT_GLOBAL` per minute for all IPs (300). The shared
-code lives in `@alchemy/next-core` (`monitoring/*`, `server/sentryTunnel*`).
+code lives in `@alchemy/core` (`monitoring/*`, `server/sentryTunnel*`).
 
 ## Content Security Policy
 
 `src/proxy.ts` sets the Content Security Policy of the pages at request time,
-with a new nonce for every response (`@alchemy/next-core/security/*`): a
+with a new nonce for every response (`@alchemy/core/security/*`): a
 script only runs if it bears the nonce or was loaded by one that does
 (`'strict-dynamic'`). Next puts it on its own scripts; the inline scripts of
 the layout (theme pre-paint) read it from the `x-nonce` request
@@ -93,7 +93,7 @@ page whose inline script cannot bear the nonce.
 src/
   app/            Next.js routes (App Router); the private ones under app/(app)
   components/
-    layout/       Application shell and top bar (the design system is `@alchemy/next-ui`, shared)
+    layout/       Application shell and top bar (the design system is `@alchemy/ui`, shared)
     form/code/    Code editor of the JSON fields (target data)
   features/
     targets/      Target list

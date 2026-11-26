@@ -7,9 +7,9 @@ import {
     ShieldCheckIcon,
     type LucideIcon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
+import {cn} from '@alchemy/ui/utils/cn';
 import type {ServiceStatus} from '@/features/status/types';
 import type {ActionId, CardId, ServiceCard} from './services';
 

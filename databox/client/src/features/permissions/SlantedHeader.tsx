@@ -7,7 +7,7 @@ import {
     useRef,
     useState,
 } from 'react';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 /**
  * Table with slanted headers: the paint containment clips the bands at its

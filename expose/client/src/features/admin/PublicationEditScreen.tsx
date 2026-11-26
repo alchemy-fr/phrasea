@@ -8,11 +8,11 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 import {ArrowLeftIcon, ImageIcon, PencilIcon, XIcon} from 'lucide-react';
 import type {Publication} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FieldError, FieldHelp, Input, Label} from '@alchemy/next-ui/ui/input';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {Button} from '@alchemy/ui/ui/button';
+import {FieldError, FieldHelp, Input, Label} from '@alchemy/ui/ui/input';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 import {ErrorScreen} from '@/components/ErrorScreen';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {Thumbnail} from '@/features/publication/Thumbnail';
 import {
     getProfile,
@@ -22,8 +22,8 @@ import {
     publicationKeys,
 } from '@/lib/api/publications';
 import {ApiError, isApiError} from '@/lib/api/http';
-import {toastError} from '@alchemy/next-ui/utils/errors';
-import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {toastError} from '@alchemy/ui/utils/errors';
+import {useDirtyState} from '@alchemy/ui/navigation/unsavedChanges';
 import {useTranslateField} from '@/lib/utils/translate';
 import {routes} from '@/lib/routes';
 import {ConfigForm} from './config/ConfigForm';

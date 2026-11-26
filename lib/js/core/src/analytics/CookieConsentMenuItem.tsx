@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {CookieIcon} from 'lucide-react';
-import {DropdownMenuItem} from '@alchemy/next-ui/ui/menu';
+import {DropdownMenuItem} from '@alchemy/ui/ui/menu';
 import type {MatomoConfig} from './matomo';
 import {openCookieConsentBanner} from './cookieConsent';
 

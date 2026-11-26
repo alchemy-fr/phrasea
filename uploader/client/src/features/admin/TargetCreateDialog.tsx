@@ -3,10 +3,10 @@
 import {useState} from 'react';
 import {useQueryClient} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
-import {FieldError} from '@alchemy/next-ui/ui/input';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {isApiError} from '@alchemy/next-ui/utils/errors';
+import {FieldError} from '@alchemy/ui/ui/input';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {isApiError} from '@alchemy/ui/utils/errors';
 import {createTarget} from '@/lib/api/uploader';
 import {targetsQueryKey} from '@/features/targets/TargetListScreen';
 import type {Target} from '@/types/api';

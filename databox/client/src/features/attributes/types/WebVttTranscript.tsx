@@ -10,7 +10,7 @@ import {
 } from 'react';
 import {useTranslation} from 'react-i18next';
 import {Highlight, stripHighlight} from '@/components/ui/highlight';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {formatAnnotationTime} from '@/features/annotations/annotationNames';
 import {
     activeCueIndex,

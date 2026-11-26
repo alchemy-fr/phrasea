@@ -12,20 +12,20 @@ import {getWorkspace} from '@/lib/api/collections';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {routes} from '@/lib/routes';
 import {idFromIri} from '@/lib/utils/iri';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Button} from '@alchemy/ui/ui/button';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '@alchemy/next-ui/ui/dialog';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
-import {EmptyState} from '@alchemy/next-ui/ui/misc';
+} from '@alchemy/ui/ui/dialog';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
+import {EmptyState} from '@alchemy/ui/ui/misc';
 import {
     confirmLeave,
     UnsavedChangesScope,
     useUnsavedChangesChildScope,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/navigation/unsavedChanges';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {EntityGrid} from '@/features/workspaces/manage/entities/EntityGrid';
 import {EntityListForm} from '@/features/workspaces/manage/entities/EntityListForm';

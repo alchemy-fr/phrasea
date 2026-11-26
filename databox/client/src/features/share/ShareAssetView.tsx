@@ -9,11 +9,11 @@ import {
     DownloadIcon,
 } from 'lucide-react';
 import type {Asset, Share} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {Separator} from '@alchemy/next-ui/ui/misc';
-import {FileTypeChip} from '@alchemy/next-ui/ui/file-icon';
+import {Button} from '@alchemy/ui/ui/button';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
+import {Separator} from '@alchemy/ui/ui/misc';
+import {FileTypeChip} from '@alchemy/ui/ui/file-icon';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {AttributeList} from '@/features/attributes/AttributeList';
 import {formatFileSize} from '@/lib/utils/format';

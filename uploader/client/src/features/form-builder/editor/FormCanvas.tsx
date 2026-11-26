@@ -12,10 +12,10 @@ import {
     TextIcon,
     Trash2Icon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Badge} from '@alchemy/next-ui/ui/misc';
-import {useSortableRow, type SortableRow} from '@alchemy/next-ui/ui/sortable';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {Badge} from '@alchemy/ui/ui/misc';
+import {useSortableRow, type SortableRow} from '@alchemy/ui/ui/sortable';
+import {cn} from '@alchemy/ui/utils/cn';
 import {fieldLabel} from '../definition';
 import {Field} from '../render/FormRenderer';
 import {useBuilderForm} from '../render/useBuilderForm';

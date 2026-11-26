@@ -5,7 +5,7 @@ import {useAuth} from '@/lib/auth/AuthProvider';
 import {LeftPanel} from './LeftPanel';
 import {TopBar} from './TopBar';
 import {useLayoutStore} from './layoutStore';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {GlobalToasts} from '@/features/upload/GlobalToasts';
 import {ExportWatcher} from '@/features/assets/ExportWatcher';
 import {NotificationUriListener} from '@/features/notifications/NotificationUriListener';

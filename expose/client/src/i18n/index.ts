@@ -1,5 +1,5 @@
 import type {i18n as I18n} from 'i18next';
-import {createI18n as createClientI18n} from '@alchemy/next-i18n/createI18n';
+import {createI18n as createClientI18n} from '@alchemy/i18n/createI18n';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
 import de from './locales/de.json';

@@ -1,6 +1,6 @@
 'use client';
 
-import {SessionExpiredDialog as BaseSessionExpiredDialog} from '@alchemy/next-core/auth/SessionExpiredDialog';
+import {SessionExpiredDialog as BaseSessionExpiredDialog} from '@alchemy/core/auth/SessionExpiredDialog';
 import {useAuth} from './AuthProvider';
 
 /** Staying signed out keeps the page: every page is public, the cards tied to roles just go away. */

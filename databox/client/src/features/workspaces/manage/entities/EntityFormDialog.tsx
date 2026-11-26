@@ -7,13 +7,13 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '@alchemy/next-ui/ui/dialog';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+} from '@alchemy/ui/ui/dialog';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
 import {
     confirmLeave,
     UnsavedChangesScope,
     useUnsavedChangesChildScope,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/navigation/unsavedChanges';
 import {EntityForm} from './EntityForm';
 
 /**

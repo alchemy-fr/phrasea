@@ -9,15 +9,15 @@ import {
     PlusIcon,
     Trash2Icon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FieldError, FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {Button} from '@alchemy/ui/ui/button';
+import {FieldError, FormRow, Input} from '@alchemy/ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/ui/ui/controls';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Tabs, TabsList, TabsTrigger} from '@alchemy/ui/ui/misc';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
 import {TagsInput} from '@/components/form/TagsInput';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {
     ConfigErrors,
     ConfigListSchema,

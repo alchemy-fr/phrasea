@@ -1,6 +1,6 @@
 // @vitest-environment node
 import {describe, expect, it, vi} from 'vitest';
-import {NO_INDEX} from '@alchemy/next-core/seo/metadata';
+import {NO_INDEX} from '@alchemy/core/seo/metadata';
 import {
     assetPageMetadata as assetPageMetadataOf,
     loadPublicPublication,

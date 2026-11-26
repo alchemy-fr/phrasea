@@ -1,4 +1,4 @@
-import {clamp} from '@alchemy/next-ui/utils/misc';
+import {clamp} from '@alchemy/ui/utils/misc';
 
 /**
  * Zoom levels the buttons step through, as a ratio of the natural size of

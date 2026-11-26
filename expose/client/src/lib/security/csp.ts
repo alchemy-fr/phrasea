@@ -3,7 +3,7 @@ import {
     originOf,
     stackCspSources,
     type CspSources,
-} from '@alchemy/next-core/security/csp';
+} from '@alchemy/core/security/csp';
 
 /**
  * Enforced before the policy restricted the scripts: they stay so while the

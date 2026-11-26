@@ -6,8 +6,8 @@ import {useQuery} from '@tanstack/react-query';
 import {ListIcon} from 'lucide-react';
 import {getEntityList} from '@/lib/api/metadata';
 import {routes} from '@/lib/routes';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {cn} from '@alchemy/ui/utils/cn';
 
 /**
  * Link to the management of an entity list, shown to whoever may manage its

@@ -38,8 +38,8 @@ const matomo = vi.hoisted(() => ({
     setUserId: vi.fn(),
     trackPageView: vi.fn(),
 }));
-vi.mock('@alchemy/next-core/analytics/matomo', () => matomo);
-vi.mock('@alchemy/next-core/analytics/CookieConsentBanner', () => ({
+vi.mock('@alchemy/core/analytics/matomo', () => matomo);
+vi.mock('@alchemy/core/analytics/CookieConsentBanner', () => ({
     CookieConsentBanner: () => null,
 }));
 

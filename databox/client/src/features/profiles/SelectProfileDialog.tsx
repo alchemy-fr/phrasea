@@ -12,20 +12,20 @@ import {
     PlusIcon,
     Trash2Icon,
 } from 'lucide-react';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Input, FormRow, Textarea} from '@alchemy/next-ui/ui/input';
-import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {Button} from '@alchemy/ui/ui/button';
+import {Input, FormRow, Textarea} from '@alchemy/ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/ui/ui/controls';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+} from '@alchemy/ui/ui/menu';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
 import {ProfileOwnership} from './ProfileOwnership';
 import {useProfileStore} from './profileStore';
 import {usePreferencesStore} from '@/features/preferences/store';
@@ -34,7 +34,7 @@ import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabil
 import {routes} from '@/lib/routes';
 import type {DisplayProfile} from '@/types/api';
 import {useAuth} from '@/lib/auth/AuthProvider';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
     const {t} = useTranslation();

@@ -25,7 +25,8 @@ PHPUnit for the libs that have tests).
 
 JS (`pnpm test:quick`): `pnpm lint` (eslint), `pnpm typecheck` (`tsc`) and
 `pnpm test` (vitest: the clients, the `databox/indexer`
-unit suite, `@alchemy/api`, `@alchemy/auth`, `@alchemy/next-*`).
+unit suite, `@alchemy/api`, `@alchemy/auth`, `@alchemy/core`, `@alchemy/i18n`,
+`@alchemy/theme`, `@alchemy/ui`).
 
 In CI the PHP part runs on the runner with `setup-php` and a Composer cache,
 the JS part with pnpm; no image is built.

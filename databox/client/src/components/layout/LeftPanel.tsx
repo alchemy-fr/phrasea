@@ -16,12 +16,7 @@ import {
     SlidersHorizontalIcon,
 } from 'lucide-react';
 import {useDndContext, useDndMonitor} from '@dnd-kit/core';
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from '@alchemy/next-ui/ui/misc';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '@alchemy/ui/ui/misc';
 import {useLayoutStore, LeftPanelTab} from './layoutStore';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {FacetsPanel} from '@/features/search/facets/FacetsPanel';

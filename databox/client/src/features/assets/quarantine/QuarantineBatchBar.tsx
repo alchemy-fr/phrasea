@@ -10,8 +10,8 @@ import {
     XIcon,
 } from 'lucide-react';
 import type {QuarantineBatchAction} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Badge} from '@alchemy/ui/ui/misc';
 import type {QuarantineEligibilityCounts} from './useQuarantineEligibility';
 
 /**

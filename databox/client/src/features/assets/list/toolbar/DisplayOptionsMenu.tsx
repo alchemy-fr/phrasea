@@ -10,15 +10,11 @@ import {
     ScanIcon,
     SlidersHorizontalIcon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@alchemy/next-ui/ui/overlays';
-import {Slider, Switch} from '@alchemy/next-ui/ui/controls';
-import {Label} from '@alchemy/next-ui/ui/input';
-import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Popover, PopoverContent, PopoverTrigger} from '@alchemy/ui/ui/overlays';
+import {Slider, Switch} from '@alchemy/ui/ui/controls';
+import {Label} from '@alchemy/ui/ui/input';
+import {Tabs, TabsList, TabsTrigger} from '@alchemy/ui/ui/misc';
 import {
     DisplayPreferences,
     useDisplayPreferences,

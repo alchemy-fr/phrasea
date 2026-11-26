@@ -4,14 +4,11 @@ import {useCallback, useEffect, useEffectEvent, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {CircleCheckIcon} from 'lucide-react';
 import type {Publication} from '@/types/api';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {
-    useModals,
-    type ModalProps,
-} from '@alchemy/next-ui/modals/ModalProvider';
-import {FieldHelp, Input, Label} from '@alchemy/next-ui/ui/input';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
-import {toastError} from '@alchemy/next-ui/utils/errors';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {useModals, type ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FieldHelp, Input, Label} from '@alchemy/ui/ui/input';
+import {Spinner} from '@alchemy/ui/ui/loader';
+import {toastError} from '@alchemy/ui/utils/errors';
 import {
     getArchiveStatus,
     getDownloadUrl,
@@ -20,7 +17,7 @@ import {
     type ArchiveStatus,
     type DownloadTarget,
 } from '@/lib/api/publications';
-import {trackEvent} from '@alchemy/next-core/analytics/matomo';
+import {trackEvent} from '@alchemy/core/analytics/matomo';
 import {acceptTerms, isTermsAccepted, termsKey} from './terms';
 import {TermsContent} from './TermsContent';
 import {waitForArchive} from './archive';

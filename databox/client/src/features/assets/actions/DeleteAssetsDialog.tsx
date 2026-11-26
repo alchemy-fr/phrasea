@@ -6,17 +6,17 @@ import {useQuery} from '@tanstack/react-query';
 import {AlertTriangleIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {TypeToConfirm} from '@alchemy/next-ui/ui/confirm';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {TypeToConfirm} from '@alchemy/ui/ui/confirm';
 import {
     Checkbox,
     LabeledControl,
     RadioGroup,
     RadioGroupItem,
-} from '@alchemy/next-ui/ui/controls';
-import {Alert} from '@alchemy/next-ui/ui/misc';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+} from '@alchemy/ui/ui/controls';
+import {Alert} from '@alchemy/ui/ui/misc';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
 import {CollectionChip} from '@/components/chips';
 import {deleteAssets, prepareDeleteAssets} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';

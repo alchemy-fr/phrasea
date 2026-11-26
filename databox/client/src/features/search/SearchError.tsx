@@ -2,8 +2,8 @@
 
 import {useTranslation} from 'react-i18next';
 import {AlertTriangleIcon, LogInIcon} from 'lucide-react';
-import {EmptyState} from '@alchemy/next-ui/ui/misc';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {EmptyState} from '@alchemy/ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
 import {useAuth} from '@/lib/auth/AuthProvider';
 
 export function SearchError({

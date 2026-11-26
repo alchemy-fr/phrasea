@@ -1,5 +1,5 @@
-import {proxyImage} from '@alchemy/next-core/server/imageProxy';
-import {verifySslFromEnv} from '@alchemy/next-core/server/http';
+import {proxyImage} from '@alchemy/core/server/imageProxy';
+import {verifySslFromEnv} from '@alchemy/core/server/http';
 import {fetchPublicShare, sharePreviewImageUrl} from '@/lib/seo/shareMetadata';
 
 export const dynamic = 'force-dynamic';

@@ -7,13 +7,13 @@ import {
     Privacy,
     AssetStatus,
 } from '@/types/api';
-import {Input, Textarea} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Input, Textarea} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
 import {AttributeEntitySelect, UserSelect} from '@/components/form/selects';
 import {PrivacyField} from '@/components/form/PrivacyField';
 import {assetStatusLabels} from '@/features/attributes/types/registry';
 import {idFromIri} from '@/lib/utils/iri';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {ColorInput} from '@/components/ui/color-input';
 
 export type AttributeWidgetProps = {

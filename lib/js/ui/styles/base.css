@@ -1,7 +1,7 @@
 /*
  * The Tailwind wiring of the design system: the token mapping, the text
  * scale, the base styles and a few utilities. The tokens themselves (the
- * palettes) come from @alchemy/next-theme/styles/themes.css. To be imported
+ * palettes) come from @alchemy/theme/styles/themes.css. To be imported
  * by the global stylesheet of the client, after `tailwindcss`.
  */
 @source '../src';

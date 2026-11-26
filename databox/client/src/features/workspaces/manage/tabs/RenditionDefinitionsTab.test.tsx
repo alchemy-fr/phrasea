@@ -3,7 +3,7 @@ import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
-import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
+import {ModalProvider} from '@alchemy/ui/modals/ModalProvider';
 import {RoutePathProvider} from '@/lib/navigation/routePath';
 import type {RenditionDefinition, Workspace} from '@/types/api';
 import {AssetType, RenditionBuildMode} from '@/types/api';

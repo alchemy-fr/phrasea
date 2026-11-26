@@ -6,12 +6,8 @@ import {
     httpGet,
     verifySslFromEnv,
     type HttpGet,
-} from '@alchemy/next-core/server/http';
-import {
-    NO_INDEX,
-    pageMetadata,
-    plainText,
-} from '@alchemy/next-core/seo/metadata';
+} from '@alchemy/core/server/http';
+import {NO_INDEX, pageMetadata, plainText} from '@alchemy/core/seo/metadata';
 import {getServerConfig} from '@/lib/config/server';
 import {findAsset} from '@/features/publication/assets';
 import {publicationKey, routes} from '@/lib/routes';

@@ -12,7 +12,7 @@ import {
     DropdownMenuSub,
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
-} from '@alchemy/next-ui/ui/menu';
+} from '@alchemy/ui/ui/menu';
 import {baseThemeColors, type ClientThemeMeta} from './customTheme';
 import {CUSTOM_THEME_ID, DEFAULT_THEME_ID, themePresets} from './presets';
 import {useThemeStore} from './themeStore';

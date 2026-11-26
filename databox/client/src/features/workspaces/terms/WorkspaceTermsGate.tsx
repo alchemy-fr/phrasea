@@ -3,8 +3,8 @@
 import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/ui/ui/button';
+import {Checkbox, LabeledControl} from '@alchemy/ui/ui/controls';
 import {
     Dialog,
     DialogContent,
@@ -12,10 +12,10 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@alchemy/next-ui/ui/dialog';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+} from '@alchemy/ui/ui/dialog';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
 import {getWorkspace, signWorkspaceTerms} from '@/lib/api/collections';
-import {toastError} from '@alchemy/next-ui/utils/errors';
+import {toastError} from '@alchemy/ui/utils/errors';
 import {
     pagerKey,
     useCollectionStore,

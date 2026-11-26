@@ -1,1 +1,1 @@
-export {POST} from '@alchemy/next-core/server/cspReportRoute';
+export {POST} from '@alchemy/core/server/cspReportRoute';

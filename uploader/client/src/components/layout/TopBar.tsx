@@ -4,26 +4,26 @@ import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
 import {BugIcon, Link2Icon, TargetIcon, UploadCloudIcon} from 'lucide-react';
-import {DropdownMenuItem} from '@alchemy/next-ui/ui/menu';
+import {DropdownMenuItem} from '@alchemy/ui/ui/menu';
 import {
     AppLogo,
     LanguageMenu,
     ServicesMenuLink,
     SettingsMenu,
     UserMenu,
-} from '@alchemy/next-ui/layout/menus';
+} from '@alchemy/ui/layout/menus';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {languages} from '@/i18n';
 import {routes} from '@/lib/routes';
-import {cn} from '@alchemy/next-ui/utils/cn';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ThemeMenu} from '@alchemy/next-theme/ThemeMenu';
-import {CookieConsentMenuItem} from '@alchemy/next-core/analytics/CookieConsentMenuItem';
+import {cn} from '@alchemy/ui/utils/cn';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ThemeMenu} from '@alchemy/theme/ThemeMenu';
+import {CookieConsentMenuItem} from '@alchemy/core/analytics/CookieConsentMenuItem';
 import {useUploaderUser} from '@/features/user/useUploaderUser';
 import {UserDebugDialog} from '@/features/user/UserDebugDialog';
-import {ManageGroupsMenuItem} from '@alchemy/next-ui/groups/ManageGroupsMenuItem';
+import {ManageGroupsMenuItem} from '@alchemy/ui/groups/ManageGroupsMenuItem';
 import {groupsApi} from '@/lib/api/groups';
 
 function NavLink({

@@ -2,8 +2,8 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Input, Textarea} from '@alchemy/next-ui/ui/input';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Input, Textarea} from '@alchemy/ui/ui/input';
+import {cn} from '@alchemy/ui/utils/cn';
 import {DEFAULT_LOCALE, type Localized} from '../types';
 
 /**

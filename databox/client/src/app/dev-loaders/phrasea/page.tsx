@@ -1,12 +1,12 @@
 'use client';
 
 import {useState} from 'react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {Button} from '@alchemy/ui/ui/button';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 import {
     PHRASEA_LOADER_VARIANTS,
     PhraseaLoader,
-} from '@alchemy/next-ui/ui/phrasea-loader';
+} from '@alchemy/ui/ui/phrasea-loader';
 
 export default function DevPhraseaLoadersPage() {
     const [draw, setDraw] = useState(0);

@@ -33,9 +33,9 @@ import {
     XIcon,
 } from 'lucide-react';
 import type {AssetAnnotation, User} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
+import {cn} from '@alchemy/ui/utils/cn';
 import {EmojiPicker} from './EmojiPicker';
 import {LinkButton} from './LinkButton';
 import {useMentionSuggestions} from './MentionSuggestions';
@@ -49,7 +49,7 @@ import {
 } from './messageAttachments';
 import {messageContentClass} from './messageStyles';
 import {usePendingAttachments} from './usePendingAttachments';
-import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
+import {useShortcutLabels} from '@alchemy/ui/hooks/useShortcutLabels';
 
 export type MessageComposerHandle = {
     focus: () => void;

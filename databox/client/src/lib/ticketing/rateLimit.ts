@@ -6,7 +6,7 @@
 import {
     createFixedWindowLimiter,
     type RateLimitResult,
-} from '@alchemy/next-core/server/rateLimit';
+} from '@alchemy/core/server/rateLimit';
 
 export type {RateLimitResult};
 

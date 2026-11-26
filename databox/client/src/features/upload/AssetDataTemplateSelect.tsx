@@ -6,9 +6,9 @@ import {LayoutTemplateIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AssetDataTemplate} from '@/types/api';
 import {getAssetDataTemplate, getAssetDataTemplates} from '@/lib/api/metadata';
-import {FormRow} from '@alchemy/next-ui/ui/input';
-import {Chip} from '@alchemy/next-ui/ui/misc';
-import {AsyncCombobox} from '@alchemy/next-ui/form/AsyncCombobox';
+import {FormRow} from '@alchemy/ui/ui/input';
+import {Chip} from '@alchemy/ui/ui/misc';
+import {AsyncCombobox} from '@alchemy/ui/form/AsyncCombobox';
 
 /**
  * Applies value templates (privacy, attributes) to the upload form.

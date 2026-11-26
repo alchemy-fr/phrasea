@@ -5,8 +5,8 @@ import {
     httpGet,
     verifySslFromEnv,
     type HttpGet,
-} from '@alchemy/next-core/server/http';
-import {NO_INDEX, pageMetadata} from '@alchemy/next-core/seo/metadata';
+} from '@alchemy/core/server/http';
+import {NO_INDEX, pageMetadata} from '@alchemy/core/seo/metadata';
 import {getServerConfig} from '@/lib/config/server';
 import {APP_NAME} from './app';
 import type {Asset, Share} from '@/types/api';

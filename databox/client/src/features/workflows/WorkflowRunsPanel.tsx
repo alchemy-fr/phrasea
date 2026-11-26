@@ -3,10 +3,10 @@
 import {useTranslation} from 'react-i18next';
 import {PlayIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Skeleton} from '@alchemy/ui/ui/misc';
 import {formatDateTime} from '@/lib/utils/format';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {formatJobDuration} from './jobStatus';
 import {WorkflowStatusDot, workflowTitle} from './workflowLabel';
 import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';

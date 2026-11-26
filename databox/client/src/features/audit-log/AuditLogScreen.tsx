@@ -18,14 +18,11 @@ import {type AuditLogFilters, getAuditLogs} from '@/lib/api/auditLogs';
 import {getUsers} from '@/lib/api/misc';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
-import {Input, Label} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {
-    AsyncCombobox,
-    type ComboOption,
-} from '@alchemy/next-ui/form/AsyncCombobox';
+import {Button} from '@alchemy/ui/ui/button';
+import {Badge, EmptyState, Skeleton} from '@alchemy/ui/ui/misc';
+import {Input, Label} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {AsyncCombobox, type ComboOption} from '@alchemy/ui/form/AsyncCombobox';
 import {UserSelect, WorkspaceSelect} from '@/components/form/selects';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {formatDateTime} from '@/lib/utils/format';

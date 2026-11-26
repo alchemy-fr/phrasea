@@ -2,8 +2,8 @@
 
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
-import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {FileFamilyIcon} from '@alchemy/ui/ui/file-icon';
+import {cn} from '@alchemy/ui/utils/cn';
 import {useHoverPreview} from './useHoverPreview';
 
 /**

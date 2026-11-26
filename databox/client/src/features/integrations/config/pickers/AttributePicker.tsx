@@ -4,11 +4,11 @@ import {useCallback} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {AttributeDefinition} from '@/types/api';
 import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
-import {AsyncCombobox, ComboOption} from '@alchemy/next-ui/form/AsyncCombobox';
-import {Input} from '@alchemy/next-ui/ui/input';
-import {Badge} from '@alchemy/next-ui/ui/misc';
+import {AsyncCombobox, ComboOption} from '@alchemy/ui/form/AsyncCombobox';
+import {Input} from '@alchemy/ui/ui/input';
+import {Badge} from '@alchemy/ui/ui/misc';
 import {TagsInput} from '@/components/form/TagsInput';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {CreateAttributeDialog} from './CreateAttributeDialog';
 
 /** What the attribute must be (`widgetOptions` of the schema) */

@@ -3,7 +3,7 @@
 import type {ComponentProps} from 'react';
 import {EntityName} from '@/types/api';
 import {iri} from '@/lib/utils/iri';
-import {Input} from '@alchemy/next-ui/ui/input';
+import {Input} from '@alchemy/ui/ui/input';
 import {CollectionTreePicker} from '@/components/form/CollectionTreePicker';
 
 type Props = {

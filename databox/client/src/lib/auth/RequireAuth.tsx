@@ -2,7 +2,7 @@
 
 import {PropsWithChildren, useEffect} from 'react';
 import {useAuth} from './AuthProvider';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 
 /**
  * Gate for private screens: shows a loader while the session is being

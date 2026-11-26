@@ -5,17 +5,17 @@ import {useRouter} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {PlusIcon} from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {Button} from '@alchemy/ui/ui/button';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {
     Alert,
     Tabs,
     TabsContent,
     TabsList,
     TabsTrigger,
-} from '@alchemy/next-ui/ui/misc';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
+} from '@alchemy/ui/ui/misc';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
 import {Page} from '@/components/layout/AppShell';
 import {
     getTarget,

@@ -1,5 +1,5 @@
 {
-    "name": "@alchemy/next-theme",
+    "name": "@alchemy/theme",
     "version": "1.0.0",
     "private": true,
     "description": "Themes of the Next.js clients: palettes, presets, organisation theme, theme menu",
@@ -31,7 +31,7 @@
         "test:watch": "vitest"
     },
     "dependencies": {
-        "@alchemy/next-ui": "workspace:*"
+        "@alchemy/ui": "workspace:*"
     },
     "peerDependencies": {
         "lucide-react": "^1.67.0",

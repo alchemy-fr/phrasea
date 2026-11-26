@@ -18,9 +18,9 @@ import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {isApiError} from '@/lib/api/http';
 import {useConfig} from '@/lib/config/ConfigProvider';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {Slider, Switch} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
+import {Slider, Switch} from '@alchemy/ui/ui/controls';
 import {
     Alert,
     Badge,
@@ -30,9 +30,9 @@ import {
     TabsContent,
     TabsList,
     TabsTrigger,
-} from '@alchemy/next-ui/ui/misc';
-import {useConfirm} from '@alchemy/next-ui/ui/confirm';
-import {cn} from '@alchemy/next-ui/utils/cn';
+} from '@alchemy/ui/ui/misc';
+import {useConfirm} from '@alchemy/ui/ui/confirm';
+import {cn} from '@alchemy/ui/utils/cn';
 import {deleteClientTheme, getClientTheme, putClientTheme} from './api';
 import {
     baseThemeColors,
@@ -42,13 +42,13 @@ import {
     resolveThemeColors,
     THEME_LIMITS,
     ThemeColorToken,
-} from '@alchemy/next-theme/customTheme';
+} from '@alchemy/theme/customTheme';
 import {ThemeFontFields} from './ThemeFontFields';
-import {CUSTOM_THEME_ID, ThemeMode} from '@alchemy/next-theme/presets';
-import {ThemeSwatch} from '@alchemy/next-theme/ThemeMenu';
-import {useThemeStore} from '@alchemy/next-theme/themeStore';
+import {CUSTOM_THEME_ID, ThemeMode} from '@alchemy/theme/presets';
+import {ThemeSwatch} from '@alchemy/theme/ThemeMenu';
+import {useThemeStore} from '@alchemy/theme/themeStore';
 import {ColorInput} from '@/components/ui/color-input';
-import {useUnsavedChangesPrompt} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {useUnsavedChangesPrompt} from '@alchemy/ui/navigation/unsavedChanges';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {usePreferencesStore} from '@/features/preferences/store';
 import {routes} from '@/lib/routes';

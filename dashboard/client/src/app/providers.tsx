@@ -9,13 +9,13 @@ import type {AppConfig} from '@/lib/config/types';
 import {AuthProvider} from '@/lib/auth/AuthProvider';
 import {I18nProvider} from '@/i18n/I18nProvider';
 import type {LanguageCode} from '@/i18n/config';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
 import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
-import {ThemeManager} from '@alchemy/next-theme/ThemeManager';
-import {Toaster} from '@alchemy/next-ui/ui/toaster';
-import {ModalProvider} from '@alchemy/next-ui/modals/ModalProvider';
+import {ThemeManager} from '@alchemy/theme/ThemeManager';
+import {Toaster} from '@alchemy/ui/ui/toaster';
+import {ModalProvider} from '@alchemy/ui/modals/ModalProvider';
 import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
-import {SentryInit} from '@alchemy/next-core/monitoring/SentryInit';
+import {SentryInit} from '@alchemy/core/monitoring/SentryInit';
 import {SentryUser} from '@/lib/monitoring/SentryUser';
 
 function createQueryClient(): QueryClient {

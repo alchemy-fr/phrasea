@@ -6,12 +6,12 @@ import {DownloadIcon, SaveIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AssetTabProps} from '../types';
 import {deleteAssetFileVersion, getAssetFileVersions} from '@/lib/api/assets';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Skeleton} from '@alchemy/ui/ui/misc';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {formatDateTime, formatFileSize} from '@/lib/utils/format';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
 import {SaveAsDialog} from '@/features/assets/actions/SaveAsDialog';
 
 export function AssetVersionsTab({asset}: AssetTabProps) {

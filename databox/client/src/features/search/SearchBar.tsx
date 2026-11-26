@@ -17,9 +17,9 @@ import {
 } from 'lucide-react';
 import {useSearch} from './SearchProvider';
 import {useResults} from './ResultProvider';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
+import {cn} from '@alchemy/ui/utils/cn';
 import {SearchMoreMenu} from './SearchMoreMenu';
 import {SortByButton} from './sort/SortByButton';
 import {Highlight} from '@/components/ui/highlight';

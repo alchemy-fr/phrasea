@@ -3,13 +3,13 @@
 import {type CSSProperties, useEffect, useRef, useState} from 'react';
 import dynamic from 'next/dynamic';
 import type {ApiFile, ClipCrop, ClipTimeRange, MediaClip} from '@/types/api';
-import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
-import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
+import {FileKind, getFileKind} from '@alchemy/ui/utils/mime';
+import {FileFamilyIcon} from '@alchemy/ui/ui/file-icon';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
 import {ZoomableImage} from '@/features/assets/player/ZoomableImage';
-import {scanForMedia} from '@alchemy/next-core/analytics/matomo';
+import {scanForMedia} from '@alchemy/core/analytics/matomo';
 import {
     contentClick,
     type ContentTracking,
@@ -18,7 +18,7 @@ import {clipForFile} from '@/features/clip/clip';
 import {ClipFrame} from '@/features/clip/ClipFrame';
 import {useClipPlayback} from '@/features/clip/useClipPlayback';
 import {CropOverlay} from '@/features/assets/crop/CropOverlay';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {Spinner} from '@alchemy/ui/ui/loader';
 import type {SubtitleTrack} from '@/features/assets/player/subtitles';
 
 // pdf.js is loaded with the first PDF displayed, in the browser only

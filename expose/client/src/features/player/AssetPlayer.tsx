@@ -4,10 +4,10 @@ import {useEffect, useState} from 'react';
 import dynamic from 'next/dynamic';
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
-import {FileKind, getFileKind} from '@alchemy/next-ui/utils/mime';
-import {cn} from '@alchemy/next-ui/utils/cn';
-import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
+import {FileKind, getFileKind} from '@alchemy/ui/utils/mime';
+import {cn} from '@alchemy/ui/utils/cn';
+import {FileFamilyIcon} from '@alchemy/ui/ui/file-icon';
+import {Spinner} from '@alchemy/ui/ui/loader';
 import {
     contentClick,
     getContentTracking,

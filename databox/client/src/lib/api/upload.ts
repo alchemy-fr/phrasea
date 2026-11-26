@@ -9,7 +9,7 @@ import {
 } from '@alchemy/api';
 import {api, isApiError} from './http';
 import {getConfig} from '@/lib/config/ConfigProvider';
-import {getMimeTypeFromFile} from '@alchemy/next-ui/utils/mime';
+import {getMimeTypeFromFile} from '@alchemy/ui/utils/mime';
 
 export type {MultipartUpload, UploadPart};
 

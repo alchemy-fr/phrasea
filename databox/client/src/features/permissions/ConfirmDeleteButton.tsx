@@ -3,9 +3,9 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Trash2Icon} from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {Spinner} from '@alchemy/ui/ui/loader';
+import {cn} from '@alchemy/ui/utils/cn';
 
 /**
  * Trash icon turning into a "Delete?" button on the first click, deleting on

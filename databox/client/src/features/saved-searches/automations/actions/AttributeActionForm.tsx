@@ -16,9 +16,9 @@ import {
 } from '@/components/form/selects';
 import {TagsInput} from '@/components/form/TagsInput';
 import {idFromIri} from '@/lib/utils/iri';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/ui/ui/controls';
 import type {ActionDefinition, ActionFormProps} from './types';
 
 type AttributeActionType = 'set' | 'add' | 'delete' | 'replace';

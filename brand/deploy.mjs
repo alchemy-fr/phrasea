@@ -13,7 +13,7 @@ import sharp from 'sharp';
 const brandDir = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(brandDir, '..');
 
-// Same value as background_color in lib/js/next-core/src/seo/manifest.ts
+// Same value as background_color in lib/js/core/src/seo/manifest.ts
 const BACKGROUND = '#fafafa';
 const TRANSPARENT = {r: 0, g: 0, b: 0, alpha: 0};
 const ICO_SIZES = [16, 32, 48, 64];

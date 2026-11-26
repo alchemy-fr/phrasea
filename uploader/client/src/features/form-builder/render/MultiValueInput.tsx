@@ -1,9 +1,9 @@
 'use client';
 
 import {useState} from 'react';
-import {Input} from '@alchemy/next-ui/ui/input';
-import {Chip} from '@alchemy/next-ui/ui/misc';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Input} from '@alchemy/ui/ui/input';
+import {Chip} from '@alchemy/ui/ui/misc';
+import {cn} from '@alchemy/ui/utils/cn';
 
 /**
  * Several values typed one by one: Enter (or a comma for texts) adds the

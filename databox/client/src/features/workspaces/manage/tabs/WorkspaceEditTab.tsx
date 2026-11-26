@@ -16,13 +16,13 @@ import {
     uploadWorkspaceTermsPdf,
 } from '@/lib/api/collections';
 import {getLocales} from '@/lib/api/metadata';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/ui/ui/controls';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
 import {TranslatableField} from '@/components/form/TranslatableField';
 import {FilePicker} from '@/components/form/FilePicker';
-import {AsyncCombobox} from '@alchemy/next-ui/form/AsyncCombobox';
+import {AsyncCombobox} from '@alchemy/ui/form/AsyncCombobox';
 import {assetStatusLabels} from '@/features/attributes/types/registry';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {Flag} from '@/components/ui/flag';
@@ -41,15 +41,15 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {
     overlayRow,
     SortableOverlay,
     SortableRow,
     sortableMeasuring,
     useSortableRow,
-} from '@alchemy/next-ui/ui/sortable';
-import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/ui/sortable';
+import {useDirtyState} from '@alchemy/ui/navigation/unsavedChanges';
 import {LOGO_LIMITS, TERMS_PDF_LIMITS} from '@/lib/uploadLimits';
 
 export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {

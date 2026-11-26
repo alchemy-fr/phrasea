@@ -22,24 +22,20 @@ import {
 } from '@/features/attributes/definitionsStore';
 import {entityLabel} from '@/features/attributes/types/registry';
 import {getAttributeEntities} from '@/lib/api/metadata';
-import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Input} from '@alchemy/next-ui/ui/input';
-import {RadioGroup, RadioGroupItem} from '@alchemy/next-ui/ui/controls';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@alchemy/next-ui/ui/overlays';
+import {useDebouncedValue} from '@alchemy/ui/hooks/useDebouncedValue';
+import {Button} from '@alchemy/ui/ui/button';
+import {Input} from '@alchemy/ui/ui/input';
+import {RadioGroup, RadioGroupItem} from '@alchemy/ui/ui/controls';
+import {Popover, PopoverContent, PopoverTrigger} from '@alchemy/ui/ui/overlays';
 import {
     Command,
     CommandEmpty,
     CommandInput,
     CommandItem,
     CommandList,
-} from '@alchemy/next-ui/ui/command';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
-import {cn} from '@alchemy/next-ui/utils/cn';
+} from '@alchemy/ui/ui/command';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
+import {cn} from '@alchemy/ui/utils/cn';
 import {idFromIri, iri} from '@/lib/utils/iri';
 import {useSearch} from '../SearchProvider';
 import {useEntitiesStore} from '../entitiesStore';

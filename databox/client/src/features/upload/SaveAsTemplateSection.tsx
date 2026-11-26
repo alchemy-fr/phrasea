@@ -10,9 +10,9 @@ import type {
     Privacy,
 } from '@/types/api';
 import {EntityName} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
+import {Checkbox, LabeledControl} from '@alchemy/ui/ui/controls';
 import {postAssetDataTemplate, putAssetDataTemplate} from '@/lib/api/metadata';
 import {iri} from '@/lib/utils/iri';
 

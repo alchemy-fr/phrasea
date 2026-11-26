@@ -2,9 +2,9 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {Checkbox, LabeledControl} from '@alchemy/next-ui/ui/controls';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {Checkbox, LabeledControl} from '@alchemy/ui/ui/controls';
 
 /**
  * Confirms the end of a basket synchronization, and whether the Expose

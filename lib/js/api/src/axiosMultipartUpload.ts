@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from 'axios';
-import {getMIMETypeFromFile} from '@alchemy/core';
+import {getMIMETypeFromFile} from './mimeTypes';
 import {HttpClient} from './types';
 import {
     MultipartUpload,

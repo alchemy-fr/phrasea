@@ -2,10 +2,10 @@
 
 import {useTranslation} from 'react-i18next';
 import {CheckCircle2Icon, XIcon} from 'lucide-react';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Badge, Progress} from '@alchemy/next-ui/ui/misc';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {Button} from '@alchemy/ui/ui/button';
+import {Badge, Progress} from '@alchemy/ui/ui/misc';
 import {useUploadStore} from './uploadStore';
 import {formatFileSize} from '@/lib/utils/format';
 

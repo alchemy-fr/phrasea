@@ -17,9 +17,9 @@ import {
     isValidSecretName,
     secretNameMaxLength,
 } from '@/features/secrets/secretRef';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
 
 function ScopeRow({workspaceId}: SecretScope) {
     const {t} = useTranslation();

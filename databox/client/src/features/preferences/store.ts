@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {create} from 'zustand';
 import {api} from '@/lib/api/http';
-import {deepEquals} from '@alchemy/next-ui/utils/misc';
+import {deepEquals} from '@alchemy/ui/utils/misc';
 import type {SidebarSectionId} from '@/components/layout/sidebarSections';
 
 /** `map` needs a search: lists that are not search results show it as `grid` */

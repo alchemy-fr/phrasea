@@ -13,19 +13,16 @@ import {
     RefreshCwIcon,
     Trash2Icon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Alert, Badge, EmptyState} from '@alchemy/next-ui/ui/misc';
-import {FieldError, FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {useConfirm} from '@alchemy/next-ui/ui/confirm';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {
-    useModals,
-    type ModalProps,
-} from '@alchemy/next-ui/modals/ModalProvider';
-import {getErrorMessage, isApiError} from '@alchemy/next-ui/utils/errors';
-import {copyToClipboard} from '@alchemy/next-ui/utils/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Alert, Badge, EmptyState} from '@alchemy/ui/ui/misc';
+import {FieldError, FormRow, Input} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {useConfirm} from '@alchemy/ui/ui/confirm';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {useModals, type ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {getErrorMessage, isApiError} from '@alchemy/ui/utils/errors';
+import {copyToClipboard} from '@alchemy/ui/utils/misc';
 import {Page} from '@/components/layout/AppShell';
 import {
     createUploadLink,

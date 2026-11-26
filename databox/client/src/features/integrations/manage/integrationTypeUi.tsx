@@ -25,7 +25,7 @@ import {
     WebhookIcon,
 } from 'lucide-react';
 import type {IntegrationCategory, IntegrationType} from '@/types/api';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 const icons: Record<string, LucideIcon> = {
     'core.rendition': ImagesIcon,

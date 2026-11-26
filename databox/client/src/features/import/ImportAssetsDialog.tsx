@@ -21,23 +21,23 @@ import type {
     Privacy,
 } from '@/types/api';
 import {EntityName} from '@/types/api';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
 import {
     CollectionTreePicker,
     TreeSelection,
 } from '@/components/form/CollectionTreePicker';
 import {PrivacyField} from '@/components/form/PrivacyField';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {FormRow} from '@alchemy/next-ui/ui/input';
-import {Alert, Progress, Skeleton} from '@alchemy/next-ui/ui/misc';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {FormRow} from '@alchemy/ui/ui/input';
+import {Alert, Progress, Skeleton} from '@alchemy/ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
 import {CopyButton} from '@/components/ui/copy-button';
 import {createAssetImport} from '@/lib/api/imports';
 import {getCollectionPrivacyInfo} from '@/lib/api/collections';
 import {formatFileSize} from '@/lib/utils/format';
 import {iri} from '@/lib/utils/iri';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {routes} from '@/lib/routes';
 import {
     detectImportFormat,

@@ -7,14 +7,10 @@ import {CheckIcon, ListIcon, PlusIcon, TriangleAlertIcon} from 'lucide-react';
 import type {OAuthClient} from '@/types/api';
 import {getOAuthClients} from '@/lib/api/oauthClients';
 import {useAuth} from '@/lib/auth/AuthProvider';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Badge} from '@alchemy/next-ui/ui/misc';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@alchemy/next-ui/ui/overlays';
+import {Button} from '@alchemy/ui/ui/button';
+import {Badge} from '@alchemy/ui/ui/misc';
+import {Spinner} from '@alchemy/ui/ui/loader';
+import {Popover, PopoverContent, PopoverTrigger} from '@alchemy/ui/ui/overlays';
 import {
     Command,
     CommandEmpty,
@@ -22,11 +18,11 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from '@alchemy/next-ui/ui/command';
-import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {getErrorMessage} from '@alchemy/next-ui/utils/errors';
-import {cn} from '@alchemy/next-ui/utils/cn';
+} from '@alchemy/ui/ui/command';
+import {useDebouncedValue} from '@alchemy/ui/hooks/useDebouncedValue';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {getErrorMessage} from '@alchemy/ui/utils/errors';
+import {cn} from '@alchemy/ui/utils/cn';
 import {CreateOAuthClientDialog} from './CreateOAuthClientDialog';
 
 type Props = {

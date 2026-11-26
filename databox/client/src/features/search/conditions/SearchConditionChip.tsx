@@ -40,12 +40,12 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+} from '@alchemy/ui/ui/menu';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {ConditionDialog} from './ConditionDialog';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {iri} from '@/lib/utils/iri';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
 import {
     conditionBounds,
     conditionCircle,

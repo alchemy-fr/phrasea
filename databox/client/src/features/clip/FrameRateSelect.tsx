@@ -2,8 +2,8 @@
 
 import {useId} from 'react';
 import {useTranslation} from 'react-i18next';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {cn} from '@alchemy/ui/utils/cn';
 import {DEFAULT_FRAME_RATE, STANDARD_FRAME_RATES} from './frameRate';
 import type {FrameRateState} from './useFrameRate';
 

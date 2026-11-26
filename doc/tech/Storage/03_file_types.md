@@ -40,7 +40,7 @@ PREFERRED_FILE_TYPES='video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photo
 - An empty value keeps the order of Symfony. A missing variable takes the default of `Alchemy\StorageBundle\Util\PreferredMimeTypes` (`video/x-ms-wmv(.wmv),video/mp4(.mp4),image/vnd.adobe.photoshop(.psb)`).
 - It applies to every guess from an extension: uploads without type, the container types resolved from the extension (see below), and the renditions (`MimeTypeGuesser` of rendition-factory, autowired with `MimeTypesInterface`).
 
-The clients keep their own table (`@alchemy/core`, `@alchemy/next-ui`).
+The clients keep their own table (`@alchemy/api`, `@alchemy/ui`).
 
 ## Content check
 

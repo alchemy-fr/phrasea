@@ -12,14 +12,14 @@ import {
     putAttributeEntity,
     uploadAttributeEntityImage,
 } from '@/lib/api/metadata';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
 import {Flag} from '@/components/ui/flag';
 import {ColorInput} from '@/components/ui/color-input';
 import {FilePicker} from '@/components/form/FilePicker';
 import {TagsInput} from '@/components/form/TagsInput';
-import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/ui/navigation/unsavedChanges';
 import {
     checkUploadFile,
     describeUploadRejection,

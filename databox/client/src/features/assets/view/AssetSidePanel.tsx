@@ -8,7 +8,7 @@ import {
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from '@alchemy/next-ui/ui/misc';
+} from '@alchemy/ui/ui/misc';
 import {AttributeList} from '@/features/attributes/AttributeList';
 import {AssetInfoList} from './AssetInfoList';
 import {CollectionChip} from '@/components/chips';

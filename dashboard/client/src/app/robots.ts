@@ -1,5 +1,5 @@
-import {appRobots} from '@alchemy/next-core/seo/robots';
-import {isIndexingAllowed} from '@alchemy/next-core/seo/indexing';
+import {appRobots} from '@alchemy/core/seo/robots';
+import {isIndexingAllowed} from '@alchemy/core/seo/indexing';
 import {INDEXING_DEFAULT} from '@/lib/seo/app';
 
 // From the container environment, never from the build

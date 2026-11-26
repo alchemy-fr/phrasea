@@ -40,25 +40,25 @@ import {
 import {useAssetStore, useLiveAsset} from '@/features/assets/assetStore';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {AssetMenuItems} from '@/features/assets/list/AssetContextMenu';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {Skeleton} from '@alchemy/ui/ui/misc';
 import {
     ContextMenu,
     ContextMenuContent,
     ContextMenuItem,
     ContextMenuSeparator,
     ContextMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
+} from '@alchemy/ui/ui/menu';
 import {
     overlayRow,
     SortableOverlay,
     sortableMeasuring,
     SortableRow,
     useSortableRow,
-} from '@alchemy/next-ui/ui/sortable';
+} from '@alchemy/ui/ui/sortable';
 import {iri} from '@/lib/utils/iri';
-import {toastError} from '@alchemy/next-ui/utils/errors';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {toastError} from '@alchemy/ui/utils/errors';
+import {cn} from '@alchemy/ui/utils/cn';
 import {EventCategory, StoryEvent, track} from '@/lib/analytics/events';
 
 /**

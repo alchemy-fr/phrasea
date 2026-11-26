@@ -10,17 +10,13 @@ import {
 } from '@tanstack/react-query';
 import {BellIcon, CheckCheckIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@alchemy/next-ui/ui/overlays';
+import {Button} from '@alchemy/ui/ui/button';
+import {Popover, PopoverContent, PopoverTrigger} from '@alchemy/ui/ui/overlays';
 import {api} from '@/lib/api/http';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {formatDateTime} from '@/lib/utils/format';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {resolveNotificationUri} from './NotificationUriListener';
 import {htmlToText} from './notificationText';
 

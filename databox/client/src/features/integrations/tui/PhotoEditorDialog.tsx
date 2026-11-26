@@ -5,24 +5,24 @@ import {useTranslation} from 'react-i18next';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
 import {
     Dialog,
     DialogBody,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '@alchemy/next-ui/ui/dialog';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Input} from '@alchemy/next-ui/ui/input';
-import {Progress} from '@alchemy/next-ui/ui/misc';
+} from '@alchemy/ui/ui/dialog';
+import {Button} from '@alchemy/ui/ui/button';
+import {Input} from '@alchemy/ui/ui/input';
+import {Progress} from '@alchemy/ui/ui/misc';
 import {multipartUpload} from '@/lib/api/upload';
 import {runIntegrationAction} from '@/lib/api/integrations';
 import {dataUrlToFile} from '@/lib/utils/mime';
 import {
     askDiscardChanges,
     useUnsavedChangesPrompt,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/navigation/unsavedChanges';
 import {PhotoEditor, type PhotoEditorInstance} from './PhotoEditor';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 

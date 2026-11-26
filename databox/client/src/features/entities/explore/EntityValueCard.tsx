@@ -21,18 +21,18 @@ import {
 } from '@/lib/api/metadata';
 import {AttributeEntitySelect} from '@/components/form/selects';
 import {EntityChip} from '@/components/chips';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
-import {Input} from '@alchemy/next-ui/ui/input';
-import {Badge, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
+import {Input} from '@alchemy/ui/ui/input';
+import {Badge, Skeleton} from '@alchemy/ui/ui/misc';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+} from '@alchemy/ui/ui/menu';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {useEntitiesStore} from '@/features/search/entitiesStore';
 import {EntityAssetsPreviewDialog} from '@/features/workspaces/manage/entities/EntityAssetsPreviewDialog';

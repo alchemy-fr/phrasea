@@ -6,9 +6,9 @@ import {CloudUploadIcon} from 'lucide-react';
 import type {AutomationActionConfig} from '@/types/api';
 import {getRenditionDefinitions} from '@/lib/api/misc';
 import {fetchAllPages} from '@/lib/api/hydra';
-import {FormRow, Input} from '@alchemy/next-ui/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {FormRow, Input} from '@alchemy/ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/ui/ui/controls';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
 import {
     describeRemoteDestination,
     isRemoteDestinationComplete,

@@ -4,10 +4,10 @@ import {ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useDraggable} from '@dnd-kit/core';
 import {GripVerticalIcon, PlusIcon, SearchIcon} from 'lucide-react';
-import {Input} from '@alchemy/next-ui/ui/input';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Badge} from '@alchemy/next-ui/ui/misc';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Input} from '@alchemy/ui/ui/input';
+import {Button} from '@alchemy/ui/ui/button';
+import {Badge} from '@alchemy/ui/ui/misc';
+import {cn} from '@alchemy/ui/utils/cn';
 import {paletteDragId} from './dnd';
 
 export type PaletteItem = {

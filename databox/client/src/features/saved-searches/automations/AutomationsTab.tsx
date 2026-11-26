@@ -21,11 +21,11 @@ import {
     patchSavedSearchAutomation,
     resetAutomationCursor,
 } from '@/lib/api/automations';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Switch} from '@alchemy/next-ui/ui/controls';
-import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
+import {Button} from '@alchemy/ui/ui/button';
+import {Switch} from '@alchemy/ui/ui/controls';
+import {Badge, EmptyState, Skeleton} from '@alchemy/ui/ui/misc';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -35,8 +35,8 @@ import {
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
-import {toastError} from '@alchemy/next-ui/utils/errors';
+} from '@alchemy/ui/ui/menu';
+import {toastError} from '@alchemy/ui/utils/errors';
 import {formatDateTime} from '@/lib/utils/format';
 import {AutomationFormDialog} from './AutomationForm';
 import {AutomationRunsDialog, RunStatusBadge} from './AutomationRunsPanel';

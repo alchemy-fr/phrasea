@@ -1,9 +1,9 @@
 import 'server-only';
-import {sentryClientConfigFromEnv} from '@alchemy/next-core/monitoring/config';
-import {analyticsConfigFromEnv} from '@alchemy/next-core/analytics/config';
-import {envBool} from '@alchemy/next-core/config/env';
+import {sentryClientConfigFromEnv} from '@alchemy/core/monitoring/config';
+import {analyticsConfigFromEnv} from '@alchemy/core/analytics/config';
+import {envBool} from '@alchemy/core/config/env';
 import type {AppConfig, AppId, AppService, LinkId, ToolId} from './types';
-import type {StackConfig} from '@alchemy/next-core/config/stackConfig';
+import type {StackConfig} from '@alchemy/core/config/stackConfig';
 
 type Env = Record<string, string | undefined>;
 

@@ -10,12 +10,12 @@ import {
     WifiOffIcon,
     XIcon,
 } from 'lucide-react';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
-import {FileFamilyIcon} from '@alchemy/next-ui/ui/file-icon';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {Button} from '@alchemy/ui/ui/button';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
+import {FileFamilyIcon} from '@alchemy/ui/ui/file-icon';
+import {cn} from '@alchemy/ui/utils/cn';
 import {formatFileSize} from '@/lib/utils/format';
-import {getMimeTypeFromFile} from '@alchemy/next-ui/utils/mime';
+import {getMimeTypeFromFile} from '@alchemy/ui/utils/mime';
 import type {UploadStatus} from './engine/UploadQueue';
 import {usePreview} from './previewCache';
 

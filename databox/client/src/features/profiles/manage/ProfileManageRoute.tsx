@@ -22,11 +22,11 @@ import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {UserChip} from '@/components/chips';
-import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Badge} from '@alchemy/ui/ui/misc';
 import {formatDateTime} from '@/lib/utils/format';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
-import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+import {Button} from '@alchemy/ui/ui/button';
+import {FormRow, Input, Textarea} from '@alchemy/ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/ui/ui/controls';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {genericPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';
@@ -36,7 +36,7 @@ import {ProfileGridTab} from './ProfileGridTab';
 import {ProfileFiltersTab} from './ProfileFiltersTab';
 import {useInstanceCapabilities} from '@/features/permissions/useInstanceCapabilities';
 import {profileQueryKey} from './useProfileEditing';
-import {useDirtyState} from '@alchemy/next-ui/navigation/unsavedChanges';
+import {useDirtyState} from '@alchemy/ui/navigation/unsavedChanges';
 
 export type ProfileTabProps = {profile: DisplayProfile; refresh: () => void};
 

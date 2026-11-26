@@ -18,17 +18,14 @@ import {
     type Publication,
     type PublicationShare,
 } from '@/types/api';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {
-    useModals,
-    type ModalProps,
-} from '@alchemy/next-ui/modals/ModalProvider';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {CopyButton} from '@alchemy/next-ui/ui/copy-button';
-import {useConfirm} from '@alchemy/next-ui/ui/confirm';
-import {Input, Label} from '@alchemy/next-ui/ui/input';
-import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {useModals, type ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {Button} from '@alchemy/ui/ui/button';
+import {CopyButton} from '@alchemy/ui/ui/copy-button';
+import {useConfirm} from '@alchemy/ui/ui/confirm';
+import {Input, Label} from '@alchemy/ui/ui/input';
+import {Badge, EmptyState, Skeleton} from '@alchemy/ui/ui/misc';
+import {cn} from '@alchemy/ui/utils/cn';
 import {
     createPublicationShare,
     deletePublicationShare,

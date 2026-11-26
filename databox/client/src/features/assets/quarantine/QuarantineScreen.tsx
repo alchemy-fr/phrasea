@@ -16,13 +16,13 @@ import {
 import type {Asset, DuplicateAsset, QuarantineBatchAction} from '@/types/api';
 import {getAsset, getAssetDuplicates, searchAssets} from '@/lib/api/assets';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Badge, EmptyState, Skeleton} from '@alchemy/next-ui/ui/misc';
-import {Checkbox} from '@alchemy/next-ui/ui/controls';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {Button} from '@alchemy/ui/ui/button';
+import {Badge, EmptyState, Skeleton} from '@alchemy/ui/ui/misc';
+import {Checkbox} from '@alchemy/ui/ui/controls';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
 import {CollectionChip, WorkspaceChip} from '@/components/chips';
-import {FileTypeChip} from '@alchemy/next-ui/ui/file-icon';
+import {FileTypeChip} from '@alchemy/ui/ui/file-icon';
 import {routes} from '@/lib/routes';
 import {formatDateTime, formatFileSize} from '@/lib/utils/format';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
@@ -46,7 +46,7 @@ import {
     useWatchWorkspaces,
 } from '@/lib/realtime/renditionUpdates';
 import {usePageTrail} from '@/components/layout/layoutStore';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
 import {ResizeHandle} from '@/components/ui/resize-handle';
 

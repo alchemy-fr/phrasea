@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@alchemy/next-theme/styles/themes.css';
-@import '@alchemy/next-ui/styles/base.css';
-@import '@alchemy/next-core/styles/sources.css';
+@import '@alchemy/theme/styles/themes.css';
+@import '@alchemy/ui/styles/base.css';
+@import '@alchemy/core/styles/sources.css';
 
 @theme {
     --animate-draw-stroke: draw-stroke 500ms ease-out both;

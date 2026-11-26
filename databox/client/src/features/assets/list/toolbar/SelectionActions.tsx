@@ -3,16 +3,16 @@
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
 import {useSelection} from '../SelectionProvider';
-import {Checkbox} from '@alchemy/next-ui/ui/controls';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {Checkbox} from '@alchemy/ui/ui/controls';
+import {Button} from '@alchemy/ui/ui/button';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
 import {
     ActionContext,
     useAssetActions,
 } from '@/features/assets/actions/useAssetActions';
 import {BasketSwitcher} from '@/features/baskets/BasketSwitcher';
 import {useAuth} from '@/lib/auth/AuthProvider';
-import {useShortcutLabels} from '@alchemy/next-ui/hooks/useShortcutLabels';
+import {useShortcutLabels} from '@alchemy/ui/hooks/useShortcutLabels';
 
 /**
  * Master checkbox + bulk actions for the current selection.

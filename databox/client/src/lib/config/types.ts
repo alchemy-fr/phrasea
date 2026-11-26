@@ -15,9 +15,9 @@ export type TicketingConfig = {
     enabled: boolean;
 };
 
-import type {ClientThemeMeta} from '@alchemy/next-theme/customTheme';
-import type {AnalyticsConfig} from '@alchemy/next-core/analytics/config';
-import type {SentryClientConfig} from '@alchemy/next-core/monitoring/config';
+import type {ClientThemeMeta} from '@alchemy/theme/customTheme';
+import type {AnalyticsConfig} from '@alchemy/core/analytics/config';
+import type {SentryClientConfig} from '@alchemy/core/monitoring/config';
 
 export type AppConfig = {
     appId: string;

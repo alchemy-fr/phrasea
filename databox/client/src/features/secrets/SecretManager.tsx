@@ -26,10 +26,10 @@ import {
     envsQueryKey,
     secretsQueryKey,
 } from '@/lib/api/secrets';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Skeleton} from '@alchemy/next-ui/ui/misc';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {Button} from '@alchemy/ui/ui/button';
+import {Skeleton} from '@alchemy/ui/ui/misc';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {LoadError} from '@/components/modals/LoadPlaceholder';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 import {

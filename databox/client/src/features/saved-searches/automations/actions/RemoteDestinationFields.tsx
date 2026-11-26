@@ -2,9 +2,9 @@
 
 import {useTranslation} from 'react-i18next';
 import type {AutomationActionConfig} from '@/types/api';
-import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
-import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
-import {Tabs, TabsList, TabsTrigger} from '@alchemy/next-ui/ui/misc';
+import {FormRow, Input, Textarea} from '@alchemy/ui/ui/input';
+import {LabeledControl, Switch} from '@alchemy/ui/ui/controls';
+import {Tabs, TabsList, TabsTrigger} from '@alchemy/ui/ui/misc';
 import type {ActionFormProps} from './types';
 
 export type RemoteExportProtocol = 's3' | 'sftp' | 'ftp';

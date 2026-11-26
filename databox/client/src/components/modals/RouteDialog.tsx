@@ -14,8 +14,8 @@ import {
 } from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {PrefetchKind} from 'next/dist/client/components/router-reducer/router-reducer-types';
-import {Dialog, DialogContent, DialogSize} from '@alchemy/next-ui/ui/dialog';
-import {modalExitDuration} from '@alchemy/next-ui/modals/ModalProvider';
+import {Dialog, DialogContent, DialogSize} from '@alchemy/ui/ui/dialog';
+import {modalExitDuration} from '@alchemy/ui/modals/ModalProvider';
 import {pathOf, RouteOrigins} from './routeOrigins';
 import {isStackedRoute, routes} from '@/lib/routes';
 import {
@@ -23,7 +23,7 @@ import {
     hasUnsavedChanges,
     UnsavedChangesScope,
     useUnsavedChangesChildScope,
-} from '@alchemy/next-ui/navigation/unsavedChanges';
+} from '@alchemy/ui/navigation/unsavedChanges';
 
 type RouteHistory = {
     /** URL of the screen the app is on, updated after every navigation */

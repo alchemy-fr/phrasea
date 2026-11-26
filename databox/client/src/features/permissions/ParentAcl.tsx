@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {useQuery} from '@tanstack/react-query';
 import {ArrowRightIcon, ChevronDownIcon} from 'lucide-react';
 import type {Collection, Workspace} from '@/types/api';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Button} from '@alchemy/ui/ui/button';
 import {getCollection, getWorkspace} from '@/lib/api/collections';
 import {routes} from '@/lib/routes';
 import {AclEditor} from './AclEditor';

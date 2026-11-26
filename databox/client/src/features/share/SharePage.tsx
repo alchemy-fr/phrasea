@@ -6,14 +6,14 @@ import {useQuery} from '@tanstack/react-query';
 import {useSearchParams} from 'next/navigation';
 import {DownloadIcon, ImagesIcon} from 'lucide-react';
 import {getPublicShare} from '@/lib/api/misc';
-import {FullPageLoader} from '@alchemy/next-ui/ui/loader';
-import {EmptyState, Separator} from '@alchemy/next-ui/ui/misc';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {EmptyState, Separator} from '@alchemy/ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
 import {TopBar} from '@/components/layout/TopBar';
 import {belowTopBar} from '@/components/layout/chrome';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 import {
     getContentTracking,
     useContentImpression,

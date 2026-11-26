@@ -1,6 +1,6 @@
 'use client';
 
-import {MatomoTracker as BaseMatomoTracker} from '@alchemy/next-core/analytics/MatomoTracker';
+import {MatomoTracker as BaseMatomoTracker} from '@alchemy/core/analytics/MatomoTracker';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {useAuth} from '@/lib/auth/AuthProvider';
 

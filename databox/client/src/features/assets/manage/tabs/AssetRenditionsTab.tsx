@@ -21,19 +21,19 @@ import {
     getRenditionDefinitions,
 } from '@/lib/api/misc';
 import {fetchAllPages} from '@/lib/api/hydra';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {Badge, Skeleton} from '@alchemy/next-ui/ui/misc';
-import {Tooltip} from '@alchemy/next-ui/ui/overlays';
+import {Button} from '@alchemy/ui/ui/button';
+import {Badge, Skeleton} from '@alchemy/ui/ui/misc';
+import {Tooltip} from '@alchemy/ui/ui/overlays';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {formatFileSize} from '@/lib/utils/format';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {assetChannel, RENDITION_UPDATE_EVENT} from '@/lib/realtime/channels';
 import {UploadRenditionDialog} from '../dialogs/UploadRenditionDialog';
 import {CreateDynamicRenditionDialog} from '../dialogs/CreateDynamicRenditionDialog';
 import {SaveAsDialog} from '@/features/assets/actions/SaveAsDialog';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 export function AssetRenditionsTab({
     asset,

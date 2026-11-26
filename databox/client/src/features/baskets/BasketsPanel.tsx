@@ -16,9 +16,9 @@ import {
 import type {Basket} from '@/types/api';
 import {useBasketStore} from './basketStore';
 import {FilterInput} from '@/components/ui/filter-input';
-import {Button} from '@alchemy/next-ui/ui/button';
-import {LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
-import {Badge, Skeleton} from '@alchemy/next-ui/ui/misc';
+import {Button} from '@alchemy/ui/ui/button';
+import {LabeledControl, Switch} from '@alchemy/ui/ui/controls';
+import {Badge, Skeleton} from '@alchemy/ui/ui/misc';
 import {
     ContextMenu,
     ContextMenuContent,
@@ -30,13 +30,13 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@alchemy/next-ui/ui/menu';
-import {useModals} from '@alchemy/next-ui/modals/ModalProvider';
-import {ConfirmDialog} from '@alchemy/next-ui/ui/confirm';
+} from '@alchemy/ui/ui/menu';
+import {useModals} from '@alchemy/ui/modals/ModalProvider';
+import {ConfirmDialog} from '@alchemy/ui/ui/confirm';
 import {BasketFormDialog} from './BasketFormDialog';
 import {routes} from '@/lib/routes';
-import {cn} from '@alchemy/next-ui/utils/cn';
-import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
+import {cn} from '@alchemy/ui/utils/cn';
+import {useDebouncedValue} from '@alchemy/ui/hooks/useDebouncedValue';
 import {useDropTarget} from '@/features/dnd/useDropTarget';
 
 export function BasketsPanel() {

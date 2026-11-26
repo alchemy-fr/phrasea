@@ -4,9 +4,9 @@ import {useTranslation} from 'react-i18next';
 import type {FacetWidgetProps} from '../FacetsPanel';
 import {useFacetCondition} from '../useFacetCondition';
 import {resolveBucket} from '../buckets';
-import {Checkbox} from '@alchemy/next-ui/ui/controls';
+import {Checkbox} from '@alchemy/ui/ui/controls';
 import {formatNumber} from '@/lib/utils/format';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 export function BooleanFacet({name, facet}: FacetWidgetProps) {
     const {t, i18n} = useTranslation();

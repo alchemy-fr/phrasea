@@ -1,5 +1,5 @@
 import type {NextRequest} from 'next/server';
-import {cspResponse} from '@alchemy/next-core/security/cspProxy';
+import {cspResponse} from '@alchemy/core/security/cspProxy';
 import {contentSecuritySources, ENFORCED_DIRECTIVES} from '@/lib/security/csp';
 
 /**

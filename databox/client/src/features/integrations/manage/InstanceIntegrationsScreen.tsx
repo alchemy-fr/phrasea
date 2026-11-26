@@ -6,12 +6,7 @@ import {KeyRoundIcon, PlugIcon} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
-import {
-    EmptyState,
-    Tabs,
-    TabsList,
-    TabsTrigger,
-} from '@alchemy/next-ui/ui/misc';
+import {EmptyState, Tabs, TabsList, TabsTrigger} from '@alchemy/ui/ui/misc';
 import {UrlPathProvider} from '@/lib/navigation/routePath';
 import {routes} from '@/lib/routes';
 import {usePageTrail} from '@/components/layout/layoutStore';

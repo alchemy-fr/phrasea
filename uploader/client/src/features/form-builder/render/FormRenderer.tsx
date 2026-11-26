@@ -8,8 +8,8 @@ import {
     Input,
     Label,
     Textarea,
-} from '@alchemy/next-ui/ui/input';
-import {Checkbox, LabeledControl, Switch} from '@alchemy/next-ui/ui/controls';
+} from '@alchemy/ui/ui/input';
+import {Checkbox, LabeledControl, Switch} from '@alchemy/ui/ui/controls';
 import {fieldLabel, hasOptions, localized, widgetOf} from '../definition';
 import type {
     BuilderField,

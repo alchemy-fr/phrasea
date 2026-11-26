@@ -8,9 +8,9 @@ import {toast} from 'sonner';
 import type {OAuthClient} from '@/types/api';
 import {createOAuthClient} from '@/lib/api/oauthClients';
 import {isApiError} from '@/lib/api/http';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormRow, Input, Textarea} from '@alchemy/ui/ui/input';
 
 const defaultClientId = 'databox-integration';
 

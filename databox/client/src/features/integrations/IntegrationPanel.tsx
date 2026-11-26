@@ -11,10 +11,10 @@ import {
     runIntegrationAction,
 } from '@/lib/api/integrations';
 import {useIntegrationData} from './useIntegrationData';
-import {Button} from '@alchemy/next-ui/ui/button';
+import {Button} from '@alchemy/ui/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {fileChannel} from '@/lib/realtime/channels';
-import {InlineLoader} from '@alchemy/next-ui/ui/loader';
+import {InlineLoader} from '@alchemy/ui/ui/loader';
 import {TuiPhotoEditorPanel, tuiPhotoEditor} from './tui/TuiPhotoEditorPanel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 import {RekognitionPanel, awsRekognition} from './rekognition/RekognitionPanel';

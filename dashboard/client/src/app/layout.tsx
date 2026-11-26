@@ -3,15 +3,15 @@ import {connection} from 'next/server';
 import {cookies, headers} from 'next/headers';
 import './globals.css';
 import {getServerConfig} from '@/lib/config/server';
-import {getStackConfig} from '@alchemy/next-core/config/stackConfig';
-import {compileStackTheme} from '@alchemy/next-theme/compile';
+import {getStackConfig} from '@alchemy/core/config/stackConfig';
+import {compileStackTheme} from '@alchemy/theme/compile';
 import {Providers} from './providers';
-import {NONCE_HEADER} from '@alchemy/next-core/security/csp';
+import {NONCE_HEADER} from '@alchemy/core/security/csp';
 import {languages} from '@/i18n/config';
 import {embeddedScript} from '@/lib/embedded';
-import {fontVariables} from '@alchemy/next-theme/googleFonts';
-import {appMetadata, appViewport} from '@alchemy/next-core/seo/metadata';
-import {isIndexingAllowed} from '@alchemy/next-core/seo/indexing';
+import {fontVariables} from '@alchemy/theme/googleFonts';
+import {appMetadata, appViewport} from '@alchemy/core/seo/metadata';
+import {isIndexingAllowed} from '@alchemy/core/seo/indexing';
 import {APP_DESCRIPTION, APP_NAME, INDEXING_DEFAULT} from '@/lib/seo/app';
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {isApiError} from '@alchemy/next-ui/utils/errors';
+import {isApiError} from '@alchemy/ui/utils/errors';
 import {createDataboxGroupsApi} from './groups';
 
 vi.mock('@/lib/auth/client', () => ({

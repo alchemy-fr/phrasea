@@ -10,11 +10,11 @@ import {
     importEntityList,
     mergeAttributeEntities,
 } from '@/lib/api/metadata';
-import {FormRow, Input, Textarea} from '@alchemy/next-ui/ui/input';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {type ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {downloadUrl} from '@alchemy/next-ui/utils/misc';
+import {FormRow, Input, Textarea} from '@alchemy/ui/ui/input';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {type ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {downloadUrl} from '@alchemy/ui/utils/misc';
 
 export function MergeEntitiesDialog({
     open,

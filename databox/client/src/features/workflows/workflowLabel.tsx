@@ -1,6 +1,6 @@
 import type {TFunction} from 'i18next';
 import {JobStatus, WorkflowStatus} from '@/types/api';
-import {Badge} from '@alchemy/next-ui/ui/misc';
+import {Badge} from '@alchemy/ui/ui/misc';
 import {JobStatusDot} from './jobStatus';
 
 /**

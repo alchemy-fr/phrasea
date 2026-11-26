@@ -14,12 +14,12 @@ import type {
     QuarantineBatchResult,
     QuarantineBatchResultStatus,
 } from '@/types/api';
-import type {ModalProps} from '@alchemy/next-ui/modals/ModalProvider';
-import {FormDialog} from '@alchemy/next-ui/modals/FormDialog';
-import {TypeToConfirm} from '@alchemy/next-ui/ui/confirm';
-import {RadioGroup, RadioGroupItem} from '@alchemy/next-ui/ui/controls';
-import {SimpleSelect} from '@alchemy/next-ui/ui/select';
-import {Alert, Badge} from '@alchemy/next-ui/ui/misc';
+import type {ModalProps} from '@alchemy/ui/modals/ModalProvider';
+import {FormDialog} from '@alchemy/ui/modals/FormDialog';
+import {TypeToConfirm} from '@alchemy/ui/ui/confirm';
+import {RadioGroup, RadioGroupItem} from '@alchemy/ui/ui/controls';
+import {SimpleSelect} from '@alchemy/ui/ui/select';
+import {Alert, Badge} from '@alchemy/ui/ui/misc';
 import {runQuarantineBatch} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';

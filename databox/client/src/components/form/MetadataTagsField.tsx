@@ -5,23 +5,19 @@ import {useTranslation} from 'react-i18next';
 import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import {Command as CommandPrimitive} from 'cmdk';
 import {CheckIcon, ChevronRightIcon, PlusIcon} from 'lucide-react';
-import {
-    Popover,
-    PopoverAnchor,
-    PopoverContent,
-} from '@alchemy/next-ui/ui/overlays';
+import {Popover, PopoverAnchor, PopoverContent} from '@alchemy/ui/ui/overlays';
 import {
     Command,
     CommandEmpty,
     CommandGroup,
     CommandItem,
     CommandList,
-} from '@alchemy/next-ui/ui/command';
-import {Badge, Chip} from '@alchemy/next-ui/ui/misc';
-import {Spinner} from '@alchemy/next-ui/ui/loader';
-import {useDebouncedValue} from '@alchemy/next-ui/hooks/useDebouncedValue';
+} from '@alchemy/ui/ui/command';
+import {Badge, Chip} from '@alchemy/ui/ui/misc';
+import {Spinner} from '@alchemy/ui/ui/loader';
+import {useDebouncedValue} from '@alchemy/ui/hooks/useDebouncedValue';
 import {getMetadataTags} from '@/lib/api/metadata';
-import {cn} from '@alchemy/next-ui/utils/cn';
+import {cn} from '@alchemy/ui/utils/cn';
 
 type Props = {
     value: string[];
