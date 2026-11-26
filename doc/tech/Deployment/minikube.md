@@ -1,21 +1,16 @@
 # Deploy stack to minikube
 
-## Setup
+The [Helm charts repository](https://github.com/alchemy-fr/phrasea-helm-charts) provides
+`bin/minikube-test-deploy.sh`, which deploys the whole stack on a local minikube cluster (images
+built from this repository by default) and checks the deployment: see its README.
+
+To test a fresh image without redeploying, build it with the minikube Docker daemon, then restart
+its pods:
 
 ```bash
-bin/dev/minikube-configure.sh
-minikube start
-minikube addons enable ingress
-```
-
-## Build local image in minikube
-
-If you need to test your fresh image directly into minikube cluster, you need to build them
-with the Minikube Docker daemon:
-
-```bash
-eval $(minikube docker-env)
-docker-compose build
+eval $(minikube -p phrasea docker-env)
+REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=minikube COMPOSE_FILE=docker-compose.yml docker compose build databox-api-php
+kubectl --context phrasea -n phrasea rollout restart deploy/databox-api-php
 ```
 
 Alternatively you can run a registry in minikube and push your images:
