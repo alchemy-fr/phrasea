@@ -87,3 +87,5 @@ services:
     # Public: the bundle makes it the default instance when it boots
     Alchemy\StorageBundle\Util\PreferredMimeTypes:
         public: true
+        # Not a guesser of mime_types, which it wraps: tagged, it would recurse in isGuesserSupported()
+        autoconfigure: false
