@@ -108,5 +108,13 @@ user:
         email:
             subject: 'Ein Fehler ist aufgetreten'
             greeting: 'Hallo %recipient%,'
+            action_edit_integration: 'Integration bearbeiten'
+            action_edit_attribute_definition: 'Attribut bearbeiten'
         in_app:
             subject: 'Ein Fehler ist aufgetreten'
+        details:
+            instance: 'Instanz'
+            workspace: 'Workspace'
+            integration: 'Integration'
+            integration_type: 'Integrationstyp'
+            attribute_definition: 'Attribut'

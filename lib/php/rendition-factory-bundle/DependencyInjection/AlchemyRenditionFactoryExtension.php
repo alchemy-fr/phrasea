@@ -19,7 +19,7 @@ class AlchemyRenditionFactoryExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
         $container->setParameter('alchemy_rendition_factory.download.max_size', $config['download']['max_size']);
         $container->setParameter('alchemy_rendition_factory.download.max_duration', $config['download']['max_duration']);
-        $container->setParameter('alchemy_rendition_factory.ffmpeg.max_timeout', $config['ffmpeg']['max_timeout']);
+        $container->setParameter('alchemy_rendition_factory.max_timeout', $config['max_timeout']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');

@@ -124,5 +124,13 @@ user:
         email:
             subject: 'Une erreur est survenue'
             greeting: 'Bonjour %recipient%,'
+            action_edit_integration: 'Modifier l''intégration'
+            action_edit_attribute_definition: 'Modifier l''attribut'
         in_app:
             subject: 'Une erreur est survenue'
+        details:
+            instance: 'Instance'
+            workspace: 'Espace de travail'
+            integration: 'Intégration'
+            integration_type: 'Type d''intégration'
+            attribute_definition: 'Attribut'

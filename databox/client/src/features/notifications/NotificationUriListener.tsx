@@ -12,12 +12,19 @@ import {routes} from '@/lib/routes';
 /**
  * Resolves a notification URI (`/assets/{id}#discussion-{id}`,
  * `/collections/{id}`, `/saved-searches/{id}`, `/quarantine/{id}`,
- * `/workspaces/{id}/manage/{tab}`) to a screen.
+ * `/workspaces/{id}/manage/{tab}`, `/workspaces/{id}/manage/{tab}/{item}…`,
+ * `/admin/integrations/{id}`) to a screen.
  */
 export function resolveNotificationUri(uri: string): string {
-    const ws = uri.match(/^\/workspaces\/([^/#]+)\/manage\/([^/#]+)$/);
+    const ws = uri.match(
+        /^\/workspaces\/([^/#?]+)\/manage\/([^/#?]+)((?:\/[^/#?]+)*)$/
+    );
     if (ws) {
-        return routes.workspaceManage(ws[1], ws[2]);
+        return `${routes.workspaceManage(ws[1], ws[2])}${ws[3]}`;
+    }
+    const instanceIntegration = uri.match(/^\/admin\/integrations\/([^/#?]+)$/);
+    if (instanceIntegration) {
+        return `${routes.instanceIntegrations()}/${instanceIntegration[1]}`;
     }
     const m = uri.match(/^\/([^/#]+)\/([^/#]+)(?:#(.+))?$/);
     if (!m) {

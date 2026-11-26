@@ -45,7 +45,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         private ModuleOptionsResolver $optionsResolver,
         private ImagineInterface $imagine,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
-        private int $ffmpegMaxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
+        private int $maxTimeout = FFMpegHelper::DEFAULT_MAX_TIMEOUT,
     ) {
     }
 
@@ -121,7 +121,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                         ->defaultValue(2)
                         ->info('Change the number of ffmpeg passes')
                     ->end()
-                    ->append(FFMpegHelper::createTimeoutNode($this->ffmpegMaxTimeout))
+                    ->append(FFMpegHelper::createTimeoutNode($this->maxTimeout))
                     ->scalarNode('threads')
                         ->info('Change the default number of threads used by ffmpeg')
                     ->end()
@@ -143,7 +143,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver, $this->ffmpegMaxTimeout);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver, $this->maxTimeout);
         $outputFormat = $commonArgs->getOutputFormat();
         $format = $outputFormat->getFormat();
 

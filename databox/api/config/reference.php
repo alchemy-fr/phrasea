@@ -2390,9 +2390,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         max_size?: int|Param, // In bytes // Default: 5368709120
  *         max_duration?: float|Param, // In seconds, for the whole transfer // Default: 900.0
  *     },
- *     ffmpeg?: array{
- *         max_timeout?: int|Param, // Highest "timeout" (in seconds) of an ffmpeg module, also its default // Default: 3600
- *     },
+ *     max_timeout?: int|Param, // Highest "timeout" (in seconds) a rendition definition may set on a module (ffmpeg modules, document_to_pdf); also the default timeout of the ffmpeg modules // Default: 3600
  * }
  * @psalm-type AlchemyConfiguratorConfig = array{
  *     database_url?: scalar|Param|null, // Default: "%env(CONFIGURATOR_DATABASE_URL)%"

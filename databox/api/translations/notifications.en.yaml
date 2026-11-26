@@ -124,5 +124,13 @@ user:
         email:
             subject: 'An error occurred'
             greeting: 'Hi %recipient%,'
+            action_edit_integration: 'Edit the integration'
+            action_edit_attribute_definition: 'Edit the attribute'
         in_app:
             subject: 'An error occurred'
+        details:
+            instance: 'Instance'
+            workspace: 'Workspace'
+            integration: 'Integration'
+            integration_type: 'Integration type'
+            attribute_definition: 'Attribute'

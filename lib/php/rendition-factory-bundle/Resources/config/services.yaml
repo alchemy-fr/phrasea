@@ -3,7 +3,7 @@ services:
         autowire: true
         autoconfigure: true
         bind:
-            int $ffmpegMaxTimeout: '%alchemy_rendition_factory.ffmpeg.max_timeout%'
+            int $maxTimeout: '%alchemy_rendition_factory.max_timeout%'
 
     Alchemy\RenditionFactory\Command\CreateCommand: ~
     Alchemy\RenditionFactory\Command\ConfigurationValidateCommand: ~

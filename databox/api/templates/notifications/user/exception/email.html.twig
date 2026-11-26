@@ -4,4 +4,18 @@
     <p>{{ 'user.exception.email.greeting'|trans({'%recipient%': (recipient.displayName|default(recipient.email))|e}, 'notifications')|raw }}</p>
     <p>{{ subject }}</p>
     {% if message is defined and message %}<pre>{{ message }}</pre>{% endif %}
+    {% if details|default([]) is not empty %}
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px; border-collapse: collapse;">
+        {% for detail in details %}
+        <tr>
+            <td style="padding: 2px 16px 2px 0; color: #6b7280; vertical-align: top; white-space: nowrap;">{{ ('user.exception.details.' ~ detail.key)|trans({}, 'notifications') }}</td>
+            <td style="padding: 2px 0; vertical-align: top; word-break: break-word;">{{ detail.value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
 {% endblock %}
+
+{% block uri %}{{ url|default('')|raw }}{% endblock %}
+
+{% block action %}{% if action|default %}{{ ('user.exception.email.action_' ~ action)|trans({}, 'notifications')|raw }}{% endif %}{% endblock %}

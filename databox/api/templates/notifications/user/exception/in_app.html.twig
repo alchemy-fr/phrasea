@@ -1,3 +1,5 @@
 {% block subject %}{{ subject|default('user.exception.in_app.subject'|trans({}, 'notifications'))|raw }}{% endblock %}
 
 {% block body %}{{ subject }}{% if message is defined and message %} — {{ message }}{% endif %}{% endblock %}
+
+{% block uri %}{{ url|default('') }}{% endblock %}

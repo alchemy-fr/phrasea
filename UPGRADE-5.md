@@ -382,9 +382,12 @@ untrusted: the workers now bound what they spend on them.
   needed.
 - Downloads from a URL (files to ingest, transcripts, remote files of the
   renditions) last 900 seconds at most and are refused above `S3_MAX_OBJECT_SIZE`.
-- The `timeout` of the ffmpeg modules is 3600 seconds at most (and by
-  default); a definition asking for more is refused. The maximum is the
-  `alchemy_rendition_factory.ffmpeg.max_timeout` configuration.
+- The `timeout` of the ffmpeg modules and of `document_to_pdf` is 3600 seconds
+  at most (also the default of the ffmpeg modules; `document_to_pdf` keeps its
+  300 seconds default); a definition asking for more is refused. The maximum
+  is set by `DATABOX_MAX_RENDITION_BUILD_TIME` (the
+  `alchemy_rendition_factory.max_timeout` configuration). The maximum of
+  `document_to_pdf` goes from 1800 to 3600 seconds by default.
 - `video_summary` extracts 100 clips at most (`max_clips` option, up to 1000),
   and refuses a video announcing more than 24 hours.
 

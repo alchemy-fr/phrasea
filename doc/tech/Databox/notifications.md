@@ -33,7 +33,7 @@ The author of a change is never notified of it.
 | `collection:asset_remove`   | an asset is removed from a followed collection                       | per collection |
 | `discussion:new_comment`    | a comment is posted on a followed asset, an asset of a followed collection, or a thread the user takes part in or is mentioned in | yes |
 | `entity_list:pending_value` | a value awaits approval in an [entity list](./entity-lists.md); sent to the list owner | no |
-| `user:exception`            | a background task of the user failed (an integration, a synchronization…) | no |
+| `user:exception`            | a background task of the user failed (an integration, a synchronization…); the email lists the instance (client URL), the workspace and the failing integration (with its type) or attribute, and links to its edit form | no |
 | `automation:report`         | an automation sends its report (see [automations](./automations.md)) | no |
 
 `asset:delete` and `asset:new_comment` are declared too, but comments are sent under

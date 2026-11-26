@@ -21,7 +21,6 @@ use Symfony\Component\Process\Process;
 final class PdfConverter
 {
     public const int DEFAULT_TIMEOUT = 300;
-    public const int MAX_TIMEOUT = 1800;
 
     private const int SIGKILL = 9;
     private const string BLACKHOLE_PROXY = 'http://127.0.0.1:9';
@@ -46,8 +45,8 @@ final class PdfConverter
         string $workDir,
         int $timeout = self::DEFAULT_TIMEOUT,
     ): void {
-        if ($timeout < 1 || $timeout > self::MAX_TIMEOUT) {
-            throw new \InvalidArgumentException(sprintf('LibreOffice timeout must be between 1 and %d seconds, %d given', self::MAX_TIMEOUT, $timeout));
+        if ($timeout < 1) {
+            throw new \InvalidArgumentException(sprintf('LibreOffice timeout must be at least 1 second, %d given', $timeout));
         }
 
         $filesystem = new Filesystem();

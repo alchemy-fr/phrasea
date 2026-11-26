@@ -108,7 +108,7 @@ its name or its declared type:
 document:
     transformations:
         - module: document_to_pdf
-          # 300 seconds by default, 1800 at most
+          # 300 seconds by default, at most DATABOX_MAX_RENDITION_BUILD_TIME (3600 by default)
           options: {timeout: 600}
 ```
 

@@ -3,6 +3,7 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\BinaryDriver\AbstractBinary;
+use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\RestrictedProcessBuilderFactory;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
@@ -10,7 +11,7 @@ use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
 
 class FFMpegHelper
 {
-    public const int DEFAULT_MAX_TIMEOUT = 3600;
+    public const int DEFAULT_MAX_TIMEOUT = TransformerModuleInterface::DEFAULT_MAX_TIMEOUT;
 
     /**
      * @param int $maxTimeout the highest timeout (seconds) the options may ask for, and the default one:

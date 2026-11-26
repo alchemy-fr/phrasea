@@ -20,6 +20,7 @@ use Alchemy\RenditionFactory\Transformer\Document\Libreoffice\PdfConverter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\ExecutableFinder;
@@ -179,10 +180,48 @@ class DocumentToPdfTest extends TestCase
             new ServiceLocator([]),
         );
 
-        $validator->validate($this->parse(['timeout' => 1800]));
+        $validator->validate($this->parse(['timeout' => 3600]));
 
         $this->expectException(InvalidConfigurationException::class);
-        $validator->validate($this->parse(['timeout' => 1801]));
+        $validator->validate($this->parse(['timeout' => 3601]));
+    }
+
+    public function testTimeoutMaximumIsConfigurable(): void
+    {
+        $validator = new BuildConfigValidator(
+            new ServiceLocator([DocumentToPdfTransformerModule::NAME => fn () => $this->createModule(new PdfConverter(), 14400)]),
+            new ServiceLocator([]),
+        );
+
+        $validator->validate($this->parse(['timeout' => 7200]));
+
+        $this->expectException(InvalidConfigurationException::class);
+        $validator->validate($this->parse(['timeout' => 14401]));
+    }
+
+    public function testTimeoutAboveTheMaximumIsRefusedAtBuildTime(): void
+    {
+        $this->createCreator(new PdfConverter($this->createFakeLibreoffice()), 600);
+
+        try {
+            $this->convert($this->createDocument('txt'), 'text/plain', ['timeout' => 7200]);
+            $this->fail('A timeout above the maximum must be refused');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertSame('Invalid timeout: an integer between 1 and 600 is expected, got 7200', $e->getMessage());
+        }
+
+        $this->assertFileDoesNotExist($this->reportDir.'/args', 'LibreOffice must not be launched');
+    }
+
+    public function testTimeoutKeepsItsDefault(): void
+    {
+        $tree = $this->createModule(new PdfConverter(), 14400)->getDocumentation()->getTreeBuilder()->buildTree();
+        $config = new Processor()->process($tree, [['module' => DocumentToPdfTransformerModule::NAME, 'options' => []]]);
+        $this->assertSame(PdfConverter::DEFAULT_TIMEOUT, $config['options']['timeout']);
+
+        $tree = $this->createModule(new PdfConverter(), 60)->getDocumentation()->getTreeBuilder()->buildTree();
+        $config = new Processor()->process($tree, [['module' => DocumentToPdfTransformerModule::NAME, 'options' => []]]);
+        $this->assertSame(60, $config['options']['timeout'], 'The default never exceeds the maximum');
     }
 
     public static function getRealConversions(): iterable
@@ -406,17 +445,19 @@ SH;
         return new PdfConverter();
     }
 
-    private function createModule(PdfConverter $converter): DocumentToPdfTransformerModule
+    private function createModule(PdfConverter $converter, ?int $maxTimeout = null): DocumentToPdfTransformerModule
     {
-        return new DocumentToPdfTransformerModule($converter, new DocumentFormatDetector());
+        return null === $maxTimeout
+            ? new DocumentToPdfTransformerModule($converter, new DocumentFormatDetector())
+            : new DocumentToPdfTransformerModule($converter, new DocumentFormatDetector(), $maxTimeout);
     }
 
-    private function createCreator(PdfConverter $converter): void
+    private function createCreator(PdfConverter $converter, ?int $maxTimeout = null): void
     {
         $this->creator = new RenditionCreator(
             new TransformationContextFactory(new MimeTypeGuesser(), $this->workDir.'/rendition'),
             new FileFamilyGuesser(),
-            new ServiceLocator([DocumentToPdfTransformerModule::NAME => fn () => $this->createModule($converter)]),
+            new ServiceLocator([DocumentToPdfTransformerModule::NAME => fn () => $this->createModule($converter, $maxTimeout)]),
             new ServiceLocator([]),
         );
     }

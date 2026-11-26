@@ -3,7 +3,7 @@
 namespace Alchemy\RenditionFactoryBundle\DependencyInjection;
 
 use Alchemy\RenditionFactory\Context\TransformationContextFactory;
-use Alchemy\RenditionFactory\Transformer\Video\FFMpegHelper;
+use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -37,15 +37,10 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->arrayNode('ffmpeg')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->integerNode('max_timeout')
-                            ->info('Highest "timeout" (in seconds) of an ffmpeg module, also its default')
-                            ->min(1)
-                            ->defaultValue(FFMpegHelper::DEFAULT_MAX_TIMEOUT)
-                        ->end()
-                    ->end()
+                ->integerNode('max_timeout')
+                    ->info('Highest "timeout" (in seconds) a rendition definition may set on a module (ffmpeg modules, document_to_pdf); also the default timeout of the ffmpeg modules')
+                    ->min(1)
+                    ->defaultValue(TransformerModuleInterface::DEFAULT_MAX_TIMEOUT)
                 ->end()
             ->end()
         ;

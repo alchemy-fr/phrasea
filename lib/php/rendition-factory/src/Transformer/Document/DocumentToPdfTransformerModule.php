@@ -24,6 +24,7 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
     public function __construct(
         private PdfConverter $converter,
         private DocumentFormatDetector $formatDetector,
+        private int $maxTimeout = self::DEFAULT_MAX_TIMEOUT,
     ) {
     }
 
@@ -58,10 +59,10 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
                 ->ignoreExtraKeys(false)
                 ->children()
                     ->integerNode('timeout')
-                        ->info(sprintf('Maximum duration of the conversion, in seconds (at most %d)', PdfConverter::MAX_TIMEOUT))
-                        ->defaultValue(PdfConverter::DEFAULT_TIMEOUT)
+                        ->info(sprintf('Maximum duration of the conversion, in seconds (at most %d)', $this->maxTimeout))
+                        ->defaultValue($this->getDefaultTimeout())
                         ->min(1)
-                        ->max(PdfConverter::MAX_TIMEOUT)
+                        ->max($this->maxTimeout)
                     ->end()
                 ->end()
             ->end()
@@ -106,15 +107,20 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
 
     private function getTimeout(array $options): int
     {
-        $timeout = $options['timeout'] ?? PdfConverter::DEFAULT_TIMEOUT;
+        $timeout = $options['timeout'] ?? $this->getDefaultTimeout();
         if (is_string($timeout) && ctype_digit($timeout)) {
             $timeout = (int) $timeout;
         }
 
-        if (!is_int($timeout) || $timeout < 1 || $timeout > PdfConverter::MAX_TIMEOUT) {
-            throw new \InvalidArgumentException(sprintf('Invalid timeout: an integer between 1 and %d is expected', PdfConverter::MAX_TIMEOUT));
+        if (!is_int($timeout) || $timeout < 1 || $timeout > $this->maxTimeout) {
+            throw new \InvalidArgumentException(sprintf('Invalid timeout: an integer between 1 and %d is expected, got %s', $this->maxTimeout, json_encode($timeout)));
         }
 
         return $timeout;
+    }
+
+    private function getDefaultTimeout(): int
+    {
+        return min(PdfConverter::DEFAULT_TIMEOUT, $this->maxTimeout);
     }
 }
