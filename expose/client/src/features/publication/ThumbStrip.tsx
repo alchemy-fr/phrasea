@@ -7,8 +7,11 @@ import {cn} from '@alchemy/ui/utils/cn';
 import {Thumbnail} from './Thumbnail';
 
 /**
- * Horizontal strip of the thumbnails of the assets, the current one
- * highlighted and kept in the middle; the wheel scrolls it horizontally.
+ * Horizontal strip of the thumbnails of the assets, centred when they fit,
+ * the current one highlighted and kept in the middle; the wheel scrolls it
+ * horizontally. The auto margins of the first and last thumbnails centre them
+ * (unlike `justify-center`, they fall to 0 on overflow, so the start of the
+ * strip stays reachable).
  */
 export function ThumbStrip({
     assets,
@@ -79,7 +82,7 @@ export function ThumbStrip({
                         title={asset.title || asset.originalName}
                         onClick={() => onSelect(asset)}
                         className={cn(
-                            'h-full w-18 shrink-0 cursor-pointer overflow-hidden rounded-md opacity-60 ring-offset-1 ring-offset-background transition-opacity outline-none hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring',
+                            'h-full w-18 shrink-0 cursor-pointer first:ms-auto last:me-auto overflow-hidden rounded-md opacity-60 ring-offset-1 ring-offset-background transition-opacity outline-none hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring',
                             current && 'opacity-100 ring-2 ring-primary'
                         )}
                     >

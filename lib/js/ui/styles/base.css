@@ -284,6 +284,11 @@
         letter-spacing: var(--tracking, normal);
         line-height: 1.45;
     }
+    /* Tailwind v4's Preflight leaves buttons with the default cursor */
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']) {
+        cursor: pointer;
+    }
     ::-webkit-scrollbar {
         width: 10px;
         height: 10px;
