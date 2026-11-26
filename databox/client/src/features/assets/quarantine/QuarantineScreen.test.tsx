@@ -260,6 +260,121 @@ describe('QuarantineScreen', () => {
         expect(api.prepareQuarantineBatch).toHaveBeenCalledTimes(1);
     });
 
+    describe('selecting rows with modifier keys', () => {
+        beforeEach(() => {
+            const assets = [1, 2, 3, 4].map(quarantined);
+            api.searchAssets.mockResolvedValue({
+                items: assets,
+                total: assets.length,
+                facets: {},
+            });
+            api.getAssetDuplicates.mockResolvedValue([]);
+            api.prepareQuarantineBatch.mockImplementation(
+                async (ids: string[]) => ids.map(id => eligibility(id, {}))
+            );
+        });
+
+        const rows = () => screen.getAllByTestId('quarantine-queue-item');
+        const checked = () =>
+            screen
+                .getAllByTestId('quarantine-queue-checkbox')
+                .map((box, i) =>
+                    box.getAttribute('aria-checked') === 'true'
+                        ? `q-${i + 1}`
+                        : undefined
+                )
+                .filter(Boolean);
+        const selectedCount = () =>
+            screen.getByTestId('quarantine-batch-selected').textContent;
+        const opened = () =>
+            screen.getByTestId('quarantine-details').textContent;
+
+        async function ready() {
+            renderScreen();
+            await waitFor(() => expect(queueItems()).toBe(4));
+            await waitFor(() => expect(opened()).toContain('Quarantined 1'));
+        }
+
+        it('toggles a row with Ctrl+click, the opened asset included', async () => {
+            await ready();
+
+            fireEvent.click(rows()[2], {ctrlKey: true});
+            expect(selectedCount()).toBe('2 selected');
+            expect(checked()).toEqual(['q-1', 'q-3']);
+            expect(opened()).toContain('Quarantined 1');
+
+            fireEvent.click(rows()[2], {ctrlKey: true});
+            expect(selectedCount()).toBe('1 selected');
+            expect(checked()).toEqual(['q-1']);
+            expect(opened()).toContain('Quarantined 1');
+        });
+
+        it('toggles a row with Cmd+click as with Ctrl+click', async () => {
+            await ready();
+
+            fireEvent.click(rows()[2], {metaKey: true});
+            expect(checked()).toEqual(['q-1', 'q-3']);
+
+            fireEvent.click(rows()[2], {metaKey: true});
+            expect(checked()).toEqual(['q-1']);
+            expect(opened()).toContain('Quarantined 1');
+        });
+
+        it('only checks the row when Ctrl+clicking the opened asset', async () => {
+            await ready();
+
+            fireEvent.click(rows()[0], {ctrlKey: true});
+            expect(checked()).toEqual(['q-1']);
+        });
+
+        it('checks the range from the row last opened with Shift+click', async () => {
+            await ready();
+
+            fireEvent.click(rows()[1]);
+            await waitFor(() => expect(opened()).toContain('Quarantined 2'));
+            expect(screen.queryByTestId('quarantine-batch-bar')).toBeNull();
+
+            fireEvent.click(rows()[3], {shiftKey: true});
+            expect(checked()).toEqual(['q-2', 'q-3', 'q-4']);
+            expect(selectedCount()).toBe('3 selected');
+            expect(opened()).toContain('Quarantined 2');
+        });
+
+        it('checks the range from the opened asset with no row clicked yet', async () => {
+            await ready();
+
+            fireEvent.click(rows()[2], {shiftKey: true});
+            expect(checked()).toEqual(['q-1', 'q-2', 'q-3']);
+            expect(opened()).toContain('Quarantined 1');
+        });
+
+        it('adds the Shift+click range to the checked assets', async () => {
+            await ready();
+
+            fireEvent.click(
+                screen.getAllByTestId('quarantine-queue-checkbox')[0]
+            );
+            fireEvent.click(rows()[2]);
+            await waitFor(() => expect(opened()).toContain('Quarantined 3'));
+
+            fireEvent.click(rows()[3], {shiftKey: true});
+            expect(checked()).toEqual(['q-1', 'q-3', 'q-4']);
+            expect(opened()).toContain('Quarantined 3');
+        });
+
+        it('keeps the checked assets on a plain click on a row', async () => {
+            await ready();
+
+            fireEvent.click(rows()[1], {ctrlKey: true});
+            expect(checked()).toEqual(['q-1', 'q-2']);
+
+            fireEvent.click(rows()[3]);
+            await waitFor(() => expect(opened()).toContain('Quarantined 4'));
+            expect(checked()).toEqual(['q-1', 'q-2']);
+            expect(selectedCount()).toBe('2 selected');
+        });
+    });
+
     it('tells when the eligibility could not be read and retries', async () => {
         const assets = [quarantined(1), quarantined(2)];
         api.searchAssets.mockResolvedValue({

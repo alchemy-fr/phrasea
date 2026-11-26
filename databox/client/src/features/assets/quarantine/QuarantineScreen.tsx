@@ -128,7 +128,7 @@ export function QuarantineScreen() {
         0
     );
 
-    const selection = useQuarantineSelection(assets);
+    const selection = useQuarantineSelection(assets, selectedId);
     const eligibility = useQuarantineEligibility(selection.ids);
 
     const select = useCallback((id: string | undefined) => {
@@ -312,8 +312,10 @@ export function QuarantineScreen() {
                                         a.id === selectedId && 'bg-primary/10'
                                     )}
                                 >
-                                    {/* Checking an asset does not open it:
-                                        Shift+click checks a whole range. */}
+                                    {/* Checking an asset, from its checkbox or
+                                        with Ctrl/Cmd/Shift+click on its row,
+                                        does not open it: Shift+click checks a
+                                        whole range. */}
                                     <Checkbox
                                         className="ml-2"
                                         data-testid="quarantine-queue-checkbox"
@@ -331,7 +333,24 @@ export function QuarantineScreen() {
                                         type="button"
                                         data-testid="quarantine-queue-item"
                                         className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
-                                        onClick={() => select(a.id)}
+                                        onMouseDown={e => {
+                                            // No text selection on Shift+click
+                                            if (e.shiftKey) {
+                                                e.preventDefault();
+                                            }
+                                        }}
+                                        onClick={e => {
+                                            if (
+                                                e.ctrlKey ||
+                                                e.metaKey ||
+                                                e.shiftKey
+                                            ) {
+                                                selection.clickItem(a, e);
+                                            } else {
+                                                selection.setAnchor(a.id);
+                                                select(a.id);
+                                            }
+                                        }}
                                     >
                                         <span className="size-10 shrink-0 overflow-hidden rounded bg-media-bg">
                                             <AssetThumb
