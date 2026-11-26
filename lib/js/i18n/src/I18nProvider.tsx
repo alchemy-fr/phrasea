@@ -1,25 +1,9 @@
 'use client';
 
-import {
-    PropsWithChildren,
-    ReactElement,
-    ReactNode,
-    useEffect,
-    useMemo,
-} from 'react';
+import {PropsWithChildren, useEffect, useMemo} from 'react';
 import type {i18n as I18n} from 'i18next';
-import {I18nextProvider as BaseI18nextProvider} from 'react-i18next';
+import {I18nextProvider} from 'react-i18next';
 import type {LanguageCode} from './index';
-
-/**
- * react-i18next declares no peer dependency on the React types: it gets the
- * ones hoisted in the workspace, which may be the React 18 types of the
- * other clients, and its `children` then refuse React 19 nodes.
- */
-const I18nextProvider = BaseI18nextProvider as unknown as (props: {
-    i18n: I18n;
-    children?: ReactNode;
-}) => ReactElement;
 
 /**
  * Provides the i18next instance of the page and follows the language: the
