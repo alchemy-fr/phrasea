@@ -25,5 +25,6 @@
     "status.degraded": "Dégradé",
     "status.down": "Indisponible",
     "status.up": "Opérationnel",
+    "status.version.title": "Version de l'API",
     "tools.title": "Outils techniques"
 }

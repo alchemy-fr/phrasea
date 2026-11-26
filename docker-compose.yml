@@ -185,6 +185,8 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
         SENTRY_RELEASE: ${SENTRY_RELEASE}
+        PHRASEA_VERSION: ${PHRASEA_VERSION}
+        PHRASEA_COMMIT: ${PHRASEA_COMMIT}
       network: host
       entitlements:
         - network.host

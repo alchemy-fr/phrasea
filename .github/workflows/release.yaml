@@ -86,6 +86,28 @@ jobs:
       - name: Pull images built by the pipeline
         run: docker compose pull $(docker compose config --format json | jq -r '.services | to_entries[] | select(.value.build) | .key')
 
+      # The images are tagged with the commit: a branch build of the same
+      # commit may have overwritten those of the tag build since.
+      - name: Check the version of the API images
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          failed=0
+          for app in databox expose uploader; do
+            for stage in api-php worker; do
+              image="${REGISTRY_NAMESPACE}${app}-${stage}:${DOCKER_TAG}"
+              actual=$(docker image inspect --format '{{json .Config.Env}}' "$image" \
+                | jq -r 'map(select(startswith("PHRASEA_VERSION="))) | first // "" | ltrimstr("PHRASEA_VERSION=")')
+              if [ "$actual" = "$VERSION" ]; then
+                echo "$image: $actual"
+              else
+                echo "::error::$image has PHRASEA_VERSION \"$actual\", expected \"$VERSION\""
+                failed=1
+              fi
+            done
+          done
+          exit $failed
+
       - name: Compute image tag from ref
         env:
           REF_NAME: ${{ github.ref_name }}

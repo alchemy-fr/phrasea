@@ -79,6 +79,33 @@ every tag of the group starts with its `REGISTRY_NAMESPACE` before building.
 docker buildx bake -f docker-bake.hcl --print          # resolved configuration
 ```
 
+### Image versions
+
+The API images (`*-api-php`, `*-worker`) carry their version in
+`PHRASEA_VERSION` and their commit in `PHRASEA_COMMIT`, both computed by the
+*Compute version* step of the `build` job and passed to bake as build args:
+
+| Build | `PHRASEA_VERSION` | `PHRASEA_COMMIT` |
+|---|---|---|
+| tag (`release.yaml` calls `ci.yaml`, `github.ref_type` is `tag`) | the tag name (`5.0.0`, `5.0.0-rc1`) | `github.sha` |
+| branch push, nightly | `<branch>@<sha 7 characters>` (`next@34886e8`) | `github.sha` |
+| pull request | `<source branch>@<head sha 7 characters>` | the head of the source branch (the merge commit is on no branch) |
+| local build without the build args | `dev` | empty |
+
+`SENTRY_RELEASE` stays the commit sha: the Sentry releases (sourcemaps,
+regressions) are named after it.
+
+The APIs serve them on the public route `GET /_health/version` of core-bundle
+(`{"version": "5.0.0", "commit": "<sha>"}`, `commit` is `null` when empty) and
+as `info.version` of their OpenAPI documentation (`/docs.jsonopenapi`); the
+dashboard shows the version of each API on its card to signed-in users.
+
+The images are tagged with the commit sha on GHCR, so a branch build of the
+same commit overwrites those of the tag build. Before tagging them for Docker
+Hub, `publish-dockerhub` (`release.yaml`) checks that every pulled
+`*-api-php` and `*-worker` image has `PHRASEA_VERSION` equal to the tag name,
+and fails otherwise: rerun the release workflow on the tag.
+
 ### Keycloak and report-api in CI
 
 The Keycloak and report-api images are built outside this repository and are

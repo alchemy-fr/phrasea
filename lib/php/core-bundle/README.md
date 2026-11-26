@@ -23,14 +23,22 @@ Add route:
 alchemy_core_healthcheck:
     resource: Alchemy\CoreBundle\Controller\HealthCheckAction
     type: attribute
+alchemy_core_version:
+    resource: Alchemy\CoreBundle\Controller\VersionAction
+    type: attribute
 alchemy_core_sentry_test:
     resource: Alchemy\CoreBundle\Controller\SentryTestController
     type: attribute
 ```
 
+`GET /_health/version` answers `{"version": "5.0.0", "commit": "<sha>"}`, read
+from `PHRASEA_VERSION` (`dev` by default) and `PHRASEA_COMMIT` (`null` when
+empty), also available as the `alchemy_core.version` and `alchemy_core.commit`
+parameters.
+
 Ensure the route is not protected:
 ```yaml
 security:
     access_control:
-        - { path: ^/_healthcheck, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/_health/(check|version)$, roles: PUBLIC_ACCESS }
 ```

@@ -127,10 +127,13 @@ function StatusIndicator({status}: {status: ServiceStatus}) {
 export function ServiceCardView({
     card,
     status,
+    version,
     target,
 }: {
     card: ServiceCard;
     status?: ServiceStatus;
+    /** The version of the API, given to signed-in users only */
+    version?: string;
     target?: string;
 }) {
     const {t} = useTranslation();
@@ -191,9 +194,18 @@ export function ServiceCardView({
                     {description}
                 </p>
             </div>
-            {status || card.actions.length > 0 ? (
+            {status || version || card.actions.length > 0 ? (
                 <div className="relative flex min-h-10 items-center gap-1 border-t px-2 py-1">
                     {status ? <StatusIndicator status={status} /> : null}
+                    {version ? (
+                        <span
+                            data-testid="service-version"
+                            title={t('status.version.title', 'API version')}
+                            className="min-w-0 truncate px-1 text-xs text-muted-foreground"
+                        >
+                            {version}
+                        </span>
+                    ) : null}
                     <div className="ml-auto flex items-center">
                         {card.actions.map(action => {
                             const Icon = actionIcons[action.id];

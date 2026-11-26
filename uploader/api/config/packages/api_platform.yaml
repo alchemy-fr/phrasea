@@ -1,5 +1,5 @@
 api_platform:
-    version: '1.0.0'
+    version: '%env(PHRASEA_VERSION)%'
     mapping:
         paths:
             - '%kernel.project_dir%/src/Model'

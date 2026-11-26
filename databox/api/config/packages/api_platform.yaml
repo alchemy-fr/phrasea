@@ -3,7 +3,7 @@ api_platform:
         jsonld: [ 'application/ld+json', 'application/merge-patch+json' ]
         json: [ 'application/json', 'application/merge-patch+json' ]
         html: [ 'text/html' ]
-    version: '1.0.0'
+    version: '%env(PHRASEA_VERSION)%'
     mapping:
         paths:
         - '%kernel.project_dir%/src/Entity'

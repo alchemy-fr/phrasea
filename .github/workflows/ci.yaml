@@ -127,11 +127,32 @@ jobs:
           targets: ${{ matrix.group }}-base
           push: true
 
+      # The version served by the APIs (/_health/version, OpenAPI info.version).
+      # Called by release.yaml, ref_type and ref_name are those of its tag.
+      - name: Compute version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          # On a pull request, ref_name is "<number>/merge" and the merge commit
+          # is on no branch: name the source branch and its head.
+          REF_NAME: ${{ github.head_ref || github.ref_name }}
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ "$REF_TYPE" = tag ]; then
+            VERSION="$REF_NAME"
+          else
+            VERSION="${REF_NAME}@$(printf '%s' "$COMMIT" | cut -c1-7)"
+          fi
+          echo "Version \"$VERSION\", commit $COMMIT"
+          echo "PHRASEA_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "PHRASEA_COMMIT=$COMMIT" >> "$GITHUB_ENV"
+
       - name: Build and push
         uses: docker/bake-action@v7
         env:
           CACHE_TAG: build-cache-1
           SENTRY_RELEASE: ${{ github.sha }}
+          PHRASEA_VERSION: ${{ env.PHRASEA_VERSION }}
+          PHRASEA_COMMIT: ${{ env.PHRASEA_COMMIT }}
         with:
           source: .
           files: docker-bake.hcl

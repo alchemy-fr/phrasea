@@ -2,10 +2,12 @@ import 'server-only';
 import {getApps} from '@/lib/config/server';
 import {httpGet, isFalse, type HttpGet} from '@alchemy/core/server/http';
 import type {AppId} from '@/lib/config/types';
-import type {ServiceStatus, ServiceStatuses} from './types';
+import type {ServiceState, ServiceStatus, ServiceStatuses} from './types';
 
 /** The health check route of the APIs (`HealthCheckAction` of core-bundle) */
 export const HEALTH_CHECK_PATH = '/_health/check';
+/** The version route of the APIs (`VersionAction` of core-bundle) */
+export const VERSION_PATH = '/_health/version';
 
 export const PROBE_TIMEOUT_MS = 5000;
 export const DEFAULT_STATUS_TTL = 15;
@@ -53,11 +55,54 @@ export async function probeApi(
     }
 }
 
+/**
+ * Reads the version an API runs. It never changes the status: a failure, or
+ * an answer that is not the one of the API, only leaves the version out.
+ */
+export async function probeVersion(
+    apiUrl: string,
+    {get = httpGet, verifySsl = true}: {get?: HttpGet; verifySsl?: boolean} = {}
+): Promise<string | undefined> {
+    try {
+        const {status, body} = await get(`${apiUrl}${VERSION_PATH}`, {
+            headers: {Accept: 'application/json'},
+            rejectUnauthorized: verifySsl,
+            timeout: PROBE_TIMEOUT_MS,
+        });
+        if (status !== 200) {
+            return undefined;
+        }
+        const data: unknown = JSON.parse(body);
+        if (data && typeof data === 'object' && 'version' in data) {
+            const {version} = data;
+            if (typeof version === 'string' && version !== '') {
+                return version;
+            }
+        }
+    } catch {
+        // unreachable API, or not its answer
+    }
+
+    return undefined;
+}
+
+export async function probeService(
+    apiUrl: string,
+    options: {get?: HttpGet; verifySsl?: boolean} = {}
+): Promise<ServiceState> {
+    const [status, version] = await Promise.all([
+        probeApi(apiUrl, options),
+        probeVersion(apiUrl, options),
+    ]);
+
+    return version ? {status, version} : {status};
+}
+
 export type StatusLoader = () => Promise<ServiceStatuses>;
 
 /**
- * Probes every API of the stack, at most once every `STATUS_TTL` seconds
- * whatever the number of visitors: the answer is shared.
+ * Probes every API of the stack (status and version), at most once every
+ * `STATUS_TTL` seconds whatever the number of visitors: the answer is shared.
  */
 export function createStatusLoader({
     env = process.env,
@@ -80,7 +125,7 @@ export function createStatusLoader({
                 async ([id, app]) =>
                     [
                         id as AppId,
-                        await probeApi(app.apiUrl, {get, verifySsl}),
+                        await probeService(app.apiUrl, {get, verifySsl}),
                     ] as const
             )
         );

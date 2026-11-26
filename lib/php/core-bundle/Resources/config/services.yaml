@@ -3,6 +3,11 @@ parameters:
     'env(MATOMO_SITE_ID)': ''
     'env(MATOMO_AUTH_TOKEN)': ''
     'env(MATOMO_MEDIA_PLUGIN_ENABLED)': '0'
+    # Set in the API images by the CI (the tag name for a release)
+    'env(PHRASEA_VERSION)': 'dev'
+    'env(PHRASEA_COMMIT)': ''
+    alchemy_core.version: '%env(PHRASEA_VERSION)%'
+    alchemy_core.commit: '%env(PHRASEA_COMMIT)%'
 
 services:
     _defaults:
@@ -22,3 +27,4 @@ services:
     Alchemy\CoreBundle\Command\DocumentationDumperCommand: ~
     Alchemy\CoreBundle\Upload\MultipartUploader: ~
     Alchemy\CoreBundle\Env\OriginEnvVarProcessor: ~
+    Alchemy\CoreBundle\Controller\VersionAction: ~

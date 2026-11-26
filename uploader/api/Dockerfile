@@ -23,12 +23,17 @@ RUN mkdir -p var/cache var/logs var/sessions \
 USER root
 
 
-# SENTRY_RELEASE changes on every commit: it is set last in each final stage,
-# so that the cached steps above stay valid.
+# SENTRY_RELEASE, PHRASEA_VERSION and PHRASEA_COMMIT change on every commit:
+# they are set last in each final stage, so that the cached steps above stay
+# valid.
 FROM app AS api-php
 
 ARG SENTRY_RELEASE
-ENV SENTRY_RELEASE=${SENTRY_RELEASE}
+ARG PHRASEA_VERSION=dev
+ARG PHRASEA_COMMIT=
+ENV SENTRY_RELEASE=${SENTRY_RELEASE} \
+    PHRASEA_VERSION=${PHRASEA_VERSION:-dev} \
+    PHRASEA_COMMIT=${PHRASEA_COMMIT}
 
 
 FROM ${REGISTRY_NAMESPACE}nginx-fpm-base:${BASE_TAG} AS api-nginx
@@ -59,4 +64,8 @@ HEALTHCHECK --start-interval=1s --start-period=90s --retries=100 --interval=60s 
     CMD ash -c "[ -f /docker/worker-ready ]"
 
 ARG SENTRY_RELEASE
-ENV SENTRY_RELEASE=${SENTRY_RELEASE}
+ARG PHRASEA_VERSION=dev
+ARG PHRASEA_COMMIT=
+ENV SENTRY_RELEASE=${SENTRY_RELEASE} \
+    PHRASEA_VERSION=${PHRASEA_VERSION:-dev} \
+    PHRASEA_COMMIT=${PHRASEA_COMMIT}

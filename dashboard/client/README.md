@@ -101,7 +101,7 @@ page whose inline script cannot bear the nonce.
 | `/git-log` | Last 30 commits of the build (`/git-log.html` redirects to it) | public |
 | `/auth/callback` | OpenID Connect callback | public |
 | `/auth/window` | Sign-in window opened from the services menu | public |
-| `/api/status` | Status of each API, polled by the cards | public |
+| `/api/status` | Status and version of each API, polled by the cards | public |
 | `/api/theme-fonts` | Fonts of the organisation theme | public |
 
 ## Behaviour
@@ -118,6 +118,11 @@ page whose inline script cannot bear the nonce.
   fails) or *Unavailable* (no answer, or the proxy answering for it). An API
   refusing an anonymous health check counts as operational: it answered.
   In compose, the API hosts resolve to traefik (`extra_hosts`).
+- **API versions**: the same probe reads `/_health/version` of each API
+  (`PHRASEA_VERSION` of its image: the tag name for a release,
+  `<branch>@<short sha>` otherwise), shown in the footer of its card to
+  signed-in users only, like the stack version (`STACK_VERSION`). A version
+  that cannot be read is left out without changing the status.
 - **Links** open in the current tab — in the tab of the client when the
   dashboard is framed (`target="_top"`); a modified click opens a new one.
 - **Services menu**: framed, the dashboard drops its top bar (decided by the

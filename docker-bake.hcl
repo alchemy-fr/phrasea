@@ -30,6 +30,16 @@ variable "SENTRY_RELEASE" {
   default = "unknown"
 }
 
+# Version embedded in the API images (/_health/version, OpenAPI info.version):
+# the tag name for a release, <branch>@<short sha> otherwise (ci.yaml).
+variable "PHRASEA_VERSION" {
+  default = "dev"
+}
+
+variable "PHRASEA_COMMIT" {
+  default = ""
+}
+
 # Tag of the registry cache of each image ("build-cache-1" in the CI), next to
 # the image itself. Empty: no registry cache.
 variable "CACHE_TAG" {
@@ -82,6 +92,8 @@ target "_app" {
     BASE_TAG           = DOCKER_TAG
     REGISTRY_NAMESPACE = REGISTRY_NAMESPACE
     SENTRY_RELEASE     = SENTRY_RELEASE
+    PHRASEA_VERSION    = PHRASEA_VERSION
+    PHRASEA_COMMIT     = PHRASEA_COMMIT
   }
 }
 

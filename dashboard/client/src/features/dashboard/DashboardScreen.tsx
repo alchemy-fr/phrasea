@@ -85,18 +85,23 @@ export function DashboardScreen() {
                 aria-label={t('services.title', 'Services')}
                 className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 embedded:gap-2"
             >
-                {cards.map(card => (
-                    <ServiceCardView
-                        key={card.id}
-                        card={card}
-                        target={target}
-                        status={
-                            card.statusOf
-                                ? statuses?.[card.statusOf]
-                                : undefined
-                        }
-                    />
-                ))}
+                {cards.map(card => {
+                    const state = card.statusOf
+                        ? statuses?.[card.statusOf]
+                        : undefined;
+
+                    return (
+                        <ServiceCardView
+                            key={card.id}
+                            card={card}
+                            target={target}
+                            status={state?.status}
+                            version={
+                                isAuthenticated ? state?.version : undefined
+                            }
+                        />
+                    );
+                })}
             </ul>
 
             {tools.length > 0 ? (
