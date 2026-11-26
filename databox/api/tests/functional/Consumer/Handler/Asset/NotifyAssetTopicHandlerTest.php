@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Consumer\Handler\Asset;
 
+use Alchemy\AuthBundle\Repository\UserRepository;
+use Alchemy\AuthBundle\Security\RoleMapper;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifierBundle\Manager\SubscriptionManager;
 use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
@@ -15,8 +18,13 @@ use App\Consumer\Handler\Collection\NotifyCollectionTopic;
 use App\Consumer\Handler\Collection\NotifyCollectionTopicHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\InterceptedTransports;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\NullLogger;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpClient\Exception\TransportException;
 
 /**
  * The subscribers from whom an attribute filter rule hides an asset do not get its name.
@@ -63,6 +71,37 @@ class NotifyAssetTopicHandlerTest extends AbstractDataboxTestCase
         $this->assertSame([
             [[KeycloakClientTestMock::USER_UID], 'Secret plan'],
             [[KeycloakClientTestMock::USER_UID], 'Secret plan'],
+        ], $this->getRecipients($queue, 'name'));
+    }
+
+    public function testASubscriberWhosePermissionsCannotBeReadIsLeftOut(): void
+    {
+        $subscriptions = self::getService(SubscriptionManager::class);
+        foreach ([KeycloakClientTestMock::USER_UID, KeycloakClientTestMock::ADMIN_UID] as $userId) {
+            $subscriptions->subscribe($userId, new NotifySelectorDto(Asset::EVENT_UPDATE, Asset::OBJECT_TYPE, $this->asset->getId()));
+        }
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->method('getUser')->willReturn(['username' => 'other_user']);
+        $userRepository->method('getUserRoles')->willReturnCallback(static fn (string $userId): array => KeycloakClientTestMock::USER_UID === $userId
+            ? throw new TransportException('Keycloak is unreachable') : KeycloakClientTestMock::USERS[$userId]['roles']);
+        $userRepository->method('getUserGroupIds')->willReturn([]);
+        $handler = new NotifyAssetTopicHandler(
+            self::getService(AssetNameResolver::class),
+            self::getService(NotifierManager::class),
+            self::getService(EntityManagerInterface::class),
+            $userRepository,
+            self::getService(SubscriptionManager::class),
+            self::getService(Security::class),
+            self::getService(RoleMapper::class),
+            new NullLogger(),
+        );
+
+        $queue = InterceptedTransports::intercept(self::getContainer(), 'p2');
+        $handler(new NotifyAssetTopic(Asset::EVENT_UPDATE, $this->asset->getId(), KeycloakClientTestMock::OTHER_USER_UID));
+
+        $this->assertSame([
+            [[KeycloakClientTestMock::ADMIN_UID], 'Secret plan'],
         ], $this->getRecipients($queue, 'name'));
     }
 

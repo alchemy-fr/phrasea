@@ -13,8 +13,10 @@ use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 
 abstract readonly class AbstractNotifyHandler
 {
@@ -26,6 +28,7 @@ abstract readonly class AbstractNotifyHandler
         private SubscriptionManager $subscriptionManager,
         private Security $security,
         private RoleMapper $roleMapper,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -67,6 +70,13 @@ abstract readonly class AbstractNotifyHandler
             );
         } catch (ClientExceptionInterface) {
             // A user unknown to the identity provider
+            return false;
+        } catch (HttpClientExceptionInterface $e) {
+            // The identity provider is unavailable: this subscriber misses the notification, not the others
+            $this->logger->warning(sprintf('Unable to read the permissions of user "%s" for a notification: %s', $userId, $e->getMessage()), [
+                'exception' => $e,
+            ]);
+
             return false;
         }
 
