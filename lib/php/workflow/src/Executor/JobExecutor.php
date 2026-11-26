@@ -6,6 +6,7 @@ namespace Alchemy\Workflow\Executor;
 
 use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Exception\ConcurrencyException;
+use Alchemy\Workflow\Exception\JobRefusalExceptionInterface;
 use Alchemy\Workflow\Exception\JobSkipExceptionInterface;
 use Alchemy\Workflow\Executor\Action\ActionRegistryInterface;
 use Alchemy\Workflow\Executor\Expression\ExpressionParser;
@@ -194,6 +195,14 @@ final readonly class JobExecutor
                     $endStatus = JobState::STATUS_SKIPPED;
                     $jobState->setSkipReason($e->getMessage());
                     $this->logger->info(sprintf('Skipping job <info>%s</info>: %s', $job->getId(), $e->getMessage()), [
+                        'exception' => $e,
+                        'step' => $step->getId(),
+                        'job' => $job->getId(),
+                    ]);
+                } elseif ($e instanceof JobRefusalExceptionInterface) {
+                    $endStatus = JobState::STATUS_FAILURE;
+                    $jobState->addError($e->getMessage());
+                    $this->logger->warning(sprintf('Job %s refused: %s', $job->getId(), $e->getMessage()), [
                         'exception' => $e,
                         'step' => $step->getId(),
                         'job' => $job->getId(),

@@ -1,0 +1,6 @@
+name: Refusal
+
+jobs:
+  refused:
+    steps:
+      - uses: Alchemy\Workflow\Tests\Action\RefusingAction

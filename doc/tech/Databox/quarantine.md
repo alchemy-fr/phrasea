@@ -40,7 +40,8 @@ integration (analyzers `checksum` and `doc_unique_id`, quarantine on rejection, 
 `App\Service\Asset\FileProcessingGuard` refuses to process (renditions, analyses, external
 services) a file whose content was rejected, whose analysis failed, or whose analysis is
 pending in a workspace requiring it, the base renditions aside. A bypassed file is processed
-again.
+again. A workflow job refused this way fails with the reason as its error (see
+[Refused jobs](./workflows.md#refused-jobs)).
 
 ## What quarantines an asset
 

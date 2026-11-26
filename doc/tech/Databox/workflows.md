@@ -212,6 +212,14 @@ A skipped job carries its reason (`skipReason`), shown in the job panel:
 - the message of an exception implementing `Alchemy\Workflow\Exception\JobSkipExceptionInterface`
   thrown by a step (`PrivateFileException`, `RenditionBuildException`).
 
+### Refused jobs
+
+A step throwing an exception implementing `Alchemy\Workflow\Exception\JobRefusalExceptionInterface`
+(`FileNotProcessableException`: a file whose content was rejected or whose analysis failed) ends
+the job in failure with the message of the exception as its only error, logged as a warning: an
+expected refusal, not a bug reported to Sentry. Any other exception adds its message and trace to
+the errors of the job and is logged as an error.
+
 ### Refused source files
 
 `import_source` fails when the downloaded file is refused (the asset goes to quarantine) or no

@@ -10,9 +10,11 @@ use Alchemy\Workflow\Message\JobConsumerHandler;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
+use Alchemy\Workflow\Tests\Action\RefusingAction;
 use Alchemy\Workflow\Tests\Action\SkippingAction;
 use Alchemy\Workflow\Tests\Trigger\QueuedJobTrigger;
 use Alchemy\Workflow\Trigger\JobQueueResolverInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -97,6 +99,25 @@ EOF, $output->fetch());
 
         $jobState = unserialize(serialize($stateRepository->getLastJobState($workflowState->getId(), 'by_exception')));
         $this->assertSame(SkippingAction::EXCEPTION_REASON, $jobState->getSkipReason());
+    }
+
+    public function testRefusedJobFailsWithItsReasonAsAWarning(): void
+    {
+        [$orchestrator, $stateRepository, $logger] = $this->createOrchestrator([
+            'refusal.yaml',
+        ], null, actions: [
+            RefusingAction::class => new RefusingAction(),
+        ]);
+
+        $workflowState = $orchestrator->startWorkflow('Refusal');
+
+        $jobState = $stateRepository->getLastJobState($workflowState->getId(), 'refused');
+        $this->assertSame(JobState::STATUS_FAILURE, $jobState->getStatus());
+        $this->assertSame([RefusingAction::REASON], $jobState->getErrors());
+        $this->assertNull($jobState->getSkipReason());
+
+        $this->assertTrue($logger->hasRecordThatContains(RefusingAction::REASON, LogLevel::WARNING));
+        $this->assertFalse($logger->hasRecords(LogLevel::ERROR));
     }
 
     public function testEndToEndEchoerComplexWorkflow(): void
