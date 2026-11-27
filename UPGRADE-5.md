@@ -265,13 +265,6 @@ Run them with **exactly one replica** and never scale them: scale the
   triggers the due automations every minute, runs `alchemy:notifier:digest:flush`,
   `app:integration:renew-tokens` and `app:file:unblock-analyses` hourly, and
   `app:trash:empty` daily.
-- The uploader now removes its expired assets daily
-  (`app:asset:clean-expired`, retention `ASSET_DAYS_RETENTION`, 31 days by
-  default), which was not scheduled before.
-- The three APIs now prune their abandoned multipart uploads daily
-  (`alchemy:storage:prune-multipart-uploads`, see
-  [Abandoned multipart uploads](#abandoned-multipart-uploads)), which was not
-  scheduled before.
 
 The commands are kept for manual runs; `bin/console app:automation:run-due`
 triggers the due automations once.
@@ -555,23 +548,6 @@ migration deletes every "everyone" row (NULL user) of `collection_access`, which
 the former recomputation never purged, and only the recomputation brings back
 the valid ones.
 
-A migration repairs the `date` and `date_time` attributes stored as invalid
-because their value carried fractional seconds (ISO 8601 extended, e.g.
-`2026-04-26T00:00:00.000Z`): they are rewritten in the ATOM format and marked
-valid. A deployment already running a 5.0 pre-release must then run
-`bin/console fos:elastica:populate --index=asset` in `databox-api-php` to make
-them searchable.
-
-A migration converts the display preferences saved by the legacy client, in the
-profiles (`profile_data`) and the user preferences (`user_preference`): the
-preview size and the file / attributes ratio stored in percent (`60`) become
-ratios (`0.6`), and the layouts `g` / `l` become `grid` / `list`. Nothing to do
-by hand.
-
-The three Day-0 baselines (databox, expose, uploader) detect the existing schema
-and register themselves without running any SQL. Expect the warning
-"Base schema already present, nothing to do." for each of them.
-
 Irreversible migrations (their `down()` throws):
 
 - the three Day-0 baselines;
@@ -590,16 +566,6 @@ Long-running operations and locks:
 - `workflow_state.number` is backfilled with a full-table `UPDATE`
   (`ROW_NUMBER() OVER (PARTITION BY asset_id, name …)`).
 
-The `list_value_uniq` index is dropped: entities with the same value are now
-allowed in an entity list. Rolling back this migration fails if such duplicates
-exist.
-
-In Expose, `publication.zippy_id` and `publication.zippy_hash` are dropped
-(replaced by the empty `archive_path` and `archive_hash`), and the
-`config_include_download_terms_in_zippy` columns of `publication` and
-`publication_profile` are renamed to `config_include_download_terms_in_archive`.
-Rolling back restores empty Zippy columns.
-
 ## Elasticsearch 9 and index rebuild
 
 All the databox indexes (`asset`, `collection`, `asset_data_template`, `basket`,
@@ -614,15 +580,6 @@ bin/console fos:elastica:populate
 Do not rely on `app:search:validate` right after the switch: it may report
 `[OK]` on an empty index, because its stored index state describes the old
 cluster.
-
-The `asset` index also gets a new nested `attributeValues` field (every stored
-attribute value of the asset). `GET /attributes?definition=` reads it to apply
-the asset rights: until the `asset` index is repopulated, it returns no value.
-Any deployment already running a 5.0 pre-release needs the same rebuild:
-
-```bash
-bin/console fos:elastica:populate --index=asset
-```
 
 ## API changes (API Platform 5)
 
