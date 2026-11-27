@@ -227,6 +227,11 @@ A digest of **one** event renders the regular `email.html.twig` instead, so
 recipients never get a "digest of 1". If the digest template is missing, the
 latest event is sent through the regular template (and an error is logged).
 
+A buffer whose topic the flushing process does not declare (a worker still on
+the previous release during a rolling deploy) is left in place and probed again
+every minute, so that an up-to-date worker sends it; it is discarded only an
+hour after it opened, or by `--force`.
+
 Reading the in-app notifications cancels the redundant email: marking a
 notification as read drops the pending digests of its topic for that
 subscriber, and "mark all as read" drops every pending digest of the

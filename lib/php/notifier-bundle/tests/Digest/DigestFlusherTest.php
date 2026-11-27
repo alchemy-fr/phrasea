@@ -153,6 +153,49 @@ final class DigestFlusherTest extends TestCase
         self::assertNull($this->flusher($repository)->getRemainingDelay('digest-1'));
     }
 
+    public function testAnUnknownTopicIsOnlyClaimedOnceItsGraceElapsed(): void
+    {
+        $row = ['topic' => 'asset:quarantined'] + $this->row(2, [$this->event('Jane'), $this->event('Bob')]);
+        $repository = $this->createMock(NotificationDigestRepository::class);
+        $repository->method('findRow')->willReturn($row);
+        $repository->expects(self::once())->method('claimIfDue')
+            ->with('digest-1', self::anything(), DigestFlusher::UNKNOWN_TOPIC_GRACE, DigestFlusher::UNKNOWN_TOPIC_GRACE, false)
+            ->willReturn(null);
+
+        self::assertFalse($this->flusher($repository)->flushIfDue('digest-1'));
+        self::assertSame([], $this->sent);
+    }
+
+    public function testAnUnknownTopicPastItsGraceIsDiscardedWithoutEmail(): void
+    {
+        $row = ['topic' => 'asset:quarantined'] + $this->row(2, [$this->event('Jane'), $this->event('Bob')]);
+        $flusher = $this->flusher($this->repository($row, claimed: $row));
+
+        self::assertTrue($flusher->flushIfDue('digest-1'));
+        self::assertSame([], $this->sent);
+    }
+
+    public function testAForcedFlushDiscardsAnUnknownTopic(): void
+    {
+        $row = ['topic' => 'asset:quarantined'] + $this->row(2, [$this->event('Jane'), $this->event('Bob')]);
+        $repository = $this->createMock(NotificationDigestRepository::class);
+        $repository->method('findAllIds')->willReturn(['digest-1']);
+        $repository->method('findRow')->willReturn($row);
+        $repository->expects(self::once())->method('claimIfDue')
+            ->with('digest-1', self::anything(), self::anything(), self::anything(), true)
+            ->willReturn($row);
+
+        self::assertSame(1, $this->flusher($repository)->flushOverdue(force: true));
+        self::assertSame([], $this->sent);
+    }
+
+    public function testAnUnknownTopicIsProbedAgainSoon(): void
+    {
+        $row = ['topic' => 'asset:quarantined'] + $this->row(2, [$this->event('Jane')], first: '2026-08-31 09:55:00', last: '2026-08-31 09:58:00');
+
+        self::assertSame(DigestFlusher::UNKNOWN_TOPIC_RETRY, $this->flusher($this->repository($row))->getRemainingDelay('digest-1'));
+    }
+
     /**
      * @param array<string, mixed>      $row
      * @param array<string, mixed>|null $claimed

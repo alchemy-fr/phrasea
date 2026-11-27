@@ -27,9 +27,20 @@ use Symfony\Component\Clock\NativeClock;
  * a retried flush finds nothing (no duplicate email), a mailer failure rolls
  * the row back for the Messenger retry, and an event appended concurrently
  * simply opens a fresh bucket with its own probe.
+ *
+ * A bucket whose topic this process does not declare is not flushed right
+ * away: during a rolling deploy, a worker still running the previous release
+ * may receive the probe of a topic added by the new one, and would otherwise
+ * drop the buffer it cannot render. Such a bucket is probed again every
+ * UNKNOWN_TOPIC_RETRY seconds, so that an up-to-date worker sends it, and only
+ * discarded UNKNOWN_TOPIC_GRACE seconds after it opened (topic removed from
+ * the configuration).
  */
 class DigestFlusher
 {
+    public const int UNKNOWN_TOPIC_GRACE = 3600;
+    public const int UNKNOWN_TOPIC_RETRY = 60;
+
     private ClockInterface $clock;
     private LoggerInterface $logger;
 
@@ -60,10 +71,7 @@ class DigestFlusher
             return true;
         }
 
-        // A topic whose digest config disappeared must not strand its buffer
-        $config = $this->getDigestConfig((string) $row['topic']);
-
-        return $this->claimAndSend($digestId, $config ?? new DigestConfig(), force: null === $config);
+        return $this->claimAndSend($digestId, (string) $row['topic'], force: false);
     }
 
     /**
@@ -80,9 +88,7 @@ class DigestFlusher
             if (null === $row) {
                 continue;
             }
-            $config = $this->getDigestConfig((string) $row['topic']);
-
-            if ($this->claimAndSend($id, $config ?? new DigestConfig(), force: $force || null === $config)) {
+            if ($this->claimAndSend($id, (string) $row['topic'], $force)) {
                 ++$flushed;
             }
         }
@@ -101,13 +107,16 @@ class DigestFlusher
             return null;
         }
 
-        $config = $this->getDigestConfig((string) $row['topic']) ?? new DigestConfig();
+        $topic = (string) $row['topic'];
+        $known = $this->topicRegistry->has($topic);
+        $config = $known ? $this->getDigestConfig($topic) ?? new DigestConfig() : $this->getUnknownTopicConfig();
         $dueAt = min(
             new \DateTimeImmutable((string) $row['last_event_at'])->getTimestamp() + $config->inactivityDelay,
             new \DateTimeImmutable((string) $row['first_event_at'])->getTimestamp() + $config->maxDelay,
         );
+        $remaining = max(1, $dueAt - $this->clock->now()->getTimestamp());
 
-        return max(1, $dueAt - $this->clock->now()->getTimestamp());
+        return $known ? $remaining : min($remaining, self::UNKNOWN_TOPIC_RETRY);
     }
 
     private function getDigestConfig(string $topic): ?DigestConfig
@@ -115,18 +124,37 @@ class DigestFlusher
         return $this->topicRegistry->has($topic) ? $this->topicRegistry->get($topic)->digest : null;
     }
 
+    private function getUnknownTopicConfig(): DigestConfig
+    {
+        return new DigestConfig(self::UNKNOWN_TOPIC_GRACE, self::UNKNOWN_TOPIC_GRACE);
+    }
+
     /**
      * @return bool true when done with the bucket, false when not due yet
      */
-    private function claimAndSend(string $digestId, DigestConfig $config, bool $force): bool
+    private function claimAndSend(string $digestId, string $topic, bool $force): bool
     {
-        return (bool) $this->em->getConnection()->transactional(function () use ($digestId, $config, $force): bool {
+        $known = $this->topicRegistry->has($topic);
+        if ($known) {
+            $config = $this->getDigestConfig($topic);
+            // A topic whose digest config disappeared must not strand its buffer
+            $force = $force || null === $config;
+            $config ??= new DigestConfig();
+        } else {
+            $config = $this->getUnknownTopicConfig();
+        }
+
+        return (bool) $this->em->getConnection()->transactional(function () use ($digestId, $topic, $config, $force, $known): bool {
             $row = $this->repository->claimIfDue($digestId, $this->clock->now(), $config->inactivityDelay, $config->maxDelay, $force);
             if (null === $row) {
                 return false;
             }
 
-            $topic = (string) $row['topic'];
+            if (!$known) {
+                $this->logger->warning(sprintf('Discarding digest of topic "%s" (%d buffered): the topic is not declared under alchemy_notifier.topics.', $topic, (int) $row['event_count']));
+
+                return true;
+            }
 
             if (!$this->state->isEnabled()) {
                 $this->logger->info(sprintf('Discarding digest of topic "%s": notifications are globally disabled.', $topic));
