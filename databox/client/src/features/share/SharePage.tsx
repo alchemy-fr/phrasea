@@ -6,6 +6,7 @@ import {useQuery} from '@tanstack/react-query';
 import {useSearchParams} from 'next/navigation';
 import {DownloadIcon, ImagesIcon} from 'lucide-react';
 import {getPublicShare} from '@/lib/api/misc';
+import {isApiError} from '@/lib/api/http';
 import {FullPageLoader} from '@alchemy/ui/ui/loader';
 import {EmptyState, Separator} from '@alchemy/ui/ui/misc';
 import {Button} from '@alchemy/ui/ui/button';
@@ -23,6 +24,12 @@ import {ShareAssetView} from './ShareAssetView';
 import {ShareAttachments} from './ShareAttachments';
 import {ShareDownloadDialog} from './ShareDownloadDialog';
 import {ShareGallery, ShareGalleryControls} from './ShareGallery';
+import {SharePasswordForm} from './SharePasswordForm';
+import {
+    clearShareAccess,
+    getStoredShareAccess,
+    storeShareAccess,
+} from './shareAccess';
 import {
     hasAcceptedTerms,
     ShareTermsDialog,
@@ -47,6 +54,9 @@ const assetParam = 'asset';
  * share of several assets opens on a gallery — grid, masonry or list — from
  * which each asset opens in a viewer (`?asset=<id>`, prev / next).
  *
+ * A share protected by a password asks it first: the access token it gives
+ * is kept for the browser tab (see `shareAccess`).
+ *
  * When the workspace has Terms & Conditions, the visitor accepts them first
  * (remembered on this browser for the accepted version). Supports `?embed=1`
  * for iframe embedding: the players only.
@@ -55,10 +65,24 @@ export function SharePage({id, token}: {id: string; token: string}) {
     const {t} = useTranslation();
     const searchParams = useSearchParams();
     const embed = searchParams.get('embed') === '1';
+    // Read after mount: browser storage is not available server side
+    const [access, setAccess] = useState<string | null>();
+    useEffect(() => {
+        setAccess(getStoredShareAccess(id) ?? null);
+    }, [id]);
     const share = useQuery({
-        queryKey: ['public-share', id, token],
-        queryFn: () => getPublicShare(id, token),
+        queryKey: ['public-share', id, token, access],
+        queryFn: () => getPublicShare(id, token, access ?? undefined),
+        enabled: access !== undefined,
     });
+    const passwordRequired =
+        isApiError(share.error, 403) &&
+        share.error.data?.error === 'share_password_required';
+    useEffect(() => {
+        if (passwordRequired) {
+            clearShareAccess(id);
+        }
+    }, [passwordRequired, id]);
     const terms = share.data?.terms ?? null;
     const [termsState, setTermsState] = useState<
         'pending' | 'required' | 'accepted'
@@ -75,8 +99,26 @@ export function SharePage({id, token}: {id: string; token: string}) {
         }
     }, [share.data, terms]);
 
-    if (share.isLoading) {
+    if (access === undefined || share.isLoading) {
         return <FullPageLoader />;
+    }
+    if (passwordRequired) {
+        const form = (
+            <SharePasswordForm
+                id={id}
+                token={token}
+                onUnlock={a => {
+                    storeShareAccess(id, a);
+                    setAccess(a.access);
+                }}
+            />
+        );
+
+        return embed ? (
+            <div className="flex h-full flex-col">{form}</div>
+        ) : (
+            <PublicLayout>{form}</PublicLayout>
+        );
     }
     const assets = share.data?.assets ?? [];
     if (share.isError || !share.data || assets.length === 0) {

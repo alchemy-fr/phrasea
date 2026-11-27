@@ -498,13 +498,13 @@ Les assets supprimés partent dans la corbeille. Cliquez sur **Corbeille** en ba
 **Avancé : plusieurs liens avec audience et dates** permet de créer plusieurs liens, par exemple un par destinataire :
 
 1. Cliquez sur **Créer un nouveau lien de partage**.
-2. Renseignez **Nom / audience** et, si besoin, **Débute le** et **Expire le**.
+2. Renseignez **Nom / audience** et, si besoin, **Débute le** et **Expire le**. Activez **Protéger par un mot de passe** pour demander un mot de passe (au moins 4 caractères) aux personnes qui ouvrent le lien : le lien n'ouvre alors que sa page, il ne donne aucun lien direct vers les fichiers, même pour l'intégration.
 3. Cochez les **Rendus partagés** : seuls ces rendus peuvent être consultés et téléchargés depuis le lien.
 4. Cliquez sur **Créer**.
 
-Chaque lien peut ensuite être modifié (nom et dates), intégré (**Code d'intégration**) ou révoqué (**Révoquer**).
+Chaque lien peut ensuite être modifié (nom, dates, mot de passe : **Changer** ou **Retirer**), intégré (**Code d'intégration**) ou révoqué (**Révoquer**).
 
-Les personnes qui ouvrent un lien voient les assets partagés, peuvent les parcourir et télécharger les rendus partagés (**Télécharger…**, **Tout télécharger…**). Si l'espace de travail a des conditions générales, elles doivent d'abord les accepter.
+Les personnes qui ouvrent un lien voient les assets partagés, peuvent les parcourir et télécharger les rendus partagés (**Télécharger…**, **Tout télécharger…**). Si le lien est protégé par un mot de passe, elles le saisissent d'abord : il reste valable 24 heures dans leur onglet, et trop de mots de passe erronés bloquent le lien pendant un moment. Si l'espace de travail a des conditions générales, elles doivent d'abord les accepter.
 
 ## Stories
 

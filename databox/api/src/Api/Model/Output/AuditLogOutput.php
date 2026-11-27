@@ -22,7 +22,7 @@ final class AuditLogOutput extends AbstractUuidOutput
 
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'string',
-        'enum' => ['user', 'oauth_client', 'system'],
+        'enum' => ['user', 'oauth_client', 'system', 'anonymous'],
     ])]
     #[Groups([AuditLog::GROUP_READ])]
     public ?string $actorType = null;

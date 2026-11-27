@@ -446,11 +446,42 @@ export async function getAssetShares(assetId: string): Promise<Share[]> {
     ).items;
 }
 
-export function getPublicShare(id: string, token: string): Promise<Share> {
+/**
+ * The share page. A share protected by a password answers 403
+ * `share_password_required` until `access` is given (see `unlockShare`).
+ */
+export function getPublicShare(
+    id: string,
+    token: string,
+    access?: string
+): Promise<Share> {
     return api.get<Share>(`/${EntityName.Share}/${id}/public`, {
-        params: {token},
+        params: {token, access},
         anonymous: true,
     });
+}
+
+export type ShareAccess = {
+    /** To pass to `getPublicShare` */
+    access: string;
+    expiresAt: string;
+};
+
+/**
+ * Exchanges the password of a protected share for an access token. A wrong
+ * password answers 403 `invalid_password`, too many of them 429
+ * `too_many_attempts`.
+ */
+export function unlockShare(
+    id: string,
+    token: string,
+    password: string
+): Promise<ShareAccess> {
+    return api.post<ShareAccess>(
+        `/s/${id}/unlock`,
+        {password},
+        {params: {token}, anonymous: true}
+    );
 }
 
 /**
@@ -465,6 +496,7 @@ export function createShare(
         ...data
     }: Omit<Partial<Share>, 'assets' | 'renditionDefinitions'> & {
         renditionDefinitionIds?: string[];
+        password?: string;
     } = {}
 ): Promise<Share> {
     return api.post<Share>(`/${EntityName.Share}`, {
@@ -477,8 +509,8 @@ export function createShare(
 }
 
 /**
- * Name, validity dates (JSON merge patch: null clears) or assets (IRIs) of a
- * share link
+ * Name, validity dates, password (JSON merge patch: null clears) or assets
+ * (IRIs) of a share link
  */
 export function updateShare(
     id: string,
@@ -486,6 +518,7 @@ export function updateShare(
         name?: string | null;
         startsAt?: string | null;
         expiresAt?: string | null;
+        password?: string | null;
         assets?: string[];
     }
 ): Promise<Share> {

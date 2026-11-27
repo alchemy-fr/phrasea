@@ -7,6 +7,7 @@ namespace App\Controller\Integration;
 use Alchemy\StorageBundle\Upload\FileValidator;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\WorkflowOrchestrator;
+use App\Audit\AuditContext;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdef;
 use App\Entity\Core\Asset;
 use App\Integration\IntegrationManager;
@@ -30,7 +31,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(path: '/integrations/phraseanet', name: 'integration_phraseanet_')]
+#[Route(path: '/integrations/phraseanet', name: 'integration_phraseanet_', defaults: [AuditContext::SYSTEM_ROUTE_ATTRIBUTE => true])]
 class PhraseanetIntegrationController extends AbstractController
 {
     final public const string ASSET_NAME_PREFIX = 'gen-sub-def-';

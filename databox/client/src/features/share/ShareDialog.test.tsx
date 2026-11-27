@@ -449,4 +449,102 @@ describe('ShareDialog', () => {
         );
         expect(screen.getByText('Press')).toBeTruthy();
     });
+
+    it('protects a new link with a password of 4 characters at least', async () => {
+        api.getAssetShares.mockResolvedValue([]);
+        renderDialog();
+        fireEvent.click(
+            await screen.findByText(
+                'Advanced: multiple links with audience and dates'
+            )
+        );
+
+        fireEvent.click(await screen.findByTestId('share-password-switch'));
+        const password = screen.getByTestId(
+            'share-password-input'
+        ) as HTMLInputElement;
+        expect(password.type).toBe('password');
+        const create = screen.getByText('Create') as HTMLButtonElement;
+        expect(create.disabled).toBe(true);
+        fireEvent.change(password, {target: {value: 'abc'}});
+        expect(create.disabled).toBe(true);
+        fireEvent.change(password, {target: {value: 's3cr3t'}});
+        expect(create.disabled).toBe(false);
+
+        fireEvent.click(create);
+        await waitFor(() => expect(api.createShare).toHaveBeenCalledTimes(1));
+        expect(api.createShare.mock.calls[0][1].password).toBe('s3cr3t');
+    });
+
+    it('never offers the file URLs of a protected link, and changes or removes its password', async () => {
+        const group = share(
+            'g',
+            {
+                name: 'Group',
+                hasPassword: true,
+                alternateUrls: [
+                    {
+                        id: 'r1',
+                        name: 'preview',
+                        displayName: 'Preview',
+                        url: 'https://s3/temporary-signed-url',
+                        assetId: 'a1',
+                    },
+                ],
+            } as Partial<Share>,
+            [asset, ...otherAssets]
+        );
+        api.getAssetShares.mockResolvedValue([group]);
+        api.updateShare.mockImplementation(
+            async (_id: string, data: {password?: string | null}) => ({
+                ...group,
+                hasPassword: data.password !== null,
+            })
+        );
+        renderDialog();
+
+        const item = await screen.findByTestId('share-item');
+        expect(within(item).getByTestId('share-protected')).toBeTruthy();
+        // Only the page of the link: no rendition to pick, no URL to copy
+        const link = within(item).getByTestId('share-link');
+        expect(within(link).queryByTestId('share-link-choice')).toBeNull();
+        expect(link.textContent).not.toContain('temporary-signed-url');
+        within(item)
+            .getAllByTestId('share-asset-copy')
+            .forEach(b => expect((b as HTMLButtonElement).disabled).toBe(true));
+
+        // Saving other fields keeps the password
+        fireEvent.click(within(item).getByLabelText('Edit'));
+        expect(
+            within(item).getByTestId('share-password-status').textContent
+        ).toContain('Protected by a password');
+        fireEvent.click(within(item).getByText('Save'));
+        await waitFor(() => expect(api.updateShare).toHaveBeenCalledTimes(1));
+        expect(api.updateShare.mock.calls[0][1]).not.toHaveProperty('password');
+        await waitFor(() =>
+            expect(within(item).queryByText('Save')).toBeNull()
+        );
+
+        // Changed
+        fireEvent.click(within(item).getByLabelText('Edit'));
+        fireEvent.click(within(item).getByText('Change'));
+        const save = within(item).getByText('Save') as HTMLButtonElement;
+        expect(save.disabled).toBe(true);
+        fireEvent.change(within(item).getByTestId('share-password-input'), {
+            target: {value: 'another one'},
+        });
+        fireEvent.click(save);
+        await waitFor(() => expect(api.updateShare).toHaveBeenCalledTimes(2));
+        expect(api.updateShare.mock.calls[1][1].password).toBe('another one');
+        await waitFor(() =>
+            expect(within(item).queryByText('Save')).toBeNull()
+        );
+
+        // Removed
+        fireEvent.click(within(item).getByLabelText('Edit'));
+        fireEvent.click(within(item).getByText('Remove'));
+        fireEvent.click(within(item).getByText('Save'));
+        await waitFor(() => expect(api.updateShare).toHaveBeenCalledTimes(3));
+        expect(api.updateShare.mock.calls[2][1].password).toBeNull();
+    });
 });

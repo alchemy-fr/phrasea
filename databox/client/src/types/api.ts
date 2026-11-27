@@ -947,6 +947,11 @@ export interface Share extends Entity {
     token: string;
     startsAt?: string | null;
     expiresAt?: string | null;
+    /**
+     * Protected by a password, asked on the share page: its URLs are then
+     * temporary ones, never permalinks
+     */
+    hasPassword?: boolean;
     updatedAt: string;
     createdAt: string;
     alternateUrls: ShareAlternateUrl[];
@@ -1144,6 +1149,8 @@ export enum AuditLogActorType {
     User = 'user',
     OAuthClient = 'oauth_client',
     System = 'system',
+    /** An HTTP request without a signed-in user (e.g. a share link) */
+    Anonymous = 'anonymous',
 }
 
 /** A change of an attribute in an `asset_attribute_changed` entry */

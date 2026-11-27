@@ -8,6 +8,7 @@ import {
     CodeIcon,
     CopyIcon,
     ExternalLinkIcon,
+    LockIcon,
     PencilIcon,
     PlusIcon,
     XIcon,
@@ -76,14 +77,56 @@ export function shareIncludes(share: Share, assetIds: string[]): boolean {
     return assetIds.every(id => ids.has(id));
 }
 
-/** Name and validity dates, as typed in the form */
+/** Name, validity dates and password, as typed in the form */
 type ShareFormValues = {
     name: string;
     startsAt: string;
     expiresAt: string;
+    /** Protected by a password */
+    protect: boolean;
+    /** A new password; empty: the current one is kept */
+    password: string;
+    /** The current password is being replaced */
+    changePassword: boolean;
 };
 
-const emptyForm: ShareFormValues = {name: '', startsAt: '', expiresAt: ''};
+const emptyForm: ShareFormValues = {
+    name: '',
+    startsAt: '',
+    expiresAt: '',
+    protect: false,
+    password: '',
+    changePassword: false,
+};
+
+const passwordMinLength = 4;
+
+/** Whether a new password must be typed, and is too short */
+function isPasswordMissing(
+    values: ShareFormValues,
+    hasPassword: boolean
+): boolean {
+    return (
+        values.protect &&
+        (!hasPassword || values.changePassword) &&
+        values.password.length < passwordMinLength
+    );
+}
+
+/**
+ * The password to send: only when it changes (a new one, or null to remove
+ * it); the API never returns it.
+ */
+function passwordPayload(
+    values: ShareFormValues,
+    hasPassword: boolean
+): {password?: string | null} {
+    if (!values.protect) {
+        return hasPassword ? {password: null} : {};
+    }
+
+    return values.password ? {password: values.password} : {};
+}
 
 /** ISO date → value of a `datetime-local` input, in the local time zone */
 function toInputDateTime(iso: string | null | undefined): string {
@@ -105,6 +148,9 @@ function formOf(share: Share): ShareFormValues {
         name: share.name ?? '',
         startsAt: toInputDateTime(share.startsAt),
         expiresAt: toInputDateTime(share.expiresAt),
+        protect: !!share.hasPassword,
+        password: '',
+        changePassword: false,
     };
 }
 
@@ -175,7 +221,8 @@ export function ShareDialog({
         isShareOf(list[0], assetIds) &&
         !list[0].name &&
         !list[0].expiresAt &&
-        !list[0].startsAt
+        !list[0].startsAt &&
+        !list[0].hasPassword
             ? list[0]
             : undefined;
     const isSimple = list.length === 0 || !!simpleShare;
@@ -289,6 +336,7 @@ export function ShareDialog({
                 (!!form.name.trim() ||
                     !!form.startsAt ||
                     !!form.expiresAt ||
+                    form.protect ||
                     renditionIds !== undefined)
             }
             bodyClassName="space-y-4"
@@ -432,8 +480,9 @@ export function ShareDialog({
                                     size="sm"
                                     loading={create.isPending}
                                     disabled={
-                                        shareable.length > 0 &&
-                                        selectedRenditions.length === 0
+                                        (shareable.length > 0 &&
+                                            selectedRenditions.length === 0) ||
+                                        isPasswordMissing(form, false)
                                     }
                                     onClick={() =>
                                         create.mutate({
@@ -452,6 +501,9 @@ export function ShareDialog({
                                                 shareable.length
                                                     ? selectedRenditions
                                                     : undefined,
+                                            password: form.protect
+                                                ? form.password
+                                                : undefined,
                                         })
                                     }
                                 >
@@ -494,6 +546,10 @@ export function ShareDialog({
                                             ),
                                             expiresAt: fromInputDateTime(
                                                 values.expiresAt
+                                            ),
+                                            ...passwordPayload(
+                                                values,
+                                                !!s.hasPassword
                                             ),
                                         },
                                     })
@@ -562,6 +618,19 @@ function ShareItem({
                 <span className="flex-1 truncate text-sm font-medium">
                     {share.name || t('share.unnamed', 'Public link')}
                 </span>
+                {share.hasPassword ? (
+                    <Tooltip
+                        content={t(
+                            'share.password.protected',
+                            'Protected by a password'
+                        )}
+                    >
+                        <Badge variant="muted" data-testid="share-protected">
+                            <LockIcon className="size-3" />
+                            {t('share.password.badge', 'Password')}
+                        </Badge>
+                    </Tooltip>
+                ) : null}
                 <Badge variant="muted" data-testid="share-assets-count">
                     {t('share.assets_count', '{{count}} assets', {
                         count: assetCount,
@@ -601,6 +670,7 @@ function ShareItem({
                     <ShareFields
                         values={editing}
                         onChange={setEditing}
+                        hasPassword={!!share.hasPassword}
                         autoFocus
                     />
                     <div className="flex justify-end gap-2">
@@ -611,7 +681,15 @@ function ShareItem({
                         >
                             {t('common.cancel', 'Cancel')}
                         </Button>
-                        <Button size="sm" loading={saving} onClick={save}>
+                        <Button
+                            size="sm"
+                            loading={saving}
+                            disabled={isPasswordMissing(
+                                editing,
+                                !!share.hasPassword
+                            )}
+                            onClick={save}
+                        >
                             {t('common.save', 'Save')}
                         </Button>
                     </div>
@@ -659,15 +737,18 @@ function ShareItem({
 function ShareFields({
     values,
     onChange,
+    hasPassword = false,
     autoFocus,
 }: {
     values: ShareFormValues;
     onChange: (values: ShareFormValues) => void;
+    /** The link is already protected by a password */
+    hasPassword?: boolean;
     autoFocus?: boolean;
 }) {
     const {t} = useTranslation();
     const id = useId();
-    const set = (key: keyof ShareFormValues, value: string) =>
+    const set = (key: 'name' | 'startsAt' | 'expiresAt', value: string) =>
         onChange({...values, [key]: value});
 
     return (
@@ -707,12 +788,101 @@ function ShareFields({
                     />
                 </FormRow>
             </div>
+            {hasPassword && values.protect && !values.changePassword ? (
+                <div
+                    data-testid="share-password-status"
+                    className="flex items-center gap-2 text-sm"
+                >
+                    <LockIcon className="size-4 text-muted-foreground" />
+                    <span className="flex-1">
+                        {t(
+                            'share.password.protected',
+                            'Protected by a password'
+                        )}
+                    </span>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                            onChange({...values, changePassword: true})
+                        }
+                    >
+                        {t('share.password.change', 'Change')}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() =>
+                            onChange({...values, protect: false, password: ''})
+                        }
+                    >
+                        {t('share.password.remove', 'Remove')}
+                    </Button>
+                </div>
+            ) : (
+                <>
+                    <LabeledControl
+                        label={t(
+                            'share.password.protect',
+                            'Protect with a password'
+                        )}
+                    >
+                        <Switch
+                            data-testid="share-password-switch"
+                            checked={values.protect}
+                            onCheckedChange={v =>
+                                onChange({
+                                    ...values,
+                                    protect: v,
+                                    password: '',
+                                    changePassword:
+                                        hasPassword && v
+                                            ? true
+                                            : values.changePassword,
+                                })
+                            }
+                        />
+                    </LabeledControl>
+                    {values.protect ? (
+                        <FormRow
+                            label={t('share.password.label', 'Password')}
+                            htmlFor={`${id}-password`}
+                            help={t(
+                                'share.password.help',
+                                'At least {{min}} characters. Visitors must enter it to open the link, which then gives no direct link to the files.',
+                                {min: passwordMinLength}
+                            )}
+                        >
+                            <Input
+                                id={`${id}-password`}
+                                data-testid="share-password-input"
+                                type="password"
+                                autoComplete="new-password"
+                                value={values.password}
+                                onChange={e =>
+                                    onChange({
+                                        ...values,
+                                        password: e.target.value,
+                                    })
+                                }
+                            />
+                        </FormRow>
+                    ) : null}
+                </>
+            )}
         </>
     );
 }
 
-/** The renditions a link delivers for an asset */
+/**
+ * The renditions a link delivers for an asset, to copy. None for a link
+ * protected by a password: its URLs are temporary, only its page is shared.
+ */
 function renditionsOf(share: Share, assetId: string): ShareAlternateUrl[] {
+    if (share.hasPassword) {
+        return [];
+    }
     const single = (share.assets?.length ?? 0) <= 1;
 
     return (share.alternateUrls ?? []).filter(a =>

@@ -439,6 +439,32 @@ final class ShareExportActionTest extends AbstractDataboxTestCase
         $this->assertSame('', $rows[1][6]);
     }
 
+    /**
+     * A share protected by a password gives no durable link: only its page is exported.
+     */
+    public function testAProtectedShareOnlyExportsItsPage(): void
+    {
+        $preview = $this->createDefinition('preview');
+        $asset = $this->createAssetWithRenditions('first', [$preview]);
+        $this->process(self::renditionConfig([$preview]), [[$asset]]);
+
+        $em = self::getEntityManager();
+        $share = $em->find(Share::class, $this->findAutomationShare()->getShare()->getId());
+        $share->setPassword('s3cr3t!');
+        $em->flush();
+        FilesystemUtils::rrmdir($this->remoteDir);
+        mkdir($this->remoteDir);
+
+        $state = $this->process(self::renditionConfig([$preview]), [[$asset]]);
+
+        $this->assertSame(1, $state->getProcessed(), json_encode($state->getErrors()));
+        $rows = $this->readExport();
+        $this->assertCount(2, $rows);
+        $this->assertSame(['ID', 'Title', 'Collection', 'Created at', 'Share URL', 'preview'], $rows[0]);
+        $this->assertSame(sprintf('%s/s/%s/%s', self::CLIENT_URL, $share->getId(), $share->getToken()), $rows[1][4]);
+        $this->assertSame('', $rows[1][5]);
+    }
+
     public function testAssetsWhichCannotBeSharedAreSkipped(): void
     {
         $preview = $this->createDefinition('preview');

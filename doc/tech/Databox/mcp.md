@@ -239,6 +239,6 @@ Starting an import (an instructions file) stays in the client and the API.
 | `remove_from_basket` | Remove items from a basket                  |
 | `list_basket_assets` | List the items of a basket                  |
 | `list_shares`        | List the share links of an asset            |
-| `create_share`       | Create a public share link                  |
-| `update_share`       | Update a share link                         |
+| `create_share`       | Create a public share link (`password` protects it) |
+| `update_share`       | Update a share link (`password`: a new one, `""` removes it) |
 | `delete_share`       | Delete a share link                         |

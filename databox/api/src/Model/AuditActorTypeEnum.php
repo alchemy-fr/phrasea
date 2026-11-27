@@ -9,6 +9,10 @@ enum AuditActorTypeEnum: int
     case User = 1;
     case OAuthClient = 2;
     case System = 3;
+    /**
+     * An HTTP request without a signed-in user (e.g. a share link).
+     */
+    case Anonymous = 4;
 
     public function getKey(): string
     {
@@ -16,6 +20,7 @@ enum AuditActorTypeEnum: int
             self::User => 'user',
             self::OAuthClient => 'oauth_client',
             self::System => 'system',
+            self::Anonymous => 'anonymous',
         };
     }
 
@@ -39,6 +44,7 @@ enum AuditActorTypeEnum: int
             'User' => self::User,
             'OAuth client' => self::OAuthClient,
             'System' => self::System,
+            'Anonymous' => self::Anonymous,
         ];
     }
 }

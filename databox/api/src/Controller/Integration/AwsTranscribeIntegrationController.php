@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Integration;
 
+use App\Audit\AuditContext;
 use App\Integration\Aws\Sns\SnsCertificateClient;
 use App\Integration\Aws\Transcribe\Consumer\AwsTranscribeEvent;
 use Aws\Sns\Message;
@@ -16,7 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 
-#[Route(path: '/integrations/aws-transcribe', name: 'integration_aws_transcribe_')]
+#[Route(path: '/integrations/aws-transcribe', name: 'integration_aws_transcribe_', defaults: [AuditContext::SYSTEM_ROUTE_ATTRIBUTE => true])]
 class AwsTranscribeIntegrationController extends AbstractController
 {
     public function __construct(

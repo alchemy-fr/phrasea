@@ -78,6 +78,11 @@ final readonly class ShareRenditionUrlGenerator
      */
     public function getRenditionUrls(Share $share, Asset $asset): array
     {
+        // A share protected by a password gives no durable link: only its page opens it
+        if ($share->getHasPassword()) {
+            return [];
+        }
+
         $urls = [];
         foreach ($this->getSharedRenditions($share, $asset) as $rendition) {
             $definition = $rendition->getDefinition();

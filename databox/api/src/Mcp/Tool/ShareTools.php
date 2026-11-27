@@ -12,6 +12,7 @@ use Mcp\Schema\ToolAnnotations;
 final readonly class ShareTools
 {
     private const string RENDITIONS = 'IDs of the rendition definitions delivered by the link (their policy must be public); every public rendition when unset';
+    private const string PASSWORD = 'Password asked to open the link (4 to 255 characters), stored hashed: the link then gives no direct URL to its files';
 
     public function __construct(
         private ApiClient $client,
@@ -50,6 +51,8 @@ final readonly class ShareTools
         ?string $expiresAt = null,
         #[Schema(description: self::RENDITIONS, items: ['type' => 'string'])]
         ?array $renditionDefinitionIds = null,
+        #[Schema(description: self::PASSWORD)]
+        ?string $password = null,
     ): array {
         return $this->client->post('/shares', ApiClient::withoutNulls([
             'assets' => self::iris('/assets/', $assetIds),
@@ -58,6 +61,7 @@ final readonly class ShareTools
             'startsAt' => $startsAt,
             'expiresAt' => $expiresAt,
             'renditionDefinitions' => null !== $renditionDefinitionIds ? self::iris('/rendition-definitions/', $renditionDefinitionIds) : null,
+            'password' => $password,
         ]));
     }
 
@@ -80,6 +84,8 @@ final readonly class ShareTools
         ?string $expiresAt = null,
         #[Schema(description: self::RENDITIONS, items: ['type' => 'string'])]
         ?array $renditionDefinitionIds = null,
+        #[Schema(description: self::PASSWORD.'; an empty string removes the password')]
+        ?string $password = null,
     ): array {
         return $this->client->patch('/shares/'.rawurlencode($id), ApiClient::withoutNulls([
             'assets' => null !== $assetIds ? self::iris('/assets/', $assetIds) : null,
@@ -88,6 +94,7 @@ final readonly class ShareTools
             'startsAt' => $startsAt,
             'expiresAt' => $expiresAt,
             'renditionDefinitions' => null !== $renditionDefinitionIds ? self::iris('/rendition-definitions/', $renditionDefinitionIds) : null,
+            'password' => $password,
         ]));
     }
 

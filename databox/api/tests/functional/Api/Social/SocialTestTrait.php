@@ -166,6 +166,7 @@ trait SocialTestTrait
         $share->setEnabled($options['enabled'] ?? true);
         $share->setStartsAt($options['startsAt'] ?? null);
         $share->setExpiresAt($options['expiresAt'] ?? null);
+        $share->setPassword($options['password'] ?? null);
         $em->persist($share);
         $em->flush();
 

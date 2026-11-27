@@ -67,6 +67,8 @@ describe('loadPublicShare', () => {
     it('gives up on what it cannot show', async () => {
         for (const {access: a} of [
             access(401, {}),
+            // Protected by a password: no preview of its content
+            access(403, {error: 'share_password_required'}),
             access(404, {}),
             access(200, 'oops'),
             access(200, {id: 's1', assets: []}),

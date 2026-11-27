@@ -78,6 +78,9 @@ final class ShareCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield CodeField::new('token')
             ->hideOnIndex();
+        yield BooleanField::new('hasPassword', 'Password protected')
+            ->renderAsSwitch(false)
+            ->hideOnForm();
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield DateTimeField::new('startsAt');
         yield DateTimeField::new('expiresAt');

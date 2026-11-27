@@ -31,6 +31,7 @@ export const AUDIT_LOG_ACTIONS: Record<string, string> = {
     workflow_cancelled: 'Workflow cancelled',
     automation_triggered: 'Automation triggered',
     workspace_terms_signed: 'Terms & Conditions signed',
+    share_password_failed: 'Share password failed',
 };
 
 /** English labels of the object types, by key (`audit_log.object_type.<key>`) */

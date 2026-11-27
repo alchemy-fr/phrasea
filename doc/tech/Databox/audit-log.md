@@ -35,6 +35,7 @@ It is stored in the `audit_log` table, one row per action.
 | `workflow_triggered`, `workflow_job_rerun`, `workflow_cancelled` | a workflow is triggered on an asset, a job is rerun, a run is cancelled                 | `workflowId`, `jobId`                                                                |
 | `automation_triggered`                                    | an automation is run on demand                                                                | `runId`, `dryRun`                                                                    |
 | `workspace_terms_signed`                                  | a user accepts the Terms & Conditions of a workspace                                          | `termsVersionId`, `version`                                                          |
+| `share_password_failed`                                   | a wrong password is given for a [share](./shares.md#password) (not once the attempts are limited) | `remainingAttempts`                                                              |
 
 The auditable objects are the entities implementing `App\Audit\AuditableInterface`:
 assets, collections, workspaces, baskets, shares, saved searches and their automations,
@@ -69,7 +70,11 @@ Each entry has an `actorType`:
 - `user`: `userId` and `userName` (the username at that time, kept even if the user is
   removed), and `impersonatorId` when an admin acts as the user;
 - `oauth_client`: `clientId` (a client credentials token);
-- `system`: a console command, the scheduler, a message dispatched without context.
+- `system`: a console command, the scheduler, a message dispatched without context, the
+  endpoints called by external services (integration webhooks and callbacks, marked with the
+  route default `AuditContext::SYSTEM_ROUTE_ATTRIBUTE`);
+- `anonymous`: any other HTTP request without a signed-in user (e.g. a visitor of a share
+  link), with its `ip`.
 
 Most actions end in a Messenger handler (in a worker in production). The
 `AuditContextMiddleware` stamps every dispatched message with the audit context of the
@@ -104,7 +109,7 @@ The `databox-scheduler` runs it every night; `--days` overrides the delay.
 | Parameter                     | Matches                                                  |
 | ----------------------------- | -------------------------------------------------------- |
 | `action[]`                    | action keys                                              |
-| `actorType`                   | `user`, `oauth_client` or `system`                       |
+| `actorType`                   | `user`, `oauth_client`, `system` or `anonymous`          |
 | `objectType`, `objectId`      | the object                                               |
 | `userId`                      | the acting user, or the admin impersonating them         |
 | `clientId`                    | the OAuth client                                         |

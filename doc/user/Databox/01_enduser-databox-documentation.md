@@ -498,13 +498,13 @@ The deleted assets go to the trash. Click **Trash** at the bottom of the **Works
 **Advanced: multiple links with audience and dates** lets you create several links, for example one per recipient:
 
 1. Click **Create new share link**.
-2. Fill in **Name / audience**, and optionally **Starts at** and **Expires at**.
+2. Fill in **Name / audience**, and optionally **Starts at** and **Expires at**. Enable **Protect with a password** to ask the people who open the link for a password (at least 4 characters): the link then only opens its page, it gives no direct link to the files, even for embedding.
 3. Check the **Shared renditions**: only these renditions can be viewed and downloaded from the link.
 4. Click **Create**.
 
-Each link can then be edited (name and dates), embedded (**Embed code**) or revoked (**Revoke**).
+Each link can then be edited (name, dates, password: **Change** or **Remove**), embedded (**Embed code**) or revoked (**Revoke**).
 
-The people who open a link see the shared assets, can browse them and download the shared renditions (**Download…**, **Download all…**). If the workspace has terms and conditions, they must accept them first.
+The people who open a link see the shared assets, can browse them and download the shared renditions (**Download…**, **Download all…**). If the link is protected by a password, they enter it first: it stays valid for 24 hours in their browser tab, and too many wrong passwords block the link for a while. If the workspace has terms and conditions, they must accept them first.
 
 ## Stories
 

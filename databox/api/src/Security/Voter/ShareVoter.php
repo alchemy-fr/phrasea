@@ -6,14 +6,15 @@ namespace App\Security\Voter;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Share;
-use Symfony\Component\HttpFoundation\RequestStack;
+use App\Model\ShareTokenAccessEnum;
+use App\Service\Share\ShareAccessManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class ShareVoter extends AbstractVoter
 {
     public function __construct(
-        private readonly RequestStack $requestStack,
+        private readonly ShareAccessManager $shareAccessManager,
     ) {
     }
 
@@ -80,18 +81,12 @@ class ShareVoter extends AbstractVoter
         };
     }
 
+    /**
+     * The token of the link, and the access token handed out once the password is given for
+     * a protected share.
+     */
     private function hasValidToken(Share $share): bool
     {
-        if (
-            !$share->isEnabled()
-            || ($share->getExpiresAt() && $share->getExpiresAt() < new \DateTimeImmutable())
-            || ($share->getStartsAt() && $share->getStartsAt() > new \DateTimeImmutable())
-        ) {
-            return false;
-        }
-
-        $token = $this->requestStack->getCurrentRequest()?->query->get('token');
-
-        return $token && hash_equals($share->getToken() ?? '', (string) $token);
+        return ShareTokenAccessEnum::Granted === $this->shareAccessManager->resolveTokenAccess($share);
     }
 }

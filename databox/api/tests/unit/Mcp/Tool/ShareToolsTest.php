@@ -39,11 +39,27 @@ class ShareToolsTest extends AbstractToolTestCase
         ]);
     }
 
+    public function testCreateAProtectedShare(): void
+    {
+        $this->kernel->willRespond(['id' => 's1'], 201);
+
+        $this->tools->create(['a1'], password: 's3cr3t!');
+
+        $this->assertLastRequest('POST', '/shares', body: [
+            'assets' => ['/assets/a1'],
+            'password' => 's3cr3t!',
+        ]);
+    }
+
     public function testUpdateAndDelete(): void
     {
         $this->kernel->willRespond(['id' => 's1']);
         $this->tools->update('s1', enabled: false);
         $this->assertLastRequest('PATCH', '/shares/s1', body: ['enabled' => false]);
+
+        $this->kernel->willRespond(['id' => 's1']);
+        $this->tools->update('s1', password: '');
+        $this->assertLastRequest('PATCH', '/shares/s1', body: ['password' => '']);
 
         $this->kernel->willRespond(null, 204);
         $this->assertSame(['deleted' => 's1'], $this->tools->delete('s1'));

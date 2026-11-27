@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Integration;
 
+use App\Audit\AuditContext;
 use App\Entity\Core\AssetImport;
 use App\Entity\Core\Collection;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -26,7 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Receives the import instructions sent to an "Asset import" integration.
  */
-#[Route(path: '/integrations/asset-import', name: 'integration_asset_import_')]
+#[Route(path: '/integrations/asset-import', name: 'integration_asset_import_', defaults: [AuditContext::SYSTEM_ROUTE_ATTRIBUTE => true])]
 class AssetImportIntegrationController extends AbstractController
 {
     private const array FORMATS_BY_CONTENT_TYPE = [

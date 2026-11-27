@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Integration;
 
+use App\Audit\AuditContext;
 use App\Integration\Phrasea\Uploader\Message\IngestUploaderCommit;
 use App\Integration\Phrasea\Uploader\UploaderIntegrationKeyChecker;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(path: '/integrations/uploader', name: 'integration_uploader_')]
+#[Route(path: '/integrations/uploader', name: 'integration_uploader_', defaults: [AuditContext::SYSTEM_ROUTE_ATTRIBUTE => true])]
 class UploaderIntegrationController extends AbstractController
 {
     #[Route(path: '/{integrationId}/incoming-commit', name: 'incoming_commit', methods: ['POST'])]

@@ -90,7 +90,7 @@ final readonly class AssetInsightTools
         #[Schema(description: 'Only the entries of this object type: "asset", "collection", "workspace", "saved_search", "basket", "attribute_definition"…')]
         ?string $objectType = null,
         #[Schema(
-            description: 'Only these actions: asset_moved, asset_added_to_collection, asset_removed_from_collection, asset_substituted, asset_attribute_changed, object_created, object_updated, object_deleted, object_trashed, object_restored, collection_moved, asset_quarantine_bypassed, asset_copied, asset_downloaded, rendition_deleted, permission_granted, permission_changed, permission_revoked, workflow_triggered, workflow_job_rerun, workflow_cancelled, automation_triggered, workspace_terms_signed, basket_archived, basket_unarchived, basket_assets_added, basket_assets_removed, profile_updated',
+            description: 'Only these actions: asset_moved, asset_added_to_collection, asset_removed_from_collection, asset_substituted, asset_attribute_changed, object_created, object_updated, object_deleted, object_trashed, object_restored, collection_moved, asset_quarantine_bypassed, asset_copied, asset_downloaded, rendition_deleted, permission_granted, permission_changed, permission_revoked, workflow_triggered, workflow_job_rerun, workflow_cancelled, automation_triggered, workspace_terms_signed, share_password_failed, basket_archived, basket_unarchived, basket_assets_added, basket_assets_removed, profile_updated',
             items: ['type' => 'string'],
         )]
         ?array $actions = null,

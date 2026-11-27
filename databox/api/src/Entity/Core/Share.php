@@ -18,6 +18,7 @@ use App\Api\Model\Output\ShareAlternateUrlOutput;
 use App\Api\Model\Output\ShareAttachmentOutput;
 use App\Api\Model\Output\ShareTermsOutput;
 use App\Api\Processor\ShareProcessor;
+use App\Api\Processor\ShareUnlockProcessor;
 use App\Api\Provider\ShareAttachmentProvider;
 use App\Api\Provider\ShareCollectionProvider;
 use App\Api\Provider\ShareReadProvider;
@@ -47,9 +48,21 @@ use Symfony\Component\String\ByteString;
                     self::GROUP_PUBLIC_READ,
                 ],
             ],
-            security: 'is_granted("'.AbstractVoter::READ.'", object)',
-            name: 'share_public',
+            // READ is checked by the provider, which tells a missing password apart
+            name: ShareReadProvider::PUBLIC_OPERATION,
             provider: ShareReadProvider::class,
+        ),
+        new Post(
+            uriTemplate: '/s/{id}/unlock',
+            input: false,
+            deserialize: false,
+            validate: false,
+            throwOnNotFound: true,
+            name: 'share_unlock',
+            processor: ShareUnlockProcessor::class,
+            extraProperties: [
+                '_api_disable_swagger_provider' => true,
+            ],
         ),
         new Get(
             uriTemplate: '/s/{id}/a/{asset}/r/{rendition}',
@@ -191,6 +204,16 @@ class Share extends AbstractUuidEntity implements AuditableInterface, OwnerPersi
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[AuditIgnore(mask: true)]
+    private ?string $passwordHash = null;
+
+    /**
+     * The password in clear text, while it is being set: only for the
+     * validation of its length, never stored.
+     */
+    private ?string $plainPassword = null;
 
     /**
      * @var ShareAlternateUrlOutput[]
@@ -353,6 +376,48 @@ class Share extends AbstractUuidEntity implements AuditableInterface, OwnerPersi
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * Sets a new password, hashed; null or an empty string removes it.
+     */
+    #[Groups([self::GROUP_WRITE])]
+    public function setPassword(?string $password): void
+    {
+        if (null === $password || '' === $password) {
+            $this->passwordHash = null;
+            $this->plainPassword = null;
+
+            return;
+        }
+
+        $this->passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $this->plainPassword = $password;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * Read as "hasPassword": a "hasPassword()" method would be the accessor of
+     * a "password" property for the serializer.
+     */
+    #[Groups([self::GROUP_READ])]
+    public function getHasPassword(): bool
+    {
+        return null !== $this->passwordHash;
+    }
+
+    public function getPasswordHash(): ?string
+    {
+        return $this->passwordHash;
+    }
+
+    public function isPasswordValid(string $password): bool
+    {
+        return null !== $this->passwordHash && password_verify($password, $this->passwordHash);
     }
 
     public function isEnabled(): bool

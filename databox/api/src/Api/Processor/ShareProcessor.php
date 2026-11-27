@@ -21,6 +21,9 @@ class ShareProcessor implements ProcessorInterface
     use SecurityAwareTrait;
     use WithOwnerIdProcessorTrait;
 
+    final public const int PASSWORD_MIN_LENGTH = 4;
+    final public const int PASSWORD_MAX_LENGTH = 255;
+
     public function __construct(
         private readonly ShareReadProvider $shareReadProvider,
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
@@ -37,6 +40,14 @@ class ShareProcessor implements ProcessorInterface
         $assets = $data->getAssetsList();
         if (empty($assets)) {
             throw new BadRequestHttpException('A share must contain at least one asset');
+        }
+
+        $password = $data->getPlainPassword();
+        if (null !== $password) {
+            $length = mb_strlen($password);
+            if ($length < self::PASSWORD_MIN_LENGTH || $length > self::PASSWORD_MAX_LENGTH) {
+                throw new BadRequestHttpException(sprintf('The password must be %d to %d characters long', self::PASSWORD_MIN_LENGTH, self::PASSWORD_MAX_LENGTH));
+            }
         }
 
         $workspaceId = $assets[0]->getWorkspaceId();

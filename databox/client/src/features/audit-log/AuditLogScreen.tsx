@@ -196,6 +196,10 @@ export function AuditLogScreen() {
             value: AuditLogActorType.System,
             label: t('audit_log.actor_type.system', 'System'),
         },
+        {
+            value: AuditLogActorType.Anonymous,
+            label: t('audit_log.actor_type.anonymous', 'Anonymous'),
+        },
     ];
 
     return (
@@ -541,6 +545,10 @@ function AuditLogRow({
                                 {log.clientId}
                             </span>
                         </>
+                    ) : log.actorType === AuditLogActorType.Anonymous ? (
+                        <Badge variant="outline">
+                            {t('audit_log.actor_type.anonymous', 'Anonymous')}
+                        </Badge>
                     ) : (
                         <Badge variant="muted">
                             {t('audit_log.actor_type.system', 'System')}

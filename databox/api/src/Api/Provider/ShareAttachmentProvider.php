@@ -33,7 +33,8 @@ final class ShareAttachmentProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object
     {
         $item = $this->shareRepository->find((string) $uriVariables['id']);
-        if (!$item instanceof Share) {
+        // A share protected by a password gives no permalink, whoever asks
+        if (!$item instanceof Share || $item->getHasPassword()) {
             return $this->createNotFoundResponse();
         }
 

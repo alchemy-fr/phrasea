@@ -18,17 +18,26 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\TermsVersion;
+use App\Model\ShareTokenAccessEnum;
+use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
+use App\Service\Share\ShareAccessManager;
 use App\Service\Share\ShareAttachmentResolver;
 use App\Service\Share\ShareRenditionUrlGenerator;
 use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class ShareReadProvider implements ProviderInterface
 {
     use ItemProviderAwareTrait;
     use SecurityAwareTrait;
     use UserLocaleTrait;
+
+    final public const string PUBLIC_OPERATION = 'share_public';
+    final public const string ERROR_PASSWORD_REQUIRED = 'share_password_required';
 
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -37,6 +46,7 @@ final class ShareReadProvider implements ProviderInterface
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRenditionUrlGenerator $renditionUrlGenerator,
         private readonly ShareAttachmentResolver $attachmentResolver,
+        private readonly ShareAccessManager $shareAccessManager,
     ) {
     }
 
@@ -45,6 +55,14 @@ final class ShareReadProvider implements ProviderInterface
         $item = $this->itemProvider->provide($operation, $uriVariables, $context);
         if (!$item instanceof Share) {
             return $item;
+        }
+
+        if (self::PUBLIC_OPERATION === $operation->getName() && !$this->isGranted(AbstractVoter::READ, $item)) {
+            if (ShareTokenAccessEnum::PasswordRequired === $this->shareAccessManager->resolveTokenAccess($item)) {
+                return new JsonResponse(['error' => self::ERROR_PASSWORD_REQUIRED], Response::HTTP_FORBIDDEN);
+            }
+
+            throw new AccessDeniedException();
         }
 
         return $this->provideShare($item);
@@ -78,14 +96,25 @@ final class ShareReadProvider implements ProviderInterface
         return $item;
     }
 
+    /**
+     * A share protected by a password gives no durable link: its URLs are the
+     * temporary signed URLs of the storage, never the permalinks of the share.
+     */
     private function provideAssetAlternateUrls(Share $item, Asset $asset): void
     {
         foreach ($this->renditionUrlGenerator->getSharedRenditions($item, $asset) as $rendition) {
             $definition = $rendition->getDefinition();
             $file = $rendition->getFile();
+            $url = $item->getHasPassword()
+                ? $this->fileUrlResolver->resolveUrl($file)
+                : $this->renditionUrlGenerator->generateUrl($item, $asset, $definition);
+            if (null === $url) {
+                continue;
+            }
+
             $item->alternateUrls[] = new ShareAlternateUrlOutput(
                 $definition->getName(),
-                $this->renditionUrlGenerator->generateUrl($item, $asset, $definition),
+                $url,
                 $file->getType(),
                 $asset->getId(),
                 $rendition->getId(),
@@ -116,16 +145,22 @@ final class ShareReadProvider implements ProviderInterface
         foreach ($this->attachmentResolver->getSharedAttachments($item) as $shared) {
             $attachment = $shared->attachment;
             $file = $shared->rendition->getFile();
+            $url = $item->getHasPassword()
+                ? $this->fileUrlResolver->resolveUrl($file)
+                : $this->urlGenerator->generate('share_public_attachment', [
+                    'id' => $item->getId(),
+                    'attachment' => $attachment->getId(),
+                    'token' => $item->getToken(),
+                ], UrlGeneratorInterface::ABS_URL);
+            if (null === $url) {
+                continue;
+            }
 
             $item->attachments[] = new ShareAttachmentOutput(
                 $attachment->getId(),
                 $attachment->getName() ?? $file->getFileName(),
                 $attachment->getAsset()->getId(),
-                $this->urlGenerator->generate('share_public_attachment', [
-                    'id' => $item->getId(),
-                    'attachment' => $attachment->getId(),
-                    'token' => $item->getToken(),
-                ], UrlGeneratorInterface::ABS_URL),
+                $url,
                 $file->getType(),
                 null !== $file->getSize() ? (int) $file->getSize() : null,
             );

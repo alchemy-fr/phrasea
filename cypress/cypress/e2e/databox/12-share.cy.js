@@ -327,4 +327,64 @@ describe('Share', () => {
         );
         cy.getBySel('share-asset').should('not.exist');
     });
+
+    it('protects a link with a password', () => {
+        let protectedUrl;
+        login();
+        visitWorkspace(ctx.workspace.id);
+        waitForResults(2);
+        openAssetContextMenu('E2E Shared');
+        cy.menuItem('Share').click();
+        cy.dialog().within(() => {
+            cy.contains('button', 'Create new share link').click();
+            cy.fieldByLabel('Name / audience').type('Protected');
+            cy.fieldByLabel('Protect with a password').click();
+            cy.contains('button', /^Create$/).should('be.disabled');
+            cy.fieldByLabel('Password').type('s3cr3t-e2e');
+            cy.contains('button', /^Create$/).click();
+
+            cy.contains('[data-testid=share-item]', 'Protected', {
+                timeout: 20000,
+            }).within(() => {
+                cy.getBySel('share-protected').should('be.visible');
+                // Only the page of the link: no rendition URL to copy
+                cy.getBySel('share-link-choice').should('not.exist');
+                cy.getBySel('share-link')
+                    .find('a')
+                    .invoke('attr', 'href')
+                    .then(href => {
+                        expect(href).to.match(/\/s\/[^/]+\/[^/]+$/);
+                        protectedUrl = href;
+                    });
+            });
+        });
+        cy.get('body').type('{esc}');
+
+        // The page asks the password before showing anything
+        cy.then(() => {
+            Cypress.session.clearCurrentSessionData();
+            cy.visit(protectedUrl);
+        });
+        cy.getBySel('share-password-form', {timeout: 30000}).should(
+            'be.visible'
+        );
+        cy.getBySel('share-asset-name').should('not.exist');
+        cy.fieldByLabel('Password').type('wrong{enter}');
+        cy.contains('Wrong password').should('be.visible');
+        cy.fieldByLabel('Password').clear().type('s3cr3t-e2e{enter}');
+        cy.getBySel('share-asset-name', {timeout: 30000}).should(
+            'contain',
+            'E2E Shared'
+        );
+        cy.get('[data-testid=share-asset-view] img').should('be.visible');
+
+        // Embedded, the page asks the password too
+        cy.then(() => {
+            Cypress.session.clearCurrentSessionData();
+            cy.visit(`${protectedUrl}?embed=1`);
+        });
+        cy.getBySel('share-password-form', {timeout: 30000}).should(
+            'be.visible'
+        );
+    });
 });

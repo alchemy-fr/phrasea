@@ -21,8 +21,11 @@ export function EmbedDialog({
     const {t} = useTranslation();
     const defaultCode = useMemo(() => {
         const pageUrl = getShareUrl(share);
-        // A single image is embedded as such, anything else as the share page
-        const asset = assets.length === 1 ? assets[0] : undefined;
+        // A single image is embedded as such, anything else as the share page.
+        // A link protected by a password has no durable file URL: its page,
+        // which asks the password, is embedded.
+        const asset =
+            assets.length === 1 && !share.hasPassword ? assets[0] : undefined;
         const preview = share.alternateUrls?.find(
             a =>
                 a.type?.startsWith('image/') &&

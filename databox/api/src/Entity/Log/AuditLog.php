@@ -31,7 +31,7 @@ use Ramsey\Uuid\UuidInterface;
                 ),
                 'action[]' => new QueryParameter(property: 'action', openApi: false),
                 'actorType' => new QueryParameter(
-                    schema: ['type' => 'string', 'enum' => ['user', 'oauth_client', 'system']],
+                    schema: ['type' => 'string', 'enum' => ['user', 'oauth_client', 'system', 'anonymous']],
                     castToArray: false,
                 ),
                 'objectType' => new QueryParameter(

@@ -64,6 +64,9 @@ workspace chosen for the automation gets a new share at the next run; the previo
   public, or deleted since, leaves its column empty, with a notice on the run; without any
   public one, no share is created and the assets are listed without links.
 - An asset the owner may not read or share is skipped, as is an asset of another workspace.
+- Protected by a password (see [Shares](./shares.md#password)), the share gives no
+  permalink: only the URL of its page is exported, the rendition columns stay empty, and the
+  permalinks of the files exported before stop working.
 
 ## Failed upload
 

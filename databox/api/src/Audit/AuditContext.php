@@ -16,7 +16,8 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * Who acts, from where, and the correlation ID grouping an action with its asynchronous effects.
  *
- * In an HTTP request, the actor is the authenticated token. Elsewhere (Messenger handlers,
+ * In an HTTP request, the actor is the authenticated token, or an anonymous visitor
+ * without one (see SYSTEM_ROUTE_ATTRIBUTE). Elsewhere (Messenger handlers,
  * automations, console commands) the context is set explicitly: restored from the
  * AuditContextStamp of the consumed message, or set around a block of code.
  * An explicit actor prevails over the token.
@@ -29,6 +30,12 @@ final class AuditContext implements ResetInterface
     final public const string SOURCE_WORKER = 'worker';
     final public const string SOURCE_AUTOMATION = 'automation';
     final public const string SOURCE_INTEGRATION = 'integration';
+
+    /**
+     * Route default of the endpoints called by external services (integration webhooks,
+     * callbacks): without a signed-in user, the system acts rather than an anonymous visitor.
+     */
+    final public const string SYSTEM_ROUTE_ATTRIBUTE = '_audit_system';
 
     /**
      * @var array{actorType: int, userId: ?string, userName: ?string, impersonatorId: ?string, clientId: ?string}|null
@@ -229,8 +236,12 @@ final class AuditContext implements ResetInterface
             ];
         }
 
+        // Without a user, an HTTP request comes from an anonymous visitor
+        $request = $this->requestStack->getCurrentRequest();
+        $anonymous = null !== $request && true !== $request->attributes->get(self::SYSTEM_ROUTE_ATTRIBUTE);
+
         return [
-            'actorType' => AuditActorTypeEnum::System->value,
+            'actorType' => ($anonymous ? AuditActorTypeEnum::Anonymous : AuditActorTypeEnum::System)->value,
             'userId' => null,
             'userName' => null,
             'impersonatorId' => null,

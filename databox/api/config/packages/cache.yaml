@@ -26,5 +26,8 @@ framework:
             integration_owner.cache:
                 adapter: cache.adapter.redis
                 provider: '%env(REDIS_URL)%'
+            rate_limiter.cache:
+                adapter: cache.adapter.redis
+                provider: '%env(REDIS_URL)%'
 
         default_pdo_provider: 'doctrine.dbal.default_connection'

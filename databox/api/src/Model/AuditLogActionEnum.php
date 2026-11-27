@@ -37,6 +37,7 @@ enum AuditLogActionEnum: int
     case WorkflowCancelled = 26;
     case AutomationTriggered = 27;
     case WorkspaceTermsSigned = 28;
+    case SharePasswordFailed = 29;
 
     /**
      * The stable identifier of the action exposed by the API (e.g. "asset_moved").
