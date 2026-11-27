@@ -43,6 +43,7 @@
         }
     },
     "require-dev": {
+        "doctrine/migrations": "^3.9",
         "dragonmantank/cron-expression": "^3.4",
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\Keycloak;
 
 use App\Configurator\ConfiguratorInterface;
+use App\Configurator\ConfigureContext;
 use App\Service\ServiceWaiter;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,14 +27,14 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return 'keycloak';
     }
 
-    public function configure(OutputInterface $output, array $presets): void
+    public function configure(OutputInterface $output, ConfigureContext $context): void
     {
         $keycloakUrl = EnvHelper::getEnv('KEYCLOAK_INTERNAL_URL') ?: EnvHelper::getEnvOrThrow('KEYCLOAK_URL');
 
         $this->serviceWaiter->waitForService($output, $keycloakUrl.'/realms/master', successCodes: [200]);
 
-        $hasTestPreset = in_array('test', $presets, true);
-        $hasDevPreset = in_array('dev', $presets, true);
+        $hasTestPreset = $context->hasPreset('test');
+        $hasDevPreset = $context->hasPreset('dev');
 
         $this->configureRealm();
         $this->configureDefaultClientScopes();
@@ -81,34 +82,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
         $this->configureClients();
 
-        $defaultAdminUsername = EnvHelper::getEnvOrThrow('DEFAULT_ADMIN_USERNAME');
-        $defaultAdminEmail = EnvHelper::getEnv('DEFAULT_ADMIN_EMAIL') ?: $defaultAdminUsername;
-        if (!str_contains($defaultAdminEmail, '@')) {
-            $domain = EnvHelper::getEnvOrThrow('PHRASEA_DOMAIN');
-            $defaultAdminEmail .= '@'.$domain;
+        // On an upgrade, an admin removed by the operator must not come back with the default password.
+        if ($context->install) {
+            $this->createDefaultAdmin($hasTestPreset);
         }
-
-        $defaultAdmin = $this->keycloakManager->createUser([
-            'username' => $defaultAdminUsername,
-            'email' => $defaultAdminEmail,
-            'enabled' => true,
-            'emailVerified' => true,
-            'firstName' => 'Admin',
-            'lastName' => 'Admin',
-            'credentials' => [[
-                'type' => 'password',
-                'value' => EnvHelper::getEnvOrThrow('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => $hasTestPreset ? false : !EnvHelper::getBooleanEnv('KEYCLOAK_ADMIN_PASSWORD_IS_DEFINITIVE'),
-            ]],
-        ]);
-
-        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
-            KeycloakInterface::ROLE_ADMIN,
-            KeycloakInterface::ROLE_TECH,
-        ]);
-        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
-            'realm-admin',
-        ]);
 
         if ($hasDevPreset) {
             $this->keycloakManager->createClient('postman', null, null, [
@@ -137,12 +114,36 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->configureApiAudiences();
     }
 
-    public function synchronize(): void
+    private function createDefaultAdmin(bool $hasTestPreset): void
     {
-        $this->configureRealm();
-        $this->configureGroupAdminRole();
-        $this->configureClients();
-        $this->configureApiAudiences();
+        $defaultAdminUsername = EnvHelper::getEnvOrThrow('DEFAULT_ADMIN_USERNAME');
+        $defaultAdminEmail = EnvHelper::getEnv('DEFAULT_ADMIN_EMAIL') ?: $defaultAdminUsername;
+        if (!str_contains($defaultAdminEmail, '@')) {
+            $domain = EnvHelper::getEnvOrThrow('PHRASEA_DOMAIN');
+            $defaultAdminEmail .= '@'.$domain;
+        }
+
+        $defaultAdmin = $this->keycloakManager->createUser([
+            'username' => $defaultAdminUsername,
+            'email' => $defaultAdminEmail,
+            'enabled' => true,
+            'emailVerified' => true,
+            'firstName' => 'Admin',
+            'lastName' => 'Admin',
+            'credentials' => [[
+                'type' => 'password',
+                'value' => EnvHelper::getEnvOrThrow('DEFAULT_ADMIN_PASSWORD'),
+                'temporary' => $hasTestPreset ? false : !EnvHelper::getBooleanEnv('KEYCLOAK_ADMIN_PASSWORD_IS_DEFINITIVE'),
+            ]],
+        ]);
+
+        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
+            KeycloakInterface::ROLE_ADMIN,
+            KeycloakInterface::ROLE_TECH,
+        ]);
+        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
+            'realm-admin',
+        ]);
     }
 
     /**
@@ -429,7 +430,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return $clientData;
     }
 
-    public function configureRealm(): void
+    private function configureRealm(): void
     {
         $this->keycloakManager->createRealm();
 
