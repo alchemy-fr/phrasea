@@ -661,6 +661,7 @@
     "clip.frame_rate_auto": "Auto ({{fps}} fps)",
     "clip.frame_rate_measuring": "Auto (…)",
     "clip.invalid_range": "The end must be after the start.",
+    "clip.no_media": "No file of this asset can be displayed to you.",
     "clip.overview": "Whole duration: drag the window to scroll",
     "clip.precision": "1 graduation = {{value}}",
     "clip.range_end_handle": "End of the range",

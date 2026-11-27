@@ -658,6 +658,15 @@ gets **401** where it used to get 403 (for instance on `GET /baskets`).
   exposed.
 - On a share, `ownerId` and `token` are no longer writable.
 
+### Source file URL restricted to the asset owner
+
+`source.url` and `source.alternateUrls` of an asset (and of the assets embedded
+in other outputs, attachments included) are only returned to the owner of the
+asset; every other reader, admins included, gets the description of the file
+without its URLs. API clients that downloaded the original through them must
+go through the renditions (`GET /renditions?assetId=`) or the export
+(`POST /asset-exports`).
+
 ### Saved searches in asset search
 
 The `savedSearch` option of `GET /assets` and `GET /assets/geo-clusters`:
@@ -791,6 +800,8 @@ Workflows and files:
 Other reads:
 
 - `GET /renditions/{id}` requires READ on the asset.
+- A rendition hidden from the user by an asset policy is denied by
+  `GET /renditions/{id}` and on its file, and left out of the exports.
 - `GET /asset-exports/{id}` is restricted to its owner.
 - READ on rendition definitions follows the collection ACL.
 - Listing asset policies requires EDIT on the workspace.

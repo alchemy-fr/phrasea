@@ -262,6 +262,33 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
         $this->assertContains($preview->getId(), $definitionIds(self::EDITOR));
     }
 
+    public function testHiddenRenditionCannotBeReadByTargetedUsers(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $this->addUserOnWorkspace(self::READER, $ws->getId());
+        $preview = $defaults->renditionDefinitions['preview'];
+        $asset = $this->createAsset(['workspace' => $ws, 'ownerId' => self::EDITOR]);
+        $asset->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE);
+        $mainRendition = $this->createAssetRendition($asset, $defaults->renditionDefinitions['main'], $this->createUrlFile($ws, 'https://cdn.example.com/main.jpg'));
+        $previewFile = $this->createUrlFile($ws, 'https://cdn.example.com/preview.jpg');
+        $previewRendition = $this->createAssetRendition($asset, $preview, $previewFile);
+        $this->createAssetPolicy($ws, 'Hide preview', [self::READER], [['action' => 'hide_rendition', 'definitionId' => $preview->getId()]]);
+
+        $this->jsonRequest('GET', '/renditions/'.$previewRendition->getId(), self::READER);
+        $this->assertResponseStatusCodeSame(403);
+        // Neither is its file, granted through the rendition only
+        $this->jsonRequest('GET', '/files/'.$previewFile->getId(), self::READER);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->jsonRequest('GET', '/renditions/'.$mainRendition->getId(), self::READER);
+        $this->assertResponseIsSuccessful();
+
+        $this->jsonRequest('GET', '/renditions/'.$previewRendition->getId(), self::EDITOR);
+        $this->assertResponseIsSuccessful();
+        $this->jsonRequest('GET', '/files/'.$previewFile->getId(), self::EDITOR);
+        $this->assertResponseIsSuccessful();
+    }
+
     public function testAssetIdRequiresAReadableAsset(): void
     {
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);

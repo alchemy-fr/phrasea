@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset\AssetPolicy;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Asset;
@@ -15,8 +16,8 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
- * Applies the asset policies of the current user to an asset (getPolicyApplicationFilter()), and
- * describes their "hide_attribute" actions for the searches (getHiddenAttributeScopes()): both
+ * Applies the asset policies of a user (the current one by default) to an asset
+ * (getPolicyApplicationFilter()), and describes their "hide_attribute" actions for the searches (getHiddenAttributeScopes()): both
  * must agree on which assets a policy applies to (see matchesConditions()).
  */
 final class AssetPolicyManager
@@ -37,9 +38,14 @@ final class AssetPolicyManager
         $this->cache = $cacheFactory->createCache();
     }
 
-    public function getPolicyApplicationFilter(Asset $asset): AssetPolicyResultFilter
+    /**
+     * @param JwtUser|null $user The user the policies apply to; null: the current user. A voter
+     *                           passes the user of its token, which differs from the current one
+     *                           in Security::isGrantedForUser() (export worker…).
+     */
+    public function getPolicyApplicationFilter(Asset $asset, ?JwtUser $user = null): AssetPolicyResultFilter
     {
-        $user = $this->getUser();
+        $user ??= $this->getUser();
 
         // Policies only depend on the workspace and the user: load them once per request.
         $policies = $this->cache->get(

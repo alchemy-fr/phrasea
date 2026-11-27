@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -17,6 +20,7 @@ class AssetRenditionVoter extends AbstractVoter
 
     public function __construct(
         TemporaryCacheFactory $cacheFactory,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
         $this->cache = $cacheFactory->createCache();
     }
@@ -58,11 +62,28 @@ class AssetRenditionVoter extends AbstractVoter
         $isEditable = fn (): bool => $renditionPolicy->isEditable() || $this->hasAcl(PermissionInterface::CHILD_EDIT, $renditionPolicy, $token);
 
         return match ($attribute) {
-            self::READ => $isRead() && $this->security->isGranted(self::READ, $subject->getAsset()),
+            self::READ => $isRead()
+                && $this->security->isGranted(self::READ, $subject->getAsset())
+                && !$this->isHiddenByAssetPolicy($subject, $definition, $token),
             self::CREATE,
             self::EDIT,
             self::DELETE => $isEditable() && $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),
             default => false,
         };
+    }
+
+    /**
+     * The asset policies of the voted user, not of the current one: they differ in
+     * Security::isGrantedForUser() (export worker…).
+     */
+    private function isHiddenByAssetPolicy(AssetRendition $subject, RenditionDefinition $definition, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+        $filter = $this->assetPolicyManager->getPolicyApplicationFilter(
+            $subject->getAsset(),
+            $user instanceof JwtUser ? $user : null,
+        );
+
+        return \in_array($definition->getId(), $filter->getFilteredRenditions(), true);
     }
 }

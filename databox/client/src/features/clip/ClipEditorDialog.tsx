@@ -404,7 +404,17 @@ export function ClipEditorDialog({
                         </div>
                     ) : null}
                 </div>
-            ) : null}
+            ) : (
+                <p
+                    className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
+                    data-testid="clip-no-media"
+                >
+                    {t(
+                        'clip.no_media',
+                        'No file of this asset can be displayed to you.'
+                    )}
+                </p>
+            )}
 
             {capabilities.timeRange ? (
                 <section className="space-y-3">

@@ -189,6 +189,45 @@ describe('ExportDialog', () => {
         });
     });
 
+    it('leaves out the definitions hidden on a single asset', async () => {
+        collections.getWorkspace.mockResolvedValue(workspace('a', null));
+        renderDialog([asset('1', 'a')]);
+
+        await screen.findByRole('checkbox', {name: 'Preview'});
+        expect(misc.getRenditionDefinitions).toHaveBeenCalledWith({
+            workspaceIds: ['a'],
+            assetId: '1',
+            limit: 100,
+        });
+    });
+
+    it('lists the definitions of the workspaces for several assets', async () => {
+        collections.getWorkspace.mockResolvedValue(workspace('a', null));
+        renderDialog([asset('1', 'a'), asset('2', 'a')]);
+
+        await screen.findByRole('checkbox', {name: 'Preview'});
+        expect(misc.getRenditionDefinitions).toHaveBeenCalledWith({
+            workspaceIds: ['a'],
+            assetId: undefined,
+            limit: 100,
+        });
+    });
+
+    it('leaves out the definitions hidden on the asset of the basket items', async () => {
+        collections.getWorkspace.mockResolvedValue(workspace('a', null));
+        renderDialog([
+            {...asset('1', 'a'), basketItemId: 'item-1'},
+            {...asset('1', 'a'), basketItemId: 'item-2'},
+        ]);
+
+        await screen.findByRole('checkbox', {name: 'Preview'});
+        expect(misc.getRenditionDefinitions).toHaveBeenCalledWith({
+            workspaceIds: ['a'],
+            assetId: '1',
+            limit: 100,
+        });
+    });
+
     it('exports the whole files when asked', async () => {
         collections.getWorkspace.mockResolvedValue(workspace('a', null));
         const {resolve} = renderDialog([

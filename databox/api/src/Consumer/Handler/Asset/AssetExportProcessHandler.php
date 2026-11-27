@@ -287,7 +287,8 @@ class AssetExportProcessHandler
     }
 
     /**
-     * The renditions of the item the user may read, scheduled for download into $toDownload.
+     * The renditions of the item the user may read (rendition policies, and the asset policies that
+     * apply to that user, see AssetRenditionVoter), scheduled for download into $toDownload.
      *
      * @param array{assetId: string, basketAssetId: string|null, clip: array|null} $item
      * @param string[]                                                             $renditionIds

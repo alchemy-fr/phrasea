@@ -461,6 +461,34 @@ final class AssetReadTest extends AbstractDataboxTestCase
         $this->assertSame('track-1', $data['resolvedTrackingId']);
     }
 
+    /**
+     * The original is only downloadable by the owner of the asset: the other readers, admins
+     * included, get its description without its URLs.
+     */
+    public function testSourceUrlsAreOnlyExposedToTheOwnerOfTheAsset(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $this->addUserOnWorkspace(self::OTHER, $workspace->getId());
+        $file = $this->createFile($workspace, ['path' => 'https://example.com/original.jpg']);
+        $file->setAlternateUrls(['open' => 'https://example.com/hd/original.jpg']);
+        $asset = $this->createPrivacyAsset(WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE, ['no_flush' => true]);
+        $asset->setSource($file);
+        self::getEntityManager()->flush();
+
+        $source = $this->request('GET', '/assets/'.$asset->getId(), self::OWNER)->toArray()['source'];
+        $this->assertSame('https://example.com/original.jpg', $source['url']);
+        $this->assertSame(['https://example.com/hd/original.jpg'], array_column($source['alternateUrls'], 'url'));
+
+        foreach ([self::OTHER, self::ADMIN] as $userId) {
+            $source = $this->request('GET', '/assets/'.$asset->getId(), $userId)->toArray()['source'];
+            $this->assertResponseIsSuccessful();
+            $this->assertSame($file->getId(), $source['id']);
+            $this->assertSame('image/jpeg', $source['type']);
+            $this->assertArrayNotHasKey('url', $source);
+            $this->assertSame([], $source['alternateUrls'] ?? []);
+        }
+    }
+
     private function createPrivacyAsset(int $privacy, array $options = []): Asset
     {
         $asset = $this->createAsset(array_merge(['ownerId' => self::OWNER, 'no_flush' => true], $options));

@@ -20,10 +20,11 @@ import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 import {effectiveClip, hasClip} from '@/features/clip/clip';
 
 async function getAllRenditionDefinitions(
-    workspaceIds: string[]
+    workspaceIds: string[],
+    assetId?: string
 ): Promise<RenditionDefinition[]> {
     return fetchAllPages(
-        getRenditionDefinitions({workspaceIds, limit: 100}),
+        getRenditionDefinitions({workspaceIds, assetId, limit: 100}),
         url => getRenditionDefinitions({url})
     );
 }
@@ -54,9 +55,18 @@ export function ExportDialog({
         hasClip(basketItemIds ? effectiveClip(a) : a.roi)
     );
 
+    // A single asset (possibly through several basket items): the definitions
+    // its asset policies hide are left out. Across several assets, the worker
+    // skips the hidden renditions asset by asset.
+    const assetIds = useMemo(
+        () => [...new Set(assets.map(a => a.id))],
+        [assets]
+    );
+    const assetId = assetIds.length === 1 ? assetIds[0] : undefined;
+
     const definitions = useQuery({
-        queryKey: ['rendition-definitions', 'export', workspaceIds],
-        queryFn: () => getAllRenditionDefinitions(workspaceIds),
+        queryKey: ['rendition-definitions', 'export', workspaceIds, assetId],
+        queryFn: () => getAllRenditionDefinitions(workspaceIds, assetId),
     });
 
     // Terms of the exported assets' workspaces, to sign before exporting

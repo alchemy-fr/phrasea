@@ -13,15 +13,15 @@ never opens anything.
 
 `App\Entity\Core\AssetPolicy\AssetPolicy` belongs to a workspace and holds:
 
-| Field        | Meaning                                                                 |
-|--------------|-------------------------------------------------------------------------|
-| `name`       | Required.                                                               |
-| `enabled`    | A disabled policy applies to nobody. Default `true`.                    |
-| `conditions` | The assets it applies to (JSON list, see below).                       |
-| `actions`    | What it hides (JSON list, at least one).                               |
+| Field        | Meaning                                                                            |
+| ------------ | ---------------------------------------------------------------------------------- |
+| `name`       | Required.                                                                          |
+| `enabled`    | A disabled policy applies to nobody. Default `true`.                               |
+| `conditions` | The assets it applies to (JSON list, see below).                                   |
+| `actions`    | What it hides (JSON list, at least one).                                           |
 | `users`      | Its targets, users and groups (`AssetPolicyUser`, `userType` 0 = user, 1 = group). |
-| `priority`   | Stored (administration, workspace templates) but not used by the evaluation. |
-| `ownerId`    | The creator.                                                            |
+| `priority`   | Stored (administration, workspace templates) but not used by the evaluation.       |
+| `ownerId`    | The creator.                                                                       |
 
 `AssetPolicyDependency` exists in the same namespace but is not used by the evaluation.
 
@@ -46,9 +46,9 @@ policy apply to no asset.
 
 An action is `{action, definitionId}`:
 
-| Action           | `definitionId`                       | Effect                                           |
-|------------------|--------------------------------------|--------------------------------------------------|
-| `hide_rendition` | A rendition definition of the workspace | The renditions of that definition are not output, listed, shared nor downloadable. |
+| Action           | `definitionId`                           | Effect                                                                             |
+| ---------------- | ---------------------------------------- | ---------------------------------------------------------------------------------- |
+| `hide_rendition` | A rendition definition of the workspace  | The renditions of that definition are not output, listed, shared nor downloadable. |
 | `hide_attribute` | An attribute definition of the workspace | The values are not output, and are not searchable, sortable, faceted or suggested. |
 
 Unknown actions are kept but ignored.
@@ -64,10 +64,14 @@ add up.
 
 `App\Service\Asset\AssetPolicy\AssetPolicyManager`:
 
-- `getPolicyApplicationFilter(Asset)` gives the renditions and attributes hidden on one
-  asset for the current user. It is used by the asset output, the rendition and attribute
-  collections, the rendition definitions, and the [shares](./shares.md) (rendition delivery
-  and URLs). The policies are cached for the request, per workspace and user.
+- `getPolicyApplicationFilter(Asset, ?JwtUser)` gives the renditions and attributes hidden
+  on one asset for a user, the current one by default. It is used by the asset output, the
+  rendition and attribute collections, the rendition definitions, the [shares](./shares.md)
+  (rendition delivery and URLs), and `AssetRenditionVoter` (`READ`, for the user of the
+  voted token): so a hidden rendition is also denied by `GET /renditions/{id}`, on its file
+  (`FileVoter`) and in the **exports**, which the worker checks for the user who requested
+  them (`Security::isGrantedForUser()`, which leaves the current user unchanged). The
+  policies are cached for the request, per workspace and user.
 - `getHiddenAttributeScopes()` gives, per hidden attribute definition, the scopes it is
   hidden in: a workspace and the collection paths of the conditions.
 
@@ -79,13 +83,13 @@ reindexed when a policy changes.
 
 ## API
 
-| Method and path               | Security                                      |
-|-------------------------------|-----------------------------------------------|
-| `GET /asset-policies?workspaceId=…` | `EDIT` on the workspace                  |
-| `GET /asset-policies/{id}`    | `EDIT` on the workspace                       |
-| `POST /asset-policies`        | `EDIT` on the workspace                       |
-| `PATCH /asset-policies/{id}`  | `EDIT` on the workspace; sending `users` or `groups` replaces the targets |
-| `DELETE /asset-policies/{id}` | `EDIT` on the workspace                       |
+| Method and path                     | Security                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------- |
+| `GET /asset-policies?workspaceId=…` | `EDIT` on the workspace                                                   |
+| `GET /asset-policies/{id}`          | `EDIT` on the workspace                                                   |
+| `POST /asset-policies`              | `EDIT` on the workspace                                                   |
+| `PATCH /asset-policies/{id}`        | `EDIT` on the workspace; sending `users` or `groups` replaces the targets |
+| `DELETE /asset-policies/{id}`       | `EDIT` on the workspace                                                   |
 
 The voter is `App\Security\Voter\AssetPolicyVoter`.
 

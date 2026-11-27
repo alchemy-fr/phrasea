@@ -20,17 +20,17 @@ An ACE grants a **mask** of permissions on an object, to a user, a group, or eve
 user id). The ACL engine is the `alchemy/acl-bundle` Composer package; Databox declares its
 object types and enabled permissions in `databox/api/config/packages/alchemy_acl.yaml`.
 
-| Bit | Value   | Bit            | Value    |
-|-----|---------|----------------|----------|
-| `VIEW`     | 1   | `CHILD_VIEW`     | 512    |
-| `CREATE`   | 2   | `CHILD_CREATE`   | 1024   |
-| `EDIT`     | 4   | `CHILD_EDIT`     | 2048   |
-| `DELETE`   | 8   | `CHILD_DELETE`   | 4096   |
-| `UNDELETE` | 16  | `CHILD_UNDELETE` | 8192   |
-| `OPERATOR` | 32  | `CHILD_OPERATOR` | 16384  |
-| `MASTER`   | 64  | `CHILD_MASTER`   | 32768  |
-| `OWNER`    | 128 | `CHILD_OWNER`    | 65536  |
-| `SHARE`    | 256 | `CHILD_SHARE`    | 131072 |
+| Bit        | Value | Bit              | Value  |
+| ---------- | ----- | ---------------- | ------ |
+| `VIEW`     | 1     | `CHILD_VIEW`     | 512    |
+| `CREATE`   | 2     | `CHILD_CREATE`   | 1024   |
+| `EDIT`     | 4     | `CHILD_EDIT`     | 2048   |
+| `DELETE`   | 8     | `CHILD_DELETE`   | 4096   |
+| `UNDELETE` | 16    | `CHILD_UNDELETE` | 8192   |
+| `OPERATOR` | 32    | `CHILD_OPERATOR` | 16384  |
+| `MASTER`   | 64    | `CHILD_MASTER`   | 32768  |
+| `OWNER`    | 128   | `CHILD_OWNER`    | 65536  |
+| `SHARE`    | 256   | `CHILD_SHARE`    | 131072 |
 
 `UNDELETE` is not among the enabled permissions. The `CHILD_*` bits, set on a workspace or a
 collection, apply to the **assets** it contains; the plain bits apply to the container itself.
@@ -44,12 +44,12 @@ data templates and pages.
 Some rights are not bits but **metadata** of an ACE
 (`App\Security\Voter\DataboxExtraPermissionInterface`):
 
-| Constant                  | Value | Meaning                                                      |
-|---------------------------|-------|--------------------------------------------------------------|
-| `PERM_EDIT_PERMISSIONS`   | 1     | Edit the permissions and privacy of the owned content.       |
-| `PERM_MANAGE_USERS`       | 2     | Manage the users of a workspace.                             |
-| `PERM_QUARANTINE`         | 3     | See the quarantined assets (see [quarantine](./quarantine.md)). |
-| `PERM_QUARANTINE_BY_PASS` | 4     | Release them from quarantine.                                |
+| Constant                  | Value | Meaning                                                              |
+| ------------------------- | ----- | -------------------------------------------------------------------- |
+| `PERM_EDIT_PERMISSIONS`   | 1     | Edit the permissions and privacy of the owned content.               |
+| `PERM_MANAGE_USERS`       | 2     | Manage the users of a workspace.                                     |
+| `PERM_QUARANTINE`         | 3     | See the quarantined assets (see [quarantine](./quarantine.md)).      |
+| `PERM_QUARANTINE_BY_PASS` | 4     | Release them from quarantine.                                        |
 | 5 to 9                    |       | Instance capabilities, see [instance permissions](./permissions.md). |
 
 ### Voters
@@ -127,14 +127,14 @@ to them. Admins do not list the baskets of others (see [instance permissions](./
 Collections and assets carry a `privacy` (`App\Entity\Core\WorkspaceItemPrivacyInterface`),
 `SECRET` by default (`App\Entity\Traits\WorkspacePrivacyTrait`):
 
-| Value | Constant               | Effect                                                          |
-|-------|------------------------|-----------------------------------------------------------------|
-| 0     | `SECRET`               | Only the owner and the users granted by an ACE.                 |
-| 1     | `PRIVATE_IN_WORKSPACE` | Listed to the workspace users; content not accessible.          |
-| 2     | `PUBLIC_IN_WORKSPACE`  | Open to the workspace users.                                    |
-| 3     | `PRIVATE`              | Listed to every user; content not accessible.                   |
-| 4     | `PUBLIC_FOR_USERS`     | Open to every authenticated user.                               |
-| 5     | `PUBLIC`               | Open to everyone, anonymous visitors included.                  |
+| Value | Constant               | Effect                                                 |
+| ----- | ---------------------- | ------------------------------------------------------ |
+| 0     | `SECRET`               | Only the owner and the users granted by an ACE.        |
+| 1     | `PRIVATE_IN_WORKSPACE` | Listed to the workspace users; content not accessible. |
+| 2     | `PUBLIC_IN_WORKSPACE`  | Open to the workspace users.                           |
+| 3     | `PRIVATE`              | Listed to every user; content not accessible.          |
+| 4     | `PUBLIC_FOR_USERS`     | Open to every authenticated user.                      |
+| 5     | `PUBLIC`               | Open to everyone, anonymous visitors included.         |
 
 Since every right first requires `READ` on the workspace, the "in workspace" levels and the
 "every user" levels differ by who reads the workspace: its owner, its ACEs, or everyone when
@@ -202,12 +202,19 @@ used in the workspace updates that policy.
 A rendition policy (`App\Entity\Core\RenditionPolicy`, ACL type `rendition_policy`) does the
 same for renditions (`App\Security\Voter\AssetRenditionVoter`):
 
-- reading a rendition takes `READ` on the asset and a `public` policy or `CHILD_VIEW` on it;
+- reading a rendition takes `READ` on the asset, a `public` policy or `CHILD_VIEW` on it,
+  and that no [asset policy](./asset-policies.md) hides its definition from the user on that
+  asset;
 - creating, replacing or deleting one takes `EDIT` on the asset and an `editable` policy or
   `CHILD_EDIT` on it;
 - a rendition without definition follows its asset.
 
 Only the renditions of a public policy can be delivered by a [share](./shares.md).
+
+The source file of an asset is described to every reader of the asset, but its URLs (`url`,
+`alternateUrls` of `source`) are only given to the owner of the asset
+(`App\Api\Mapper\Output\AssetOutputMapper`), never through a share: the other readers
+download the renditions their policies allow.
 
 API: `/rendition-policies`, with the same rights as the attribute policies.
 
@@ -219,8 +226,8 @@ one (`App\Api\Processor\WithOwnerIdProcessorTrait`).
 
 The `owner` property of the asset and collection outputs can be restricted to a role:
 
-| Variable (root `.env`)                               | Container variable                           | Default |
-|------------------------------------------------------|----------------------------------------------|---------|
+| Variable (root `.env`)                                | Container variable                            | Default |
+| ----------------------------------------------------- | --------------------------------------------- | ------- |
 | `DATABOX_API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE`      | `API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE`      | empty   |
 | `DATABOX_API_COLLECTION_OWNER_PROPERTY_REQUIRED_ROLE` | `API_COLLECTION_OWNER_PROPERTY_REQUIRED_ROLE` | empty   |
 
@@ -283,14 +290,14 @@ the labels of the permission levels:
 The **Privacy** field (`databox/client/src/components/form/PrivacyField.tsx`) composes the
 level from three choices:
 
-| Choice                                 | "Only visible to workspace users" | "User must be authenticated" | Privacy                |
-|----------------------------------------|-----------------------------------|------------------------------|------------------------|
-| "Secret"                               |                                   |                              | `SECRET`               |
-| "Private (users can request access)"   | checked                           |                              | `PRIVATE_IN_WORKSPACE` |
-| "Private (users can request access)"   | unchecked                         |                              | `PRIVATE`              |
-| "Public"                               | checked                           | (implied)                    | `PUBLIC_IN_WORKSPACE`  |
-| "Public"                               | unchecked                         | checked                      | `PUBLIC_FOR_USERS`     |
-| "Public"                               | unchecked                         | unchecked                    | `PUBLIC`               |
+| Choice                               | "Only visible to workspace users" | "User must be authenticated" | Privacy                |
+| ------------------------------------ | --------------------------------- | ---------------------------- | ---------------------- |
+| "Secret"                             |                                   |                              | `SECRET`               |
+| "Private (users can request access)" | checked                           |                              | `PRIVATE_IN_WORKSPACE` |
+| "Private (users can request access)" | unchecked                         |                              | `PRIVATE`              |
+| "Public"                             | checked                           | (implied)                    | `PUBLIC_IN_WORKSPACE`  |
+| "Public"                             | unchecked                         | checked                      | `PUBLIC_FOR_USERS`     |
+| "Public"                             | unchecked                         | unchecked                    | `PUBLIC`               |
 
 The EasyAdmin **Permissions** menu holds "Workspace permissions", "Collection permissions",
 "Asset permissions", "Basket permissions" and "All permissions (advanced)".

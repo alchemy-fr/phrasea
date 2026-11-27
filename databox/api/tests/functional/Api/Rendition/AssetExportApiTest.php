@@ -14,10 +14,14 @@ use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetExport;
+use App\Entity\Core\AssetPolicy\AssetPolicy;
+use App\Entity\Core\AssetPolicy\AssetPolicyUser;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Model\ExportStatusEnum;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\InterceptedTransports;
 
@@ -317,7 +321,23 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
     {
         $em = self::getEntityManager();
 
-        $image = imagecreatetruecolor(200, 100);
+        $file = $this->createImageFile($workspace, 200, 100);
+
+        $asset = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::OWNER, 'no_flush' => true]);
+        $asset->setSource($file);
+        $asset->setRoi($roi);
+        $em->flush();
+        $this->createAssetRendition($asset, $main, $file);
+
+        return $asset;
+    }
+
+    /**
+     * A PNG image of the given size, stored in the (local) storage.
+     */
+    private function createImageFile(Workspace $workspace, int $width, int $height): File
+    {
+        $image = imagecreatetruecolor($width, $height);
         ob_start();
         imagepng($image);
         $content = ob_get_clean();
@@ -330,27 +350,19 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
         $file->setExtension('png');
         $file->setOriginalName('image.png');
         $file->setSize(strlen($content));
-        $em->persist($file);
+        self::getEntityManager()->persist($file);
         self::getService(FileStorageManager::class)->store($file->getPath(), $content);
 
-        $asset = $this->createAsset(['workspace' => $workspace, 'ownerId' => self::OWNER, 'no_flush' => true]);
-        $asset->setSource($file);
-        $asset->setRoi($roi);
-        $em->flush();
-        $this->createAssetRendition($asset, $main, $file);
-
-        return $asset;
+        return $file;
     }
 
     /**
      * Requests the export then processes it, as the worker does.
-     *
-     * @return list<array{int, int}> the sizes of the exported images, in the order of their names
      */
-    private function export(array $payload): array
+    private function runExport(array $payload, string $userId = self::OWNER): AssetExport
     {
         $this->interceptExports();
-        $response = $this->jsonRequest('POST', '/asset-exports', self::OWNER, $payload);
+        $response = $this->jsonRequest('POST', '/asset-exports', $userId, $payload);
         $this->assertResponseStatusCodeSame(201);
         $exportId = $response->toArray()['id'];
 
@@ -358,8 +370,16 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
 
         $em = self::getEntityManager();
         $em->clear();
-        /** @var AssetExport $export */
-        $export = $em->find(AssetExport::class, $exportId);
+
+        return $em->find(AssetExport::class, $exportId);
+    }
+
+    /**
+     * @return list<array{int, int}> the sizes of the exported images, in the order of their names
+     */
+    private function export(array $payload, string $userId = self::OWNER): array
+    {
+        $export = $this->runExport($payload, $userId);
         $this->assertSame(ExportStatusEnum::Ready, $export->getStatus());
 
         $zipPath = sys_get_temp_dir().'/'.uniqid('export-test').'.zip';
@@ -489,5 +509,56 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
             'renditions' => [$main->getId()],
             'ignoreRoi' => true,
         ]));
+    }
+
+    /**
+     * An asset readable by OTHER, with its main rendition (200x100) and a preview (50x50) that an
+     * asset policy hides from OTHER.
+     *
+     * @return array{0: string, 1: string, 2: string} asset ID, main and preview definition IDs
+     */
+    private function createAssetWithAPreviewHiddenFromOther(): array
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::OWNER);
+        $this->addUserOnWorkspace(self::OTHER, $ws->getId());
+        $main = $defaults->renditionDefinitions['main'];
+        $preview = $defaults->renditionDefinitions['preview'];
+        $asset = $this->createImageAsset($ws, $main);
+        $asset->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE);
+        $this->createAssetRendition($asset, $preview, $this->createImageFile($ws, 50, 50));
+
+        $em = self::getEntityManager();
+        $policy = new AssetPolicy();
+        $policy->setWorkspace($ws);
+        $policy->setOwnerId(self::OWNER);
+        $policy->setName('Hide preview');
+        $policy->setActions([['action' => AssetPolicyManager::ACTION_HIDE_RENDITION, 'definitionId' => $preview->getId()]]);
+        $policy->setConditions([]);
+        $target = new AssetPolicyUser();
+        $target->setPolicy($policy);
+        $target->setUserType(AssetPolicyUser::TYPE_USER);
+        $target->setUserId(self::OTHER);
+        $policy->getUsers()->add($target);
+        $em->persist($policy);
+        $em->flush();
+
+        return [$asset->getId(), $main->getId(), $preview->getId()];
+    }
+
+    public function testRenditionsHiddenByAnAssetPolicyAreNotExported(): void
+    {
+        [$assetId, $mainId, $previewId] = $this->createAssetWithAPreviewHiddenFromOther();
+        $payload = ['assets' => [$assetId], 'renditions' => [$mainId, $previewId]];
+
+        $this->assertSame([[200, 100]], $this->export($payload, self::OTHER));
+        $this->assertEqualsCanonicalizing([[200, 100], [50, 50]], $this->export($payload));
+    }
+
+    public function testExportOfRenditionsAllHiddenByAnAssetPolicyFails(): void
+    {
+        [$assetId, , $previewId] = $this->createAssetWithAPreviewHiddenFromOther();
+
+        $export = $this->runExport(['assets' => [$assetId], 'renditions' => [$previewId]], self::OTHER);
+        $this->assertSame(ExportStatusEnum::Failed, $export->getStatus());
     }
 }

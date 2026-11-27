@@ -94,10 +94,12 @@ class AssetOutputMapper implements OutputMapperInterface
         $output->attributesEditedAt = $data->getAttributesEditedAt();
 
         $source = $data->getSource();
-        if (null !== $source && $this->hasGroup([Share::GROUP_READ, Share::GROUP_PUBLIC_READ], $context)) {
-            // A share link delivers the renditions its policies allow, never the original:
-            // keep the file description, drop its URLs. GET /shares/{id} is granted to the
-            // holders of the link token too, not only to the users who can read the asset.
+        $isOwner = $user instanceof JwtUser && $data->getOwnerId() === $user->getId();
+        if (null !== $source && (!$isOwner || $this->hasGroup([Share::GROUP_READ, Share::GROUP_PUBLIC_READ], $context))) {
+            // The original is only downloadable by the owner of the asset: the other readers get
+            // the renditions their policies (and the asset policies) allow. Neither does a share
+            // link deliver it, even to the owner: GET /shares/{id} is granted to the holders of
+            // the link token too. Keep the file description, drop its URLs.
             $source = clone $source;
             $source->setPathPublic(false);
             $source->setAlternateUrls(null);
