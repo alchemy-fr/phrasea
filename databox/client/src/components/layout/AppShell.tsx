@@ -8,7 +8,6 @@ import {useLayoutStore} from './layoutStore';
 import {cn} from '@alchemy/ui/utils/cn';
 import {GlobalToasts} from '@/features/upload/GlobalToasts';
 import {ExportWatcher} from '@/features/assets/ExportWatcher';
-import {NotificationUriListener} from '@/features/notifications/NotificationUriListener';
 import {TicketButton} from '@/features/ticketing/TicketButton';
 import {AppDndProvider} from '@/features/dnd/AppDndProvider';
 import {WorkspaceTermsGate} from '@/features/workspaces/terms/WorkspaceTermsGate';
@@ -60,7 +59,6 @@ export function AppShell({children}: PropsWithChildren) {
                     <>
                         <GlobalToasts />
                         <ExportWatcher />
-                        <NotificationUriListener />
                         <TicketButton />
                         <WorkspaceTermsGate />
                     </>

@@ -1,7 +1,3 @@
-'use client';
-
-import {useEffect} from 'react';
-import {useRouter, useSearchParams, usePathname} from 'next/navigation';
 import {
     BuiltInAttribute,
     quoteAQL,
@@ -58,20 +54,26 @@ export function resolveNotificationUri(uri: string): string {
     return routes.assets();
 }
 
+export const NOTIFICATION_URI_PATH = '/notification-uri';
+
 /**
- * Handles `/notification-uri?uri=…` deep links coming from emails.
+ * The screen a `/notification-uri?uri=…` deep link (from the emails) leads to.
  */
-export function NotificationUriListener() {
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const router = useRouter();
+export function notificationTarget(searchParams: URLSearchParams): string {
+    const uri = searchParams.get('uri');
 
-    useEffect(() => {
-        if (pathname === '/notification-uri') {
-            const uri = searchParams.get('uri');
-            router.replace(uri ? resolveNotificationUri(uri) : routes.assets());
-        }
-    }, [pathname, searchParams, router]);
+    return uri ? resolveNotificationUri(uri) : routes.assets();
+}
 
-    return null;
+/**
+ * Where the proxy redirects a request to: the screen of a notification deep
+ * link, or null for any other path.
+ */
+export function notificationRedirect(
+    pathname: string,
+    searchParams: URLSearchParams
+): string | null {
+    return pathname === NOTIFICATION_URI_PATH
+        ? notificationTarget(searchParams)
+        : null;
 }

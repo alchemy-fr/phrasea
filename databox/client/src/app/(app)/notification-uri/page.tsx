@@ -1,6 +1,7 @@
-import {FullPageLoader} from '@alchemy/ui/ui/loader';
+import {NotificationUriRedirect} from '@/features/notifications/NotificationUriRedirect';
 
-// Resolution is handled client-side by NotificationUriListener (AppShell).
+// The proxy (src/proxy.ts) redirects `/notification-uri` before any
+// rendering: this page only shows when that redirection was skipped.
 export default function NotificationUriPage() {
-    return <FullPageLoader />;
+    return <NotificationUriRedirect />;
 }

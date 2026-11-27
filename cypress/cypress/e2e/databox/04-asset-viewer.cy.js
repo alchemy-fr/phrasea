@@ -230,6 +230,24 @@ describe('Asset viewer', () => {
         assetItem('Bravo').should('be.visible');
     });
 
+    it('opens an asset from a notification link and closes it', () => {
+        cy.visit(`${databoxUrl}/notification-uri?uri=${encodeURIComponent(`/assets/${image.id}#discussion-x`)}`);
+        cy.location('pathname').should('eq', `/assets/${image.id}/_`);
+        cy.location('hash').should('eq', '#discussion-x');
+        cy.getBySel('asset-view', {timeout: 30000}).within(() => {
+            cy.contains('[role=tab]', 'Discussion').should('have.attr', 'aria-selected', 'true');
+        });
+        // Search screen loaded with the page, behind the viewer
+        waitForResults();
+        cy.getBySel('asset-view').find('[aria-label="Close"]').click();
+        cy.getBySel('asset-view').should('not.exist');
+        cy.location('pathname').should('eq', '/assets');
+        waitForResults();
+        // The notification link is not replayed: the viewer stays closed
+        cy.getBySel('asset-view').should('not.exist');
+        cy.location('pathname').should('eq', '/assets');
+    });
+
     it('opens the viewer from a direct link when not authenticated on a private asset', () => {
         Cypress.session.clearCurrentSessionData();
         cy.visit(`${databoxUrl}/assets/${image.id}/_`);

@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {resolveNotificationUri} from './NotificationUriListener';
+import {notificationRedirect, resolveNotificationUri} from './notificationUri';
 
 describe('resolveNotificationUri', () => {
     it('opens a saved search', () => {
@@ -48,5 +48,40 @@ describe('resolveNotificationUri', () => {
 
     it('falls back to the search', () => {
         expect(resolveNotificationUri('/unknown')).toBe('/assets');
+    });
+});
+
+describe('notificationRedirect', () => {
+    it('opens the discussion of an asset', () => {
+        expect(
+            notificationRedirect(
+                '/notification-uri',
+                new URLSearchParams({uri: '/assets/abc#discussion-1'})
+            )
+        ).toBe('/assets/abc/_#discussion-1');
+    });
+
+    it('opens the screen of the URI', () => {
+        expect(
+            notificationRedirect(
+                '/notification-uri',
+                new URLSearchParams({uri: '/saved-searches/s1'})
+            )
+        ).toBe('/assets?id=s1');
+    });
+
+    it('falls back to the search without URI', () => {
+        expect(
+            notificationRedirect('/notification-uri', new URLSearchParams())
+        ).toBe('/assets');
+    });
+
+    it('leaves the other paths alone', () => {
+        expect(
+            notificationRedirect(
+                '/assets',
+                new URLSearchParams({uri: '/assets/abc'})
+            )
+        ).toBeNull();
     });
 });

@@ -17,7 +17,7 @@ import {useAuth} from '@/lib/auth/AuthProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {formatDateTime} from '@/lib/utils/format';
 import {cn} from '@alchemy/ui/utils/cn';
-import {resolveNotificationUri} from './NotificationUriListener';
+import {resolveNotificationUri} from './notificationUri';
 import {htmlToText} from './notificationText';
 
 type Notification = {
