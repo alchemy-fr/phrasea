@@ -1,5 +1,5 @@
 # Tier "release": the standard pipeline plus the heavy suites (Doctrine
-# migrations replay, indexer end-to-end), then the Docker Hub publication when
+# migrations replay), then the Docker Hub publication when
 # the ref is a tag. Also played every weekday night on master (unless master has
 # not moved since the last successful run), and on demand.
 # See doc/tech/Development/ci.md for the three tiers.
@@ -69,7 +69,7 @@ jobs:
       REGISTRY_NAMESPACE: ghcr.io/${{ github.repository_owner }}/ps-
       DOCKER_TAG: ${{ github.sha }}
       IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-      COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,configurator,indexer
+      COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,configurator
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

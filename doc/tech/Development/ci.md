@@ -7,7 +7,7 @@ script that runs the same way locally (in Docker) and in GitHub Actions.
 |---|---|---|---|---|
 | **quick** | every push on every branch (`quick.yaml`); pull requests from forks | static checks and unit tests | none | < 8 min |
 | **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, Cypress smoke, GHCR/ECR push | full | ≈ 20 min |
-| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay + indexer end-to-end; Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
+| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay; Docker Hub publication on tags only | full | ≈ 30 min |
 
 ## What each tier runs
 
@@ -24,9 +24,8 @@ Every lib in `lib/php/*` runs its own `composer test` (var-dump-check, plus
 PHPUnit for the libs that have tests).
 
 JS (`pnpm test:quick`): `pnpm lint` (eslint), `pnpm typecheck` (`tsc`) and
-`pnpm test` (vitest: the clients, the `databox/indexer`
-unit suite, `@alchemy/api`, `@alchemy/auth`, `@alchemy/core`, `@alchemy/i18n`,
-`@alchemy/theme`, `@alchemy/ui`).
+`pnpm test` (vitest: the clients, `@alchemy/api`, `@alchemy/auth`,
+`@alchemy/core`, `@alchemy/i18n`, `@alchemy/theme`, `@alchemy/ui`).
 
 In CI the PHP part runs on the runner with `setup-php` and a Composer cache,
 the JS part with pnpm; no image is built.
@@ -56,8 +55,7 @@ created by `minio-setup` in `bin/setup.sh` and `bin/test.sh standard`.
 
 `ci.yaml` builds the images with `docker buildx bake` and
 [`docker-bake.hcl`](../../../docker-bake.hcl), one runner per group (`php`:
-configurator and the three APIs; `node`: the Next.js clients and
-`databox/indexer`). Each job first builds and pushes the base images of its
+configurator and the three APIs; `node`: the Next.js clients). Each job first builds and pushes the base images of its
 group (`php-base`, `node-base`: `infra/docker/*`), then the images built FROM
 them, on the same builder. Each image is pushed to GHCR tagged with the commit
 sha, next to its registry cache (`:build-cache-1`).
@@ -119,7 +117,7 @@ Outside the CI, a stack can still run without them:
 `bin/functions.sh`: Keycloak has no profile, so the other services are listed
 explicitly) and the `report` profile, and the configurator skip its Keycloak
 configuration and migrations (`KeycloakMigrationTrait`). The PHP suites pass
-that way, but Cypress and the indexer end-to-end log in through Keycloak.
+that way, but Cypress logs in through Keycloak.
 
 ### Image push
 
@@ -139,9 +137,6 @@ configuration, or the ECR Public quotas in Service Quotas (us-east-1).
   `bin/setup.sh` never replays migrations (it uses `doctrine:schema:update`),
   so this is the only proof that a fresh install works. Non-blocking in CI
   until the current mapping/migrations drift is fixed.
-- `bin/dev/test-indexer-e2e.sh`: provisions a fixture tree, indexes it through
-  the real databox API, checks the result, indexes again and checks
-  idempotence (up to 5 minutes).
 
 ## Running locally
 

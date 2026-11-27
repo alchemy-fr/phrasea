@@ -18,7 +18,7 @@ through this API envelope, which applies the permissions and the business rules.
 | Workers | `databox-worker` | Consume the Messenger transports (RabbitMQ queues): indexing, renditions, workflows, integrations, notifications… See [Workers](./workers.md) for the queues and their priorities. |
 | Scheduler | `databox-scheduler` | Runs the recurring tasks of the `main` schedule (`WORKER_PRIORITIES=scheduler_main`): purges, retentions, safety nets. |
 | Client | `databox-client` | The web client (`databox/client`): Next.js (App Router), React 19, TypeScript. |
-| Indexer | `databox-indexer` (`indexer` profile) | A Node.js tool that imports existing content (directory, S3, Phraseanet) through the API. See [Databox Indexer](./indexer/01_intro.md). |
+| Indexer | none (runs outside the stack) | The [Databox indexer](https://github.com/alchemy-fr/databox-indexer) imports existing content (directory, S3, Phraseanet) through the API; the configurator creates its OAuth client and its bucket. |
 
 ## Stack
 
@@ -104,9 +104,7 @@ through this API envelope, which applies the permissions and the business rules.
 
 - [Databox integrations](./integration/01_integrations.md)
 - [MCP server](./mcp.md)
-- [Databox Indexer](./indexer/01_intro.md)
-- [FS and S3/AMQP locations](./indexer/02_fs_s3.md)
-- [Phraseanet location](./indexer/conf_phraseanet.md)
+- [Databox Indexer](https://github.com/alchemy-fr/databox-indexer) (external)
 
 ### Operations
 

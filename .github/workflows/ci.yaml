@@ -230,12 +230,6 @@ jobs:
         if: env.TIER == 'release'
         run: bin/dev/test-migrations.sh
 
-      - name: Indexer end-to-end
-        if: env.TIER == 'release'
-        run: |
-          docker compose --profile indexer pull databox-indexer
-          bin/dev/test-indexer-e2e.sh --timeout 300
-
       - name: Extract error output
         if: failure()
         run: |
@@ -287,14 +281,13 @@ jobs:
           REGISTRY_ALIAS: b2s9z7l1
         run: |
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
-          docker compose --profile indexer pull databox-indexer
           docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
             # Extract image name after ps- prefix
             image_name="${repo##*/ps-}"
             ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ env.IMAGE_TAG }}"
           done
-          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
+          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator"
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} bin/ci-push-images.sh
 
   # The documentation builder reads /srv/app/doc from the api-php and

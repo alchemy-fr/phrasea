@@ -29,7 +29,7 @@ class RunOperationTaskProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): OperationTask
     {
-        $user = $this->getStrictUser();
+        $user = $this->getStrictUserOrOAuthClient();
         $this->validator->validate($data, $operation->getValidationContext() ?? []);
 
         return $this->operationTaskManager->createTask(
