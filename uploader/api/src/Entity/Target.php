@@ -269,9 +269,15 @@ class Target extends AbstractUuidEntity implements \Stringable
         $this->targetUrl = $targetUrl;
     }
 
+    /**
+     * Always a list: rows saved by former admin forms may have gaps in their
+     * keys, which JSON would turn into an object.
+     *
+     * @return list<string>|null
+     */
     public function getAllowedGroups(): ?array
     {
-        return $this->allowedGroups;
+        return null !== $this->allowedGroups ? array_values($this->allowedGroups) : null;
     }
 
     /**
@@ -279,7 +285,7 @@ class Target extends AbstractUuidEntity implements \Stringable
      */
     public function setAllowedGroups(?array $allowedGroups): void
     {
-        $this->allowedGroups = [] === $allowedGroups ? null : $allowedGroups;
+        $this->allowedGroups = empty($allowedGroups) ? null : array_values($allowedGroups);
     }
 
     /**
